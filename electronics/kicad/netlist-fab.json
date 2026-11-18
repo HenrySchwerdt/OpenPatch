@@ -1,0 +1,1019 @@
+{
+ "components": {
+  "U1": {
+   "value": "ISP1807-LR",
+   "lib": "OpenPatch",
+   "fp": "ISP1807",
+   "pads": {
+    "25": "GND",
+    "14": "GND",
+    "7": "GND",
+    "18": "GND",
+    "31": "GND",
+    "21": "GND",
+    "16": "GND",
+    "23": "GND",
+    "24": "GND",
+    "1": "GND",
+    "26": "3V3",
+    "22": "RF_LINK",
+    "20": "RF_LINK",
+    "37": "BTN_N",
+    "27": "QI_CHG_N",
+    "29": "CHG_STAT",
+    "5": "WDT_WAKE",
+    "6": "I2C_SDA",
+    "39": "I2C_SCL",
+    "15": "ARM_CLK",
+    "49": "HALL_A",
+    "50": "HALL_B",
+    "36": "VBAT_SENSE",
+    "32": "TMAG_INT",
+    "34": "WDT_DONE",
+    "45": "MOT_STCK",
+    "11": "MOT_DIR",
+    "51": "MOT_MODE1",
+    "52": "MOT_MODE2",
+    "53": "MOT_STBY",
+    "54": "MOT_EN_FAULT",
+    "13": "NRST",
+    "28": "SWDIO",
+    "30": "SWDCLK",
+    "17": "LATCH_CLR_N",
+    "9": "MOT_ALLOW",
+    "38": "DOCK_N"
+   },
+   "src": "skidl"
+  },
+  "C1": {
+   "value": "100nF",
+   "lib": "Capacitor_SMD",
+   "fp": "C_0402_1005Metric",
+   "pads": {
+    "2": "GND",
+    "1": "3V3"
+   },
+   "src": "skidl"
+  },
+  "C2": {
+   "value": "4.7uF",
+   "lib": "Capacitor_SMD",
+   "fp": "C_0402_1005Metric",
+   "pads": {
+    "2": "GND",
+    "1": "3V3"
+   },
+   "src": "skidl"
+  },
+  "U2": {
+   "value": "BQ51003YFPR",
+   "lib": "Package_DFN_QFN",
+   "fp": "Texas_VQFN-RHL-20",
+   "pads": {
+    "1": "GND",
+    "20": "GND",
+    "10": "GND",
+    "11": "GND",
+    "4": "VQI_5V",
+    "18": "RECT",
+    "7": "QI_CHG_N",
+    "2": "QI_AC1",
+    "19": "QI_AC2",
+    "6": "QI_COM1",
+    "15": "QI_COM2",
+    "5": "QI_CLAMP1",
+    "16": "QI_CLAMP2",
+    "3": "QI_BOOT1",
+    "17": "QI_BOOT2",
+    "12": "QI_ILIM",
+    "14": "QI_FOD",
+    "13": "QI_TS_CTRL",
+    "21": "GND",
+    "9": "GND"
+   },
+   "src": "skidl"
+  },
+  "LRX1": {
+   "value": "Qi-Rx-Spule O17.6 ~6-8uH",
+   "lib": "OpenPatch",
+   "fp": "Contact_Pads_Coil_2x_1.5x1.2",
+   "pads": {
+    "2": "QI_AC2",
+    "1": "QI_COIL_A"
+   },
+   "src": "skidl"
+  },
+  "C20": {
+   "value": "100nF C0G 25V",
+   "lib": "Capacitor_SMD",
+   "fp": "C_1206_3216Metric",
+   "pads": {
+    "2": "QI_AC1",
+    "1": "QI_COIL_A"
+   },
+   "src": "skidl"
+  },
+  "C21": {
+   "value": "100nF C0G 25V",
+   "lib": "Capacitor_SMD",
+   "fp": "C_1206_3216Metric",
+   "pads": {
+    "2": "QI_AC1",
+    "1": "QI_COIL_A"
+   },
+   "src": "skidl"
+  },
+  "C22": {
+   "value": "100nF C0G 25V",
+   "lib": "Capacitor_SMD",
+   "fp": "C_1206_3216Metric",
+   "pads": {
+    "2": "QI_AC1",
+    "1": "QI_COIL_A"
+   },
+   "src": "skidl"
+  },
+  "C23": {
+   "value": "1nF C0G",
+   "lib": "Capacitor_SMD",
+   "fp": "C_0402_1005Metric",
+   "pads": {
+    "1": "QI_AC1",
+    "2": "QI_AC2"
+   },
+   "src": "skidl"
+  },
+  "C24": {
+   "value": "22nF 25V",
+   "lib": "Capacitor_SMD",
+   "fp": "C_0402_1005Metric",
+   "pads": {
+    "1": "QI_AC1",
+    "2": "QI_COM1"
+   },
+   "src": "skidl"
+  },
+  "C25": {
+   "value": "22nF 25V",
+   "lib": "Capacitor_SMD",
+   "fp": "C_0402_1005Metric",
+   "pads": {
+    "1": "QI_AC2",
+    "2": "QI_COM2"
+   },
+   "src": "skidl"
+  },
+  "C26": {
+   "value": "470nF 25V",
+   "lib": "Capacitor_SMD",
+   "fp": "C_0603_1608Metric",
+   "pads": {
+    "1": "QI_AC1",
+    "2": "QI_CLAMP1"
+   },
+   "src": "skidl"
+  },
+  "C27": {
+   "value": "470nF 25V",
+   "lib": "Capacitor_SMD",
+   "fp": "C_0603_1608Metric",
+   "pads": {
+    "1": "QI_AC2",
+    "2": "QI_CLAMP2"
+   },
+   "src": "skidl"
+  },
+  "C28": {
+   "value": "10nF 25V",
+   "lib": "Capacitor_SMD",
+   "fp": "C_0402_1005Metric",
+   "pads": {
+    "1": "QI_AC1",
+    "2": "QI_BOOT1"
+   },
+   "src": "skidl"
+  },
+  "C29": {
+   "value": "10nF 25V",
+   "lib": "Capacitor_SMD",
+   "fp": "C_0402_1005Metric",
+   "pads": {
+    "1": "QI_AC2",
+    "2": "QI_BOOT2"
+   },
+   "src": "skidl"
+  },
+  "C30": {
+   "value": "10uF 25V",
+   "lib": "Capacitor_SMD",
+   "fp": "C_0603_1608Metric",
+   "pads": {
+    "2": "GND",
+    "1": "RECT"
+   },
+   "src": "skidl"
+  },
+  "C31": {
+   "value": "100nF",
+   "lib": "Capacitor_SMD",
+   "fp": "C_0402_1005Metric",
+   "pads": {
+    "2": "GND",
+    "1": "RECT"
+   },
+   "src": "skidl"
+  },
+  "C32": {
+   "value": "10uF 25V",
+   "lib": "Capacitor_SMD",
+   "fp": "C_0603_1608Metric",
+   "pads": {
+    "2": "GND",
+    "1": "VQI_5V"
+   },
+   "src": "skidl"
+  },
+  "C33": {
+   "value": "1uF",
+   "lib": "Capacitor_SMD",
+   "fp": "C_0402_1005Metric",
+   "pads": {
+    "2": "GND",
+    "1": "VQI_5V"
+   },
+   "src": "skidl"
+  },
+  "R20": {
+   "value": "3.16k",
+   "lib": "Resistor_SMD",
+   "fp": "R_0402_1005Metric",
+   "pads": {
+    "2": "GND",
+    "1": "QI_ILIM"
+   },
+   "src": "skidl"
+  },
+  "R21": {
+   "value": "200R",
+   "lib": "Resistor_SMD",
+   "fp": "R_0402_1005Metric",
+   "pads": {
+    "2": "GND",
+    "1": "QI_FOD"
+   },
+   "src": "skidl"
+  },
+  "R22": {
+   "value": "10k",
+   "lib": "Resistor_SMD",
+   "fp": "R_0402_1005Metric",
+   "pads": {
+    "2": "GND",
+    "1": "QI_TS_CTRL"
+   },
+   "src": "skidl"
+  },
+  "R23": {
+   "value": "100k",
+   "lib": "Resistor_SMD",
+   "fp": "R_0402_1005Metric",
+   "pads": {
+    "2": "3V3",
+    "1": "QI_CHG_N"
+   },
+   "src": "skidl"
+  },
+  "C40": {
+   "value": "1uF",
+   "lib": "Capacitor_SMD",
+   "fp": "C_0402_1005Metric",
+   "pads": {
+    "2": "GND",
+    "1": "VQI_5V"
+   },
+   "src": "skidl"
+  },
+  "C41": {
+   "value": "10uF",
+   "lib": "Capacitor_SMD",
+   "fp": "C_0603_1608Metric",
+   "pads": {
+    "2": "GND",
+    "1": "3V3"
+   },
+   "src": "skidl"
+  },
+  "C42": {
+   "value": "10uF",
+   "lib": "Capacitor_SMD",
+   "fp": "C_0603_1608Metric",
+   "pads": {
+    "2": "GND",
+    "1": "VBAT"
+   },
+   "src": "skidl"
+  },
+  "C43": {
+   "value": "1uF",
+   "lib": "Capacitor_SMD",
+   "fp": "C_0402_1005Metric",
+   "pads": {
+    "2": "GND",
+    "1": "3V3"
+   },
+   "src": "skidl"
+  },
+  "R31": {
+   "value": "100k",
+   "lib": "Resistor_SMD",
+   "fp": "R_0402_1005Metric",
+   "pads": {
+    "2": "3V3",
+    "1": "CHG_STAT"
+   },
+   "src": "skidl"
+  },
+  "R35": {
+   "value": "4.7k",
+   "lib": "Resistor_SMD",
+   "fp": "R_0402_1005Metric",
+   "pads": {
+    "2": "3V3",
+    "1": "I2C_SCL"
+   },
+   "src": "skidl"
+  },
+  "R36": {
+   "value": "4.7k",
+   "lib": "Resistor_SMD",
+   "fp": "R_0402_1005Metric",
+   "pads": {
+    "2": "3V3",
+    "1": "I2C_SDA"
+   },
+   "src": "skidl"
+  },
+  "BT1": {
+   "value": "Akku 2-Pad",
+   "lib": "OpenPatch",
+   "fp": "Contact_Pads_Battery_2x_1.5x1.2",
+   "pads": {
+    "1": "VBAT_RAW",
+    "2": "CELL_N"
+   },
+   "src": "skidl"
+  },
+  "Q2": {
+   "value": "DMG1013UW-7",
+   "lib": "Package_TO_SOT_SMD",
+   "fp": "SOT-323_SC-70",
+   "pads": {
+    "1": "GND",
+    "3": "VBAT_RAW",
+    "2": "VBAT"
+   },
+   "src": "skidl"
+  },
+  "R40": {
+   "value": "0R",
+   "lib": "Resistor_SMD",
+   "fp": "R_0402_1005Metric",
+   "pads": {
+    "2": "GND",
+    "1": "CELL_N"
+   },
+   "src": "skidl"
+  },
+  "R43": {
+   "value": "1.5M",
+   "lib": "Resistor_SMD",
+   "fp": "R_0402_1005Metric",
+   "pads": {
+    "1": "VBAT",
+    "2": "VBAT_SENSE"
+   },
+   "src": "skidl"
+  },
+  "R44": {
+   "value": "1M",
+   "lib": "Resistor_SMD",
+   "fp": "R_0402_1005Metric",
+   "pads": {
+    "2": "GND",
+    "1": "VBAT_SENSE"
+   },
+   "src": "skidl"
+  },
+  "C45": {
+   "value": "100nF",
+   "lib": "Capacitor_SMD",
+   "fp": "C_0402_1005Metric",
+   "pads": {
+    "2": "GND",
+    "1": "VBAT_SENSE"
+   },
+   "src": "skidl"
+  },
+  "U5": {
+   "value": "TPL5010DDCR",
+   "lib": "Package_TO_SOT_SMD",
+   "fp": "SOT-23-6",
+   "pads": {
+    "2": "GND",
+    "1": "3V3",
+    "5": "WDT_WAKE",
+    "4": "WDT_DONE",
+    "6": "NRST",
+    "3": "WDT_DELAY"
+   },
+   "src": "skidl"
+  },
+  "C50": {
+   "value": "100nF",
+   "lib": "Capacitor_SMD",
+   "fp": "C_0402_1005Metric",
+   "pads": {
+    "2": "GND",
+    "1": "3V3"
+   },
+   "src": "skidl"
+  },
+  "R50": {
+   "value": "6.8k",
+   "lib": "Resistor_SMD",
+   "fp": "R_0402_1005Metric",
+   "pads": {
+    "2": "GND",
+    "1": "WDT_DELAY"
+   },
+   "src": "skidl"
+  },
+  "R51": {
+   "value": "100k",
+   "lib": "Resistor_SMD",
+   "fp": "R_0402_1005Metric",
+   "pads": {
+    "2": "3V3",
+    "1": "NRST"
+   },
+   "src": "skidl"
+  },
+  "U6": {
+   "value": "SN74AUP1G74DQER",
+   "lib": "Package_SON",
+   "fp": "X2SON-8_1.4x1mm_P0.35mm",
+   "pads": {
+    "4": "GND",
+    "2": "3V3",
+    "7": "3V3",
+    "8": "3V3",
+    "1": "ARM_CLK",
+    "6": "LATCH_CLR_N",
+    "5": "MOT_ALLOW"
+   },
+   "src": "skidl"
+  },
+  "C51": {
+   "value": "100nF",
+   "lib": "Capacitor_SMD",
+   "fp": "C_0402_1005Metric",
+   "pads": {
+    "2": "GND",
+    "1": "3V3"
+   },
+   "src": "skidl"
+  },
+  "R52": {
+   "value": "100k",
+   "lib": "Resistor_SMD",
+   "fp": "R_0402_1005Metric",
+   "pads": {
+    "2": "3V3",
+    "1": "LATCH_CLR_N"
+   },
+   "src": "skidl"
+  },
+  "C52": {
+   "value": "100nF",
+   "lib": "Capacitor_SMD",
+   "fp": "C_0402_1005Metric",
+   "pads": {
+    "2": "GND",
+    "1": "LATCH_CLR_N"
+   },
+   "src": "skidl"
+  },
+  "D2": {
+   "value": "RB521S30",
+   "lib": "Diode_SMD",
+   "fp": "D_SOD-523",
+   "pads": {
+    "1": "NRST",
+    "2": "LATCH_CLR_N"
+   },
+   "src": "skidl"
+  },
+  "R53": {
+   "value": "100k",
+   "lib": "Resistor_SMD",
+   "fp": "R_0402_1005Metric",
+   "pads": {
+    "2": "GND",
+    "1": "MOT_ALLOW"
+   },
+   "src": "skidl"
+  },
+  "C54": {
+   "value": "1uF",
+   "lib": "Capacitor_SMD",
+   "fp": "C_0402_1005Metric",
+   "pads": {
+    "2": "GND",
+    "1": "VBAT"
+   },
+   "src": "skidl"
+  },
+  "U4": {
+   "value": "STSPIN220",
+   "lib": "Package_DFN_QFN",
+   "fp": "QFN-16-1EP_3x3mm_P0.5mm_EP1.7x1.7mm",
+   "pads": {
+    "7": "GND",
+    "6": "VMOT",
+    "2": "MOT_STCK",
+    "1": "MOT_DIR",
+    "16": "MOT_MODE1",
+    "15": "MOT_MODE2",
+    "14": "MOT_STBY",
+    "13": "MOT_EN_FAULT",
+    "11": "MOT_REF",
+    "3": "MOT_A1",
+    "5": "MOT_A2",
+    "10": "MOT_B1",
+    "8": "MOT_B2",
+    "4": "SNSA",
+    "9": "SNSB",
+    "12": "TOFF",
+    "17": "GND"
+   },
+   "src": "skidl"
+  },
+  "C60": {
+   "value": "10uF",
+   "lib": "Capacitor_SMD",
+   "fp": "C_0603_1608Metric",
+   "pads": {
+    "2": "GND",
+    "1": "VMOT"
+   },
+   "src": "skidl"
+  },
+  "C61": {
+   "value": "100nF",
+   "lib": "Capacitor_SMD",
+   "fp": "C_0402_1005Metric",
+   "pads": {
+    "2": "GND",
+    "1": "VMOT"
+   },
+   "src": "skidl"
+  },
+  "R72": {
+   "value": "100k",
+   "lib": "Resistor_SMD",
+   "fp": "R_0402_1005Metric",
+   "pads": {
+    "2": "GND",
+    "1": "MOT_STBY"
+   },
+   "src": "skidl"
+  },
+  "R68": {
+   "value": "100k",
+   "lib": "Resistor_SMD",
+   "fp": "R_0402_1005Metric",
+   "pads": {
+    "1": "3V3",
+    "2": "MOT_REF"
+   },
+   "src": "skidl"
+  },
+  "R69": {
+   "value": "3.3k",
+   "lib": "Resistor_SMD",
+   "fp": "R_0402_1005Metric",
+   "pads": {
+    "2": "GND",
+    "1": "MOT_REF"
+   },
+   "src": "skidl"
+  },
+  "MP1": {
+   "value": "Motor 4-Pad",
+   "lib": "OpenPatch",
+   "fp": "Hirose_FH12-4S-0.5SH_derived",
+   "pads": {
+    "1": "MOT_A1",
+    "2": "MOT_A2",
+    "3": "MOT_B1",
+    "4": "MOT_B2"
+   },
+   "src": "skidl"
+  },
+  "U8": {
+   "value": "TMAG5273A1QDBVR",
+   "lib": "Package_TO_SOT_SMD",
+   "fp": "SOT-23-6",
+   "pads": {
+    "2": "GND",
+    "4": "3V3",
+    "6": "I2C_SDA",
+    "1": "I2C_SCL",
+    "5": "TMAG_INT",
+    "3": "GND"
+   },
+   "src": "skidl"
+  },
+  "U9": {
+   "value": "DRV5032FADMRR",
+   "lib": "Package_SON",
+   "fp": "Texas_X2SON-4-1EP_1.1x1.4mm_P0.5mm_EP0.8x0.6mm",
+   "pads": {
+    "2": "GND",
+    "1": "3V3",
+    "4": "HALL_A",
+    "5": "GND"
+   },
+   "src": "skidl"
+  },
+  "U10": {
+   "value": "DRV5032FADMRR",
+   "lib": "Package_SON",
+   "fp": "Texas_X2SON-4-1EP_1.1x1.4mm_P0.5mm_EP0.8x0.6mm",
+   "pads": {
+    "2": "GND",
+    "1": "3V3",
+    "4": "HALL_B",
+    "5": "GND"
+   },
+   "src": "skidl"
+  },
+  "SW1": {
+   "value": "Taster 3.0x2.5x1.2",
+   "lib": "Button_Switch_SMD",
+   "fp": "SW_SPST_B3U-1000P",
+   "pads": {
+    "2": "GND",
+    "1": "BTN_RAW"
+   },
+   "src": "skidl"
+  },
+  "R82": {
+   "value": "1k",
+   "lib": "Resistor_SMD",
+   "fp": "R_0402_1005Metric",
+   "pads": {
+    "2": "BTN_N",
+    "1": "BTN_RAW"
+   },
+   "src": "skidl"
+  },
+  "D1": {
+   "value": "TPD1E10B06DPYR",
+   "lib": "Diode_SMD",
+   "fp": "D_0402_1005Metric",
+   "pads": {
+    "1": "GND",
+    "2": "BTN_RAW"
+   },
+   "src": "skidl"
+  },
+  "J1": {
+   "value": "TC2030-IDC-NL",
+   "lib": "Connector",
+   "fp": "Tag-Connect_TC2030-IDC-NL_2x03_P1.27mm_Vertical",
+   "pads": {
+    "5": "GND",
+    "1": "3V3",
+    "3": "NRST",
+    "2": "SWDIO",
+    "4": "SWDCLK"
+   },
+   "src": "skidl"
+  },
+  "TP1": {
+   "value": "TP 0.8mm",
+   "lib": "TestPoint",
+   "fp": "TestPoint_Pad_D1.0mm",
+   "pads": {
+    "1": "3V3"
+   },
+   "src": "skidl"
+  },
+  "TP2": {
+   "value": "TP 0.8mm",
+   "lib": "TestPoint",
+   "fp": "TestPoint_Pad_D1.0mm",
+   "pads": {
+    "1": "GND"
+   },
+   "src": "skidl"
+  },
+  "TP3": {
+   "value": "TP 0.8mm",
+   "lib": "TestPoint",
+   "fp": "TestPoint_Pad_D1.0mm",
+   "pads": {
+    "1": "VBAT"
+   },
+   "src": "skidl"
+  },
+  "TP4": {
+   "value": "TP 0.8mm",
+   "lib": "TestPoint",
+   "fp": "TestPoint_Pad_D1.0mm",
+   "pads": {
+    "1": "VMOT"
+   },
+   "src": "skidl"
+  },
+  "TP5": {
+   "value": "TP 0.8mm",
+   "lib": "TestPoint",
+   "fp": "TestPoint_Pad_D1.0mm",
+   "pads": {
+    "1": "VQI_5V"
+   },
+   "src": "skidl"
+  },
+  "TP6": {
+   "value": "TP 0.8mm",
+   "lib": "TestPoint",
+   "fp": "TestPoint_Pad_D1.0mm",
+   "pads": {
+    "1": "HALL_A"
+   },
+   "src": "skidl"
+  },
+  "TP7": {
+   "value": "TP 0.8mm",
+   "lib": "TestPoint",
+   "fp": "TestPoint_Pad_D1.0mm",
+   "pads": {
+    "1": "HALL_B"
+   },
+   "src": "skidl"
+  },
+  "TP8": {
+   "value": "TP 0.8mm",
+   "lib": "TestPoint",
+   "fp": "TestPoint_Pad_D1.0mm",
+   "pads": {
+    "1": "I2C_SDA"
+   },
+   "src": "skidl"
+  },
+  "TP9": {
+   "value": "TP 0.8mm",
+   "lib": "TestPoint",
+   "fp": "TestPoint_Pad_D1.0mm",
+   "pads": {
+    "1": "I2C_SCL"
+   },
+   "src": "skidl"
+  },
+  "TP10": {
+   "value": "TP 0.8mm",
+   "lib": "TestPoint",
+   "fp": "TestPoint_Pad_D1.0mm",
+   "pads": {
+    "1": "MOT_A1"
+   },
+   "src": "skidl"
+  },
+  "TP11": {
+   "value": "TP 0.8mm",
+   "lib": "TestPoint",
+   "fp": "TestPoint_Pad_D1.0mm",
+   "pads": {
+    "1": "MOT_A2"
+   },
+   "src": "skidl"
+  },
+  "TP12": {
+   "value": "TP 0.8mm",
+   "lib": "TestPoint",
+   "fp": "TestPoint_Pad_D1.0mm",
+   "pads": {
+    "1": "MOT_B1"
+   },
+   "src": "skidl"
+  },
+  "TP13": {
+   "value": "TP 0.8mm",
+   "lib": "TestPoint",
+   "fp": "TestPoint_Pad_D1.0mm",
+   "pads": {
+    "1": "MOT_B2"
+   },
+   "src": "skidl"
+  },
+  "U3": {
+   "value": "MCP73832T-2ACI/OT",
+   "lib": "Package_TO_SOT_SMD",
+   "fp": "SOT-23-5",
+   "pads": {
+    "1": "CHG_STAT",
+    "2": "GND",
+    "3": "VBAT",
+    "4": "VQI_5V",
+    "5": "CHG_PROG"
+   },
+   "src": "eco"
+  },
+  "R91": {
+   "value": "47k",
+   "lib": "Resistor_SMD",
+   "fp": "R_0402_1005Metric",
+   "pads": {
+    "1": "CHG_PROG",
+    "2": "GND"
+   },
+   "src": "eco"
+  },
+  "U12": {
+   "value": "XC6206P332MR-G",
+   "lib": "Package_TO_SOT_SMD",
+   "fp": "SOT-23",
+   "pads": {
+    "1": "GND",
+    "2": "3V3",
+    "3": "VBAT"
+   },
+   "src": "eco"
+  },
+  "C80": {
+   "value": "1uF",
+   "lib": "Capacitor_SMD",
+   "fp": "C_0402_1005Metric",
+   "pads": {
+    "1": "VBAT",
+    "2": "GND"
+   },
+   "src": "eco"
+  },
+  "Q4": {
+   "value": "AO3401A",
+   "lib": "Package_TO_SOT_SMD",
+   "fp": "SOT-23",
+   "pads": {
+    "1": "PGATE",
+    "2": "VBAT",
+    "3": "VMOT"
+   },
+   "src": "eco"
+  },
+  "Q5": {
+   "value": "2N7002",
+   "lib": "Package_TO_SOT_SMD",
+   "fp": "SOT-23",
+   "pads": {
+    "1": "MOT_ALLOW",
+    "2": "PG_MID",
+    "3": "PGATE"
+   },
+   "src": "eco"
+  },
+  "Q6": {
+   "value": "2N7002",
+   "lib": "Package_TO_SOT_SMD",
+   "fp": "SOT-23",
+   "pads": {
+    "1": "DOCKED_H",
+    "2": "GND",
+    "3": "PG_MID"
+   },
+   "src": "eco"
+  },
+  "Q7": {
+   "value": "2N7002",
+   "lib": "Package_TO_SOT_SMD",
+   "fp": "SOT-23",
+   "pads": {
+    "1": "DOCK_N",
+    "2": "GND",
+    "3": "DOCKED_H"
+   },
+   "src": "eco"
+  },
+  "R92": {
+   "value": "100k",
+   "lib": "Resistor_SMD",
+   "fp": "R_0402_1005Metric",
+   "pads": {
+    "1": "VBAT",
+    "2": "PGATE"
+   },
+   "src": "eco"
+  },
+  "R93": {
+   "value": "100k",
+   "lib": "Resistor_SMD",
+   "fp": "R_0402_1005Metric",
+   "pads": {
+    "1": "3V3",
+    "2": "DOCKED_H"
+   },
+   "src": "eco"
+  },
+  "R96": {
+   "value": "100k",
+   "lib": "Resistor_SMD",
+   "fp": "R_0402_1005Metric",
+   "pads": {
+    "1": "3V3",
+    "2": "DOCK_N"
+   },
+   "src": "eco"
+  },
+  "R94": {
+   "value": "100k",
+   "lib": "Resistor_SMD",
+   "fp": "R_0402_1005Metric",
+   "pads": {
+    "1": "VMOT",
+    "2": "GND"
+   },
+   "src": "eco"
+  },
+  "U13": {
+   "value": "DRV5032FADMRR",
+   "lib": "Package_SON",
+   "fp": "Texas_X2SON-4-1EP_1.1x1.4mm_P0.5mm_EP0.8x0.6mm",
+   "pads": {
+    "1": "3V3",
+    "2": "GND",
+    "3": "GND",
+    "4": "DOCK_N",
+    "5": "GND"
+   },
+   "src": "eco"
+  },
+  "C81": {
+   "value": "100nF",
+   "lib": "Capacitor_SMD",
+   "fp": "C_0402_1005Metric",
+   "pads": {
+    "1": "3V3",
+    "2": "GND"
+   },
+   "src": "eco"
+  },
+  "R97": {
+   "value": "1R0",
+   "lib": "Resistor_SMD",
+   "fp": "R_0402_1005Metric",
+   "pads": {
+    "1": "SNSA",
+    "2": "GND"
+   },
+   "src": "eco"
+  },
+  "R98": {
+   "value": "1R0",
+   "lib": "Resistor_SMD",
+   "fp": "R_0402_1005Metric",
+   "pads": {
+    "1": "SNSB",
+    "2": "GND"
+   },
+   "src": "eco"
+  },
+  "R99": {
+   "value": "47k",
+   "lib": "Resistor_SMD",
+   "fp": "R_0402_1005Metric",
+   "pads": {
+    "1": "TOFF",
+    "2": "GND"
+   },
+   "src": "eco"
+  }
+ },
+ "eco": [
+  "U2 BQ51003YFP (DSBGA-28, 0.4 mm pitch) -> BQ51013BRHLR (VQFN-20 4.5x3.5, same pin functions): no via-in-pad, assemblable on JLC.",
+  "U2 AD pin -> GND and AD_EN left floating (SKiDL had AD_EN=GND, AD=NC: datasheet says AD tied to PGND if unused, AD-EN is a push-pull output, float).",
+  "U3 BQ25120AYFP (DSBGA-25, 0.4 mm) removed -> MCP73832T-2ACI/OT (SOT-23-5) charger, PROG=47k (~21 mA) + U12 XC6206P332MR 3.3 V LDO (VIN=VBAT). Loses I2C charger/VBAT monitor/LS-LDO/MR. PER_EN pin unused; BQ_INT net renamed CHG_STAT (STAT open drain).",
+  "U7 TPS22916 (DSBGA-4) removed -> discrete high-side switch Q4 AO3401A + Q5/Q6 2N7002 series gate pull-down: VMOT on only if MOT_ALLOW AND DOCKED (new interlock). R92 gate pull-up (fail-safe off).",
+  "NEW dock hall U13 DRV5032FA + inverter Q7 + R93/R96 (fail-safe: no signal = not docked) ; DOCK_N routed to ISP1807 pad 38 (P0.03).",
+  "U4 STSPIN220: added SENSEA/SENSEB sense resistors (1.0 ohm, R97/R98) and TOFF resistor R99=47k to GND (all required by datasheet, missing in SKiDL netlist); REF divider R68/R69 set for VREF=0.105 V (Ipk ~ 105 mA, verify against motor).",
+  "U8 TMAG5273 pin 3 'GND (TEST)' must be tied to GND (SKiDL had it NC).",
+  "R50 TPL5010 DELAY resistor 6.8k -> 2 s watchdog interval (MCUboot); DS Table 3: 6.788k.",
+  "Removed: 9x9 piezo BZ1, Q1, R80, R81 (bench sample, no buzzer); DW01A/FS8205A PCM option (U11,Q3,R41,R42,C44); BQ25120A TS/MR/CD pulls (R30,R32,R33,R34); L4.",
+  "BT1 -> 2 spring-contact lands at layout.json contacts.battery_tabs; MP1 -> FH12-4S FPC connector (bottom); LRX1 -> 2 coil spring-contact lands (provisional).",
+  "VPER_3V3 merged into 3V3 (no BQ25120A load switch; halls are ultra-low-power).",
+  "U6 SN74AUP1G74DQER X2SON-8 (LCSC C2677745) kept.",
+  "R90 0-ohm OUT_MOD-OUT_ANT bridge replaced by a direct copper bridge between ISP1807 pads 20 and 22 (datasheet 3: 'should be connected to pin 22 for normal operation').",
+  "LEAN (needed to fit the 17.1x29 mm outline): removed 10k series resistors R62-R67 on STSPIN220 logic lines (MCU pins drive the driver directly; MOT_STBY keeps pulldown R72), removed VMOT_SENSE divider R70/R71/C62 (VMOT rail check lost) and hall decoupling C70-C72 (C43 + C81 remain)."
+ ]
+}

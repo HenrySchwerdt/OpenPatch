@@ -1,0 +1,6 @@
+route/*.log
+route/*.ses
+route/*.dsn
+*.kicad_pcb-bak
+*-backups/
+fp-info-cache

@@ -1,0 +1,5 @@
+Designator,Value,Reason
+BT1,Akku 2-Pad,"battery spring contacts: provisional, not selected"
+MP1,Motor 4-Pad,"Hirose FH12-4S-0.5SH(55) FPC connector: not at JLC, consigned or substitute"
+LRX1,Qi-Rx-Spule O17.6 ~6-8uH,"coil spring contacts: provisional, not selected"
+U1,ISP1807-LR,"ISP1807-LR-RS (LCSC C5264268, stock 0): consigned / sourced by user"

@@ -1,0 +1,112 @@
+       LOW PROFILE
+       SINGLE CONACT
+       201-01-154
+      1. SPECIFICATION DISTRIBUTION
+             No restrictions for issue
+
+      2. SCOPE
+             This specification contains the application notes for the 9155 low profile contact.
+
+      3. RELATED DOCUMENTS
+             70-9155-001-6XX-00X – Sales Drawing
+             201-01-153 – Product Specification
+
+             Note: The colours used in this specification are for clarity only.
+
+      4. 9155 LOW PROFILE CONTACTS
+
+
+
+
+                70-9155-001-610-00X                                                         70-9155-001-615-00X
+                Nominal working height 1.00mm.                                              Nominal working height 1.5mm.
+
+      4.1.      WORKING HEIGHT
+
+                                                                                                                          1.50±0.25mm
+                                                         1.00±0.25mm
+
+
+             70-9155-001-610-00X with nominal working height                  70-9155-001-615-00X with nominal working height
+             1.00mm can be used with vertical spacing of                      1.50mm can be used with vertical spacing of
+             0.75mm to 1.25mm. Mated to a pad on a PCB or a                   1.25mm to 1.75mm. Mated to a pad on a PCB or a
+             device for example a battery.                                    device, for example a battery.
+
+
+      4.2.      MAXIMUM PCB MISALIGNMENT
+
+                                                                       The recommended PCB mating pad layout has been
+                                         ±0.50mm maximum               designed to cope with a generous tolerance for
+                                                                       misalignment between boards of ±0.50mm side to side and
+                                                                       1.50mm end to end.
+                                                                       These tolerances should be regarded as a maximum and in
+                                                                       practice we recommend that the misalignment is kept to a
+                                                                       minimum.
+
+
+
+                                                                ±1.50mm maximum
+
+
+
+
+© KYOCERA AVX       FOLLOW US:                          WWW.KYOCERA-AVX.COM       (864) 967-2150   1 AVX Blvd. Fountain Inn, SC 29644   1
+      4.3.      MATING PAD ON PCB
+             Area without solder resist
+                                                                      A single pad plated with gold over a nickel under-plate is
+                                                                      recommended for good contact under all conditions.
+                                                                      Dimensions of pad refer to sales drawing.
+                                                                      An area around the mating pad approximately 0.5mm wide
+                                                                      should be free of solder resist. This prevents the contact
+                                                                      nose riding up on the resist and loosing contact with the
+                                                                      pad, see also section 4.2 on misalignment above.
+
+
+
+
+      4.4.      UL REQUIREMENTS FOR PAD SPACING
+
+
+                                                  UL approval based on 3.2mm gap between pads, contact centre
+                                                  spacing 5.9mm.
+
+                                                  For non UL applications the gap may be reduced at the customers
+                                                  discretion depending on voltage applied.
+
+
+
+
+                                     For UL application 3.2mm minimum
+
+
+      5. CONTACT SMT ASSEMBLY
+      5.1. PICK AND PLACE
+                                      The recommended pick and place area (highlighted here in blue)
+                                      is 2.70mm wide by 1.75mm long.
+
+
+
+
+      5.2.      SMT SOLDER PADS
+
+                                                         2 solder pads, refer to sales drawing for dimensions. Placing a
+                                                         pad between these is not recommended as it may
+                                                         affect contact performance.
+                                                         The space between the pads should be kept clear of all tacks and
+                                                         components.
+                                                         It is recommended that solder pads are tin plated.
+
+
+
+
+      5.3.      SMT SOLDERING
+
+
+                                                         After SMT the contact should be sitting square on the pads and
+                                                         have small fillets all around soldered edges.
+
+
+
+
+© KYOCERA AVX      FOLLOW US:                      WWW.KYOCERA-AVX.COM      (864) 967-2150   1 AVX Blvd. Fountain Inn, SC 29644    2
+

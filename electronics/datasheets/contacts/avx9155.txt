@@ -1,0 +1,73 @@
+LOW PROFILE SINGLE CONTACT:
+9155-600
+General Information
+                                                                    Designers of ruggedized connectors for harsh environments continue to look for new
+                                                                    products that reduce size and cost without compromising performance. KYOCERA
+                                                                    AVX's new Ultra-Low Profile (ULP) compression contact is surface mounted to a PCB
+                                                                    and provides a reliable compression connection to the mating board, even under
+                                                                    extreme shock and vibration applications. With over 20 years of experience in 1-piece
+                                                                    compression contacts, this innovative contact provides full connector performance
+                                                                    functionality at the individual contact level. This allows individual contacts to be
+                                                                    placed in any location or position on a PCB.
+                                                                    The high strength beryllium copper contact is gold-plated to maximize reliability and
+                                                                    signal integrity. The current offering includes two contacts with nominal heights of
+                                                                    1.0mm and 1.5mm. Adding the "Z" axis tolerance range, the compressed height covers
+                                                                    0.75mm to 1.75mm. Contacts are supplied in tape and reel for easy SMT assembly.
+
+
+
+
+                       APPLICATIONS                                                                       FEATURES AND BENEFITS
+         • Industrial/Ruggedized handheld or portable                         • Reliable gold plated Beryllium Copper contacts for high cycle life and
+           devices                                                              signal integrity up to 1000 cycles
+         • BTB connection for any traditional power or                        • Tape and reel packaged for automated SMT placement
+           signal application                                                 • Sweeping beam design for pluggable/module applications
+         • Ground connections between PCB’s or                                • Three gold plating options to match end product environmental or
+           housings                                                             expected life requirements
+         • Product Specification: Refer to 201-01-153
+         • Application Notes: Refer to 201-01-154
+
+
+
+
+ELECTRICAL                                               ENVIRONMENTAL                                              MECHANICAL
+• Current Rating: 3 Amps                                  • Operating Temperature:                                  • Contact Material: Beryllium Copper
+• Voltage Rating: UL 300 VAC (RMS) or                       -40°C to +125°C                                         • Contact Plating: Gold over Nickel
+  DC equivalent                                           • Storage Temperature:                                    • Durability: 50, 500 and 1000 cycles
+  Based on placement distance                               -40°C to +70°C
+
+HOW TO ORDER
+ 70          9155        001                             61X                                                           00X
+
+
+                       Number                                                                                Contact Description
+Prefix        Series                           Contact Description
+                       of Ways                                                                        Gold
+                                             Nominal              Contact Operating         Code                          Description          Availability
+                                  Code
+                                          Operating Height          Height Range
+                                                                                                    Thickness                                                    SALES DRAWINGS
+                                                                                                                    Nickel under Plate,                          CLICK TO DOWNLOAD
+                                   610          1.00mm            0.75mm to 1.25mm           004       0.1μm       Gold on Nose Tin on         Standard
+                                   615         1.50mm            1.25mm to 1.75mm                                       Remainder
+                                                                                                                    Nickel under Plate,
+                                                                                             006       0.4μm       Gold on Nose Tin on       Special Order
+                                                                                                                        Remainder
+                                                                                                                    Nickel under Plate,
+                                                                                             008       0.8μm       Gold on Nose Tin on Special Order
+                                                                                                                        Remainder
+
+
+
+
+  Safety Standards: UL 1977-File #E90723, CSA C22.2 NO. 182.3
+
+
+
+
+                                         The Important Information/Disclaimer is incorporated in the catalog where these specifications came from or available
+                                         online at www.kyocera-avx.com/disclaimer/ by reference and should be reviewed in full before placing any order.                         11
+                                                                               TDS-BTB-0011 | Rev 2
+
+                                                                       – board to board connectors –
+
