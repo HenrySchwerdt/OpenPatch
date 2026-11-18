@@ -2,9 +2,11 @@
 
 #include <string.h>
 
-void op_de_init(op_de_t *de)
+void op_de_init(op_de_t *de, uint32_t uu_per_step)
 {
     memset(de, 0, sizeof *de);
+    de->uu_per_step = uu_per_step;
+    de->scaled_per_step = (int64_t)uu_per_step * OP_SCALED_PER_UU;
     de->suspended = true; /* safe default: nothing runs until explicitly resumed */
 }
 
@@ -137,10 +139,10 @@ uint32_t op_de_tick(op_de_t *de, uint32_t dt_ms)
             inc = (int64_t)rate * chunk;
             de->scheduled_scaled += inc; /* counted even while suspended: shows the deficit */
         }
-        if (!de->suspended) {
+        if (!de->suspended && de->scaled_per_step > 0) {
             de->acc += inc;
-            int64_t steps = de->acc / OP_SCALED_PER_STEP;
-            de->acc -= steps * OP_SCALED_PER_STEP;
+            int64_t steps = de->acc / de->scaled_per_step;
+            de->acc -= steps * de->scaled_per_step;
             steps_total += (uint32_t)steps;
         }
 
@@ -197,7 +199,7 @@ uint32_t op_de_temp_remaining_min(const op_de_t *de)
 void op_de_report(const op_de_t *de, op_de_report_t *out)
 {
     out->scheduled_mu = (uint32_t)(de->scheduled_scaled / OP_SCALED_PER_MU);
-    out->delivered_mu = op_steps_to_mu(de->delivered_steps);
+    out->delivered_mu = op_steps_to_mu(de->uu_per_step, de->delivered_steps);
     out->delivered_steps = de->delivered_steps;
     out->dropped_steps = de->dropped_steps;
 }

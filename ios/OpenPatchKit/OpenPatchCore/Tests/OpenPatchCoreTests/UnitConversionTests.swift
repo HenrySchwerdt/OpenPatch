@@ -2,18 +2,25 @@ import XCTest
 @testable import OpenPatchCore
 
 final class UnitConversionTests: XCTestCase {
+    private let cal = DriveCalibration.zwbpd006006_5_1
+
     func test_unitsPerStep_matchesDesignParameter() {
-        XCTAssertEqual(PumpConstants.unitsPerStep, 0.0131, accuracy: 1e-12)
+        // spec/design-parameters.md section 4: Rev A 5:1 gear = 0.261 ul = 0.0261 U per step (NOT the old 0.0131)
+        XCTAssertEqual(cal.unitsPerStep, 0.0261, accuracy: 1e-12)
+        XCTAssertEqual(cal.microUnitsPerStep, 26_100)
+        XCTAssertEqual(DriveCalibration.faulhaber_16_1.unitsPerStep, 0.008156, accuracy: 1e-12)
+        XCTAssertEqual(1 / DriveCalibration.faulhaber_16_1.unitsPerStep, 122.6, accuracy: 0.1)
     }
 
     func test_stepsForUnits_roundsToNearestStep() {
-        XCTAssertEqual(UnitConversion.steps(forUnits: 0.05), 4)    // 3.82 -> 4
-        XCTAssertEqual(UnitConversion.steps(forUnits: 1.0), 76)    // 76.34 -> 76
-        XCTAssertEqual(UnitConversion.steps(forUnits: 0), 0)
+        XCTAssertEqual(UnitConversion.steps(forUnits: 0.05, calibration: cal), 2)    // 1.92 -> 2
+        XCTAssertEqual(UnitConversion.steps(forUnits: 1.0, calibration: cal), 38)    // 38.31 -> 38
+        XCTAssertEqual(UnitConversion.steps(forUnits: 0, calibration: cal), 0)
+        XCTAssertEqual(UnitConversion.steps(forUnits: 1.0, calibration: .faulhaber_16_1), 123)  // 122.6
     }
 
     func test_unitsForSteps_isLinear() {
-        XCTAssertEqual(UnitConversion.units(forSteps: 100), 1.31, accuracy: 1e-9)
+        XCTAssertEqual(UnitConversion.units(forSteps: 100, calibration: cal), 2.61, accuracy: 1e-9)
     }
 
     func test_pulsesForUnits_floorsOnTheFiveHundredthGrid() {
@@ -50,20 +57,21 @@ final class UnitConversionTests: XCTestCase {
     }
 
     func test_stepAccumulator_carriesRemainderSoSmallDosesDoNotDrift() {
-        var accumulator = StepAccumulator()
+        var accumulator = StepAccumulator(calibration: cal)
         var totalSteps = 0
         for _ in 0..<100 { totalSteps += accumulator.steps(forUnits: 0.05) }   // 5.0 U requested
-        let delivered = UnitConversion.units(forSteps: totalSteps)
-        XCTAssertEqual(delivered, 5.0, accuracy: PumpConstants.unitsPerStep)
-        // naive 4 steps per pulse would over-deliver by ~4.8 %
-        XCTAssertGreaterThan(UnitConversion.units(forSteps: 400), 5.2)
+        let delivered = UnitConversion.units(forSteps: totalSteps, calibration: cal)
+        XCTAssertEqual(delivered, 5.0, accuracy: cal.unitsPerStep)
+        // naive 2 steps per pulse would over-deliver by ~4.4 %
+        XCTAssertGreaterThan(UnitConversion.units(forSteps: 200, calibration: cal), 5.2)
     }
 
     func test_podSize_strokeAgreesWithStepResolution() {
-        // spec/design-parameters.md §3/§4: stroke / 1.75 µm must match capacity / 0.0131 within 1 %
+        // spec/design-parameters.md §3/§4: stroke / 3.5 µm must match capacity / 0.0261 within 1 % (5:1 drive)
+        XCTAssertEqual(cal.micrometresPerStep, 3.5, accuracy: 1e-9)
         for size in PodSize.allCases {
-            let strokeSteps = size.strokeMillimetres / PumpConstants.micrometresPerStep * 1000
-            let capacitySteps = Double(UnitConversion.steps(forUnits: size.capacityUnits))
+            let strokeSteps = size.strokeMillimetres / cal.micrometresPerStep * 1000
+            let capacitySteps = Double(UnitConversion.steps(forUnits: size.capacityUnits, calibration: cal))
             XCTAssertEqual(strokeSteps / capacitySteps, 1.0, accuracy: 0.01, "\(size)")
         }
     }

@@ -4,6 +4,7 @@ import OpenPatchCore
 
 enum OpenPatchAlert: String {
     case lowReservoir, podFault, batteryLow, tempBasalCommLoss
+    case podWearWarning, podWearExpired, spareNotReady, swapOldPodUnconfirmed, podConflict, podUndocked, podReleased, calibration
 
     var title: String {
         switch self {
@@ -11,6 +12,14 @@ enum OpenPatchAlert: String {
         case .podFault: return NSLocalizedString("OpenPatch error", bundle: .openPatchKit, comment: "Alert title")
         case .batteryLow: return NSLocalizedString("Pod battery low", bundle: .openPatchKit, comment: "Alert title")
         case .tempBasalCommLoss: return NSLocalizedString("Connection lost", bundle: .openPatchKit, comment: "Alert title")
+        case .podWearWarning: return NSLocalizedString("Pod wear time", bundle: .openPatchKit, comment: "Alert title")
+        case .podWearExpired: return NSLocalizedString("Pod expired", bundle: .openPatchKit, comment: "Alert title")
+        case .spareNotReady: return NSLocalizedString("Spare pod not ready", bundle: .openPatchKit, comment: "Alert title")
+        case .swapOldPodUnconfirmed: return NSLocalizedString("Old pod not confirmed", bundle: .openPatchKit, comment: "Alert title")
+        case .podConflict: return NSLocalizedString("Two active pods", bundle: .openPatchKit, comment: "Alert title")
+        case .podUndocked: return NSLocalizedString("Pod not docked", bundle: .openPatchKit, comment: "Alert title")
+        case .podReleased: return NSLocalizedString("Pod stopped", bundle: .openPatchKit, comment: "Alert title")
+        case .calibration: return NSLocalizedString("Pod cannot be used", bundle: .openPatchKit, comment: "Alert title")
         }
     }
 }
@@ -47,6 +56,28 @@ extension OpenPatchPumpManager {
             issue(.batteryLow, body: String(format: NSLocalizedString("Pod battery at %d %%. Charge the pod soon.", bundle: .openPatchKit, comment: "Alert body"), Int(percent)))
         case .primeCompleted:
             mutateState { if $0.phase == .priming { $0.phase = .primed } }
+        case .docked(let docked):
+            mutateState { $0.pair?.update($0.podRole ?? .a) { $0.isDocked = docked } }
+            if !docked {
+                if let bolus = state.unfinalizedBolus { finalize(bolus: bolus.cancelled(at: now)) }   // the pod cancels a running bolus when it loses the dock
+                issue(.podUndocked, body: NSLocalizedString("The pod lost its dock contact. It delivers no insulin until it sits on the cannula again.", bundle: .openPatchKit, comment: "Alert body"))
+            }
+        case .wearWarning:
+            raisedPairAlerts.insert("wearWarning")
+            issue(.podWearWarning, body: NSLocalizedString("The pod has been worn for 44 hours. Swap to the other pod soon.", bundle: .openPatchKit, comment: "Alert body"))
+        case .wearExpired:
+            raisedPairAlerts.insert("wearExpired")
+            mutateState { $0.faultCode = .wearExpired; $0.phase = .faulted }
+            issue(.podWearExpired, body: NSLocalizedString("The pod reached its maximum wear time and stopped delivering insulin. Swap pods now.", bundle: .openPatchKit, comment: "Alert body"))
+        case .released(_, let reason):
+            // The pod stopped on its own (charger / wear / a Release we did not see answered): never keep showing "active".
+            if let bolus = state.unfinalizedBolus { finalize(bolus: bolus.cancelled(at: now)) }
+            finalizeRunningTempBasal(cancelAt: now)
+            mutateState { if $0.phase == .active || $0.phase == .suspended { $0.phase = .deactivated }; $0.podReportsActive = false }
+            reportDoses(extra: [.openPatchSuspend(at: now)])
+            if reason != .command {
+                issue(.podReleased, body: NSLocalizedString("The pod stopped delivering insulin (it was put on a charger or reached its wear limit). Swap pods.", bundle: .openPatchKit, comment: "Alert body"))
+            }
         }
         scheduleFinalization()
     }
@@ -71,6 +102,10 @@ extension OpenPatchPumpManager {
             st.lastSync = now
             st.faultCode = status.faultCode
             st.lastPodTotalDeliveredUnits = status.totalDeliveredUnits
+            st.driveCalibration = status.driveCalibration
+            st.calibrationProblem = CalibrationProblem.check(status.driveCalibration)
+            st.podReportsActive = status.pairing?.isActive
+            if let role = st.podRole { st.pair?.update(role) { $0.update(from: status, at: now) } }
             // Do not let a stale poll downgrade a lifecycle step we drive ourselves.
             if status.phase != .unpaired || st.phase == .unpaired { st.phase = status.phase }
             if status.phase == .suspended, st.suspendedAt == nil { st.suspendedAt = now }
@@ -91,12 +126,19 @@ extension OpenPatchPumpManager {
                                                     duration: duration, automatic: false, insulinType: st.insulinType)
                 st.deliveryUncertainSince = nil
             }
+            if st.unfinalizedTempBasal == nil, let adopted = status.tempBasal, adopted.remainingMinutes > 0,
+               adoptTempBasalFromNextStatus || st.deliveryUncertainSince != nil {
+                // A temp basal handed over by a swap (or whose reply we lost) runs on the pod: adopt it.
+                st.unfinalizedTempBasal = OpenPatchDose(kind: .tempBasal, id: 0, units: adopted.unitsPerHour, startDate: now,
+                                                        duration: TimeInterval(adopted.remainingMinutes) * 60, automatic: true, insulinType: st.insulinType)
+            }
             if let temp = st.unfinalizedTempBasal, status.tempBasal == nil {
                 let ended = temp.isFinished(at: now) ? temp : temp.cancelled(at: now)
                 st.unreportedFinishedDoses.append(ended)
                 st.unfinalizedTempBasal = nil
             }
         }
+        adoptTempBasalFromNextStatus = false
         reportReservoir()
         if !state.unreportedFinishedDoses.isEmpty { reportDoses() }
         scheduleFinalization()

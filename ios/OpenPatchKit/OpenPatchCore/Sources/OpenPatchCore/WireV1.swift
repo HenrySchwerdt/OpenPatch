@@ -18,6 +18,7 @@ public enum V1 {
     public enum CommandID: UInt8 {
         case getStatus = 0x01, setBasalSchedule, setTempBasal, cancelTempBasal, bolus, cancelBolus
         case suspend, resume, fillPrime, acknowledge, getHistory
+        case setPairing = 0x0C, activate = 0x0D, release = 0x0E
     }
 
     public enum Tag: UInt8 {
@@ -25,11 +26,13 @@ public enum V1 {
         case fromID, maxEvents, timeOfDayMS, historyEvent, nextEventID, oldestEventID
         case stateFlags = 0x10, reservoirMU, batteryMV, bolusRemainingMU, tempRateMUh, tempRemainingMin
         case currentRateMUh, deliveredMU, scheduledMU, fwVersion
+        case lastSeq = 0x1A, driveCal = 0x1B, podInfo = 0x1C, pairID = 0x1D, role = 0x1E, activationID = 0x1F, actDeliveredMU = 0x20
     }
 
     public enum Result: UInt8, Equatable {
         case ok = 0, badArg, limit, busy, fault, suspended, notSuspended, reservoir, persists, unsupported
         case frame, crc, version, replay, auth, tooLarge, hourly, notFound, session
+        case notDocked, released, alreadyActive, pair, wearExpired, charging
     }
 
     public struct StateFlags: OptionSet {
@@ -43,6 +46,9 @@ public enum V1 {
         public static let alarm = StateFlags(rawValue: 1 << 5)
         public static let filled = StateFlags(rawValue: 1 << 6)
         public static let batteryLow = StateFlags(rawValue: 1 << 7)
+        public static let wearWarning = StateFlags(rawValue: 1 << 8)
+        public static let docked = StateFlags(rawValue: 1 << 9)
+        public static let activePod = StateFlags(rawValue: 1 << 10)
     }
 
     /// FAULT_MASK bits (spec 4.1).
@@ -53,11 +59,14 @@ public enum V1 {
         public static let batteryCritical: UInt16 = 1 << 3
         public static let limitExceeded: UInt16 = 1 << 4
         public static let internalError: UInt16 = 1 << 5
+        public static let noCalibration: UInt16 = 1 << 6
+        public static let wearExpired: UInt16 = 1 << 7
     }
 
     public enum HistoryType: UInt8 {
         case boot = 1, bolusStart, bolusDone, bolusCancel, tempStart, tempDone, tempCancel, tempCommFallback
         case basalSet, suspend, resume, fill, prime, fault, ack, lowReservoir, lowBattery
+        case undocked = 18, docked, activate, release, wearWarning, wearExpired, paired
     }
 
     public struct TLV: Equatable {

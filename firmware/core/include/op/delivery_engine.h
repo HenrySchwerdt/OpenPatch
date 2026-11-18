@@ -1,7 +1,7 @@
 /*
  * Delivery engine: turns basal schedule / temp basal / bolus into motor
  * steps on a tick basis. Fixed-point only; fractional steps are accumulated
- * exactly (see OP_SCALED_PER_STEP), so over any period
+ * exactly (see scaled_per_step), so over any period
  * |scheduled - delivered| < 1 step (+ whatever was explicitly dropped).
  *
  * The engine knows NOTHING about safety limits. Every step it requests must
@@ -48,6 +48,8 @@ typedef struct {
     int64_t bolus_remaining_scaled;
     uint32_t ms_of_day;
     uint32_t ms_since_comm;
+    int64_t scaled_per_step;  /* uu_per_step * OP_SCALED_PER_UU; 0 = no calibration, never emits steps */
+    uint32_t uu_per_step;     /* drive calibration, 0 = none */
     int64_t acc;              /* exact fractional-step accumulator */
     int64_t scheduled_scaled; /* what the program asked for */
     uint32_t requested_steps;
@@ -64,7 +66,9 @@ typedef struct {
     uint32_t dropped_steps;
 } op_de_report_t;
 
-void op_de_init(op_de_t *de);
+/* uu_per_step: drive calibration (uU of insulin per step). 0 = uncalibrated: the engine never
+ * requests a step. */
+void op_de_init(op_de_t *de, uint32_t uu_per_step);
 op_err_t op_de_validate_schedule(const op_basal_schedule_t *s);
 op_err_t op_de_set_schedule(op_de_t *de, const op_basal_schedule_t *s);
 void op_de_set_time_of_day(op_de_t *de, uint32_t ms_of_day);

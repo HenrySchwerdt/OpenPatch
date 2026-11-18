@@ -9,6 +9,8 @@ public enum FaultCode: UInt8, Equatable, Codable {
     case watchdog = 6
     case internalError = 7
     case limitVeto = 8
+    case noCalibration = 9     // pod has no valid drive calibration: it can never deliver
+    case wearExpired = 10      // 52 h wear limit reached
 }
 
 public enum NackReason: UInt8, Equatable {
@@ -22,6 +24,12 @@ public enum NackReason: UInt8, Equatable {
     case unsupported = 8
     case insufficientReservoir = 9
     case session = 10          // authentication / replay / session problems
+    case notDocked = 11        // the pod's DOCKED input is off (not on the cannula adapter)
+    case released = 12         // the pod is not the active pod of its pair
+    case alreadyActive = 13    // activation conflicts with an already active pod / different activation
+    case pairMismatch = 14     // pod not paired or pair ID differs
+    case charging = 15         // pod sits on a charger
+    case calibration = 16      // the pod's drive calibration is missing or unknown
 }
 
 public struct BolusStatus: Equatable {
@@ -51,9 +59,17 @@ public struct PodStatus: Equatable {
     public var bolus: BolusStatus?
     public var tempBasal: TempBasalStatus?
     public var faultCode: FaultCode?
+    /// Drive calibration reported by the pod (`DRIVE_CAL`). `nil` = not reported: the app must refuse to operate.
+    public var driveCalibration: DriveCalibration?
+    /// Pair / dock / wear information (two-pod system). `nil` for pods that do not report it.
+    public var pairing: PodPairingInfo?
+    /// Only set in the answer to `releasePod`: what the pod delivered since its activation and what is left.
+    public var releaseReport: ReleaseReport?
 
     public init(phase: PodPhase, reservoirPulses: UInt16, batteryPercent: UInt8, podTime: Date,
-                totalDeliveredPulses: UInt32, bolus: BolusStatus? = nil, tempBasal: TempBasalStatus? = nil, faultCode: FaultCode? = nil) {
+                totalDeliveredPulses: UInt32, bolus: BolusStatus? = nil, tempBasal: TempBasalStatus? = nil, faultCode: FaultCode? = nil,
+                driveCalibration: DriveCalibration? = nil, pairing: PodPairingInfo? = nil, releaseReport: ReleaseReport? = nil) {
+        self.driveCalibration = driveCalibration; self.pairing = pairing; self.releaseReport = releaseReport
         self.phase = phase; self.reservoirPulses = reservoirPulses; self.batteryPercent = batteryPercent
         self.podTime = podTime; self.totalDeliveredPulses = totalDeliveredPulses
         self.bolus = bolus; self.tempBasal = tempBasal; self.faultCode = faultCode
@@ -77,4 +93,12 @@ public enum PodEvent: Equatable {
     case fault(FaultCode)
     case batteryLow(percent: UInt8)
     case primeCompleted
+    case docked(Bool)
+    case wearWarning
+    case wearExpired
+    case released(deliveredUnits: Double, reason: ReleaseReason)
+}
+
+public enum ReleaseReason: Equatable {
+    case command, charger, wear
 }

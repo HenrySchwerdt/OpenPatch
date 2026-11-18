@@ -32,6 +32,13 @@ public final class OpenPatchPumpManager: PumpManager {
             : makeV1Transport(state: state, link: CoreBluetoothLink(peripheralIdentifier: state.peripheralIdentifier))
     }
 
+    /// Transport of ONE pod of the pair (A or B). Tests inject `SimulatedTransport`s here.
+    public static var pairTransportFactory: (OpenPatchPumpManagerState, PodRole) -> OpenPatchTransport = { state, role in
+        state.usesSimulatedPod
+            ? OpenPatchSimulator.shared.makeTransport(size: state.podSize, role: role)
+            : makeV1Transport(state: state, link: CoreBluetoothLink(peripheralIdentifier: state.peripheralIdentifier))
+    }
+
     /// The persisted `commandSequence` is written asynchronously by the host, so after a crash it can lag by a few
     /// commands. The pod accepts gaps, so restore with a safety margin instead of risking a replayed `seq`.
     static let sequenceRestoreMargin: UInt16 = 16
@@ -43,12 +50,33 @@ public final class OpenPatchPumpManager: PumpManager {
     }
 
     /// Hooks transport events and checkpoints (sequence, history cursor) into the persisted state.
-    private func wire(_ transport: OpenPatchTransport) {
-        transport.eventHandler = { [weak self] event in self?.handle(event: event) }
+    func wire(_ transport: OpenPatchTransport, role: PodRole? = nil) {
+        guard let role else {
+            transport.eventHandler = { [weak self] event in self?.handle(event: event) }
+            (transport as? V1Transport)?.checkpointHandler = { [weak self] checkpoint in
+                self?.mutateState {
+                    $0.commandSequence = max($0.commandSequence, checkpoint.nextSequence)
+                    $0.historyCursor = checkpoint.historyCursor ?? $0.historyCursor
+                }
+            }
+            return
+        }
+        // Pair mode: events of the active pod drive the delivery state, events of the other pod must not.
+        transport.eventHandler = { [weak self] event in
+            guard let self else { return }
+            if role == self.state.podRole { self.handle(event: event) } else { self.handleSparePodEvent(event, from: role) }
+        }
         (transport as? V1Transport)?.checkpointHandler = { [weak self] checkpoint in
-            self?.mutateState {
-                $0.commandSequence = max($0.commandSequence, checkpoint.nextSequence)
-                $0.historyCursor = checkpoint.historyCursor ?? $0.historyCursor
+            // Replay protection is per pod: its own sequence number and history cursor live in ITS record.
+            self?.mutateState { st in
+                st.pair?.update(role) {
+                    $0.commandSequence = max($0.commandSequence, checkpoint.nextSequence)
+                    $0.historyCursor = checkpoint.historyCursor ?? $0.historyCursor
+                }
+                if role == st.podRole {
+                    st.commandSequence = max(st.commandSequence, checkpoint.nextSequence)
+                    st.historyCursor = checkpoint.historyCursor ?? st.historyCursor
+                }
             }
         }
     }
@@ -61,6 +89,12 @@ public final class OpenPatchPumpManager: PumpManager {
     private var transientBasalState: PumpManagerStatus.BasalDeliveryState?
     private var transientBolusState: PumpManagerStatus.BolusState?
     var finalizationItem: DispatchWorkItem?
+    /// Pair mode: one transport per pod (the active pod's is `transport`), the swap state machine, alerts already raised.
+    var pairTransports: [PodRole: OpenPatchTransport] = [:]
+    var swapCoordinator: PairSwapCoordinator?
+    var raisedPairAlerts = Set<String>()
+    /// Set by a swap: the next status may carry a temp basal handed over from the old pod, which this manager must adopt.
+    var adoptTempBasalFromNextStatus = false
     /// Most recently finalized bolus (any path), so `cancelBolus` can report it even if the pod event arrived first.
     var lastFinalizedBolus: OpenPatchDose?
     let workQueue = DispatchQueue(label: "org.openpatch.pumpmanager")
@@ -76,6 +110,7 @@ public final class OpenPatchPumpManager: PumpManager {
         _state = state
         self.transport = transport ?? Self.transportFactory(state)
         wire(self.transport)
+        configurePair()
         scheduleFinalization()
     }
 
@@ -215,11 +250,14 @@ public final class OpenPatchPumpManager: PumpManager {
 
     public func ensureCurrentPumpData(completion: ((Date?) -> Void)?) {
         guard state.phase != .unpaired, state.isSetupCompleted else { completion?(state.lastSync); return }
+        guard !state.isSwapping else { completion?(state.lastSync); return }   // the swap owns the radio
         send(.getStatus) { [weak self] result in
             guard let self else { return }
             if case .failure(let failure) = result {
                 self.log("sync failed: \(failure.error)")
             }
+            self.refreshSparePodIfStale()
+            self.evaluatePairAlerts()
             completion?(self.state.lastSync)
         }
     }
@@ -240,6 +278,7 @@ public final class OpenPatchPumpManager: PumpManager {
         guard snapshot.phase == .active else {
             return completion(Self.map(.notReady(snapshot.phase)))
         }
+        if let block = deliveryBlock(snapshot) { return completion(Self.map(block)) }
         guard snapshot.unfinalizedBolus.map({ $0.isFinished() }) ?? true else { return completion(Self.map(.bolusInProgress)) }
         let rounded = roundToSupportedBolusVolume(units: units)
         do { try snapshot.safetyLimits.validateBolus(units: rounded) } catch {
@@ -297,6 +336,7 @@ public final class OpenPatchPumpManager: PumpManager {
     public func enactTempBasal(unitsPerHour: Double, for duration: TimeInterval, completion: @escaping (PumpManagerError?) -> Void) {
         let snapshot = state
         guard snapshot.phase == .active else { return completion(Self.map(.notReady(snapshot.phase))) }
+        if duration >= 1, let block = deliveryBlock(snapshot) { return completion(Self.map(block)) }
 
         if duration < 1 {
             setTransient(basal: .some(.cancelingTempBasal))
@@ -363,6 +403,7 @@ public final class OpenPatchPumpManager: PumpManager {
     public func resumeDelivery(completion: @escaping (Error?) -> Void) {
         let snapshot = state
         guard snapshot.phase == .suspended else { return completion(Self.map(.notReady(snapshot.phase))) }
+        if let block = deliveryBlock(snapshot) { return completion(Self.map(block)) }
         setTransient(basal: .some(.resuming))
         send(.resume) { [weak self] result in
             guard let self else { return }

@@ -309,7 +309,7 @@ TEST(rsp_roundtrip_status)
     r.result = OP_OK;
     r.has_status = true;
     r.status = (op_status_t){OP_ST_SUSPENDED | OP_ST_ALARM, 0x0003, 3812, 2100, 25, 1000, OP_FW_VERSION,
-                             123456, 750, 99999, 100000, 4242, 0xBEEF};
+                             123456, 750, 99999, 100000, 4242, 0xBEEF, 1, 20, 500, 26100, 0xCAFE0001u, 3600, OP_ROLE_B, OP_DS_PAUSED_UNDOCKED};
     uint8_t buf[200];
     int n = op_rsp_encode_payload(&r, buf, sizeof buf);
     CHECK(n > 0);
@@ -328,6 +328,14 @@ TEST(rsp_roundtrip_status)
     CHECK_EQ(d.status.scheduled_mu, 100000);
     CHECK_EQ(d.status.next_event_id, 4242);
     CHECK_EQ(d.status.last_seq, 0xBEEF);
+    CHECK_EQ(d.status.cal_drive_id, 1);
+    CHECK_EQ(d.status.cal_steps_per_rev, 20);
+    CHECK_EQ(d.status.cal_gear_ratio_x100, 500);
+    CHECK_EQ(d.status.cal_uu_per_step, 26100);
+    CHECK_EQ(d.status.pair_id, 0xCAFE0001u);
+    CHECK_EQ(d.status.wear_s, 3600);
+    CHECK_EQ(d.status.role, OP_ROLE_B);
+    CHECK_EQ(d.status.delivery_state, OP_DS_PAUSED_UNDOCKED);
     CHECK_EQ(d.result, OP_OK);
 }
 

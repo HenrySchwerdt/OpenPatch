@@ -11,6 +11,8 @@
 
 #define OP_LOG_CAPACITY 128u
 
+enum { OP_REL_COMMAND = 0, OP_REL_CHARGER = 1, OP_REL_WEAR = 2 }; /* OP_EV_RELEASE.b */
+
 typedef enum {
     OP_EV_BOOT = 1,
     OP_EV_BOLUS_START = 2,   /* a = amount mU */
@@ -28,7 +30,14 @@ typedef enum {
     OP_EV_FAULT = 14,        /* a = new fault bits */
     OP_EV_ACK = 15,          /* a = acknowledged mask */
     OP_EV_LOW_RESERVOIR = 16,/* a = remaining mU */
-    OP_EV_LOW_BATTERY = 17   /* a = mV */
+    OP_EV_LOW_BATTERY = 17,  /* a = mV */
+    OP_EV_UNDOCKED = 18,     /* dock input lost: steps vetoed, bolus cancelled */
+    OP_EV_DOCKED = 19,
+    OP_EV_ACTIVATE = 20,     /* a = role, b = activation id */
+    OP_EV_RELEASE = 21,      /* a = delivered mU since activation, b = reason (OP_REL_*) */
+    OP_EV_WEAR_WARNING = 22, /* a = wear minutes */
+    OP_EV_WEAR_EXPIRED = 23, /* a = wear minutes */
+    OP_EV_PAIRED = 24        /* a = role, b = pair id */
 } op_event_type_t;
 
 typedef struct {

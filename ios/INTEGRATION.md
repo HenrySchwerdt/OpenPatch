@@ -249,3 +249,20 @@ Trio sees a normal DASH pod and talks to it through the already integrated `Omni
 **Which option when?** DASH mode is the fastest way to a test without a Trio change, but costs reservoir accuracy, pod size selection and the
 reusable lifetime. Native mode (Option A) delivers real values, but needs the changes in this document and carries the risk of a
 self-maintained Trio fork.
+
+### 9. Two-pod system (A/B) and drive calibration
+
+* **One pump for Trio.** `OpenPatchPumpManager` manages the pair A/B itself (spec/design-parameters.md section 1b): pair the first pod
+  through the normal setup, then *Settings -> OpenPatch -> Pods A / B -> Pair spare pod*. Trio's status (reservoir, battery, doses, alerts)
+  always comes from the active pod; each pod keeps its own reservoir, battery, wear time, dock state, drive calibration and wire sequence in
+  `state.pair`.
+* **Swap pod** (Settings): spare is checked (reachable, calibration, charged, filled) -> `Release` old pod -> user docks the new pod ->
+  `Activate` (basal program + running temp basal) -> prime the cannula **connector only** (<= 0.52 U, no cannula prime) -> `Resume`.
+  The state machine is `PairSwapCoordinator` (OpenPatchCore); its phase is persisted before every command that can leave the outcome unknown, so
+  the screen resumes after a BLE loss or an app restart. Rules: never two active pods (no `Activate` before the old pod confirmed `Release` or
+  the user confirmed it is physically removed - an undocked pod cannot deliver), a lost reply is resolved with a status read / idempotent resend,
+  an uncertain prime is never retried blindly, a pod that reports itself active although it must not be is released at once.
+* **Alerts:** wear 44 h (warning) / 52 h (stop), spare pod not charged / not filled / not seen, old pod unconfirmed, pod conflict, pod undocked.
+* **Drive calibration.** There is no global "units per step" any more. The pod reports `DRIVE_CAL` in every `GetStatus`; the app accepts only the
+  known drives (`DriveCalibration.known`: ZWBPD006006 5:1 = 0.0261 U/step, Faulhaber 16:1 = 0.0082 U/step) and refuses to pair-and-fill, prime, bolus,
+  set a temp basal or resume with a pod that reports none or an unknown one (clear error in the UI). Suspend and cancel always work.

@@ -3,8 +3,9 @@
  *  - TMAG5273 register map: DEVICE_CONFIG_2 (0x01) OPERATING_MODE, SENSOR_CONFIG_1 (0x02)
  *    MAG_CH_EN, SENSOR_CONFIG_2 (0x03) ANGLE_EN, ANGLE_RESULT (0x19/0x1A, 1/16 degree).
  *  - magnet orientation -> CONFIG_OPENPATCH_ENC_REVERSE.
- * The spindle makes one revolution per 200 motor steps: 5760 sensor counts (360 deg * 16)
- * correspond to 3200 substeps, i.e. substeps = counts * 5 / 9.
+ * The spindle makes one revolution per (steps/rev * gear ratio) motor steps, taken from the drive
+ * calibration at boot (Rev A 5:1: 100 steps, 16:1: 320 steps): 5760 sensor counts (360 deg * 16)
+ * correspond to steps_per_spindle_rev * 16 substeps.
  */
 #include "encoder.h"
 
@@ -25,7 +26,14 @@ LOG_MODULE_REGISTER(encoder, LOG_LEVEL_INF);
 #define HAVE_QDEC DT_NODE_HAS_STATUS(DT_ALIAS(qdec_hall), okay)
 
 #define COUNTS_PER_REV 5760 /* 360 deg * 16 */
-#define SUBSTEPS_PER_REV 3200 /* 200 steps * 16 */
+
+/* 0 until the calibration is known: the position then stays 0 (and delivery is blocked anyway) */
+static uint32_t g_steps_per_spindle_rev;
+
+void encoder_set_steps_per_spindle_rev(uint32_t steps)
+{
+    g_steps_per_spindle_rev = steps;
+}
 
 #if OP_HAS(charger_per_en_gpios)
 static const struct gpio_dt_spec g_per_en = GPIO_DT_SPEC_GET(OP_ZU, charger_per_en_gpios);
@@ -103,7 +111,7 @@ int32_t encoder_read_substeps(void)
         g_primed = true;
         g_last_angle = a;
     }
-    return (int32_t)(g_pos_counts * SUBSTEPS_PER_REV / COUNTS_PER_REV);
+    return (int32_t)(g_pos_counts * (int64_t)(g_steps_per_spindle_rev * OP_ENC_SUBSTEPS) / COUNTS_PER_REV);
 #else
     return (int32_t)g_sim_substeps;
 #endif

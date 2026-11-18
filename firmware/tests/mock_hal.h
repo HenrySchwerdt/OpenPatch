@@ -16,6 +16,8 @@ typedef struct {
     int enable_calls;
     op_buzzer_t buzzer;
     uint32_t call_order_violations;
+    bool docked;               /* DOCKED input; default true */
+    bool charger;              /* charger present; default false */
 } mock_hal_t;
 
 void mock_hal_init(mock_hal_t *m);

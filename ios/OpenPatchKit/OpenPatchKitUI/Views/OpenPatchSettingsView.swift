@@ -15,6 +15,7 @@ struct OpenPatchSettingsView: View {
             statusSection
             deliverySection
             podSection
+            pairSection
             Section {
                 Button(role: .destructive) { model.confirmRemoval = true } label: { Text(L("Remove OpenPatch from this app")) }
             }
@@ -25,6 +26,9 @@ struct OpenPatchSettingsView: View {
         .navigationTitle("OpenPatch")
         .toolbar {
             ToolbarItem(placement: .confirmationAction) { Button(L("Done"), action: model.onDismiss) }
+        }
+        .sheet(isPresented: $model.showSwap) {
+            OpenPatchSwapView(model: model.makeSwapModel())
         }
         .sheet(isPresented: $model.showRefill) {
             OpenPatchSetupFlowView(model: model.makeRefillModel())
@@ -72,6 +76,21 @@ struct OpenPatchSettingsView: View {
                 Button(L("Remove pod from body")) { model.deactivatePod() }
                     .disabled(model.isBusy || model.state.phase == .unpaired)
             }
+        }
+    }
+
+    /// Both pods with their own state, and the entry to the swap flow.
+    private var pairSection: some View {
+        Section(header: Text(L("Pods A / B"))) {
+            if model.state.calibrationBlock != nil {
+                Label(L("This pod's drive calibration is missing or unknown. Delivery is blocked."), systemImage: "exclamationmark.octagon.fill")
+                    .foregroundColor(.red)
+            }
+            ForEach(model.pods, id: \.role) { pod in
+                PodCard(record: pod, isActive: model.activeRole == pod.role)
+            }
+            Button(model.pods.count < 2 ? L("Pair spare pod") : L("Swap pod")) { model.showSwap = true }
+                .disabled(model.isBusy || model.state.phase == .unpaired)
         }
     }
 

@@ -5,7 +5,7 @@
 > (`core/src/openpatch_*.c`) and this specification must stay in sync;
 > the example frames below are stored as tests (`tests/test_proto.c`).
 
-Units: **mU** = milli-unit (0.001 U), rates in **mU/h**. 1 motor step = 0.0131 U = 13.1 mU.
+Units: **mU** = milli-unit (0.001 U), rates in **mU/h**. The insulin volume of one motor step is **not a protocol constant**: it is the pod's drive calibration (section 3.3), reported in `GetStatus`. Rev A (5:1 gear) = 26100 uU = 0.0261 U per step. The app must read it and refuse a pod whose calibration is missing or unknown.
 All multi-byte values are **little-endian**.
 
 ## 1. GATT profile
@@ -64,7 +64,7 @@ tag (u8) | length (u8) | value (length bytes)
 
 | ID | Name | Request tags | Response (in addition to `RESULT`) |
 |---|---|---|---|
-| 0x01 | GetStatus | - | all status tags (0x10-0x1A, 0x09, 0x0E) |
+| 0x01 | GetStatus | - | all status tags (0x10-0x1C, 0x09, 0x0E) |
 | 0x02 | SetBasalSchedule | 1-24 x `BASAL_SEG` | - |
 | 0x03 | SetTempBasal | `RATE_MU_H`, `DURATION_MIN` (both mandatory) | - |
 | 0x04 | CancelTempBasal | - | - (`NOT_FOUND` if none active) |
@@ -75,6 +75,9 @@ tag (u8) | length (u8) | value (length bytes)
 | 0x09 | Fill/Prime | `SUB_OP` (1 = Fill, 2 = Prime) + `FILL_MU` resp. `PRIME_STEPS` | - |
 | 0x0A | Acknowledge | `FAULT_MASK` (optional, default 0xFFFF) | - |
 | 0x0B | GetHistory | `FROM_ID` (opt., default 0), `MAX_EVENTS` (opt., default 10) | `NEXT_EVENT_ID`, `OLDEST_EVENT_ID`, 0-10 x `HISTORY_EVENT` |
+| 0x0C | SetPairing | `PAIR_ID`, `ROLE` (both mandatory) | - (`ALREADY_ACTIVE` while active, `BAD_ARG` for id 0 / role not 1 or 2) |
+| 0x0D | Activate | `PAIR_ID`, `ACTIVATION_ID`, 1-24 x `BASAL_SEG`, optionally `RATE_MU_H` + `DURATION_MIN` (remaining temp basal, both or neither) | all status tags, section 3.4 |
+| 0x0E | Release | `PAIR_ID` | all status tags + `ACT_DELIVERED_MU`; see section 3.4 |
 
 Every command may additionally contain `TIME_OF_DAY_MS` (u32, local milliseconds since midnight); the pod
 adopts the time for the basal schedule. The phone sends it at least with `SetBasalSchedule` and after every connection setup.
@@ -92,7 +95,7 @@ Unknown command IDs are answered with `RESULT = UNSUPPORTED`, faulty TLVs with `
 | 0x04 | DURATION_MIN | u16 | temp duration, multiple of 30, 30...720 |
 | 0x05 | AMOUNT_MU | u32 | bolus amount, multiple of 50 mU (0.05 U) |
 | 0x06 | FILL_MU | u32 | filled insulin amount in mU |
-| 0x07 | PRIME_STEPS | u16 | prime steps, 1...40 |
+| 0x07 | PRIME_STEPS | u16 | prime steps, 1...(0.52 U in steps): 20 on the 5:1 drive, 64 on the 16:1 drive |
 | 0x08 | SUB_OP | u8 | 1 = Fill (report fill amount), 2 = Prime |
 | 0x09 | FAULT_MASK | u16 | fault bits (section 4.1) |
 | 0x0A | FROM_ID | u32 | history from this ID (inclusive) |
@@ -101,7 +104,7 @@ Unknown command IDs are answered with `RESULT = UNSUPPORTED`, faulty TLVs with `
 | 0x0D | HISTORY_EVENT | 17 B | `u32 id, u32 time_s, u8 type, i32 a, i32 b` |
 | 0x0E | NEXT_EVENT_ID | u32 | ID of the next (not yet assigned) event |
 | 0x0F | OLDEST_EVENT_ID | u32 | oldest ID still stored |
-| 0x10 | STATE_FLAGS | u16 | bit0 suspended, 1 bolus active, 2 temp active, 3 basal schedule present, 4 reservoir low, 5 alarm, 6 filled, 7 battery low |
+| 0x10 | STATE_FLAGS | u16 | bit0 suspended, 1 bolus active, 2 temp active, 3 basal schedule present, 4 reservoir low, 5 alarm, 6 filled, 7 battery low, 8 wear warning (>= 44 h), 9 docked, 10 active pod |
 | 0x11 | RESERVOIR_MU | u32 | remaining amount (conservatively rounded down) |
 | 0x12 | BATTERY_MV | u16 | battery voltage |
 | 0x13 | BOLUS_REMAINING_MU | u32 | part of the bolus not yet delivered |
@@ -112,10 +115,58 @@ Unknown command IDs are answered with `RESULT = UNSUPPORTED`, faulty TLVs with `
 | 0x18 | SCHEDULED_MU | u32 | amount programmed since boot (shows deficit on suspend/veto) |
 | 0x19 | FW_VERSION | u16 | `major<<8 \| minor` |
 | 0x1A | LAST_SEQ | u16 | highest accepted command sequence number (see below) |
+| 0x1B | DRIVE_CAL | 10 B | `u16 drive_id, u32 micro_u_per_step, u16 steps_per_rev, u16 gear_ratio_x100` (GetStatus, section 3.3). All zero = the pod has no valid calibration and refuses to deliver |
+| 0x1C | POD_INFO | 10 B | `u32 pair_id (0 = unpaired), u8 role (0 none, 1 A, 2 B), u8 delivery_state, u32 wear_s` (GetStatus, section 3.4) |
+| 0x1D | PAIR_ID | u32 | pair identifier chosen by the app (SetPairing / Activate / Release) |
+| 0x1E | ROLE | u8 | 1 = pod A, 2 = pod B |
+| 0x1F | ACTIVATION_ID | u32 | non-zero, chosen by the app per swap; makes Activate idempotent |
+| 0x20 | ACT_DELIVERED_MU | u32 | insulin delivered since the activation (Release response) |
 
 `GetStatus` carries `FAULT_MASK` (0x09) as the currently latched faults and `NEXT_EVENT_ID` (0x0E) as the next event ID.
 
 **`LAST_SEQ` (resync after a pod reboot).** `GetStatus` returns in `LAST_SEQ` the highest command `seq` the pod has accepted so far. As the request itself is accepted before the response is built, the value is at least the `seq` of that `GetStatus`. The pod stores the highest accepted `seq` persistently (section 5.2) and restores it at boot, so the phone can read it after a pod reboot or a reconnect and continue its counter above it. Command `seq` values must be strictly increasing (gaps are allowed), so a phone whose counter fell behind the pod's persisted value must jump ahead; a frame with `seq <= LAST_SEQ` is dropped silently as a replay (it cannot be answered), therefore the phone should always start a session with a `seq` that is clearly above the last value it knows (e.g. last known + 16) and then align its counter with `LAST_SEQ`.
+
+### 3.3 Drive calibration (`DRIVE_CAL`)
+
+SAFETY CRITICAL. The insulin volume per motor step scales every dose, and it depends on the motor/gearbox that is built in (Rev A Zhaowei ZWBPD006006 5:1: 0.0261 U/step; Faulhaber ADM0620 + 16:1: 0.0082 U/step). The earlier 10:1 concept (0.0131 U/step) is gone: a pod or app that still assumes it delivers **twice** the commanded insulin.
+
+- Pod: the calibration is selected at build time (`CONFIG_OPENPATCH_DRIVE_ZWBPD006006_5_1` default, `CONFIG_OPENPATCH_DRIVE_FAULHABER_16_1`), stored with magic + CRC-32 on first boot and compared with the build on every later boot. Missing, corrupt, out-of-range (4000..60000 uU) or unknown calibration latches `NO_CALIBRATION` (fault bit 6): no step is ever approved.
+- Wire: `DRIVE_CAL` = `u16 drive_id` (1 = ZWBPD006006 5:1, 2 = Faulhaber 16:1), `u32 micro_u_per_step` (uU per step; 26100 / 8156), `u16 steps_per_rev` (20), `u16 gear_ratio_x100` (500 / 1600). Little-endian, 10 bytes. `steps_per_rev` and the ratio are informational.
+- App: reads `DRIVE_CAL` from every `GetStatus`; `micro_u_per_step` is the only conversion factor between insulin and steps. It must refuse to operate when the tag is missing, all zero, or not one of the known (`drive_id`, `micro_u_per_step`) pairs.
+
+### 3.4 Two-pod system (pair, role, Activate, Release, dock, wear)
+
+Spec: `spec/design-parameters.md` section 1b. One user owns two identical pods (A and B); only one may ever deliver. The pods do not talk to each other; the app is the arbiter, the pod enforces what it can alone.
+
+**Pairing.** `SetPairing(PAIR_ID, ROLE)` stores a non-zero pair id and role A/B. Only a released pod accepts it (`ALREADY_ACTIVE` otherwise); `Activate` and `Release` carry the pair id and are refused with `PAIR` on a mismatch or an unpaired pod.
+
+**Delivery state** (`POD_INFO.delivery_state`):
+
+| Value | Name | Meaning |
+|---|---|---|
+| 0 | RELEASED | not the active pod: never delivers; all delivery commands (`SetBasalSchedule`, `SetTempBasal`, `Bolus`, `Resume`, `Prime`) answer `RELEASED`. `Fill`, `Suspend`, `Acknowledge`, `GetStatus`, `GetHistory` still work (the spare is refilled while parked) |
+| 1 | ACTIVE | active and docked |
+| 2 | PAUSED_UNDOCKED | active but the DOCKED input is off: **no step is executed**. Not a latched fault: basal continues without catch-up when the pod is docked again; a running bolus is cancelled at the moment of undocking (`BOLUS_CANCEL` event) and not resumed |
+| 3 | STOPPED_WEAR | wear limit reached (fault bit 7) |
+
+**DOCKED input.** Magnet in the cannula adapter + Hall switch (`dock-gpios` in the devicetree; the dev kit simulates it with Button 2). It is read by the safety supervisor path, not by the command layer: the supervisor vetoes every step while the input is false or the pod is not active, regardless of what the engine requested. The input is sampled at every tick and again immediately before every bolus, resume, prime and activate. A missing HAL hook or unready GPIO reads as "not docked". Events: `UNDOCKED` (18), `DOCKED` (19).
+
+**Wear timer.** Starts at `Activate` (not at fill), counts only while active (a stalled main loop is counted in full), is persisted as an upper bound across resets and reported as `POD_INFO.wear_s`. At 44 h the pod sets state flag bit 8 (wear warning), logs `WEAR_WARNING` (22) once and beeps. At 52 h it latches fault bit 7, stops delivery, sounds the alarm and logs `WEAR_EXPIRED` (23). The fault cannot be acknowledged; `Release` still works and a new `Activate` restarts the timer and clears it. (The 48 h figure in the spec is the nominal wear time; the app should schedule a swap before the 44 h warning.)
+
+**Activate** (`PAIR_ID`, `ACTIVATION_ID` != 0, basal schedule, optional temp basal `RATE_MU_H` + remaining `DURATION_MIN`). Order of checks and results:
+
+1. not paired / wrong pair id -> `PAIR`
+2. already active: same `ACTIVATION_ID` -> `OK` (idempotent no-op, lost response), different id -> `ALREADY_ACTIVE`
+3. on a charger -> `CHARGING`; not docked -> `NOT_DOCKED`; any latched fault other than an old wear fault -> `FAULT`; not filled -> `RESERVOIR`
+4. schedule / temp basal validation (0.05 U raster, max basal, 30 min temp granularity) -> `BAD_ARG` / `LIMIT`
+
+Activate is all-or-nothing. On success the pod is active with the schedule set, the wear timer at 0, and **delivery still suspended**: the app then primes the cannula connector (`Prime`, at most 0.52 U) and sends `Resume`, which also starts the handed-over temp basal with the remaining duration. The response carries the full status block.
+
+**Release** (`PAIR_ID`). Stops motor and delivery (cancels bolus and temp basal), makes the pod released, and answers with the full status block (final `RESERVOIR_MU`, lifetime `DELIVERED_MU`) plus `ACT_DELIVERED_MU` (insulin delivered since the activation; since the last boot if the pod rebooted meanwhile). Works while undocked, is idempotent (a repeat returns the same totals) and logs `RELEASE` (21) once.
+
+**Charger.** A pod that is on a charger is forced to `RELEASED` on the next tick (reason 1 in the `RELEASE` event); leaving the charger does not re-activate it, `Activate` is refused with `CHARGING`.
+
+**Handover sequence (app side).** `Release(old)` -> wait for `OK` + totals -> user moves the adapter / docks the new pod -> `GetStatus(new)` confirms docked, filled, charged -> `Activate(new)` -> `Prime` connector -> `Resume`. If the old pod cannot be reached, the app must not activate the new pod until the user confirms that the old pod is physically removed; an undocked old pod cannot deliver (dock hard-gate) even if its `Release` never arrived.
 
 ### 3.2 Semantics (DASH-like)
 
@@ -123,9 +174,9 @@ Unknown command IDs are answered with `RESULT = UNSUPPORTED`, faulty TLVs with `
 - Bolus speed 1.5 U/min. During a bolus basal delivery rests, without catch-up.
 - `Suspend` cancels bolus and temp basal; `Resume` returns to the programmed basal rate.
 - **Communication loss**: every authenticated, fresh command resets the timer. 30 min after the last command a running temp basal falls back to the programmed basal schedule (event `TEMP_COMM_FALLBACK`). Boluses are not affected (they last at most 17 min at 25 U).
-- `Fill` is only allowed in the suspended state (`NOT_SUSPENDED` otherwise), sets the reservoir level and the encoder reference point. `Prime` (suspended only, max. 40 steps = approx. 0.52 U) delivers insulin through the safety supervisor and is verified by the encoder. **Prime only with the pod removed.**
+- `Fill` is only allowed in the suspended state (`NOT_SUSPENDED` otherwise), sets the reservoir level and the encoder reference point. `Prime` (suspended only, max. 0.52 U = `OP_MAX_PRIME_MU`, i.e. 20 steps on the 5:1 drive and 64 on the 16:1 drive) delivers insulin through the safety supervisor and is verified by the encoder. Only the active, docked pod can prime (`RELEASED` / `NOT_DOCKED` otherwise): in the two-pod flow this is the cannula connector prime after `Activate`. **Never prime a pod that is connected to a body.**
 - `Acknowledge` acknowledges latched faults. It **never** starts delivery automatically (explicit `Resume` afterwards). Faults whose cause persists (battery critical, reservoir empty) stay latched (`PERSISTS`).
-- Physical button on the pod: short press = open the pairing window and silence an active alarm; hold >= 3 s = emergency stop (cancel bolus, suspend). Placing the pod on a charger also suspends delivery.
+- Physical button on the pod: short press = open the pairing window and silence an active alarm; hold >= 3 s = emergency stop (cancel bolus, suspend). Placing the pod on a charger suspends delivery and forces the pod to `RELEASED` (section 3.4).
 
 ## 4. Error codes and fault bits
 
@@ -150,6 +201,12 @@ Unknown command IDs are answered with `RESULT = UNSUPPORTED`, faulty TLVs with `
 | 16 | HOURLY | bolus would violate the 15 U hourly limit |
 | 17 | NOT_FOUND | nothing to cancel |
 | 18 | SESSION | sequence space exhausted, new key required |
+| 19 | NOT_DOCKED | the DOCKED input is not asserted (pod is not on the cannula adapter) |
+| 20 | RELEASED | the pod is not the active pod of its pair: delivery commands refused |
+| 21 | ALREADY_ACTIVE | Activate with a different activation id while active; SetPairing while active |
+| 22 | PAIR | pod not paired, or `PAIR_ID` does not match |
+| 23 | WEAR_EXPIRED | reserved (a wear-expired pod answers `FAULT`) |
+| 24 | CHARGING | Activate refused: the pod is on a charger |
 
 ### 4.1 Fault bits (`FAULT_MASK`)
 
@@ -159,8 +216,10 @@ Unknown command IDs are answered with `RESULT = UNSUPPORTED`, faulty TLVs with `
 | 1 | ENCODER_DEVIATION | deviation > 10 % over a window of >= 1 U |
 | 2 | RESERVOIR_EMPTY | reservoir empty or step vetoed by the reservoir model |
 | 3 | BATTERY_CRITICAL | < 3.3 V (assumption, adjustable in `op_types.h`) |
-| 4 | LIMIT_EXCEEDED | veto by the 15 U/h window or minute backstop (130 steps/min) |
+| 4 | LIMIT_EXCEEDED | veto by the 15 U/h window or the per-minute backstop (1.7 U/min = 65 steps/min on the 5:1 drive) |
 | 5 | INTERNAL | motor did not execute approved steps |
+| 6 | NO_CALIBRATION | drive calibration missing, corrupt, outside 4..60 mU/step or not a known drive: no step is ever approved; cannot be acknowledged |
+| 7 | WEAR_EXPIRED | >= 52 h since activation: delivery stopped, alarm; cannot be acknowledged, released by a new `Activate` |
 
 Latched faults immediately stop any delivery, activate the alarm buzzer and the driver enable gate. Acknowledgement only via `Acknowledge`.
 

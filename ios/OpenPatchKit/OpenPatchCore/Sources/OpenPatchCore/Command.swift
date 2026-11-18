@@ -4,6 +4,7 @@ public enum CommandKind: Equatable, CaseIterable {
     case hello, getStatus, setTime, setBasalProgram, setLimits
     case bolus, cancelBolus, setTempBasal, cancelTempBasal, suspend, resume
     case confirmFill, prime, confirmAttached, deactivate, silenceAlarm
+    case setPairing, activatePod, releasePod
 }
 
 /// Phone -> pod commands. Amounts are integer pulses (0.05 U) / ticks (0.05 U/h) so the wire
@@ -25,6 +26,13 @@ public enum Command: Equatable {
     case confirmAttached
     case deactivate
     case silenceAlarm
+    /// Two-pod: store pair ID + role (released pods only).
+    case setPairing(pairID: UInt32, role: PodRole)
+    /// Two-pod: become the active pod. The pod must be docked, filled and paired; delivery stays suspended until
+    /// `confirmAttached` (after the connector prime). `tempBasal` = remaining temp basal handed over from the old pod.
+    case activatePod(pairID: UInt32, activationID: UInt32, program: BasalProgram, tempBasal: HandoverTempBasal?)
+    /// Two-pod: stop delivering and return the totals. Idempotent.
+    case releasePod(pairID: UInt32)
 
     public var kind: CommandKind {
         switch self {
@@ -44,14 +52,24 @@ public enum Command: Equatable {
         case .confirmAttached: return .confirmAttached
         case .deactivate: return .deactivate
         case .silenceAlarm: return .silenceAlarm
+        case .setPairing: return .setPairing
+        case .activatePod: return .activatePod
+        case .releasePod: return .releasePod
         }
     }
 
     /// True if losing the reply leaves the app unsure whether insulin delivery changed.
     public var affectsDelivery: Bool {
         switch kind {
-        case .bolus, .cancelBolus, .setTempBasal, .cancelTempBasal, .suspend, .resume, .setBasalProgram: return true
+        case .bolus, .cancelBolus, .setTempBasal, .cancelTempBasal, .suspend, .resume, .setBasalProgram, .activatePod, .releasePod: return true
         default: return false
         }
     }
+}
+
+/// Temp basal that was running on the old pod, handed to the new one (remaining duration, rounded up to 30 min on the wire).
+public struct HandoverTempBasal: Equatable {
+    public var rateTicks: UInt16
+    public var remainingMinutes: UInt16
+    public init(rateTicks: UInt16, remainingMinutes: UInt16) { self.rateTicks = rateTicks; self.remainingMinutes = remainingMinutes }
 }

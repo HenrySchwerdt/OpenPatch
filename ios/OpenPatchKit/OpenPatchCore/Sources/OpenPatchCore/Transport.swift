@@ -36,7 +36,11 @@ public final class SimulatedTransport: OpenPatchTransport {
 
     public init(pod: SimulatedPod) { self.pod = pod }
 
+    /// `false` simulates a pod that is out of range / switched off: connecting times out.
+    public var isReachable = true
+
     public func connect(completion: @escaping (Result<Void, TransportError>) -> Void) {
+        guard isReachable else { return completion(.failure(.timeout)) }
         isConnected = true
         completion(.success(()))
     }
@@ -44,7 +48,7 @@ public final class SimulatedTransport: OpenPatchTransport {
     public func disconnect() { isConnected = false }
 
     public func send(_ command: Command, completion: @escaping (Result<Response, TransportError>) -> Void) {
-        guard isConnected else { return completion(.failure(.notConnected)) }
+        guard isConnected, isReachable else { isConnected = false; return completion(.failure(.notConnected)) }
         let injected = fault
         fault = nil
 

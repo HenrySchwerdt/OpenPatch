@@ -1,4 +1,5 @@
 #include "op/delivery_engine.h"
+#include "cal_fixture.h"
 #include "op_test.h"
 
 #define H (3600u * 1000u)
@@ -14,7 +15,7 @@ static op_basal_schedule_t flat(uint32_t rate)
 
 static void setup(op_de_t *de, uint32_t rate)
 {
-    op_de_init(de);
+    op_de_init(de, TEST_UU);
     op_basal_schedule_t s = flat(rate);
     CHECK_EQ(op_de_set_schedule(de, &s), OP_OK);
     op_de_comm_heartbeat(de);
@@ -36,7 +37,7 @@ static uint32_t run(op_de_t *de, uint32_t ms)
 TEST(de_starts_suspended_and_delivers_nothing)
 {
     op_de_t de;
-    op_de_init(&de);
+    op_de_init(&de, TEST_UU);
     op_basal_schedule_t s = flat(1000);
     op_de_set_schedule(&de, &s);
     CHECK_EQ(run(&de, H), 0);
@@ -53,31 +54,31 @@ TEST(de_zero_dt_returns_zero)
 TEST(de_flat_basal_one_hour_exact_steps)
 {
     op_de_t de;
-    setup(&de, 1000); /* 1 U/h = 76.33 steps */
-    CHECK_EQ(run(&de, H), 76);
+    setup(&de, 1000); /* 1 U/h = 38.31 steps (0.0261 U/step) */
+    CHECK_EQ(run(&de, H), 38);
     op_de_report_t r;
     op_de_report(&de, &r);
     CHECK_EQ(r.scheduled_mu, 1000);
-    CHECK_EQ(r.delivered_steps, 76);
-    CHECK_EQ(r.delivered_mu, 995);
+    CHECK_EQ(r.delivered_steps, 38);
+    CHECK_EQ(r.delivered_mu, 991);
 }
 
 TEST(de_fractional_steps_accumulate_over_a_day)
 {
     op_de_t de;
-    setup(&de, 5000); /* 120 U/day = 9160.3 steps */
-    CHECK_EQ(run(&de, 24 * H), 9160);
+    setup(&de, 5000); /* 120 U/day = 4597.7 steps */
+    CHECK_EQ(run(&de, 24 * H), 4597);
     op_de_report_t r;
     op_de_report(&de, &r);
     CHECK_EQ(r.scheduled_mu, 120000);
-    /* |scheduled - delivered| < 1 step (13.1 mU) */
-    CHECK(r.scheduled_mu - r.delivered_mu < 14);
+    /* |scheduled - delivered| < 1 step (26.1 mU) */
+    CHECK(r.scheduled_mu - r.delivered_mu < 27);
 }
 
 TEST(de_segments_apply_by_time_of_day)
 {
     op_de_t de;
-    op_de_init(&de);
+    op_de_init(&de, TEST_UU);
     op_basal_schedule_t s = {0};
     s.count = 3;
     s.seg[0] = (op_basal_seg_t){0, 1000};
@@ -86,8 +87,8 @@ TEST(de_segments_apply_by_time_of_day)
     CHECK_EQ(op_de_set_schedule(&de, &s), OP_OK);
     op_de_resume(&de);
     op_de_comm_heartbeat(&de);
-    /* 1 U + 0 U + 2 U = 3 U = 229.01 steps */
-    CHECK_EQ(run(&de, 3 * H), 229);
+    /* 1 U + 0 U + 2 U = 3 U = 114.9 steps */
+    CHECK_EQ(run(&de, 3 * H), 114);
     CHECK_EQ(op_de_current_rate_mu_h(&de), 2000);
 }
 
@@ -99,8 +100,8 @@ TEST(de_big_tick_equals_small_ticks_across_boundaries)
     s.seg[0] = (op_basal_seg_t){0, 1000};
     s.seg[1] = (op_basal_seg_t){2, 0};
     s.seg[2] = (op_basal_seg_t){4, 2000};
-    op_de_init(&a);
-    op_de_init(&b);
+    op_de_init(&a, TEST_UU);
+    op_de_init(&b, TEST_UU);
     op_de_set_schedule(&a, &s);
     op_de_set_schedule(&b, &s);
     op_de_resume(&a);
@@ -113,7 +114,7 @@ TEST(de_big_tick_equals_small_ticks_across_boundaries)
 TEST(de_schedule_wraps_at_midnight)
 {
     op_de_t de;
-    op_de_init(&de);
+    op_de_init(&de, TEST_UU);
     op_basal_schedule_t s = {0};
     s.count = 2;
     s.seg[0] = (op_basal_seg_t){0, 1000};
@@ -149,7 +150,7 @@ TEST(de_schedule_validation)
     CHECK_EQ(op_de_validate_schedule(&big), OP_ERR_BAD_ARG);
     CHECK_EQ(op_de_validate_schedule(NULL), OP_ERR_BAD_ARG);
     op_de_t de;
-    op_de_init(&de);
+    op_de_init(&de, TEST_UU);
     s.count = 0;
     CHECK_EQ(op_de_set_schedule(&de, &s), OP_ERR_BAD_ARG);
     CHECK(!de.has_schedule);
@@ -240,11 +241,11 @@ TEST(de_bolus_runs_at_1_5_u_per_min)
     setup(&de, 0);
     CHECK_EQ(op_de_start_bolus(&de, 1000), OP_OK);
     CHECK_EQ(op_de_bolus_remaining_mu(&de), 1000);
-    uint32_t steps = run(&de, 10000); /* 10 s = 250 mU = 19.08 steps */
-    CHECK_EQ(steps, 19);
+    uint32_t steps = run(&de, 10000); /* 10 s = 250 mU = 9.58 steps */
+    CHECK_EQ(steps, 9);
     CHECK_EQ(op_de_bolus_remaining_mu(&de), 750);
     steps += run(&de, 30000);
-    CHECK_EQ(steps, 76); /* 1000 mU = 76.34 steps */
+    CHECK_EQ(steps, 38); /* 1000 mU = 38.31 steps */
     CHECK(!de.bolus_active);
     CHECK(op_de_take_events(&de) & OP_DE_EV_BOLUS_DONE);
 }
@@ -254,8 +255,8 @@ TEST(de_bolus_pauses_basal_without_catch_up)
     op_de_t de;
     setup(&de, 5000);
     op_de_start_bolus(&de, 1000);
-    uint32_t during = run(&de, 40000); /* bolus only: 76.34 steps */
-    CHECK_EQ(during, 76);
+    uint32_t during = run(&de, 40000); /* bolus only: 38.31 steps */
+    CHECK_EQ(during, 38);
     op_de_report_t r;
     op_de_report(&de, &r);
     CHECK_EQ(r.scheduled_mu, 1000); /* basal not scheduled while bolus ran */
@@ -290,11 +291,11 @@ TEST(de_many_small_boluses_do_not_lose_fractions)
     setup(&de, 0);
     uint32_t total = 0;
     for (int i = 0; i < 100; i++) {
-        CHECK_EQ(op_de_start_bolus(&de, 50), OP_OK); /* 3.82 steps each */
+        CHECK_EQ(op_de_start_bolus(&de, 50), OP_OK); /* 1.92 steps each */
         total += run(&de, 5000);
         CHECK(!de.bolus_active);
     }
-    CHECK_EQ(total, 381); /* floor(5000 / 13.1) */
+    CHECK_EQ(total, 191); /* floor(5000 / 26.1) */
 }
 
 TEST(de_suspend_cancels_bolus_and_temp_and_shows_deficit)
@@ -358,7 +359,7 @@ TEST(de_events_for_bolus_done_not_reported_twice)
 TEST(de_no_schedule_means_zero_rate)
 {
     op_de_t de;
-    op_de_init(&de);
+    op_de_init(&de, TEST_UU);
     op_de_resume(&de);
     CHECK_EQ(op_de_current_rate_mu_h(&de), 0);
     CHECK_EQ(run(&de, H), 0);
@@ -367,7 +368,7 @@ TEST(de_no_schedule_means_zero_rate)
 TEST(de_time_of_day_is_normalised)
 {
     op_de_t de;
-    op_de_init(&de);
+    op_de_init(&de, TEST_UU);
     op_de_set_time_of_day(&de, OP_DAY_MS + 5);
     CHECK_EQ(de.ms_of_day, 5);
 }

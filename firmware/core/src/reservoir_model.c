@@ -2,11 +2,10 @@
 
 #include <string.h>
 
-#define UU_PER_STEP 13100ull /* 13.1 mU in micro-units */
-
-void op_res_init(op_res_t *r, uint32_t capacity_mu)
+void op_res_init(op_res_t *r, uint32_t capacity_mu, uint32_t uu_per_step)
 {
     memset(r, 0, sizeof *r);
+    r->uu_per_step = uu_per_step;
     r->capacity_mu = capacity_mu;
     r->low_threshold_mu = OP_DEFAULT_LOW_RESERVOIR_MU;
 }
@@ -36,9 +35,9 @@ void op_res_consume(op_res_t *r, uint32_t steps)
 
 uint32_t op_res_remaining_mu(const op_res_t *r)
 {
-    if (!r->filled) return 0;
+    if (!r->filled || r->uu_per_step == 0) return 0;
     uint64_t fill_uu = (uint64_t)r->fill_mu * 1000ull;
-    uint64_t used_uu = (uint64_t)r->consumed_steps * UU_PER_STEP;
+    uint64_t used_uu = (uint64_t)r->consumed_steps * r->uu_per_step;
     return used_uu >= fill_uu ? 0 : (uint32_t)((fill_uu - used_uu) / 1000ull);
 }
 

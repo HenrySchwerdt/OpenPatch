@@ -2,14 +2,12 @@ import Foundation
 
 /// Physical and protocol constants. Single source: spec/design-parameters.md (§4, §6, §7).
 public enum PumpConstants {
-    /// Insulin volume per motor step: 0.131 µl at U100 = 0.0131 U (§4).
-    public static let unitsPerStep = 0.0131
-    /// Lead-screw travel per motor step in micrometres (0.35 mm / (20 steps * 10:1)) (§4).
-    public static let micrometresPerStep = 1.75
-    /// Smallest commandable amount and wire quantum: 0.05 U ("pulse"). Nominally 4 steps (3.82).
+    // The insulin volume per motor step is NOT a constant: see `DriveCalibration` (reported by the pod).
+    /// Smallest commandable amount and wire quantum: 0.05 U ("pulse"). Roughly 2 steps on the 5:1 drive;
+    /// the pod accumulates the remainder instead of rounding every pulse.
     public static let pulseUnits = 0.05
-    /// Nominal steps per pulse. The pod accumulates the remainder instead of rounding every pulse.
-    public static let nominalStepsPerPulse = 4
+    /// Largest prime volume the pod accepts, in micro-units (0.524 U, protocol `OP_MAX_PRIME_MU`).
+    public static let maxPrimeMicroUnits: UInt32 = 524_000
     /// Bolus speed (§7).
     public static let bolusUnitsPerMinute = 1.5
     /// Basal schedule resolution: 48 half-hour slots.

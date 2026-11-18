@@ -18,6 +18,8 @@
 #include "battery.h"
 #include "board_io.h"
 #include "buzzer.h"
+#include "charger.h"
+#include "dock.h"
 #include "encoder.h"
 #include "safety_latch.h"
 #include "step_gen.h"
@@ -134,6 +136,18 @@ static uint64_t hal_time_ms(void *ctx)
     return (uint64_t)k_uptime_get();
 }
 
+static bool hal_docked(void *ctx)
+{
+    ARG_UNUSED(ctx);
+    return dock_present();
+}
+
+static bool hal_charger_present(void *ctx)
+{
+    ARG_UNUSED(ctx);
+    return charger_active();
+}
+
 int hal_zephyr_init(op_hal_t *out)
 {
     const struct gpio_dt_spec *outs[] = {&g_dir, &g_mode1, &g_mode2, &g_stby};
@@ -147,6 +161,7 @@ int hal_zephyr_init(op_hal_t *out)
     if (!rc) rc = battery_init();
     if (!rc) rc = buzzer_init();
     if (!rc) rc = encoder_init();
+    if (!rc) rc = dock_init();
     if (!rc) rc = wdt_tpl5010_init();
     if (rc) {
         LOG_ERR("HAL init failed (%d)", rc);
@@ -164,6 +179,8 @@ int hal_zephyr_init(op_hal_t *out)
         .buzzer = hal_buzzer,
         .battery_mv = hal_battery_mv,
         .time_ms = hal_time_ms,
+        .docked = hal_docked,
+        .charger_present = hal_charger_present,
     };
     return 0;
 }

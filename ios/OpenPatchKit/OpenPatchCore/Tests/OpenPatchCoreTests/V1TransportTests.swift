@@ -18,6 +18,10 @@ private final class FakeFirmwareLink: FrameLink {
     var tempRemaining: UInt16 = 0
     var nextEventID: UInt32 = 1
     var history: [V1.HistoryEvent] = []
+    /// DRIVE_CAL as reported by GetStatus; nil = the tag is absent (old firmware).
+    var driveCal: DriveCalibration? = .zwbpd006006_5_1
+    var podInfo: (pairID: UInt32, role: UInt8, state: UInt8, wearS: UInt32)?
+    var actDeliveredMU: UInt32 = 0
 
     func connect(completion: @escaping (Result<Void, TransportError>) -> Void) { isConnected = true; completion(.success(())) }
     func disconnect() { isConnected = false }
@@ -32,6 +36,18 @@ private final class FakeFirmwareLink: FrameLink {
                      V1.TLV(.bolusRemainingMU, u32: bolusRemainingMU), V1.TLV(.tempRateMUh, u16: tempRate),
                      V1.TLV(.tempRemainingMin, u16: tempRemaining), V1.TLV(.deliveredMU, u32: 5_000),
                      V1.TLV(.faultMask, u16: faultMask), V1.TLV(.nextEventID, u32: nextEventID)]
+            if let cal = driveCal {
+                var w = ByteWriter()
+                w.u16(cal.driveID); w.u32(cal.microUnitsPerStep); w.u16(cal.stepsPerRevolution); w.u16(cal.gearRatioTimes100)
+                tlvs.append(V1.TLV(tag: V1.Tag.driveCal.rawValue, value: w.bytes))
+            }
+            if let info = podInfo {
+                var w = ByteWriter()
+                w.u32(info.pairID); w.u8(info.role); w.u8(info.state); w.u32(info.wearS)
+                tlvs.append(V1.TLV(tag: V1.Tag.podInfo.rawValue, value: w.bytes))
+            }
+        case V1.CommandID.release.rawValue:
+            tlvs.append(V1.TLV(.actDeliveredMU, u32: actDeliveredMU))
         case V1.CommandID.getHistory.rawValue:
             var from: UInt32 = 0
             if let v = request.u32(.fromID), !ignoreFromID { from = v }
@@ -141,7 +157,7 @@ final class V1TransportTests: XCTestCase {
         XCTAssertEqual(status(send(transport, .prime))?.phase, .primed)
         let prime = link.requests(of: .fillPrime).last
         XCTAssertEqual(prime?.u8(.subOp), 2)
-        XCTAssertEqual(prime?.u16(.primeSteps), 38)
+        XCTAssertEqual(prime?.u16(.primeSteps), 19)   // 0.5 U / 0.0261 U per step (5:1 drive), NOT 38
         XCTAssertEqual(events, [.primeCompleted])
 
         link.flags = V1.StateFlags.filled.rawValue   // resumed: no suspended bit
@@ -353,5 +369,156 @@ final class V1TransportTests: XCTestCase {
         _ = send(transport, .getStatus)
         XCTAssertEqual(events.count, 2)
         XCTAssertFalse(events.contains(.tempBasalEnded))
+    }
+}
+
+// MARK: drive calibration (the volume per step comes from the pod, never from a constant)
+
+extension V1TransportTests {
+    func test_status_reportsTheCalibrationOfThePod() {
+        let transport = makeTransport(phase: .paired)
+        XCTAssertEqual(status(send(transport, .getStatus))?.driveCalibration, .zwbpd006006_5_1)
+        link.driveCal = .faulhaber_16_1
+        XCTAssertEqual(status(send(transport, .getStatus))?.driveCalibration, .faulhaber_16_1)
+    }
+
+    func test_status_withoutCalibrationTag_hasNoCalibration() {
+        let transport = makeTransport(phase: .paired)
+        link.driveCal = nil
+        XCTAssertNil(status(send(transport, .getStatus))?.driveCalibration)
+    }
+
+    func test_allZeroCalibrationIsTreatedAsMissing() {
+        let transport = makeTransport(phase: .paired)
+        link.driveCal = DriveCalibration(driveID: 0, microUnitsPerStep: 0, stepsPerRevolution: 0, gearRatioTimes100: 0)
+        let s = status(send(transport, .getStatus))
+        XCTAssertNil(s?.driveCalibration)
+        XCTAssertEqual(CalibrationProblem.check(s?.driveCalibration), .missing)
+    }
+
+    func test_primeStepsFollowTheFaulhaberCalibration() throws {
+        let transport = makeTransport(phase: .filled)
+        link.driveCal = .faulhaber_16_1
+        _ = send(transport, .getStatus)
+        _ = send(transport, .prime)
+        let prime = try XCTUnwrap(link.requests(of: .fillPrime).last)
+        XCTAssertEqual(prime.u16(.primeSteps), 61)   // 0.5 U / 0.008156 U per step = 61.3, below the 64-step cap
+    }
+
+    func test_primeIsRefusedWithoutAnyStatusOrCalibration_andNothingGoesOnTheWire() {
+        let transport = makeTransport(phase: .filled)          // no status read yet: calibration unknown
+        XCTAssertEqual(send(transport, .prime), .success(.rejected(.calibration)))
+        XCTAssertTrue(link.requests.isEmpty)
+
+        link.driveCal = nil
+        _ = send(transport, .getStatus)
+        XCTAssertEqual(send(transport, .prime), .success(.rejected(.calibration)))
+        XCTAssertTrue(link.requests(of: .fillPrime).isEmpty)
+    }
+
+    func test_primeIsRefusedForTheOldTenToOneCalibration() {
+        let transport = makeTransport(phase: .filled)
+        link.driveCal = DriveCalibration(driveID: 1, microUnitsPerStep: 13_100, stepsPerRevolution: 20, gearRatioTimes100: 1000)
+        let s = status(send(transport, .getStatus))
+        XCTAssertEqual(CalibrationProblem.check(s?.driveCalibration), .unknown(driveID: 1, microUnitsPerStep: 13_100))
+        XCTAssertEqual(send(transport, .prime), .success(.rejected(.calibration)))
+        XCTAssertTrue(link.requests(of: .fillPrime).isEmpty)
+    }
+
+    func test_calibrationFaultBitsMapToFaultCodes() {
+        let transport = makeTransport(phase: .active)
+        link.faultMask = V1.FaultBit.noCalibration
+        XCTAssertEqual(status(send(transport, .getStatus))?.faultCode, .noCalibration)
+        link.faultMask = V1.FaultBit.wearExpired
+        XCTAssertEqual(status(send(transport, .getStatus))?.faultCode, .wearExpired)
+    }
+
+    func test_knownCalibrationTable() {
+        XCTAssertTrue(DriveCalibration.zwbpd006006_5_1.isKnown)
+        XCTAssertTrue(DriveCalibration.faulhaber_16_1.isKnown)
+        XCTAssertFalse(DriveCalibration(driveID: 1, microUnitsPerStep: 13_100, stepsPerRevolution: 20, gearRatioTimes100: 1000).isKnown)
+        XCTAssertFalse(DriveCalibration(driveID: 9, microUnitsPerStep: 26_100, stepsPerRevolution: 20, gearRatioTimes100: 500).isKnown)
+        XCTAssertNil(CalibrationProblem.check(.zwbpd006006_5_1))
+        XCTAssertEqual(DriveCalibration.zwbpd006006_5_1.maxPrimeSteps, 20)
+        XCTAssertEqual(DriveCalibration.faulhaber_16_1.maxPrimeSteps, 64)
+    }
+}
+
+// MARK: two-pod wire mapping
+
+extension V1TransportTests {
+    func test_setPairing_activate_release_wireFormat() throws {
+        let transport = makeTransport(phase: .filled)
+        _ = send(transport, .setPairing(pairID: 0xA1B2C3D4, role: .b))
+        let pairing = try XCTUnwrap(link.requests(of: .setPairing).first)
+        XCTAssertEqual(pairing.u32(.pairID), 0xA1B2C3D4)
+        XCTAssertEqual(pairing.u8(.role), 2)
+
+        let program = try BasalProgram(segments: [BasalSegment(startOffset: 0, unitsPerHour: 0.8)])
+        _ = send(transport, .activatePod(pairID: 0xA1B2C3D4, activationID: 7, program: program,
+                                         tempBasal: HandoverTempBasal(rateTicks: 40, remainingMinutes: 31)))
+        let activate = try XCTUnwrap(link.requests(of: .activate).first)
+        XCTAssertEqual(activate.u32(.pairID), 0xA1B2C3D4)
+        XCTAssertEqual(activate.u32(.activationID), 7)
+        XCTAssertEqual(activate.tlvs.filter { $0.tag == V1.Tag.basalSeg.rawValue }.map(\.value), [[0, 0x20, 0x03]])
+        XCTAssertEqual(activate.u16(.rateMUh), 2000)
+        XCTAssertEqual(activate.u16(.durationMin), 60)     // 31 min rounded up to the 30 min wire granularity
+
+        _ = send(transport, .activatePod(pairID: 1, activationID: 8, program: program, tempBasal: nil))
+        let plain = try XCTUnwrap(link.requests(of: .activate).last)
+        XCTAssertNil(plain.value(.rateMUh))
+        XCTAssertNil(plain.value(.durationMin))
+    }
+
+    func test_release_returnsTheFinalReport_andMarksDeactivated() throws {
+        let transport = makeTransport(phase: .active)
+        link.actDeliveredMU = 1_983
+        link.reservoirMU = 98_016
+        link.podInfo = (1, 1, 0, 3600)
+        link.flags = V1.StateFlags.suspended.rawValue | V1.StateFlags.docked.rawValue
+        let s = try XCTUnwrap(status(send(transport, .releasePod(pairID: 1))))
+        XCTAssertEqual(link.requests(of: .release).first?.u32(.pairID), 1)
+        XCTAssertEqual(s.releaseReport, ReleaseReport(deliveredSinceActivationUnits: 1.983, finalReservoirUnits: 98.016))
+        XCTAssertEqual(s.phase, .deactivated)
+        XCTAssertNil(status(send(transport, .getStatus))?.releaseReport, "the report is delivered once")
+    }
+
+    func test_podInfoIsParsed() throws {
+        let transport = makeTransport(phase: .active)
+        link.podInfo = (0xCAFE, 2, 2, 7200)
+        link.flags = V1.StateFlags.docked.rawValue | V1.StateFlags.activePod.rawValue | V1.StateFlags.wearWarning.rawValue
+        let pairing = try XCTUnwrap(status(send(transport, .getStatus))?.pairing)
+        XCTAssertEqual(pairing, PodPairingInfo(pairID: 0xCAFE, role: .b, deliveryState: .pausedUndocked, isDocked: true,
+                                               isActive: true, wearSeconds: 7200, wearWarning: true))
+    }
+
+    func test_aPodThatReportsReleasedMakesTheAppDropItsActivePhase() {
+        let transport = makeTransport(phase: .active)
+        link.podInfo = (1, 1, 0, 100)      // released (e.g. put on the charger)
+        link.flags = V1.StateFlags.suspended.rawValue
+        XCTAssertEqual(status(send(transport, .getStatus))?.phase, .deactivated)
+    }
+
+    func test_newResultCodesMapToNacks() {
+        for (code, nack) in [(V1.Result.notDocked, NackReason.notDocked), (.released, .released), (.alreadyActive, .alreadyActive),
+                             (.pair, .pairMismatch), (.charging, .charging)] {
+            let transport = makeTransport(phase: .active)
+            link.resultFor[V1.CommandID.bolus.rawValue] = code
+            XCTAssertEqual(send(transport, .bolus(id: 1, pulses: 20)), .success(.rejected(nack)), "\(code)")
+        }
+    }
+
+    func test_historyEventsOfTheTwoPodSystemBecomeDomainEvents() {
+        let transport = makeTransport(phase: .active, cursor: 1)
+        link.flags = 0; link.nextEventID = 6
+        link.history = [
+            V1.HistoryEvent(id: 1, timeSeconds: 0, type: V1.HistoryType.undocked.rawValue, a: 0, b: 0),
+            V1.HistoryEvent(id: 2, timeSeconds: 0, type: V1.HistoryType.docked.rawValue, a: 0, b: 0),
+            V1.HistoryEvent(id: 3, timeSeconds: 0, type: V1.HistoryType.wearWarning.rawValue, a: 2640, b: 0),
+            V1.HistoryEvent(id: 4, timeSeconds: 0, type: V1.HistoryType.wearExpired.rawValue, a: 3120, b: 0),
+            V1.HistoryEvent(id: 5, timeSeconds: 0, type: V1.HistoryType.release.rawValue, a: 1983, b: 1),
+        ]
+        _ = send(transport, .getStatus)
+        XCTAssertEqual(events, [.docked(false), .docked(true), .wearWarning, .wearExpired, .released(deliveredUnits: 1.983, reason: .charger)])
     }
 }

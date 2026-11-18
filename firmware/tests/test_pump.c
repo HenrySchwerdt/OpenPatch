@@ -1,6 +1,7 @@
 #include "fake_ccm.h"
 #include "mock_hal.h"
 #include "op/pump_controller.h"
+#include "cal_fixture.h"
 #include "op_test.h"
 
 #define MIN 60000ull
@@ -23,16 +24,15 @@ static void rig_init(rig_t *r)
 {
     mock_hal_init(&r->hal);
     r->ops = mock_hal_make(&r->hal);
-    op_pump_init(&r->pump, &r->ops, OP_CAPACITY_200_MU, 1);
+    op_pump_init(&r->pump, &r->ops, test_cal_5_1(), OP_CAPACITY_200_MU, 1);
 }
 
 /* fill + schedule + resume, ready to deliver */
 static void rig_running(rig_t *r, uint32_t fill_mu, uint32_t rate)
 {
     rig_init(r);
-    op_basal_schedule_t s = flat(rate);
     CHECK_EQ(op_pump_fill(&r->pump, fill_mu), OP_OK);
-    CHECK_EQ(op_pump_set_schedule(&r->pump, &s), OP_OK);
+    CHECK_EQ(test_activate(&r->pump, rate), OP_OK);
     CHECK_EQ(op_pump_resume(&r->pump), OP_OK);
 }
 
@@ -58,7 +58,7 @@ TEST(pump_boots_suspended_with_boot_event_and_restored_ids)
     rig_t r;
     mock_hal_init(&r.hal);
     r.ops = mock_hal_make(&r.hal);
-    op_pump_init(&r.pump, &r.ops, OP_CAPACITY_70_MU, 500);
+    op_pump_init(&r.pump, &r.ops, test_cal_5_1(), OP_CAPACITY_70_MU, 500);
     op_status_t st;
     op_pump_get_status(&r.pump, &st);
     CHECK(st.flags & OP_ST_SUSPENDED);
@@ -74,13 +74,13 @@ TEST(pump_basal_hour_delivers_expected_steps_and_updates_reservoir)
     rig_t r;
     rig_running(&r, 100000, 1000);
     advance(&r, 3600);
-    CHECK_EQ(r.hal.total_steps, 76);
+    CHECK_EQ(r.hal.total_steps, 38);
     CHECK(!r.hal.stepped_while_disabled);
     CHECK(!r.hal.enabled); /* driver gated off between steps */
     op_status_t st;
     op_pump_get_status(&r.pump, &st);
-    CHECK_EQ(st.reservoir_mu, 99004); /* 100000 - 76*13.1 = 99004.4 */
-    CHECK_EQ(st.delivered_mu, 995);
+    CHECK_EQ(st.reservoir_mu, 99008); /* 100000 - 38*26.1 = 99008.2 */
+    CHECK_EQ(st.delivered_mu, 991);
     CHECK_EQ(st.faults, 0);
     CHECK_EQ(st.current_rate_mu_h, 1000);
     CHECK_EQ(r.hal.kicks, 3600);
@@ -99,7 +99,7 @@ TEST(pump_bolus_flow_and_log)
     advance(&r, 61);
     op_pump_get_status(&r.pump, &st);
     CHECK(!(st.flags & OP_ST_BOLUS_ACTIVE));
-    CHECK_EQ(r.hal.total_steps, 152); /* floor(2000/13.1) */
+    CHECK_EQ(r.hal.total_steps, 76); /* floor(2000/26.1) */
     CHECK(log_has(&r, OP_EV_BOLUS_START));
     CHECK(log_has(&r, OP_EV_BOLUS_DONE));
 }
@@ -109,6 +109,7 @@ TEST(pump_bolus_rejections)
     rig_t r;
     rig_init(&r);
     CHECK_EQ(op_pump_fill(&r.pump, 100000), OP_OK);
+    CHECK_EQ(test_activate(&r.pump, 0), OP_OK);
     CHECK_EQ(op_pump_bolus(&r.pump, 1000), OP_ERR_SUSPENDED);
     op_pump_resume(&r.pump);
     CHECK_EQ(op_pump_bolus(&r.pump, 10050), OP_ERR_LIMIT);
@@ -136,9 +137,9 @@ TEST(pump_bolus_larger_than_reservoir_is_rejected)
     rig_running(&r, 3000, 0);
     CHECK_EQ(op_pump_bolus(&r.pump, 4000), OP_ERR_RESERVOIR);
     rig_t u;
-    rig_init(&u); /* never filled */
-    op_pump_resume(&u.pump);
-    CHECK_EQ(op_pump_bolus(&u.pump, 1000), OP_ERR_RESERVOIR);
+    rig_init(&u); /* never filled, never activated */
+    CHECK_EQ(op_pump_resume(&u.pump), OP_ERR_RELEASED);
+    CHECK_EQ(op_pump_bolus(&u.pump, 1000), OP_ERR_RELEASED);
 }
 
 TEST(pump_occlusion_stops_everything_until_acknowledged)
@@ -157,7 +158,7 @@ TEST(pump_occlusion_stops_everything_until_acknowledged)
     CHECK_EQ(r.hal.buzzer, OP_BUZZER_ALARM);
     CHECK(!r.hal.enabled);
     uint32_t frozen = r.hal.total_steps;
-    CHECK(frozen < op_mu_to_steps(2000)); /* stopped before 2 U */
+    CHECK(frozen < op_mu_to_steps(TEST_UU, 2000)); /* stopped before 2 U */
     advance(&r, 120);
     CHECK_EQ(r.hal.total_steps, frozen);
     CHECK(log_has(&r, OP_EV_FAULT));
@@ -182,7 +183,7 @@ TEST(pump_encoder_deviation_stops_delivery)
     op_status_t st;
     op_pump_get_status(&r.pump, &st);
     CHECK(st.faults & OP_FAULT_ENCODER_DEVIATION);
-    CHECK(r.hal.total_steps < op_mu_to_steps(1500));
+    CHECK(r.hal.total_steps < op_mu_to_steps(TEST_UU, 1500));
 }
 
 TEST(pump_reservoir_runs_dry_never_over_delivers)
@@ -193,9 +194,9 @@ TEST(pump_reservoir_runs_dry_never_over_delivers)
     op_status_t st;
     op_pump_get_status(&r.pump, &st);
     CHECK(st.faults & OP_FAULT_RESERVOIR_EMPTY);
-    CHECK(r.hal.total_steps <= op_mu_to_steps(1000));
-    CHECK(r.hal.total_steps >= op_mu_to_steps(1000) - 2);
-    CHECK_EQ(st.reservoir_mu < 14, true);
+    CHECK(r.hal.total_steps <= op_mu_to_steps(TEST_UU, 1000));
+    CHECK(r.hal.total_steps >= op_mu_to_steps(TEST_UU, 1000) - 2);
+    CHECK_EQ(st.reservoir_mu < 27, true);
 }
 
 TEST(pump_low_reservoir_logged_once)
@@ -288,6 +289,8 @@ TEST(pump_schedule_validation_and_log)
 {
     rig_t r;
     rig_init(&r);
+    CHECK_EQ(op_pump_fill(&r.pump, 50000), OP_OK);
+    CHECK_EQ(test_activate(&r.pump, 0), OP_OK);
     op_basal_schedule_t s = flat(5050);
     CHECK_EQ(op_pump_set_schedule(&r.pump, &s), OP_ERR_LIMIT);
     s = flat(1000);
@@ -303,14 +306,16 @@ TEST(pump_fill_and_prime_rules)
     CHECK_EQ(op_pump_fill(&r.pump, OP_CAPACITY_200_MU + 1), OP_ERR_LIMIT);
     CHECK_EQ(op_pump_prime(&r.pump, 10), OP_ERR_RESERVOIR); /* nothing filled yet */
     CHECK_EQ(op_pump_fill(&r.pump, 50000), OP_OK);
-    CHECK_EQ(op_pump_prime(&r.pump, OP_MAX_PRIME_STEPS + 1), OP_ERR_LIMIT);
+    CHECK_EQ(op_pump_prime(&r.pump, op_mu_to_steps(TEST_UU, OP_MAX_PRIME_MU) + 1), OP_ERR_LIMIT);
     CHECK_EQ(op_pump_prime(&r.pump, 0), OP_ERR_BAD_ARG);
+    CHECK_EQ(op_pump_prime(&r.pump, 20), OP_ERR_RELEASED); /* only the active pod primes */
+    CHECK_EQ(test_activate(&r.pump, 0), OP_OK);
     CHECK_EQ(op_pump_prime(&r.pump, 20), OP_OK);
     CHECK_EQ(r.hal.total_steps, 20);
     CHECK(!r.hal.stepped_while_disabled);
     op_status_t st;
     op_pump_get_status(&r.pump, &st);
-    CHECK_EQ(st.reservoir_mu, 50000 - 262); /* 20 steps = 262 mU */
+    CHECK_EQ(st.reservoir_mu, 50000 - 522); /* 20 steps = 522 mU */
     CHECK(log_has(&r, OP_EV_FILL));
     CHECK(log_has(&r, OP_EV_PRIME));
     op_pump_resume(&r.pump);
@@ -323,6 +328,7 @@ TEST(pump_prime_respects_motor_failure_and_encoder)
     rig_t r;
     rig_init(&r);
     op_pump_fill(&r.pump, 50000);
+    CHECK_EQ(test_activate(&r.pump, 0), OP_OK);
     r.hal.steps_limit = 5; /* motor only manages 5 of 20 */
     CHECK_EQ(op_pump_prime(&r.pump, 20), OP_ERR_FAULT);
     op_status_t st;
@@ -472,6 +478,24 @@ TEST(proto_full_command_set_works_end_to_end)
     c.u.fill.fill_mu = 120000;
     exchange(&r, &l, &c, false, &rsp);
     CHECK_EQ(rsp.result, OP_OK);
+
+    memset(&c, 0, sizeof c);
+    c.type = OP_CMD_SET_PAIRING;
+    c.u.pairing.pair_id = TEST_PAIR;
+    c.u.pairing.role = OP_ROLE_A;
+    exchange(&r, &l, &c, false, &rsp);
+    CHECK_EQ(rsp.result, OP_OK);
+
+    memset(&c, 0, sizeof c);
+    c.type = OP_CMD_ACTIVATE;
+    c.u.activate.pair_id = TEST_PAIR;
+    c.u.activate.activation_id = 9;
+    c.u.activate.schedule.count = 1;
+    c.u.activate.schedule.seg[0] = (op_basal_seg_t){0, 800};
+    exchange(&r, &l, &c, false, &rsp);
+    CHECK_EQ(rsp.result, OP_OK);
+    CHECK(rsp.has_status);
+    CHECK_EQ(rsp.status.delivery_state, OP_DS_ACTIVE);
 
     memset(&c, 0, sizeof c);
     c.type = OP_CMD_FILL_PRIME;

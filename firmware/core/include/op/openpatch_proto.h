@@ -37,7 +37,10 @@ typedef enum {
     OP_CMD_RESUME = 0x08,
     OP_CMD_FILL_PRIME = 0x09,
     OP_CMD_ACKNOWLEDGE = 0x0A,
-    OP_CMD_GET_HISTORY = 0x0B
+    OP_CMD_GET_HISTORY = 0x0B,
+    OP_CMD_SET_PAIRING = 0x0C,  /* pair id + role (released pods only) */
+    OP_CMD_ACTIVATE = 0x0D,     /* become the active pod: schedule + temp basal; pod must be docked */
+    OP_CMD_RELEASE = 0x0E       /* stop delivering, report totals; idempotent */
 } op_cmd_type_t;
 #define OP_RSP_BIT 0x80u /* response type = command type | 0x80 */
 
@@ -67,7 +70,13 @@ typedef enum {
     OP_TAG_DELIVERED_MU = 0x17,    /* u32 lifetime */
     OP_TAG_SCHEDULED_MU = 0x18,    /* u32 */
     OP_TAG_FW_VERSION = 0x19,      /* u16 */
-    OP_TAG_LAST_SEQ = 0x1A         /* u16 highest accepted command seq (GetStatus; resync after pod reboot) */
+    OP_TAG_LAST_SEQ = 0x1A,        /* u16 highest accepted command seq (GetStatus; resync after pod reboot) */
+    OP_TAG_DRIVE_CAL = 0x1B,       /* 10 bytes: u16 drive_id, u32 uU/step, u16 steps/rev, u16 gear ratio x100 (GetStatus) */
+    OP_TAG_POD_INFO = 0x1C,        /* 10 bytes: u32 pair_id, u8 role, u8 delivery_state, u32 wear_s (GetStatus) */
+    OP_TAG_PAIR_ID = 0x1D,         /* u32, SetPairing / Activate / Release */
+    OP_TAG_ROLE = 0x1E,            /* u8 op_role_t, SetPairing */
+    OP_TAG_ACTIVATION_ID = 0x1F,   /* u32 chosen by the app, makes Activate idempotent */
+    OP_TAG_ACT_DELIVERED_MU = 0x20 /* u32 mU delivered since activation (Release/Activate response) */
 } op_tag_t;
 
 enum { OP_SUBOP_FILL = 1, OP_SUBOP_PRIME = 2 };
@@ -80,7 +89,10 @@ enum { /* op_status_t.flags */
     OP_ST_LOW_RESERVOIR = 1u << 4,
     OP_ST_ALARM = 1u << 5,
     OP_ST_FILLED = 1u << 6,
-    OP_ST_LOW_BATTERY = 1u << 7
+    OP_ST_LOW_BATTERY = 1u << 7,
+    OP_ST_WEAR_WARNING = 1u << 8, /* >= 44 h since activation */
+    OP_ST_DOCKED = 1u << 9,       /* dock input asserted */
+    OP_ST_ACTIVE = 1u << 10       /* this pod is the active pod of its pair */
 };
 
 /* ---- CRC / frame ---------------------------------------------------------- */
@@ -122,6 +134,14 @@ typedef struct {
         struct { uint8_t sub_op; uint32_t fill_mu; uint16_t prime_steps; } fill;
         struct { uint16_t fault_mask; } ack;
         struct { uint32_t from_id; uint8_t max_events; } history;
+        struct { uint32_t pair_id; uint8_t role; } pairing;
+        struct { uint32_t pair_id; } release;
+        struct {
+            uint32_t pair_id, activation_id;
+            op_basal_schedule_t schedule;
+            bool has_temp;
+            uint32_t temp_rate_mu_h, temp_remaining_min;
+        } activate;
     } u;
 } op_cmd_t;
 
@@ -129,6 +149,12 @@ typedef struct {
     uint16_t flags, faults, battery_mv, temp_rate_mu_h, temp_remaining_min, current_rate_mu_h, fw_version;
     uint32_t reservoir_mu, bolus_remaining_mu, delivered_mu, scheduled_mu, next_event_id;
     uint16_t last_seq; /* highest accepted command sequence number (filled by op_pump_handle_frame) */
+    uint16_t cal_drive_id, cal_steps_per_rev, cal_gear_ratio_x100; /* drive calibration, all 0 = none/invalid */
+    uint32_t cal_uu_per_step;
+    uint32_t pair_id;       /* 0 = not paired */
+    uint32_t wear_s;        /* seconds since activation (frozen while released) */
+    uint8_t role;           /* op_role_t */
+    uint8_t delivery_state; /* op_delivery_state_t */
 } op_status_t;
 
 typedef struct {
@@ -137,6 +163,8 @@ typedef struct {
     uint8_t result; /* op_err_t */
     bool has_status;
     op_status_t status;
+    bool has_act_delivered;
+    uint32_t act_delivered_mu;
     bool has_history;
     uint32_t next_event_id, oldest_event_id;
     uint8_t n_events;

@@ -11,7 +11,8 @@
  *                       STBY/RESET=D7 (P1.08), EN/FAULT=D8 (P1.10)
  *   Battery divider test input: A0 (VBAT), A1 (VMOT) - ignored while CONFIG_OPENPATCH_SIM_BATTERY=y
  *   Nothing needs to be connected to see the firmware run: encoder and battery are
- *   simulated (CONFIG_OPENPATCH_SIM_*), LED1 (PWM) acts as the buzzer, Button 1 as the pod button.
+ *   simulated (CONFIG_OPENPATCH_SIM_*), LED1 (PWM) acts as the buzzer, Button 1 as the pod button,
+ *   Button 2 toggles the simulated DOCKED input (starts undocked).
  */
 
 / {
@@ -31,6 +32,8 @@
 		wdt-wake-gpios = <&gpio1 3 GPIO_ACTIVE_HIGH>;     /* D2: connect a function generator to test */
 
 		button-gpios = <&gpio0 11 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>; /* Button 1 */
+		/* Button 2 toggles the SIMULATED dock input (CONFIG_OPENPATCH_SIM_DOCK) */
+		dock-gpios = <&gpio0 12 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
 
 		io-channels = <&adc 2>, <&adc 1>;
 		io-channel-names = "vmot", "vbat";               /* A1 = P0.04 = AIN2, A0 = P0.03 = AIN1 */

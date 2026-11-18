@@ -29,6 +29,10 @@ typedef struct op_hal {
     uint16_t (*battery_mv)(void *ctx);
     /* Monotonic milliseconds since boot. */
     uint64_t (*time_ms)(void *ctx);
+    /* DOCKED input (Hall switch + magnet in the cannula adapter). A NULL hook means "not docked". */
+    bool (*docked)(void *ctx);
+    /* Qi / USB charger present. A NULL hook means "no charger". */
+    bool (*charger_present)(void *ctx);
 } op_hal_t;
 
 #endif /* OP_HAL_H */

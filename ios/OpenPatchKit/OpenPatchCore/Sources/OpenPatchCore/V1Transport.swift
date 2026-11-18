@@ -36,6 +36,9 @@ public final class V1Transport: OpenPatchTransport {
     private var lastBolus: (id: UInt16, pulses: UInt16)?
     private var historyCursor: UInt32?
     private var wasFaulted = false
+    /// Drive calibration from the last status. `prime` is refused without a known one (no assumed volume per step).
+    private var calibration: DriveCalibration?
+    private var lastReleaseDeliveredMU: UInt32?
 
     public var eventHandler: ((PodEvent) -> Void)?
     public var isConnected: Bool { link.isConnected }
@@ -124,14 +127,46 @@ public final class V1Transport: OpenPatchTransport {
         case .confirmFill(let pulses):
             return .request(.fillPrime, [V1.TLV(.subOp, u8: 1), V1.TLV(.fillMU, u32: UInt32(pulses) * 50)], sideEffect: { [unowned self] in setPhase(.filled, from: [.paired, .deactivated]) })
         case .prime:
-            let steps = UInt16(min(UnitConversion.steps(forUnits: PumpConstants.primeUnits), 40))
+            lock.lock(); let cal = calibration; lock.unlock()
+            // The volume per step comes from the pod's own calibration; without a known one nothing is primed.
+            guard let cal, cal.isKnown else { return .reject(.calibration) }
+            let steps = UInt16(min(UnitConversion.steps(forUnits: PumpConstants.primeUnits, calibration: cal), cal.maxPrimeSteps))
             return .request(.fillPrime, [V1.TLV(.subOp, u8: 2), V1.TLV(.primeSteps, u16: steps)], sideEffect: { [unowned self] in
                 setPhase(.primed, from: [.filled])
                 eventHandler?(.primeCompleted)    // wire prime is synchronous: done when the response arrives
             })
         case .silenceAlarm:
             return .request(.acknowledge, [], sideEffect: {})
+        case .setPairing(let pairID, let role):
+            return .request(.setPairing, [V1.TLV(.pairID, u32: pairID), V1.TLV(.role, u8: role.rawValue)], sideEffect: {})
+        case .activatePod(let pairID, let activationID, let program, let temp):
+            guard program.segments.count <= PumpConstants.maxBasalSegments else { return .reject(.limitExceeded) }
+            var tlvs = [V1.TLV(.pairID, u32: pairID), V1.TLV(.activationID, u32: activationID)]
+            tlvs += program.segments.map { segment -> V1.TLV in
+                var w = ByteWriter()
+                w.u8(UInt8(segment.startOffset / PumpConstants.basalSlotDuration))
+                w.u16(UInt16(clamping: UnitConversion.pulses(forUnits: segment.unitsPerHour) * 50))
+                return V1.TLV(tag: V1.Tag.basalSeg.rawValue, value: w.bytes)
+            }
+            if let temp, temp.remainingMinutes > 0 {
+                let rounded = min(max(((Int(temp.remainingMinutes) + 29) / 30) * 30, 30), 720)
+                tlvs += [V1.TLV(.rateMUh, u16: temp.rateTicks * 50), V1.TLV(.durationMin, u16: UInt16(rounded))]
+            }
+            return .request(.activate, tlvs, sideEffect: {})
+        case .releasePod(let pairID):
+            return .request(.release, [V1.TLV(.pairID, u32: pairID)], sideEffect: { [unowned self] in
+                setPhase(.deactivated, from: [.filled, .priming, .primed, .active, .suspended, .faulted])
+            })
         }
+    }
+
+    /// Report for the status that answers a `releasePod` (consumed once).
+    private func releaseReport(_ m: V1.Message) -> ReleaseReport? {
+        lock.lock(); defer { lock.unlock() }
+        guard let delivered = lastReleaseDeliveredMU else { return nil }
+        lastReleaseDeliveredMU = nil
+        return ReleaseReport(deliveredSinceActivationUnits: Double(delivered) / 1000,
+                             finalReservoirUnits: Double(m.u32(.reservoirMU) ?? 0) / 1000)
     }
 
     private func setPhase(_ new: PodPhase, from allowed: [PodPhase]) {
@@ -157,6 +192,7 @@ public final class V1Transport: OpenPatchTransport {
                     let code = message.result ?? .frame
                     if let reason = Self.nack(for: code, command: command) { return completion(.success(.rejected(reason))) }
                     sideEffect()
+                    if command.kind == .releasePod { self.captureRelease(message) }
                     self.refreshStatus(completion: completion)
                 }
             }
@@ -199,6 +235,12 @@ public final class V1Transport: OpenPatchTransport {
         case .reservoir: return .insufficientReservoir
         case .unsupported: return .unsupported
         case .replay, .auth, .session: return .session
+        case .notDocked: return .notDocked
+        case .released: return .released
+        case .alreadyActive: return .alreadyActive
+        case .pair: return .pairMismatch
+        case .charging: return .charging
+        case .wearExpired: return .invalidState
         }
     }
 
@@ -219,14 +261,39 @@ public final class V1Transport: OpenPatchTransport {
         }
     }
 
+    private func captureRelease(_ message: V1.Message) {
+        lock.lock(); lastReleaseDeliveredMU = message.u32(.actDeliveredMU); lock.unlock()
+    }
+
+    static func parseCalibration(_ m: V1.Message) -> DriveCalibration? {
+        guard let v = m.value(.driveCal), v.count == 10 else { return nil }
+        var r = ByteReader(v)
+        guard let id = try? r.u16(), let uu = try? r.u32(), let spr = try? r.u16(), let ratio = try? r.u16(), uu != 0 else { return nil }
+        return DriveCalibration(driveID: id, microUnitsPerStep: uu, stepsPerRevolution: spr, gearRatioTimes100: ratio)
+    }
+
+    static func parsePairing(_ m: V1.Message, flags: V1.StateFlags) -> PodPairingInfo? {
+        guard let v = m.value(.podInfo), v.count == 10 else { return nil }
+        var r = ByteReader(v)
+        guard let pair = try? r.u32(), let role = try? r.u8(), let state = try? r.u8(), let wear = try? r.u32() else { return nil }
+        return PodPairingInfo(pairID: pair, role: PodRole(rawValue: role), deliveryState: PodDeliveryState(rawValue: state) ?? .released,
+                              isDocked: flags.contains(.docked), isActive: flags.contains(.activePod), wearSeconds: wear,
+                              wearWarning: flags.contains(.wearWarning))
+    }
+
     func parseStatus(_ m: V1.Message) -> PodStatus {
         let flags = V1.StateFlags(rawValue: m.u16(.stateFlags) ?? 0)
         let faultMask = m.u16(.faultMask) ?? 0
         let remainingPulses = Int((m.u32(.bolusRemainingMU) ?? 0) / 50)
+        let cal = Self.parseCalibration(m)
+        let pairing = Self.parsePairing(m, flags: flags)
 
         lock.lock()
+        calibration = cal
         var phase = phaseHint
-        if faultMask != 0 {
+        if let pairing, !pairing.isActive, [.priming, .primed, .active, .suspended].contains(phase) {
+            phase = .deactivated   // the pod says it is released (charger, wear, a Release we never saw answered)
+        } else if faultMask != 0 {
             phase = .faulted
         } else if phase == .faulted {
             phase = .suspended          // Acknowledge never resumes delivery
@@ -252,7 +319,8 @@ public final class V1Transport: OpenPatchTransport {
                          batteryPercent: Self.batteryPercent(millivolts: m.u16(.batteryMV) ?? 0),
                          podTime: clock(),
                          totalDeliveredPulses: (m.u32(.deliveredMU) ?? 0) / 50,
-                         bolus: bolus, tempBasal: temp, faultCode: Self.faultCode(mask: faultMask))
+                         bolus: bolus, tempBasal: temp, faultCode: Self.faultCode(mask: faultMask),
+                         driveCalibration: cal, pairing: pairing, releaseReport: releaseReport(m))
     }
 
     /// Crude linear Li-Po estimate: 3.3 V (critical) = 0 %, 4.2 V = 100 %. Replace with the measured discharge curve.
@@ -262,6 +330,8 @@ public final class V1Transport: OpenPatchTransport {
 
     static func faultCode(mask: UInt16) -> FaultCode? {
         guard mask != 0 else { return nil }
+        if mask & V1.FaultBit.noCalibration != 0 { return .noCalibration }
+        if mask & V1.FaultBit.wearExpired != 0 { return .wearExpired }
         if mask & V1.FaultBit.occlusion != 0 { return .occlusion }
         if mask & V1.FaultBit.reservoirEmpty != 0 { return .reservoirEmpty }
         if mask & V1.FaultBit.encoderDeviation != 0 { return .encoderMismatch }
@@ -322,6 +392,13 @@ public final class V1Transport: OpenPatchTransport {
         case .fault: return Self.faultCode(mask: UInt16(truncatingIfNeeded: event.a)).map(PodEvent.fault)
         case .lowReservoir: return .lowReservoir(pulses: UInt16(clamping: Int(event.a) / 50))
         case .lowBattery: return .batteryLow(percent: Self.batteryPercent(millivolts: UInt16(clamping: Int(event.a))))
+        case .undocked: return .docked(false)
+        case .docked: return .docked(true)
+        case .wearWarning: return .wearWarning
+        case .wearExpired: return .wearExpired
+        case .release:
+            let reason: ReleaseReason = event.b == 1 ? .charger : (event.b == 2 ? .wear : .command)
+            return .released(deliveredUnits: Double(max(event.a, 0)) / 1000, reason: reason)
         default: return nil
         }
     }

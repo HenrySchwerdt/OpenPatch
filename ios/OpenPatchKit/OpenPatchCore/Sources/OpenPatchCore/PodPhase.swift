@@ -52,6 +52,9 @@ public extension PodPhase {
         case .suspend: return self == .active
         case .resume: return self == .suspended
         case .deactivate: return self != .unpaired && self != .deactivated
+        case .setPairing: return self != .unpaired && self != .active && self != .suspended
+        case .activatePod: return self == .filled
+        case .releasePod: return self != .unpaired
         }
     }
 

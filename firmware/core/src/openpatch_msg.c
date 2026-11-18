@@ -3,11 +3,18 @@
 #include "op/openpatch_proto.h"
 
 #define EVENT_TLV_LEN 17u
+#define POD_INFO_TLV_LEN 10u /* u32 pair id, u8 role, u8 delivery state, u32 wear s */
+#define DRIVE_CAL_TLV_LEN 10u /* u16 id, u32 uU/step, u16 steps/rev, u16 ratio x100 */
 
 static uint16_t rd16(const uint8_t *p) { return (uint16_t)(p[0] | (p[1] << 8)); }
 static uint32_t rd32(const uint8_t *p)
 {
     return (uint32_t)p[0] | ((uint32_t)p[1] << 8) | ((uint32_t)p[2] << 16) | ((uint32_t)p[3] << 24);
+}
+static void wr16(uint8_t *p, uint16_t v)
+{
+    p[0] = (uint8_t)v;
+    p[1] = (uint8_t)(v >> 8);
 }
 static void wr32(uint8_t *p, uint32_t v)
 {
@@ -17,7 +24,7 @@ static void wr32(uint8_t *p, uint32_t v)
     p[3] = (uint8_t)(v >> 24);
 }
 
-static bool known_cmd(uint8_t t) { return t >= OP_CMD_GET_STATUS && t <= OP_CMD_GET_HISTORY; }
+static bool known_cmd(uint8_t t) { return t >= OP_CMD_GET_STATUS && t <= OP_CMD_RELEASE; }
 
 /* ---- commands -------------------------------------------------------------- */
 int op_cmd_encode_payload(const op_cmd_t *c, uint8_t *out, size_t cap)
@@ -54,6 +61,26 @@ int op_cmd_encode_payload(const op_cmd_t *c, uint8_t *out, size_t cap)
         op_tlv_put_u32(&w, OP_TAG_FROM_ID, c->u.history.from_id);
         op_tlv_put_u8(&w, OP_TAG_MAX_EVENTS, c->u.history.max_events);
         break;
+    case OP_CMD_SET_PAIRING:
+        op_tlv_put_u32(&w, OP_TAG_PAIR_ID, c->u.pairing.pair_id);
+        op_tlv_put_u8(&w, OP_TAG_ROLE, c->u.pairing.role);
+        break;
+    case OP_CMD_RELEASE:
+        op_tlv_put_u32(&w, OP_TAG_PAIR_ID, c->u.release.pair_id);
+        break;
+    case OP_CMD_ACTIVATE:
+        op_tlv_put_u32(&w, OP_TAG_PAIR_ID, c->u.activate.pair_id);
+        op_tlv_put_u32(&w, OP_TAG_ACTIVATION_ID, c->u.activate.activation_id);
+        for (uint8_t i = 0; i < c->u.activate.schedule.count && i < OP_BASAL_SEGMENTS_MAX; i++) {
+            const op_basal_seg_t *g = &c->u.activate.schedule.seg[i];
+            uint8_t seg[3] = {g->start_slot, (uint8_t)g->rate_mu_h, (uint8_t)(g->rate_mu_h >> 8)};
+            op_tlv_put(&w, OP_TAG_BASAL_SEG, seg, 3);
+        }
+        if (c->u.activate.has_temp) {
+            op_tlv_put_u16(&w, OP_TAG_RATE_MU_H, (uint16_t)c->u.activate.temp_rate_mu_h);
+            op_tlv_put_u16(&w, OP_TAG_DURATION_MIN, (uint16_t)c->u.activate.temp_remaining_min);
+        }
+        break;
     default:
         break; /* no arguments */
     }
@@ -61,7 +88,7 @@ int op_cmd_encode_payload(const op_cmd_t *c, uint8_t *out, size_t cap)
 }
 
 typedef struct {
-    bool amount, rate, duration, sub_op, fill, prime;
+    bool amount, rate, duration, sub_op, fill, prime, pair_id, role, activation_id;
 } seen_t;
 
 static bool take_cmd_tag(op_cmd_t *out, seen_t *seen, uint8_t tag, const uint8_t *v, uint8_t vl)
@@ -73,17 +100,55 @@ static bool take_cmd_tag(op_cmd_t *out, seen_t *seen, uint8_t tag, const uint8_t
         out->time_of_day_ms = rd32(v);
         return true;
     case OP_TAG_BASAL_SEG:
+        if (out->type == OP_CMD_ACTIVATE) {
+            op_basal_schedule_t *s = &out->u.activate.schedule;
+            if (vl != 3 || s->count >= OP_BASAL_SEGMENTS_MAX) return false;
+            s->seg[s->count++] = (op_basal_seg_t){v[0], rd16(v + 1)};
+            return true;
+        }
         if (out->type != OP_CMD_SET_BASAL_SCHEDULE) return true;
         if (vl != 3 || out->u.basal.count >= OP_BASAL_SEGMENTS_MAX) return false;
         out->u.basal.seg[out->u.basal.count++] = (op_basal_seg_t){v[0], rd16(v + 1)};
         return true;
+    case OP_TAG_PAIR_ID:
+        if (vl != 4) return false;
+        if (out->type == OP_CMD_SET_PAIRING) out->u.pairing.pair_id = rd32(v);
+        else if (out->type == OP_CMD_RELEASE) out->u.release.pair_id = rd32(v);
+        else if (out->type == OP_CMD_ACTIVATE) out->u.activate.pair_id = rd32(v);
+        else return true;
+        seen->pair_id = true;
+        return true;
+    case OP_TAG_ROLE:
+        if (out->type != OP_CMD_SET_PAIRING) return true;
+        if (vl != 1) return false;
+        out->u.pairing.role = v[0];
+        seen->role = true;
+        return true;
+    case OP_TAG_ACTIVATION_ID:
+        if (out->type != OP_CMD_ACTIVATE) return true;
+        if (vl != 4) return false;
+        out->u.activate.activation_id = rd32(v);
+        seen->activation_id = true;
+        return true;
     case OP_TAG_RATE_MU_H:
+        if (out->type == OP_CMD_ACTIVATE) {
+            if (vl != 2) return false;
+            out->u.activate.temp_rate_mu_h = rd16(v);
+            seen->rate = true;
+            return true;
+        }
         if (out->type != OP_CMD_SET_TEMP_BASAL) return true;
         if (vl != 2) return false;
         out->u.temp.rate_mu_h = rd16(v);
         seen->rate = true;
         return true;
     case OP_TAG_DURATION_MIN:
+        if (out->type == OP_CMD_ACTIVATE) {
+            if (vl != 2) return false;
+            out->u.activate.temp_remaining_min = rd16(v);
+            seen->duration = true;
+            return true;
+        }
         if (out->type != OP_CMD_SET_TEMP_BASAL) return true;
         if (vl != 2) return false;
         out->u.temp.duration_min = rd16(v);
@@ -163,6 +228,17 @@ int op_cmd_decode(uint8_t type, uint16_t seq, const uint8_t *payload, size_t len
     case OP_CMD_BOLUS:
         if (!seen.amount) return -OP_ERR_FRAME;
         break;
+    case OP_CMD_SET_PAIRING:
+        if (!seen.pair_id || !seen.role) return -OP_ERR_FRAME;
+        break;
+    case OP_CMD_RELEASE:
+        if (!seen.pair_id) return -OP_ERR_FRAME;
+        break;
+    case OP_CMD_ACTIVATE:
+        if (!seen.pair_id || !seen.activation_id || out->u.activate.schedule.count == 0) return -OP_ERR_FRAME;
+        if (seen.rate != seen.duration) return -OP_ERR_FRAME; /* temp basal needs both or neither */
+        out->u.activate.has_temp = seen.rate && seen.duration;
+        break;
     case OP_CMD_FILL_PRIME:
         if (!seen.sub_op) return -OP_ERR_FRAME;
         break;
@@ -205,7 +281,20 @@ int op_rsp_encode_payload(const op_rsp_t *r, uint8_t *out, size_t cap)
         op_tlv_put_u32(&w, OP_TAG_NEXT_EVENT_ID, s->next_event_id);
         op_tlv_put_u16(&w, OP_TAG_FW_VERSION, s->fw_version);
         op_tlv_put_u16(&w, OP_TAG_LAST_SEQ, s->last_seq);
+        uint8_t cal[DRIVE_CAL_TLV_LEN];
+        wr16(cal, s->cal_drive_id);
+        wr32(cal + 2, s->cal_uu_per_step);
+        wr16(cal + 6, s->cal_steps_per_rev);
+        wr16(cal + 8, s->cal_gear_ratio_x100);
+        op_tlv_put(&w, OP_TAG_DRIVE_CAL, cal, DRIVE_CAL_TLV_LEN);
+        uint8_t pod[POD_INFO_TLV_LEN];
+        wr32(pod, s->pair_id);
+        pod[4] = s->role;
+        pod[5] = s->delivery_state;
+        wr32(pod + 6, s->wear_s);
+        op_tlv_put(&w, OP_TAG_POD_INFO, pod, POD_INFO_TLV_LEN);
     }
+    if (r->has_act_delivered) op_tlv_put_u32(&w, OP_TAG_ACT_DELIVERED_MU, r->act_delivered_mu);
     if (r->has_history) {
         op_tlv_put_u32(&w, OP_TAG_NEXT_EVENT_ID, r->next_event_id);
         op_tlv_put_u32(&w, OP_TAG_OLDEST_EVENT_ID, r->oldest_event_id);
@@ -271,6 +360,25 @@ static bool take_rsp_tag(op_rsp_t *o, uint8_t type, uint8_t tag, const uint8_t *
     case OP_TAG_LAST_SEQ:
         if (vl != 2) return false;
         s->last_seq = rd16(v);
+        return true;
+    case OP_TAG_DRIVE_CAL:
+        if (vl != DRIVE_CAL_TLV_LEN) return false;
+        s->cal_drive_id = rd16(v);
+        s->cal_uu_per_step = rd32(v + 2);
+        s->cal_steps_per_rev = rd16(v + 6);
+        s->cal_gear_ratio_x100 = rd16(v + 8);
+        return true;
+    case OP_TAG_POD_INFO:
+        if (vl != POD_INFO_TLV_LEN) return false;
+        s->pair_id = rd32(v);
+        s->role = v[4];
+        s->delivery_state = v[5];
+        s->wear_s = rd32(v + 6);
+        return true;
+    case OP_TAG_ACT_DELIVERED_MU:
+        if (vl != 4) return false;
+        o->has_act_delivered = true;
+        o->act_delivered_mu = rd32(v);
         return true;
     case OP_TAG_NEXT_EVENT_ID:
         if (vl != 4) return false;

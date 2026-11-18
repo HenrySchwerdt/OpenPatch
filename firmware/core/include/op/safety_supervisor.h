@@ -10,6 +10,7 @@
  *  - encoder deviation > 10 % over each >= 1 U window (total stall also
  *    raises OCCLUSION: "no travel despite steps")
  *  - reservoir empty, battery critical
+ *  - drive calibration present and within the sane range (else no step is ever approved)
  */
 #ifndef OP_SAFETY_SUPERVISOR_H
 #define OP_SAFETY_SUPERVISOR_H
@@ -20,6 +21,12 @@
 typedef struct {
     uint32_t max_bolus_mu;
     uint32_t max_basal_mu_h;
+    uint32_t uu_per_step;        /* validated drive calibration; 0 = missing/invalid -> no delivery */
+    uint32_t max_steps_per_min;  /* per-minute backstop derived from the calibration */
+    bool calibrated;
+    bool docked;                 /* hard precondition for every step (starts false) */
+    bool active;                 /* pod is the active pod of its pair (starts false) */
+    bool wear_expired;
     uint16_t minute_steps[60];   /* ring: steps approved per wall minute */
     uint64_t last_minute;
     bool clock_started;
@@ -36,7 +43,10 @@ typedef struct {
     bool battery_low;
 } op_sv_t;
 
-void op_sv_init(op_sv_t *sv, uint64_t now_ms, int32_t encoder_substeps);
+/* uu_per_step outside [OP_CAL_UU_MIN, OP_CAL_UU_MAX] (incl. 0 = missing) latches
+ * OP_FAULT_NO_CALIBRATION: every check/approve then refuses, and the fault cannot be
+ * acknowledged. */
+void op_sv_init(op_sv_t *sv, uint64_t now_ms, int32_t encoder_substeps, uint32_t uu_per_step);
 /* reject (OP_ERR_LIMIT) values above the hard caps or zero */
 op_err_t op_sv_configure(op_sv_t *sv, uint32_t max_bolus_mu, uint32_t max_basal_mu_h);
 
@@ -55,6 +65,15 @@ op_err_t op_sv_acknowledge(op_sv_t *sv, uint16_t mask);
 void op_sv_latch(op_sv_t *sv, uint16_t mask);
 /* Restart encoder bookkeeping (after fill/prime or fault ack). */
 void op_sv_rebaseline(op_sv_t *sv, int32_t encoder_substeps);
+
+/* Hard preconditions for delivery. Both start false: a pod delivers nothing until the controller
+ * has seen the DOCKED input and the pair state says this pod is the active one. */
+void op_sv_set_docked(op_sv_t *sv, bool docked);
+void op_sv_set_active(op_sv_t *sv, bool active);
+/* Latches OP_FAULT_WEAR_EXPIRED at >= OP_WEAR_MAX_MS. */
+void op_sv_observe_wear(op_sv_t *sv, uint64_t wear_ms);
+/* New activation: wear timer restarts, the wear fault is released. */
+void op_sv_reset_wear(op_sv_t *sv);
 
 static inline uint16_t op_sv_faults(const op_sv_t *sv) { return sv->faults; }
 static inline bool op_sv_motor_allowed(const op_sv_t *sv) { return sv->faults == 0; }

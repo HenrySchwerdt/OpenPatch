@@ -1,4 +1,5 @@
 #include "op/safety_supervisor.h"
+#include "cal_fixture.h"
 #include "op_test.h"
 
 #define MIN 60000ull
@@ -6,7 +7,9 @@
 static op_sv_t mk(void)
 {
     op_sv_t sv;
-    op_sv_init(&sv, 0, 0);
+    op_sv_init(&sv, 0, 0, TEST_UU);
+    op_sv_set_docked(&sv, true); /* delivery preconditions: docked + active pod */
+    op_sv_set_active(&sv, true);
     return sv;
 }
 
@@ -38,7 +41,7 @@ TEST(sv_check_bolus_respects_rolling_hour)
 {
     op_sv_t sv = mk();
     uint64_t t = 0;
-    uint32_t steps = op_mu_to_steps(10000); /* 763 */
+    uint32_t steps = op_mu_to_steps(TEST_UU, 10000); /* 383 */
     for (int i = 0; i < 8; i++) { /* spread so the per-minute cap is not hit */
         CHECK_EQ(op_sv_approve_steps(&sv, t, steps / 8, 100000), steps / 8);
         t += MIN;
@@ -94,10 +97,10 @@ TEST(sv_hourly_cap_trims_and_latches)
 {
     op_sv_t sv = mk();
     uint64_t t = 0;
-    uint32_t total = 0, cap = op_mu_to_steps(OP_MAX_HOURLY_MU); /* 1145 */
-    CHECK_EQ(cap, 1145);
-    for (int i = 0; i < 12; i++) { /* 100 steps/min is under the minute cap */
-        total += op_sv_approve_steps(&sv, t, 100, 1000000);
+    uint32_t total = 0, cap = op_mu_to_steps(TEST_UU, OP_MAX_HOURLY_MU); /* 574 */
+    CHECK_EQ(cap, 574);
+    for (int i = 0; i < 12; i++) { /* 60 steps/min is under the minute cap (65) */
+        total += op_sv_approve_steps(&sv, t, 60, 1000000);
         t += MIN;
     }
     CHECK_EQ(total, cap);
@@ -109,9 +112,9 @@ TEST(sv_hourly_cap_trims_and_latches)
 TEST(sv_rolling_window_slides)
 {
     op_sv_t sv = mk();
-    op_sv_approve_steps(&sv, 0, 100, 1000000);
-    CHECK_EQ(op_sv_hourly_steps(&sv, 30 * MIN), 100);
-    CHECK_EQ(op_sv_hourly_steps(&sv, 59 * MIN), 100);
+    op_sv_approve_steps(&sv, 0, 60, 1000000);
+    CHECK_EQ(op_sv_hourly_steps(&sv, 30 * MIN), 60);
+    CHECK_EQ(op_sv_hourly_steps(&sv, 59 * MIN), 60);
     CHECK_EQ(op_sv_hourly_steps(&sv, 60 * MIN), 0);
     CHECK_EQ(op_sv_hourly_steps(&sv, 500 * MIN), 0);
 }
@@ -120,23 +123,23 @@ TEST(sv_window_allows_full_cap_again_after_ack)
 {
     op_sv_t sv = mk();
     uint64_t t = 0;
-    for (int i = 0; i < 12; i++) { op_sv_approve_steps(&sv, t, 100, 1000000); t += MIN; }
+    for (int i = 0; i < 12; i++) { op_sv_approve_steps(&sv, t, 60, 1000000); t += MIN; }
     t += 61 * MIN;
     CHECK_EQ(op_sv_acknowledge(&sv, 0xFFFF), OP_OK);
-    CHECK_EQ(op_sv_approve_steps(&sv, t, 100, 1000000), 100);
+    CHECK_EQ(op_sv_approve_steps(&sv, t, 60, 1000000), 60);
 }
 
 TEST(sv_per_minute_backstop)
 {
     op_sv_t sv = mk();
-    CHECK_EQ(op_sv_approve_steps(&sv, 0, 200, 1000000), OP_MAX_STEPS_PER_MIN);
+    CHECK_EQ(op_sv_approve_steps(&sv, 0, 200, 1000000), op_mu_to_steps(TEST_UU, OP_MAX_MU_PER_MIN));
     CHECK(op_sv_faults(&sv) & OP_FAULT_LIMIT_EXCEEDED);
 }
 
 TEST(sv_reservoir_trim_latches_empty)
 {
     op_sv_t sv = mk();
-    CHECK_EQ(op_sv_approve_steps(&sv, 0, 10, 50), 3); /* floor(50*10/131) */
+    CHECK_EQ(op_sv_approve_steps(&sv, 0, 10, 100), 3); /* floor(100 mU / 26.1 mU) */
     CHECK(op_sv_faults(&sv) & OP_FAULT_RESERVOIR_EMPTY);
 }
 
@@ -186,13 +189,15 @@ static uint16_t drive(op_sv_t *sv, int iterations, uint32_t steps_each, uint32_t
 TEST(sv_healthy_encoder_never_faults)
 {
     op_sv_t sv = mk();
-    CHECK_EQ(drive(&sv, 200, 10, 100), 0);
+    CHECK_EQ(drive(&sv, 200, 8, 100), 0); /* 8 steps/min stays under the hourly cap */
+    CHECK(op_sv_motor_allowed(&sv));
 }
 
 TEST(sv_small_encoder_noise_is_tolerated)
 {
     op_sv_t sv = mk();
-    CHECK_EQ(drive(&sv, 100, 10, 97), 0); /* 3 % slip, ~13 U */
+    CHECK_EQ(drive(&sv, 100, 8, 97), 0); /* 3 % slip */
+    CHECK(op_sv_motor_allowed(&sv));
 }
 
 TEST(sv_encoder_deviation_over_10_percent_stops)
@@ -201,7 +206,7 @@ TEST(sv_encoder_deviation_over_10_percent_stops)
     uint16_t f = drive(&sv, 100, 10, 85);
     CHECK(f & OP_FAULT_ENCODER_DEVIATION);
     CHECK(!(f & OP_FAULT_OCCLUSION)); /* 85 % travel is deviation, not occlusion */
-    CHECK(sv.cmd_sub < op_mu_to_substeps(1400)); /* caught right after the first 1 U window */
+    CHECK(sv.cmd_sub < op_mu_to_substeps(TEST_UU, 1400)); /* caught right after the first 1 U window */
 }
 
 TEST(sv_full_stall_is_occlusion_and_deviation)
@@ -210,7 +215,7 @@ TEST(sv_full_stall_is_occlusion_and_deviation)
     uint16_t f = drive(&sv, 100, 10, 0);
     CHECK(f & OP_FAULT_OCCLUSION);
     CHECK(f & OP_FAULT_ENCODER_DEVIATION);
-    CHECK(sv.cmd_sub < op_mu_to_substeps(OP_OCCLUSION_MU)); /* before 2 U went undelivered */
+    CHECK(sv.cmd_sub < op_mu_to_substeps(TEST_UU, OP_OCCLUSION_MU)); /* before 2 U went undelivered */
 }
 
 TEST(sv_over_delivery_is_deviation_not_occlusion)
@@ -224,11 +229,11 @@ TEST(sv_over_delivery_is_deviation_not_occlusion)
 TEST(sv_slow_leak_below_deviation_still_trips_occlusion_at_2u)
 {
     op_sv_t sv = mk();
-    uint16_t f = drive(&sv, 400, 10, 92); /* 8 % each window, running balance grows */
+    uint16_t f = drive(&sv, 400, 8, 92); /* 8 % each window, running balance grows */
     CHECK(f & OP_FAULT_OCCLUSION);
     CHECK(!(f & OP_FAULT_ENCODER_DEVIATION));
     int64_t undelivered = sv.cmd_sub - (sv.last_enc - sv.enc_base);
-    CHECK(undelivered > op_mu_to_substeps(OP_OCCLUSION_MU));
+    CHECK(undelivered > op_mu_to_substeps(TEST_UU, OP_OCCLUSION_MU));
 }
 
 TEST(sv_ack_clears_latched_encoder_faults_and_rebaselines)
@@ -261,8 +266,8 @@ TEST(sv_ack_mask_is_selective_and_empty_ack_is_ok)
 {
     op_sv_t sv = mk();
     CHECK_EQ(op_sv_acknowledge(&sv, 0xFFFF), OP_OK); /* nothing latched */
-    op_sv_approve_steps(&sv, 0, 200, 1000000); /* LIMIT_EXCEEDED */
-    op_sv_observe(&sv, 0, 3900, 0, 130 * 16);   /* RESERVOIR_EMPTY, encoder consistent */
+    op_sv_approve_steps(&sv, 0, 200, 1000000); /* LIMIT_EXCEEDED, trimmed to 65 steps */
+    op_sv_observe(&sv, 0, 3900, 0, 65 * 16);   /* RESERVOIR_EMPTY, encoder consistent */
     CHECK_EQ(op_sv_acknowledge(&sv, OP_FAULT_LIMIT_EXCEEDED), OP_OK);
     CHECK_EQ(op_sv_faults(&sv), OP_FAULT_RESERVOIR_EMPTY);
 }
@@ -279,9 +284,9 @@ TEST(sv_motor_commanded_total_follows_rebaseline_after_prime)
 TEST(sv_clock_jump_clears_window)
 {
     op_sv_t sv = mk();
-    op_sv_approve_steps(&sv, 0, 100, 1000000);
-    op_sv_approve_steps(&sv, 10 * MIN, 100, 1000000);
-    CHECK_EQ(op_sv_hourly_steps(&sv, 10 * MIN), 200);
+    op_sv_approve_steps(&sv, 0, 60, 1000000);
+    op_sv_approve_steps(&sv, 10 * MIN, 60, 1000000);
+    CHECK_EQ(op_sv_hourly_steps(&sv, 10 * MIN), 120);
     CHECK_EQ(op_sv_hourly_steps(&sv, 1000 * MIN), 0);
     /* time never goes backwards: older timestamps do not corrupt the window */
     CHECK_EQ(op_sv_hourly_steps(&sv, 5 * MIN), 0);

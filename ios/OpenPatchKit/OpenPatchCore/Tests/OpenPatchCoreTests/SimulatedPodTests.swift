@@ -24,7 +24,7 @@ final class SimulatedPodTests: XCTestCase {
 
     func test_activationFlow_consumesPrimeVolumeFromReservoir() throws {
         let pod = try activePod(fill: 100)
-        XCTAssertEqual(pod.reservoirUnits, 100 - PumpConstants.primeUnits, accuracy: PumpConstants.unitsPerStep)
+        XCTAssertEqual(pod.reservoirUnits, 100 - PumpConstants.primeUnits, accuracy: DriveCalibration.zwbpd006006_5_1.unitsPerStep)
     }
 
     func test_commandsRejectedInWrongPhase() {
@@ -60,7 +60,7 @@ final class SimulatedPodTests: XCTestCase {
         let pod = try activePod(basal: 1.3)
         let before = pod.reservoirUnits
         pod.advance(by: 3600)
-        XCTAssertEqual(before - pod.reservoirUnits, 1.3, accuracy: PumpConstants.unitsPerStep * 2)
+        XCTAssertEqual(before - pod.reservoirUnits, 1.3, accuracy: DriveCalibration.zwbpd006006_5_1.unitsPerStep * 2)
     }
 
     func test_suspend_stopsDelivery_resumeContinues() throws {
@@ -72,7 +72,7 @@ final class SimulatedPodTests: XCTestCase {
         XCTAssertEqual(pod.handle(.bolus(id: 1, pulses: 20)), .rejected(.invalidState))
         XCTAssertTrue(pod.handle(.resume).isOK)
         pod.advance(by: 1800)
-        XCTAssertEqual(suspendedLevel - pod.reservoirUnits, 1.0, accuracy: PumpConstants.unitsPerStep * 2)
+        XCTAssertEqual(suspendedLevel - pod.reservoirUnits, 1.0, accuracy: DriveCalibration.zwbpd006006_5_1.unitsPerStep * 2)
     }
 
     // MARK: bolus
@@ -83,11 +83,11 @@ final class SimulatedPodTests: XCTestCase {
         guard case .ok(let status) = pod.handle(.bolus(id: 42, pulses: 60)) else { return XCTFail() }  // 3.0 U
         XCTAssertEqual(status.bolus?.id, 42)
         pod.advance(by: 60)
-        XCTAssertEqual(before - pod.reservoirUnits, 1.5, accuracy: PumpConstants.unitsPerStep * 2)
+        XCTAssertEqual(before - pod.reservoirUnits, 1.5, accuracy: DriveCalibration.zwbpd006006_5_1.unitsPerStep * 2)
         XCTAssertNotNil(pod.status.bolus)
         pod.advance(by: 61)
         XCTAssertNil(pod.status.bolus)
-        XCTAssertEqual(before - pod.reservoirUnits, 3.0, accuracy: PumpConstants.unitsPerStep * 2)
+        XCTAssertEqual(before - pod.reservoirUnits, 3.0, accuracy: DriveCalibration.zwbpd006006_5_1.unitsPerStep * 2)
         XCTAssertEqual(pod.drainEvents().first, .bolusCompleted(id: 42, deliveredPulses: 60))
     }
 
@@ -142,12 +142,12 @@ final class SimulatedPodTests: XCTestCase {
         XCTAssertTrue(pod.handle(.setTempBasal(rateTicks: 40, durationMinutes: 30)).isOK)   // 2.0 U/h
         let before = pod.reservoirUnits
         pod.advance(by: 1800)
-        XCTAssertEqual(before - pod.reservoirUnits, 1.0, accuracy: PumpConstants.unitsPerStep * 2)
+        XCTAssertEqual(before - pod.reservoirUnits, 1.0, accuracy: DriveCalibration.zwbpd006006_5_1.unitsPerStep * 2)
         XCTAssertTrue(pod.drainEvents().contains(.tempBasalEnded))
         XCTAssertNil(pod.status.tempBasal)
         let afterTemp = pod.reservoirUnits
         pod.advance(by: 3600)
-        XCTAssertEqual(afterTemp - pod.reservoirUnits, 1.0, accuracy: PumpConstants.unitsPerStep * 2, "scheduled rate resumes")
+        XCTAssertEqual(afterTemp - pod.reservoirUnits, 1.0, accuracy: DriveCalibration.zwbpd006006_5_1.unitsPerStep * 2, "scheduled rate resumes")
     }
 
     func test_zeroTempBasal_stopsBasal() throws {
@@ -200,7 +200,7 @@ final class SimulatedPodTests: XCTestCase {
         pod.advance(by: 3600 + 1800)   // 6.5 U at 5 U/h: empty after 78 min
         XCTAssertEqual(pod.phase, .faulted)
         XCTAssertEqual(pod.status.faultCode, .reservoirEmpty)
-        XCTAssertEqual(pod.reservoirUnits, 0, accuracy: PumpConstants.unitsPerStep)
+        XCTAssertEqual(pod.reservoirUnits, 0, accuracy: DriveCalibration.zwbpd006006_5_1.unitsPerStep)
         XCTAssertTrue(pod.drainEvents().contains(.fault(.reservoirEmpty)))
     }
 

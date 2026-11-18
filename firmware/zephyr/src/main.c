@@ -19,6 +19,7 @@
 #include "buzzer.h"
 #include "charger.h"
 #include "dfu.h"
+#include "encoder.h"
 #include "hal_zephyr.h"
 #include "op/pump_controller.h"
 #include "persist.h"
@@ -77,7 +78,11 @@ static void handle_evt(const struct app_evt *e)
     case APP_EVT_BUTTON_LONG: emergency_stop("emergency stop (long press)"); break;
     case APP_EVT_CHARGER_CHANGED: {
         bool now = charger_active();
-        if (now && !g_charging) emergency_stop("on charger"); /* no delivery while charging (H8/H9) */
+        if (now && !g_charging) {
+            emergency_stop("on charger"); /* no delivery while charging (H8/H9) */
+            op_pump_tick(&g_pump);        /* a pod on a charger is forced RELEASED right away */
+            persist_sync(&g_pump);
+        }
         g_charging = now;
         break;
     }
@@ -102,7 +107,10 @@ int main(void)
         return 0; /* TPL5010 will cut the motor supply; no delivery without a working HAL */
     }
 
-    op_pump_init(&g_pump, &g_hal, CONFIG_OPENPATCH_RESERVOIR_MU, st.next_event_id);
+    const op_drive_cal_t *cal = persist_drive_cal(&st); /* NULL -> pump refuses to deliver */
+    op_pump_init(&g_pump, &g_hal, cal, CONFIG_OPENPATCH_RESERVOIR_MU, st.next_event_id);
+    encoder_set_steps_per_spindle_rev(op_drive_cal_steps_per_spindle_rev(cal));
+    persist_apply_pod(&g_pump, &st);
     persist_apply_reservoir(&g_pump, &st);
     persist_sync(&g_pump);
 

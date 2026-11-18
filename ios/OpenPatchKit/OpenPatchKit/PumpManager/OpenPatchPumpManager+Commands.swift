@@ -50,7 +50,11 @@ extension OpenPatchPumpManager {
             return .connection(error)
         case .transport:
             return .communication(error)
-        case .rejected, .notReady, .bolusInProgress, .suspended, .noBolusToCancel, .podFault:
+        case .rejected, .notReady, .bolusInProgress, .suspended, .noBolusToCancel, .podFault, .calibration, .swapInProgress, .notActivePod:
+            return .deviceState(error)
+        case .swap(.unreachable), .swap(.ambiguous):
+            return .communication(error)
+        case .swap:
             return .deviceState(error)
         case .invalidAmount, .limit, .notConfigured, .fill:
             return .configuration(error)

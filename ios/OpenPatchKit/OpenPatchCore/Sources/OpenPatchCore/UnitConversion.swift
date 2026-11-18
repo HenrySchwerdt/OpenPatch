@@ -5,13 +5,14 @@ public enum UnitConversion {
     /// Tolerance for binary floating point (0.15 / 0.05 = 2.9999999999999996).
     private static let epsilon = 1e-9
 
-    public static func steps(forUnits units: Double) -> Int {
+    /// Nearest whole number of motor steps for `units` on the given drive.
+    public static func steps(forUnits units: Double, calibration: DriveCalibration) -> Int {
         guard units > 0 else { return 0 }
-        return Int((units / PumpConstants.unitsPerStep).rounded())
+        return Int((units / calibration.unitsPerStep).rounded())
     }
 
-    public static func units(forSteps steps: Int) -> Double {
-        Double(steps) * PumpConstants.unitsPerStep
+    public static func units(forSteps steps: Int, calibration: DriveCalibration) -> Double {
+        Double(steps) * calibration.unitsPerStep
     }
 
     /// Number of whole 0.05 U pulses contained in `units` (floor).
@@ -43,13 +44,17 @@ public enum UnitConversion {
 /// Converts a stream of small unit amounts to whole motor steps and carries the fractional rest,
 /// so that e.g. 100 x 0.05 U delivers 5.0 U (+-1 step) instead of 4 x 100 steps = 5.24 U.
 public struct StepAccumulator: Equatable, Codable {
+    public let calibration: DriveCalibration
     public private(set) var remainder: Double
 
-    public init(remainder: Double = 0) { self.remainder = remainder }
+    public init(calibration: DriveCalibration, remainder: Double = 0) {
+        self.calibration = calibration
+        self.remainder = remainder
+    }
 
     public mutating func steps(forUnits units: Double) -> Int {
         guard units > 0 else { return 0 }
-        let total = remainder + units / PumpConstants.unitsPerStep
+        let total = remainder + units / calibration.unitsPerStep
         let whole = Int((total + 1e-9).rounded(.down))
         remainder = max(total - Double(whole), 0)
         return whole

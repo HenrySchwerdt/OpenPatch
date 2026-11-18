@@ -14,6 +14,16 @@ public struct OpenPatchPumpManagerState: RawRepresentable, Equatable {
     public var podName: String?
     public var usesSimulatedPod = false
     public var firmwareVersion: String?
+    /// Two-pod system: both pods, which one is active, the swap state machine. `nil` before the first pod is paired.
+    public var pair: PodPairState?
+    /// Role of the pod `PumpManager.transport` talks to (the active pod once setup finished).
+    public var podRole: PodRole?
+    /// Drive calibration reported by that pod in its last status, and whether it is acceptable.
+    /// Without a known calibration the manager refuses to deliver, prime or fill.
+    public var driveCalibration: DriveCalibration?
+    public var calibrationProblem: CalibrationProblem?
+    /// What the pod itself says about being the active pod (`nil`: pod does not report it).
+    public var podReportsActive: Bool?
 
     // Lifecycle
     public var phase: PodPhase = .unpaired
@@ -53,6 +63,14 @@ public struct OpenPatchPumpManagerState: RawRepresentable, Equatable {
     public var timeZone: TimeZone { TimeZone(identifier: timeZoneIdentifier) ?? .current }
     public var safetyLimits: SafetyLimits { SafetyLimits(maxBolus: maxBolus, maxBasalRate: maxBasalRate) }
     public var isSuspended: Bool { phase == .suspended }
+    public var isSwapping: Bool { pair?.isSwapping ?? false }
+
+    /// `nil` = delivery-related commands are allowed. Anything else must stop priming, filling and delivery.
+    public var calibrationBlock: OpenPatchError? {
+        if let problem = calibrationProblem { return .calibration(problem) }
+        guard let cal = driveCalibration, cal.isKnown else { return .calibration(.missing) }
+        return nil
+    }
 
     public var basalProgram: BasalProgram? {
         guard !basalSegments.isEmpty else { return nil }
@@ -67,6 +85,11 @@ public struct OpenPatchPumpManagerState: RawRepresentable, Equatable {
         var podName: String?
         var usesSimulatedPod: Bool
         var firmwareVersion: String?
+        var pair: PodPairState?
+        var podRole: PodRole?
+        var driveCalibration: DriveCalibration?
+        var calibrationProblem: CalibrationProblem?
+        var podReportsActive: Bool?
         var phase: PodPhase
         var faultCode: FaultCode?
         var isSetupCompleted: Bool
@@ -97,6 +120,8 @@ public struct OpenPatchPumpManagerState: RawRepresentable, Equatable {
               let s = try? JSONDecoder().decode(Stored.self, from: data) else { return nil }
         podSize = s.podSize; peripheralIdentifier = s.peripheralIdentifier; podName = s.podName
         usesSimulatedPod = s.usesSimulatedPod; firmwareVersion = s.firmwareVersion
+        pair = s.pair; podRole = s.podRole; driveCalibration = s.driveCalibration
+        calibrationProblem = s.calibrationProblem; podReportsActive = s.podReportsActive
         phase = s.phase; faultCode = s.faultCode; isSetupCompleted = s.isSetupCompleted; activatedAt = s.activatedAt
         reservoirUnits = s.reservoirUnits; batteryFraction = s.batteryFraction; lastSync = s.lastSync
         lastPodTotalDeliveredUnits = s.lastPodTotalDeliveredUnits
@@ -112,7 +137,9 @@ public struct OpenPatchPumpManagerState: RawRepresentable, Equatable {
 
     public var rawValue: RawValue {
         let s = Stored(podSize: podSize, peripheralIdentifier: peripheralIdentifier, podName: podName,
-                       usesSimulatedPod: usesSimulatedPod, firmwareVersion: firmwareVersion, phase: phase,
+                       usesSimulatedPod: usesSimulatedPod, firmwareVersion: firmwareVersion, pair: pair, podRole: podRole,
+                       driveCalibration: driveCalibration, calibrationProblem: calibrationProblem,
+                       podReportsActive: podReportsActive, phase: phase,
                        faultCode: faultCode, isSetupCompleted: isSetupCompleted, activatedAt: activatedAt,
                        reservoirUnits: reservoirUnits, batteryFraction: batteryFraction, lastSync: lastSync,
                        lastPodTotalDeliveredUnits: lastPodTotalDeliveredUnits, basalSegments: basalSegments,

@@ -9,6 +9,7 @@ final class OpenPatchSettingsViewModel: ObservableObject, PumpManagerStatusObser
     @Published var errorMessage: String?
     @Published var showRefill = false
     @Published var confirmRemoval = false
+    @Published var showSwap = false
 
     let manager: OpenPatchPumpManager
     let allowSimulator: Bool
@@ -74,6 +75,16 @@ final class OpenPatchSettingsViewModel: ObservableObject, PumpManagerStatusObser
             }
         }
     }
+
+    func makeSwapModel() -> OpenPatchSwapViewModel {
+        let model = OpenPatchSwapViewModel(manager: manager, allowSimulator: allowSimulator)
+        model.onClose = { [weak self] in self?.showSwap = false; self?.state = self?.manager.state ?? OpenPatchPumpManagerState() }
+        return model
+    }
+
+    /// Separate reservoir / battery / wear / dock state of each pod; `nil` before the first pod is paired.
+    var pods: [PodRecord] { (state.pair?.pods ?? []).sorted { $0.role.rawValue < $1.role.rawValue } }
+    var activeRole: PodRole? { state.pair?.active }
 
     func makeRefillModel() -> OpenPatchSetupViewModel {
         let model = OpenPatchSetupViewModel(manager: manager, allowSimulator: allowSimulator, isRefill: true)

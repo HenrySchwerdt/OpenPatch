@@ -80,6 +80,16 @@ The MCUboot signing key is generated on first build into `firmware/keys/mcuboot-
 
 Flash layout (nRF52840 standard partitions): MCUboot 0x0-0xC000, slot0 0xC000 (472 KB), slot1 0x82000 (472 KB), storage 0xF8000 (32 KB, settings/NVS + BLE bonds).
 
+## Drive calibration, dock input, two-pod behaviour
+
+* **Drive (SAFETY CRITICAL).** The insulin volume per motor step is selected at build time: `CONFIG_OPENPATCH_DRIVE_ZWBPD006006_5_1` (default, Rev A, 0.0261 U/step) or
+  `CONFIG_OPENPATCH_DRIVE_FAULHABER_16_1` (0.0082 U/step). It is stored on the first boot (`op/cal`, magic + CRC-32) and must equal the build's preset on every later boot,
+  otherwise the pod refuses to deliver (`NO_CALIBRATION`, not acknowledgeable). Reflashing a pod with a different drive needs `west flash --erase`. It is reported in `GetStatus`
+  (`DRIVE_CAL`, `docs/openpatch-protocol.md` 3.3).
+* **Dock input.** `dock-gpios` (Hall switch + magnet in the cannula adapter) is a hard precondition of the safety supervisor: undocked = no step. On the dev kit Button 2 toggles a
+  simulated dock input (`CONFIG_OPENPATCH_SIM_DOCK`, starts undocked). The Rev A pin is a placeholder (VERIFY on the schematic).
+* **Wear timer / Activate / Release / charger** are specified in `docs/openpatch-protocol.md` 3.4; wear time is persisted as an upper bound (`op/pod`).
+
 ## Flashing
 
 All options program the **merged hex**. For a first flash of Rev A use a full chip erase (the UICR `nRESET` pin setting on P0.18 is written at the first boot).
