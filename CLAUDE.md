@@ -1,23 +1,23 @@
-# CLAUDE.md – Anweisungen für KI-Assistenten in diesem Repo
+# CLAUDE.md – Instructions for AI assistants in this repo
 
-**Projekt:** OpenPatch, eine experimentelle Open-Source-Patch-Insulinpumpe. **Kein Medizinprodukt.** Sicherheit hat Vorrang vor allem anderen (siehe `docs/02-safety.md`).
+**Project:** OpenPatch, an experimental open-source patch insulin pump. **Not a medical device.** Safety takes priority over everything else (see `docs/02-safety.md`).
 
-## Einstieg
-1. `docs/STATUS.md`: aktueller Stand, Entscheidungen, nächste Schritte
-2. `spec/design-parameters.md`: Single Source of Truth für alle Maße, Bauteile und Grenzwerte. Änderungen zuerst dort, danach in den Teilprojekten nachziehen.
+## Getting started
+1. `docs/STATUS.md`: current state, decisions, next steps
+2. `spec/design-parameters.md`: single source of truth for all dimensions, components and limits. Make changes there first, then propagate them to the subprojects.
 
-## Regeln
-- Sprache der Doku: **Deutsch**. Code und Kommentare: Englisch ist ok.
-- Sicherheitsgrenzen (Spec §7) dürfen nie stillschweigend gelockert werden.
-- Der Hardware-Interlock (Motor nur mit MCU-Freigabe **und** Watchdog) bleibt in jeder Revision erhalten.
-- Firmware-Kern und Swift-Kern werden testgetrieben entwickelt. Alle Tests müssen vor dem Commit grün sein.
-- Mechanik: Nach jeder Änderung `mechanical/check.py` ausführen. Höhe ≤ 8,5 mm.
-- Montage ohne Lötkolben (Spec §1a).
-- Herstellerdatenblätter (PDF) nicht committen, sie sind über `.gitignore` ausgeschlossen.
-- Nach jeder Arbeitseinheit `docs/STATUS.md` aktualisieren, committen (Conventional Commits) und pushen.
+## Rules
+- All documentation, code comments and UI text in English.
+- Safety limits (spec §7) must never be relaxed silently.
+- The hardware interlock (motor only with MCU enable **and** watchdog) is kept in every revision.
+- The firmware core and the Swift core are developed test-first. All tests must be green before committing.
+- Mechanics: run `mechanical/check.py` after every change. Height ≤ 8.5 mm.
+- Assembly without a soldering iron (spec §1a).
+- Do not commit manufacturer datasheets (PDF); they are excluded via `.gitignore`.
+- After every unit of work, update `docs/STATUS.md`, commit (Conventional Commits) and push.
 
-## Werkzeuge auf dem Entwickler-Mac
-- SolidCraft (3D): `/Applications/SolidCraft.app/Contents/MacOS/solidcraft-cli`. MCP-Server: `solidcraft-cli mcp`
-- CADCraft (2D, DXF/DWG): `/Applications/CADCraft.app`, Steuerserver: `--control <PORT>`
+## Tools on the developer Mac
+- SolidCraft (3D): `/Applications/SolidCraft.app/Contents/MacOS/solidcraft-cli`. MCP server: `solidcraft-cli mcp`
+- CADCraft (2D, DXF/DWG): `/Applications/CADCraft.app`, control server: `--control <PORT>`
 - KiCad 10: `/Applications/KiCad/KiCad.app/Contents/MacOS/kicad-cli`
-- nRF Connect SDK: `nrfutil` (Homebrew), SDK unter `~/ncs`
+- nRF Connect SDK: `nrfutil` (Homebrew), SDK in `~/ncs`

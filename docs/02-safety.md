@@ -1,40 +1,40 @@
-# Sicherheitskonzept
+# Safety concept
 
-> **Wichtig:** OpenPatch ist ein experimentelles DIY-Gerät und kein zugelassenes Medizinprodukt. Fehlförderung von Insulin kann tödlich sein: Hypoglykämie bei Überförderung, Ketoazidose bei Unterbrechung. Benutzung auf eigenes Risiko. Halte immer Pen oder Spritze, Glukagon und einen CGM-Alarm bereit.
+> **Important:** OpenPatch is an experimental DIY device and not an approved medical device. Mis-delivery of insulin can be fatal: hypoglycemia on over-delivery, ketoacidosis on interruption. Use at your own risk. Always keep a pen or syringe, glucagon and a CGM alarm at hand.
 
-## 1. Gefährdungen und Gegenmaßnahmen
+## 1. Hazards and countermeasures
 
-| # | Gefährdung | Ursache | Gegenmaßnahme (Ebene) |
+| # | Hazard | Cause | Countermeasure (layer) |
 |---|---|---|---|
-| H1 | **Überförderung** | Firmware-Bug, Motor läuft durch, BLE-Kommando doppelt, Kolben „springt“ | (a) Safety-Supervisor mit harten Grenzen, getrennt von der Delivery-Engine (FW). (b) Motortreiber braucht **zwei** Freigaben: MCU-GPIO **und** externer Watchdog TPL5010 (HW). (c) Encoder misst die tatsächliche Spindeldrehung unabhängig von den Schritten (HW+FW). (d) Sequenznummern und Replay-Schutz (Protokoll). (e) Stündliches Rolling-Limit von 15 IE. |
-| H2 | **Unterförderung / Okklusion** | Kanüle abgeknickt, Pod nicht eingerastet, Luft | Encoder-Schlupf, Stromanstieg, Alarm ab ≤ 2 IE nicht gefördert; Erkennung des Andockens (Hall- oder Kontaktschalter in der Kanülentasche) |
-| H3 | **Unbemerkter Förderstopp** | Akku leer, Brown-out, Absturz | Akku-Warnung bei 20 %, Alarm bei 10 %; Brown-out-Reset → Pod startet im Zustand **SUSPENDED** und meldet sich mit Alarm, statt still weiterzulaufen; Summer läuft aus einem eigenen Pfad |
-| H4 | **Luft im Reservoir** | Befüllung | Füllanleitung mit Entlüften, Priming-Pflicht vor dem ersten Ankoppeln |
-| H5 | **Falsche Konzentration** | U200 statt U100 | App verlangt beim Füllen U100 und Insulintyp |
-| H6 | **Kommunikationsverlust** | BLE weg | Temp-Basal fällt nach max. 30 min auf die programmierte Basalrate zurück; Basal läuft autark auf dem Pod weiter |
-| H7 | **Fremdzugriff** | Angreifer per BLE | Pairing mit Schlüsselaustausch (X25519), AES-CCM, kein unauthentifiziertes Bolus-Kommando, Pairing nur nach Tastendruck am Pod |
-| H8 | **Insulin-Degradation** | Wärme durch Laden oder Elektronik, ungeeignete Materialien | Laden nur mit abgenommenem Pod (Ladeerkennung → Förderung pausiert + Hinweis); Temperatursensor; insulinberührte Teile nur aus PP/COC/Silikon in Medizinqualität. **3D-Druck-Reservoire nur für Wassertests.** |
-| H9 | **Abnehmen vergessen / Pod am Ladegerät** | Benutzung | Andock-Erkennung: Ist der Pod nicht angedockt, pausiert er die Förderung, alarmiert nach 15 min und meldet „nicht angekoppelt“ an Trio |
-| H10 | **Mechanischer Rücklauf / Siphon** | Druck auf das Gehäuse | Stadion-Kolben mit Verdrehsicherung, selbsthemmende Spindel (M1,6 × 0,35 ist selbsthemmend) |
+| H1 | **Over-delivery** | Firmware bug, motor runs on, BLE command duplicated, piston "jumps" | (a) Safety supervisor with hard limits, separate from the delivery engine (FW). (b) Motor driver needs **two** enables: MCU GPIO **and** external TPL5010 watchdog (HW). (c) Encoder measures the actual spindle rotation independently of the steps (HW+FW). (d) Sequence numbers and replay protection (protocol). (e) Hourly rolling limit of 15 U. |
+| H2 | **Under-delivery / occlusion** | Cannula kinked, pod not latched, air | Encoder slip, current rise, alarm at ≤ 2 U not delivered; docking detection (Hall or contact switch in the cannula pocket) |
+| H3 | **Unnoticed delivery stop** | Battery empty, brown-out, crash | Battery warning at 20 %, alarm at 10 %; brown-out reset → pod starts in state **SUSPENDED** and announces itself with an alarm instead of silently continuing; buzzer runs from its own path |
+| H4 | **Air in the reservoir** | Filling | Filling instructions with venting, priming required before first docking |
+| H5 | **Wrong concentration** | U200 instead of U100 | App requires U100 and the insulin type when filling |
+| H6 | **Loss of communication** | BLE gone | Temp basal falls back to the programmed basal rate after at most 30 min; basal continues autonomously on the pod |
+| H7 | **Unauthorized access** | Attacker via BLE | Pairing with key exchange (X25519), AES-CCM, no unauthenticated bolus command, pairing only after a button press on the pod |
+| H8 | **Insulin degradation** | Heat from charging or electronics, unsuitable materials | Charge only with the pod detached (charge detection → delivery paused + notice); temperature sensor; insulin-contacting parts only from medical-grade PP/COC/silicone. **3D-printed reservoirs for water tests only.** |
+| H9 | **Forgot to remove / pod on the charger** | Use | Docking detection: if the pod is not docked, it pauses delivery, alarms after 15 min and reports "not docked" to Trio |
+| H10 | **Mechanical backflow / siphon** | Pressure on the housing | Stadium piston with anti-rotation feature, self-locking spindle (M1.6 × 0.35 is self-locking) |
 
-## 2. Hardware-Interlock (Kern)
+## 2. Hardware interlock (core)
 
 ```
             MCU GPIO MOTOR_EN ──┐
                                  AND ──► Load-Switch ──► STSPIN220 VS/VDD
  TPL5010 WAKE/DONE-Watchdog ────┘
-       (wird nur von der Safety-Task "gefüttert";
-        bleibt sie aus → Motorversorgung hart AUS)
+       (is "fed" only by the safety task;
+        if it stops, motor supply is hard OFF)
 ```
 
-- Die Delivery-Engine darf **nie** selbst den Watchdog bedienen. Das tut ausschließlich der Safety-Supervisor, und nur, wenn alle Prüfungen bestanden sind.
-- Die Encoder-Auswertung läuft im Safety-Supervisor. Weichen Schritte und Drehung um mehr als 10 % über 1 IE voneinander ab, folgt der Förderstopp.
+- The delivery engine must **never** service the watchdog itself. Only the safety supervisor does that, and only when all checks have passed.
+- The encoder evaluation runs in the safety supervisor. If steps and rotation deviate by more than 10 % over 1 U, delivery is stopped.
 
-## 3. Verifikationsplan vor dem ersten Einsatz am Körper
+## 3. Verification plan before first use on the body
 
-1. Gravimetrische Fördergenauigkeit mit Wasser auf einer Feinwaage mit 0,1 mg Auflösung: 0,05 / 0,5 / 5 IE, je 50 Wiederholungen. Ziel: ±5 % ab 1 IE.
-2. Okklusionstest: Auslass verschlossen → Alarm vor 2 IE.
-3. 72-h-Dauertest mit Wasser und Basalprofil, dabei BLE-Ab- und Wiederverbindungen.
-4. Fehlerinjektion: Firmware hängt → Watchdog schaltet den Motor ab (oszilloskopisch prüfen).
-5. Dichtheit: 30 min unter Wasser in 1 m Tiefe (IPX7-ähnlich).
-6. Erst dann Tests mit Insulin, zunächst parallel zu einer zugelassenen Pumpe oder zum Pen, mit engmaschiger CGM-Überwachung.
+1. Gravimetric delivery accuracy with water on a precision balance with 0.1 mg resolution: 0.05 / 0.5 / 5 U, 50 repetitions each. Target: ±5 % from 1 U.
+2. Occlusion test: outlet blocked → alarm before 2 U.
+3. 72 h endurance test with water and a basal profile, including BLE disconnects and reconnects.
+4. Fault injection: firmware hangs → watchdog switches the motor off (verify with an oscilloscope).
+5. Leak tightness: 30 min under water at 1 m depth (IPX7-like).
+6. Only then tests with insulin, initially in parallel with an approved pump or the pen, with close CGM monitoring.

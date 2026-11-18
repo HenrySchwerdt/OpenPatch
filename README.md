@@ -1,18 +1,18 @@
-# OpenPatch – offene, abnehmbare Patch-Insulinpumpe
+# OpenPatch – open, detachable patch insulin pump
 
-> ⚠️ **Experimentelles DIY-Projekt und kein zugelassenes Medizinprodukt.** Fehlförderung von Insulin kann lebensgefährlich sein. Lies zuerst [docs/02-safety.md](docs/02-safety.md).
+> ⚠️ **Experimental DIY project and not an approved medical device.** Mis-delivery of insulin can be life-threatening. Read [docs/02-safety.md](docs/02-safety.md) first.
 
-Ein wiederverwendbarer, sehr flacher Pod (Ziel ≤ 8,5 mm, Omnipod DASH: 14,5 mm). Er wird direkt auf eine **Accu-Chek Insight Flex**-Kanüle gesteckt und mit Klett am Pflaster befestigt. Befüllt wird er mit einer Spritze durch ein Septum, geladen per Qi. Es gibt ihn in drei Größen: **70 / 100 / 200 IE**. Gesteuert wird er aus **Trio**, entweder über ein eigenes PumpManager-Kit oder über die Omnipod-DASH-Emulation.
+A reusable, very flat pod (target ≤ 8.5 mm, Omnipod DASH: 14.5 mm). It plugs directly onto an **Accu-Chek Insight Flex** cannula and is attached to the adhesive patch with Velcro. It is filled with a syringe through a septum and charged via Qi. It comes in three sizes: **70 / 100 / 200 U**. It is controlled from **Trio**, either through a dedicated PumpManager kit or through the Omnipod DASH emulation.
 
-| Ordner | Inhalt |
+| Folder | Contents |
 |---|---|
-| [spec/design-parameters.md](spec/design-parameters.md) | **Single Source of Truth**: alle Maße, Bauteile, Grenzwerte |
-| [docs/](docs/) | Architektur, Sicherheit, Patente |
-| [mechanical/](mechanical/) | 3D-Gehäuse (SolidCraft), STEP/STL, Messblatt für die Kanüle |
-| [electronics/](electronics/) | Schaltung als Code, BOM, Platinenkontur (DXF → CADCraft), PCBWay-Kosten |
-| [firmware/](firmware/) | C-Kern (Delivery, Safety, Protokoll) mit Host-Tests, Zephyr-Skelett, DASH-Kompatibilitätsplan |
-| [ios/](ios/) | `OpenPatchKit` für Trio (LoopKit PumpManager) |
+| [spec/design-parameters.md](spec/design-parameters.md) | **Single source of truth**: all dimensions, components, limits |
+| [docs/](docs/) | Architecture, safety, patents |
+| [mechanical/](mechanical/) | 3D housing (SolidCraft), STEP/STL, measurement sheet for the cannula |
+| [electronics/](electronics/) | Circuit as code, BOM, board outline (DXF → CADCraft), PCBWay costs |
+| [firmware/](firmware/) | C core (delivery, safety, protocol) with host tests, Zephyr skeleton, DASH compatibility plan |
+| [ios/](ios/) | `OpenPatchKit` for Trio (LoopKit PumpManager) |
 
-## Werkzeuge
-- **SolidCraft** (3D, MCP-Server: `solidcraft-cli mcp`) für das Gehäuse
-- **CADCraft** (2D DWG/DXF) für Zeichnungen und die Platinenkontur
+## Tools
+- **SolidCraft** (3D, MCP server: `solidcraft-cli mcp`) for the housing
+- **CADCraft** (2D DWG/DXF) for drawings and the board outline

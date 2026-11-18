@@ -1,40 +1,40 @@
-# Systemarchitektur
+# System architecture
 
 ```mermaid
 flowchart LR
   subgraph Phone["iPhone – Trio"]
-    T[Trio Algorithmus] --> PK1[OpenPatchKit<br/>eigener PumpManager]
-    T --> PK2[OmnipodKit<br/>DASH, unverändert]
+    T[Trio algorithm] --> PK1[OpenPatchKit<br/>dedicated PumpManager]
+    T --> PK2[OmnipodKit<br/>DASH, unmodified]
   end
-  PK1 -- "BLE: OpenPatch-Protokoll" --> FW
-  PK2 -- "BLE: DASH-Protokoll (Pod-Emulation)" --> FW
-  subgraph Pod["OpenPatch Pod (wiederverwendbar)"]
-    FW[nRF54L15 Firmware<br/>Delivery-Engine + Safety-Supervisor] --> DRV[STSPIN220]
-    WD[TPL5010 Watchdog] --> SW[Load-Switch]
-    FW --> SW --> DRV --> M[Ø6 mm Stepper + 10:1] --> S[Spindel M1,6] --> K[Stadion-Kolben]
-    ENC[Hall-Encoder] --> FW
-    QI[Qi-Spule + BQ51003] --> CH[BQ25120A] --> B[LiPo 60–90 mAh]
-    K --> R[(Reservoir 0,7 / 1 / 2 ml)] --> N[30G-Nadel]
-    SEP[Füll-Septum] --> R
+  PK1 -- "BLE: OpenPatch protocol" --> FW
+  PK2 -- "BLE: DASH protocol (pod emulation)" --> FW
+  subgraph Pod["OpenPatch Pod (reusable)"]
+    FW[ISP1807 module (nRF52840) firmware<br/>delivery engine + safety supervisor] --> DRV[STSPIN220]
+    WD[TPL5010 watchdog] --> SW[Load switch]
+    FW --> SW --> DRV --> M[Ø6 mm stepper + 10:1] --> S[Spindle M1.6] --> K[Stadium piston]
+    ENC[Hall encoder] --> FW
+    QI[Qi coil + BQ51003] --> CH[BQ25120A] --> B[LiPo ~35–45 mAh]
+    K --> R[(Reservoir 0.7 / 1 / 2 ml)] --> N[30G needle]
+    SEP[Fill septum] --> R
   end
-  N --> C[Accu-Chek Insight Flex<br/>Kanülenkopf] --> Haut
+  N --> C[Accu-Chek Insight Flex<br/>cannula head] --> Skin
 ```
 
-## Entscheidungen
+## Decisions
 
-| Thema | Entscheidung | Warum |
+| Topic | Decision | Why |
 |---|---|---|
-| „Eigener Chip“ | **Kein ASIC.** Stattdessen eine eigene, hochintegrierte 4-Lagen-Platine um den nRF54L15 | Ein ASIC kostet sechs- bis siebenstellig und dauert 1–2 Jahre. PCBWay fertigt keine ICs. Das Ziel „super optimiert“ erreichen wir über Layout, Firmware und Stromsparmodi. |
-| Antrieb | Schrittmotor + Spindel + Kolben | Genau, mit Encoder verifizierbar, Prinzip patentfrei. Piezo-Pumpen sind mit Insulin nicht validiert. |
-| Flachheit | **Stadion-Reservoir 16 × 5 mm** statt Rundzylinder | Ein runder 2-ml-Zylinder bräuchte Ø ≥ 9,5 mm und damit ≥ 12 mm Bauhöhe. Mit dem Stadion-Querschnitt sind ≤ 8,5 mm möglich. |
-| Größen | Nur die Länge variiert (Hub 9,4 / 13,4 / 26,8 mm) | Gleiche Elektronik, gleicher Antrieb, gleiche Kanülentasche |
-| Laden | Qi (BQ51003), Laden nur abgenommen | Kein Steckerloch, dadurch dicht; keine Wärme am Insulin während der Förderung |
-| Trio | (1) eigenes `OpenPatchKit`, (2) DASH-Emulation | (1) zeigt echte Werte und bleibt sauber. (2) funktioniert sofort mit einem unveränderten Trio. Die Referenz-Implementierung ist nightscout/ESP-Sim. |
-| Omnipod 5 | **nicht emuliert** | O5-Pairing nutzt signierte P-256-Transkripte und einen externen Key-Manager mit App Attest. Gegenüber DASH bringt das keinen Vorteil. |
-| Lizenz | Hardware CERN-OHL-S v2, iOS-Kit MIT, Firmware GPL-3.0 (wegen ESP-Sim im DASH-Modus) | Echt Open Source |
+| "Own chip" | **No ASIC.** Rev A: custom 4-layer board around the ISP1807 SiP module (nRF52840, antenna integrated). Rev B: bare nRF54L15 | An ASIC costs six to seven figures and takes 1–2 years. PCB fabs (JLCPCB/PCBWay) do not manufacture ICs. We reach the goal of "super optimized" through layout, firmware and low-power modes. |
+| Drive | Stepper motor + spindle + piston | Accurate, verifiable with an encoder, principle not patented. Piezo pumps are not validated with insulin. |
+| Flatness | **Stadium reservoir 16 × 5 mm** instead of a round cylinder | A round 2 ml cylinder would need Ø ≥ 9.5 mm and therefore ≥ 12 mm build height. With the stadium cross-section, ≤ 8.5 mm is possible. |
+| Sizes | Only the length varies (stroke 9.4 / 13.4 / 26.8 mm) | Same electronics, same drive, same cannula pocket |
+| Charging | Qi (BQ51003), charging only when detached | No connector hole, so it is sealed; no heat at the insulin during delivery |
+| Trio | (1) dedicated `OpenPatchKit`, (2) DASH emulation | (1) shows real values and stays clean. (2) works immediately with an unmodified Trio. The reference implementation is nightscout/ESP-Sim. |
+| Omnipod 5 | **not emulated** | O5 pairing uses signed P-256 transcripts and an external key manager with App Attest. Compared with DASH, this offers no advantage. |
+| License | Hardware CERN-OHL-S v2, iOS kit MIT, firmware GPL-3.0 (because of ESP-Sim in DASH mode) | Genuine open source |
 
-## Was Trio im Quellcode macht (verifiziert)
+## What Trio does in its source code (verified)
 
-- `nightscout/Trio/.gitmodules`: Pumpen sind Submodule (OmnipodKit, DanaKit, MedtrumKit, MinimedKit, AccuChekKit …).
-- `Trio/Sources/APS/Devices/DeviceCatalog.swift` → `DeviceCatalog.pumps`: Eine neue Pumpe braucht dort einen Eintrag.
-- `loopandlearn/OmnipodKit/OmnipodKit/Bluetooth/`: DASH-Service `1A7E4024-E3ED-4464-8B7E-751E03D0DC5F`, Command `…2441`, Data `…2442`. Pairing per X25519 + AES-CMAC zum LTK, Session per EAP-AKA/Milenage, Nachrichten per AES-128-CCM. Details stehen in `firmware/docs/dash-compat.md`.
+- `nightscout/Trio/.gitmodules`: pumps are submodules (OmnipodKit, DanaKit, MedtrumKit, MinimedKit, AccuChekKit …).
+- `Trio/Sources/APS/Devices/DeviceCatalog.swift` → `DeviceCatalog.pumps`: a new pump needs an entry there.
+- `loopandlearn/OmnipodKit/OmnipodKit/Bluetooth/`: DASH service `1A7E4024-E3ED-4464-8B7E-751E03D0DC5F`, command `…2441`, data `…2442`. Pairing via X25519 + AES-CMAC to the LTK, session via EAP-AKA/Milenage, messages via AES-128-CCM. Details are in `firmware/docs/dash-compat.md`.

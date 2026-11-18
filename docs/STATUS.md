@@ -1,59 +1,59 @@
-# Projektstatus & Übergabe
+# Project status & handover
 
-> Diese Datei ist der **Einstiegspunkt für jede neue Session** (anderer Rechner, anderes Claude-Abo, andere Person).
-> Sie wird bei jedem Push aktualisiert. Zuletzt aktualisiert: **2026-11-18**.
+> This file is the **entry point for every new session** (another machine, another Claude subscription, another person).
+> It is updated on every push. Last updated: **2026-11-18**.
 
-## Ziel
+## Goal
 
-Eine Open-Source-Patch-Insulinpumpe („OpenPatch“). Sie ist abnehmbar, steckt auf eine Accu-Chek-Insight-Flex-Kanüle und hält mit Klett. Weitere Eckpunkte:
-- Befüllung per Spritze, induktives Laden.
-- Größen: 70, 100 und 200 IE.
-- Bauhöhe ≤ 8,5 mm.
-- Steuerung aus Trio, entweder über ein eigenes Kit oder über DASH-Emulation.
-- Bestellbar bei PCBWay, Zielbudget ≤ 500 €.
-- Montage **ohne Lötkolben**.
-- Ziel: kleiner als alles, was es auf dem Markt gibt.
+An open-source patch insulin pump ("OpenPatch"). It is detachable, plugs onto an Accu-Chek Insight Flex cannula and is held by Velcro. Further key points:
+- Filling by syringe, inductive charging.
+- Sizes: 70, 100 and 200 U.
+- Build height ≤ 8.5 mm.
+- Controlled from Trio, either through a dedicated kit or through DASH emulation.
+- Orderable from PCBWay, target budget ≤ 500 €.
+- Assembly **without a soldering iron**.
+- Goal: smaller than anything on the market.
 
-Alle Maße und Bauteile stehen in [spec/design-parameters.md](../spec/design-parameters.md). Das ist die **Single Source of Truth**.
+All dimensions and components are in [spec/design-parameters.md](../spec/design-parameters.md). That is the **single source of truth**.
 
-## Stand pro Teilprojekt
+## Status per subproject
 
-| Bereich | Stand | Verifiziert | Offen |
+| Area | Status | Verified | Open |
 |---|---|---|---|
-| Mechanik ([mechanical/](../mechanical/)) | Parametrisches SolidCraft-Modell für 3 Größen, STEP/STL | `check.py`: alle 3 Größen PASS (38/42/55,4 × 32 × 8,5 mm) | Rev A mit echten Teilen in Arbeit: Motor/Spindel-Kaufteile, Lager, Dichtungen, Federkontakte, Kolbendichtung + Gießform, PCBWay-Druckordner, `ASSEMBLY.md`. Kanülentasche ist nur ein Platzhalter, bis die Insight Flex vermessen ist (`mechanical/cannula-measurement.md`). |
-| Elektronik ([electronics/](../electronics/)) | SKiDL-Netzliste, BOM (51 Positionen), Pinbelegung, Platinenkontur als DXF | ERC sauber, 42 eigene Regelprüfungen bestehen | **KiCad-Layout + Autorouting + DRC + PCBWay-Paket in Arbeit.** Die ISP1807-Pad-Geometrie muss gegen das Datenblatt geprüft werden, sonst NICHT bestellen. Kosten geschätzt ~610 €, also über dem Budget. |
-| Firmware ([firmware/](../firmware/)) | Portabler C-Kern: Delivery, Safety, Reservoir, Log, Protokoll | 129/129 Host-Tests, ~99 % Zeilenabdeckung | Zephyr-Build für ISP1807 (nRF52840) und nRF52840-DK in Arbeit. Offen: Krypto (AES-CCM nur Interface), DASH-Modus, `GetStatus` soll die letzte akzeptierte Sequenznummer zurückgeben. |
-| iOS/Trio ([ios/](../ios/)) | `OpenPatchKit` (LoopKit-PumpManager) + `OpenPatchCore` | 88 Core-Tests + 36 Kit-Tests grün | Keine Verschlüsselung; nicht gegen echte Hardware getestet; HUD-Kachel fehlt. Integration: `ios/INTEGRATION.md`. |
-| Website ([site/](../site/)) | Vite + three.js, 3D-Modell, Größen, Bauanleitung, BOM, Kosten | Build ok, three.js-Chunk 158 kB gzip | Workflow `.github/workflows/pages.yml`. Pages muss im Repo auf „GitHub Actions“ stehen. |
+| Mechanics ([mechanical/](../mechanical/)) | Parametric SolidCraft model for 3 sizes, STEP/STL | `check.py`: all 3 sizes PASS (38/42/55.4 × 32 × 8.5 mm) | Rev A with real parts in progress: motor/spindle purchased parts, bearings, seals, spring contacts, piston seal + casting mold, PCBWay print folder, `ASSEMBLY.md`. The cannula pocket is only a placeholder until the Insight Flex is measured (`mechanical/cannula-measurement.md`). |
+| Electronics ([electronics/](../electronics/)) | SKiDL netlist, BOM (51 line items), pin assignment, board outline as DXF | ERC clean, 42 custom rule checks pass | **KiCad layout + autorouting + DRC + PCBWay package in progress.** The ISP1807 pad geometry must be checked against the datasheet, otherwise do NOT order. Cost estimated ~610 €, i.e. over budget. |
+| Firmware ([firmware/](../firmware/)) | Portable C core: delivery, safety, reservoir, log, protocol | 129/129 host tests, ~99 % line coverage | Zephyr build for ISP1807 (nRF52840) and nRF52840-DK in progress. Open: crypto (AES-CCM only an interface), DASH mode, `GetStatus` should return the last accepted sequence number. |
+| iOS/Trio ([ios/](../ios/)) | `OpenPatchKit` (LoopKit PumpManager) + `OpenPatchCore` | 88 core tests + 36 kit tests green | No encryption; not tested against real hardware; HUD tile missing. Integration: `ios/INTEGRATION.md`. |
+| Website ([site/](../site/)) | Vite + three.js, 3D model, sizes, build guide, BOM, costs | Build ok, three.js chunk 158 kB gzip | Workflow `.github/workflows/pages.yml`. Pages must be set to "GitHub Actions" in the repo. |
 
-## Wichtige Entscheidungen (mit Begründung)
+## Key decisions (with rationale)
 
-1. **Kein eigener ASIC.** Stattdessen das Funkmodul **ISP1807** (nRF52840, 8 × 8 × 1 mm, Antenne integriert) für Rev A. Ein ASIC kostet weit über 100 k€, und das Antennen-Layout auf der Mini-Platine wäre das größte Risiko. Für Rev B ist der nRF54L15 als nackter Chip geplant.
-2. **Stadion-Reservoir 16 × 5 mm** statt Zylinder, damit die Bauhöhe von 8,5 mm möglich wird.
-3. **Spindel neben dem Reservoir** mit Schlitten-Arm. Inline wäre die Pumpe etwa doppelt so lang.
-4. **Qi-Spule Ø 17,6 mm.** Mit Ø 20 wäre sie 2,4 mm länger.
-5. **Antrieb:** In Rev A ein Schrittmotor (0,0131 IE pro Schritt, mit Encoder geprüft). In Rev B ist ein **SMA-Ratschenantrieb** geplant (Omnipod-Prinzip, Patent US6656159 abgelaufen). Damit wird die Pumpe etwa 6–7 mm schmaler und wäre der kleinste 200-IE-Patch am Markt. Wiederbefüllbarkeit über eine ausrastbare Klinke; der SMA-Draht ist ein Verschleißteil.
-6. **Keine Druck-und-Ventil-Dosierung**, weil sie bei einem Ventilfehler frei ausläuft. Auch **keine Piezo-Pumpe**, weil sie für Insulin nicht validiert ist.
-7. **Omnipod 5 wird nicht emuliert.** Dafür bräuchte man signierte P-256-Transkripte und einen Key-Manager mit App Attest. Der DASH-Modus nach dem Vorbild von nightscout/ESP-Sim (GPL-3.0) reicht für Trio.
-8. **CAD-Werkzeuge:** SolidCraft für 3D (CLI/MCP: `solidcraft-cli`), CADCraft für 2D (DXF/DWG; CADCraft kann kein 3D).
-9. **Basal mit 48 Halbstunden-Segmenten**, kompatibel zu DASH.
+1. **No custom ASIC.** Instead the **ISP1807** radio module (nRF52840, 8 × 8 × 1 mm, integrated antenna) for Rev A. An ASIC costs far more than 100 k€, and the antenna layout on the mini board would be the biggest risk. For Rev B the nRF54L15 as a bare chip is planned.
+2. **Stadium reservoir 16 × 5 mm** instead of a cylinder, so that a build height of 8.5 mm becomes possible.
+3. **Spindle next to the reservoir** with a carriage arm. Inline, the pump would be about twice as long.
+4. **Qi coil Ø 17.6 mm.** With Ø 20 it would be 2.4 mm longer.
+5. **Drive:** In Rev A a stepper motor (0.0131 U per step, verified with encoder). In Rev B an **SMA ratchet drive** is planned (Omnipod principle, patent US6656159 expired). This makes the pump about 6–7 mm narrower and would be the smallest 200 U patch on the market. Refillability via a releasable pawl; the SMA wire is a wear part.
+6. **No pressure-and-valve dosing**, because it flows out freely on a valve failure. Also **no piezo pump**, because it is not validated for insulin.
+7. **Omnipod 5 is not emulated.** That would require signed P-256 transcripts and a key manager with App Attest. The DASH mode modeled on nightscout/ESP-Sim (GPL-3.0) is sufficient for Trio.
+8. **CAD tools:** SolidCraft for 3D (CLI/MCP: `solidcraft-cli`), CADCraft for 2D (DXF/DWG; CADCraft cannot do 3D).
+9. **Basal with 48 half-hour segments**, compatible with DASH.
 
-## Nächste Schritte (Reihenfolge)
+## Next steps (in order)
 
-1. KiCad-Layout fertigstellen: ISP1807-Footprint verifizieren, Routing, DRC 0 Fehler, Gerber/CPL/BOM in `electronics/pcbway/`, `ORDER.md`.
-2. Mechanik Rev A abschließen: Federkontakte, Anpressrippen, `out/pcbway/`, `ASSEMBLY.md`.
-3. Firmware für `openpatch_reva` und `nrf52840dk/nrf52840` kompilieren und auf dem DK testen.
-4. **Nutzer:** Kanüle mit dem Messschieber vermessen (Messblatt), danach die Kanülentasche anpassen.
-5. Kosten auf ≤ 500 € bringen (3 statt 5 Platinen, günstigere Gehäuse oder Motoren) und dann bestellen.
-6. Prüfstand: gravimetrische Fördergenauigkeit mit Wasser (siehe `docs/02-safety.md` §3).
-7. Rev B: SMA-Ratschenantrieb, nRF54L15 als nackter Chip, Ziel 55 × 25 × 8,5 mm.
+1. Finish the KiCad layout: verify the ISP1807 footprint, routing, DRC 0 errors, Gerber/CPL/BOM in `electronics/pcbway/`, `ORDER.md`.
+2. Finish mechanics Rev A: spring contacts, pressure ribs, `out/pcbway/`, `ASSEMBLY.md`.
+3. Compile the firmware for `openpatch_reva` and `nrf52840dk/nrf52840` and test it on the DK.
+4. **User:** measure the cannula with calipers (measurement sheet), then adapt the cannula pocket.
+5. Bring costs to ≤ 500 € (3 instead of 5 boards, cheaper housings or motors) and then order.
+6. Test bench: gravimetric delivery accuracy with water (see `docs/02-safety.md` §3).
+7. Rev B: SMA ratchet drive, nRF54L15 as a bare chip, target 55 × 25 × 8.5 mm.
 
-## So arbeitest du weiter (für eine neue Claude-Session)
+## How to continue (for a new Claude session)
 
-- Lies zuerst `CLAUDE.md`, dann diese Datei, dann `spec/design-parameters.md`.
-- Tests ausführen:
+- Read `CLAUDE.md` first, then this file, then `spec/design-parameters.md`.
+- Run tests:
   - Firmware: `cmake -S firmware -B /tmp/fw && cmake --build /tmp/fw && ctest --test-dir /tmp/fw`
   - iOS: `cd ios/OpenPatchKit/OpenPatchCore && swift test`
-  - Mechanik: `cd mechanical && python3 generate.py && python3 check.py`
+  - Mechanics: `cd mechanical && python3 generate.py && python3 check.py`
   - Website: `cd site && npm ci && npm run build`
-- Nach jeder Arbeitseinheit diese Datei aktualisieren und pushen.
+- After every unit of work, update this file and push.

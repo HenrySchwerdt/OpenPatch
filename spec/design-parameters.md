@@ -1,87 +1,87 @@
-# OpenPatch – Gemeinsame Design-Parameter (Single Source of Truth)
+# OpenPatch – Shared Design Parameters (Single Source of Truth)
 
-> Alle Teilprojekte (mechanical/, electronics/, firmware/, ios/) MÜSSEN diese Werte verwenden.
-> Änderungen nur hier, dann in den Teilprojekten nachziehen.
-> Status: Konzept v0.1 (2026-11-18). Experimentelles DIY-Gerät, KEIN zugelassenes Medizinprodukt.
+> All subprojects (mechanical/, electronics/, firmware/, ios/) MUST use these values.
+> Make changes only here, then propagate them to the subprojects.
+> Status: Concept v0.1 (2026-11-18). Experimental DIY device, NOT an approved medical device.
 
-## 1. Produktkonzept
+## 1. Product concept
 
-- Wiederverwendbare, abnehmbare Patch-Pumpe ("Pod"), die direkt auf den Kanülenkopf eines
-  **Accu-Chek Insight Flex** Infusionssets (Roche, 6/8/10 mm) aufgesteckt wird – kein Schlauch.
-- Befestigung am Körper: Klett (Hakenseite am Pod-Boden, Flauschseite auf medizinischem Pflaster
-  um die Kanüle) – der Pod ist abnehmbar (Duschen, Sport), Kanüle bleibt.
-- Befüllung mit Spritze durch ein Silikon-Septum (wie Omnipod), Insulin U100.
-- Induktiv ladbar (kein Steckerloch → einfacher wasserdicht).
-- Drei Varianten, die sich NUR in der Reservoir-/Gehäuselänge unterscheiden: **70 IE, 100 IE, 200 IE**.
+- Reusable, detachable patch pump ("pod") that is plugged directly onto the cannula head of an
+  **Accu-Chek Insight Flex** infusion set (Roche, 6/8/10 mm) – no tubing.
+- Attachment to the body: Velcro (hook side on the pod base, loop side on a medical adhesive patch
+  around the cannula) – the pod is detachable (showering, sports), the cannula stays in place.
+- Filling with a syringe through a silicone septum (like Omnipod), insulin U100.
+- Inductively chargeable (no connector hole → easier to make waterproof).
+- Three variants that differ ONLY in reservoir/housing length: **70 U, 100 U, 200 U**.
 
-## 1a. Montage ohne Lötkolben (Anforderung)
+## 1a. Assembly without a soldering iron (requirement)
 
-- Alle Elektronik wird von PCBWay bestückt; Akku und Motor werden über **SMD-Federkontakte (≤ 1,2 mm)** kontaktiert, die der Deckel anpresst.
-- Qi-Spule: Leiterbahnspule auf der Platine oder von PCBWay bestückt.
-- Gehäuse: Schrauben/Schnapphaken; Werkzeug: Pinzette, kleiner Schraubendreher, UV-Lampe.
+- All electronics are assembled by PCBWay; battery and motor are contacted via **SMD spring contacts (≤ 1.2 mm)** that the lid presses on.
+- Qi coil: trace coil on the board or assembled by PCBWay.
+- Housing: screws/snap hooks; tools: tweezers, small screwdriver, UV lamp.
 
-## 2. Hüllmaße (Ziele)
+## 2. Envelope dimensions (targets)
 
-| Größe | Volumen U100 | Ziel L × B × H (mm) | Omnipod DASH zum Vergleich |
+| Size | Volume U100 | Target L × W × H (mm) | Omnipod DASH for comparison |
 |---|---|---|---|
-| OP-70  | 0,70 ml | **38,0 × 32 × 8,5** (CAD ✓) | 52 × 39 × 14,5 mm |
-| OP-100 | 1,00 ml | **42,0 × 32 × 8,5** (CAD ✓) | |
-| OP-200 | 2,00 ml | **55,4 × 32 × 8,5** (CAD ✓) | |
+| OP-70  | 0.70 ml | **38.0 × 32 × 8.5** (CAD ✓) | 52 × 39 × 14.5 mm |
+| OP-100 | 1.00 ml | **42.0 × 32 × 8.5** (CAD ✓) | |
+| OP-200 | 2.00 ml | **55.4 × 32 × 8.5** (CAD ✓) | |
 
-- **Bauhöhe 8,5 mm** (8,0 ist mit 16×5-Reservoir nicht erreichbar: Stack = 8,4 mm; nur mit 0,6 mm Reservoirwand + 0,75 mm Schale) inkl. Gehäusewand und Klett-Fläche. Ecken R ≥ 4 mm, Oberseite leicht gewölbt (Kissen-Form).
-- Wandstärke Gehäuse: 0,9 mm (MJF PA12 oder SLA-Resin für Prototyp; später Spritzguss PC/PP).
+- **Build height 8.5 mm** (8.0 is not achievable with the 16×5 reservoir: stack = 8.4 mm; only with 0.6 mm reservoir wall + 0.75 mm shell) including housing wall and Velcro surface. Corners R ≥ 4 mm, top slightly domed (pillow shape).
+- Housing wall thickness: 0.9 mm (MJF PA12 or SLA resin for prototype; later injection-molded PC/PP).
 
-## 3. Reservoir (flach, „Stadion“-Querschnitt)
+## 3. Reservoir (flat, "stadium" cross-section)
 
-- Starres Reservoir mit **Stadion-Querschnitt (Langloch) 16,0 × 5,0 mm innen** → Fläche A = 5·11 + π·2,5² = **74,6 mm²**.
-- Kolbenhub: 70 IE → 9,4 mm; 100 IE → 13,4 mm; 200 IE → 26,8 mm (+1,0 mm Totraum-Reserve).
-- Reservoirwand 0,8 mm, Material: COC/PP (insulinverträglich). Prototyp: gekaufte Rohteile/CNC-PP oder SLA BioMed-Resin, **nur für Wassertests**.
-- Kolben: PP-Kern mit eingegossener Silikon-/FKM-Lippendichtung (Stadion-Form) – größtes Entwicklungsrisiko, eigenes Testprogramm.
-- Befüllseptum: Silikon Ø 4 mm × 2 mm, seitlich, mit Füllkanal ins Reservoir.
-- Auslass: Kanal → Stahl-Hohlnadel 30G (Ø 0,31 mm), die in das Septum des Insight-Flex-Kanülenkopfs sticht.
+- Rigid reservoir with **stadium cross-section (slot) 16.0 × 5.0 mm inside** → area A = 5·11 + π·2.5² = **74.6 mm²**.
+- Piston stroke: 70 U → 9.4 mm; 100 U → 13.4 mm; 200 U → 26.8 mm (+1.0 mm dead-volume reserve).
+- Reservoir wall 0.8 mm, material: COC/PP (insulin compatible). Prototype: purchased raw parts/CNC PP or SLA BioMed resin, **for water tests only**.
+- Piston: PP core with cast-in silicone/FKM lip seal (stadium shape) – biggest development risk, dedicated test program.
+- Fill septum: silicone Ø 4 mm × 2 mm, on the side, with a fill channel into the reservoir.
+- Outlet: channel → stainless-steel hollow needle 30G (Ø 0.31 mm) that pierces the septum of the Insight Flex cannula head.
 
-## 4. Antrieb
+## 4. Drive
 
-- Micro-Schrittmotor **Ø 6 mm** (Ref.: Faulhaber ADM0620 / FDM0620, 2-phasig, 20 Schritte/U, 3 V) quer neben dem Reservoir.
-- Stirnrad-/Planetenstufe **i = 10:1**, Gewindespindel **M1,6 × 0,35** (Messing/Edelstahl) **in einer eigenen Spur NEBEN dem Reservoir**; Mutter-Schlitten mit Arm, der durch einen Schlitz am Reservoirende den Kolben schiebt (inline wäre ~2× Hub Länge → 48/56/83 mm).
-- Auflösung: 0,35 mm / (20·10) = 1,75 µm/Schritt → **0,131 µl/Schritt = 0,0131 IE/Schritt**.
-- Kleinster Bolus-/Basalpuls: **0,05 IE ≈ 4 Schritte** (Ist-Wert 0,0524 IE; Firmware akkumuliert Rest).
-- Spindel-Encoder: Magnet auf Spindel + Hall-Sensor (z. B. TMAG5273 / AS5600L-Klasse) zur **unabhängigen Förderverifikation**.
-- Okklusionserkennung: Motorstrom/Back-EMF-Anstieg + Encoder-Schlupf (kein Weg trotz Schritten).
+- Micro stepper motor **Ø 6 mm** (ref.: Faulhaber ADM0620 / FDM0620, 2-phase, 20 steps/rev, 3 V) transverse next to the reservoir.
+- Spur/planetary stage **i = 10:1**, threaded spindle **M1.6 × 0.35** (brass/stainless steel) **in a dedicated track NEXT TO the reservoir**; nut carriage with an arm that pushes the piston through a slot at the reservoir end (inline would be ~2× stroke length → 48/56/83 mm).
+- Resolution: 0.35 mm / (20·10) = 1.75 µm/step → **0.131 µl/step = 0.0131 U/step**.
+- Smallest bolus/basal pulse: **0.05 U ≈ 4 steps** (actual value 0.0524 U; firmware accumulates the remainder).
+- Spindle encoder: magnet on the spindle + Hall sensor (e.g. TMAG5273 / AS5600L class) for **independent delivery verification**.
+- Occlusion detection: motor current/back-EMF rise + encoder slip (no travel despite steps).
 
-## 5. Elektronik
+## 5. Electronics
 
-- MCU/BLE: **Nordic nRF54L15** (QFN48 6×6 mm; Fallback nRF52833 QFN40). Kein Custom-ASIC (bei PCBWay nicht fertigbar, Kosten >> 500 €).
-- Motortreiber: **ST STSPIN220** (QFN 3×3, 1,8–10 V) oder TI DRV8834; **Motor-Enable hardwareseitig über zweiten Pfad gegated** (Sicherheits-Watchdog, siehe docs/02-safety.md).
-- Unabhängiger Watchdog: TI **TPL5010** (externer Nano-Power-Timer) → schaltet Motor-Treiber-Versorgung ab, wenn nicht bedient.
-- Akku: Li-Po flach, **max. 3,2 × 19,8 × 17,2 mm** (302020-Klasse, ca. 40–60 mAh; 302030 passt nicht), mit PCM.
-- Laden: **Qi-Empfänger TI BQ51003** (2,5 W-Klasse) + Laderegler **BQ25120A** (oder MCP73832), Empfängerspule **Ø 17,6 mm flach (Ø20 kostet +2,4 mm Länge), auf Flex-PCB oder Würth 760308101xxx-Klasse**. Alternative später: NFC-WLC (ST25/PTX30W).
-- Summer: Piezo-Buzzer 9 × 9 × 2 mm; Vibrationsmotor optional.
-- Taster: 1× (Notfall-Stopp / Alarm-Quittierung), durch Gehäusemembran.
-- PCB: 4-Lagen, 0,6 mm; Form: Rechteck mit L-Ausschnitt (Kontur aus mechanical/out/OP-xx.layout.json).
-- Bauhöhe-Stack (vom Körper weg): Boden 0,9 | Akku 3,2 | PCB+Bauteile 1,6 | Deckel 0,9 → Rest Spule/Toleranz. Reservoir+Motor liegen in derselben Ebene wie Akku+PCB (nebeneinander, nicht gestapelt).
+- MCU/BLE: **Nordic nRF54L15** (QFN48 6×6 mm; fallback nRF52833 QFN40). No custom ASIC (not manufacturable at PCBWay, cost >> 500 €).
+- Motor driver: **ST STSPIN220** (QFN 3×3, 1.8–10 V) or TI DRV8834; **motor enable gated in hardware via a second path** (safety watchdog, see docs/02-safety.md).
+- Independent watchdog: TI **TPL5010** (external nano-power timer) → switches off the motor driver supply if not serviced.
+- Battery: flat Li-Po, **max. 3.2 × 19.8 × 17.2 mm** (302020 class, approx. 40–60 mAh; 302030 does not fit), with PCM.
+- Charging: **Qi receiver TI BQ51003** (2.5 W class) + charge controller **BQ25120A** (or MCP73832), receiver coil **Ø 17.6 mm flat (Ø20 costs +2.4 mm length), on flex PCB or Würth 760308101xxx class**. Alternative later: NFC-WLC (ST25/PTX30W).
+- Buzzer: piezo buzzer 9 × 9 × 2 mm; vibration motor optional.
+- Button: 1× (emergency stop / alarm acknowledgment), through a housing membrane.
+- PCB: 4-layer, 0.6 mm; shape: rectangle with L-cutout (outline from mechanical/out/OP-xx.layout.json).
+- Height stack (away from the body): base 0.9 | battery 3.2 | PCB+components 1.6 | lid 0.9 → remainder coil/tolerance. Reservoir+motor lie in the same plane as battery+PCB (side by side, not stacked).
 
-## 6. Funk / Protokolle
+## 6. Radio / protocols
 
-1. **OpenPatch-Protokoll (nativ)** – eigenes BLE-GATT-Profil, offen dokumentiert in `docs/04-protocol.md`, Trio-Integration über eigenes LoopKit-PumpManager-Kit `OpenPatchKit`.
-2. **DASH-Kompatibilitätsmodus** – Pod-seitige Emulation des Omnipod-DASH-BLE-Protokolls, so dass Trio über das vorhandene `OmnipodKit` (loopandlearn) spricht. Referenz-Implementierung: `nightscout/ESP-Sim` (GPL-3.0 → Firmware-Teil dann GPL-3.0).
-3. **Omnipod 5**: wird NICHT emuliert – O5-Pairing nutzt P-256/ECDSA-signierte Transkripte und einen externen Key-Manager mit App Attest; DASH-Modus deckt Trio ab.
+1. **OpenPatch protocol (native)** – dedicated BLE GATT profile, openly documented in `docs/04-protocol.md`, Trio integration via the dedicated LoopKit PumpManager kit `OpenPatchKit`.
+2. **DASH compatibility mode** – pod-side emulation of the Omnipod DASH BLE protocol, so that Trio talks through the existing `OmnipodKit` (loopandlearn). Reference implementation: `nightscout/ESP-Sim` (GPL-3.0 → firmware part is then GPL-3.0).
+3. **Omnipod 5**: is NOT emulated – O5 pairing uses P-256/ECDSA-signed transcripts and an external key manager with App Attest; DASH mode covers Trio.
 
-Hinweis: Im DASH-Modus „sieht“ Trio einen 200-IE-Pod mit 80-h-Lebensdauer; Reservoir-Anzeige ab < 50 IE, wie bei DASH. Nativer Modus zeigt echte Werte, Akku, Wiederverwendbarkeit.
+Note: In DASH mode Trio "sees" a 200 U pod with 80 h lifetime; reservoir display from < 50 U, as with DASH. Native mode shows real values, battery, reusability.
 
-## 7. Sicherheitsgrenzen (Firmware-Defaults, hart kodiert als Obergrenzen)
+## 7. Safety limits (firmware defaults, hard-coded as upper bounds)
 
-- Max. Einzelbolus: 10 IE (konfigurierbar ≤ 25 IE)
-- Max. Basalrate: 5 IE/h (konfigurierbar ≤ 30 IE/h)
-- Max. Fördermenge / Stunde (gesamt): 15 IE
-- Bolusgeschwindigkeit: 1,5 IE/min
-- Okklusionsalarm: ≤ 2 IE nicht geförderte Menge
-- Kommunikationsverlust: Temp-Basal läuft max. 30 min weiter, dann Rückfall auf programmierte Basalrate (DASH-Semantik)
-- Encoder-Abweichung > 10 % über 1 IE → Förderstopp + Alarm
+- Max. single bolus: 10 U (configurable ≤ 25 U)
+- Max. basal rate: 5 U/h (configurable ≤ 30 U/h)
+- Max. delivery per hour (total): 15 U
+- Bolus speed: 1.5 U/min
+- Occlusion alarm: ≤ 2 U undelivered amount
+- Communication loss: temp basal continues for max. 30 min, then falls back to the programmed basal rate (DASH semantics)
+- Encoder deviation > 10 % over 1 U → delivery stop + alarm
 
-## 8. Kanülen-Schnittstelle (Insight Flex)
+## 8. Cannula interface (Insight Flex)
 
-- Laut Roche-IFU: Schlauch wird auf die Konnektorplatte des Kanülenkopfs geschoben, Lösen durch Zusammendrücken zweier Seitenflügel → **Zwei-Flügel-Schnapphaken**, kein Luer.
-- Genaue Geometrie ist **nicht öffentlich** → muss vom Nutzer mit Messschieber vermessen werden (Messblatt: `mechanical/cannula-measurement.md`). Bis dahin parametrischer Platzhalter im CAD:
-  - Konnektorplatte (Annahme): 14 × 10 × 3,0 mm, Nadel-Eintritt mittig, Schnapp-Nut beidseitig 1,0 mm.
-- Der Pod hat unten eine Aufnahmetasche, in die der Kanülenkopf einrastet; die 30G-Nadel durchsticht das Kanülen-Septum.
+- According to the Roche IFU: tubing is pushed onto the connector plate of the cannula head, release by squeezing two side wings → **two-wing snap hook**, not Luer.
+- Exact geometry is **not public** → must be measured by the user with calipers (measurement sheet: `mechanical/cannula-measurement.md`). Until then a parametric placeholder in the CAD:
+  - Connector plate (assumption): 14 × 10 × 3.0 mm, needle entry in the center, snap groove 1.0 mm on both sides.
+- The pod has a receiving pocket on the underside into which the cannula head latches; the 30G needle pierces the cannula septum.

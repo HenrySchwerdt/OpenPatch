@@ -1,83 +1,83 @@
-# OpenPatchKit in Trio integrieren
+# Integrating OpenPatchKit into Trio
 
-> **Experimentell.** OpenPatch ist ein DIY-Prototyp und kein Medizinprodukt. Diese Anleitung ist für Entwickler gedacht, die
-> Trio lokal selbst bauen. Nichts davon wurde gegen echte Hardware getestet.
+> **Experimental.** OpenPatch is a DIY prototype and not a medical device. This guide is intended for developers who build
+> Trio locally themselves. None of this has been tested against real hardware.
 
-Stand der Abhängigkeiten (geprüft am 2026-11-18):
+State of the dependencies (checked on 2026-11-18):
 
-| Komponente | Version |
+| Component | Version |
 |---|---|
-| Trio `main` | LoopKit-Submodul `loopandlearn/LoopKit` @ `f974241f5f25053d51da3e80833c85b13c387e6f` (Branch `trio`) |
-| OpenPatchKit | gegen genau diesen LoopKit-Stand gebaut und getestet (iOS-Simulator, Xcode 26.3) |
-| Mindest-iOS | 17.0 (Trio-Kits wie MedtrumKit nutzen 17.5/17.6) |
+| Trio `main` | LoopKit submodule `loopandlearn/LoopKit` @ `f974241f5f25053d51da3e80833c85b13c387e6f` (branch `trio`) |
+| OpenPatchKit | built and tested against exactly this LoopKit state (iOS simulator, Xcode 26.3) |
+| Minimum iOS | 17.0 (Trio kits such as MedtrumKit use 17.5/17.6) |
 
-Es gibt zwei Wege, den Pod an Trio anzubinden:
+There are two ways to connect the pod to Trio:
 
-* **Variante A, nativ:** Trio bekommt den neuen Treiber `OpenPatchKit` (dieses Verzeichnis). Echte Werte für Reservoir, Akku,
-  wiederverwendbarer Pod, 0,05-IE-Raster, Pod-Größen 70/100/200 IE.
-* **Variante B, DASH-Kompatibilitätsmodus:** Der Pod emuliert Omnipod DASH. Trio bleibt **unverändert** und nutzt das vorhandene `OmnipodKit`.
+* **Option A, native:** Trio gets the new driver `OpenPatchKit` (this directory). Real values for reservoir, battery,
+  reusable pod, 0.05 U granularity, pod sizes 70/100/200 U.
+* **Option B, DASH compatibility mode:** The pod emulates Omnipod DASH. Trio stays **unmodified** and uses the existing `OmnipodKit`.
 
 ---
 
-## Variante A: OpenPatchKit nativ einbauen
+## Option A: Build OpenPatchKit in natively
 
-### 0. Was in `ios/OpenPatchKit/` liegt
+### 0. What is in `ios/OpenPatchKit/`
 
 ```
-OpenPatchKit/                 (Verzeichnis ios/OpenPatchKit/)
-├── OpenPatchKit.xcodeproj    generiert, 3 Frameworks + Tests
-├── OpenPatchCore/            reines Swift-Package (kein LoopKit): Einheiten, Zustandsmaschine, Wire v1, Simulator
-├── OpenPatchKit/             Framework: OpenPatchPumpManager, State, Transport (CoreBluetooth)
-├── OpenPatchKitUI/           Framework: Einrichtung (Größe, Koppeln, Befüllen, Entlüften, Aufstecken), Einstellungen
-├── OpenPatchKitTests/        XCTest gegen LoopKit + simulierten Pod
-├── Support/                  Umbrella-Header, Config.xcconfig (Signing-Team)
+OpenPatchKit/                 (directory ios/OpenPatchKit/)
+├── OpenPatchKit.xcodeproj    generated, 3 frameworks + tests
+├── OpenPatchCore/            pure Swift package (no LoopKit): units, state machine, wire v1, simulator
+├── OpenPatchKit/             framework: OpenPatchPumpManager, state, transport (CoreBluetooth)
+├── OpenPatchKitUI/           framework: setup (size, pair, fill, prime, attach), settings
+├── OpenPatchKitTests/        XCTest against LoopKit + simulated pod
+├── Support/                  umbrella header, Config.xcconfig (signing team)
 └── scripts/                  generate_xcodeproj.rb, generate_strings.py
 ```
 
-Das Xcode-Projekt ist erzeugt. Nach Änderungen an der Dateiliste neu erzeugen (benötigt die `xcodeproj`-Gem aus CocoaPods):
+The Xcode project is generated. After changes to the file list, regenerate it (requires the `xcodeproj` gem from CocoaPods):
 
 ```bash
 cd ios/OpenPatchKit
 GEM_HOME=$(dirname $(dirname $(readlink -f $(which pod))))/libexec ruby scripts/generate_xcodeproj.rb
-python3 scripts/generate_strings.py        # en/de Localizable.strings neu schreiben (bricht ab, wenn eine Übersetzung fehlt)
+python3 scripts/generate_strings.py        # rewrite en/de Localizable.strings (aborts if a translation is missing)
 ```
 
-### 1. Als Submodul bzw. Verzeichnis in den Trio-Checkout holen
+### 1. Bring it into the Trio checkout as a submodule or directory
 
-Trio erwartet jedes Kit als Verzeichnis auf oberster Ebene mit eigenem `.xcodeproj` (wie `MedtrumKit/MedtrumKit.xcodeproj`).
+Trio expects each kit as a top-level directory with its own `.xcodeproj` (like `MedtrumKit/MedtrumKit.xcodeproj`).
 
-**Variante 1a, eigenes Git-Repository (sauber, wie die anderen Kits):**
+**Option 1a, separate Git repository (clean, like the other kits):**
 
 ```bash
-# im ai-insulin-pump-Repo: ios/OpenPatchKit als eigene History abspalten
+# in the ai-insulin-pump repo: split ios/OpenPatchKit off with its own history
 git subtree split --prefix=ios/OpenPatchKit -b openpatchkit
-git push git@github.com:<dein-konto>/OpenPatchKit.git openpatchkit:main
+git push git@github.com:<your-account>/OpenPatchKit.git openpatchkit:main
 
-# im Trio-Checkout
+# in the Trio checkout
 cd ~/dev/Trio
-git submodule add https://github.com/<dein-konto>/OpenPatchKit.git OpenPatchKit
+git submodule add https://github.com/<your-account>/OpenPatchKit.git OpenPatchKit
 git submodule update --init --recursive
 ```
 
-**Variante 1b, rein lokal zum Ausprobieren (ohne Remote):**
+**Option 1b, purely local for trying it out (no remote):**
 
 ```bash
 cd ~/dev/Trio
-ln -s ~/dev/ai-insulin-pump/ios/OpenPatchKit OpenPatchKit      # oder: cp -R ...
+ln -s ~/dev/ai-insulin-pump/ios/OpenPatchKit OpenPatchKit      # or: cp -R ...
 ```
 
-Beim Symlink bitte darauf achten, `OpenPatchKit` nicht versehentlich in Trio zu committen.
+With the symlink, take care not to accidentally commit `OpenPatchKit` in Trio.
 
-Optional, wenn du den Fork pflegen willst (analog zu `MedtrumKit`):
+Optional, if you want to maintain the fork (analogous to `MedtrumKit`):
 
-* `.gitmodules`: Eintrag `[submodule "OpenPatchKit"] path = OpenPatchKit  url = https://github.com/<dein-konto>/OpenPatchKit.git`
-* `scripts/define_common_trio.sh`: Zeile `<dein-konto>:OpenPatchKit:main \` in die Submodul-Liste
+* `.gitmodules`: entry `[submodule "OpenPatchKit"] path = OpenPatchKit  url = https://github.com/<your-account>/OpenPatchKit.git`
+* `scripts/define_common_trio.sh`: line `<your-account>:OpenPatchKit:main \` in the submodule list
 * `scripts/swiftformat.sh`: `--exclude OpenPatchKit \`
-* `.github/CODEOWNERS`: Zeile `OpenPatchKit  @nightscout/trio-pump-codeowners`
+* `.github/CODEOWNERS`: line `OpenPatchKit  @nightscout/trio-pump-codeowners`
 
-### 2. Workspace-Eintrag
+### 2. Workspace entry
 
-In `Trio.xcworkspace/contents.xcworkspacedata` neben `MedtrumKit` ergänzen:
+In `Trio.xcworkspace/contents.xcworkspacedata`, add next to `MedtrumKit`:
 
 ```xml
    <FileRef
@@ -85,78 +85,78 @@ In `Trio.xcworkspace/contents.xcworkspacedata` neben `MedtrumKit` ergänzen:
    </FileRef>
 ```
 
-Danach `Trio.xcworkspace` öffnen. Es müssen die Schemes `OpenPatchKit` und die Targets `OpenPatchCore`, `OpenPatchKit`, `OpenPatchKitUI` sichtbar sein.
-Das OpenPatch-Projekt löst `LoopKit.framework` und `LoopKitUI.framework` über `BUILT_PRODUCTS_DIR` auf (wie MedtrumKit). Es lässt sich daher **nur im Workspace**
-bauen, nicht allein.
+Then open `Trio.xcworkspace`. The scheme `OpenPatchKit` and the targets `OpenPatchCore`, `OpenPatchKit`, `OpenPatchKitUI` must be visible.
+The OpenPatch project resolves `LoopKit.framework` and `LoopKitUI.framework` via `BUILT_PRODUCTS_DIR` (like MedtrumKit). It can therefore **only be built
+in the workspace**, not on its own.
 
-### 3. Frameworks in das Trio-App-Target einbinden
+### 3. Add the frameworks to the Trio app target
 
-Wie bei `MedtrumKit.framework` (siehe `Trio.xcodeproj`, Phase "Embed Frameworks", `CodeSignOnCopy, RemoveHeadersOnCopy`):
+As with `MedtrumKit.framework` (see `Trio.xcodeproj`, phase "Embed Frameworks", `CodeSignOnCopy, RemoveHeadersOnCopy`):
 
 1. Target **Trio** → *General* → *Frameworks, Libraries, and Embedded Content* → `+` →
-   `OpenPatchCore.framework`, `OpenPatchKit.framework`, `OpenPatchKitUI.framework` (Quelle: *Workspace*, Projekt OpenPatchKit).
-2. Alle drei auf **Embed & Sign** stellen.
-3. Reihenfolge ist egal, `OpenPatchKitUI` hängt von `OpenPatchKit` und `OpenPatchCore` ab (im Projekt als Target-Dependencies hinterlegt).
+   `OpenPatchCore.framework`, `OpenPatchKit.framework`, `OpenPatchKitUI.framework` (source: *Workspace*, project OpenPatchKit).
+2. Set all three to **Embed & Sign**.
+3. The order does not matter; `OpenPatchKitUI` depends on `OpenPatchKit` and `OpenPatchCore` (recorded in the project as target dependencies).
 
-`Info.plist` der App: Trio hat Bluetooth bereits (`NSBluetoothAlwaysUsageDescription`, `UIBackgroundModes` mit `bluetooth-central`). Nichts ergänzen,
-aber prüfen. Ohne `bluetooth-central` bekommt die App keine Hintergrund-Verbindung zum Pod.
+The app's `Info.plist`: Trio already has Bluetooth (`NSBluetoothAlwaysUsageDescription`, `UIBackgroundModes` with `bluetooth-central`). Do not add anything,
+but verify it. Without `bluetooth-central` the app gets no background connection to the pod.
 
-### 4. `DeviceCatalog.swift`: Pumpe eintragen
+### 4. `DeviceCatalog.swift`: register the pump
 
-Datei: `Trio/Sources/APS/Devices/DeviceCatalog.swift` (laut Datei: "Adding a device means adding one entry to this file").
+File: `Trio/Sources/APS/Devices/DeviceCatalog.swift` (according to the file: "Adding a device means adding one entry to this file").
 
-**4.1 Imports** (alphabetisch bei den anderen `import`-Zeilen):
+**4.1 Imports** (alphabetically among the other `import` lines):
 
 ```swift
 import OpenPatchKit
 import OpenPatchKitUI
 ```
 
-`OpenPatchKitUI` wird nur wegen der `PumpManagerUI`-Konformität benötigt (wie `MockKitUI`). Sie wird per Extension in `OpenPatchKitUI` deklariert.
+`OpenPatchKitUI` is only needed for the `PumpManagerUI` conformance (like `MockKitUI`). It is declared via an extension in `OpenPatchKitUI`.
 
-**4.2 Hersteller-Abschnitt.** `OpenPatchPumpManager` hat keinen Eintrag in `DeviceManufacturer`. Entweder bestehenden Abschnitt `.otherSources` nutzen
-oder einen eigenen anlegen:
+**4.2 Manufacturer section.** `OpenPatchPumpManager` has no entry in `DeviceManufacturer`. Either use the existing section `.otherSources`
+or create your own:
 
 ```swift
 enum DeviceManufacturer: CaseIterable {
     // ...
-    case openPatch            // NEU
+    case openPatch            // NEW
     // ...
     var displayName: String {
         switch self {
         // ...
-        case .openPatch: return "OpenPatch"      // Markenname, bewusst nicht lokalisiert
+        case .openPatch: return "OpenPatch"      // brand name, deliberately not localized
         }
     }
-    // sortRank: 'default' liefert 0, passt
+    // sortRank: 'default' returns 0, fits
 }
 ```
 
-**4.3 Eintrag in `DeviceCatalog.pumps`** (vor dem `MockPumpManager`-Eintrag):
+**4.3 Entry in `DeviceCatalog.pumps`** (before the `MockPumpManager` entry):
 
 ```swift
 PumpCatalogEntry(
     OpenPatchPumpManager.self,
     manufacturer: .openPatch,
-    name: "OpenPatch (experimentell)",
+    name: "OpenPatch (experimental)",
     supportedModels: ["OP-70", "OP-100", "OP-200"],
-    icon: .none,                                   // kein Asset; Fallback-Symbol "ivfluid.bag"
+    icon: .none,                                   // no asset; fallback symbol "ivfluid.bag"
     basalCapability: BasalRateCapability(supportedRates: OpenPatchPumpManager.onboardingSupportedBasalRates),
-    reportsRewindEvents: false                     // Patch-Pumpe, nichts zurückzuspulen
+    reportsRewindEvents: false                     // patch pump, nothing to rewind
 ),
 ```
 
-* `id` ist `OpenPatchPumpManager.pluginIdentifier` = `"OpenPatch"`. Unter diesem Namen wird der Pumpenzustand persistiert. Nicht mehr ändern.
-* `OpenPatchPumpManager.onboardingSupportedBasalRates` ist ein gleichmäßiges Raster 0,05…30 IE/h (Trio prüft Einheitlichkeit in `DeviceCatalogTests`).
-* `allowedInsulinTypes` bleibt Standard (`DeviceCatalog.defaultAllowedInsulinTypes`).
+* `id` is `OpenPatchPumpManager.pluginIdentifier` = `"OpenPatch"`. The pump state is persisted under this name. Do not change it again.
+* `OpenPatchPumpManager.onboardingSupportedBasalRates` is a uniform grid 0.05…30 U/h (Trio checks uniformity in `DeviceCatalogTests`).
+* `allowedInsulinTypes` stays at the default (`DeviceCatalog.defaultAllowedInsulinTypes`).
 
-**4.4 Tests.** `TrioTests/DeviceCatalogTests.swift` prüft Katalogeinträge (u. a. Icons und Basalraster). Dort den neuen Eintrag mit abdecken.
+**4.4 Tests.** `TrioTests/DeviceCatalogTests.swift` checks catalog entries (including icons and basal grid). Cover the new entry there as well.
 
-### 5. Optional: Alarm-Katalog
+### 5. Optional: alert catalog
 
-`Trio/Sources/Services/Alerts/AlertCatalogRegistry.swift` legt pro Pumpe die Alarmstufe fest. **Ohne Eintrag funktioniert OpenPatch trotzdem**:
-`TrioAlertManager` reicht Alarme ohne Katalogeintrag unverändert durch (`podFault` wird vom Treiber als `.critical` ausgelöst, die übrigen als `.timeSensitive`).
-Wer die Alarmstufen in Trios "Device Alarms" konfigurierbar haben will, ergänzt:
+`Trio/Sources/Services/Alerts/AlertCatalogRegistry.swift` defines the alert level per pump. **OpenPatch works without an entry anyway**:
+`TrioAlertManager` passes alerts without a catalog entry through unchanged (`podFault` is raised by the driver as `.critical`, the others as `.timeSensitive`).
+If you want the alert levels to be configurable in Trio's "Device Alarms", add:
 
 ```swift
 // in entries: ... + medtrumEntries + openPatchEntries + ...
@@ -170,82 +170,82 @@ private extension AlertCatalogRegistry {
 }
 ```
 
-(`addEntry(manager, alertID, level, title, category, concept)`; Konzepte aus `AlertCatalogVendor.swift`. `tempBasalCommLoss` hat dort kein passendes Konzept,
-`.unspecified` ist ebenfalls möglich.)
+(`addEntry(manager, alertID, level, title, category, concept)`; concepts from `AlertCatalogVendor.swift`. `tempBasalCommLoss` has no suitable concept there,
+`.unspecified` is also possible.)
 
-### 6. Bauen und Signieren
+### 6. Building and signing
 
-* **Team:** `OpenPatchKit/Support/Config.xcconfig` übernimmt `DEVELOPER_TEAM` aus Trios `ConfigOverride.xcconfig` (zwei bzw. drei Ebenen darüber, `#include?`).
-  Das ist dieselbe Datei, die laut Trio-README das Team setzt (`echo 'DEVELOPER_TEAM = XXXXXXXXXX' > ConfigOverride.xcconfig`).
-  Fehlt sie, in Xcode für die Targets `OpenPatchCore`, `OpenPatchKit`, `OpenPatchKitUI` unter *Signing & Capabilities* das Team wählen (Automatic Signing).
-* **Bundle-IDs** der Frameworks: `org.openpatch.OpenPatchCore|OpenPatchKit|OpenPatchKitUI`. Frameworks brauchen keine eigene App-ID-Registrierung;
-  mit kostenlosem Apple-Account funktioniert das Embedden. Wer eine andere Kennung will, ändert `PRODUCT_BUNDLE_IDENTIFIER` in `scripts/generate_xcodeproj.rb`.
-* **Keine Entitlements** in den Frameworks nötig. Bluetooth-Berechtigung und Hintergrundmodus gehören zur App (siehe Schritt 3).
-* **Simulator:** Der iOS-Simulator hat kein Bluetooth. In Debug-Builds (`allowDebugFeatures`) bietet der Kopplungsbildschirm
-  "Simulierten Pod verwenden (Entwicklung)" an; dann läuft ein In-Memory-Pod in Echtzeit (`OpenPatchSimulator`).
-* **Build-Reihenfolge:** Beim ersten Bauen zuerst `LoopKit`, dann `OpenPatchCore`, `OpenPatchKit`, `OpenPatchKitUI`, dann `Trio` (Xcode ordnet das über die Target-Dependencies selbst).
+* **Team:** `OpenPatchKit/Support/Config.xcconfig` takes `DEVELOPER_TEAM` from Trio's `ConfigOverride.xcconfig` (two or three levels above, `#include?`).
+  This is the same file that, according to the Trio README, sets the team (`echo 'DEVELOPER_TEAM = XXXXXXXXXX' > ConfigOverride.xcconfig`).
+  If it is missing, select the team in Xcode for the targets `OpenPatchCore`, `OpenPatchKit`, `OpenPatchKitUI` under *Signing & Capabilities* (Automatic Signing).
+* **Bundle IDs** of the frameworks: `org.openpatch.OpenPatchCore|OpenPatchKit|OpenPatchKitUI`. Frameworks do not need their own App ID registration;
+  embedding works with a free Apple account. If you want a different identifier, change `PRODUCT_BUNDLE_IDENTIFIER` in `scripts/generate_xcodeproj.rb`.
+* **No entitlements** are needed in the frameworks. The Bluetooth permission and background mode belong to the app (see step 3).
+* **Simulator:** The iOS simulator has no Bluetooth. In debug builds (`allowDebugFeatures`) the pairing screen offers
+  "Use simulated pod (development)"; an in-memory pod then runs in real time (`OpenPatchSimulator`).
+* **Build order:** On the first build, first `LoopKit`, then `OpenPatchCore`, `OpenPatchKit`, `OpenPatchKitUI`, then `Trio` (Xcode orders this itself via the target dependencies).
 
-### 7. Prüfen
+### 7. Verifying
 
 ```bash
-# reines Swift, ohne Xcode-Projekt, läuft auf macOS
+# pure Swift, without the Xcode project, runs on macOS
 cd ios/OpenPatchKit/OpenPatchCore && swift test
 
-# Treiber gegen echtes LoopKit, auf dem Simulator (Workspace mit LoopKit + OpenPatchKit nötig)
+# driver against real LoopKit, on the simulator (workspace with LoopKit + OpenPatchKit required)
 xcodebuild test -workspace Trio.xcworkspace -scheme OpenPatchKit \
   -destination 'platform=iOS Simulator,name=iPhone 17 Pro' CODE_SIGNING_ALLOWED=NO
 ```
 
-Danach in Trio: *Einstellungen → Pumpe → OpenPatch*. Ablauf der Einrichtung: Pod-Größe → Koppeln → Befüllen (Spritze, Menge bestätigen) →
-Entlüften → Aufstecken auf den Kanülenkopf → Start. Für spätere Pod-Wechsel: Einstellungen → "Pod vom Körper abnehmen" → "Pod neu befüllen und weiterverwenden".
+Then in Trio: *Settings → Pump → OpenPatch*. Setup flow: pod size → pair → fill (syringe, confirm amount) →
+prime → attach to the cannula head → start. For later pod changes: Settings → "Remove pod from body" → "Refill and reuse pod".
 
-### 8. Bekannte Lücken (ehrlich)
+### 8. Known gaps (honestly)
 
-* **Nie gegen Hardware gelaufen.** `CoreBluetoothLink` kompiliert, wurde aber nur gegen das Protokoll-Dokument und einen Fake-Firmware-Stub getestet.
-* **Sicherheitsschicht fehlt:** Die Spec sieht AES-CCM und Replay-Schutz vor (Abschnitt 5), die Schlüsselvereinbarung ist dort noch offen.
-  Der Treiber sendet Klartext-Frames (Firmware mit `allow_plaintext` nötig). Die Befehls-`seq` wird in `rawState` persistiert (`commandSequence`) und nach einem
-  Neustart mit 16 Schritten Sicherheitsabstand fortgesetzt (der Host speichert asynchron, der Pod toleriert Lücken). Die Spec liefert im Status keine
-  "zuletzt akzeptierte seq", daher gibt es keine Rück-Synchronisation vom Pod; nach einem Pod-Reboot mit zurückgesetztem Zähler würde der Pod Frames still verwerfen.
-* **Kein Push von Alarmen:** v1 hat keine Alert-Characteristic. Alarme und Boli-Ende kommen per `GetHistory`-Polling nach jedem Statuslesen.
-  Der Verlaufs-Cursor wird in `rawState` persistiert (`historyCursor`); Ereignisse unterhalb des Cursors werden nie erneut ausgeliefert (Deduplizierung über die
-  Ereignis-ID), verpasste kommen nach dem Neustart genau einmal. Zustellung ist at-least-once: stürzt die App zwischen Auslieferung und Speichern ab, kann ein Alarm doppelt kommen.
-* **Bolus-ID:** Der Pod vergibt keine Bolus-ID; sie wird in `V1Transport` gemerkt. Nach App-Neustart während eines Bolus wird dieser als fremder Bolus übernommen.
-* **Pod meldet keine Lebenszyklusphase:** `paired/filled/primed/…` führt die App (`phaseHint`), der Pod kennt nur `suspended`, `filled` und Fehlerbits.
-* **HUD/Lebensdauer:** keine Kachel für Loop-HUD (Trio nutzt sie nicht), kein Ablauf-Fortschritt (wiederverwendbarer Pod).
-* **Temp-Basal-Dauer** wird auf der Leitung auf Vielfache von 30 min aufgerundet (Spec 3.1); Loop sendet ohnehin 30-min-Vielfache.
-* **Alarmstufen** und Texte sind Platzhalter, `Prime`-Menge (0,5 IE) und Füllgrenzen (min. 10 IE) müssen nach dem ersten Wassertest angepasst werden
+* **Never run against hardware.** `CoreBluetoothLink` compiles, but has only been tested against the protocol document and a fake firmware stub.
+* **Security layer missing:** The spec provides for AES-CCM and replay protection (section 5); the key agreement is still open there.
+  The driver sends plaintext frames (firmware with `allow_plaintext` required). The command `seq` is persisted in `rawState` (`commandSequence`) and, after a
+  restart, resumed with a safety margin of 16 steps (the host saves asynchronously, the pod tolerates gaps). The spec provides no
+  "last accepted seq" in the status, so there is no resynchronization from the pod; after a pod reboot with a reset counter, the pod would silently discard frames.
+* **No push of alerts:** v1 has no alert characteristic. Alerts and bolus end arrive via `GetHistory` polling after each status read.
+  The history cursor is persisted in `rawState` (`historyCursor`); events below the cursor are never delivered again (deduplication via the
+  event ID), missed ones arrive exactly once after the restart. Delivery is at-least-once: if the app crashes between delivery and saving, an alert may arrive twice.
+* **Bolus ID:** The pod does not assign a bolus ID; it is remembered in `V1Transport`. After an app restart during a bolus, the bolus is adopted as a foreign bolus.
+* **Pod does not report a lifecycle phase:** `paired/filled/primed/…` is tracked by the app (`phaseHint`); the pod only knows `suspended`, `filled` and fault bits.
+* **HUD/lifetime:** no tile for the Loop HUD (Trio does not use it), no expiry progress (reusable pod).
+* **Temp basal duration** is rounded up on the wire to multiples of 30 min (spec 3.1); Loop sends multiples of 30 min anyway.
+* **Alert levels** and texts are placeholders; the `Prime` amount (0.5 U) and fill limits (min. 10 U) must be adjusted after the first water test
   (`PumpConstants`, `PodSize`).
 
 ---
 
-## Variante B: DASH-Kompatibilitätsmodus (keine Trio-Änderung)
+## Option B: DASH compatibility mode (no Trio change)
 
-Der Pod emuliert das Omnipod-DASH-BLE-Protokoll (Referenz: `nightscout/ESP-Sim`, **GPL-3.0**, daher ist der Firmware-Teil dann ebenfalls GPL-3.0).
-Trio sieht einen normalen DASH-Pod und spricht ihn über das bereits eingebundene `OmnipodKit` (`OmniPumpManager`, Katalogeintrag "Omnipod" mit den Modellen
+The pod emulates the Omnipod DASH BLE protocol (reference: `nightscout/ESP-Sim`, **GPL-3.0**, so the firmware part is then also GPL-3.0).
+Trio sees a normal DASH pod and talks to it through the already integrated `OmnipodKit` (`OmniPumpManager`, catalog entry "Omnipod" with the models
 "Classic, DASH, 5").
 
-**Was du in Trio tust:** gar nichts am Code. Kein Submodul, kein Workspace-Eintrag, kein `DeviceCatalog`-Eintrag.
+**What you do in Trio:** nothing at all in the code. No submodule, no workspace entry, no `DeviceCatalog` entry.
 
-1. Pod-Firmware im DASH-Modus flashen (Firmware-Team).
-2. Trio → *Einstellungen → Pumpe → Omnipod* (Modell DASH) → neuen Pod koppeln. Der Pod meldet sich per BLE wie ein DASH-Pod.
-3. Den normalen Omnipod-Ablauf durchlaufen (Befüllen, Entlüften, Kanüle setzen, Start). Die App verhält sich wie bei einem DASH-Pod.
+1. Flash the pod firmware in DASH mode (firmware team).
+2. Trio → *Settings → Pump → Omnipod* (model DASH) → pair a new pod. The pod announces itself via BLE like a DASH pod.
+3. Go through the normal Omnipod flow (fill, prime, insert cannula, start). The app behaves as it does with a DASH pod.
 
-**Was `OmnipodKit` von einem DASH-Pod erwartet** (aus `OmnipodKit/OmnipodCommon/Pod.swift`, Branch `dev`) und was der OpenPatch-Pod daher vortäuschen muss:
+**What `OmnipodKit` expects from a DASH pod** (from `OmnipodKit/OmnipodCommon/Pod.swift`, branch `dev`) and what the OpenPatch pod therefore has to feign:
 
-| DASH-Wert in `OmnipodKit` | Wert | Folge für OpenPatch |
+| DASH value in `OmnipodKit` | Value | Consequence for OpenPatch |
 |---|---|---|
-| Pulsgröße / Bolusgeschwindigkeit | 0,05 IE, 2 s je Puls = 1,5 IE/min | passt exakt zu OpenPatch (0,05 IE, 1,5 IE/min) |
-| Reservoirkapazität | 200 IE | Trio sieht immer 200 IE, auch bei OP-70/OP-100 |
-| Reservoir-Anzeige | exakte Werte nur unter 50 IE, darüber "50+" (Magic Number 51,15) | DASH-Pod meldet oberhalb 50 IE keinen genauen Stand; der native Modus zeigt echte Werte |
-| Prime | 2,6 IE mit 1 s je Puls | der OpenPatch-Pod hat keinen Schlauch zu füllen, sondern nur eine 30G-Nadel: Firmware muss Prime-Kommando akzeptieren, aber nur das echte Totvolumen fördern (< 0,6 IE), und die Reservoir-Buchhaltung entsprechend führen |
-| Kanüle setzen | 0,5 IE | Kanüle liegt schon (Insight Flex): Kommando quittieren, nichts fördern |
-| Lebensdauer | 80 h (`serviceDuration`), Erinnerung 7 h vorher | Trio zeigt Pod-Ablauf nach 80 h und verlangt Pod-Wechsel: bei jedem Wechsel Pod "neu koppeln", im Pod-Zustand zurücksetzen und neu befüllen |
-| Basalprofil | max. 24 Einträge, 30-min-Raster | Pod muss 24 Segmente akzeptieren |
-| Temp-Basal | Vielfache von 30 min, bis 12 h; max. 30 IE/h; max. Bolus 30 IE | die Pod-Grenzen (10 IE Bolus, 5 IE/h Basal, 15 IE/h gesamt, siehe `spec/design-parameters.md` §7) sind **strenger**; Firmware antwortet dann mit einem Fehler, den `OmnipodKit` als abgelehnte Abgabe anzeigt. Die Grenzen daher in Trios Einstellungen (Max Bolus, Max Basal) gleich oder niedriger setzen |
-| Kommunikationsverlust | DASH-Semantik: Temp-Basal läuft max. 30 min weiter | identisch zur OpenPatch-Spec (§7) |
+| Pulse size / bolus speed | 0.05 U, 2 s per pulse = 1.5 U/min | matches OpenPatch exactly (0.05 U, 1.5 U/min) |
+| Reservoir capacity | 200 U | Trio always sees 200 U, even for OP-70/OP-100 |
+| Reservoir display | exact values only below 50 U, above that "50+" (magic number 51.15) | A DASH pod reports no exact level above 50 U; native mode shows real values |
+| Prime | 2.6 U at 1 s per pulse | the OpenPatch pod has no tubing to fill, only a 30G needle: firmware must accept the prime command, but deliver only the real dead volume (< 0.6 U), and keep the reservoir accounting accordingly |
+| Insert cannula | 0.5 U | cannula is already in place (Insight Flex): acknowledge the command, deliver nothing |
+| Lifetime | 80 h (`serviceDuration`), reminder 7 h before | Trio shows pod expiry after 80 h and demands a pod change: on every change, "re-pair" the pod, reset the pod state and refill |
+| Basal profile | max. 24 entries, 30 min grid | pod must accept 24 segments |
+| Temp basal | multiples of 30 min, up to 12 h; max. 30 U/h; max. bolus 30 U | the pod limits (10 U bolus, 5 U/h basal, 15 U/h total, see `spec/design-parameters.md` §7) are **stricter**; firmware then answers with an error that `OmnipodKit` shows as a rejected delivery. Therefore set the limits in Trio's settings (Max Bolus, Max Basal) equal or lower |
+| Communication loss | DASH semantics: temp basal continues for max. 30 min | identical to the OpenPatch spec (§7) |
 
-**Nicht unterstützt:** Omnipod 5 (P-256/ECDSA-signierte Transkripte, Key-Manager mit App Attest), siehe `spec/design-parameters.md` §6.
+**Not supported:** Omnipod 5 (P-256/ECDSA-signed transcripts, key manager with App Attest), see `spec/design-parameters.md` §6.
 
-**Wann welche Variante?** DASH-Modus ist der schnellste Weg zu einem Test ohne Trio-Änderung, kostet aber Reservoir-Genauigkeit, Pod-Größenwahl und die
-wiederverwendbare Lebensdauer. Der native Modus (Variante A) liefert echte Werte, braucht aber die Änderungen in diesem Dokument und trägt das Risiko eines
-selbst gepflegten Trio-Forks.
+**Which option when?** DASH mode is the fastest way to a test without a Trio change, but costs reservoir accuracy, pod size selection and the
+reusable lifetime. Native mode (Option A) delivers real values, but needs the changes in this document and carries the risk of a
+self-maintained Trio fork.

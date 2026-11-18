@@ -1,6 +1,6 @@
-# Datenblätter
+# Datasheets
 
-Die PDFs werden nicht ins Repo eingecheckt, weil das Urheberrecht der Hersteller sie schützt. Lade sie beim Hersteller herunter und lege sie hier ab, unter denselben Dateinamen:
+The PDFs are not checked into the repo because the manufacturers' copyright protects them. Download them from the manufacturer and place them here under the same filenames:
 
 - `ds/bq25120a.pdf`
 - `ds/bq51003.pdf`
