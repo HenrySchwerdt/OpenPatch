@@ -106,7 +106,7 @@ def compute_layout(p: dict, variant: str) -> dict:
     pm = pc["margin"]
     pcb_x0, pcb_x1 = x_r1 + co["gap_x"], x_end - pm
     pcb_y0, pcb_y1 = wall + pm, yi1 - pm
-    mod_x1, mod_y1 = pcb_x1, pcb_y1
+    mod_x1, mod_y1 = pcb_x1 - 0.8, pcb_y1 - 0.8
     mod_x0, mod_y0 = mod_x1 - rf["module_x"], mod_y1 - rf["module_y"]
     shelf_x0 = mot_end + ct["shelf_dx"]
     shelf = {"x": [shelf_x0, shelf_x0 + ct["shelf_len"]], "y": ct["shelf_y"], "z_top": ct["shelf_top"]}
@@ -120,8 +120,9 @@ def compute_layout(p: dict, variant: str) -> dict:
         "motor_fpc": [{"x": shelf_x0 + 0.6 + i * ct["fpc_pitch"], "y": ct["fpc_y"], "z_pad_top": ct["shelf_top"] + ct["fpc_t"],
                        "pin": i + 1} for i in range(ct["fpc_n"])],
         "motor_shelf": shelf,
-        "hold_down_pads": [{"x": tab_x, "y": bat_y0 + sum(ct["tab_dy"]) / 2, "d": ct["pad_d"]},
-                           {"x": shelf_x0 + 0.6 + (ct["fpc_n"] - 1) * ct["fpc_pitch"] / 2, "y": ct["fpc_y"], "d": ct["pad_d"]}],
+        "hold_down_pads": [{"x": tab_x, "y": bat_y0 + sum(ct["tab_dy"]) / 2, "d": ct["pad_d"], "z0": pcb_z0 + pc["t"] + ct["pad_gap"]},
+                           {"x": shelf_x0 + 0.6 + (ct["fpc_n"] - 1) * ct["fpc_pitch"] / 2, "y": ct["fpc_y"], "d": ct["pad_d"],
+                            "z0": pcb_z0 + pc["t"] + rf["module_z"] + ct["pad_gap"]}],   # drückt über das RF-Modul auf die Platine
         "note": "Federkontakte (<=1.2 mm) auf PCB-Unterseite; Deckelpads (z 5.55..7.6) halten die Platine nieder (Vorspannung).",
     }
     cut_mt = None
@@ -148,6 +149,10 @@ def compute_layout(p: dict, variant: str) -> dict:
     buzzer = {"x0": bz_x0, "x1": bz_x1, "y0": bz_y0, "y1": bz_y1,
               "fits_9x9": (bz_x1 - bz_x0) >= bz["x"] - 1e-9 and (bz_y1 - bz_y0) >= bz["y"] - 1e-9,
               "z0": pcb_z0 + pc["t"], "z1": pcb_z0 + pc["t"] + bz["z"]}
+    for hp in contacts["hold_down_pads"]:
+        on_mod = mod_x0 - 0.3 <= hp["x"] <= mod_x1 + 0.3 and mod_y0 - 0.3 <= hp["y"] <= mod_y1 + 0.3
+        hp["z0"] = pcb_z0 + pc["t"] + (rf["module_z"] if on_mod else 0.0) + ct["pad_gap"]
+        hp["on_module"] = on_mod
     btn_pos = {"x": btn_x, "y": bz_y0 + (bz_y1 - bz_y0) / 2}
 
     return {

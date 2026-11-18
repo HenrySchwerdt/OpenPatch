@@ -26,11 +26,14 @@
   "top_fillet": 1.0,
   "width": 32.0,
   "height": 8.5,
-  "lap_low": 5.5,
-  "lap_high": 6.0,
+  "lap_low": 5.0,
+  "lap_high": 5.5,
   "lap_gap": 0.1,
-  "rim_inset": 0.55,
-  "lid_ring_inset": 0.45
+  "rim_inset": 0.5,
+  "lid_ring_inset": 0.45,
+  "gasket_t": 0.6,
+  "gasket_c": 0.45,
+  "closure_z_stop": 5.0
  },
  "fit": {
   "clr": 0.2,
@@ -52,13 +55,14 @@
   "plunger_len": 3.8,
   "plunger_clr": 0.2,
   "plunger_gap": 0.2,
-  "fill_fraction": 1.0
+  "fill_fraction": 1.0,
+  "cnc_split": true
  },
  "septum": {
   "d": 4.0,
   "len": 2.0,
   "bore_clr": 0.1,
-  "z": 3.4,
+  "z": 2.9,
   "boss_d": 5.1,
   "gap_y": 1.8,
   "port_d": 1.0,
@@ -67,9 +71,13 @@
  "needle": {
   "od": 0.31,
   "bore_d": 0.5,
-  "channel_d": 0.9,
-  "channel_z": 4.0,
-  "tower_top": 4.8
+  "channel_d": 0.7,
+  "channel_z": 4.3,
+  "tower_top": 4.9,
+  "hub_d": 2.0,
+  "hub_t": 0.7,
+  "hub_z0": 3.2,
+  "hub_clr": 0.0
  },
  "drive": {
   "screw_d": 1.6,
@@ -78,25 +86,57 @@
   "nut_block": 3.4,
   "arm_t": 1.4,
   "slot_clr": 0.1,
-  "lane_clr": 0.2,
-  "screw_lane_w": 4.0,
+  "lane_clr": 0.1,
+  "screw_lane_w": 4.4,
   "motor_d": 6.0,
-  "motor_len": 9.3,
-  "gearhead_len": 6.4,
+  "motor_len": 14.0,
+  "gearhead_len": 9.7,
   "gear_x0": 2.0,
   "gear_t": 1.2,
   "gear_d": 5.0,
-  "post_bore_d": 2.0
+  "post_bore_d": 2.0,
+  "_comment": "Faulhaber ADM0620-2R-V3 (\u00d86, 9.5 mm, 20 st/rev, 0.2 mNm) + 06/1 planetary 16:1 (nominal; 2 stages). gearhead_len DERIVED (9.2+2.7/stage), VERIFY on datasheet. Screw M1.6x0.35 stainless rod, DIN 934 M1.6 nut.",
+  "nut_af": 3.2,
+  "nut_hex_clr": 0.1,
+  "carriage_len": 4.0,
+  "carriage_bw": 4.4,
+  "carriage_bh": 6.2,
+  "tongue_x": 0.6,
+  "motor_tail": 1.0,
+  "gh_ratio": 5.0,
+  "steps_per_rev": 20,
+  "screw_pitch": 0.35,
+  "gear_module": 0.3,
+  "gear_z": 18,
+  "gear_center": 5.4,
+  "gear_root_d": 4.65,
+  "bush_od": 3.0,
+  "bush_id": 1.7,
+  "bush_len": 1.0,
+  "bush_bore_clr": 0.05,
+  "mag_d": 2.0,
+  "mag_t": 1.0,
+  "rail_w": 0.9,
+  "rail_top": 1.6,
+  "groove_w": 1.2,
+  "groove_d": 0.5,
+  "cradle_t": 1.2,
+  "cradle_up": 1.2,
+  "active_preset": "zw_pd6_1stage",
+  "_note": "Zhaowei ZWBPD006006 6mm planetary-gear stepper, 1 stage (listed 5/6:1; 5.0 assumed). Gearbox 9.7 mm, total 23.7 mm (vendor page). 20 steps/rev ASSUMED (TODO-VERIFY with seller)."
  },
  "battery": {
   "t": 3.2,
-  "y": 17.2,
-  "x_max": 20.0,
-  "margin": 0.2
+  "y": 11.2,
+  "x_max": 19.8,
+  "margin": 0.2,
+  "y0": 13.7,
+  "rib_t": 0.6,
+  "rib_h": 1.4
  },
  "pcb": {
   "t": 0.6,
-  "keepout": 1.0,
+  "keepout": 1.4,
   "z0": 4.9,
   "margin": 0.6,
   "notch_x": 1.4,
@@ -105,15 +145,15 @@
  "coil": {
   "d": 17.6,
   "t": 0.6,
-  "z0": 6.55,
+  "z0": 6.9,
   "gap_x": 0.1
  },
  "buzzer": {
   "x": 9.0,
   "y": 9.0,
   "z": 2.0,
-  "y0": 21.5,
-  "edge_gap": 2.0
+  "y0": 18.9,
+  "edge_gap": 0.6
  },
  "cannula": {
   "_comment": "PLATZHALTER - Werte A..N aus cannula-measurement.md eintragen und neu generieren.",
@@ -131,5 +171,141 @@
   "L_head_standoff": 0.0,
   "M_needle_depth": 1.9,
   "N_clearance": 0.2
+ },
+ "rf": {
+  "module_x": 8.0,
+  "module_y": 8.0,
+  "module_z": 1.0,
+  "edge_gap": 0.6,
+  "keepout_r": 4.5
+ },
+ "hall": {
+  "pkg_x": 1.6,
+  "pkg_y": 1.6,
+  "pkg_z": 0.5,
+  "gap_x": 0.9,
+  "drv_dy": 1.6,
+  "drv_x": 1.1,
+  "drv_y": 1.4,
+  "drv_z": 0.5
+ },
+ "screws": {
+  "d": 1.2,
+  "pilot": 1.0,
+  "clear": 1.4,
+  "boss_d": 2.2,
+  "head_d": 2.4,
+  "head_depth": 0.5,
+  "len": 6.0,
+  "dry_y": [
+   4.2,
+   11.7,
+   19.0
+  ],
+  "dry_x": 2.0,
+  "c_dx": 3.0,
+  "c_y": 18.8
+ },
+ "button": {
+  "d_memb": 5.0,
+  "memb_t": 0.5,
+  "post_d": 1.8,
+  "y": 20.1,
+  "dx": 11.0,
+  "sw_x": 3.0,
+  "sw_y": 2.6,
+  "sw_z": 0.55,
+  "post_gap": 0.1
+ },
+ "port": {
+  "hole_d": 1.2,
+  "recess_d": 4.0,
+  "recess_depth": 0.2
+ },
+ "seal": {
+  "ring_w": 0.8,
+  "flange": 0.6,
+  "groove_depth": 0.5,
+  "free_oversize": 0.3,
+  "assembly_gap": 0.02,
+  "socket_clr": 0.1,
+  "ring_a": [
+   0.6,
+   1.4
+  ],
+  "ring_b": [
+   2.3,
+   3.1
+  ],
+  "socket_x": [
+   1.45,
+   2.25
+  ],
+  "tongue_off": [
+   1.55,
+   2.15
+  ],
+  "socket_depth": 1.6
+ },
+ "mould": {
+  "margin": 6.0,
+  "split_h": 6.0,
+  "pin_d": 2.0,
+  "pin_clr": 0.1,
+  "pin_h": 2.5,
+  "sprue_d": 0.7,
+  "vent_d": 0.5,
+  "core_clr": 0.03
+ },
+ "_notes": "Rev A orderable. See parts.md / README.md.",
+ "contacts": {
+  "spring_h_max": 1.2,
+  "tab_dy": [
+   7.3,
+   9.2
+  ],
+  "tab_dx": 0.8,
+  "tab_pad": [
+   1.5,
+   1.2
+  ],
+  "fpc_pitch": 0.5,
+  "fpc_n": 4,
+  "fpc_y": 25.7,
+  "shelf_dx": 0.3,
+  "shelf_len": 3.0,
+  "shelf_y": [
+   25.1,
+   26.3
+  ],
+  "shelf_top": 3.9,
+  "pad_d": 1.2,
+  "pad_gap": 0.05,
+  "fpc_t": 0.1
+ },
+ "drive_presets": {
+  "zw_pd6_1stage": {
+   "_note": "Zhaowei ZWBPD006006 6mm planetary-gear stepper, 1 stage (listed 5/6:1; 5.0 assumed). Gearbox 9.7 mm, total 23.7 mm (vendor page). 20 steps/rev ASSUMED (TODO-VERIFY with seller).",
+   "gearhead_len": 9.7,
+   "motor_len": 14.0,
+   "gh_ratio": 5.0,
+   "steps_per_rev": 20,
+   "motor_tail": 1.0
+  },
+  "zw_pd6_2stage": {
+   "gearhead_len": 12.1,
+   "motor_len": 14.0,
+   "gh_ratio": 23.0,
+   "steps_per_rev": 20,
+   "motor_tail": 1.0
+  },
+  "faulhaber_adm0620_16": {
+   "_note": "Premium: ADM0620-2R-V3 (9.5 mm, 20 st/rev, datasheet) + 06/1 16:1 (length derived 11.9, VERIFY).",
+   "gearhead_len": 11.9,
+   "motor_len": 9.5,
+   "gh_ratio": 16.0,
+   "steps_per_rev": 20,
+   "motor_tail": 1.0
+  }
  }
 }

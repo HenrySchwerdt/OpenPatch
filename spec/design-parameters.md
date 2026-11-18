@@ -43,20 +43,21 @@
 ## 4. Drive
 
 - Micro stepper motor **Ø 6 mm** (ref.: Faulhaber ADM0620 / FDM0620, 2-phase, 20 steps/rev, 3 V) transverse next to the reservoir.
-- Spur/planetary stage **i = 10:1**, threaded spindle **M1.6 × 0.35** (brass/stainless steel) **in a dedicated track NEXT TO the reservoir**; nut carriage with an arm that pushes the piston through a slot at the reservoir end (inline would be ~2× stroke length → 48/56/83 mm).
-- Resolution: 0.35 mm / (20·10) = 1.75 µm/step → **0.131 µl/step = 0.0131 U/step**.
-- Smallest bolus/basal pulse: **0.05 U ≈ 4 steps** (actual value 0.0524 U; firmware accumulates the remainder).
+- Rev A motor: **Zhaowei ZWBPD006006** (Ø6 mm, planetary **i = 5:1**, 23.7 mm long, AliExpress ~$10–25; premium preset Faulhaber ADM0620 + 06/1 16:1). Ratio and 20 steps/rev must be confirmed with the seller.
+- Threaded spindle **M1.6 × 0.35** (brass/stainless steel) **in a dedicated track NEXT TO the reservoir**; nut carriage with an arm that pushes the piston through a slot at the reservoir end (inline would be ~2× stroke length → 48/56/83 mm).
+- Resolution (Rev A, 5:1): 0.35 mm / (20·5) = 3.5 µm/step → **0.261 µl/step = 0.0261 U/step** (Faulhaber 16:1: 0.0082 U/step).
+- Smallest bolus/basal pulse: **0.05 U ≈ 2 steps** (actual value 0.0522 U; firmware accumulates the remainder).
 - Spindle encoder: magnet on the spindle + Hall sensor (e.g. TMAG5273 / AS5600L class) for **independent delivery verification**.
 - Occlusion detection: motor current/back-EMF rise + encoder slip (no travel despite steps).
 
 ## 5. Electronics
 
-- MCU/BLE: **Nordic nRF54L15** (QFN48 6×6 mm; fallback nRF52833 QFN40). No custom ASIC (not manufacturable at PCBWay, cost >> 500 €).
+- MCU/BLE: Rev A **Insight SiP ISP1807** (nRF52840 SiP, 8×8×1 mm, integrated antenna); Rev B **nRF54L15** bare chip. No custom ASIC (not manufacturable at PCBWay, cost >> 500 €).
 - Motor driver: **ST STSPIN220** (QFN 3×3, 1.8–10 V) or TI DRV8834; **motor enable gated in hardware via a second path** (safety watchdog, see docs/02-safety.md).
 - Independent watchdog: TI **TPL5010** (external nano-power timer) → switches off the motor driver supply if not serviced.
-- Battery: flat Li-Po, **max. 3.2 × 19.8 × 17.2 mm** (302020 class, approx. 40–60 mAh; 302030 does not fit), with PCM.
+- Battery (Rev A, CAD-verified): flat Li-Po, max **8.6 / 12.6 / 13.2 × 11.2 × 3.2 mm** for OP-70/100/200 → est. **~17 / 25 / 26 mAh**, with PCM. ⚠️ Below the 40 mAh target (OPEN DECISION, see docs/STATUS.md).
 - Charging: **Qi receiver TI BQ51003** (2.5 W class) + charge controller **BQ25120A** (or MCP73832), receiver coil **Ø 17.6 mm flat (Ø20 costs +2.4 mm length), on flex PCB or Würth 760308101xxx class**. Alternative later: NFC-WLC (ST25/PTX30W).
-- Buzzer: piezo buzzer 9 × 9 × 2 mm; vibration motor optional.
+- Buzzer: ⚠️ 9 × 9 × 2 mm piezo does NOT fit (free space only 1.6 / 5.6 / 6.2 × 2.6 mm). OPEN DECISION. Top-side component height under the coil: 1.4 mm.
 - Button: 1× (emergency stop / alarm acknowledgment), through a housing membrane.
 - PCB: 4-layer, 0.6 mm; shape: rectangle with L-cutout (outline from mechanical/out/OP-xx.layout.json).
 - Height stack (away from the body): base 0.9 | battery 3.2 | PCB+components 1.6 | lid 0.9 → remainder coil/tolerance. Reservoir+motor lie in the same plane as battery+PCB (side by side, not stacked).

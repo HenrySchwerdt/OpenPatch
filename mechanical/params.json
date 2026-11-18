@@ -62,7 +62,7 @@
   "d": 4.0,
   "len": 2.0,
   "bore_clr": 0.1,
-  "z": 3.4,
+  "z": 2.9,
   "boss_d": 5.1,
   "gap_y": 1.8,
   "port_d": 1.0,
@@ -89,8 +89,8 @@
   "lane_clr": 0.1,
   "screw_lane_w": 4.4,
   "motor_d": 6.0,
-  "motor_len": 9.5,
-  "gearhead_len": 11.9,
+  "motor_len": 14.0,
+  "gearhead_len": 9.7,
   "gear_x0": 2.0,
   "gear_t": 1.2,
   "gear_d": 5.0,
@@ -100,10 +100,10 @@
   "nut_hex_clr": 0.1,
   "carriage_len": 4.0,
   "carriage_bw": 4.4,
-  "carriage_bh": 5.0,
+  "carriage_bh": 6.2,
   "tongue_x": 0.6,
   "motor_tail": 1.0,
-  "gh_ratio": 16.0,
+  "gh_ratio": 5.0,
   "steps_per_rev": 20,
   "screw_pitch": 0.35,
   "gear_module": 0.3,
@@ -117,11 +117,13 @@
   "mag_d": 2.0,
   "mag_t": 1.0,
   "rail_w": 0.9,
-  "rail_top": 2.2,
+  "rail_top": 1.6,
   "groove_w": 1.2,
-  "groove_d": 0.6,
+  "groove_d": 0.5,
   "cradle_t": 1.2,
-  "cradle_up": 1.2
+  "cradle_up": 1.2,
+  "active_preset": "zw_pd6_1stage",
+  "_note": "Zhaowei ZWBPD006006 6mm planetary-gear stepper, 1 stage (listed 5/6:1; 5.0 assumed). Gearbox 9.7 mm, total 23.7 mm (vendor page). 20 steps/rev ASSUMED (TODO-VERIFY with seller)."
  },
  "battery": {
   "t": 3.2,
@@ -150,7 +152,7 @@
   "x": 9.0,
   "y": 9.0,
   "z": 2.0,
-  "y0": 19.4,
+  "y0": 18.9,
   "edge_gap": 0.6
  },
  "cannula": {
@@ -280,5 +282,30 @@
   "pad_d": 1.2,
   "pad_gap": 0.05,
   "fpc_t": 0.1
+ },
+ "drive_presets": {
+  "zw_pd6_1stage": {
+   "_note": "Zhaowei ZWBPD006006 6mm planetary-gear stepper, 1 stage (listed 5/6:1; 5.0 assumed). Gearbox 9.7 mm, total 23.7 mm (vendor page). 20 steps/rev ASSUMED (TODO-VERIFY with seller).",
+   "gearhead_len": 9.7,
+   "motor_len": 14.0,
+   "gh_ratio": 5.0,
+   "steps_per_rev": 20,
+   "motor_tail": 1.0
+  },
+  "zw_pd6_2stage": {
+   "gearhead_len": 12.1,
+   "motor_len": 14.0,
+   "gh_ratio": 23.0,
+   "steps_per_rev": 20,
+   "motor_tail": 1.0
+  },
+  "faulhaber_adm0620_16": {
+   "_note": "Premium: ADM0620-2R-V3 (9.5 mm, 20 st/rev, datasheet) + 06/1 16:1 (length derived 11.9, VERIFY).",
+   "gearhead_len": 11.9,
+   "motor_len": 9.5,
+   "gh_ratio": 16.0,
+   "steps_per_rev": 20,
+   "motor_tail": 1.0
+  }
  }
 }
