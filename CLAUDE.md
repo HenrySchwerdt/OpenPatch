@@ -1,6 +1,6 @@
 # CLAUDE.md – Instructions for AI assistants in this repo
 
-**Project:** OpenPatch, an experimental open-source patch insulin pump. **Not a medical device.** Safety takes priority over everything else (see `docs/02-safety.md`).
+**Project:** OpenPatch, an open-source patch insulin pump **test project**. **Not a medical device; it must never be worn or used on a person** (see `DISCLAIMER.md`). Never write instructions for on-body use or for use with insulin on a human. Safety takes priority over everything else (see `docs/02-safety.md`).
 
 ## Getting started
 1. `docs/STATUS.md`: current state, decisions, next steps

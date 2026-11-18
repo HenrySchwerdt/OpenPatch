@@ -1,6 +1,6 @@
 # Safety concept
 
-> **Important:** OpenPatch is an experimental DIY device and not an approved medical device. Mis-delivery of insulin can be fatal: hypoglycemia on over-delivery, ketoacidosis on interruption. Use at your own risk. Always keep a pen or syringe, glucagon and a CGM alarm at hand.
+> **Important:** OpenPatch is a **test project, not a medical device**. It must **never** be worn on the body or used to deliver insulin to a person (see [DISCLAIMER.md](../DISCLAIMER.md)). This safety concept exists so that the engineering is done properly and so that bench tests are meaningful — not to make on-body use acceptable.
 
 ## 1. Hazards and countermeasures
 
@@ -30,11 +30,11 @@
 - The delivery engine must **never** service the watchdog itself. Only the safety supervisor does that, and only when all checks have passed.
 - The encoder evaluation runs in the safety supervisor. If steps and rotation deviate by more than 10 % over 1 U, delivery is stopped.
 
-## 3. Verification plan before first use on the body
+## 3. Bench verification plan (water only, never on a person)
 
 1. Gravimetric delivery accuracy with water on a precision balance with 0.1 mg resolution: 0.05 / 0.5 / 5 U, 50 repetitions each. Target: ±5 % from 1 U.
 2. Occlusion test: outlet blocked → alarm before 2 U.
 3. 72 h endurance test with water and a basal profile, including BLE disconnects and reconnects.
 4. Fault injection: firmware hangs → watchdog switches the motor off (verify with an oscilloscope).
 5. Leak tightness: 30 min under water at 1 m depth (IPX7-like).
-6. Only then tests with insulin, initially in parallel with an approved pump or the pen, with close CGM monitoring.
+6. There is **no** step 6. The project never proceeds to insulin or to use on a person.
