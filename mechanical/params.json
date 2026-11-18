@@ -1,0 +1,284 @@
+{
+ "_comment": "Einzige Parameterquelle der Mechanik. Maße in mm. Spec: spec/design-parameters.md. Varianten ändern NUR den Kolbenhub (stroke).",
+ "spec": {
+  "max_height": 8.5,
+  "width_target": 32.0,
+  "length_targets": {
+   "OP-70": 38.0,
+   "OP-100": 42.0,
+   "OP-200": 56.0
+  }
+ },
+ "variants": {
+  "OP-70": {
+   "stroke": 9.4
+  },
+  "OP-100": {
+   "stroke": 13.4
+  },
+  "OP-200": {
+   "stroke": 26.8
+  }
+ },
+ "shell": {
+  "wall": 0.9,
+  "corner_r": 4.0,
+  "top_fillet": 1.0,
+  "width": 32.0,
+  "height": 8.5,
+  "lap_low": 5.0,
+  "lap_high": 5.5,
+  "lap_gap": 0.1,
+  "rim_inset": 0.5,
+  "lid_ring_inset": 0.45,
+  "gasket_t": 0.6,
+  "gasket_c": 0.45,
+  "closure_z_stop": 5.0
+ },
+ "fit": {
+  "clr": 0.2,
+  "clr_small": 0.1,
+  "bat_gap": 0.15
+ },
+ "velcro": {
+  "depth": 0.35,
+  "margin_x": 0.4,
+  "y0": 4.0,
+  "y1": 29.0,
+  "r": 1.5
+ },
+ "reservoir": {
+  "w_in": 16.0,
+  "h_in": 5.0,
+  "wall": 0.8,
+  "dead": 1.0,
+  "plunger_len": 3.8,
+  "plunger_clr": 0.2,
+  "plunger_gap": 0.2,
+  "fill_fraction": 1.0,
+  "cnc_split": true
+ },
+ "septum": {
+  "d": 4.0,
+  "len": 2.0,
+  "bore_clr": 0.1,
+  "z": 3.4,
+  "boss_d": 5.1,
+  "gap_y": 1.8,
+  "port_d": 1.0,
+  "recess": 0.1
+ },
+ "needle": {
+  "od": 0.31,
+  "bore_d": 0.5,
+  "channel_d": 0.7,
+  "channel_z": 4.3,
+  "tower_top": 4.9,
+  "hub_d": 2.0,
+  "hub_t": 0.7,
+  "hub_z0": 3.2,
+  "hub_clr": 0.0
+ },
+ "drive": {
+  "screw_d": 1.6,
+  "nut_hole_d": 1.7,
+  "nut_len": 1.3,
+  "nut_block": 3.4,
+  "arm_t": 1.4,
+  "slot_clr": 0.1,
+  "lane_clr": 0.1,
+  "screw_lane_w": 4.4,
+  "motor_d": 6.0,
+  "motor_len": 9.5,
+  "gearhead_len": 11.9,
+  "gear_x0": 2.0,
+  "gear_t": 1.2,
+  "gear_d": 5.0,
+  "post_bore_d": 2.0,
+  "_comment": "Faulhaber ADM0620-2R-V3 (Ø6, 9.5 mm, 20 st/rev, 0.2 mNm) + 06/1 planetary 16:1 (nominal; 2 stages). gearhead_len DERIVED (9.2+2.7/stage), VERIFY on datasheet. Screw M1.6x0.35 stainless rod, DIN 934 M1.6 nut.",
+  "nut_af": 3.2,
+  "nut_hex_clr": 0.1,
+  "carriage_len": 4.0,
+  "carriage_bw": 4.4,
+  "carriage_bh": 5.0,
+  "tongue_x": 0.6,
+  "motor_tail": 1.0,
+  "gh_ratio": 16.0,
+  "steps_per_rev": 20,
+  "screw_pitch": 0.35,
+  "gear_module": 0.3,
+  "gear_z": 18,
+  "gear_center": 5.4,
+  "gear_root_d": 4.65,
+  "bush_od": 3.0,
+  "bush_id": 1.7,
+  "bush_len": 1.0,
+  "bush_bore_clr": 0.05,
+  "mag_d": 2.0,
+  "mag_t": 1.0,
+  "rail_w": 0.9,
+  "rail_top": 2.2,
+  "groove_w": 1.2,
+  "groove_d": 0.6,
+  "cradle_t": 1.2,
+  "cradle_up": 1.2
+ },
+ "battery": {
+  "t": 3.2,
+  "y": 11.2,
+  "x_max": 19.8,
+  "margin": 0.2,
+  "y0": 13.7,
+  "rib_t": 0.6,
+  "rib_h": 1.4
+ },
+ "pcb": {
+  "t": 0.6,
+  "keepout": 1.4,
+  "z0": 4.9,
+  "margin": 0.6,
+  "notch_x": 1.4,
+  "notch_y": 3.3
+ },
+ "coil": {
+  "d": 17.6,
+  "t": 0.6,
+  "z0": 6.9,
+  "gap_x": 0.1
+ },
+ "buzzer": {
+  "x": 9.0,
+  "y": 9.0,
+  "z": 2.0,
+  "y0": 19.4,
+  "edge_gap": 0.6
+ },
+ "cannula": {
+  "_comment": "PLATZHALTER - Werte A..N aus cannula-measurement.md eintragen und neu generieren.",
+  "A_plate_length": 14.0,
+  "B_plate_width": 10.0,
+  "C_plate_thickness": 3.0,
+  "D_wing_groove_depth": 1.0,
+  "E_wing_len": 3.0,
+  "F_wing_height": 1.0,
+  "G_wing_z": 1.0,
+  "H_septum_dia": 4.0,
+  "I_septum_off_x": 0.0,
+  "J_septum_off_y": 0.0,
+  "K_corner_r": 0.0,
+  "L_head_standoff": 0.0,
+  "M_needle_depth": 1.9,
+  "N_clearance": 0.2
+ },
+ "rf": {
+  "module_x": 8.0,
+  "module_y": 8.0,
+  "module_z": 1.0,
+  "edge_gap": 0.6,
+  "keepout_r": 4.5
+ },
+ "hall": {
+  "pkg_x": 1.6,
+  "pkg_y": 1.6,
+  "pkg_z": 0.5,
+  "gap_x": 0.9,
+  "drv_dy": 1.6,
+  "drv_x": 1.1,
+  "drv_y": 1.4,
+  "drv_z": 0.5
+ },
+ "screws": {
+  "d": 1.2,
+  "pilot": 1.0,
+  "clear": 1.4,
+  "boss_d": 2.2,
+  "head_d": 2.4,
+  "head_depth": 0.5,
+  "len": 6.0,
+  "dry_y": [
+   4.2,
+   11.7,
+   19.0
+  ],
+  "dry_x": 2.0,
+  "c_dx": 3.0,
+  "c_y": 18.8
+ },
+ "button": {
+  "d_memb": 5.0,
+  "memb_t": 0.5,
+  "post_d": 1.8,
+  "y": 20.1,
+  "dx": 11.0,
+  "sw_x": 3.0,
+  "sw_y": 2.6,
+  "sw_z": 0.55,
+  "post_gap": 0.1
+ },
+ "port": {
+  "hole_d": 1.2,
+  "recess_d": 4.0,
+  "recess_depth": 0.2
+ },
+ "seal": {
+  "ring_w": 0.8,
+  "flange": 0.6,
+  "groove_depth": 0.5,
+  "free_oversize": 0.3,
+  "assembly_gap": 0.02,
+  "socket_clr": 0.1,
+  "ring_a": [
+   0.6,
+   1.4
+  ],
+  "ring_b": [
+   2.3,
+   3.1
+  ],
+  "socket_x": [
+   1.45,
+   2.25
+  ],
+  "tongue_off": [
+   1.55,
+   2.15
+  ],
+  "socket_depth": 1.6
+ },
+ "mould": {
+  "margin": 6.0,
+  "split_h": 6.0,
+  "pin_d": 2.0,
+  "pin_clr": 0.1,
+  "pin_h": 2.5,
+  "sprue_d": 0.7,
+  "vent_d": 0.5,
+  "core_clr": 0.03
+ },
+ "_notes": "Rev A orderable. See parts.md / README.md.",
+ "contacts": {
+  "spring_h_max": 1.2,
+  "tab_dy": [
+   7.3,
+   9.2
+  ],
+  "tab_dx": 0.8,
+  "tab_pad": [
+   1.5,
+   1.2
+  ],
+  "fpc_pitch": 0.5,
+  "fpc_n": 4,
+  "fpc_y": 25.7,
+  "shelf_dx": 0.3,
+  "shelf_len": 3.0,
+  "shelf_y": [
+   25.1,
+   26.3
+  ],
+  "shelf_top": 3.9,
+  "pad_d": 1.2,
+  "pad_gap": 0.05,
+  "fpc_t": 0.1
+ }
+}

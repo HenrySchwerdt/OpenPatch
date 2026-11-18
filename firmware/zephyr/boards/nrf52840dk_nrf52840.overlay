@@ -1,0 +1,68 @@
+/*
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * Bench setup on the nRF52840-DK, before Rev A boards exist. Same /zephyr,user
+ * properties as boards/openpatch/openpatch_reva, re-mapped onto DK header pins.
+ * Optional blocks (hardware safety latch, QDEC, charger, TMAG5273) are simply
+ * absent: the application skips every feature whose devicetree property is missing.
+ *
+ * Wiring (DK Arduino header, labels D0..D13 / A0..A5, SDA/SCL):
+ *   STSPIN220 breakout: STCK=D3 (P1.04), DIR=D4 (P1.05), MODE1=D5 (P1.06), MODE2=D6 (P1.07),
+ *                       STBY/RESET=D7 (P1.08), EN/FAULT=D8 (P1.10)
+ *   Battery divider test input: A0 (VBAT), A1 (VMOT) - ignored while CONFIG_OPENPATCH_SIM_BATTERY=y
+ *   Nothing needs to be connected to see the firmware run: encoder and battery are
+ *   simulated (CONFIG_OPENPATCH_SIM_*), LED1 (PWM) acts as the buzzer, Button 1 as the pod button.
+ */
+
+/ {
+	aliases {
+		pwm-buzzer = &pwm0;
+	};
+
+	zephyr,user {
+		motor-stck-gpios = <&gpio1 4 GPIO_ACTIVE_HIGH>;   /* D3 */
+		motor-dir-gpios = <&gpio1 5 GPIO_ACTIVE_HIGH>;    /* D4 */
+		motor-mode1-gpios = <&gpio1 6 GPIO_ACTIVE_HIGH>;  /* D5 */
+		motor-mode2-gpios = <&gpio1 7 GPIO_ACTIVE_HIGH>;  /* D6 */
+		motor-stby-gpios = <&gpio1 8 GPIO_ACTIVE_HIGH>;   /* D7 */
+		motor-fault-gpios = <&gpio1 10 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>; /* D8 */
+
+		wdt-done-gpios = <&gpio1 15 GPIO_ACTIVE_HIGH>;    /* D13: no TPL5010 on the DK, just a pin */
+		wdt-wake-gpios = <&gpio1 3 GPIO_ACTIVE_HIGH>;     /* D2: connect a function generator to test */
+
+		button-gpios = <&gpio0 11 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>; /* Button 1 */
+
+		io-channels = <&adc 2>, <&adc 1>;
+		io-channel-names = "vmot", "vbat";               /* A1 = P0.04 = AIN2, A0 = P0.03 = AIN1 */
+	};
+};
+
+&adc {
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	channel@1 {
+		reg = <1>;
+		zephyr,gain = "ADC_GAIN_1_4";
+		zephyr,reference = "ADC_REF_INTERNAL";
+		zephyr,acquisition-time = <ADC_ACQ_TIME(ADC_ACQ_TIME_MICROSECONDS, 40)>;
+		zephyr,input-positive = <NRF_SAADC_AIN1>;
+		zephyr,resolution = <12>;
+		zephyr,oversampling = <3>;
+	};
+
+	channel@2 {
+		reg = <2>;
+		zephyr,gain = "ADC_GAIN_1_4";
+		zephyr,reference = "ADC_REF_INTERNAL";
+		zephyr,acquisition-time = <ADC_ACQ_TIME(ADC_ACQ_TIME_MICROSECONDS, 40)>;
+		zephyr,input-positive = <NRF_SAADC_AIN2>;
+		zephyr,resolution = <12>;
+		zephyr,oversampling = <3>;
+	};
+};
+
+/* RTC2 = step pulse timebase */
+&rtc2 {
+	status = "okay";
+};

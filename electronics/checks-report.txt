@@ -1,0 +1,44 @@
+OK  Alle Netze haben >= 2 Anschluesse (Einzelnetze: [])
+OK  Kein Pin liegt in zwei Netzen []
+OK  Entkopplung auf 3V3: ['C2', 'C50', 'C41', 'C1', 'C51']
+OK  Entkopplung auf VBAT: ['C54', 'C42']
+OK  Entkopplung auf VMOT: ['C61', 'C60']
+OK  Entkopplung auf RECT: ['C31', 'C30']
+OK  Entkopplung auf VQI_5V: ['C32', 'C40', 'C33']
+OK  Entkopplung auf VPER_3V3: ['C43', 'C70', 'C71', 'C72']
+OK  3V3: >= 5 Kondensatoren
+OK  ISP1807 VCC_NRF an 3V3
+OK  ISP1807: alle 10 VSS-Pads an GND (10)
+OK  OUT_MOD -> R90 -> OUT_ANT (integrierte Antenne, kein externes pi-Netz)
+OK  ISP1807-GPIO genutzt (inkl. SWD/RESET): 26 (Soll 26)
+OK  MOT_ALLOW wird vom Latch-Q (U6) getrieben
+OK  MOT_ALLOW steuert Lastschalter U7 (ON)
+OK  Kein MCU-Ausgang direkt auf MOT_ALLOW (nur Rueckleser P0.04)
+OK  Pulldown R53 auf MOT_ALLOW (Default AUS bei SYS-Verlust)
+OK  VMOT nur an Lastschalter-Ausgang (U7) und Treiber VS (U4): ['C60', 'C61', 'R70', 'TP4', 'U4', 'U7']
+OK  STSPIN220 VS haengt NUR an VMOT (nie direkt an VBAT)
+OK  Lastschalter: VBAT -> VMOT
+OK  CLR# wird per Diode D2 von NRST (TPL5010 RSTn) gezogen
+OK  CLR# vom MCU-KILL_N (P1.07) ziehbar
+OK  Power-On-Clear-Kondensator C52 an CLR#
+OK  TPL5010 RSTn resettet zusaetzlich den MCU (nRESET)
+OK  TPL5010 DONE <- MCU P2.00
+OK  Latch D und PRE# fest auf High (nur CLK setzt)
+OK  STSPIN220 STBY/RESET hat Pulldown R72 (MCU-Enable fail-safe)
+OK  DRV5032 A/B -> HALL_A/B (QDEC, CPU-unabhaengiger Pfad B)
+OK  TMAG5273 (Pfad A) am I2C
+OK  BQ51003 OUT -> BQ25120A IN
+OK  BQ25120A: BAT=VBAT, SYS=3V3
+OK  Verpolschutz-PFET Q2 in der +Schiene
+OK  TC2030 J1: SWDIO/SWCLK/NRESET/VTREF/GND korrekt
+OK  Testpad TP1 -> 3V3
+OK  Testpad TP3 -> VBAT
+OK  Testpad TP4 -> VMOT
+OK  Testpad TP6 -> HALL_A
+OK  Testpad TP7 -> HALL_B
+OK  Testpad TP10 -> MOT_A1
+OK  Testpad TP11 -> MOT_A2
+OK  Testpad TP12 -> MOT_B1
+OK  Testpad TP13 -> MOT_B2
+
+42 OK, 0 FEHLER

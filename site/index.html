@@ -1,0 +1,566 @@
+<!doctype html>
+<html lang="de" data-theme="light">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>OpenPatch – offene, abnehmbare Patch-Insulinpumpe</title>
+  <meta name="description" content="OpenPatch: experimentelle Open-Source-Patchpumpe, 8,5 mm flach, wiederverwendbar, per Qi ladbar, mit Trio steuerbar. Kein Medizinprodukt." />
+  <meta name="color-scheme" content="light dark" />
+  <meta name="theme-color" content="#f1efea" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#131210" media="(prefers-color-scheme: dark)" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'" />
+  <meta name="referrer" content="strict-origin-when-cross-origin" />
+  <meta property="og:title" content="OpenPatch – 8,5 mm. Offen. Abnehmbar." />
+  <meta property="og:description" content="Experimentelle Open-Source-Patch-Insulinpumpe. Kein Medizinprodukt." />
+  <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+  <script src="./theme-init.js"></script>
+  <script type="module" src="/src/main.ts"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Zum Inhalt springen</a>
+
+  <div class="warnbar" role="note">
+    <span class="mono"><b>Experimentell</b> · Kein zugelassenes Medizinprodukt · Fehlförderung von Insulin kann lebensgefährlich sein</span>
+    <a href="#sicherheit" class="mono">Sicherheitskonzept →</a>
+  </div>
+
+  <header class="site-header" id="top">
+    <div class="wrap header-row">
+      <a class="brand" href="#top" aria-label="OpenPatch – Anfang der Seite">
+        <svg class="brand-mark" viewBox="0 0 28 14" width="28" height="14" aria-hidden="true"><rect x="0.75" y="0.75" width="26.5" height="12.5" rx="6.25" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="20.5" cy="7" r="2.6" fill="var(--signal)"/></svg>
+        <span>OpenPatch</span>
+      </a>
+      <nav id="site-nav" class="site-nav" aria-label="Hauptnavigation">
+        <ul>
+          <li><a href="#groessen">Größen</a></li>
+          <li><a href="#funktion">Funktion</a></li>
+          <li><a href="#sicherheit">Sicherheit</a></li>
+          <li><a href="#bauanleitung">Bauanleitung</a></li>
+          <li><a href="#kosten">Kosten</a></li>
+          <li><a href="#patente">Patente</a></li>
+          <li><a href="#downloads">Downloads</a></li>
+          <li><a href="#faq">FAQ</a></li>
+        </ul>
+      </nav>
+      <div class="header-tools">
+        <button class="icon-btn" id="theme-toggle" type="button" aria-label="Dunkles Design einschalten" aria-pressed="false">
+          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path class="ico-moon" d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5Z" fill="currentColor"/><g class="ico-sun" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" fill="none"><circle cx="12" cy="12" r="4" fill="currentColor"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8"/></g></svg>
+        </button>
+        <button class="icon-btn nav-toggle" id="nav-toggle" type="button" aria-expanded="false" aria-controls="site-nav" aria-label="Menü öffnen">
+          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M3 8h18M3 16h18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main id="main">
+    <!-- ============ 1 · HERO ============ -->
+    <section class="hero wrap" aria-labelledby="hero-h">
+      <div class="hero-copy">
+        <p class="eyebrow mono"><span class="dot"></span>Open-Source-Patchpumpe · Konzept v0.1</p>
+        <h1 id="hero-h"><span>Flach.</span><span>Offen.</span><span class="sig">Abnehmbar.</span></h1>
+        <p class="lede">OpenPatch ist ein wiederverwendbarer Pod mit nur <strong>8,5&nbsp;mm</strong> Bauhöhe, fast halb so hoch wie Omnipod DASH. Er steckt direkt auf eine Accu-Chek-Insight-Flex-Kanüle, lädt per Qi und wird aus Trio gesteuert.</p>
+        <div class="cta">
+          <a class="btn btn-primary" href="#bauanleitung">Bauanleitung</a>
+          <a class="btn" href="#sicherheit">Sicherheitskonzept lesen</a>
+        </div>
+      </div>
+
+      <div class="stage" id="stage" role="group" aria-label="Interaktives 3D-Modell des OpenPatch-Pods">
+        <span class="corner tl" aria-hidden="true"></span><span class="corner tr" aria-hidden="true"></span>
+        <span class="corner bl" aria-hidden="true"></span><span class="corner br" aria-hidden="true"></span>
+        <p class="stage-tag mono" aria-hidden="true">FIG. 01 · <span id="stage-size-tag">OP-100</span> · ISO</p>
+        <canvas id="stage-canvas" tabindex="0" aria-describedby="stage-hint" aria-label="3D-Pod: Maus ziehen oder Pfeiltasten zum Drehen, Plus und Minus zum Zoomen"></canvas>
+        <ul class="part-labels mono" id="part-labels" aria-hidden="true"></ul>
+        <p class="stage-fallback" id="stage-fallback" hidden>Dein Browser kann das 3D-Modell nicht darstellen (WebGL fehlt). Maße: 42 × 32 × 8,5&nbsp;mm.</p>
+        <div class="stage-controls">
+          <div class="seg" role="group" aria-label="Größe wählen" data-size-switch>
+            <button type="button" data-size="OP-70" aria-pressed="false">70</button>
+            <button type="button" data-size="OP-100" aria-pressed="true">100</button>
+            <button type="button" data-size="OP-200" aria-pressed="false">200</button>
+          </div>
+          <button class="chip-btn" id="explode-toggle" type="button" aria-pressed="false">
+            <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M2 3.5h12M2 8h12M2 12.5h12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+            <span>Explosionsansicht</span>
+          </button>
+          <button class="chip-btn" id="reset-view" type="button" aria-label="Ansicht zurücksetzen">
+            <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M3 8a5 5 0 1 0 1.6-3.7M3 2.5v3h3" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+        </div>
+        <p class="stage-hint mono" id="stage-hint">Ziehen = drehen · Scroll/Pinch = zoomen · Pfeiltasten, +/−</p>
+        <p class="stage-source mono" id="stage-source" aria-live="polite"></p>
+      </div>
+
+      <dl class="hero-specs">
+        <div><dt class="mono">Bauhöhe</dt><dd>8,5<small>mm</small></dd><p class="mono dim">DASH: 14,5 mm · −41 %</p></div>
+        <div><dt class="mono">Kleinster Puls</dt><dd>0,05<small>IE</small></dd><p class="mono dim">≈ 4 Schritte à 0,0131 IE</p></div>
+        <div><dt class="mono">Größen</dt><dd>70<i>·</i>100<i>·</i>200<small>IE</small></dd><p class="mono dim">nur die Länge variiert</p></div>
+        <div><dt class="mono">Laden</dt><dd>Qi</dd><p class="mono dim">kein Steckerloch</p></div>
+      </dl>
+    </section>
+
+    <!-- ============ 2 · GRÖSSEN ============ -->
+    <section class="section wrap" id="groessen" aria-labelledby="groessen-h">
+      <header class="section-head reveal">
+        <p class="sec-no mono">§ 02 / Größen</p>
+        <h2 id="groessen-h">Drei Längen.<br>Eine Höhe.</h2>
+        <p class="sec-lede">Gleiche Elektronik, gleicher Antrieb, gleiche Kanülentasche. Nur das Reservoir wird länger. Alles im Maßstab 1&nbsp;:&nbsp;1 zueinander.</p>
+      </header>
+
+      <div class="size-grid">
+        <div class="size-panel reveal">
+          <div class="seg seg-lg" role="group" aria-label="Größe wählen" data-size-switch>
+            <button type="button" data-size="OP-70" aria-pressed="false"><b>OP-70</b><span class="mono">0,7 ml</span></button>
+            <button type="button" data-size="OP-100" aria-pressed="true"><b>OP-100</b><span class="mono">1,0 ml</span></button>
+            <button type="button" data-size="OP-200" aria-pressed="false"><b>OP-200</b><span class="mono">2,0 ml</span></button>
+          </div>
+          <table class="spec-table" aria-live="polite">
+            <caption class="sr-only">Technische Daten der gewählten Größe</caption>
+            <tbody id="spec-body"></tbody>
+          </table>
+          <p class="table-note mono">Zielmaße laut Spezifikation v0.1. Gewicht ist eine grobe Schätzung (Hüllvolumen × ca. 1 g/ml, Referenz Medtrum Nano: 13,8 g bei 40,5 × 31,5 × 11,5 mm).</p>
+        </div>
+
+        <figure class="scale-fig reveal" aria-labelledby="scale-cap">
+          <div class="scale-view" id="scale-view" role="img" aria-label="Maßstabsgetreuer Vergleich von Draufsicht und Seitenansicht: Omnipod DASH 52 mal 39 mal 14,5 Millimeter, OpenPatch in gewählter Größe, 2-Euro-Münze">
+            <div class="scale-row scale-top" aria-hidden="true">
+              <div class="item"><div class="shape dash"></div><p class="mono">Omnipod DASH<br><b>52 × 39 mm</b></p></div>
+              <div class="item"><div class="op-stack">
+                <div class="shape op op70" data-for="OP-70"></div><div class="shape op op100" data-for="OP-100"></div><div class="shape op op200" data-for="OP-200"></div>
+              </div><p class="mono"><span data-op-name>OP-100</span><br><b data-op-foot>42 × 32 mm</b></p></div>
+              <div class="item"><div class="shape coin"></div><p class="mono">2 €<br><b>Ø 25,75 mm</b></p></div>
+            </div>
+            <p class="scale-label mono" aria-hidden="true">Draufsicht</p>
+            <div class="scale-row scale-side" aria-hidden="true">
+              <div class="item"><div class="shape dash-side"></div><p class="mono"><b>14,5 mm</b></p></div>
+              <div class="item"><div class="shape op-side"></div><p class="mono"><b>8,5 mm</b></p></div>
+              <div class="item"><div class="shape coin-side"></div><p class="mono"><b>2,2 mm</b></p></div>
+            </div>
+            <p class="scale-label mono" aria-hidden="true">Seitenansicht</p>
+          </div>
+          <figcaption id="scale-cap" class="mono">Maßstab 1 : 1 untereinander · DASH-Maße laut Hersteller</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <!-- ============ 3 · FUNKTION ============ -->
+    <section class="section wrap" id="funktion" aria-labelledby="funktion-h">
+      <header class="section-head reveal">
+        <p class="sec-no mono">§ 03 / Wie es funktioniert</p>
+        <h2 id="funktion-h">Ein Motor.<br>Zwei Schlüssel.<br>Zwei Sprachen.</h2>
+        <p class="sec-lede">Ein Kolbenantrieb liefert die Dosis, ein Hardware-Interlock bewacht ihn, und Trio spricht entweder nativ oder im DASH-Modus mit dem Pod.</p>
+      </header>
+
+      <!-- 3a Antrieb -->
+      <article class="module reveal" aria-labelledby="m1-h">
+        <div class="module-head">
+          <p class="mod-no mono">A</p>
+          <h3 id="m1-h">Antriebsstrang</h3>
+          <p>Schrittmotor, Getriebe und Spindel schieben einen Stadion-Kolben durch ein flaches Reservoir. Ein Encoder misst unabhängig, was wirklich ankommt.</p>
+        </div>
+        <figure class="diagram">
+          <svg class="drive-svg" viewBox="0 0 760 250" role="img" aria-labelledby="drive-t drive-d">
+            <title id="drive-t">Schnitt durch den Pod, Draufsicht</title>
+            <desc id="drive-d">Ein Motor treibt über ein 10-zu-1-Getriebe eine Spindel. Die Spindel schiebt den Kolben im Reservoir nach links. Das Insulin fließt durch eine 30-G-Nadel in die Kanüle. Ein Hall-Encoder liest die Spindeldrehung.</desc>
+            <defs>
+              <pattern id="hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="6" stroke="var(--line-strong)" stroke-width="1"/></pattern>
+            </defs>
+            <!-- Gehäuse-Kontur -->
+            <rect x="20" y="30" width="720" height="150" rx="38" fill="none" stroke="var(--ink)" stroke-width="1.5"/>
+            <rect x="26" y="36" width="708" height="138" rx="33" fill="none" stroke="var(--line-strong)" stroke-dasharray="3 4"/>
+            <!-- Reservoir -->
+            <rect x="70" y="72" width="330" height="56" rx="28" fill="var(--signal-wash)" stroke="var(--ink)" stroke-width="1.5"/>
+            <text x="235" y="148" class="svg-label" text-anchor="middle">Reservoir · Stadion 16 × 5 mm</text>
+            <!-- Spindel (dreht, steht fest) -->
+            <rect x="150" y="94" width="450" height="12" fill="url(#hatch)" stroke="var(--ink)" stroke-width="1.5"/>
+            <!-- Kolben (bewegt) -->
+            <g class="plunger"><rect x="330" y="76" width="34" height="48" rx="14" fill="var(--signal)"/></g>
+            <!-- Septum + Auslass -->
+            <circle cx="92" cy="152" r="9" fill="var(--ink)"/><text x="92" y="184" class="svg-label" text-anchor="middle">Septum</text>
+            <path d="M70 100H34" stroke="var(--ink)" stroke-width="1.5"/>
+            <path d="M34 100H8" stroke="var(--signal)" stroke-width="2.5"/>
+            <text x="8" y="88" class="svg-label">30G-Nadel</text>
+            <text x="545" y="130" class="svg-label" text-anchor="middle">Spindel M1,6 × 0,35</text>
+            <!-- Getriebe -->
+            <circle cx="632" cy="100" r="22" fill="none" stroke="var(--ink)" stroke-width="1.5" stroke-dasharray="4 3" class="gear"/>
+            <circle cx="632" cy="100" r="6" fill="var(--ink)"/>
+            <text x="632" y="146" class="svg-label" text-anchor="middle">Getriebe 10 : 1</text>
+            <!-- Motor -->
+            <rect x="668" y="78" width="58" height="44" rx="6" fill="var(--paper-2)" stroke="var(--ink)" stroke-width="1.5"/>
+            <text x="697" y="104" class="svg-label" text-anchor="middle">Ø6</text>
+            <text x="697" y="62" class="svg-label" text-anchor="middle">Schrittmotor</text>
+            <!-- Encoder -->
+            <rect x="520" y="46" width="52" height="22" rx="3" fill="none" stroke="var(--signal-ink)" stroke-width="1.5"/>
+            <text x="546" y="40" class="svg-label sig" text-anchor="middle">Hall-Encoder</text>
+            <path d="M546 68V94" stroke="var(--signal-ink)" stroke-width="1.5" stroke-dasharray="2 3"/>
+            <!-- Kanüle -->
+            <path d="M8 100H-1" stroke="var(--ink)"/>
+            <!-- Bemaßung -->
+            <path d="M20 214H740" stroke="var(--ink)" stroke-width="1"/><path d="M20 208v12M740 208v12" stroke="var(--ink)"/>
+            <text x="380" y="238" class="svg-label" text-anchor="middle">L 38 / 42 / 56 mm — nur diese Länge wächst</text>
+          </svg>
+          <figcaption class="mono">Schematisch, nicht maßstäblich · Kolben bewegt sich pro Schritt 1,75 µm</figcaption>
+        </figure>
+        <ol class="chain mono" aria-label="Von Motorschritt zu Insulin-Einheit">
+          <li><span>1 Schritt</span><b>1,75 µm</b></li>
+          <li><span>Weg × 74,6 mm²</span><b>0,131 µl</b></li>
+          <li><span>bei U100</span><b>0,0131 IE</b></li>
+          <li><span>kleinster Puls</span><b>≈ 4 Schritte = 0,05 IE</b></li>
+        </ol>
+      </article>
+
+      <!-- 3b Interlock -->
+      <article class="module reveal" aria-labelledby="m2-h">
+        <div class="module-head">
+          <p class="mod-no mono">B</p>
+          <h3 id="m2-h">Safety-Interlock</h3>
+          <p>Der Motortreiber bekommt nur dann Strom, wenn zwei voneinander unabhängige Instanzen zustimmen. Hängt die Firmware, schaltet ein externer Timer den Motor hart ab.</p>
+        </div>
+        <figure class="diagram">
+          <svg class="gate-svg" viewBox="0 0 760 230" role="img" aria-labelledby="gate-t gate-d">
+            <title id="gate-t">Hardware-Interlock mit UND-Gatter</title>
+            <desc id="gate-d">Der MOTOR_EN-Pin des Mikrocontrollers und der Watchdog TPL5010 führen in ein UND-Gatter. Dessen Ausgang schaltet den Load-Switch, der den Motortreiber STSPIN220 versorgt. Nur der Safety-Supervisor füttert den Watchdog.</desc>
+            <g fill="none" stroke="var(--ink)" stroke-width="1.5">
+              <rect x="10" y="30" width="190" height="62" rx="4"/>
+              <rect x="10" y="138" width="190" height="62" rx="4"/>
+              <path d="M200 61H300M200 169H300"/>
+              <path d="M300 40V190H350Q420 190 420 115Q420 40 350 40Z" class="and-gate"/>
+              <path d="M420 115H480"/>
+              <rect x="480" y="85" width="120" height="60" rx="4"/>
+              <path d="M600 115H640"/>
+              <rect x="640" y="85" width="110" height="60" rx="4"/>
+              <path d="M300 61v0M300 169v0"/>
+            </g>
+            <text x="105" y="56" class="svg-label" text-anchor="middle">MCU-GPIO</text><text x="105" y="76" class="svg-label strong" text-anchor="middle">MOTOR_EN</text>
+            <text x="105" y="164" class="svg-label" text-anchor="middle">Watchdog TPL5010</text><text x="105" y="184" class="svg-label strong" text-anchor="middle">gefüttert nur vom Supervisor</text>
+            <text x="365" y="120" class="svg-label strong" text-anchor="middle">UND</text>
+            <text x="540" y="111" class="svg-label" text-anchor="middle">Load-Switch</text><text x="540" y="129" class="svg-label dim" text-anchor="middle">Versorgung</text>
+            <text x="695" y="111" class="svg-label strong" text-anchor="middle">STSPIN220</text><text x="695" y="129" class="svg-label dim" text-anchor="middle">→ Motor</text>
+            <circle cx="480" cy="115" r="4" fill="var(--signal)"/>
+          </svg>
+          <figcaption class="mono">Die Delivery-Engine darf den Watchdog nie selbst bedienen.</figcaption>
+        </figure>
+        <ul class="triple">
+          <li><b class="mono">Encoder</b><span>Magnet auf der Spindel plus Hall-Sensor messen die echte Drehung, unabhängig von den gezählten Schritten. Abweichung &gt; 10 % über 1 IE: Förderstopp und Alarm.</span></li>
+          <li><b class="mono">Brown-out</b><span>Nach einem Reset startet der Pod im Zustand <i>SUSPENDED</i> und alarmiert, statt still weiterzulaufen. Der Summer hat einen eigenen Pfad.</span></li>
+          <li><b class="mono">Autark</b><span>Die Basalrate läuft auf dem Pod weiter, auch ohne Bluetooth. Eine Temp-Basal gilt höchstens 30 Minuten ohne Verbindung.</span></li>
+        </ul>
+      </article>
+
+      <!-- 3c Trio -->
+      <article class="module reveal" aria-labelledby="m3-h">
+        <div class="module-head">
+          <p class="mod-no mono">C</p>
+          <h3 id="m3-h">Trio-Anbindung</h3>
+          <p>Zwei Wege zum selben Pod. Der native Weg zeigt echte Werte, der DASH-Modus läuft mit einem unveränderten Trio.</p>
+        </div>
+        <div class="trio-map">
+          <div class="trio-node trio-top"><span class="mono">iPhone</span><b>Trio</b><span class="mono dim">Algorithmus (Loop-Familie)</span></div>
+          <div class="trio-lanes">
+            <div class="lane lane-native">
+              <span class="lane-tag mono">Weg 1 · nativ</span>
+              <h4>OpenPatchKit</h4>
+              <p>Eigener LoopKit-PumpManager, offenes BLE-GATT-Profil.</p>
+              <ul class="mono"><li>echte Reservoir- und Akkuwerte</li><li>Wiederverwendbarkeit, Andock-Status</li><li>Sequenznummern, Replay-Schutz</li><li>braucht Eintrag in <code>DeviceCatalog.pumps</code></li></ul>
+            </div>
+            <div class="lane lane-dash">
+              <span class="lane-tag mono">Weg 2 · Kompatibilität</span>
+              <h4>DASH-Modus</h4>
+              <p>Pod-seitige Emulation des Omnipod-DASH-Protokolls, Trio nutzt sein vorhandenes <code>OmnipodKit</code>.</p>
+              <ul class="mono"><li>Trio bleibt unverändert</li><li>Trio „sieht“ einen 200-IE-Pod, 80 h</li><li>Reservoir-Anzeige ab &lt; 50 IE</li><li>Pairing X25519, Session AES-CCM</li></ul>
+            </div>
+          </div>
+          <div class="trio-node trio-bottom"><span class="mono">Pod</span><b>nRF54L15-Firmware</b><span class="mono dim">Delivery-Engine + Safety-Supervisor</span></div>
+        </div>
+        <p class="fine mono">Omnipod 5 wird bewusst nicht emuliert: Das Pairing nutzt signierte P-256-Transkripte und einen externen Key-Manager mit App Attest. Gegenüber DASH bringt das für Trio keinen Vorteil.</p>
+      </article>
+    </section>
+
+    <!-- ============ 4 · SICHERHEIT ============ -->
+    <section class="section section-dark" id="sicherheit" aria-labelledby="sicherheit-h">
+      <div class="wrap">
+        <header class="section-head reveal">
+          <p class="sec-no mono">§ 04 / Sicherheit</p>
+          <h2 id="sicherheit-h">Das ist kein<br><span class="sig">Medizinprodukt.</span></h2>
+          <p class="sec-lede">OpenPatch ist ein experimentelles DIY-Projekt. Fehlförderung von Insulin kann tödlich sein: Hypoglykämie bei Überförderung, Ketoazidose bei Unterbrechung. Benutzung auf eigenes Risiko.</p>
+        </header>
+
+        <div class="alert reveal" role="alert">
+          <svg viewBox="0 0 24 24" width="28" height="28" aria-hidden="true"><path d="M12 3 2 20h20L12 3Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M12 10v5M12 17.5v.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          <p><b>Halte immer bereit:</b> Pen oder Spritze, Glukagon und einen CGM-Alarm. Nichts auf dieser Seite ersetzt ärztlichen Rat. Es gibt keine Zulassung, keine klinische Validierung und keine Gewährleistung.</p>
+        </div>
+
+        <div class="defense reveal">
+          <h3>Fünf Ebenen gegen Überförderung</h3>
+          <ol>
+            <li><span class="mono">HW</span><b>Zweite Freigabe</b> Motortreiber braucht MCU-GPIO und externen Watchdog.</li>
+            <li><span class="mono">HW+FW</span><b>Unabhängiger Encoder</b> misst die tatsächliche Spindeldrehung.</li>
+            <li><span class="mono">FW</span><b>Safety-Supervisor</b> mit harten Grenzen, getrennt von der Delivery-Engine.</li>
+            <li><span class="mono">Protokoll</span><b>Sequenznummern</b> und Replay-Schutz gegen doppelte Kommandos.</li>
+            <li><span class="mono">FW</span><b>Rolling-Limit</b> von 15 IE pro Stunde.</li>
+          </ol>
+        </div>
+
+        <div class="limits reveal">
+          <h3>Harte Grenzen (Firmware-Defaults)</h3>
+          <dl>
+            <div><dt class="mono">Einzelbolus</dt><dd>10<small>IE</small></dd><p class="mono dim">konfigurierbar ≤ 25</p></div>
+            <div><dt class="mono">Basalrate</dt><dd>5<small>IE/h</small></dd><p class="mono dim">konfigurierbar ≤ 30</p></div>
+            <div><dt class="mono">Gesamt pro Stunde</dt><dd>15<small>IE</small></dd><p class="mono dim">Rolling-Limit</p></div>
+            <div><dt class="mono">Bolusgeschwindigkeit</dt><dd>1,5<small>IE/min</small></dd></div>
+            <div><dt class="mono">Okklusionsalarm</dt><dd>≤ 2<small>IE</small></dd><p class="mono dim">nicht geförderte Menge</p></div>
+            <div><dt class="mono">Verbindungsverlust</dt><dd>30<small>min</small></dd><p class="mono dim">Temp-Basal, dann Rückfall</p></div>
+            <div><dt class="mono">Encoder-Abweichung</dt><dd>10<small>%</small></dd><p class="mono dim">über 1 IE → Stopp + Alarm</p></div>
+          </dl>
+        </div>
+
+        <div class="reveal">
+          <h3 class="table-title">Gefährdungen und Gegenmaßnahmen</h3>
+          <div class="table-wrap" tabindex="0" role="region" aria-label="Gefährdungstabelle (scrollbar)">
+            <table class="data-table hazards">
+              <thead><tr><th scope="col">#</th><th scope="col">Gefährdung</th><th scope="col">Gegenmaßnahme</th></tr></thead>
+              <tbody>
+                <tr><td class="mono">H1</td><th scope="row">Überförderung</th><td>Zwei Freigaben (GPIO + Watchdog), Encoder, Safety-Supervisor, Sequenznummern, 15-IE-Stundenlimit.</td></tr>
+                <tr><td class="mono">H2</td><th scope="row">Unterförderung, Okklusion</th><td>Encoder-Schlupf, Stromanstieg, Alarm ab ≤ 2 IE; Andock-Erkennung in der Kanülentasche.</td></tr>
+                <tr><td class="mono">H3</td><th scope="row">Unbemerkter Förderstopp</th><td>Akku-Warnung bei 20 %, Alarm bei 10 %; Brown-out startet in SUSPENDED mit Alarm.</td></tr>
+                <tr><td class="mono">H4</td><th scope="row">Luft im Reservoir</th><td>Füllanleitung mit Entlüften, Priming-Pflicht vor dem ersten Ankoppeln.</td></tr>
+                <tr><td class="mono">H5</td><th scope="row">Falsche Konzentration</th><td>App verlangt beim Füllen U100 und den Insulintyp.</td></tr>
+                <tr><td class="mono">H6</td><th scope="row">Kommunikationsverlust</th><td>Temp-Basal fällt nach max. 30 min zurück; Basal läuft autark auf dem Pod.</td></tr>
+                <tr><td class="mono">H7</td><th scope="row">Fremdzugriff per BLE</th><td>X25519-Pairing nur nach Tastendruck am Pod, AES-CCM, kein unauthentifizierter Bolus.</td></tr>
+                <tr><td class="mono">H8</td><th scope="row">Insulin-Degradation</th><td>Laden nur abgenommen, Temperatursensor, insulinberührte Teile nur PP/COC/Silikon in Medizinqualität. <b>3D-Druck-Reservoire nur für Wassertests.</b></td></tr>
+                <tr><td class="mono">H9</td><th scope="row">Pod nicht angedockt</th><td>Förderung pausiert, Alarm nach 15 min, Meldung „nicht angekoppelt“ an Trio.</td></tr>
+                <tr><td class="mono">H10</td><th scope="row">Rücklauf, Siphon</th><td>Stadion-Kolben mit Verdrehsicherung, selbsthemmende Spindel (M1,6 × 0,35).</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="table-note mono">Quelle: <a href="%REPO%/blob/main/docs/02-safety.md">docs/02-safety.md</a> · Der Verifikationsplan steht in der <a href="#schritt-7">Bauanleitung, Schritt 7</a>.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 5 · BAUANLEITUNG ============ -->
+    <section class="section wrap" id="bauanleitung" aria-labelledby="bau-h">
+      <header class="section-head reveal">
+        <p class="sec-no mono">§ 05 / Bauanleitung</p>
+        <h2 id="bau-h">Vom Gerber<br>zum Pod.</h2>
+        <p class="sec-lede">Acht Schritte. Der Stand der Dateien im Repository steht jeweils am Schritt. Vor Schritt 7 kommt kein Insulin in die Nähe des Geräts.</p>
+      </header>
+
+      <ol class="steps">
+        <li class="step reveal" id="schritt-0">
+          <span class="step-no mono">00</span>
+          <div class="step-body">
+            <h3>Kanüle vermessen</h3>
+            <p>Die Geometrie des Accu-Chek-Insight-Flex-Kanülenkopfs ist nicht öffentlich. Miss die Konnektorplatte mit dem Messschieber nach dem Messblatt aus dem Repository. Bis dahin rechnet das CAD mit einer Annahme: 14 × 10 × 3,0 mm, Schnapp-Nut 1,0 mm beidseitig.</p>
+            <p class="meta mono"><span class="state %STATE_MECH%">mechanical/</span><a href="%REPO%/tree/main/mechanical">cannula-measurement.md</a></p>
+          </div>
+        </li>
+        <li class="step reveal" id="schritt-1">
+          <span class="step-no mono">01</span>
+          <div class="step-body">
+            <h3>Platine bei PCBWay bestellen</h3>
+            <p>Lade Gerber, BOM und Bestückungsdatei hoch: 4 Lagen, 0,6 mm, L-förmig um das Reservoir. Wähle <b>PCB Assembly</b>, denn nRF54L15 (QFN48, 6 × 6 mm) und STSPIN220 (QFN, 3 × 3 mm) löten wir nicht von Hand. Ein eigener ASIC ist bei PCBWay nicht fertigbar.</p>
+            <p class="meta mono"><span class="state %STATE_ELEC%">electronics/</span><a href="%REPO%/tree/main/electronics">Gerber · BOM · CPL</a><a href="#kosten">Kosten →</a></p>
+            <details class="bom">
+              <summary><span>Stückliste anzeigen</span></summary>
+              <!--BOM_TABLE-->
+            </details>
+          </div>
+        </li>
+        <li class="step reveal" id="schritt-2">
+          <span class="step-no mono">02</span>
+          <div class="step-body">
+            <h3>Gehäuse drucken</h3>
+            <p>Prototypen in MJF PA12 oder SLA-Resin, Wandstärke 0,9 mm, Ecken R ≥ 4 mm, leicht gewölbte Oberseite. Später Spritzguss in PC oder PP.</p>
+            <p class="callout"><b>Achtung:</b> Gedruckte Reservoire sind ausschließlich für Wassertests. Insulin darf nur PP, COC oder Silikon in Medizinqualität berühren.</p>
+            <p class="meta mono"><span class="state %STATE_MECH%">mechanical/out</span><a href="#downloads">STEP / STL →</a></p>
+          </div>
+        </li>
+        <li class="step reveal" id="schritt-3">
+          <span class="step-no mono">03</span>
+          <div class="step-body">
+            <h3>Motor, Spindel und Kolben</h3>
+            <p>Ø-6-mm-Schrittmotor mit 10 : 1 Getriebe, Spindel M1,6 × 0,35 mit Mutter im Kolben. Der Stadion-Kolben (PP-Kern, eingegossene Silikon- oder FKM-Lippe) ist das größte Entwicklungsrisiko und bekommt ein eigenes Testprogramm. Der Auslass führt über eine 30G-Hohlnadel in das Kanülen-Septum.</p>
+            <p class="meta mono"><span>Hub 9,4 / 13,4 / 26,8 mm</span><span>+ 1,0 mm Totraum</span></p>
+          </div>
+        </li>
+        <li class="step reveal" id="schritt-4">
+          <span class="step-no mono">04</span>
+          <div class="step-body">
+            <h3>Montage</h3>
+            <p>Der Stack vom Körper weg: Boden 0,9 · Akku 3,2 · Platine mit Bauteilen 1,6 · Deckel 0,9 mm. Reservoir und Motor liegen in derselben Ebene neben Akku und Platine. Dann Füllseptum (Ø 4 × 2 mm), Qi-Spule (Ø 20 mm), Taster-Membran und die Klettfläche am Boden.</p>
+            <p class="meta mono"><span>Max. 8,5 mm, Ziel 8,0 mm</span></p>
+          </div>
+        </li>
+        <li class="step reveal" id="schritt-5">
+          <span class="step-no mono">05</span>
+          <div class="step-body">
+            <h3>Firmware flashen</h3>
+            <p>Lass zuerst die Host-Tests des C-Kerns laufen (Delivery-Engine, Safety-Supervisor, Protokoll). Danach baust du die Zephyr-Firmware für den nRF54L15 und flasht sie über eine SWD-Debugprobe. Die Lizenz ist GPL-3.0, wegen der DASH-Emulation.</p>
+            <p class="meta mono"><span class="state %STATE_FW%">firmware/</span><a href="%REPO%/tree/main/firmware">core · tests · zephyr</a></p>
+          </div>
+        </li>
+        <li class="step reveal" id="schritt-6">
+          <span class="step-no mono">06</span>
+          <div class="step-body">
+            <h3>Trio koppeln</h3>
+            <p>Wähle den Weg: <b>OpenPatchKit</b> als Pumpen-Eintrag in Trio, oder den <b>DASH-Modus</b> mit unverändertem Trio. Pairing geht nur nach Tastendruck am Pod. Beim Befüllen verlangt die App U100, vor dem ersten Ankoppeln ist Priming Pflicht, bei jedem Wiederanstecken werden 0,7 IE Kanülen-Priming angeboten.</p>
+            <p class="meta mono"><span class="state %STATE_IOS%">ios/</span><a href="%REPO%/tree/main/ios">OpenPatchKit</a></p>
+          </div>
+        </li>
+        <li class="step step-critical reveal" id="schritt-7">
+          <span class="step-no mono">07</span>
+          <div class="step-body">
+            <h3>Verifikation vor dem ersten Einsatz am Körper</h3>
+            <ol class="verify">
+              <li><b>Gravimetrie mit Wasser</b> auf einer Waage mit 0,1 mg Auflösung: 0,05 / 0,5 / 5 IE, je 50 Wiederholungen. Ziel ±5 % ab 1 IE.</li>
+              <li><b>Okklusionstest:</b> Auslass verschlossen, Alarm muss vor 2 IE kommen.</li>
+              <li><b>72-h-Dauertest</b> mit Wasser und Basalprofil, inklusive BLE-Trennungen.</li>
+              <li><b>Fehlerinjektion:</b> Firmware hängt, der Watchdog muss den Motor abschalten (mit Oszilloskop prüfen).</li>
+              <li><b>Dichtheit:</b> 30 min unter Wasser in 1 m Tiefe (IPX7-ähnlich).</li>
+              <li><b>Erst dann Insulin,</b> zunächst parallel zu einer zugelassenen Pumpe oder zum Pen, mit engmaschiger CGM-Überwachung.</li>
+            </ol>
+          </div>
+        </li>
+      </ol>
+    </section>
+
+    <!-- ============ 6 · KOSTEN ============ -->
+    <section class="section wrap" id="kosten" aria-labelledby="kosten-h">
+      <header class="section-head reveal">
+        <p class="sec-no mono">§ 06 / Kosten</p>
+        <h2 id="kosten-h">Was es kostet.</h2>
+        <p class="sec-lede">Die Zahlen kommen direkt aus der PCBWay-Kalkulation im Repository und werden beim Build übernommen.</p>
+      </header>
+      <div class="cost-grid">
+        <div class="reveal"><!--COST_BLOCK--></div>
+        <aside class="note-card reveal">
+          <p class="mono eyebrow-s">Warum kein eigener Chip?</p>
+          <p>Ein ASIC kostet sechs- bis siebenstellig und braucht ein bis zwei Jahre. PCBWay fertigt keine ICs. Stattdessen: eine hochintegrierte 4-Lagen-Platine um den nRF54L15. „Super optimiert“ erreichen wir über Layout, Firmware und Stromsparmodi.</p>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ============ 6b · PATENTE ============ -->
+    <section class="section wrap" id="patente" aria-labelledby="patente-h">
+      <header class="section-head reveal">
+        <p class="sec-no mono">§ 07 / Patente und Stand der Technik</p>
+        <h2 id="patente-h">Ehrlich<br>recherchiert.</h2>
+        <p class="sec-lede">Recherchestand 2026-11-18, <b>keine Rechtsberatung</b>. Ablaufdaten stammen aus Google Patents und sind dort selbst als Schätzung markiert. Für den privaten Eigengebrauch gilt in Deutschland zusätzlich § 11 Nr. 1 PatG; auch das solltest du selbst prüfen.</p>
+      </header>
+      <div class="patent-cols">
+        <div class="reveal">
+          <h3 class="table-title"><span class="pill ok">frei</span> Abgelaufen, wir übernehmen</h3>
+          <ul class="patent-list">
+            <li><a href="https://patents.google.com/patent/US6740059B2/en" rel="noopener">US6740059B2</a><span>Insulet, 2021 abgelaufen</span><p>Reservoir 2–3 ml, Befüllen per Spritze durch selbstdichtendes Silikon-Septum.</p></li>
+            <li><a href="https://patents.google.com/patent/US6656159B2/en" rel="noopener">US6656159B2</a><span>Insulet, 2022 abgelaufen</span><p>Spindelantrieb mit Rücklaufsperre, feste Pulsgröße 0,5 µl (0,05 IE).</p></li>
+            <li><a href="https://patents.google.com/patent/US7250037B2/en" rel="noopener">US7250037B2</a><span>BD, 2025 abgelaufen</span><p>Flaches Reservoir aus starrer, gewölbter Schale mit Folie (unser Fallback).</p></li>
+            <li><a href="https://patents.google.com/patent/US4781688" rel="noopener">US4781688</a><span>abgelaufen</span><p>Komprimierbares, flexibles Reservoir.</p></li>
+          </ul>
+        </div>
+        <div class="reveal">
+          <h3 class="table-title"><span class="pill warn">prüfen</span> Wohl noch in Kraft, wir umgehen</h3>
+          <ul class="patent-list">
+            <li><a href="https://patents.google.com/patent/US7935104B2/en" rel="noopener">US7935104B2</a><span>Medingo/Roche, bis ca. 2029</span><p>Wiederverwendbarer Teil plus Einweg-Teil mit Peristaltik. Bei uns: alles wiederverwendbar, starrer Kolben, kein Peristaltikantrieb.</p></li>
+            <li><a href="https://patents.google.com/patent/US7771392" rel="noopener">US7771392</a><span>Roche/Disetronic</span><p>SMA-Draht treibt zwei Ratschenräder. Wir nutzen einen Schrittmotor.</p></li>
+            <li><a href="https://patents.google.com/patent/US8535269B2/en" rel="noopener">US8535269B2</a><span>Roche, bis ca. 2029</span><p>Insertionskopf mit Nadelschutz. Wir kaufen die Kanüle und stecken nur an.</p></li>
+            <li><a href="https://mtec-sc.org/patents/US-12661446-B2" rel="noopener">US12661446B2</a><span>Tandem</span><p>Schräg eingesetzte, verdrehverriegelte Kartusche. Die Verriegelungsgeometrie übernehmen wir nicht.</p></li>
+            <li><a href="https://patents.justia.com/patent/10112005" rel="noopener">US10112005</a><span>SteadyMed u. a.</span><p><b>Nähe zu unserem Stadion-Reservoir</b> (elliptisch, nicht-runder Kolben, auch US11980739). Vor Veröffentlichung oder Verkauf die Ansprüche genau lesen.</p></li>
+          </ul>
+        </div>
+      </div>
+      <p class="fine mono reveal">Okklusion: Wir nutzen Encoder-Schlupf und einen Stromschwellwert, beides alter Stand der Technik. Medtronic-Patente (z. B. US7892206, US8864739) betreffen andere Verfahren.</p>
+    </section>
+
+    <!-- ============ 7 · DOWNLOADS ============ -->
+    <section class="section wrap" id="downloads" aria-labelledby="dl-h">
+      <header class="section-head reveal">
+        <p class="sec-no mono">§ 08 / Downloads</p>
+        <h2 id="dl-h">Alles offen.<br>Alles im Repo.</h2>
+        <p class="sec-lede">CAD, Elektronik, Firmware und iOS-Kit liegen im GitHub-Repository. Der Status zeigt, was schon eingecheckt ist.</p>
+      </header>
+      <div class="dl-grid">
+        <a class="dl-card reveal" href="%REPO%/tree/main/mechanical">
+          <span class="state %STATE_MECH%">Hardware · CAD</span>
+          <h3>STEP · STL · DXF</h3>
+          <p>Gehäuse in drei Größen, Platinenkontur, Messblatt für die Kanüle.</p>
+          <span class="dl-lic mono">CERN-OHL-S v2</span>
+        </a>
+        <a class="dl-card reveal" href="%REPO%/tree/main/electronics">
+          <span class="state %STATE_ELEC%">Elektronik</span>
+          <h3>Schaltplan · BOM · Gerber</h3>
+          <p>Schaltung als Code, Stückliste, PCBWay-Kosten.</p>
+          <span class="dl-lic mono">CERN-OHL-S v2</span>
+        </a>
+        <a class="dl-card reveal" href="%REPO%/tree/main/firmware">
+          <span class="state %STATE_FW%">Firmware</span>
+          <h3>C-Kern + Zephyr</h3>
+          <p>Delivery, Safety, Protokoll mit Host-Tests, DASH-Kompatibilitätsplan.</p>
+          <span class="dl-lic mono">GPL-3.0</span>
+        </a>
+        <a class="dl-card reveal" href="%REPO%/tree/main/ios">
+          <span class="state %STATE_IOS%">iOS</span>
+          <h3>OpenPatchKit</h3>
+          <p>LoopKit-PumpManager für Trio als Swift Package.</p>
+          <span class="dl-lic mono">MIT</span>
+        </a>
+        <a class="dl-card reveal" href="%REPO%/tree/main/docs">
+          <span class="state is-ready">Dokumente</span>
+          <h3>Architektur · Sicherheit · Patente</h3>
+          <p>Die Quellen dieser Seite, plus <code>spec/design-parameters.md</code> als Single Source of Truth.</p>
+          <span class="dl-lic mono">Markdown</span>
+        </a>
+        <a class="dl-card dl-card-cta reveal" href="%REPO%">
+          <span class="state is-ready">GitHub</span>
+          <h3>Repository öffnen</h3>
+          <p>Issues, Diskussionen, Pull Requests. Messwerte der Insight-Flex-Kanüle sind besonders willkommen.</p>
+          <span class="dl-lic mono">→</span>
+        </a>
+      </div>
+      <div class="reveal local-dl">
+        <h3 class="table-title">Direkt von dieser Seite</h3>
+        <!--LOCAL_DOWNLOADS-->
+      </div>
+    </section>
+
+    <!-- ============ 8 · FAQ ============ -->
+    <section class="section wrap" id="faq" aria-labelledby="faq-h">
+      <header class="section-head reveal">
+        <p class="sec-no mono">§ 09 / FAQ</p>
+        <h2 id="faq-h">Fragen.</h2>
+      </header>
+      <div class="faq reveal">
+        <details><summary>Ist OpenPatch zugelassen oder sicher?</summary><p>Nein. Es ist ein experimentelles Konzept ohne Zulassung und ohne klinische Validierung. Die Sicherheitsarchitektur ist ein Entwurf, den du vor jeder Benutzung selbst prüfen musst. Siehe <a href="#sicherheit">Sicherheit</a>.</p></details>
+        <details><summary>Warum ein Stadion-Reservoir statt eines Zylinders?</summary><p>Ein runder 2-ml-Zylinder bräuchte Ø ≥ 9,5 mm und damit ≥ 12 mm Bauhöhe. Der Stadion-Querschnitt (16 × 5 mm innen) erlaubt ≤ 8,5 mm. Der Preis: Die Kolbendichtung ist das größte Entwicklungsrisiko, und die Form liegt in der Nähe bestehender Patente.</p></details>
+        <details><summary>Welche Kanüle brauche ich?</summary><p>Eine Accu-Chek Insight Flex (6, 8 oder 10 mm). Der Pod steckt direkt auf den Kanülenkopf, ohne Schlauch. Der Kopf bleibt auf der Haut, der Pod ist abnehmbar, etwa zum Duschen.</p></details>
+        <details><summary>Warum kein eigener Chip (ASIC)?</summary><p>Ein ASIC kostet sechs- bis siebenstellig und dauert ein bis zwei Jahre. Eine eigene 4-Lagen-Platine um den nRF54L15 erreicht das Ziel „kompakt und sparsam“ deutlich günstiger.</p></details>
+        <details><summary>Funktioniert es mit Omnipod 5?</summary><p>Nein, Omnipod 5 wird nicht emuliert. Der DASH-Modus deckt Trio ab, und der native Weg über OpenPatchKit braucht keine Emulation.</p></details>
+        <details><summary>Wie wird der Pod geladen?</summary><p>Induktiv per Qi (BQ51003, Spule Ø 20 mm), und nur abgenommen. Dadurch gibt es kein Steckerloch, und am Insulin entsteht während der Förderung keine Ladewärme. Ein angedockter Pod pausiert beim Laden.</p></details>
+        <details><summary>Was passiert, wenn Bluetooth ausfällt?</summary><p>Die programmierte Basalrate läuft autark auf dem Pod weiter. Eine Temp-Basal gilt ohne Verbindung höchstens 30 Minuten, danach fällt der Pod auf die programmierte Rate zurück.</p></details>
+        <details><summary>Kann ich 3D-gedruckte Teile mit Insulin benutzen?</summary><p>Nein. Gedruckte Reservoire sind nur für Wassertests. Insulinberührte Teile müssen aus PP, COC oder Silikon in Medizinqualität bestehen.</p></details>
+        <details><summary>Unter welchen Lizenzen steht das Projekt?</summary><p>Hardware: CERN-OHL-S v2. Firmware: GPL-3.0 (wegen der DASH-Emulation auf Basis von nightscout/ESP-Sim). iOS-Kit: MIT.</p></details>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap footer-grid">
+      <div>
+        <p class="brand foot-brand"><svg viewBox="0 0 28 14" width="28" height="14" aria-hidden="true"><rect x="0.75" y="0.75" width="26.5" height="12.5" rx="6.25" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="20.5" cy="7" r="2.6" fill="var(--signal)"/></svg> OpenPatch</p>
+        <p class="foot-disclaimer">Experimentelles DIY-Projekt, kein zugelassenes Medizinprodukt. Keine Gewährleistung, Benutzung auf eigenes Risiko. Keine Rechtsberatung, keine medizinische Beratung.</p>
+      </div>
+      <dl class="licenses mono">
+        <div><dt>Hardware</dt><dd>CERN-OHL-S v2</dd></div>
+        <div><dt>Firmware</dt><dd>GPL-3.0</dd></div>
+        <div><dt>iOS-Kit</dt><dd>MIT</dd></div>
+      </dl>
+      <ul class="foot-links mono">
+        <li><a href="%REPO%">GitHub</a></li>
+        <li><a href="#sicherheit">Sicherheit</a></li>
+        <li><a href="#top">Nach oben ↑</a></li>
+      </ul>
+    </div>
+    <p class="wrap foot-meta mono">Konzept v0.1 · Stand 2026-11-18 · Design-Quelle: spec/design-parameters.md</p>
+  </footer>
+</body>
+</html>

@@ -1,0 +1,12 @@
+# SPDX-License-Identifier: Apache-2.0
+# OpenPatch Rev A (ISP1807). No UART pads on the board: log/console via SEGGER RTT over SWD.
+CONFIG_ARM_MPU=y
+CONFIG_GPIO=y
+
+# ISP1807 contains the 32 MHz and the 32.768 kHz crystal.
+CONFIG_CLOCK_CONTROL_NRF_K32SRC_XTAL=y
+
+CONFIG_SERIAL=n
+CONFIG_UART_CONSOLE=n
+CONFIG_USE_SEGGER_RTT=y
+CONFIG_RTT_CONSOLE=y

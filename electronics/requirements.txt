@@ -1,0 +1,3 @@
+skidl==3.0.0
+ezdxf
+pyyaml

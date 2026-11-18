@@ -1,0 +1,1729 @@
+[
+ {
+  "command": "parameters.add",
+  "params": {
+   "name": "p_shell_wall",
+   "expression": "0.9",
+   "comment": "Generator-Wert (Info). \u00c4nderungen: params.json + generate.py"
+  }
+ },
+ {
+  "command": "parameters.add",
+  "params": {
+   "name": "p_shell_corner_r",
+   "expression": "4.0",
+   "comment": "Generator-Wert (Info). \u00c4nderungen: params.json + generate.py"
+  }
+ },
+ {
+  "command": "parameters.add",
+  "params": {
+   "name": "p_shell_top_fillet",
+   "expression": "1.0",
+   "comment": "Generator-Wert (Info). \u00c4nderungen: params.json + generate.py"
+  }
+ },
+ {
+  "command": "parameters.add",
+  "params": {
+   "name": "p_shell_width",
+   "expression": "32.0",
+   "comment": "Generator-Wert (Info). \u00c4nderungen: params.json + generate.py"
+  }
+ },
+ {
+  "command": "parameters.add",
+  "params": {
+   "name": "p_shell_height",
+   "expression": "8.5",
+   "comment": "Generator-Wert (Info). \u00c4nderungen: params.json + generate.py"
+  }
+ },
+ {
+  "command": "parameters.add",
+  "params": {
+   "name": "p_shell_lap_low",
+   "expression": "5.5",
+   "comment": "Generator-Wert (Info). \u00c4nderungen: params.json + generate.py"
+  }
+ },
+ {
+  "command": "parameters.add",
+  "params": {
+   "name": "p_shell_lap_high",
+   "expression": "6.0",
+   "comment": "Generator-Wert (Info). \u00c4nderungen: params.json + generate.py"
+  }
+ },
+ {
+  "command": "parameters.add",
+  "params": {
+   "name": "p_shell_lap_gap",
+   "expression": "0.1",
+   "comment": "Generator-Wert (Info). \u00c4nderungen: params.json + generate.py"
+  }
+ },
+ {
+  "command": "parameters.add",
+  "params": {
+   "name": "p_shell_rim_inset",
+   "expression": "0.55",
+   "comment": "Generator-Wert (Info). \u00c4nderungen: params.json + generate.py"
+  }
+ },
+ {
+  "command": "parameters.add",
+  "params": {
+   "name": "p_shell_lid_ring_inset",
+   "expression": "0.45",
+   "comment": "Generator-Wert (Info). \u00c4nderungen: params.json + generate.py"
+  }
+ },
+ {
+  "command": "parameters.add",
+  "params": {
+   "name": "p_fit_clr",
+   "expression": "0.2",
+   "comment": "Generator-Wert (Info). \u00c4nderungen: params.json + generate.py"
+  }
+ },
+ {
+  "command": "parameters.add",
+  "params": {
+   "name": "p_fit_clr_small",
+   "expression": "0.1",
+   "comment": "Generator-Wert (Info). \u00c4nderungen: params.json + generate.py"
+  }
+ },
+ {
+  "command": "parameters.add",
+  "params": {
+   "name": "p_fit_bat_gap",
+   "expression": "0.15",
+   "comment": "Generator-Wert (Info). \u00c4nderungen: params.json + generate.py"
+  }
+ },
+ {
+  "command": "parameters.add",
+  "params": {
+   "name": "p_velcro_depth",
+   "expression": "0.35",
+   "comment": "Generator-Wert (Info). \u00c4nderungen: params.json + generate.py"
+  }
+ },
+ {
+  "command": "parameters.add",
+  "params": {
+   "name": "p_velcro_margin_x",
+   "expression": "0.4",
+   "comment": "Generator-Wert (Info). \u00c4nderungen: params.json + generate.py"
+  }
+ },
+ {
+  "command": "parameters.add",
+  "params": {
+   "name": "p_velcro_y0",
+   "expression": "4.0",
+   "comment": "Generator-Wert (Info). \u00c4nderungen: params.json + generate.py"
+  }
+ },
+ {
+  "command": "parameters.add",
+  "params": {
+   "name": "p_velcro_y1",
+   "expression": "29.0",
+   "comment": "Generator-Wert (Info). \u00c4nderungen: params.json + generate.py"
+  }
+ },
+ {
+  "command": "parameters.add",
+  "params": {
+   "name": "p_velcro_r",
+   "expression": "1.5",
+   "comment": "Generator-Wert (Info). \u00c4nderungen: params.json + generate.py"
+  }
+ },
+ {
+  "command": "parameters.add",
+  "params": {
+   "name": "p_reservoir_w_in",
+   "expression": "16.0",
+   "comment": "Generator-Wert (Info). \u00c4nderungen: params.json + generate.py"
+  }
+ },
+ {
+  "command": "parameters.add",
+  "params": {
+   "name": "p_reservoir_h_in",
+   "expression": "5.0",
+   "comment": "Generator-Wert (Info). \u00c4nderungen: params.json + generate.py"
+  }
+ },
+ {
+  "command": "parameters.add",
+  "params": {
+   "name": "p_reservoir_wall",
+   "expression": "0.8",
+   "comment": "Generator-Wert (Info). \u00c4nderungen: params.json + generate.py"
+  }
+ },
+ {
+  "command": "parameters.add",
+  "params": {
+   "name": "p_reservoir_dead",
+   "expression": "1.0",
+   "comment": "Generator-Wert (Info). \u00c4nderungen: params.json + generate.py"
+  }
+ },
+ {
+  "command": "parameters.add",
+  "params": {
+   "name": "p_reservoir_plunger_len",
+   "expression": "3.8",
+   "comment": "Generator-Wert (Info). \u00c4nderungen: params.json + generate.py"
+  }
+ },
+ {
+  "command": "parameters.add",
+  "params": {
+   "name": "p_reservoir_plunger_clr",
+   "expression": "0.2",
+   "comment": "Generator-Wert (Info). \u00c4nderungen: params.json + generate.py"
+  }
+ },
+ {
+  "command": "parameters.add",
+  "params": {
+   "name": "p_reservoir_plunger_gap",
+   "expression": "0.2",
+   "comment": "Generator-Wert (Info). \u00c4nderungen: params.json + generate.py"
+  }
+ },
+ {
+  "command": "parameters.add",
+  "params": {
+   "name": "p_reservoir_fill_fraction",
+   "expression": "1.0",
+   "comment": "Generator-Wert (Info). \u00c4nderungen: params.json + generate.py"
+  }
+ },
+ {
+  "command": "parameters.add",
+  "params": {
+   "name": "p_septum_d",
+   "expression": "4.0",
+   "comment": "Generator-Wert (Info). \u00c4nderungen: params.json + generate.py"
+  }
+ },
+ {
+  "command": "parameters.add",
+  "params": {
+   "name": "p_septum_len",
+   "expression": "2.0",
+   "comment": "Generator-Wert (Info). \u00c4nderungen: params.json + generate.py"
+  }
+ },
+ {
+  "command": "parameters.add",
+  "params": {
+   "name": "p_septum_bore_clr",
+   "expression": "0.1",
+   "comment": "Generator-Wert (Info). \u00c4nderungen: params.json + generate.py"
+  }
+ },
+ {
+  "command": "parameters.add",
+  "params": {
+   "name": "p_septum_z",
+   "expression": "3.4",
+   "comment": "Generator-Wert (Info). \u00c4nderungen: params.json + generate.py"
+  }
+ },
+ {
+  "command": "parameters.add",
+  "params": {
+   "name": "p_septum_boss_d",
+   "expression": "5.1",
+   "comment": "Generator-Wert (Info). \u00c4nderungen: params.json + generate.py"
+  }
+ },
+ {
+  "command": "parameters.add",
+  "params": {
+   "name": "p_septum_gap_y",
+   "expression": "1.8",
+   "comment": "Generator-Wert (Info). \u00c4nderungen: params.json + generate.py"
+  }
+ },
+ {
+  "command": "parameters.add",
+  "params": {
+   "name": "p_septum_port_d",
+   "expression": "1.0",
+   "comment": "Generator-Wert (Info). \u00c4nderungen: params.json + generate.py"
+  }
+ },
+ {
+  "command": "parameters.add",
+  "params": {
+   "name": "p_septum_recess",
+   "expression": "0.1",
+   "comment": "Generator-Wert (Info). \u00c4nderungen: params.json + generate.py"
+  }
+ },
+ {
+  "command": "parameters.add",
+  "params": {
+   "name": "p_needle_od",
+   "expression": "0.31",
+   "comment": "Generator-Wert (Info). \u00c4nderungen: params.json + generate.py"
+  }
+ },
+ {
+  "command": "parameters.add",
+  "params": {
+   "name": "p_needle_bore_d",
+   "expression": "0.5",
+   "comment": "Generator-Wert (Info). \u00c4nderungen: params.json + generate.py"
+  }
+ },
+ {
+  "command": "parameters.add",
+  "params": {
+   "name": "p_needle_channel_d",
+   "expression": "0.9",
+   "comment": "Generator-Wert (Info). \u00c4nderungen: params.json + generate.py"
+  }
+ },
+ {
+  "command": "parameters.add",
+  "params": {
+   "name": "p_needle_channel_z",
+   "expression": "4.0",
+   "comment": "Generator-Wert (Info). \u00c4nderungen: params.json + generate.py"
+  }
+ },
+ {
+  "command": "parameters.add",
+  "params": {
+   "name": "p_needle_tower_top",
+   "expression": "4.8",
+   "comment": "Generator-Wert (Info). \u00c4nderungen: params.json + generate.py"
+  }
+ },
+ {
+  "command": "parameters.add",
+  "params": {
+   "name": "p_drive_screw_d",
+   "expression": "1.6",
+   "comment": "Generator-Wert (Info). \u00c4nderungen: params.json + generate.py"
+  }
+ },
+ {
+  "command": "parameters.add",
+  "params": {
+   "name": "p_drive_nut_hole_d",
+   "expression": "1.7",
+   "comment": "Generator-Wert (Info). \u00c4nderungen: params.json + generate.py"
+  }
+ },
+ {
+  "command": "parameters.add",
+  "params": {
+   "name": "p_drive_nut_len",
+   "expression": "1.3",
+   "comment": "Generator-Wert (Info). \u00c4nderungen: params.json + generate.py"
+  }
+ },
+ {
+  "command": "parameters.add",
+  "params": {
+   "name": "p_drive_nut_block",
+   "expression": "3.4",
+   "comment": "Generator-Wert (Info). \u00c4nderungen: params.json + generate.py"
+  }
+ },
+ {
+  "command": "parameters.add",
+  "params": {
+   "name": "p_drive_arm_t",
+   "expression": "1.4",
+   "comment": "Generator-Wert (Info). \u00c4nderungen: params.json + generate.py"
+  }
+ },
+ {
+  "command": "parameters.add",
+  "params": {
+   "name": "p_drive_slot_clr",
+   "expression": "0.1",
+   "comment": "Generator-Wert (Info). \u00c4nderungen: params.json + generate.py"
+  }
+ },
+ {
+  "command": "parameters.add",
+  "params": {
+   "name": "p_drive_lane_clr",
+   "expression": "0.2",
+   "comment": "Generator-Wert (Info). \u00c4nderungen: params.json + generate.py"
+  }
+ },
+ {
+  "command": "parameters.add",
+  "params": {
+   "name": "p_drive_screw_lane_w",
+   "expression": "4.0",
+   "comment": "Generator-Wert (Info). \u00c4nderungen: params.json + generate.py"
+  }
+ },
+ {
+  "command": "parameters.add",
+  "params": {
+   "name": "p_drive_motor_d",
+   "expression": "6.0",
+   "comment": "Generator-Wert (Info). \u00c4nderungen: params.json + generate.py"
+  }
+ },
+ {
+  "command": "parameters.add",
+  "params": {
+   "name": "p_drive_motor_len",
+   "expression": "9.3",
+   "comment": "Generator-Wert (Info). \u00c4nderungen: params.json + generate.py"
+  }
+ },
+ {
+  "command": "parameters.add",
+  "params": {
+   "name": "p_drive_gearhead_len",
+   "expression": "6.4",
+   "comment": "Generator-Wert (Info). \u00c4nderungen: params.json + generate.py"
+  }
+ },
+ {
+  "command": "parameters.add",
+  "params": {
+   "name": "p_drive_gear_x0",
+   "expression": "2.0",
+   "comment": "Generator-Wert (Info). \u00c4nderungen: params.json + generate.py"
+  }
+ },
+ {
+  "command": "parameters.add",
+  "params": {
+   "name": "p_drive_gear_t",
+   "expression": "1.2",
+   "comment": "Generator-Wert (Info). \u00c4nderungen: params.json + generate.py"
+  }
+ },
+ {
+  "command": "parameters.add",
+  "params": {
+   "name": "p_drive_gear_d",
+   "expression": "5.0",
+   "comment": "Generator-Wert (Info). \u00c4nderungen: params.json + generate.py"
+  }
+ },
+ {
+  "command": "parameters.add",
+  "params": {
+   "name": "p_drive_post_bore_d",
+   "expression": "2.0",
+   "comment": "Generator-Wert (Info). \u00c4nderungen: params.json + generate.py"
+  }
+ },
+ {
+  "command": "parameters.add",
+  "params": {
+   "name": "p_battery_t",
+   "expression": "3.2",
+   "comment": "Generator-Wert (Info). \u00c4nderungen: params.json + generate.py"
+  }
+ },
+ {
+  "command": "parameters.add",
+  "params": {
+   "name": "p_battery_y",
+   "expression": "17.2",
+   "comment": "Generator-Wert (Info). \u00c4nderungen: params.json + generate.py"
+  }
+ },
+ {
+  "command": "parameters.add",
+  "params": {
+   "name": "p_battery_x_max",
+   "expression": "20.0",
+   "comment": "Generator-Wert (Info). \u00c4nderungen: params.json + generate.py"
+  }
+ },
+ {
+  "command": "parameters.add",
+  "params": {
+   "name": "p_battery_margin",
+   "expression": "0.2",
+   "comment": "Generator-Wert (Info). \u00c4nderungen: params.json + generate.py"
+  }
+ },
+ {
+  "command": "parameters.add",
+  "params": {
+   "name": "p_pcb_t",
+   "expression": "0.6",
+   "comment": "Generator-Wert (Info). \u00c4nderungen: params.json + generate.py"
+  }
+ },
+ {
+  "command": "parameters.add",
+  "params": {
+   "name": "p_pcb_keepout",
+   "expression": "1.0",
+   "comment": "Generator-Wert (Info). \u00c4nderungen: params.json + generate.py"
+  }
+ },
+ {
+  "command": "parameters.add",
+  "params": {
+   "name": "p_pcb_z0",
+   "expression": "4.9",
+   "comment": "Generator-Wert (Info). \u00c4nderungen: params.json + generate.py"
+  }
+ },
+ {
+  "command": "parameters.add",
+  "params": {
+   "name": "p_pcb_margin",
+   "expression": "0.6",
+   "comment": "Generator-Wert (Info). \u00c4nderungen: params.json + generate.py"
+  }
+ },
+ {
+  "command": "parameters.add",
+  "params": {
+   "name": "p_pcb_notch_x",
+   "expression": "1.4",
+   "comment": "Generator-Wert (Info). \u00c4nderungen: params.json + generate.py"
+  }
+ },
+ {
+  "command": "parameters.add",
+  "params": {
+   "name": "p_pcb_notch_y",
+   "expression": "3.3",
+   "comment": "Generator-Wert (Info). \u00c4nderungen: params.json + generate.py"
+  }
+ },
+ {
+  "command": "parameters.add",
+  "params": {
+   "name": "p_coil_d",
+   "expression": "17.6",
+   "comment": "Generator-Wert (Info). \u00c4nderungen: params.json + generate.py"
+  }
+ },
+ {
+  "command": "parameters.add",
+  "params": {
+   "name": "p_coil_t",
+   "expression": "0.6",
+   "comment": "Generator-Wert (Info). \u00c4nderungen: params.json + generate.py"
+  }
+ },
+ {
+  "command": "parameters.add",
+  "params": {
+   "name": "p_coil_z0",
+   "expression": "6.55",
+   "comment": "Generator-Wert (Info). \u00c4nderungen: params.json + generate.py"
+  }
+ },
+ {
+  "command": "parameters.add",
+  "params": {
+   "name": "p_coil_gap_x",
+   "expression": "0.1",
+   "comment": "Generator-Wert (Info). \u00c4nderungen: params.json + generate.py"
+  }
+ },
+ {
+  "command": "parameters.add",
+  "params": {
+   "name": "p_buzzer_x",
+   "expression": "9.0",
+   "comment": "Generator-Wert (Info). \u00c4nderungen: params.json + generate.py"
+  }
+ },
+ {
+  "command": "parameters.add",
+  "params": {
+   "name": "p_buzzer_y",
+   "expression": "9.0",
+   "comment": "Generator-Wert (Info). \u00c4nderungen: params.json + generate.py"
+  }
+ },
+ {
+  "command": "parameters.add",
+  "params": {
+   "name": "p_buzzer_z",
+   "expression": "2.0",
+   "comment": "Generator-Wert (Info). \u00c4nderungen: params.json + generate.py"
+  }
+ },
+ {
+  "command": "parameters.add",
+  "params": {
+   "name": "p_buzzer_y0",
+   "expression": "21.5",
+   "comment": "Generator-Wert (Info). \u00c4nderungen: params.json + generate.py"
+  }
+ },
+ {
+  "command": "parameters.add",
+  "params": {
+   "name": "p_buzzer_edge_gap",
+   "expression": "2.0",
+   "comment": "Generator-Wert (Info). \u00c4nderungen: params.json + generate.py"
+  }
+ },
+ {
+  "command": "parameters.add",
+  "params": {
+   "name": "p_cannula_A_plate_length",
+   "expression": "14.0",
+   "comment": "Generator-Wert (Info). \u00c4nderungen: params.json + generate.py"
+  }
+ },
+ {
+  "command": "parameters.add",
+  "params": {
+   "name": "p_cannula_B_plate_width",
+   "expression": "10.0",
+   "comment": "Generator-Wert (Info). \u00c4nderungen: params.json + generate.py"
+  }
+ },
+ {
+  "command": "parameters.add",
+  "params": {
+   "name": "p_cannula_C_plate_thickness",
+   "expression": "3.0",
+   "comment": "Generator-Wert (Info). \u00c4nderungen: params.json + generate.py"
+  }
+ },
+ {
+  "command": "parameters.add",
+  "params": {
+   "name": "p_cannula_D_wing_groove_depth",
+   "expression": "1.0",
+   "comment": "Generator-Wert (Info). \u00c4nderungen: params.json + generate.py"
+  }
+ },
+ {
+  "command": "parameters.add",
+  "params": {
+   "name": "p_cannula_E_wing_len",
+   "expression": "3.0",
+   "comment": "Generator-Wert (Info). \u00c4nderungen: params.json + generate.py"
+  }
+ },
+ {
+  "command": "parameters.add",
+  "params": {
+   "name": "p_cannula_F_wing_height",
+   "expression": "1.0",
+   "comment": "Generator-Wert (Info). \u00c4nderungen: params.json + generate.py"
+  }
+ },
+ {
+  "command": "parameters.add",
+  "params": {
+   "name": "p_cannula_G_wing_z",
+   "expression": "1.0",
+   "comment": "Generator-Wert (Info). \u00c4nderungen: params.json + generate.py"
+  }
+ },
+ {
+  "command": "parameters.add",
+  "params": {
+   "name": "p_cannula_H_septum_dia",
+   "expression": "4.0",
+   "comment": "Generator-Wert (Info). \u00c4nderungen: params.json + generate.py"
+  }
+ },
+ {
+  "command": "parameters.add",
+  "params": {
+   "name": "p_cannula_I_septum_off_x",
+   "expression": "0.0",
+   "comment": "Generator-Wert (Info). \u00c4nderungen: params.json + generate.py"
+  }
+ },
+ {
+  "command": "parameters.add",
+  "params": {
+   "name": "p_cannula_J_septum_off_y",
+   "expression": "0.0",
+   "comment": "Generator-Wert (Info). \u00c4nderungen: params.json + generate.py"
+  }
+ },
+ {
+  "command": "parameters.add",
+  "params": {
+   "name": "p_cannula_K_corner_r",
+   "expression": "0.0",
+   "comment": "Generator-Wert (Info). \u00c4nderungen: params.json + generate.py"
+  }
+ },
+ {
+  "command": "parameters.add",
+  "params": {
+   "name": "p_cannula_L_head_standoff",
+   "expression": "0.0",
+   "comment": "Generator-Wert (Info). \u00c4nderungen: params.json + generate.py"
+  }
+ },
+ {
+  "command": "parameters.add",
+  "params": {
+   "name": "p_cannula_M_needle_depth",
+   "expression": "1.9",
+   "comment": "Generator-Wert (Info). \u00c4nderungen: params.json + generate.py"
+  }
+ },
+ {
+  "command": "parameters.add",
+  "params": {
+   "name": "p_cannula_N_clearance",
+   "expression": "0.2",
+   "comment": "Generator-Wert (Info). \u00c4nderungen: params.json + generate.py"
+  }
+ },
+ {
+  "command": "parameters.add",
+  "params": {
+   "name": "p_stroke",
+   "expression": "9.4",
+   "comment": "Generator-Wert (Info). \u00c4nderungen: params.json + generate.py"
+  }
+ },
+ {
+  "command": "parameters.add",
+  "params": {
+   "name": "p_length",
+   "expression": "38.0",
+   "comment": "Generator-Wert (Info). \u00c4nderungen: params.json + generate.py"
+  }
+ },
+ {
+  "command": "sketch.create",
+  "params": {
+   "plane": "XY",
+   "offset": 0
+  }
+ },
+ {
+  "command": "sketch.rectangle.rounded",
+  "params": {
+   "p0": [
+    0,
+    0
+   ],
+   "p1": [
+    38.0,
+    32.0
+   ],
+   "radius": 4.0
+  }
+ },
+ {
+  "command": "sketch.finish",
+  "params": {}
+ },
+ {
+  "command": "solid.extrude",
+  "params": {
+   "distance": 5.5,
+   "body_name": "bottom",
+   "name": "bottom"
+  }
+ },
+ {
+  "command": "sketch.create",
+  "params": {
+   "plane": "XY",
+   "offset": 5.49
+  }
+ },
+ {
+  "command": "sketch.rectangle.rounded",
+  "params": {
+   "p0": [
+    0.55,
+    0.55
+   ],
+   "p1": [
+    37.45,
+    31.45
+   ],
+   "radius": 3.45
+  }
+ },
+ {
+  "command": "sketch.finish",
+  "params": {}
+ },
+ {
+  "command": "solid.extrude",
+  "params": {
+   "distance": 0.5099999999999998,
+   "body_name": "t_rim",
+   "name": "t_rim"
+  }
+ },
+ {
+  "command": "solid.combine",
+  "params": {
+   "target": "bottom",
+   "tools": [
+    "t_rim"
+   ],
+   "operation": "join",
+   "name": "join bottom"
+  }
+ },
+ {
+  "command": "sketch.create",
+  "params": {
+   "plane": "XY",
+   "offset": 0.9
+  }
+ },
+ {
+  "command": "sketch.rectangle.rounded",
+  "params": {
+   "p0": [
+    0.9,
+    0.9
+   ],
+   "p1": [
+    37.1,
+    31.1
+   ],
+   "radius": 3.1
+  }
+ },
+ {
+  "command": "sketch.finish",
+  "params": {}
+ },
+ {
+  "command": "solid.extrude",
+  "params": {
+   "distance": 5.6,
+   "body_name": "t_cav",
+   "name": "t_cav"
+  }
+ },
+ {
+  "command": "solid.combine",
+  "params": {
+   "target": "bottom",
+   "tools": [
+    "t_cav"
+   ],
+   "operation": "cut",
+   "name": "cut bottom"
+  }
+ },
+ {
+  "command": "solid.box",
+  "params": {
+   "length": 17.4,
+   "width": 12.499999999999998,
+   "height": 4.0,
+   "corner": [
+    19.299999999999997,
+    0.8,
+    0.8
+   ],
+   "body_name": "t_tower",
+   "name": "t_tower"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 5.1,
+   "height": 1.9000000000000001,
+   "base": [
+    17.899999999999995,
+    0.8,
+    3.4
+   ],
+   "axis": "Y",
+   "body_name": "t_boss",
+   "name": "t_boss"
+  }
+ },
+ {
+  "command": "solid.box",
+  "params": {
+   "length": 0.8999999999999999,
+   "width": 3.6000000000000014,
+   "height": 5.2,
+   "corner": [
+    3.3000000000000003,
+    20.7,
+    0.8
+   ],
+   "body_name": "t_post",
+   "name": "t_post"
+  }
+ },
+ {
+  "command": "solid.combine",
+  "params": {
+   "target": "bottom",
+   "tools": [
+    "t_tower",
+    "t_boss",
+    "t_post"
+   ],
+   "operation": "join",
+   "name": "join bottom"
+  }
+ },
+ {
+  "command": "solid.box",
+  "params": {
+   "length": 14.399999999999999,
+   "width": 10.4,
+   "height": 3.3000000000000003,
+   "corner": [
+    20.799999999999997,
+    2.0,
+    -0.1
+   ],
+   "body_name": "t_pocket",
+   "name": "t_pocket"
+  }
+ },
+ {
+  "command": "solid.box",
+  "params": {
+   "length": 1.009999999999998,
+   "width": 2.999999999999999,
+   "height": 1.0,
+   "corner": [
+    35.19,
+    5.7,
+    1.0
+   ],
+   "body_name": "t_gr1",
+   "name": "t_gr1"
+  }
+ },
+ {
+  "command": "solid.box",
+  "params": {
+   "length": 1.0100000000000016,
+   "width": 2.999999999999999,
+   "height": 1.0,
+   "corner": [
+    19.799999999999997,
+    5.7,
+    1.0
+   ],
+   "body_name": "t_gr2",
+   "name": "t_gr2"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 0.5,
+   "height": 0.9999999999999996,
+   "base": [
+    27.999999999999996,
+    7.2,
+    3.1
+   ],
+   "axis": "Z",
+   "body_name": "t_nb",
+   "name": "t_nb"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 0.9,
+   "height": 9.2,
+   "base": [
+    18.799999999999997,
+    7.2,
+    4.0
+   ],
+   "axis": "X",
+   "body_name": "t_nc",
+   "name": "t_nc"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 4.2,
+   "height": 2.4,
+   "base": [
+    17.899999999999995,
+    -0.1,
+    3.4
+   ],
+   "axis": "Y",
+   "body_name": "t_sb",
+   "name": "t_sb"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 1.0,
+   "height": 0.5099999999999998,
+   "base": [
+    17.899999999999995,
+    2.2,
+    3.4
+   ],
+   "axis": "Y",
+   "body_name": "t_sc",
+   "name": "t_sc"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 2.0,
+   "height": 1.0999999999999996,
+   "base": [
+    3.2,
+    22.5,
+    4.2
+   ],
+   "axis": "X",
+   "body_name": "t_pb",
+   "name": "t_pb"
+  }
+ },
+ {
+  "command": "sketch.create",
+  "params": {
+   "plane": "XY",
+   "offset": -0.1
+  }
+ },
+ {
+  "command": "sketch.rectangle.rounded",
+  "params": {
+   "p0": [
+    3.7,
+    4.0
+   ],
+   "p1": [
+    17.799999999999997,
+    29.0
+   ],
+   "radius": 1.5
+  }
+ },
+ {
+  "command": "sketch.finish",
+  "params": {}
+ },
+ {
+  "command": "solid.extrude",
+  "params": {
+   "distance": 0.44999999999999996,
+   "body_name": "t_vel",
+   "name": "t_vel"
+  }
+ },
+ {
+  "command": "solid.combine",
+  "params": {
+   "target": "bottom",
+   "tools": [
+    "t_pocket",
+    "t_gr1",
+    "t_gr2",
+    "t_nb",
+    "t_nc",
+    "t_sb",
+    "t_sc",
+    "t_pb",
+    "t_vel"
+   ],
+   "operation": "cut",
+   "name": "cut bottom"
+  }
+ },
+ {
+  "command": "sketch.create",
+  "params": {
+   "plane": "XY",
+   "offset": 5.5
+  }
+ },
+ {
+  "command": "sketch.rectangle.rounded",
+  "params": {
+   "p0": [
+    0,
+    0
+   ],
+   "p1": [
+    38.0,
+    32.0
+   ],
+   "radius": 4.0
+  }
+ },
+ {
+  "command": "sketch.finish",
+  "params": {}
+ },
+ {
+  "command": "solid.extrude",
+  "params": {
+   "distance": 3.0,
+   "body_name": "top",
+   "name": "top"
+  }
+ },
+ {
+  "command": "solid.fillet",
+  "params": {
+   "edges": [
+    [
+     19.0,
+     0.0,
+     8.5
+    ]
+   ],
+   "radius": 1.0,
+   "body": "top",
+   "name": "fillet top"
+  }
+ },
+ {
+  "command": "sketch.create",
+  "params": {
+   "plane": "XY",
+   "offset": 5.4
+  }
+ },
+ {
+  "command": "sketch.rectangle.rounded",
+  "params": {
+   "p0": [
+    0.45,
+    0.45
+   ],
+   "p1": [
+    37.55,
+    31.55
+   ],
+   "radius": 3.55
+  }
+ },
+ {
+  "command": "sketch.finish",
+  "params": {}
+ },
+ {
+  "command": "solid.extrude",
+  "params": {
+   "distance": 0.6999999999999993,
+   "body_name": "t_lca",
+   "name": "t_lca"
+  }
+ },
+ {
+  "command": "sketch.create",
+  "params": {
+   "plane": "XY",
+   "offset": 6.0
+  }
+ },
+ {
+  "command": "sketch.rectangle.rounded",
+  "params": {
+   "p0": [
+    0.9,
+    0.9
+   ],
+   "p1": [
+    37.1,
+    31.1
+   ],
+   "radius": 3.1
+  }
+ },
+ {
+  "command": "sketch.finish",
+  "params": {}
+ },
+ {
+  "command": "solid.extrude",
+  "params": {
+   "distance": 1.5999999999999996,
+   "body_name": "t_lcb",
+   "name": "t_lcb"
+  }
+ },
+ {
+  "command": "solid.combine",
+  "params": {
+   "target": "top",
+   "tools": [
+    "t_lca",
+    "t_lcb"
+   ],
+   "operation": "cut",
+   "name": "cut top"
+  }
+ },
+ {
+  "command": "sketch.create",
+  "params": {
+   "plane": "YZ",
+   "offset": 3.3000000000000003
+  }
+ },
+ {
+  "command": "sketch.slot.center_to_center",
+  "params": {
+   "p0": [
+    5.999999999999999,
+    4.2
+   ],
+   "p1": [
+    17.0,
+    4.2
+   ],
+   "width": 6.6
+  }
+ },
+ {
+  "command": "sketch.finish",
+  "params": {}
+ },
+ {
+  "command": "solid.extrude",
+  "params": {
+   "distance": 15.999999999999996,
+   "body_name": "reservoir",
+   "name": "reservoir"
+  }
+ },
+ {
+  "command": "sketch.create",
+  "params": {
+   "plane": "YZ",
+   "offset": 4.1000000000000005
+  }
+ },
+ {
+  "command": "sketch.slot.center_to_center",
+  "params": {
+   "p0": [
+    6.0,
+    4.2
+   ],
+   "p1": [
+    17.0,
+    4.2
+   ],
+   "width": 5.0
+  }
+ },
+ {
+  "command": "sketch.finish",
+  "params": {}
+ },
+ {
+  "command": "solid.extrude",
+  "params": {
+   "distance": 14.399999999999995,
+   "body_name": "t_chamber",
+   "name": "t_chamber"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 0.9,
+   "height": 1.0,
+   "base": [
+    18.4,
+    7.2,
+    4.0
+   ],
+   "axis": "X",
+   "body_name": "t_rport",
+   "name": "t_rport"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 1.0,
+   "height": 1.6,
+   "base": [
+    17.899999999999995,
+    2.6,
+    3.4
+   ],
+   "axis": "Y",
+   "body_name": "t_fport",
+   "name": "t_fport"
+  }
+ },
+ {
+  "command": "solid.box",
+  "params": {
+   "length": 11.099999999999998,
+   "width": 1.3000000000000007,
+   "height": 1.6,
+   "corner": [
+    4.1000000000000005,
+    19.3,
+    3.4
+   ],
+   "body_name": "t_slot",
+   "name": "t_slot"
+  }
+ },
+ {
+  "command": "solid.combine",
+  "params": {
+   "target": "reservoir",
+   "tools": [
+    "t_chamber",
+    "t_rport",
+    "t_fport",
+    "t_slot"
+   ],
+   "operation": "cut",
+   "name": "cut reservoir"
+  }
+ },
+ {
+  "command": "sketch.create",
+  "params": {
+   "plane": "YZ",
+   "offset": 4.300000000000001
+  }
+ },
+ {
+  "command": "sketch.slot.center_to_center",
+  "params": {
+   "p0": [
+    6.0,
+    4.2
+   ],
+   "p1": [
+    17.0,
+    4.2
+   ],
+   "width": 4.6
+  }
+ },
+ {
+  "command": "sketch.finish",
+  "params": {}
+ },
+ {
+  "command": "solid.extrude",
+  "params": {
+   "distance": 3.8000000000000007,
+   "body_name": "plunger",
+   "name": "plunger"
+  }
+ },
+ {
+  "command": "solid.box",
+  "params": {
+   "length": 1.2999999999999998,
+   "width": 3.3999999999999986,
+   "height": 1.4000000000000004,
+   "corner": [
+    4.300000000000001,
+    19.1,
+    3.5
+   ],
+   "body_name": "t_arm",
+   "name": "t_arm"
+  }
+ },
+ {
+  "command": "solid.box",
+  "params": {
+   "length": 1.2999999999999998,
+   "width": 3.3999999999999986,
+   "height": 3.4000000000000004,
+   "corner": [
+    4.300000000000001,
+    20.8,
+    2.5
+   ],
+   "body_name": "t_nut",
+   "name": "t_nut"
+  }
+ },
+ {
+  "command": "solid.combine",
+  "params": {
+   "target": "plunger",
+   "tools": [
+    "t_arm",
+    "t_nut"
+   ],
+   "operation": "join",
+   "name": "join plunger"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 1.7,
+   "height": 1.4999999999999991,
+   "base": [
+    4.200000000000001,
+    22.5,
+    4.2
+   ],
+   "axis": "X",
+   "body_name": "t_nhole",
+   "name": "t_nhole"
+  }
+ },
+ {
+  "command": "solid.combine",
+  "params": {
+   "target": "plunger",
+   "tools": [
+    "t_nhole"
+   ],
+   "operation": "cut",
+   "name": "cut plunger"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 1.6,
+   "height": 11.700000000000003,
+   "base": [
+    3.2,
+    22.5,
+    4.2
+   ],
+   "axis": "X",
+   "body_name": "leadscrew",
+   "name": "leadscrew"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 6.0,
+   "height": 6.4,
+   "base": [
+    3.3000000000000003,
+    27.7,
+    4.2
+   ],
+   "axis": "X",
+   "body_name": "gearhead",
+   "name": "gearhead"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 6.0,
+   "height": 9.299999999999999,
+   "base": [
+    9.700000000000001,
+    27.7,
+    4.2
+   ],
+   "axis": "X",
+   "body_name": "motor",
+   "name": "motor"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 5.0,
+   "height": 1.2000000000000002,
+   "base": [
+    2.0,
+    27.7,
+    4.2
+   ],
+   "axis": "X",
+   "body_name": "gear_stage_a",
+   "name": "gear_stage_a"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 5.0,
+   "height": 1.2000000000000002,
+   "base": [
+    2.0,
+    22.5,
+    4.2
+   ],
+   "axis": "X",
+   "body_name": "gear_stage_b",
+   "name": "gear_stage_b"
+  }
+ },
+ {
+  "command": "sketch.create",
+  "params": {
+   "plane": "XY",
+   "offset": 1.05
+  }
+ },
+ {
+  "command": "sketch.rectangle.rounded",
+  "params": {
+   "p0": [
+    19.499999999999996,
+    13.700000000000003
+   ],
+   "p1": [
+    36.9,
+    30.900000000000002
+   ],
+   "radius": 2.9
+  }
+ },
+ {
+  "command": "sketch.finish",
+  "params": {}
+ },
+ {
+  "command": "solid.extrude",
+  "params": {
+   "distance": 3.2,
+   "body_name": "battery",
+   "name": "battery"
+  }
+ },
+ {
+  "command": "sketch.create",
+  "params": {
+   "plane": "XY",
+   "offset": 4.9
+  }
+ },
+ {
+  "command": "sketch.rectangle.rounded",
+  "params": {
+   "p0": [
+    19.4,
+    1.5
+   ],
+   "p1": [
+    36.5,
+    30.5
+   ],
+   "radius": 2.5
+  }
+ },
+ {
+  "command": "sketch.finish",
+  "params": {}
+ },
+ {
+  "command": "solid.extrude",
+  "params": {
+   "distance": 0.5999999999999996,
+   "body_name": "pcb",
+   "name": "pcb"
+  }
+ },
+ {
+  "command": "solid.box",
+  "params": {
+   "length": 3.349999999999998,
+   "width": 3.2000000000000006,
+   "height": 0.7999999999999989,
+   "corner": [
+    19.299999999999997,
+    1.4,
+    4.800000000000001
+   ],
+   "body_name": "t_notch_pcb",
+   "name": "t_notch_pcb"
+  }
+ },
+ {
+  "command": "solid.combine",
+  "params": {
+   "target": "pcb",
+   "tools": [
+    "t_notch_pcb"
+   ],
+   "operation": "cut",
+   "name": "cut pcb"
+  }
+ },
+ {
+  "command": "sketch.create",
+  "params": {
+   "plane": "XY",
+   "offset": 5.5
+  }
+ },
+ {
+  "command": "sketch.rectangle.rounded",
+  "params": {
+   "p0": [
+    19.4,
+    1.5
+   ],
+   "p1": [
+    36.5,
+    30.5
+   ],
+   "radius": 2.5
+  }
+ },
+ {
+  "command": "sketch.finish",
+  "params": {}
+ },
+ {
+  "command": "solid.extrude",
+  "params": {
+   "distance": 1.0,
+   "body_name": "pcb_keepout",
+   "name": "pcb_keepout"
+  }
+ },
+ {
+  "command": "solid.box",
+  "params": {
+   "length": 3.349999999999998,
+   "width": 3.2000000000000006,
+   "height": 1.1999999999999993,
+   "corner": [
+    19.299999999999997,
+    1.4,
+    5.4
+   ],
+   "body_name": "t_notch_pcb_keepout",
+   "name": "t_notch_pcb_keepout"
+  }
+ },
+ {
+  "command": "solid.combine",
+  "params": {
+   "target": "pcb_keepout",
+   "tools": [
+    "t_notch_pcb_keepout"
+   ],
+   "operation": "cut",
+   "name": "cut pcb_keepout"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 17.6,
+   "height": 0.5999999999999996,
+   "base": [
+    28.2,
+    9.9,
+    6.55
+   ],
+   "axis": "Z",
+   "body_name": "qi_coil",
+   "name": "qi_coil"
+  }
+ },
+ {
+  "command": "solid.box",
+  "params": {
+   "length": 9.0,
+   "width": 9.0,
+   "height": 2.0,
+   "corner": [
+    26.1,
+    21.5,
+    5.5
+   ],
+   "body_name": "buzzer",
+   "name": "buzzer"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 4.0,
+   "height": 2.0,
+   "base": [
+    17.899999999999995,
+    0.1,
+    3.4
+   ],
+   "axis": "Y",
+   "body_name": "septum",
+   "name": "septum"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 0.31,
+   "height": 2.6999999999999997,
+   "base": [
+    27.999999999999996,
+    7.2,
+    1.3000000000000003
+   ],
+   "axis": "Z",
+   "body_name": "needle",
+   "name": "needle"
+  }
+ },
+ {
+  "command": "file.export_step",
+  "params": {
+   "path": "/Users/henryschwerdtner/dev/ai-insulin-pump/mechanical/out/OP-70_assembly.step"
+  }
+ },
+ {
+  "command": "file.export_stl",
+  "params": {
+   "path": "/Users/henryschwerdtner/dev/ai-insulin-pump/mechanical/out/OP-70_bottom.stl",
+   "bodies": [
+    "bottom"
+   ],
+   "quality": "fine"
+  }
+ },
+ {
+  "command": "file.export_stl",
+  "params": {
+   "path": "/Users/henryschwerdtner/dev/ai-insulin-pump/mechanical/out/OP-70_top.stl",
+   "bodies": [
+    "top"
+   ],
+   "quality": "fine"
+  }
+ }
+]

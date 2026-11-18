@@ -1,0 +1,5 @@
+# SPDX-License-Identifier: Apache-2.0
+# OpenPatch Rev A: Insight SiP ISP1807 (nRF52840 aQFN73 inside). Experimental DIY, not a medical device.
+
+config BOARD_OPENPATCH_REVA
+	select SOC_NRF52840_QIAA if BOARD_OPENPATCH_REVA_NRF52840

@@ -1,0 +1,1123 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		01107DE72EEEEDD97A932659 /* OpenPatchKit.h in Headers */ = {isa = PBXBuildFile; fileRef = E3E21ABD55933D18BDB71431 /* OpenPatchKit.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		040AF77FA4B6DB00C8E47CA0 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 73B4998FDE70EBD60542415A /* SwiftUI.framework */; };
+		04C7F944BE89505ED4E0990B /* HealthKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 62F38082EAA2AA2D3F252804 /* HealthKit.framework */; };
+		091440DBD372CFFD4B4B4578 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 5F88724D89DC31F86C936292 /* Localizable.strings */; };
+		098FCB787A79AA0089AEE469 /* WireV1.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3A91B2784895CAAD815DA69 /* WireV1.swift */; };
+		0AC25B6E5B32BB00B74AF787 /* OpenPatchScanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 208E3CF8FABC186732636BB1 /* OpenPatchScanner.swift */; };
+		112CEA6748CB82DA7672430B /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E0071A0E93BC9A1E3FC56743 /* Foundation.framework */; };
+		1793AA91DF4A69D5453BF92D /* OpenPatchPumpManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8DD860FAF3809D2318962DD1 /* OpenPatchPumpManager.swift */; };
+		1B47DF606EC302567F4DE40B /* OpenPatchKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A0D29B1764FF752C542540CB /* OpenPatchKit.framework */; };
+		1BE31965D20715C248A75DBF /* OpenPatchPumpManager+Setup.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF5E571DA82A697BC8B876EC /* OpenPatchPumpManager+Setup.swift */; };
+		1C9BAED205B81923F0506A00 /* OpenPatchPumpManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1050A41BB697964460FC6BAE /* OpenPatchPumpManagerTests.swift */; };
+		20E9C6A50D9093CE2A4C368E /* LoopKitUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 940D265989D1FF87AF79B973 /* LoopKitUI.framework */; };
+		25FD24C770B707E2F00FF1E5 /* LoopKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 69AC0EA45937630C412312D8 /* LoopKit.framework */; };
+		28257607EB8C41ABD8D4FAF7 /* OpenPatchSettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64683D1A6C1221FF50EA5B62 /* OpenPatchSettingsViewModel.swift */; };
+		2B5A91555449B22DA9CB4F35 /* Localization.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1CB981C9CC8A019D72737ECA /* Localization.swift */; };
+		32629F446188D5B2380F24D0 /* OpenPatchCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9D7B1205DC0E8A8A7DDF4F49 /* OpenPatchCore.framework */; };
+		326D76C1588ECE047992DDF6 /* PodSize.swift in Sources */ = {isa = PBXBuildFile; fileRef = 596A8A72FC0AE3872B2A013A /* PodSize.swift */; };
+		37A5C885A1EDA4F8B11897FB /* DeliveryUncertaintyRecoveryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D36AFA4C5E37C70E1B52FA16 /* DeliveryUncertaintyRecoveryView.swift */; };
+		3D4CB5F9DFE41375E07CE07C /* OpenPatchSetupFlowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0DDFECABDF889B9814832D5 /* OpenPatchSetupFlowView.swift */; };
+		47CBD5BCC0CF1649EE85404B /* OpenPatchKitUI.h in Headers */ = {isa = PBXBuildFile; fileRef = 1FED0CD0FFFF40EC2C25389C /* OpenPatchKitUI.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		49CB7A8D3BC23F66397F0B11 /* OpenPatchDose.swift in Sources */ = {isa = PBXBuildFile; fileRef = CDB71F3FDB31FE4282476FC6 /* OpenPatchDose.swift */; };
+		4BB582770BF119505F1F6EA1 /* OpenPatchGATT.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FD33B9216C5A2F9F7ED4016 /* OpenPatchGATT.swift */; };
+		4C4F32152402A2E27C4F5DA1 /* OpenPatchKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A0D29B1764FF752C542540CB /* OpenPatchKit.framework */; };
+		4F6A2D7E6A61FCB14C649E89 /* StepContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D4823408B67A75486A9D341 /* StepContainer.swift */; };
+		538033B95A5CC747F61D7280 /* OpenPatchPumpManager+Events.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AFD87C046B1187AB59D4D16 /* OpenPatchPumpManager+Events.swift */; };
+		57C7355AD1F652EBA48A849A /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E0071A0E93BC9A1E3FC56743 /* Foundation.framework */; };
+		5EEF0C5F520B98373A3B843D /* OpenPatchSetupViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30F0F9C910FC9CB480007B13 /* OpenPatchSetupViewModel.swift */; };
+		62465FA535490333A9CEE9D7 /* OpenPatchSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8DD4223FA6D9CA678D073F36 /* OpenPatchSettingsView.swift */; };
+		63B78444B8B9C153092FE8E9 /* PumpConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6766490308308D0595C8707 /* PumpConstants.swift */; };
+		69C89FB96A68B57388577CBC /* OpenPatchError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D33BA76AF682DEF8D2BDF2D /* OpenPatchError.swift */; };
+		6A9948A960A5C6EFDF1D9384 /* OpenPatchSimulator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1D52739BFA72F44326720E6 /* OpenPatchSimulator.swift */; };
+		6D4D068EA1460EB81015F341 /* SafetyLimits.swift in Sources */ = {isa = PBXBuildFile; fileRef = E393AC90CCC395A644415ABE /* SafetyLimits.swift */; };
+		70FB1FA67DE3E5210626400B /* LoopKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 69AC0EA45937630C412312D8 /* LoopKit.framework */; };
+		717D30B7D82A0FEF9BD49BE1 /* PodStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37455BBC1E4FCCC3F56106BF /* PodStatus.swift */; };
+		7B584CB01E33704B863F08C2 /* OpenPatchPumpManager+UI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97738860FCA3184320B5910F /* OpenPatchPumpManager+UI.swift */; };
+		7CAEC5661606E9EE308182A1 /* TestSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2AADFDF9C41F43348167A3C /* TestSupport.swift */; };
+		7EB379CF05AF9F65E0CC6167 /* FillPodView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8A86A40752FF73BD5DC406D /* FillPodView.swift */; };
+		8209DE7FB12F559825B824DB /* PrimeAttachViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60BB39DDFC0BABF25FC8B3A5 /* PrimeAttachViews.swift */; };
+		85A4208CBBF2DFF8D4398101 /* Command.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5B8094FB18F63E575D8AE53 /* Command.swift */; };
+		87EA273A9AA900CF5BB6416E /* V1Transport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B858FA6A028851E8FE26AB8 /* V1Transport.swift */; };
+		89ABD0A35A9EC168C89B1F63 /* BasalProgram.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0B7C9FC308BEA71FEA18AD2 /* BasalProgram.swift */; };
+		8ECD676FE5C8C891A695FE2B /* CoreBluetooth.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A2A50FBF900621854AD9AA53 /* CoreBluetooth.framework */; };
+		90D7A5F91481BE9880BE6F3F /* Transport.swift in Sources */ = {isa = PBXBuildFile; fileRef = A49A4504039D8B93774CC253 /* Transport.swift */; };
+		9BCABEFA0562C5793C5D2D0A /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = F979C3543F35F323759D2650 /* Localizable.strings */; };
+		A051FE5287AE5A772708DA54 /* OpenPatchCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9D7B1205DC0E8A8A7DDF4F49 /* OpenPatchCore.framework */; };
+		AAC93CFEEA2C31B14F996486 /* OpenPatchDoseProgressReporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7324E66A8B255C18B736191 /* OpenPatchDoseProgressReporter.swift */; };
+		AF30BC130791689766DCBFE6 /* OpenPatchCore.h in Headers */ = {isa = PBXBuildFile; fileRef = 2E34CB8EE74267C736209D31 /* OpenPatchCore.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		B1D2D0C8B7761D1D8A5BB159 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E0071A0E93BC9A1E3FC56743 /* Foundation.framework */; };
+		B81F82529229744473C6A4E4 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E0071A0E93BC9A1E3FC56743 /* Foundation.framework */; };
+		BD60AFE0294DB4CF2BE06099 /* SimulatedPod.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8DA80474FA2E4BE0DE68B26 /* SimulatedPod.swift */; };
+		BE3052CB2B5F10276068C281 /* ByteIO.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71B4BB9A4490CF3D21F95D04 /* ByteIO.swift */; };
+		D7B0C0FF48B414292B984FEA /* LoopKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 69AC0EA45937630C412312D8 /* LoopKit.framework */; };
+		E55462B90CF04C7E5007153E /* CoreBluetoothLink.swift in Sources */ = {isa = PBXBuildFile; fileRef = C227E7A188A41D0CEA7261A8 /* CoreBluetoothLink.swift */; };
+		EABD2BACB64179390CB93F35 /* CoreBluetooth.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2A80F740E2914BB13968C6AC /* CoreBluetooth.framework */; };
+		EE55B33C711868D648321491 /* OpenPatchPumpManagerState.swift in Sources */ = {isa = PBXBuildFile; fileRef = E966F1860C04A34739FB7D10 /* OpenPatchPumpManagerState.swift */; };
+		EFF26B375AD33D88D58A345C /* PodPhase.swift in Sources */ = {isa = PBXBuildFile; fileRef = D40047677485537DB4099ED5 /* PodPhase.swift */; };
+		F1B934CA651F2AC578850FE8 /* OpenPatchUICoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0C9A0488187B267B20E332B /* OpenPatchUICoordinator.swift */; };
+		F1E94E462450CA15A1C264E1 /* UnitConversion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 799B109E772186C3304A09DC /* UnitConversion.swift */; };
+		F7076397D44459EAF4A1E465 /* HealthKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9401DFAA05EB68A653F8BFFE /* HealthKit.framework */; };
+		FBEA7DE48659E3A405747A36 /* OpenPatchCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9D7B1205DC0E8A8A7DDF4F49 /* OpenPatchCore.framework */; };
+		FCC8F6421AEA877BA2BC00AB /* HealthKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1B88126483468EB7FDDDF48 /* HealthKit.framework */; };
+		FDEEE7D7214C482BF0906611 /* OpenPatchPumpManager+Commands.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8474F7CA4781A8FDEDBDEE63 /* OpenPatchPumpManager+Commands.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		1C52B2116B3A7C6378486315 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A53B8407ABFB66E46EFB5A05 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 8529BA96E5DF4C9096742696;
+			remoteInfo = OpenPatchKit;
+		};
+		1FA55A72FF0707F30F7C79BD /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A53B8407ABFB66E46EFB5A05 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 8529BA96E5DF4C9096742696;
+			remoteInfo = OpenPatchKit;
+		};
+		257F2CF5BEFED7BE4799BEF8 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A53B8407ABFB66E46EFB5A05 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 52144AC620FFA10C9DA6D2C0;
+			remoteInfo = OpenPatchCore;
+		};
+		C0544DA8F830677CFAE2B336 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A53B8407ABFB66E46EFB5A05 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 52144AC620FFA10C9DA6D2C0;
+			remoteInfo = OpenPatchCore;
+		};
+		F8D18FA85D768A92A2E097F5 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A53B8407ABFB66E46EFB5A05 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 52144AC620FFA10C9DA6D2C0;
+			remoteInfo = OpenPatchCore;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		0274F3671BDD04729B06CC09 /* en */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.strings; name = en; path = Resources/en.lproj/Localizable.strings; sourceTree = "<group>"; };
+		05D558EC2F5266510CC047AF /* de */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.strings; name = de; path = Resources/de.lproj/Localizable.strings; sourceTree = "<group>"; };
+		1050A41BB697964460FC6BAE /* OpenPatchPumpManagerTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = OpenPatchPumpManagerTests.swift; sourceTree = "<group>"; };
+		1CB981C9CC8A019D72737ECA /* Localization.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Localization.swift; sourceTree = "<group>"; };
+		1FED0CD0FFFF40EC2C25389C /* OpenPatchKitUI.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = OpenPatchKitUI.h; sourceTree = "<group>"; };
+		200E3BBDBE3E3B6AFB55FDD6 /* de */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.strings; name = de; path = Resources/de.lproj/Localizable.strings; sourceTree = "<group>"; };
+		208E3CF8FABC186732636BB1 /* OpenPatchScanner.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = OpenPatchScanner.swift; sourceTree = "<group>"; };
+		2A80F740E2914BB13968C6AC /* CoreBluetooth.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreBluetooth.framework; path = System/Library/Frameworks/CoreBluetooth.framework; sourceTree = SDKROOT; };
+		2AFD87C046B1187AB59D4D16 /* OpenPatchPumpManager+Events.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = "OpenPatchPumpManager+Events.swift"; sourceTree = "<group>"; };
+		2E34CB8EE74267C736209D31 /* OpenPatchCore.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = OpenPatchCore.h; sourceTree = "<group>"; };
+		30F0F9C910FC9CB480007B13 /* OpenPatchSetupViewModel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = OpenPatchSetupViewModel.swift; sourceTree = "<group>"; };
+		316597C5D216A34CA411D36B /* en */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.strings; name = en; path = Resources/en.lproj/Localizable.strings; sourceTree = "<group>"; };
+		37455BBC1E4FCCC3F56106BF /* PodStatus.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PodStatus.swift; sourceTree = "<group>"; };
+		3D4823408B67A75486A9D341 /* StepContainer.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StepContainer.swift; sourceTree = "<group>"; };
+		3FD33B9216C5A2F9F7ED4016 /* OpenPatchGATT.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = OpenPatchGATT.swift; sourceTree = "<group>"; };
+		49813747D3AAF16EB1C86652 /* Config.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Config.xcconfig; path = Support/Config.xcconfig; sourceTree = "<group>"; };
+		596A8A72FC0AE3872B2A013A /* PodSize.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PodSize.swift; sourceTree = "<group>"; };
+		5B858FA6A028851E8FE26AB8 /* V1Transport.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = V1Transport.swift; sourceTree = "<group>"; };
+		60BB39DDFC0BABF25FC8B3A5 /* PrimeAttachViews.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PrimeAttachViews.swift; sourceTree = "<group>"; };
+		62F38082EAA2AA2D3F252804 /* HealthKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = HealthKit.framework; path = System/Library/Frameworks/HealthKit.framework; sourceTree = SDKROOT; };
+		64683D1A6C1221FF50EA5B62 /* OpenPatchSettingsViewModel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = OpenPatchSettingsViewModel.swift; sourceTree = "<group>"; };
+		69AC0EA45937630C412312D8 /* LoopKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = LoopKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		71B4BB9A4490CF3D21F95D04 /* ByteIO.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ByteIO.swift; sourceTree = "<group>"; };
+		73B4998FDE70EBD60542415A /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
+		799B109E772186C3304A09DC /* UnitConversion.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = UnitConversion.swift; sourceTree = "<group>"; };
+		7D33BA76AF682DEF8D2BDF2D /* OpenPatchError.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = OpenPatchError.swift; sourceTree = "<group>"; };
+		8474F7CA4781A8FDEDBDEE63 /* OpenPatchPumpManager+Commands.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = "OpenPatchPumpManager+Commands.swift"; sourceTree = "<group>"; };
+		8DD4223FA6D9CA678D073F36 /* OpenPatchSettingsView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = OpenPatchSettingsView.swift; sourceTree = "<group>"; };
+		8DD860FAF3809D2318962DD1 /* OpenPatchPumpManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = OpenPatchPumpManager.swift; sourceTree = "<group>"; };
+		9064342A1A65D298BAEA3FAF /* OpenPatchCore.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = OpenPatchCore.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		9401DFAA05EB68A653F8BFFE /* HealthKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = HealthKit.framework; path = System/Library/Frameworks/HealthKit.framework; sourceTree = SDKROOT; };
+		940D265989D1FF87AF79B973 /* LoopKitUI.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = LoopKitUI.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		97738860FCA3184320B5910F /* OpenPatchPumpManager+UI.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = "OpenPatchPumpManager+UI.swift"; sourceTree = "<group>"; };
+		97EB263736EF481568AFA96B /* OpenPatchKitUI.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = OpenPatchKitUI.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		9D7B1205DC0E8A8A7DDF4F49 /* OpenPatchCore.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = OpenPatchCore.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		A0C9A0488187B267B20E332B /* OpenPatchUICoordinator.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = OpenPatchUICoordinator.swift; sourceTree = "<group>"; };
+		A0D29B1764FF752C542540CB /* OpenPatchKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = OpenPatchKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		A1B88126483468EB7FDDDF48 /* HealthKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = HealthKit.framework; path = System/Library/Frameworks/HealthKit.framework; sourceTree = SDKROOT; };
+		A2A50FBF900621854AD9AA53 /* CoreBluetooth.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreBluetooth.framework; path = System/Library/Frameworks/CoreBluetooth.framework; sourceTree = SDKROOT; };
+		A2AADFDF9C41F43348167A3C /* TestSupport.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TestSupport.swift; sourceTree = "<group>"; };
+		A49A4504039D8B93774CC253 /* Transport.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Transport.swift; sourceTree = "<group>"; };
+		AD1E0F4193200C04EEED48E7 /* OpenPatchKitTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = OpenPatchKitTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		B0B7C9FC308BEA71FEA18AD2 /* BasalProgram.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BasalProgram.swift; sourceTree = "<group>"; };
+		B0DDFECABDF889B9814832D5 /* OpenPatchSetupFlowView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = OpenPatchSetupFlowView.swift; sourceTree = "<group>"; };
+		B6766490308308D0595C8707 /* PumpConstants.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PumpConstants.swift; sourceTree = "<group>"; };
+		C227E7A188A41D0CEA7261A8 /* CoreBluetoothLink.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CoreBluetoothLink.swift; sourceTree = "<group>"; };
+		C3A91B2784895CAAD815DA69 /* WireV1.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WireV1.swift; sourceTree = "<group>"; };
+		C7324E66A8B255C18B736191 /* OpenPatchDoseProgressReporter.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = OpenPatchDoseProgressReporter.swift; sourceTree = "<group>"; };
+		CDB71F3FDB31FE4282476FC6 /* OpenPatchDose.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = OpenPatchDose.swift; sourceTree = "<group>"; };
+		D36AFA4C5E37C70E1B52FA16 /* DeliveryUncertaintyRecoveryView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DeliveryUncertaintyRecoveryView.swift; sourceTree = "<group>"; };
+		D40047677485537DB4099ED5 /* PodPhase.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PodPhase.swift; sourceTree = "<group>"; };
+		D8A86A40752FF73BD5DC406D /* FillPodView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = FillPodView.swift; sourceTree = "<group>"; };
+		DC86DC0A0A83F999B35A85E1 /* OpenPatchKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = OpenPatchKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		DF5E571DA82A697BC8B876EC /* OpenPatchPumpManager+Setup.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = "OpenPatchPumpManager+Setup.swift"; sourceTree = "<group>"; };
+		E0071A0E93BC9A1E3FC56743 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
+		E393AC90CCC395A644415ABE /* SafetyLimits.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SafetyLimits.swift; sourceTree = "<group>"; };
+		E3E21ABD55933D18BDB71431 /* OpenPatchKit.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = OpenPatchKit.h; sourceTree = "<group>"; };
+		E8DA80474FA2E4BE0DE68B26 /* SimulatedPod.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SimulatedPod.swift; sourceTree = "<group>"; };
+		E966F1860C04A34739FB7D10 /* OpenPatchPumpManagerState.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = OpenPatchPumpManagerState.swift; sourceTree = "<group>"; };
+		F1D52739BFA72F44326720E6 /* OpenPatchSimulator.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = OpenPatchSimulator.swift; sourceTree = "<group>"; };
+		F5B8094FB18F63E575D8AE53 /* Command.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Command.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		31DDF1DC732F2607888D4ABB /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B1D2D0C8B7761D1D8A5BB159 /* Foundation.framework in Frameworks */,
+				32629F446188D5B2380F24D0 /* OpenPatchCore.framework in Frameworks */,
+				25FD24C770B707E2F00FF1E5 /* LoopKit.framework in Frameworks */,
+				8ECD676FE5C8C891A695FE2B /* CoreBluetooth.framework in Frameworks */,
+				F7076397D44459EAF4A1E465 /* HealthKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		370EE8DED251B58DE38C5273 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				57C7355AD1F652EBA48A849A /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4136C0824E97C7C0A055EA44 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B81F82529229744473C6A4E4 /* Foundation.framework in Frameworks */,
+				4C4F32152402A2E27C4F5DA1 /* OpenPatchKit.framework in Frameworks */,
+				A051FE5287AE5A772708DA54 /* OpenPatchCore.framework in Frameworks */,
+				70FB1FA67DE3E5210626400B /* LoopKit.framework in Frameworks */,
+				FCC8F6421AEA877BA2BC00AB /* HealthKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C5FD5CAC7C68AA65B91465B6 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				112CEA6748CB82DA7672430B /* Foundation.framework in Frameworks */,
+				1B47DF606EC302567F4DE40B /* OpenPatchKit.framework in Frameworks */,
+				FBEA7DE48659E3A405747A36 /* OpenPatchCore.framework in Frameworks */,
+				D7B0C0FF48B414292B984FEA /* LoopKit.framework in Frameworks */,
+				20E9C6A50D9093CE2A4C368E /* LoopKitUI.framework in Frameworks */,
+				040AF77FA4B6DB00C8E47CA0 /* SwiftUI.framework in Frameworks */,
+				EABD2BACB64179390CB93F35 /* CoreBluetooth.framework in Frameworks */,
+				04C7F944BE89505ED4E0990B /* HealthKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		1914106E778EEE7AD077B7CF = {
+			isa = PBXGroup;
+			children = (
+				8FAD7D739A2ED43DB8FD8002 /* Products */,
+				D71CF1760BAEA9F6968685AE /* Frameworks */,
+				49813747D3AAF16EB1C86652 /* Config.xcconfig */,
+				CF8377EB987701A2B06BAF4C /* OpenPatchCore */,
+				93007853900784F94E9029E3 /* Support */,
+				46B5F512B85809BF662522AE /* OpenPatchKit */,
+				7755AF7326481A7A1DE9105E /* OpenPatchKitUI */,
+				B7FEC42A202759D824827946 /* OpenPatchKitTests */,
+			);
+			sourceTree = "<group>";
+		};
+		46B5F512B85809BF662522AE /* OpenPatchKit */ = {
+			isa = PBXGroup;
+			children = (
+				7AF55966A96BE8BD7C5AFC68 /* PumpManager */,
+				A2E5EA9E49B93B641820787C /* Transport */,
+				F979C3543F35F323759D2650 /* Localizable.strings */,
+			);
+			name = OpenPatchKit;
+			path = OpenPatchKit;
+			sourceTree = "<group>";
+		};
+		7755AF7326481A7A1DE9105E /* OpenPatchKitUI */ = {
+			isa = PBXGroup;
+			children = (
+				1CB981C9CC8A019D72737ECA /* Localization.swift */,
+				97738860FCA3184320B5910F /* OpenPatchPumpManager+UI.swift */,
+				A0C9A0488187B267B20E332B /* OpenPatchUICoordinator.swift */,
+				D679B91DF01288FAA4C1E90D /* ViewModels */,
+				F50B17C64360C95FEC519685 /* Views */,
+				5F88724D89DC31F86C936292 /* Localizable.strings */,
+			);
+			name = OpenPatchKitUI;
+			path = OpenPatchKitUI;
+			sourceTree = "<group>";
+		};
+		7AF55966A96BE8BD7C5AFC68 /* PumpManager */ = {
+			isa = PBXGroup;
+			children = (
+				CDB71F3FDB31FE4282476FC6 /* OpenPatchDose.swift */,
+				C7324E66A8B255C18B736191 /* OpenPatchDoseProgressReporter.swift */,
+				7D33BA76AF682DEF8D2BDF2D /* OpenPatchError.swift */,
+				8474F7CA4781A8FDEDBDEE63 /* OpenPatchPumpManager+Commands.swift */,
+				2AFD87C046B1187AB59D4D16 /* OpenPatchPumpManager+Events.swift */,
+				DF5E571DA82A697BC8B876EC /* OpenPatchPumpManager+Setup.swift */,
+				8DD860FAF3809D2318962DD1 /* OpenPatchPumpManager.swift */,
+				E966F1860C04A34739FB7D10 /* OpenPatchPumpManagerState.swift */,
+			);
+			name = PumpManager;
+			path = PumpManager;
+			sourceTree = "<group>";
+		};
+		8FAD7D739A2ED43DB8FD8002 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				9064342A1A65D298BAEA3FAF /* OpenPatchCore.framework */,
+				DC86DC0A0A83F999B35A85E1 /* OpenPatchKit.framework */,
+				97EB263736EF481568AFA96B /* OpenPatchKitUI.framework */,
+				AD1E0F4193200C04EEED48E7 /* OpenPatchKitTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		93007853900784F94E9029E3 /* Support */ = {
+			isa = PBXGroup;
+			children = (
+				2E34CB8EE74267C736209D31 /* OpenPatchCore.h */,
+				E3E21ABD55933D18BDB71431 /* OpenPatchKit.h */,
+				1FED0CD0FFFF40EC2C25389C /* OpenPatchKitUI.h */,
+			);
+			name = Support;
+			path = Support;
+			sourceTree = "<group>";
+		};
+		A2E5EA9E49B93B641820787C /* Transport */ = {
+			isa = PBXGroup;
+			children = (
+				C227E7A188A41D0CEA7261A8 /* CoreBluetoothLink.swift */,
+				3FD33B9216C5A2F9F7ED4016 /* OpenPatchGATT.swift */,
+				208E3CF8FABC186732636BB1 /* OpenPatchScanner.swift */,
+				F1D52739BFA72F44326720E6 /* OpenPatchSimulator.swift */,
+			);
+			name = Transport;
+			path = Transport;
+			sourceTree = "<group>";
+		};
+		B7FEC42A202759D824827946 /* OpenPatchKitTests */ = {
+			isa = PBXGroup;
+			children = (
+				1050A41BB697964460FC6BAE /* OpenPatchPumpManagerTests.swift */,
+				A2AADFDF9C41F43348167A3C /* TestSupport.swift */,
+			);
+			name = OpenPatchKitTests;
+			path = OpenPatchKitTests;
+			sourceTree = "<group>";
+		};
+		CF8377EB987701A2B06BAF4C /* OpenPatchCore */ = {
+			isa = PBXGroup;
+			children = (
+				B0B7C9FC308BEA71FEA18AD2 /* BasalProgram.swift */,
+				71B4BB9A4490CF3D21F95D04 /* ByteIO.swift */,
+				F5B8094FB18F63E575D8AE53 /* Command.swift */,
+				D40047677485537DB4099ED5 /* PodPhase.swift */,
+				596A8A72FC0AE3872B2A013A /* PodSize.swift */,
+				37455BBC1E4FCCC3F56106BF /* PodStatus.swift */,
+				B6766490308308D0595C8707 /* PumpConstants.swift */,
+				E393AC90CCC395A644415ABE /* SafetyLimits.swift */,
+				E8DA80474FA2E4BE0DE68B26 /* SimulatedPod.swift */,
+				A49A4504039D8B93774CC253 /* Transport.swift */,
+				799B109E772186C3304A09DC /* UnitConversion.swift */,
+				5B858FA6A028851E8FE26AB8 /* V1Transport.swift */,
+				C3A91B2784895CAAD815DA69 /* WireV1.swift */,
+			);
+			name = OpenPatchCore;
+			path = OpenPatchCore/Sources/OpenPatchCore;
+			sourceTree = "<group>";
+		};
+		D679B91DF01288FAA4C1E90D /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				64683D1A6C1221FF50EA5B62 /* OpenPatchSettingsViewModel.swift */,
+				30F0F9C910FC9CB480007B13 /* OpenPatchSetupViewModel.swift */,
+			);
+			name = ViewModels;
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		D71CF1760BAEA9F6968685AE /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				FD05E651C3063799D8C09213 /* iOS */,
+				9D7B1205DC0E8A8A7DDF4F49 /* OpenPatchCore.framework */,
+				69AC0EA45937630C412312D8 /* LoopKit.framework */,
+				A2A50FBF900621854AD9AA53 /* CoreBluetooth.framework */,
+				9401DFAA05EB68A653F8BFFE /* HealthKit.framework */,
+				A0D29B1764FF752C542540CB /* OpenPatchKit.framework */,
+				940D265989D1FF87AF79B973 /* LoopKitUI.framework */,
+				73B4998FDE70EBD60542415A /* SwiftUI.framework */,
+				2A80F740E2914BB13968C6AC /* CoreBluetooth.framework */,
+				62F38082EAA2AA2D3F252804 /* HealthKit.framework */,
+				A1B88126483468EB7FDDDF48 /* HealthKit.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		F50B17C64360C95FEC519685 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				D36AFA4C5E37C70E1B52FA16 /* DeliveryUncertaintyRecoveryView.swift */,
+				D8A86A40752FF73BD5DC406D /* FillPodView.swift */,
+				8DD4223FA6D9CA678D073F36 /* OpenPatchSettingsView.swift */,
+				B0DDFECABDF889B9814832D5 /* OpenPatchSetupFlowView.swift */,
+				60BB39DDFC0BABF25FC8B3A5 /* PrimeAttachViews.swift */,
+				3D4823408B67A75486A9D341 /* StepContainer.swift */,
+			);
+			name = Views;
+			path = Views;
+			sourceTree = "<group>";
+		};
+		FD05E651C3063799D8C09213 /* iOS */ = {
+			isa = PBXGroup;
+			children = (
+				E0071A0E93BC9A1E3FC56743 /* Foundation.framework */,
+			);
+			name = iOS;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		4A4C2581385C4FE84DF334CE /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AF30BC130791689766DCBFE6 /* OpenPatchCore.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		940632366509A46D4867EB4D /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				47CBD5BCC0CF1649EE85404B /* OpenPatchKitUI.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C0E1E8999AF785BE289E0F03 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				01107DE72EEEEDD97A932659 /* OpenPatchKit.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
+/* Begin PBXNativeTarget section */
+		23BFB53E50D39E3135A9F2F2 /* OpenPatchKitUI */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 76093B53DB5EA65FDB9618EC /* Build configuration list for PBXNativeTarget "OpenPatchKitUI" */;
+			buildPhases = (
+				940632366509A46D4867EB4D /* Headers */,
+				82FE25F633C9E1B11117A3C3 /* Sources */,
+				C5FD5CAC7C68AA65B91465B6 /* Frameworks */,
+				69711040D39E2CAC9AB5BCD3 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				07AD31598200AF1883866272 /* PBXTargetDependency */,
+				CDF2DD31F28DC74240A3FC16 /* PBXTargetDependency */,
+			);
+			name = OpenPatchKitUI;
+			productName = OpenPatchKitUI;
+			productReference = 97EB263736EF481568AFA96B /* OpenPatchKitUI.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+		52144AC620FFA10C9DA6D2C0 /* OpenPatchCore */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 088206CA962297A9DC836BEC /* Build configuration list for PBXNativeTarget "OpenPatchCore" */;
+			buildPhases = (
+				4A4C2581385C4FE84DF334CE /* Headers */,
+				D8B69175931070624BEAE810 /* Sources */,
+				370EE8DED251B58DE38C5273 /* Frameworks */,
+				8CEAD469495BCAC4637DC3C6 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = OpenPatchCore;
+			productName = OpenPatchCore;
+			productReference = 9064342A1A65D298BAEA3FAF /* OpenPatchCore.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+		8529BA96E5DF4C9096742696 /* OpenPatchKit */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 13F8C8DA7F5B9D951C414838 /* Build configuration list for PBXNativeTarget "OpenPatchKit" */;
+			buildPhases = (
+				C0E1E8999AF785BE289E0F03 /* Headers */,
+				D63F2FD7005C3CB7F14CA755 /* Sources */,
+				31DDF1DC732F2607888D4ABB /* Frameworks */,
+				DC6AB4EFE8BFF508A4CE6DF6 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				9FF30A6C01030096911D1B80 /* PBXTargetDependency */,
+			);
+			name = OpenPatchKit;
+			productName = OpenPatchKit;
+			productReference = DC86DC0A0A83F999B35A85E1 /* OpenPatchKit.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+		D7ED4B41AC923E0A0B131610 /* OpenPatchKitTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 0DA88498C2A6A9FF0A12A671 /* Build configuration list for PBXNativeTarget "OpenPatchKitTests" */;
+			buildPhases = (
+				57D6B27D90FBFBB7C6E61EF4 /* Sources */,
+				4136C0824E97C7C0A055EA44 /* Frameworks */,
+				B97BA72FB6B655ABF4A657E6 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				10D31F899048C4282E6087EE /* PBXTargetDependency */,
+				91090625988A8884CF62ECFE /* PBXTargetDependency */,
+			);
+			name = OpenPatchKitTests;
+			productName = OpenPatchKitTests;
+			productReference = AD1E0F4193200C04EEED48E7 /* OpenPatchKitTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		A53B8407ABFB66E46EFB5A05 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastSwiftUpdateCheck = 1600;
+				LastUpgradeCheck = 1600;
+			};
+			buildConfigurationList = 11B3C3E1C3A5F79D1953CA52 /* Build configuration list for PBXProject "OpenPatchKit" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				de,
+				Base,
+			);
+			mainGroup = 1914106E778EEE7AD077B7CF;
+			minimizedProjectReferenceProxies = 0;
+			preferredProjectObjectVersion = 100;
+			productRefGroup = 8FAD7D739A2ED43DB8FD8002 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				52144AC620FFA10C9DA6D2C0 /* OpenPatchCore */,
+				8529BA96E5DF4C9096742696 /* OpenPatchKit */,
+				23BFB53E50D39E3135A9F2F2 /* OpenPatchKitUI */,
+				D7ED4B41AC923E0A0B131610 /* OpenPatchKitTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		69711040D39E2CAC9AB5BCD3 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				091440DBD372CFFD4B4B4578 /* Localizable.strings in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		8CEAD469495BCAC4637DC3C6 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B97BA72FB6B655ABF4A657E6 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DC6AB4EFE8BFF508A4CE6DF6 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9BCABEFA0562C5793C5D2D0A /* Localizable.strings in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		57D6B27D90FBFBB7C6E61EF4 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1C9BAED205B81923F0506A00 /* OpenPatchPumpManagerTests.swift in Sources */,
+				7CAEC5661606E9EE308182A1 /* TestSupport.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		82FE25F633C9E1B11117A3C3 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2B5A91555449B22DA9CB4F35 /* Localization.swift in Sources */,
+				7B584CB01E33704B863F08C2 /* OpenPatchPumpManager+UI.swift in Sources */,
+				F1B934CA651F2AC578850FE8 /* OpenPatchUICoordinator.swift in Sources */,
+				28257607EB8C41ABD8D4FAF7 /* OpenPatchSettingsViewModel.swift in Sources */,
+				5EEF0C5F520B98373A3B843D /* OpenPatchSetupViewModel.swift in Sources */,
+				37A5C885A1EDA4F8B11897FB /* DeliveryUncertaintyRecoveryView.swift in Sources */,
+				7EB379CF05AF9F65E0CC6167 /* FillPodView.swift in Sources */,
+				62465FA535490333A9CEE9D7 /* OpenPatchSettingsView.swift in Sources */,
+				3D4CB5F9DFE41375E07CE07C /* OpenPatchSetupFlowView.swift in Sources */,
+				8209DE7FB12F559825B824DB /* PrimeAttachViews.swift in Sources */,
+				4F6A2D7E6A61FCB14C649E89 /* StepContainer.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D63F2FD7005C3CB7F14CA755 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				49CB7A8D3BC23F66397F0B11 /* OpenPatchDose.swift in Sources */,
+				AAC93CFEEA2C31B14F996486 /* OpenPatchDoseProgressReporter.swift in Sources */,
+				69C89FB96A68B57388577CBC /* OpenPatchError.swift in Sources */,
+				FDEEE7D7214C482BF0906611 /* OpenPatchPumpManager+Commands.swift in Sources */,
+				538033B95A5CC747F61D7280 /* OpenPatchPumpManager+Events.swift in Sources */,
+				1BE31965D20715C248A75DBF /* OpenPatchPumpManager+Setup.swift in Sources */,
+				1793AA91DF4A69D5453BF92D /* OpenPatchPumpManager.swift in Sources */,
+				EE55B33C711868D648321491 /* OpenPatchPumpManagerState.swift in Sources */,
+				E55462B90CF04C7E5007153E /* CoreBluetoothLink.swift in Sources */,
+				4BB582770BF119505F1F6EA1 /* OpenPatchGATT.swift in Sources */,
+				0AC25B6E5B32BB00B74AF787 /* OpenPatchScanner.swift in Sources */,
+				6A9948A960A5C6EFDF1D9384 /* OpenPatchSimulator.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D8B69175931070624BEAE810 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				89ABD0A35A9EC168C89B1F63 /* BasalProgram.swift in Sources */,
+				BE3052CB2B5F10276068C281 /* ByteIO.swift in Sources */,
+				85A4208CBBF2DFF8D4398101 /* Command.swift in Sources */,
+				EFF26B375AD33D88D58A345C /* PodPhase.swift in Sources */,
+				326D76C1588ECE047992DDF6 /* PodSize.swift in Sources */,
+				717D30B7D82A0FEF9BD49BE1 /* PodStatus.swift in Sources */,
+				63B78444B8B9C153092FE8E9 /* PumpConstants.swift in Sources */,
+				6D4D068EA1460EB81015F341 /* SafetyLimits.swift in Sources */,
+				BD60AFE0294DB4CF2BE06099 /* SimulatedPod.swift in Sources */,
+				90D7A5F91481BE9880BE6F3F /* Transport.swift in Sources */,
+				F1E94E462450CA15A1C264E1 /* UnitConversion.swift in Sources */,
+				87EA273A9AA900CF5BB6416E /* V1Transport.swift in Sources */,
+				098FCB787A79AA0089AEE469 /* WireV1.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		07AD31598200AF1883866272 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = OpenPatchKit;
+			target = 8529BA96E5DF4C9096742696 /* OpenPatchKit */;
+			targetProxy = 1FA55A72FF0707F30F7C79BD /* PBXContainerItemProxy */;
+		};
+		10D31F899048C4282E6087EE /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = OpenPatchKit;
+			target = 8529BA96E5DF4C9096742696 /* OpenPatchKit */;
+			targetProxy = 1C52B2116B3A7C6378486315 /* PBXContainerItemProxy */;
+		};
+		91090625988A8884CF62ECFE /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = OpenPatchCore;
+			target = 52144AC620FFA10C9DA6D2C0 /* OpenPatchCore */;
+			targetProxy = 257F2CF5BEFED7BE4799BEF8 /* PBXContainerItemProxy */;
+		};
+		9FF30A6C01030096911D1B80 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = OpenPatchCore;
+			target = 52144AC620FFA10C9DA6D2C0 /* OpenPatchCore */;
+			targetProxy = F8D18FA85D768A92A2E097F5 /* PBXContainerItemProxy */;
+		};
+		CDF2DD31F28DC74240A3FC16 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = OpenPatchCore;
+			target = 52144AC620FFA10C9DA6D2C0 /* OpenPatchCore */;
+			targetProxy = C0544DA8F830677CFAE2B336 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		5F88724D89DC31F86C936292 /* Localizable.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				0274F3671BDD04729B06CC09 /* en */,
+				05D558EC2F5266510CC047AF /* de */,
+			);
+			name = Localizable.strings;
+			sourceTree = "<group>";
+		};
+		F979C3543F35F323759D2650 /* Localizable.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				316597C5D216A34CA411D36B /* en */,
+				200E3BBDBE3E3B6AFB55FDD6 /* de */,
+			);
+			name = Localizable.strings;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		137F8071C05CF604BC69D20E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 49813747D3AAF16EB1C86652 /* Config.xcconfig */;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		1AE88B8F0F5DDE39DD2D5087 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 49813747D3AAF16EB1C86652 /* Config.xcconfig */;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		34AD7F41B26E71E97EC8BE5F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(BUILT_PRODUCTS_DIR)",
+				);
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = org.openpatch.OpenPatchKitTests;
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		34F4390586196A3A04CD4177 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUILD_LIBRARY_FOR_DISTRIBUTION = NO;
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(BUILT_PRODUCTS_DIR)",
+				);
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "OpenPatch contributors";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = org.openpatch.OpenPatchKitUI;
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Release;
+		};
+		4E0A28EFFD4276AD16678B06 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUILD_LIBRARY_FOR_DISTRIBUTION = NO;
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(BUILT_PRODUCTS_DIR)",
+				);
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "OpenPatch contributors";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = org.openpatch.OpenPatchKit;
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Debug;
+		};
+		755666A3D7EE163E45047DB7 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUILD_LIBRARY_FOR_DISTRIBUTION = NO;
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(BUILT_PRODUCTS_DIR)",
+				);
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "OpenPatch contributors";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = org.openpatch.OpenPatchCore;
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Debug;
+		};
+		9887FAFFCDA17D94F7271073 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUILD_LIBRARY_FOR_DISTRIBUTION = NO;
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(BUILT_PRODUCTS_DIR)",
+				);
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "OpenPatch contributors";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = org.openpatch.OpenPatchCore;
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Release;
+		};
+		9FB5591ACCD46A077A2F986C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUILD_LIBRARY_FOR_DISTRIBUTION = NO;
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(BUILT_PRODUCTS_DIR)",
+				);
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "OpenPatch contributors";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = org.openpatch.OpenPatchKitUI;
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Debug;
+		};
+		C0FDBEF0D55FA97AB74DC8F2 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(BUILT_PRODUCTS_DIR)",
+				);
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = org.openpatch.OpenPatchKitTests;
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		CED989F0F25551CD1FF5EC2C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUILD_LIBRARY_FOR_DISTRIBUTION = NO;
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(BUILT_PRODUCTS_DIR)",
+				);
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "OpenPatch contributors";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = org.openpatch.OpenPatchKit;
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		088206CA962297A9DC836BEC /* Build configuration list for PBXNativeTarget "OpenPatchCore" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				9887FAFFCDA17D94F7271073 /* Release */,
+				755666A3D7EE163E45047DB7 /* Debug */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		0DA88498C2A6A9FF0A12A671 /* Build configuration list for PBXNativeTarget "OpenPatchKitTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C0FDBEF0D55FA97AB74DC8F2 /* Release */,
+				34AD7F41B26E71E97EC8BE5F /* Debug */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		11B3C3E1C3A5F79D1953CA52 /* Build configuration list for PBXProject "OpenPatchKit" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				137F8071C05CF604BC69D20E /* Debug */,
+				1AE88B8F0F5DDE39DD2D5087 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		13F8C8DA7F5B9D951C414838 /* Build configuration list for PBXNativeTarget "OpenPatchKit" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CED989F0F25551CD1FF5EC2C /* Release */,
+				4E0A28EFFD4276AD16678B06 /* Debug */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		76093B53DB5EA65FDB9618EC /* Build configuration list for PBXNativeTarget "OpenPatchKitUI" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				34F4390586196A3A04CD4177 /* Release */,
+				9FB5591ACCD46A077A2F986C /* Debug */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = A53B8407ABFB66E46EFB5A05 /* Project object */;
+}

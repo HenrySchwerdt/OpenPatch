@@ -1,0 +1,6 @@
+board:
+  name: openpatch_reva
+  full_name: OpenPatch Rev A (Insight SiP ISP1807 / nRF52840)
+  vendor: openpatch
+  socs:
+  - name: nrf52840

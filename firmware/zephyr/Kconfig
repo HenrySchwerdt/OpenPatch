@@ -1,0 +1,97 @@
+mainmenu "OpenPatch"
+
+menu "OpenPatch pod firmware"
+
+config OPENPATCH_ALLOW_PLAINTEXT
+	bool "Accept unencrypted protocol frames (DEVELOPMENT ONLY)"
+	default n
+	help
+	  The application-layer AES-CCM backend and the session key agreement are not
+	  implemented yet (open issue). With this disabled the pod rejects every frame,
+	  i.e. it cannot be commanded. Enable only via dev.conf on a bench pod without
+	  insulin. Never flash this to a pod worn on a body.
+
+config OPENPATCH_RESERVOIR_MU
+	int "Reservoir capacity in milli-units (70000 / 100000 / 200000)"
+	default 200000
+
+config OPENPATCH_SIM_ENCODER
+	bool "Simulate the spindle encoder (open loop, perfect delivery)"
+	default y if BOARD_NRF52840DK
+	help
+	  For the dev kit without a TMAG5273 + magnet on a spindle. Defeats the independent
+	  delivery verification - bench use only.
+
+config OPENPATCH_SIM_BATTERY
+	bool "Report a fixed battery voltage instead of reading SAADC"
+	default y if BOARD_NRF52840DK
+	help
+	  The dev kit has no battery divider.
+
+config OPENPATCH_SIM_BATTERY_MV
+	int "Simulated battery voltage in mV"
+	default 3900
+	depends on OPENPATCH_SIM_BATTERY
+
+config OPENPATCH_VBAT_DIV_NUM
+	int "VBAT = V(SAADC) * NUM / DEN (divider 1.5M / 1M => 5/2)"
+	default 5
+
+config OPENPATCH_VBAT_DIV_DEN
+	int "VBAT divider denominator"
+	default 2
+
+config OPENPATCH_VMOT_MIN_MV
+	int "Minimum VMOT (mV) after arming the safety latch, else the motor stays off"
+	default 2500
+
+config OPENPATCH_STEP_RATE_HZ
+	int "Motor step rate in Hz (full steps)"
+	default 100
+	range 10 400
+	help
+	  The STSPIN220 steps on the rising edge of STCK. At 100 Hz a 40 step prime takes 0.4 s.
+	  The hardware watchdog worst case (see electronics/README.md) scales with this rate.
+
+config OPENPATCH_STSPIN_MODE_BITS
+	hex "STSPIN220 MODE1..MODE4 levels (bit0 = MODE1 ... bit3 = MODE4) for full-step"
+	default 0x0
+	help
+	  Sampled by the driver on the rising edge of STBY/RESET. VERIFY against the STSPIN220
+	  datasheet mode table before the first spin.
+
+config OPENPATCH_ENC_REVERSE
+	bool "Spindle angle increases opposite to the motor's forward direction"
+	help
+	  Depends on the magnet / sensor orientation. Verify on hardware.
+
+config OPENPATCH_MOTOR_DIR_FORWARD_LEVEL
+	int "Logical DIR level for delivery (forward)"
+	default 1
+	range 0 1
+
+config OPENPATCH_PAIRING_WINDOW_S
+	int "Seconds BLE pairing stays open after a button press"
+	default 60
+
+config OPENPATCH_WDT_HEARTBEAT_MS
+	int "Max age of the main-loop heartbeat for answering a TPL5010 WAKE with DONE"
+	default 2500
+	help
+	  The core ticks once per second. If the tick is late by more than this, DONE is
+	  withheld, the TPL5010 resets the MCU and clears the motor latch.
+
+config OPENPATCH_QDEC_MAX_UNSEEN_STEPS
+	int "Steps commanded without a single hall (QDEC) count before the watchdog is starved"
+	default 120
+	help
+	  Hall path B gives about one count per 50 steps (1.3 IE per 100 steps). Used when the
+	  QDEC node is enabled in the devicetree.
+
+config OPENPATCH_LONG_PRESS_MS
+	int "Button hold time for emergency stop (suspend delivery)"
+	default 3000
+
+endmenu
+
+source "Kconfig.zephyr"

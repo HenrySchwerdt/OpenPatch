@@ -1,0 +1,182 @@
+"""Layout-Berechnung (alle Koordinaten in mm).
+
+X = Länge, Y = Breite, Z = Höhe (Z=0 = Hautseite / Klettfläche).
+Nur die Reservoirlänge hängt von der Variante ab (Kolbenhub 'stroke').
+Rev A: echter Antrieb (Faulhaber ADM0620 + 06/1), Lager, Kolbenführung, Hall-Geber, RF-Modul.
+"""
+from __future__ import annotations
+
+import json
+import math
+from pathlib import Path
+
+HERE = Path(__file__).resolve().parent
+
+
+def load_params(path: Path | None = None) -> dict:
+    with open(path or HERE / "params.json", encoding="utf-8") as fh:
+        return json.load(fh)
+
+
+def merge(base: dict, over: dict) -> dict:
+    out = dict(base)
+    for key, val in over.items():
+        if isinstance(val, dict) and isinstance(out.get(key), dict):
+            out[key] = merge(out[key], val)
+        else:
+            out[key] = val
+    return out
+
+
+def stadium_area(w: float, h: float) -> float:
+    return h * (w - h) + math.pi * (h / 2) ** 2
+
+
+def u_per_step(p: dict, ratio: float) -> float:
+    rs, dr = p["reservoir"], p["drive"]
+    area = stadium_area(rs["w_in"], rs["h_in"])
+    mm_step = dr["screw_pitch"] / (dr["steps_per_rev"] * ratio)
+    return mm_step * area / 10.0          # 1 mm3 = 1 ul; U100: 10 ul = 1 U
+
+
+def compute_layout(p: dict, variant: str) -> dict:
+    sh, rs, sp, nd, dr = p["shell"], p["reservoir"], p["septum"], p["needle"], p["drive"]
+    bt, pc, co, bz, cn, fit = p["battery"], p["pcb"], p["coil"], p["buzzer"], p["cannula"], p["fit"]
+    rf, hl, sc, ct = p["rf"], p["hall"], p["screws"], p["contacts"]
+    stroke = p["variants"][variant]["stroke"]
+    wall, W = sh["wall"], sh["width"]
+    yi0, yi1 = wall, W - wall
+
+    res_h_out = rs["h_in"] + 2 * rs["wall"]
+    res_w_out = rs["w_in"] + 2 * rs["wall"]
+    lin = rs["dead"] + stroke + rs["plunger_len"] + rs["plunger_gap"]
+    res_len = lin + 2 * rs["wall"]
+    z_axis = wall + res_h_out / 2
+    gear_x1 = dr["gear_x0"] + dr["gear_t"]
+    x_r0 = gear_x1 + fit["clr_small"]
+    x_r1 = x_r0 + res_len
+    x_in0, x_in1 = x_r0 + rs["wall"], x_r1 - rs["wall"]
+    y_r0 = yi0 + sp["gap_y"]
+    y_r = y_r0 + res_w_out / 2
+
+    y_s = y_r0 + res_w_out + dr["lane_clr"] + dr["screw_lane_w"] / 2
+    y_m = y_s + dr["gear_center"]
+
+    xrear_full = x_in0 + rs["plunger_gap"]
+    xrear = xrear_full + stroke * (1.0 - rs["fill_fraction"])
+    xrear_empty = xrear_full + stroke
+
+    mx0 = gear_x1 + fit["clr_small"]
+    gh_x = (mx0, mx0 + dr["gearhead_len"])
+    mo_x = (gh_x[1], gh_x[1] + dr["motor_len"])
+    mot_end = mo_x[1] + dr["motor_tail"]
+
+    x_end = x_r1 + co["d"] + 2 * co["gap_x"]
+    length = x_end + wall
+    tower_x = cn["A_plate_length"] + 2 * cn["N_clearance"] + 2 * 1.5
+    x_p = x_r1 + tower_x / 2
+    y_p = yi0 + 1.1 + (cn["B_plate_width"] + 2 * cn["N_clearance"]) / 2
+    pocket_h = cn["C_plate_thickness"] + cn["N_clearance"]
+    x_n = x_p + cn["I_septum_off_x"]
+    y_n = y_p + cn["J_septum_off_y"]
+    z_tip = pocket_h - cn["M_needle_depth"]
+    x_s = x_in1 - 0.6
+
+    bl = dr["bush_len"]
+    far_bush = (x_r1 - 0.2 - bl, x_r1 - 0.2)
+    far_block = (x_r1 - 0.3 - bl, x_r1 - 0.1)
+    dry_bush = (wall, wall + bl)
+    screw_tip = x_r1 + 0.15
+    mag_x = (screw_tip, screw_tip + dr["mag_t"])
+    pcb_z0 = pc["z0"]
+    hall_x = mag_x[1] + hl["gap_x"] + hl["pkg_x"] / 2
+    hall = {"x": hall_x, "y": y_s, "z_top": pcb_z0, "side": "bottom",
+            "pkg": [hl["pkg_x"], hl["pkg_y"], hl["pkg_z"]]}
+    drv = [{"x": hall_x, "y": y_s - hl["drv_dy"], "z_top": pcb_z0, "side": "bottom"},
+           {"x": hall_x, "y": y_s + hl["drv_dy"], "z_top": pcb_z0, "side": "bottom"}]
+
+    c_x = x_r1 + sc["c_dx"]
+    screws = [{"x": sc["dry_x"], "y": y} for y in sc["dry_y"]] + [{"x": c_x, "y": sc["c_y"]}]
+
+    bat_x0 = max(x_r1 + bt["margin"], mot_end + 0.3, c_x + sc["boss_d"] / 2 + 0.3, mag_x[1] + 0.3)
+    bat_x1 = x_end - bt["margin"]
+    bat_x = min(bt["x_max"], bat_x1 - bat_x0)
+    bat_y0 = bt["y0"]
+
+    pm = pc["margin"]
+    pcb_x0, pcb_x1 = x_r1 + co["gap_x"], x_end - pm
+    pcb_y0, pcb_y1 = wall + pm, yi1 - pm
+    mod_x1, mod_y1 = pcb_x1, pcb_y1
+    mod_x0, mod_y0 = mod_x1 - rf["module_x"], mod_y1 - rf["module_y"]
+    shelf_x0 = mot_end + ct["shelf_dx"]
+    shelf = {"x": [shelf_x0, shelf_x0 + ct["shelf_len"]], "y": ct["shelf_y"], "z_top": ct["shelf_top"]}
+    rf_keep = [mod_x0 - 0.5, mod_x1 + 0.1, ct["shelf_y"][1] + 0.1, yi1]
+    tab_x = bat_x0 + ct["tab_dx"]
+    top_bat = p["fit"]["bat_gap"] + wall + bt["t"]
+    contacts = {
+        "spring_h_max": ct["spring_h_max"],
+        "pcb_bottom_z": pcb_z0,
+        "battery_tabs": [{"x": tab_x, "y": bat_y0 + dy, "z_pad_top": top_bat + 0.1, "pad": ct["tab_pad"]} for dy in ct["tab_dy"]],
+        "motor_fpc": [{"x": shelf_x0 + 0.6 + i * ct["fpc_pitch"], "y": ct["fpc_y"], "z_pad_top": ct["shelf_top"] + ct["fpc_t"],
+                       "pin": i + 1} for i in range(ct["fpc_n"])],
+        "motor_shelf": shelf,
+        "hold_down_pads": [{"x": tab_x, "y": bat_y0 + sum(ct["tab_dy"]) / 2, "d": ct["pad_d"]},
+                           {"x": shelf_x0 + 0.6 + (ct["fpc_n"] - 1) * ct["fpc_pitch"] / 2, "y": ct["fpc_y"], "d": ct["pad_d"]}],
+        "note": "Federkontakte (<=1.2 mm) auf PCB-Unterseite; Deckelpads (z 5.55..7.6) halten die Platine nieder (Vorspannung).",
+    }
+    cut_mt = None
+    if mot_end + 0.2 > pcb_x0:
+        cut_mt = [pcb_x0 - 0.1, mot_end + 0.2, y_m - dr["motor_d"] / 2 - 0.2, pcb_y1 + 0.1]
+    cutouts = {
+        "magnet": [pcb_x0 - 0.1, hall_x - hl["pkg_x"] / 2 - 0.2, y_s - 1.4, y_s + 1.4],
+        "tower_notch": [pcb_x0 - 0.1, x_r1 + pc["notch_x"] + sp["boss_d"] / 2 - 0.6, pcb_y0 - 0.1, wall + pc["notch_y"] + 0.4],
+        "screw_c": [c_x - 1.4, c_x + 1.4, sc["c_y"] - 1.4, sc["c_y"] + 1.4],
+    }
+    if cut_mt:
+        cutouts["motor_tail"] = cut_mt
+
+    btn = p["button"]
+    strip_x0 = max(hall_x + 1.0, c_x + sc["boss_d"] / 2 + 0.4, pcb_x0 + 0.2, bat_x0 + ct["tab_dx"] + 0.6 + ct["pad_d"] / 2 + 0.3)
+    strip_x1 = pcb_x1 - 0.2
+    sw_w = btn["sw_x"] + 0.6
+    btn_x = strip_x1 - sw_w / 2
+    bz_x1 = btn_x - sw_w / 2 - 0.5
+    bz_x0 = max(strip_x0, bz_x1 - bz["x"])
+    bz_y0 = bz["y0"]
+    bz_y1 = rf_keep[2] - 0.0
+    bz_y1 = min(bz_y0 + bz["y"], mod_y0 - 0.2)          # unterhalb des RF-Moduls
+    buzzer = {"x0": bz_x0, "x1": bz_x1, "y0": bz_y0, "y1": bz_y1,
+              "fits_9x9": (bz_x1 - bz_x0) >= bz["x"] - 1e-9 and (bz_y1 - bz_y0) >= bz["y"] - 1e-9,
+              "z0": pcb_z0 + pc["t"], "z1": pcb_z0 + pc["t"] + bz["z"]}
+    btn_pos = {"x": btn_x, "y": bz_y0 + (bz_y1 - bz_y0) / 2}
+
+    return {
+        "variant": variant, "stroke": stroke, "length": length, "width": W,
+        "height": sh["height"], "wall": wall, "xi0": wall, "yi0": yi0, "yi1": yi1,
+        "x_end": x_end, "res_len": res_len, "res_h_out": res_h_out, "res_w_out": res_w_out,
+        "z_axis": z_axis, "x_r0": x_r0, "x_r1": x_r1, "x_in0": x_in0, "x_in1": x_in1,
+        "y_r0": y_r0, "y_r": y_r, "y_s": y_s, "y_m": y_m, "lin": lin,
+        "xrear": xrear, "xrear_full": xrear_full, "xrear_empty": xrear_empty,
+        "tower_x": tower_x, "x_p": x_p, "y_p": y_p, "x_n": x_n, "y_n": y_n, "z_tip": z_tip,
+        "pocket_h": pocket_h, "x_s": x_s, "z_top_inner": sh["height"] - wall,
+        "coil_cx": x_r1 + co["gap_x"] + co["d"] / 2, "coil_cy": yi0 + 0.2 + co["d"] / 2,
+        "bat_x": bat_x, "bat_x0": bat_x0, "bat_y0": bat_y0, "bat_y1": bat_y0 + bt["y"], "contacts": contacts,
+        "bat_vol_mm3": bat_x * bt["y"] * bt["t"],
+        "gear_x1": gear_x1, "gh_x": list(gh_x), "mo_x": list(mo_x), "mot_end": mot_end,
+        "far_bush": list(far_bush), "far_block": list(far_block), "dry_bush": list(dry_bush),
+        "screw_tip": screw_tip, "mag_x": list(mag_x), "hall": hall, "drv5032": drv,
+        "screws": screws, "c_x": c_x,
+        "pcb": {"x": [pcb_x0, pcb_x1], "y": [pcb_y0, pcb_y1], "z": [pcb_z0, pcb_z0 + pc["t"]], "cutouts": cutouts},
+        "rf_module": {"x": [mod_x0, mod_x1], "y": [mod_y0, mod_y1],
+                      "z": [pcb_z0 + pc["t"], pcb_z0 + pc["t"] + rf["module_z"]],
+                      "antenna_end": "+Y", "keepout_xy": rf_keep, "keepout_r": rf["keepout_r"]},
+        "buzzer": buzzer, "button": btn_pos,
+        "topside_height_under_coil": co["z0"] - (pcb_z0 + pc["t"]),
+        "coil": {"cx": x_r1 + co["gap_x"] + co["d"] / 2, "cy": yi0 + 0.2 + co["d"] / 2, "d": co["d"],
+                 "z": [co["z0"], co["z0"] + co["t"]]},
+        "drive": {"gh_ratio_nominal": dr["gh_ratio"], "u_per_step": u_per_step(p, dr["gh_ratio"])},
+    }
+
+
+def lap_dims(p: dict) -> dict:
+    return {k: p["shell"][k] for k in ("lap_low", "lap_high", "rim_inset", "lid_ring_inset")}

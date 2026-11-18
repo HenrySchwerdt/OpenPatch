@@ -1,0 +1,96 @@
+"""Kleiner Emitter für SolidCraft-Kommandoskripte (JSON-Liste von {command, params})."""
+from __future__ import annotations
+
+from typing import Iterable
+
+
+class Script:
+    def __init__(self) -> None:
+        self.cmds: list[dict] = []
+
+    def add(self, command: str, **params) -> None:
+        self.cmds.append({"command": command, "params": params})
+
+    def parameter(self, name: str, value: float, comment: str = "") -> None:
+        self.add("parameters.add", name=name, expression=repr(round(float(value), 6)), comment=comment)
+
+    # ---- Primitive -------------------------------------------------------------
+    def box(self, name: str, x: tuple[float, float], y: tuple[float, float], z: tuple[float, float]) -> str:
+        self.add("solid.box", length=x[1] - x[0], width=y[1] - y[0], height=z[1] - z[0],
+                 corner=[x[0], y[0], z[0]], body_name=name, name=name)
+        return name
+
+    def cyl(self, name: str, axis: str, c: tuple[float, float, float], d: float,
+            a0: float, a1: float) -> str:
+        """Zylinder entlang 'axis' von a0 bis a1; c = Mittelpunkt in den beiden anderen Achsen."""
+        base = {"X": [a0, c[1], c[2]], "Y": [c[0], a0, c[2]], "Z": [c[0], c[1], a0]}[axis]
+        self.add("solid.cylinder", diameter=d, height=a1 - a0, base=base, axis=axis,
+                 body_name=name, name=name)
+        return name
+
+    def tube(self, name: str, axis: str, c: tuple[float, float, float], d_out: float, d_in: float,
+             a0: float, a1: float) -> str:
+        self.cyl(name, axis, c, d_out, a0, a1)
+        self.cyl(f"t_{name}_bore", axis, c, d_in, a0 - 0.1, a1 + 0.1)
+        self.cut(name, [f"t_{name}_bore"])
+        return name
+
+    def rrect(self, name: str, x: tuple[float, float], y: tuple[float, float], r: float,
+              z: tuple[float, float]) -> str:
+        self.add("sketch.create", plane="XY", offset=z[0])
+        self.add("sketch.rectangle.rounded", p0=[x[0], y[0]], p1=[x[1], y[1]], radius=r)
+        self.add("sketch.finish")
+        self.add("solid.extrude", distance=z[1] - z[0], body_name=name, name=name)
+        return name
+
+    def stadium(self, name: str, x: tuple[float, float], yc: float, zc: float,
+                w: float, h: float) -> str:
+        """Langloch-Querschnitt (w in Y, h in Z), extrudiert entlang +X."""
+        half = (w - h) / 2
+        self.add("sketch.create", plane="YZ", offset=x[0])
+        self.add("sketch.slot.center_to_center", p0=[yc - half, zc], p1=[yc + half, zc], width=h)
+        self.add("sketch.finish")
+        self.add("solid.extrude", distance=x[1] - x[0], body_name=name, name=name)
+        return name
+
+    def stadium_ring(self, name: str, x: tuple[float, float], yc: float, zc: float,
+                     w_out: float, h_out: float, w_in: float, h_in: float) -> str:
+        self.stadium(name, x, yc, zc, w_out, h_out)
+        self.stadium(f"t_{name}_in", (x[0] - 0.1, x[1] + 0.1), yc, zc, w_in, h_in)
+        self.cut(name, [f"t_{name}_in"])
+        return name
+
+    def hexprism(self, name: str, x: tuple[float, float], yc: float, zc: float, apothem: float,
+                 angle: float = 0.0) -> str:
+        """Sechskant-Prisma entlang +X (Schlüsselweite = 2*apothem)."""
+        self.add("sketch.create", plane="YZ", offset=x[0])
+        self.add("sketch.polygon.circumscribed", center=[yc, zc], radius=apothem, sides=6, angle=angle)
+        self.add("sketch.finish")
+        self.add("solid.extrude", distance=x[1] - x[0], body_name=name, name=name)
+        return name
+
+    # ---- Booleans -----------------------------------------------------------------
+    def cut(self, target: str, tools: Iterable[str]) -> None:
+        self.add("solid.combine", target=target, tools=list(tools), operation="cut", name=f"cut {target}")
+
+    def join(self, target: str, tools: Iterable[str]) -> None:
+        self.add("solid.combine", target=target, tools=list(tools), operation="join", name=f"join {target}")
+
+    def fillet_chain(self, body: str, point: tuple[float, float, float], r: float) -> None:
+        self.add("solid.fillet", edges=[list(point)], radius=r, body=body, name=f"fillet {body}")
+
+    def move(self, bodies: list[str], t: tuple[float, float, float]) -> None:
+        self.add("solid.move", bodies=bodies, translate=list(t))
+
+    # ---- Export -------------------------------------------------------------------
+    def export_step(self, path: str, bodies: list[str] | None = None) -> None:
+        if bodies:
+            self.add("file.export_step", path=path, bodies=bodies)
+        else:
+            self.add("file.export_step", path=path)
+
+    def export_stl(self, path: str, bodies: list[str]) -> None:
+        self.add("file.export_stl", path=path, bodies=bodies, quality="fine")
+
+    def dumps(self) -> list[dict]:
+        return self.cmds

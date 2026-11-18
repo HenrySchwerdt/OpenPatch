@@ -1,0 +1,1124 @@
+ISP1807
+Data Sheet
+
+
+Built-in Antenna Low Energy Module
+BT 5 Long Range, Zigbee, Thread, Matter, ANT+
+
+
+    This ultra-small LGA module, 8 x 8 x 1 mm, is based on the
+    nRF52840 Chip. Its powerful Cortex™ M4 CPU, flash and RAM
+    memory combined with an optimized antenna offers the
+    perfect solution for Bluetooth connectivity. The solution is
+    best in class for RF performance and low power
+    consumption. Long range and multiple digital and analogue
+    interfaces give optimum flexibility for sensor integration.
+
+
+
+Key Features                                                 Applications
+
+▪ 2.4GHz Ultra Low Power RF Transceiver                      ▪ Advanced Wearables: watches, fitness
+▪ Full Bluetooth 5 – long range stack                          devices, wireless payment wearables,
+  ANT/ANT+ stack                                               connected health, augmented reality
+  2.4 GHz proprietary stack                                    applications …
+▪ BT Mesh, Zigbee, Thread, Matter                            ▪ Smart Home sensors and controllers
+  stacks available                                           ▪ Industrial IoT sensors and controllers
+▪ NFC-A Tag for OOB pairing                                  ▪ Advanced remote controls
+▪ PSA Certified Level 1                                      ▪ Remote &Gaming controllers
+▪ Fully integrated RF matching and Antenna                   ▪ Beacons
+▪ Integrated 32 MHz& 32kHZ Clock
+▪ DC/DC converter with loading circuit
+▪ Based on Nordic Semiconductor nRF52
+                                                             Certifications
+▪ 32-bit ARM Cortex M4F CPU
+▪ ARM CryptoCell 310                                         ▪ Bluetooth SIG certified
+▪ 1 MB Flash / 256 kB SRAM                                   ▪ CE certified
+▪ Configurable 46 GPIOs including 8 ADC                      ▪ FCC, IC certified
+▪ Many interfaces USB, SPI, UART, PDM, I2C                   ▪ TELEC, KCC certified
+▪ Power supply 1.7 to 3.6V, USB supply 5V                    ▪ RoHS and Reach compliant
+▪ Very small size 8.0 x 8.0 x 1.0 mm                         ▪ Conflict Mineral Declaration
+▪ Temperature -40 to +85 °C                                  ▪ Cyber Resilience Act Declaration
+▪ Pin to Pin compatible with ISP1507
+
+
+
+                                 The information contained in this document is the                 Document reference
+      www.insightsip.com         property of Insight SiP and should not be disclosed          isp_ble_DS1807_R19.docx
+                                 to any third party without written permission.
+                                 Specification subject to change without notice.                            Page 1/26
+ISP1807
+Data Sheet
+
+
+
+Revision History
+
+ Revision        Date            Ref                       Change Description
+ R0              23/11/2017      cr pg                     Preliminary release
+ R1              12/12/2017      cr pg                     Engineering samples release
+                                                           Section 5.2 – FW tool correction and update
+ R2              20/04/2018      cr pg
+                                                           Section 6.5 – Extension name change
+ R3              22/08/2018      cr pg                     Section 3 – Typo error correction
+ R4              12/12/2018      cr pg                     Section 2.9 – Schematic updated
+ R5              18/02/2019      cr pg                     Definitive release
+                                                           Correction VCC / VCCH
+ R6              14/03/2019      cr pg
+                                                           No High-Power Mode availability
+ R7              06/06/2019      mm pg                     Change to MSL3
+                                                           Section 4.1 – Mechanical dimension precision
+ R8              08/11/2019      mm pg
+                                                           Section 8 – Certification list update
+                                                           Section 4.2 – Assembly guideline precisions
+ R9              17/04/2020      cb pg
+                                                           Section 8 – Certification list update
+ R10             03/05/2021      vn pg                     Section 8 – Certification list update
+ R11             29/04/2022      pd pg                     Document layout update
+ R12             09/11/2022      ys pg                     Section 2.2 – Absolute Maximum Ratings
+ R13             30/11/2022      er pg                     Certifications update & Matter Compliance
+ R14             12/04/2023      mm pg                     Packaging information update
+ R15             24/08/2023      er pg                     Typo corrections
+ R16             30/08/2023      er pg                     Certifications update
+ R17             14/03/2024      pg pg                     Certifications update
+ R18             20/03/2025      pg pg                     Certifications update
+                                                           Moisture sensitivity recommendation update, Tape
+ R19             15/07/2025      bh pg                     and Reel update to indicate feed direction of the reel
+                                                           and position of modules within the reel
+
+
+
+
+                               The information contained in this document is the                       Document reference
+                              property of Insight SiP and should not be disclosed to               isp_ble_DS1807_R19.docx
+       www.insightsip.com         any third party without written permission.
+                                Specification subject to change without notice.                                  Page 2/26
+ISP1807
+Data Sheet
+
+
+
+Contents
+
+1.     Block Diagram.................................................................................................................................................................. 4
+2.     Specifications................................................................................................................................................................... 5
+2.1.   Important Notice ................................................................................................................................................. 5
+2.2.   Absolute Maximum Ratings ................................................................................................................................ 5
+2.3.   Operating Conditions .......................................................................................................................................... 5
+2.4.   Power Consumption ........................................................................................................................................... 6
+2.5.   Clock Sources .................................................................................................................................................... 6
+2.6.   Radio Specifications ........................................................................................................................................... 6
+2.7.   Range Measurement .......................................................................................................................................... 7
+2.8.   Antenna Performance......................................................................................................................................... 7
+2.9.   Electrical Schematic ........................................................................................................................................... 9
+3.     Pin Description ..............................................................................................................................................................10
+4.     Mechanical Outlines......................................................................................................................................................13
+4.1.   Mechanical Dimensions .................................................................................................................................... 13
+4.2.   SMT Assembly Guidelines ............................................................................................................................... 13
+4.3.   Antenna Keep-Out Zone................................................................................................................................... 14
+5.     Product Development Tools ........................................................................................................................................15
+5.1.   Hardware .......................................................................................................................................................... 15
+5.2.   Firmware ........................................................................................................................................................... 15
+5.3.   Development Tools ........................................................................................................................................... 16
+6.     Packaging & Ordering information ............................................................................................................................17
+6.1.   Module Marking ................................................................................................................................................ 17
+6.2.   Package Labelling ............................................................................................................................................ 17
+6.3.   Prototype Packaging ........................................................................................................................................ 18
+6.4.   Jedec Trays ...................................................................................................................................................... 18
+6.5.   Tape and Reel .................................................................................................................................................. 19
+6.6.   Ordering Information ......................................................................................................................................... 21
+7.     Storage & Soldering information ................................................................................................................................22
+7.1.   Storage and Handling ....................................................................................................................................... 22
+7.2.   Moisture Sensitivity ........................................................................................................................................... 22
+7.3.   Soldering information ........................................................................................................................................ 23
+8.     Quality & User information ..........................................................................................................................................24
+8.1.   Certifications ..................................................................................................................................................... 24
+8.2.   EC – CE Certification ........................................................................................................................................ 24
+8.3.   USA – User information .................................................................................................................................... 24
+8.4.   Canada – User information............................................................................................................................... 25
+8.5.   RF Exposure Information.................................................................................................................................. 25
+8.6.   Informations concernant l'exposition aux fréquences radio (RF) ..................................................................... 25
+8.7.   Discontinuity ..................................................................................................................................................... 26
+8.8.   Disclaimer ......................................................................................................................................................... 26
+
+
+
+
+                                                          The information contained in this document is the                                                    Document reference
+                                                         property of Insight SiP and should not be disclosed to                                         isp_ble_DS1807_R19.docx
+         www.insightsip.com                                  any third party without written permission.
+                                                           Specification subject to change without notice.                                                                   Page 3/26
+ISP1807
+Data Sheet
+
+
+
+1.    Block Diagram
+
+This module is based on nRF52840 Nordic Semiconductor 2.4GHz wireless System on Chip (SoC)
+integrating a 2.4 GHz transceiver, an ARM ®Cortex® -M4 32-bit processor with 64 MHz FPU,
+a 1 MB flash memory, a 256 kB RAM and analog and digital peripherals. It can support BLE, ANT/ANT+
+and a range of proprietary 2.4 GHz protocols, such as Gazell from Nordic Semiconductor.
+
+The Cyber Resilience Act (CRA) is embodied in the EU regulation 2024/2847. ISP1807 rely on
+microprocessors that have been designed with Platform Security Architecture (PSA) certification in mind.
+It is certified to PSA Level 1. This level of platform security reduces the risks of vulnerabilities occurring.
+
+Fully qualified BLE stacks for nRF52840 are implemented in the S140 SoftDevices which can be freely
+downloaded. ISP1807 can then be used in Bluetooth Central, Peripheral, Observer or Broadcaster role
+with up to 20 connections and for both ends of other proprietary protocols. nRF52840 platform also
+provides extensive software support for ANT, ZIGBEE and THREAD applications.
+
+Ultra-low power consumption and advanced power management enables battery lifetimes up to several
+years on a coin cell battery. Even though its very small size 8 x 8 x 1.0 mm, the module integrates
+decoupling capacitors, 32 MHz and 32.768 kHz crystals, load capacitors, DC-DC converter, RF matching
+circuit and antenna in addition to the wireless SoC.
+
+Only the addition of a suitable DC power source is necessary for BLE / ANT / ZIGBEE / THREAD
+connectivity. Sensor applications require the further addition of appropriate sensors. The antenna was
+designed to be optimized with several standard ground plane sizes. The NFC tag antenna can be
+connected externally.
+
+
+
+
+                                    The information contained in this document is the           Document reference
+                                   property of Insight SiP and should not be disclosed to   isp_ble_DS1807_R19.docx
+       www.insightsip.com              any third party without written permission.
+                                     Specification subject to change without notice.                      Page 4/26
+ISP1807
+Data Sheet
+
+
+
+2.   Specifications
+
+2.1. Important Notice
+
+The electrical specifications of the module are directly related to the Nordic Semiconductor specifications
+for the nRF52840 chipset. Bellow information is only a summary of the main parameters. For more detailed
+information, especially about current consumption, please refer to the up-to-date specification of the
+chipset available on Nordic Semi website.
+
+2.2. Absolute Maximum Ratings
+
+ Parameter                                                              Min                Typ   Max             Unit
+ Main Supply Voltage respect to ground – VCC_nRF                        -0.3                      3.9             V
+ USB Supply Voltage respect to ground – VBUS                            -0.3                      5.8             V
+ IO Pin Voltage                                                         -0.3                      3.9             V
+ RF Input Level                                                                                   10             dBm
+ NFC Antenna pin current                                                                          80             mA
+ Module Total Capacity                                                                            7.6             µF
+ Module Total Inductance                                                                          13              µH
+ Storage Temperature                                                     -40                     +125             °C
+ Moisture Sensitivity Level                                                                        3               -
+ ESD Human Body Model                                                                            2000             V
+ ESD Charged Device Model                                                                        500              V
+ Flash Endurance                                                                                 10000          cycles
+
+
+
+                                                              ATTENTION
+                                                CONSERVE PRECAUTIONFOR HANDLING
+                                                 ELECTROSTATIC SENSITIVE DEVICES
+                                                     Human Body Model Class 3A
+
+
+
+
+2.3. Operating Conditions
+
+ Parameter                                                              Min                Typ   Max             Unit
+ VCC_nRF Supply Voltage, independent of DCDC enable                      1.7               3.0    3.6             V
+ VBUS Supply Voltage                                                    4.35               5.0    5.5             V
+ Extended Industrial Operating Temperature Range                         -40               +25   +85              °C
+
+
+                                   The information contained in this document is the                     Document reference
+                                  property of Insight SiP and should not be disclosed to           isp_ble_DS1807_R19.docx
+       www.insightsip.com             any third party without written permission.
+                                    Specification subject to change without notice.                               Page 5/26
+ISP1807
+Data Sheet
+
+
+
+2.4. Power Consumption
+
+  Parameter                                                                        Min                Typ     Max              Unit
+  Peak Current, Transmitter +8 dBm, VCC 3V + DCDC                                                     16.4                     mA
+  Peak Current, Transmitter 0 dBm, VCC 3V + DCDC                                                      6.4                      mA
+  Peak Current, Receiver 1 Mbps, VCC 3V + DCDC                                                        6.26                     mA
+  System OFF, no RAM retention                                                                        0.4                       µA
+  System ON, no RAM retention, wake on RTC                                                            1.5                       µA
+  Additional RAM retention current per 4 KB block                                                     30       N                nA
+
+
+2.5. Clock Sources
+
+  Parameter                                                                        Min                Typ     Max              Unit
+  Internal High Frequency Clock for RF Stability:
+                                                                                                             +/- 40            ppm
+  32 MHz Crystal Frequency Tolerance (1)
+  Internal Low Frequency Clock for BLE Synchronization:
+                                                                                                             +/- 40            ppm
+  32.768 kHz Crystal Frequency Tolerance (1)
+  Internal Low Frequency Clock for BLE Synchronization:
+                                                                                                             +/- 250           ppm
+  RC Oscillator (2)
+
+  RF Frequency Tolerance for BLE Operation                                                                   +/- 40            ppm
+
+(1)   including initial tolerance, drift, aging, and frequency pulling
+(2)   Frequency tolerance after calibration
+
+
+2.6. Radio Specifications
+
+  Parameter                                                                        Min                Typ     Max              Unit
+ Frequency Range                                                                  2402                        2480             Mhz
+ Maximum Output Power                                                                                 +8      +8.5             dBm
+ Rx Sensitivity Level, BLE1 Mbps                                                                      -95                      dBm
+ Rx Sensitivity Level, BLE Long Range 125 kbps                                                        -103                     dBm
+ Antenna Gain                                                                                         0.6                      dBi
+ EIRP                                                                             -19.4                       8.6              dBm
+ Data Rate                                                                         125                        2000             kbps
+
+
+
+
+                                              The information contained in this document is the                        Document reference
+                                             property of Insight SiP and should not be disclosed to             isp_ble_DS1807_R19.docx
+         www.insightsip.com                      any third party without written permission.
+                                               Specification subject to change without notice.                                  Page 6/26
+ISP1807
+Data Sheet
+
+
+
+2.7. Range Measurement
+
+Range measurement between ISP1807-LR test board (configured as Central) and ISP1807-LR test
+board (configured as Peripheral).
+
+ Parameter                                                             Min                Typ   Max           Unit
+ Range Open field @1m height (0 dBm, 1 Mbps)                                              150                  m
+ Range Open field @1m height (0 dBm, 125 Kbps)                                            175                  m
+ Range Open field @1m height (8 dBm, 1 Mbps)                                              230                  m
+ Range Open field @1m height (8 dBm, 125 Kbps)                                            450                  m
+
+
+
+2.8. Antenna Performance
+
+Typical Antenna Return Loss
+
+
+
+
+Module mounted on a
+USB dongle ground plane
+
+
+
+
+Radiation Pattern in 3 planes
+
+
+
+Module mounted on a USB
+dongle ground plane
+
+Gain measurement
+in dBi in the BLE band
+from 2.4 to 2.5 GHz.
+
+
+
+
+                                  The information contained in this document is the                   Document reference
+                                 property of Insight SiP and should not be disclosed to          isp_ble_DS1807_R19.docx
+      www.insightsip.com             any third party without written permission.
+                                   Specification subject to change without notice.                             Page 7/26
+ISP1807
+Data Sheet
+
+
+
+Ground Plane Effect Simulation
+
+
+
+
+            USB dongle                          Cell phone config 1                       Cell phone config 1 with
+            ground plane                           ground plane                             side ground plane
+        (size: 18 x 30 mm²)                    (size: 40 x 100 mm²)                        (size: 40 x 100 mm²)
+
+
+
+
+             Cell phone config 2 with                                       Cell phone config 3 with
+               side ground plane                                              side ground plane
+              (size: 40 x 100 mm²)                                           (size: 40 x 100 mm²)
+
+
+
+
+                                  The information contained in this document is the                       Document reference
+                                 property of Insight SiP and should not be disclosed to               isp_ble_DS1807_R19.docx
+      www.insightsip.com             any third party without written permission.
+                                   Specification subject to change without notice.                                  Page 8/26
+ISP1807
+Data Sheet
+
+
+
+2.9. Electrical Schematic
+
+Electrical schematic showing
+ISP1807 module connections
+
+
+
+
+                                The information contained in this document is the           Document reference
+                               property of Insight SiP and should not be disclosed to   isp_ble_DS1807_R19.docx
+      www.insightsip.com           any third party without written permission.
+                                 Specification subject to change without notice.                      Page 9/26
+ISP1807
+Data Sheet
+
+
+
+3.    Pin Description
+
+The module uses an LGA format with a double row of pads on a 0.65 mm pitch. The pad layout follows
+the QFN Jedec standard for 2 row LGA parts. The NC pads are to be connected to isolated metal pads on
+the application PCB for mechanical stability and reliability (drop test).
+
+Pin      Name           Pin function              Description
+1        VSS            Ground                    Should be connected to ground plane on application PCB
+2        P0_09          Digital I/O               General purpose I/O pin
+         NFC1           NFC Input                 NFC antenna connection
+3        P0_12          Digital I/O               General purpose I/O pin
+         TRACEDATA1                               Trace port output
+4        P0_10          Digital I/O               General purpose I/O pin
+         NFC2           NFC Input                 NFC antenna connection
+5        P0_14          Digital I/O               General purpose I/O pin
+6        P0_26          Digital I/O               General purpose I/O pin
+7        VSS            Ground                    Should be connected to ground plane on application PCB
+8        D+             Digital I/O               USB D+
+9        P0_16          Digital I/O               General purpose I/O pin
+10       D-             Digital I/O               USB D-
+11       P0_21          Digital I/O               General purpose I/O pin
+12       VBUS           Power                     5V input for USB 3.3V regulator
+13       P0_18          Digital I/O               General purpose I/O pin
+         RESET                                    Configurable as system RESET pin
+14       VSS            Ground                    Should be connected to ground plane on application PCB
+15       P0_20          Digital I/O               General purpose I/O pin
+16       VSS            Ground                    Should be connected to ground plane on application PCB
+17       P0_22          Digital I/O               General purpose I/O pin
+18       VSS            Ground                    Should be connected to ground plane on application PCB
+19       P0_24          Digital I/O               General purpose I/O pin
+20       OUT_ANT        Antenna I/O               This pin is connected to the internal antenna
+                                                  It should be connected to Pin 22 OUT_MOD for normal operation
+21       VSS            Ground                    Should be connected to ground plane on application PCB
+22       OUT_MOD        Antenna I/O               This pin is the RF I/O pin of the BLE module
+                                                  It should be connected to Pin 20 OUT_ANT for normal operation
+23       VSS            Ground                    Should be connected to ground plane on application PCB
+24       VSS            Ground                    Should be connected to ground plane on application PCB
+25       VSS            Ground                    Should be connected to ground plane on application PCB
+26       VCC_nRF        Power                     Power supply (1.7 – 3.6V)
+27       P0_17          Digital I/O               General purpose I/O pin
+28       SWDIO          Digital I/O               Serial Wire Debug I/O for debug and programming
+29       P0_13          Digital I/O               General purpose I/O pin
+30       SWDCLK         Digital Input             Serial Wire Debug clock input for debug and programming
+31       VSS            Ground                    Should be connected to ground plane on application PCB
+32       P0_08          Digital I/O               General purpose I/O pin
+33       P0_07          Digital I/O               General purpose I/O pin
+         TRACECLK                                 Trace port clock output
+
+
+
+
+                                   The information contained in this document is the            Document reference
+                                  property of Insight SiP and should not be disclosed to    isp_ble_DS1807_R19.docx
+      www.insightsip.com              any third party without written permission.
+                                    Specification subject to change without notice.                      Page 10/26
+ISP1807
+Data Sheet
+
+
+
+Pin       Name         Pin function              Description
+34        P0_06        Digital I/O               General purpose I/O pin
+35        P0_04        Digital I/O               General purpose I/O pin
+          AIN2         Analog Input              SAADC/COMP/LPCOMP input
+36        P0_05        Digital I/O               General purpose I/O pin
+          AIN3         Analog Input              SAADC/COMP/LPCOMP input
+37        P0_15        Digital I/O               General purpose I/O pin
+38        P0_03        Digital I/O               General purpose I/O pin
+          AIN1         Analog Input              SAADC/COMP/LPCOMP input
+39        P0_27        Digital I/O               General purpose I/O pin
+40        P0_02        Digital I/O               General purpose I/O pin
+          AIN0         Analog Input              SAADC/COMP/LPCOMP input
+41        P0_25        Digital I/O               General purpose I/O pin
+42        P0_31        Digital I/O               General purpose I/O pin
+          AIN7         Analog Input              SAADC/COMP/LPCOMP input
+43        P0_11        Digital I/O               General purpose I/O pin
+          TRACEDATA2                             Trace port output
+44        P0_30        Digital I/O               General purpose I/O pin
+          AIN6         Analog Input              SAADC/COMP/LPCOMP input
+45        P0_19        Digital I/O               General purpose I/O pin
+46        P0_29        Digital I/O               General purpose I/O pin
+          AIN5         Analog Input              SAADC/COMP/LPCOMP input
+47        P0_23        Digital I/O               General purpose I/O pin
+48        P0_28        Digital I/O               General purpose I/O pin
+          AIN4         Analog Input              SAADC/COMP/LPCOMP input
+49        P1_02        Digital I/O               General purpose I/O pin
+50        P1_06        Digital I/O               General purpose I/O pin
+51        P1_15        Digital I/O               General purpose I/O pin
+52        P1_14        Digital I/O               General purpose I/O pin
+53        P1_13        Digital I/O               General purpose I/O pin
+54        P1_05        Digital I/O               General purpose I/O pin
+55        P1_08        Digital I/O               General purpose I/O pin
+56        P1_09        Digital I/O               General purpose I/O pin
+          TRACEDATA3                             Trace port output
+57        P1_00        Digital I/O               General purpose I/O pin
+          TRACEDATA0                             Trace port output
+58        P1_03        Digital I/O               General purpose I/O pin
+59        P1_12        Digital I/O               General purpose I/O pin
+60        P1_10        Digital I/O               General purpose I/O pin
+61        P1_11        Digital I/O               General purpose I/O pin
+62        P1_07        Digital I/O               General purpose I/O pin
+63        P1_04        Digital I/O               General purpose I/O pin
+64        P1_01        Digital I/O               General purpose I/O pin
+65        NC           Not Connected             Isolated pad on application PCB for mechanical stability
+to 78
+
+
+
+
+                                  The information contained in this document is the               Document reference
+                                 property of Insight SiP and should not be disclosed to       isp_ble_DS1807_R19.docx
+        www.insightsip.com           any third party without written permission.
+                                   Specification subject to change without notice.                          Page 11/26
+ISP1807
+Data Sheet
+
+
+
+                                                   ISP1807
+                                                   pad placement and pin assignment
+                                                   for the LGA QFN package
+
+                                                   TOP VIEW
+
+
+
+
+                          The information contained in this document is the           Document reference
+                         property of Insight SiP and should not be disclosed to   isp_ble_DS1807_R19.docx
+    www.insightsip.com       any third party without written permission.
+                           Specification subject to change without notice.                     Page 12/26
+ISP1807
+Data Sheet
+
+
+
+4.   Mechanical Outlines
+
+4.1. Mechanical Dimensions
+
+Dimensional drawing for 8 x 8 x 1 mm, 62-Pad LGA Package
+
+
+
+
+4.2. SMT Assembly Guidelines
+
+For PCB Land Patterns and Solder Mask layout, Insight SiP recommends using the same dimensions as
+module pads, ie 0.4 x 0.4 mm for standard pads and 0.8 x 0.8 mm for corner pads.
+
+For implementations in which most or all of the inner pads are used Insight SiP recommends the use of
+capped vias placed in the centre of each pad.
+
+For standard PCB types (no micro vias - all vias are top to bottom): we use nominal 0.4mm catch pads
+with 0.2mm vias. The vias should be plugged and capped to avoid solder wicking.
+
+For HDI PCB types having micro vias on a layer by layer basis: we use 0.25mm catch pads and 0.1mm
+copper filled laser vias. Ideally the via is centered in the pad.
+
+
+
+                                  The information contained in this document is the           Document reference
+                                 property of Insight SiP and should not be disclosed to   isp_ble_DS1807_R19.docx
+      www.insightsip.com             any third party without written permission.
+                                   Specification subject to change without notice.                     Page 13/26
+ISP1807
+Data Sheet
+
+
+
+For reduced pinout implementations we recommend using external pads only. The use of a small number
+of internal pads can be accommodated by placing normal vias in the centre of the device. In this case only
+the required pads should be Solder Mask opened and the vias tented with solder mask to prevent short
+circuits.
+
+Please contact Insight SiP for more detailed information.
+
+
+4.3. Antenna Keep-Out Zone
+
+For optimal antenna performance, it is recommended to respect a metal exclusion zone to the edge of the
+board:no metal, no traces and no components on any application PCB layer except mechanical LGA pads.
+
+
+
+
+                     Application PCB
+
+                                         1
+                                                                                           4.0
+                                                                                           mm
+
+
+                        Keep
+                        Out
+                        Zone
+                                               18.0 mm min
+
+
+
+
+                                   The information contained in this document is the             Document reference
+                                  property of Insight SiP and should not be disclosed to     isp_ble_DS1807_R19.docx
+       www.insightsip.com             any third party without written permission.
+                                    Specification subject to change without notice.                       Page 14/26
+ISP1807
+Data Sheet
+
+
+
+5.     Product Development Tools
+
+
+5.1. Hardware
+
+In order to assist clients in developing their Bluetooth Smart solutions based on the ISP1807, Insight SIP
+offers a Development Kit containing:
+-    One Interface Board
+-    J-Link Lite CortexM-9 JTAG/SWD Emulator
+-    One Test Board
+-    A Development Dongle
+-    5 ISP1807 module samples
+-    Cables, power supply and coin battery holder
+
+Using this development kit, product developers can use a working solution as starting point to develop
+their own products. Time to market is saved by avoiding starting from a blank sheet of paper. In addition,
+there may be some applications that use the hardware as is.
+
+Please refer to the documentation for more information:
+http://www.insightsip.com/fichiers_insightsip/pdf/ble/ISP1807/isp_ble_DS1807_DK.pdf
+
+
+5.2. Firmware
+
+ISP1807 supports Bluetooth Low Energy protocol stacks. It also provides extensive software support for
+ANT, ZIGBEE and THREAD applications as well as 2.4 GHz protocol stacks, including Gazell. All are
+available as downloads at www.nordicsemi.com.
+
+     The S140 SoftDevice is a Bluetooth low energy (BLE) Central and Peripheral protocol stack solution.
+     The S140 SoftDevice supports up to twenty connections with an additional observer and a broadcaster
+     role all running concurrently.
+
+     The S140 SoftDevice integrates a Bluetooth low energy Controller and Host, and provides a full and
+     flexible API for building Bluetooth low energy nRF52 System on Chip (SoC) solutions:
+
+     - Bluetooth 5.0 compliant low energy single-mode protocol stack suitable for Bluetooth low energy
+     products.
+     - Concurrent central, observer, peripheral, and broadcaster roles with up to 20 concurrent connections
+     along with one Observer and one Broadcaster.
+     - Link layer supporting LE 1M PHY and LE 2M PHY.
+     - LL Privacy.
+     - LE Data Packet Length Extension.
+     - LE Secure Connections pairing model
+
+
+
+
+                                     The information contained in this document is the           Document reference
+                                    property of Insight SiP and should not be disclosed to   isp_ble_DS1807_R19.docx
+         www.insightsip.com             any third party without written permission.
+                                      Specification subject to change without notice.                     Page 15/26
+ISP1807
+Data Sheet
+
+
+
+5.3. Development Tools
+
+The following development tools and software are recommended for using and testing ISP1807 module:
+
+  Nordic Semiconductor nRFgo Studio:
+  Downloadable after registering at www.nordicsemi.com.
+
+  Nordic Semiconductor Master Control Panel:
+  Downloadable after registering at www.nordicsemi.com.
+
+  Keil MDK-ARM Lite:
+  Downloadable from https://www.keil.com/demo/eval/arm.htm.
+
+  Segger J-Link Lite:
+  Downloadable from http://www.segger.com/jlink-software.html.
+
+  nRF52 Software Development Kit (SDK):
+  nRF52 SDK can be downloaded after registering at www.nordicsemi.com. It contains example of source
+  codes applications (C language):
+  - Precompiled HEX files
+  - Source code
+  - Keil ARM project files
+  - IAR project files
+
+
+
+
+                                 The information contained in this document is the           Document reference
+                                property of Insight SiP and should not be disclosed to   isp_ble_DS1807_R19.docx
+      www.insightsip.com            any third party without written permission.
+                                  Specification subject to change without notice.                     Page 16/26
+ISP1807
+Data Sheet
+
+
+
+6.    Packaging & Ordering information
+
+
+6.1. Module Marking
+
+
+M /N :      I   S P 1 8 0 7
+ T T       Y Y W W R             B B B B B B B B B B
+
+
+ ISP1807               Part Number
+ TT                    2 letters Module Type (see section 0)
+ YY                    2 digits Year Number Date Code
+ WW                    2 digits Week Number Date Code
+ R                     1 letter Hardware Revision
+ BBBBBBBBBB            10 characters Build Code
+
+Certification labels for CE, FCC, IC and Telec are printed directly on the module when applicable.
+
+
+6.2. Package Labelling
+
+
+A label indicating the Module Part Number,
+Quantity, Date Code, Lot Code and Country
+of Origin is applied to the bag, the reel and
+the box, whichever is applicable.
+
+Information is available with bar code 1D
+according to Code 39 and bar code 2D
+according to Data Matrix ECC 200 from
+ECIA standard.
+
+
+
+
+                                   The information contained in this document is the           Document reference
+                                  property of Insight SiP and should not be disclosed to   isp_ble_DS1807_R19.docx
+       www.insightsip.com             any third party without written permission.
+                                    Specification subject to change without notice.                     Page 17/26
+ISP1807
+Data Sheet
+
+
+
+A second label on the bag is present to
+indicate the MSL level and packaging date.
+
+
+
+
+6.3. Prototype Packaging
+
+For engineering samples and prototype quantities up to
+99 units, deliveries are provided in thermoformed trays.
+
+They are delivered in vacuumed sealed pack with desiccant pack
+and humidity sensors. Please see section 7.2 for more
+information on moisture sensitivity.
+
+Please order with “ST” code packaging suffix.
+
+
+6.4. Jedec Trays
+
+For pre-production volumes, ISP1807 are available in Jedec trays. They are delivered in vacuumed sealed
+pack with desiccant pack and humidity sensors. These Jedec trays are also suitable for further baking.
+Please see section 7.2 for more information on moisture sensitivity.
+
+Please order with “JT” code packaging suffix.
+
+Refer to tray sizes below. Complete information on Jedec trays is available on request.
+
+
+
+
+                                   The information contained in this document is the           Document reference
+                                  property of Insight SiP and should not be disclosed to   isp_ble_DS1807_R19.docx
+       www.insightsip.com             any third party without written permission.
+                                    Specification subject to change without notice.                     Page 18/26
+ISP1807
+Data Sheet
+
+
+
+
+6.5. Tape and Reel
+
+ISP1807 are also available in Tape & Reel. They are delivered in vacuumed sealed pack with desiccant
+pack and humidity sensors. Reels are proposed in standard quantities of 500 units (180mm / 7” reel).
+
+
+
+
+                                                          Feed direction
+
+
+
+
+                                 The information contained in this document is the           Document reference
+                                property of Insight SiP and should not be disclosed to   isp_ble_DS1807_R19.docx
+      www.insightsip.com            any third party without written permission.
+                                  Specification subject to change without notice.                     Page 19/26
+ISP1807
+Data Sheet
+
+
+
+                                                                                     Top view position of
+                                                                                     modules within the reel.
+
+
+
+
+Please order with    “RS”   code
+packaging suffix.
+
+Reels are packed in a box of
+approximately 220 x 220 x 50 mm.
+
+
+
+
+                             The information contained in this document is the                            Document reference
+                            property of Insight SiP and should not be disclosed to                   isp_ble_DS1807_R19.docx
+     www.insightsip.com         any third party without written permission.
+                              Specification subject to change without notice.                                     Page 20/26
+ISP1807
+Data Sheet
+
+
+
+6.6. Ordering Information
+
+
+ I S P 1 8 0 7 - T T - Z Z
+                 ▼ ▼   ▼ ▼
+                 ▼ ▼   ▼ ▼
+                 ▼ ▼   ▼ ▼
+ I S P 1 8 0 7                                       Part Number
+
+
+                       - L R                         Long range version
+
+
+                                 - E B               Evaluation Board(1)
+                                 - T B               Test board (1)
+                                 - S T               Standard Tray or Cut Tape
+                                 -   J T             Jedec Tray Packaging
+                                 - R S               Reel of 500 units
+
+
+(1) Please see section 5.1 and refer to the following documentation for more information on development
+    kit and test board:
+    http://www.insightsip.com/fichiers_insightsip/pdf/ble/ISP1807/isp_ble_DS1807_DK.pdf
+    http://www.insightsip.com/fichiers_insightsip/pdf/ble/ISP1807/isp_ble_AN201101.pdf
+
+
+
+
+                                  The information contained in this document is the           Document reference
+                                 property of Insight SiP and should not be disclosed to   isp_ble_DS1807_R19.docx
+      www.insightsip.com             any third party without written permission.
+                                   Specification subject to change without notice.                     Page 21/26
+ISP1807
+Data Sheet
+
+
+
+7.     Storage & Soldering information
+
+7.1. Storage and Handling
+
+     Keep this product away from other high frequency devices which may interfere with operation such as
+     other transmitters and devices generating high frequencies.
+
+     Do not expose the module to the following conditions:
+     - Corrosive gasses such as Cl2, H2S, NH3, SO2, or NOX
+     - Extreme humidity or salty air
+     - Prolonged exposure to direct Sunlight
+     - Temperatures beyond those specified for storage
+
+     Do not apply mechanical stress
+
+     Do not drop or shock the module
+
+     Avoid static electricity, ESD and high voltage as these may damage the module
+
+
+                                                               ATTENTION
+                                                 CONSERVE PRECAUTIONFOR HANDLING
+                                                  ELECTROSTATIC SENSITIVE DEVICES
+
+
+
+
+7.2. Moisture Sensitivity
+
+ISP1807 has been tested MSL-3 according to standards.
+
+
+All plastic packages absorb moisture. During typical solder reflow operations when SMDs are mounted
+onto a PCB, the entire PCB and device population are exposed to a rapid change in ambient temperature.
+Any absorbed moisture is quickly turned into superheated steam. This sudden change in vapor pressure
+can cause the package to swell. If the pressure exerted exceeds the flexural strength of the plastic mold
+compound, then it is possible to crack the package. Even if the package does not crack, interfacial
+delamination can occur.
+
+To prevent such failures, baking is mandatory before assembly under the following conditions (per JEDEC
+standards J-STD-033 and J-STD-020):
+
+•    The vacuum-sealed moisture barrier bag has been stored for more than 12 months from the date of
+     sealing.
+•    The moisture barrier bag seems to be damaged or the humidity indicator card shows humidity levels
+     above the acceptable threshold.
+•    The bag has been opened, and the components have been exposed to ambient conditions
+     (approximately <=30°C/60% RH) for more than 168 hours.
+
+                                    The information contained in this document is the           Document reference
+                                   property of Insight SiP and should not be disclosed to   isp_ble_DS1807_R19.docx
+         www.insightsip.com            any third party without written permission.
+                                     Specification subject to change without notice.                     Page 22/26
+ISP1807
+Data Sheet
+
+
+
+In case one the above condition is true, please follow the baking instructions below before assembly:
+
+•     remove the modules from the reels, place them in trays or plates capable of withstand elevated
+      temperatures
+•     Bake them at 125°C for 24 hours (Minimum required bake time for MSL3 components with 1 mm
+      thickness before assembling is 8 hours according to JEDEC J-STD-033D in table 4-1)
+
+After baking, modules can be handled at room conditions (approximately <=30°C/60% RH) for up to 168
+hours before assembly.
+
+
+                                                        CAUTION
+                                                      MOISTURE
+                                                   SENSITIVE DEVICES
+
+
+
+
+7.3. Soldering information
+
+Recommendation for RoHS reflow process is according to Jedec J–STD-020 and 033 standard profiles.
+
+
+
+
+    Preheat/Soak                                                                                                260°C
+                                                                     Peak package body temperature (Tp)
+    Temperature Min (Tsmin)                   150 °C                                                          (+0/-5°C)
+    Temperature Max (Tsmax)                   200 °C                 Classification Temperature (Tc)           260 °C
+    Time (ts) from (Tsmin to Tsmax)         60-120 sec               Time (tp) maintained above TC-5 °C        30 sec
+    Ramp-up rate (TL to Tp)                3 °C/sec max              Ramp-down rate (Tp to TL)              6 °C/sec max
+    Liquidous temperature (TL)                217 °C
+                                                                     Time 25 °C to peak temperature           8 mn max
+    Time (tL) maintained above TL           60-150 sec
+
+
+
+
+                                       The information contained in this document is the                  Document reference
+                                      property of Insight SiP and should not be disclosed to          isp_ble_DS1807_R19.docx
+          www.insightsip.com              any third party without written permission.
+                                        Specification subject to change without notice.                            Page 23/26
+ISP1807
+Data Sheet
+
+
+
+8.      Quality & User information
+
+8.1. Certifications
+
+All below certificates can be downloaded on the website:
+
+     Brazil: Certification ANATEL N° 04057-23-14043
+     Canada: IC Certification n° 11306A-ISP1807
+     CE: CE Certified, DoC Insight SiP Ref TR211203
+     China: CMITID Certification N°2022DJ13685
+     Japan: TELEC Certified, n° 020-200037
+     South Korea: KCC Certification n° R-C-iNs-ISP1807
+     Taiwan: NCC Certification N° CCAJ23Y10060T5
+     USA: FCC Certification n° 2AAQS-ISP1807
+
+     Bluetooth SIG Declaration ID n° D046560
+
+     RoHS3 compliant
+     Reach compliant
+     Minerals responsible initiative
+
+
+To support customers in their application certification, Insight SiP can provide test reports on request.
+
+
+8.2. EC – CE Certification
+
+This device can be operated in at least one Member State without infringing applicable requirements on
+the use of radio spectrum.
+
+
+8.3. USA – User information
+
+This intends to inform how to specify the FCC ID of our module “ISP1807” on the product. Based on the
+Public Notice from FCC, the host device should have a label which indicates that it contains our module.
+The label should use below example wording or any similar wording that expresses the same meaning:
+
+                                       “Contains FCC ID: 2AAQS-ISP1807”
+
+The label of the host device should also include the below FCC Statement. When it is not possible, this
+information should be included in the User Manual of the host device:
+
+
+
+
+                                        The information contained in this document is the           Document reference
+                                       property of Insight SiP and should not be disclosed to   isp_ble_DS1807_R19.docx
+         www.insightsip.com                any third party without written permission.
+                                         Specification subject to change without notice.                     Page 24/26
+ISP1807
+Data Sheet
+
+
+
+      “This device complies with part 15 of the FCC rules. Operation is subject to the following two
+      conditions.
+      (1) This device may not cause harmful interference
+      (2) This device must accept any interference received, including interference that may cause
+      undesired operation.
+      Caution: Any Changes or modifications not expressly approved by the party responsible for
+      compliance could void the user’s authority to operate the equipment.”
+
+
+8.4. Canada – User information
+
+This intends to inform how to specify the IC ID of our module “ISP1807” on the product. According to
+Canadian standards “RSS-210” and “RSS-Gen”, the host device should have a label which indicates that
+it contains our module. The label should use below example wording or any similar wording that expresses
+the same meaning:
+
+                                       “Contains IC: 11306A-ISP1807”
+
+The label of the host device should also include the below IC Statement. When it is not possible, this
+information should be included in the User Manual of the host device:
+
+      “This device complies with Industry Canada license-exempt RSS standard(s). Operation is
+      subject to the following two conditions: (1) this device may not cause interference, and (2) this
+      device must accept any interference, including interference that may cause undesired
+      operation of the device.
+
+      Le présent appareil est conforme aux CNR d'Industrie Canada applicables aux appareils radio
+      exempts de licence. L'exploitation est autorisée aux deux conditions suivantes : (1) l'appareil
+      ne doit pas produire de brouillage, et (2) l'utilisateur de l'appareil doit accepter tout brouillage
+      radioélectrique subi, même si le brouillage est susceptible d'en compromettre le
+      fonctionnement.”
+
+
+8.5. RF Exposure Information
+
+This equipment complies with FCC/IC radiation exposure limits set forth for an uncontrolled environment
+and meets the FCC radio frequency (RF)Exposure Guidelines in Supplement C toOET65 and RSS-102 of
+the IC radio frequency (RF) Exposure rules. This equipment has very low levels of RF energy that it
+deemed to comply without maximum permissive exposure evaluation (MPE).
+
+
+8.6. Informations concernant l'exposition aux fréquences radio (RF)
+
+La puissance de sortie émise par l’appareil de sans-fil est inférieure à la limite d'exposition aux fréquences
+radio d'Industry Canada (IC). Ce module a également été évalué et démontré conforme aux limites
+d'exposition aux RF d'IC dans des conditions d'exposition à des appareils mobiles et/ou portables.
+
+
+                                     The information contained in this document is the           Document reference
+                                    property of Insight SiP and should not be disclosed to   isp_ble_DS1807_R19.docx
+       www.insightsip.com               any third party without written permission.
+                                      Specification subject to change without notice.                     Page 25/26
+ISP1807
+Data Sheet
+
+
+
+8.7. Discontinuity
+
+Normally a product will continue to be manufactured as long as all of the following are true:
+- The manufacturing method is still available.
+- There are no replacement products.
+- There is demand for it in the market.
+
+In case of obsolescence, Insight SiP will follow Jedec Standard JSD-48. A Product Discontinuation Notice
+(PDN) will be sent to all distributors and made available on our website. After this, the procedure goes as
+follows:
+- Last Order Date will be 6 months after the PDN was published.
+- Last Shipment Date will be 6 months after Last Order Date, i.e. 12 months after PDN.
+
+
+8.8. Disclaimer
+
+Insight SiP’s products are designed and manufactured for general consumer applications, so testing and
+use of the product shall be conducted at customer’s own risk and responsibility. Please conduct validation
+and verification and sufficient reliability evaluation of the products in actual condition of mounting and
+operating environment before commercial shipment of the equipment. Please also pay attention (i) to apply
+soldering method that don’t deteriorate reliability, (ii) to minimize any mechanical vibration, shock,
+exposure to any static electricity, (iii) not to overstress the product during and after the soldering process.
+
+The products are not designed for use in any application which requires especially high reliability where
+malfunction of these products can reasonably be expected to result in personal injury or damage to the
+third party's life, body or property, including and not limited to (i) aircraft equipment, (ii) aerospace
+equipment, (iii) undersea equipment, (iv) power plant control equipment, (v) medical equipment,
+(vi) transportation equipment, (vii) traffic signal equipment, (viii) disaster prevention / crime prevention
+equipment.
+
+The only warranty that Insight SiP provides regarding the products is its conformance to specifications
+provided in datasheets. Insight SiP hereby disclaims all other warranties regarding the products, express
+or implied, including without limitation any warranty of fitness for a particular purpose, that they are defect-
+free, or against infringement of intellectual property rights. Insight SiP customers agree to indemnify and
+defend Insight SiP against all claims, damages, costs and expenses that may be incurred, including without
+any limitation, attorney fees and costs, due to the use of products.
+
+
+
+
+                                     The information contained in this document is the           Document reference
+                                    property of Insight SiP and should not be disclosed to   isp_ble_DS1807_R19.docx
+       www.insightsip.com               any third party without written permission.
+                                      Specification subject to change without notice.                     Page 26/26
+

@@ -1,0 +1,53 @@
+/*
+ * SPDX-License-Identifier: Apache-2.0
+ * Peripheral pin routing for OpenPatch Rev A. Source of truth: electronics/pin-assignment.md
+ * (ISP1807 module pad -> nRF52840 port.pin). Plain GPIOs live in openpatch_reva_nrf52840.dts.
+ */
+
+&pinctrl {
+	/* I2C: BQ25120A (0x6A), TMAG5273 (0x35); 4.7k pull-ups are on the board */
+	i2c0_default: i2c0_default {
+		group1 {
+			psels = <NRF_PSEL(TWIM_SDA, 0, 26)>,
+				<NRF_PSEL(TWIM_SCL, 0, 27)>;
+		};
+	};
+
+	i2c0_sleep: i2c0_sleep {
+		group1 {
+			psels = <NRF_PSEL(TWIM_SDA, 0, 26)>,
+				<NRF_PSEL(TWIM_SCL, 0, 27)>;
+			low-power-enable;
+		};
+	};
+
+	/* BUZ_PWM -> gate of Q1 (piezo driver) */
+	pwm0_default: pwm0_default {
+		group1 {
+			psels = <NRF_PSEL(PWM_OUT0, 0, 23)>;
+		};
+	};
+
+	pwm0_sleep: pwm0_sleep {
+		group1 {
+			psels = <NRF_PSEL(PWM_OUT0, 0, 23)>;
+			low-power-enable;
+		};
+	};
+
+	/* HALL_A / HALL_B: 2x DRV5032 push-pull outputs, counted by QDEC independent of the CPU */
+	qdec_default: qdec_default {
+		group1 {
+			psels = <NRF_PSEL(QDEC_A, 1, 2)>,
+				<NRF_PSEL(QDEC_B, 1, 6)>;
+		};
+	};
+
+	qdec_sleep: qdec_sleep {
+		group1 {
+			psels = <NRF_PSEL(QDEC_A, 1, 2)>,
+				<NRF_PSEL(QDEC_B, 1, 6)>;
+			low-power-enable;
+		};
+	};
+};

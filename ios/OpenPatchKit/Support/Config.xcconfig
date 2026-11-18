@@ -1,0 +1,5 @@
+// Signing team for the OpenPatch frameworks. Trio's ConfigOverride.xcconfig (one or two levels up when this
+// project lives in a Trio checkout as OpenPatchKit/) provides DEVELOPER_TEAM; otherwise pick a team in Xcode.
+#include? "../../ConfigOverride.xcconfig"
+#include? "../../../ConfigOverride.xcconfig"
+DEVELOPMENT_TEAM = $(DEVELOPER_TEAM)
