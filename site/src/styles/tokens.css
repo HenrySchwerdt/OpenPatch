@@ -1,86 +1,58 @@
-/* Design tokens – Swiss/industrial, ein Signalton */
-:root {
-  --font-sans: 'Inter Tight Variable', 'Inter Tight', 'Helvetica Neue', Arial, system-ui, sans-serif;
-  --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
-
-  /* Typo-Skala */
-  --text-xs: 0.6875rem;
-  --text-sm: 0.8125rem;
-  --text-base: clamp(1rem, 0.96rem + 0.2vw, 1.0625rem);
-  --text-lg: clamp(1.125rem, 1.05rem + 0.4vw, 1.375rem);
-  --text-h3: clamp(1.25rem, 1.1rem + 0.7vw, 1.75rem);
-  --text-h2: clamp(2.5rem, 1.2rem + 6.2vw, 6.5rem);
-  --text-hero: clamp(3.4rem, 1rem + 11vw, 9.5rem);
-  --text-stat: clamp(2.25rem, 1.6rem + 2.6vw, 3.75rem);
-
-  /* Raum */
-  --gutter: clamp(1rem, 0.5rem + 2.4vw, 2.5rem);
-  --space-1: 0.25rem;
-  --space-2: 0.5rem;
-  --space-3: 0.75rem;
-  --space-4: 1rem;
-  --space-5: 1.5rem;
-  --space-6: 2.5rem;
-  --space-7: 4rem;
-  --space-section: clamp(4.5rem, 3rem + 7vw, 10rem);
-  --max: 1440px;
-
-  /* Form */
-  --radius-s: 4px;
-  --radius-m: 10px;
-  --radius-pill: 999px;
-
-  /* Bewegung */
-  --duration-fast: 150ms;
-  --duration-normal: 320ms;
-  --duration-slow: 700ms;
-  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
-
-  /* Farben – hell (Standard) */
-  --paper: oklch(96.4% 0.007 85);
-  --paper-2: oklch(92.6% 0.009 85);
-  --ink: oklch(18% 0.012 60);
-  --muted: oklch(44% 0.012 70);
-  --line: oklch(84% 0.009 80);
-  --line-strong: oklch(68% 0.012 75);
-  --signal: oklch(67% 0.218 38);
-  --signal-ink: oklch(52% 0.2 35);
-  --signal-wash: oklch(91% 0.06 50);
-  --on-signal: oklch(14% 0.02 40);
-  --focus: oklch(52% 0.2 35);
-
-  /* Invertierte Fläche (Sicherheitsabschnitt) */
-  --inv-paper: oklch(15.5% 0.01 60);
-  --inv-paper-2: oklch(20.5% 0.012 58);
-  --inv-ink: oklch(95% 0.006 85);
-  --inv-muted: oklch(72% 0.01 80);
-  --inv-line: oklch(33% 0.012 65);
-  --inv-line-strong: oklch(48% 0.014 65);
-  --inv-signal-ink: oklch(74% 0.19 45);
-  --inv-signal-wash: oklch(30% 0.06 40);
-
-  --stage-grid: oklch(18% 0.012 60 / 0.07);
-  color-scheme: light;
+@font-face {
+  font-family: 'Inter';
+  src: url('/fonts/inter-opsz.woff2') format('woff2');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
 }
 
-:root[data-theme='dark'] {
-  --paper: oklch(14.5% 0.008 60);
-  --paper-2: oklch(19% 0.01 58);
-  --ink: oklch(95% 0.006 85);
-  --muted: oklch(72% 0.01 80);
-  --line: oklch(29% 0.01 65);
-  --line-strong: oklch(46% 0.013 65);
-  --signal: oklch(72% 0.2 45);
-  --signal-ink: oklch(76% 0.18 48);
-  --signal-wash: oklch(28% 0.06 40);
-  --on-signal: oklch(14% 0.02 40);
-  --focus: oklch(78% 0.17 50);
+:root {
+  /* Surfaces: three tones that alternate down the page */
+  --bg-light: #ffffff;
+  --bg-gray: #f5f5f7;
+  --bg-dark: #000000;
+  --ink: #1d1d1f;
+  --ink-2: #6e6e73;
+  --ink-inv: #f5f5f7;
+  --ink-inv-2: #a1a1a6;
+  --hair: rgb(0 0 0 / 0.12);
+  --hair-inv: rgb(255 255 255 / 0.16);
+  --card: #ffffff;
+  --link: #0066cc;
+  --link-inv: #2997ff;
+  --cta: #0071e3;
+  --cta-hover: #0077ed;
+  --ref-a: #e8e8ed;
+  --ref-b: #d2d2d7;
 
-  /* Im Dunkelmodus hebt sich der Sicherheitsabschnitt als hellere, wärmere Fläche ab */
-  --inv-paper: oklch(21.5% 0.016 52);
-  --inv-paper-2: oklch(26% 0.018 52);
-  --inv-line: oklch(36% 0.02 55);
-  --inv-line-strong: oklch(52% 0.025 55);
-  --stage-grid: oklch(95% 0.006 85 / 0.06);
-  color-scheme: dark;
+  --font: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', Arial, sans-serif;
+
+  --t-hero: clamp(3.25rem, 1.4rem + 8.6vw, 7.5rem);
+  --t-h2: clamp(2.25rem, 1.3rem + 4.4vw, 5rem);
+  --t-h3: clamp(1.375rem, 1.2rem + 0.8vw, 1.75rem);
+  --t-lede: clamp(1.1875rem, 1.05rem + 0.7vw, 1.75rem);
+  --t-body: 1.0625rem;
+  --t-fine: 0.8125rem;
+
+  --space-section: clamp(5.5rem, 3rem + 9vw, 10rem);
+  --gutter: clamp(1.25rem, 0.5rem + 3.5vw, 2.5rem);
+  --measure: 1120px;
+  --radius: 28px;
+  --radius-sm: 18px;
+  --ease: cubic-bezier(0.28, 0.11, 0.32, 1);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg-light: #000000;
+    --bg-gray: #131315;
+    --bg-dark: #1c1c1e;
+    --ink: #f5f5f7;
+    --ink-2: #a1a1a6;
+    --hair: rgb(255 255 255 / 0.16);
+    --card: #1c1c1e;
+    --link: #2997ff;
+    --ref-a: #3a3a3f;
+    --ref-b: #2a2a2e;
+  }
 }

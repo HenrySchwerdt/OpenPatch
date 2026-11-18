@@ -1,79 +1,64 @@
-// Usage: node scripts/screenshots.mjs [url]   (Vorschau-Server muss laufen: npm run preview)
+// Usage: npm run build && npm run preview &  then  node scripts/screenshots.mjs [url]
+// Writes light/dark screenshots at 375/768/1440 to screenshots/ and checks the 3D viewer draws pixels.
 import { chromium } from 'playwright-core';
-import { mkdirSync } from 'node:fs';
+import { mkdirSync, rmSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const url = process.argv[2] ?? 'http://127.0.0.1:4173/';
 const out = join(dirname(fileURLToPath(import.meta.url)), '..', 'screenshots');
+rmSync(out, { recursive: true, force: true });
 mkdirSync(out, { recursive: true });
 
 const CHROME = process.env.CHROME_PATH ?? '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
-const browser = await chromium.launch({
-  executablePath: CHROME,
-  args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'],
-});
-
+const browser = await chromium.launch({ executablePath: CHROME, args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
 const problems = [];
-const settle = (page, ms = 1200) => page.waitForTimeout(ms);
-
-async function openPage(width, height, theme) {
-  const ctx = await browser.newContext({ viewport: { width, height }, colorScheme: theme, deviceScaleFactor: 1 });
-  const page = await ctx.newPage();
-  page.on('console', (m) => {
-    if (m.type() === 'error' || m.type() === 'warning') problems.push(`[${width}/${theme}] console.${m.type()}: ${m.text()}`);
-  });
-  page.on('pageerror', (e) => problems.push(`[${width}/${theme}] pageerror: ${e.message}`));
-  page.on('requestfailed', (r) => problems.push(`[${width}/${theme}] requestfailed: ${r.url()}`));
-  await page.goto(url, { waitUntil: 'networkidle' });
-  await settle(page, 1800);
-  return { ctx, page };
-}
-
-async function revealAll(page) {
-  const h = await page.evaluate(() => document.documentElement.scrollHeight);
-  for (let y = 0; y < h; y += 500) {
-    await page.evaluate((v) => window.scrollTo(0, v), y);
-    await page.waitForTimeout(90);
-  }
-  await page.evaluate(() => window.scrollTo(0, 0));
-  await page.waitForTimeout(900);
-}
+const SECTIONS = ['size', 'how', 'safety', 'build', 'cost', 'open', 'faq'];
 
 for (const theme of ['light', 'dark']) {
-  for (const [w, h] of [[375, 812], [1440, 900]]) {
-    const { ctx, page } = await openPage(w, h, theme);
+  for (const [w, h] of [[375, 812], [768, 1024], [1440, 900]]) {
+    const ctx = await browser.newContext({ viewport: { width: w, height: h }, colorScheme: theme });
+    const page = await ctx.newPage();
+    page.on('console', (m) => { if (m.type() === 'error') problems.push(`[${w}/${theme}] ${m.text()}`); });
+    page.on('pageerror', (e) => problems.push(`[${w}/${theme}] pageerror ${e.message}`));
+    await page.goto(url, { waitUntil: 'networkidle' });
+    await page.waitForTimeout(1800);
     await page.screenshot({ path: join(out, `${theme}-${w}-hero.png`) });
-    if (w === 1440) {
-      await page.click('#explode-toggle');
-      await settle(page, 2200);
-      await page.screenshot({ path: join(out, `${theme}-${w}-hero-exploded.png`) });
+    const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+    if (overflow > 0) problems.push(`[${w}/${theme}] horizontal overflow ${overflow}px`);
+
+    // story at three scroll positions
+    const top = await page.evaluate(() => document.querySelector('.story-track').getBoundingClientRect().top + scrollY);
+    const span = await page.evaluate(() => document.querySelector('.story-track').offsetHeight - innerHeight);
+    for (const [i, f] of [[1, 0.02], [2, 0.5], [3, 0.95]]) {
+      await page.evaluate((y) => scrollTo(0, y), top + span * f - 0);
+      await page.waitForTimeout(900);
+      await page.screenshot({ path: join(out, `${theme}-${w}-story-${i}.png`) });
     }
-    await revealAll(page);
-    for (const id of ['groessen', 'funktion', 'sicherheit', 'bauanleitung', 'kosten', 'downloads']) {
-      const el = page.locator(`#${id}`);
-      await el.scrollIntoViewIfNeeded();
-      await page.waitForTimeout(500);
-      await el.screenshot({ path: join(out, `${theme}-${w}-sec-${id}.png`) });
+    for (const id of SECTIONS) {
+      await page.evaluate((i) => document.getElementById(i).scrollIntoView({ behavior: 'instant' }), id);
+      await page.waitForTimeout(1300);
+      await page.screenshot({ path: join(out, `${theme}-${w}-${id}.png`) });
+    }
+    if (theme === 'light' || w === 1440) {
+      await page.evaluate(() => document.getElementById('viewer').scrollIntoView({ behavior: 'instant' }));
+      await page.click('.viewer-start');
+      await page.waitForSelector('[data-viewer][data-ready="true"]', { timeout: 30000 });
+      await page.waitForTimeout(1500);
+      await page.screenshot({ path: join(out, `${theme}-${w}-viewer.png`) });
+      const stats = await page.evaluate(() => {
+        const c = document.querySelector('.viewer-canvas');
+        const g = document.createElement('canvas'); g.width = 128; g.height = 80;
+        const x = g.getContext('2d'); x.drawImage(c, 0, 0, 128, 80);
+        const d = x.getImageData(0, 0, 128, 80).data;
+        let lit = 0; for (let i = 0; i < d.length; i += 4) if (d[i + 3] > 200 && d[i] > 120) lit++;
+        return { lit, total: 128 * 80 };
+      });
+      console.log(`viewer ${theme}/${w}: ${stats.lit}/${stats.total} bright opaque px`);
+      if (stats.lit < 100) problems.push(`[${w}/${theme}] viewer canvas looks empty`);
     }
     await ctx.close();
   }
 }
-
-// Overflow-Check
-for (const w of [320, 375, 768, 1024, 1440]) {
-  const { ctx, page } = await openPage(w, 900, 'light');
-  await revealAll(page);
-  const r = await page.evaluate(() => ({ sw: document.documentElement.scrollWidth, iw: window.innerWidth }));
-  const bad = await page.evaluate(() => {
-    const iw = window.innerWidth;
-    return [...document.querySelectorAll('body *')]
-      .filter((el) => { const b = el.getBoundingClientRect(); return b.right > iw + 1 && b.width > 0 && !el.closest('.table-wrap, .diagram'); })
-      .slice(0, 6).map((el) => `${el.tagName}.${el.className}`);
-  });
-  console.log(`width ${w}: scrollWidth ${r.sw} / innerWidth ${r.iw} ${r.sw > r.iw ? 'OVERFLOW' : 'ok'} ${bad.length ? JSON.stringify(bad) : ''}`);
-  await ctx.close();
-}
-
 await browser.close();
-console.log(problems.length ? `PROBLEMS:\n${problems.join('\n')}` : 'no console errors / warnings / failed requests');
+console.log(problems.length ? `PROBLEMS:\n${problems.join('\n')}` : 'no console errors, no overflow');
