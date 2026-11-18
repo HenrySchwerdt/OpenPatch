@@ -430,6 +430,31 @@ TEST(proto_get_status_over_frames)
     CHECK_EQ(rsp.status.reservoir_mu, 100000);
     CHECK_EQ(rsp.status.current_rate_mu_h, 1000);
     CHECK(!(rsp.status.flags & OP_ST_SUSPENDED));
+    CHECK_EQ(rsp.status.last_seq, 1); /* the request itself is the last accepted sequence number */
+}
+
+TEST(proto_get_status_reports_last_accepted_seq)
+{
+    rig_t r;
+    rig_running(&r, 100000, 1000);
+    link_t l;
+    link_plain(&l);
+    op_cmd_t c = {0};
+    op_rsp_t rsp;
+    c.type = OP_CMD_SUSPEND;
+    CHECK(exchange(&r, &l, &c, false, &rsp) > 0);
+    l.seq = 40; /* the phone skips ahead; gaps are legal */
+    c.type = OP_CMD_GET_STATUS;
+    CHECK(exchange(&r, &l, &c, false, &rsp) > 0);
+    CHECK_EQ(rsp.status.last_seq, 40);
+    /* a pod restoring last_seq after a reboot reports it in the next GetStatus */
+    link_t restored;
+    link_plain(&restored);
+    restored.s.rx_seen = true;
+    restored.s.last_rx_seq = 100;
+    restored.seq = 101;
+    CHECK(exchange(&r, &restored, &c, false, &rsp) > 0);
+    CHECK_EQ(rsp.status.last_seq, 101);
 }
 
 TEST(proto_full_command_set_works_end_to_end)

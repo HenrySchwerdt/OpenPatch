@@ -1,104 +1,131 @@
 /*
- * Zephyr implementation of op_hal_t for the OpenPatch pod (nRF54L15).
- * SKELETON - UNTESTED, no NCS available when written. Verify every pin,
- * timing and sign convention on hardware.
+ * Zephyr implementation of op_hal_t for the OpenPatch pod (nRF52840 / ISP1807).
+ * UNTESTED ON HARDWARE (no board exists yet): every timing, sign and register value marked
+ * VERIFY must be checked with a scope and a scale before the first delivery.
+ *
+ * Motor power-up sequence (motor_enable(true)):
+ *   1. MODE1..4 levels with STBY low  (STSPIN220 samples them when STBY is released)
+ *   2. ARM_CLK edge -> safety latch -> VMOT (read back LATCH_Q_MON and check VMOT on SAADC)
+ *   3. STBY high, DIR set
+ * Power-down (motor_enable(false)): STBY low, then KILL_N pulse clears the latch.
  */
 #include "hal_zephyr.h"
 
-#include <zephyr/device.h>
-#include <zephyr/devicetree.h>
-#include <zephyr/drivers/adc.h>
 #include <zephyr/drivers/gpio.h>
-#include <zephyr/drivers/i2c.h>
 #include <zephyr/kernel.h>
 #include <zephyr/logging/log.h>
 
+#include "battery.h"
+#include "board_io.h"
+#include "buzzer.h"
+#include "encoder.h"
+#include "safety_latch.h"
+#include "step_gen.h"
+#include "wdt_tpl5010.h"
+
 LOG_MODULE_REGISTER(hal, LOG_LEVEL_INF);
 
-static const struct gpio_dt_spec g_step = GPIO_DT_SPEC_GET(DT_ALIAS(motor_step), gpios);
-static const struct gpio_dt_spec g_stby = GPIO_DT_SPEC_GET(DT_ALIAS(motor_stby), gpios);
-static const struct gpio_dt_spec g_gate = GPIO_DT_SPEC_GET(DT_ALIAS(motor_gate), gpios);
-static const struct gpio_dt_spec g_wdt = GPIO_DT_SPEC_GET(DT_ALIAS(wdt_done), gpios);
-static const struct gpio_dt_spec g_buzz = GPIO_DT_SPEC_GET(DT_ALIAS(buzzer_pin), gpios);
-static const struct i2c_dt_spec g_enc = I2C_DT_SPEC_GET(DT_ALIAS(encoder));
-static const struct adc_dt_spec g_vbat = ADC_DT_SPEC_GET_BY_IDX(DT_PATH(zephyr_user), 0);
+static const struct gpio_dt_spec g_dir = GPIO_DT_SPEC_GET(OP_ZU, motor_dir_gpios);
+static const struct gpio_dt_spec g_mode1 = GPIO_DT_SPEC_GET(OP_ZU, motor_mode1_gpios);
+static const struct gpio_dt_spec g_mode2 = GPIO_DT_SPEC_GET(OP_ZU, motor_mode2_gpios);
+static const struct gpio_dt_spec g_stby = GPIO_DT_SPEC_GET(OP_ZU, motor_stby_gpios);
+static const struct gpio_dt_spec g_fault = GPIO_DT_SPEC_GET(OP_ZU, motor_fault_gpios);
+/* STCK (= MODE3) is owned by step_gen; DIR (= MODE4) is set here */
+static const struct gpio_dt_spec g_stck_mode = GPIO_DT_SPEC_GET(OP_ZU, motor_stck_gpios);
 
-/* Motor timing: STSPIN220 full-step, ~100 steps/s keeps torque margin. TODO tune. */
-#define STEP_HIGH_US 2000
-#define STEP_LOW_US 8000
+#define STBY_WAKE_MS 2 /* VERIFY: driver wake-up time after STBY/RESET release */
+#define LATCH_SETTLE_MS 4 /* VERIFY: TPS22916C rise time + VMOT sense divider settling */
+#define MODE_BIT(n) ((CONFIG_OPENPATCH_STSPIN_MODE_BITS >> (n)) & 1)
 
-/* AS5600: 4096 counts per spindle revolution = 200 motor steps -> 20.48 counts/step.
- * substeps (1/16 step) = counts * 16 / 20.48 = counts * 25 / 32 (exact). */
-#define AS5600_REG_ANGLE 0x0E
-#define COUNTS_PER_REV 4096
-static int32_t g_enc_counts;
-static uint16_t g_enc_last;
-static bool g_enc_primed;
+static bool g_armed;
+static uint32_t g_unseen_steps; /* steps commanded since the last hall (QDEC) count */
+static uint32_t g_last_qdec;
 
 static int hal_motor_step(void *ctx, uint32_t steps)
 {
     ARG_UNUSED(ctx);
-    for (uint32_t i = 0; i < steps; i++) {
-        gpio_pin_set_dt(&g_step, 1);
-        k_busy_wait(STEP_HIGH_US);
-        gpio_pin_set_dt(&g_step, 0);
-        k_busy_wait(STEP_LOW_US);
+    if (!g_armed || steps == 0) return 0; /* not armed: nothing ran, the supervisor will latch INTERNAL */
+    uint32_t done = step_gen_run(steps);
+    encoder_sim_advance(done);
+
+    uint32_t q;
+    if (encoder_qdec_counts(&q)) { /* hall path B: independent "does it move at all" check */
+        if (q != g_last_qdec) {
+            g_last_qdec = q;
+            g_unseen_steps = 0;
+        } else {
+            g_unseen_steps += done;
+            if (g_unseen_steps > CONFIG_OPENPATCH_QDEC_MAX_UNSEEN_STEPS)
+                wdt_tpl5010_set_unhealthy("hall counter silent while stepping");
+        }
     }
-    return (int)steps; /* open loop: the encoder (supervisor) verifies the result */
+    return (int)done;
 }
 
 static void hal_motor_enable(void *ctx, bool enable)
 {
     ARG_UNUSED(ctx);
-    gpio_pin_set_dt(&g_gate, enable); /* power path first on, last off */
-    gpio_pin_set_dt(&g_stby, enable);
+    if (!enable) {
+        gpio_pin_set_dt(&g_stby, 0);
+        safety_latch_kill();
+        g_armed = false;
+        return;
+    }
+    if (g_armed) return;
+
+    gpio_pin_set_dt(&g_stby, 0);
+    gpio_pin_configure_dt(&g_stck_mode, GPIO_OUTPUT_INACTIVE);
+    gpio_pin_set_dt(&g_mode1, MODE_BIT(0));
+    gpio_pin_set_dt(&g_mode2, MODE_BIT(1));
+    gpio_pin_set_dt(&g_stck_mode, MODE_BIT(2)); /* MODE3 */
+    gpio_pin_set_dt(&g_dir, MODE_BIT(3));       /* MODE4 */
+
+    if (!safety_latch_arm()) return; /* stays off; motor_step() returns 0 */
+    if (safety_latch_present()) {
+        k_msleep(LATCH_SETTLE_MS);
+        uint16_t vmot = battery_vmot_mv();
+        if (!IS_ENABLED(CONFIG_OPENPATCH_SIM_BATTERY) && vmot < CONFIG_OPENPATCH_VMOT_MIN_MV) {
+            LOG_ERR("VMOT %u mV after arming - load switch not conducting", vmot);
+            safety_latch_kill();
+            return;
+        }
+    }
+    gpio_pin_set_dt(&g_stby, 1);
+    k_msleep(STBY_WAKE_MS);
+    gpio_pin_set_dt(&g_stck_mode, 0);
+    gpio_pin_set_dt(&g_dir, CONFIG_OPENPATCH_MOTOR_DIR_FORWARD_LEVEL);
+    if (gpio_pin_get_dt(&g_fault) > 0) { /* EN/FAULT pulled low by the driver */
+        LOG_ERR("STSPIN220 reports a fault");
+        gpio_pin_set_dt(&g_stby, 0);
+        safety_latch_kill();
+        return;
+    }
+    g_armed = true;
 }
 
 static int32_t hal_encoder_read(void *ctx)
 {
     ARG_UNUSED(ctx);
-    uint8_t buf[2] = {0};
-    if (i2c_burst_read_dt(&g_enc, AS5600_REG_ANGLE, buf, 2) != 0) {
-        LOG_ERR("encoder read failed"); /* position freezes -> supervisor sees a stall */
-        return (int32_t)((int64_t)g_enc_counts * 25 / 32);
-    }
-    uint16_t raw = (uint16_t)((((uint16_t)buf[0] << 8) | buf[1]) & 0x0FFF);
-    if (g_enc_primed) {
-        int16_t delta = (int16_t)(raw - g_enc_last);
-        if (delta > COUNTS_PER_REV / 2) delta -= COUNTS_PER_REV;
-        if (delta < -COUNTS_PER_REV / 2) delta += COUNTS_PER_REV;
-        g_enc_counts += delta; /* TODO sign depends on magnet orientation */
-    }
-    g_enc_primed = true;
-    g_enc_last = raw;
-    return (int32_t)((int64_t)g_enc_counts * 25 / 32);
+    return encoder_read_substeps();
 }
 
 static void hal_watchdog_kick(void *ctx)
 {
     ARG_UNUSED(ctx);
-    gpio_pin_set_dt(&g_wdt, 1);
-    k_busy_wait(50);
-    gpio_pin_set_dt(&g_wdt, 0);
+    /* Called at the end of op_pump_tick(): all supervisor checks of this tick passed. */
+    wdt_tpl5010_heartbeat();
 }
 
 static void hal_buzzer(void *ctx, op_buzzer_t pattern)
 {
     ARG_UNUSED(ctx);
-    /* TODO: PWM tones / repeating alarm pattern via a k_work_delayable. */
-    gpio_pin_set_dt(&g_buzz, pattern != OP_BUZZER_OFF);
+    buzzer_set(pattern);
 }
 
 static uint16_t hal_battery_mv(void *ctx)
 {
     ARG_UNUSED(ctx);
-    int16_t sample = 0;
-    struct adc_sequence seq = {.buffer = &sample, .buffer_size = sizeof(sample)};
-    adc_sequence_init_dt(&g_vbat, &seq);
-    if (adc_read_dt(&g_vbat, &seq) != 0) return 0; /* 0 mV -> critical fault: fail safe */
-    int32_t mv = sample;
-    adc_raw_to_millivolts_dt(&g_vbat, &mv);
-    return (uint16_t)(mv * 2); /* TODO: divider ratio from the schematic */
+    return battery_vbat_mv();
 }
 
 static uint64_t hal_time_ms(void *ctx)
@@ -109,12 +136,24 @@ static uint64_t hal_time_ms(void *ctx)
 
 int hal_zephyr_init(op_hal_t *out)
 {
-    const struct gpio_dt_spec *outs[] = {&g_step, &g_stby, &g_gate, &g_wdt, &g_buzz};
+    const struct gpio_dt_spec *outs[] = {&g_dir, &g_mode1, &g_mode2, &g_stby};
     for (size_t i = 0; i < ARRAY_SIZE(outs); i++) {
         if (!gpio_is_ready_dt(outs[i]) || gpio_pin_configure_dt(outs[i], GPIO_OUTPUT_INACTIVE) != 0) return -ENODEV;
     }
-    if (!i2c_is_ready_dt(&g_enc) || !adc_is_ready_dt(&g_vbat)) return -ENODEV;
-    if (adc_channel_setup_dt(&g_vbat) != 0) return -ENODEV;
+    if (!gpio_is_ready_dt(&g_fault) || gpio_pin_configure_dt(&g_fault, GPIO_INPUT) != 0) return -ENODEV;
+
+    int rc = safety_latch_init();
+    if (!rc) rc = step_gen_init();
+    if (!rc) rc = battery_init();
+    if (!rc) rc = buzzer_init();
+    if (!rc) rc = encoder_init();
+    if (!rc) rc = wdt_tpl5010_init();
+    if (rc) {
+        LOG_ERR("HAL init failed (%d)", rc);
+        return rc;
+    }
+    uint32_t q;
+    if (encoder_qdec_counts(&q)) g_last_qdec = q;
 
     *out = (op_hal_t){
         .ctx = NULL,

@@ -309,7 +309,7 @@ TEST(rsp_roundtrip_status)
     r.result = OP_OK;
     r.has_status = true;
     r.status = (op_status_t){OP_ST_SUSPENDED | OP_ST_ALARM, 0x0003, 3812, 2100, 25, 1000, OP_FW_VERSION,
-                             123456, 750, 99999, 100000, 4242};
+                             123456, 750, 99999, 100000, 4242, 0xBEEF};
     uint8_t buf[200];
     int n = op_rsp_encode_payload(&r, buf, sizeof buf);
     CHECK(n > 0);
@@ -327,6 +327,7 @@ TEST(rsp_roundtrip_status)
     CHECK_EQ(d.status.delivered_mu, 99999);
     CHECK_EQ(d.status.scheduled_mu, 100000);
     CHECK_EQ(d.status.next_event_id, 4242);
+    CHECK_EQ(d.status.last_seq, 0xBEEF);
     CHECK_EQ(d.result, OP_OK);
 }
 

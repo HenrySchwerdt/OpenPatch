@@ -3,7 +3,7 @@
 
 #include "op/op_hal.h"
 
-/* Initialise GPIO/ADC/I2C and return the HAL for op_pump_init(). */
+/* Bring up GPIO/ADC/I2C/PWM/RTC/QDEC and return the HAL for op_pump_init(). */
 int hal_zephyr_init(op_hal_t *out);
 
 #endif

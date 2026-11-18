@@ -1,0 +1,61 @@
+# DRAFT - not active. To enable, copy to .github/workflows/firmware.yml.
+# Builds both firmware targets in the Nordic nRF Connect SDK image and runs the host tests.
+name: firmware
+
+on:
+  push:
+    paths: ["firmware/**"]
+  pull_request:
+    paths: ["firmware/**"]
+
+env:
+  NCS_VERSION: v3.4.2
+
+jobs:
+  host-tests:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - run: sudo apt-get update && sudo apt-get install -y cmake ninja-build gcc
+      - run: cmake -S firmware -B build-host -G Ninja
+      - run: cmake --build build-host
+      - run: ctest --test-dir build-host --output-on-failure
+
+  zephyr-build:
+    runs-on: ubuntu-24.04
+    container:
+      # image tag = NCS toolchain bundle version (check the tag exists for the NCS version you pin)
+      image: ghcr.io/nrfconnect/sdk-nrf-toolchain:v3.4.2
+      options: --user root
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { name: reva, board: "openpatch_reva/nrf52840", extra: "" }
+          - { name: dk, board: "nrf52840dk/nrf52840", extra: "-DEXTRA_CONF_FILE=dev.conf" }
+    steps:
+      - uses: actions/checkout@v4
+        with: { path: openpatch }
+      - name: Fetch nRF Connect SDK
+        run: |
+          west init -m https://github.com/nrfconnect/sdk-nrf --mr "$NCS_VERSION" /ncs
+          cd /ncs && west update --narrow -o=--depth=1
+      - name: Generate a throw-away CI signing key (releases use the real key from a secret)
+        run: python3 /ncs/bootloader/mcuboot/scripts/imgtool.py keygen -k /tmp/ci-key.pem -t ecdsa-p256
+      - name: Build ${{ matrix.board }}
+        run: |
+          cd /ncs
+          west build --sysbuild -b ${{ matrix.board }} -d /tmp/build "$GITHUB_WORKSPACE/openpatch/firmware/zephyr" -- \
+            -DBOARD_ROOT="$GITHUB_WORKSPACE/openpatch/firmware/zephyr" \
+            -DSB_CONFIG_BOOT_SIGNATURE_KEY_FILE='"/tmp/ci-key.pem"' ${{ matrix.extra }}
+      - name: Merge hex and report sizes
+        run: |
+          python3 /ncs/zephyr/scripts/build/mergehex.py -o /tmp/openpatch-${{ matrix.name }}-merged.hex \
+            /tmp/build/mcuboot/zephyr/zephyr.hex /tmp/build/zephyr/zephyr/zephyr.signed.hex
+          arm-zephyr-eabi-size /tmp/build/zephyr/zephyr/zephyr.elf || true
+      - uses: actions/upload-artifact@v4
+        with:
+          name: openpatch-${{ matrix.name }}
+          path: |
+            /tmp/openpatch-${{ matrix.name }}-merged.hex
+            /tmp/build/zephyr/zephyr/zephyr.signed.bin

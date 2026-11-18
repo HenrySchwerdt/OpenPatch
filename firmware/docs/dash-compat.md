@@ -1,194 +1,197 @@
-# DASH-Kompatibilitätsmodus – Portierungsplan
+# DASH Compatibility Mode - Porting Plan
 
-> Status: **Plan, kein Code.** Es wurde bewusst **kein** ESP-Sim-Code kopiert (Lizenzentscheidung offen, Abschnitt 6).
-> Experimentelles DIY-Gerät, kein Medizinprodukt. „Omnipod“ und „DASH“ sind Marken von Insulet; der Modus ist
-> Interoperabilität zu Entwicklungszwecken und wird nicht als Omnipod beworben.
+> Status: **plan, no code.** No ESP-Sim code was copied on purpose (licence decision open, section 6).
+> Experimental DIY device, not a medical device. "Omnipod" and "DASH" are trademarks of Insulet; the mode is
+> interoperability for development purposes and is not advertised as an Omnipod.
+>
+> Note: Rev A hardware is now an nRF52840 (Insight SiP ISP1807). This plan was written for the nRF54L15; where it
+> mentions RRAM / CRACEN, read "internal flash (NVS)" / "CryptoCell-310 or Oberon PSA" for the current board.
 
-Ziel (spec/design-parameters.md, Abschnitt 6.2): Der OpenPatch-Pod meldet sich im BLE wie ein Omnipod-DASH-Pod, sodass
-Trio über das vorhandene `OmnipodKit` (loopandlearn) mit ihm spricht – ohne eigenes `OpenPatchKit` auf dem Phone.
-Omnipod 5 wird **nicht** emuliert (P-256/ECDSA-Transkripte, Key-Manager).
+Goal (spec/design-parameters.md, section 6.2): the OpenPatch pod presents itself over BLE like an Omnipod DASH pod, so that
+Trio talks to it through the existing `OmnipodKit` (loopandlearn) - without an own `OpenPatchKit` on the phone.
+Omnipod 5 is **not** emulated (P-256/ECDSA transcripts, key manager).
 
-## 1. Referenz: nightscout/ESP-Sim
+## 1. Reference: nightscout/ESP-Sim
 
-Gelesen per `gh api` am 2026-11-18, Stand `be757a0` (2026-11-15). Beschreibung: „Simulator for Pumps and CGM simulators for
-ESP32 Boards“, Sprache C, ESP32-S3, **GPL-3.0** (alle geprüften Quelldateien tragen `SPDX-License-Identifier: GPL-3.0-or-later`;
-`x25519.c` basiert auf dem gemeinfreien TweetNaCl). Der Pod-Teil ist ein C-Port des Go-Simulators `jeremybarnum/pod`
-(selbst aus `LoopKit/pod` und `0pen-dash`). **Es ist Testequipment: es fördert nichts und ist nicht für Therapie gedacht** –
-für uns ist es deshalb nur die Protokollreferenz, nicht die Abgabelogik.
+Read via `gh api` on 2026-11-18, at `be757a0` (2026-11-15). Description: "Simulator for Pumps and CGM simulators for
+ESP32 Boards", language C, ESP32-S3, **GPL-3.0** (all inspected source files carry `SPDX-License-Identifier: GPL-3.0-or-later`;
+`x25519.c` is based on the public-domain TweetNaCl). The pod part is a C port of the Go simulator `jeremybarnum/pod`
+(itself derived from `LoopKit/pod` and `0pen-dash`). **It is test equipment: it delivers nothing and is not meant for therapy** -
+for us it is therefore only the protocol reference, not the delivery logic.
 
-### 1.1 Repository-Struktur (relevant)
+### 1.1 Repository structure (relevant)
 
-| Pfad | Inhalt |
+| Path | Content |
 |---|---|
-| `components/dashpod/include/dash.h` | öffentliche API: `dash_msg_t`, `dash_state_t`, `dash_io_t`, `dash_pod_init/run`, Antwort-Builder (`dash_rsp_*`), Advertising-Helfer |
-| `components/dashpod/include/dash_internal.h` | interne Primitive: `dash_crc16/32`, `dash_cmac`, `dash_ccm_encrypt/decrypt`, `dash_x25519`, `dash_milenage`, Plattform-Hooks `dash_aes128_encrypt_block`, `dash_sha256`, `dash_random`, P-256 (nur O5) |
-| `src/link.c` | Link-Layer: RTS/CTS auf der Command-Characteristic, 20-Byte-Fragmente auf der Data-Characteristic, CRC-32, Success/Fail |
-| `src/message.c` | „TW“-Nachrichten (`CTwiPacket`): Header 16 Byte, Typen CLEAR/ENCRYPTED/SESSION/PAIRING, Marshal/Unmarshal, Nonce |
-| `src/pair.c` | Pairing: X25519-Schlüsselaustausch + CMAC-Bestätigungen → LTK (Felder `SP1=`,`SP2=`,`SPS1=`,`SPS2=`,`SP0GP0`) |
-| `src/eap.c` | Sitzungsaufbau EAP-AKA mit Milenage → Sitzungsschlüssel `ck` und `nonce_prefix` |
-| `src/crypto.c` | CRC-32, CRC-16 (OmnipodKit-Tabelle), AES-CMAC, AES-CCM, Milenage – alles auf einer AES-128-Blockfunktion aufgebaut |
-| `src/x25519.c` | X25519 (TweetNaCl-Stil) |
-| `src/command.c` | Parser für entschlüsselte Befehle `S0.0=<len><cmd>,G0.0` |
-| `src/response.c` | Antwortkörper (`general`, `detailed`, Typ 1/3/5/46/50/51, NACK, Version, SetUniqueId) |
-| `src/pod.c` | Zustandsmaschine des Pods, Advertising-Inhalte, Befehlsausführung |
-| `src/platform_mbedtls.c`, `src/o5.c` | ESP-Plattformbindung bzw. Omnipod-5-Pairing – für uns **nicht** zu übernehmen (O5 entfällt, Krypto über PSA) |
-| `test/host/golden_dash.h` | Golden Vectors (Pairing, EAP, LTK, CK, Nonce, verschlüsselte `GetVersion`-Nachricht), erzeugt von `tools/golden/gen.sh` aus dem Go-Original |
-| `test/host/host_io.c` | Host-Implementierung von `dash_io_t` (Tests laufen auf macOS) |
+| `components/dashpod/include/dash.h` | public API: `dash_msg_t`, `dash_state_t`, `dash_io_t`, `dash_pod_init/run`, response builders (`dash_rsp_*`), advertising helpers |
+| `components/dashpod/include/dash_internal.h` | internal primitives: `dash_crc16/32`, `dash_cmac`, `dash_ccm_encrypt/decrypt`, `dash_x25519`, `dash_milenage`, platform hooks `dash_aes128_encrypt_block`, `dash_sha256`, `dash_random`, P-256 (O5 only) |
+| `src/link.c` | link layer: RTS/CTS on the command characteristic, 20-byte fragments on the data characteristic, CRC-32, success/fail |
+| `src/message.c` | "TW" messages (`CTwiPacket`): 16-byte header, types CLEAR/ENCRYPTED/SESSION/PAIRING, marshal/unmarshal, nonce |
+| `src/pair.c` | pairing: X25519 key exchange + CMAC confirmations -> LTK (fields `SP1=`, `SP2=`, `SPS1=`, `SPS2=`, `SP0GP0`) |
+| `src/eap.c` | session setup EAP-AKA with Milenage -> session key `ck` and `nonce_prefix` |
+| `src/crypto.c` | CRC-32, CRC-16 (OmnipodKit table), AES-CMAC, AES-CCM, Milenage - all built on one AES-128 block function |
+| `src/x25519.c` | X25519 (TweetNaCl style) |
+| `src/command.c` | parser for decrypted commands `S0.0=<len><cmd>,G0.0` |
+| `src/response.c` | response bodies (`general`, `detailed`, type 1/3/5/46/50/51, NACK, version, SetUniqueId) |
+| `src/pod.c` | pod state machine, advertising contents, command execution |
+| `src/platform_mbedtls.c`, `src/o5.c` | ESP platform binding resp. Omnipod 5 pairing - **not** to be taken over for us (O5 is dropped, crypto via PSA) |
+| `test/host/golden_dash.h` | golden vectors (pairing, EAP, LTK, CK, nonce, encrypted `GetVersion` message), generated by `tools/golden/gen.sh` from the Go original |
+| `test/host/host_io.c` | host implementation of `dash_io_t` (tests run on macOS) |
 
-### 1.2 Plattform-Abstraktion `dash_io_t`
+### 1.2 Platform abstraction `dash_io_t`
 
-Der Kern ist laut `dash.h` portables C ohne ESP-IDF-Abhängigkeit; die Plattform liefert genau diese Struktur (plus eine AES-128-Blockfunktion):
+According to `dash.h` the core is portable C without ESP-IDF dependency; the platform supplies exactly this structure (plus an AES-128 block function):
 
 ```c
 typedef struct {
     void *ctx;
-    bool    (*next_event)(void *ctx, dash_ev_t *ev, uint32_t timeout_ms); /* CMD/DATA-Write, CONNECTED, DISCONNECTED, STOP */
+    bool    (*next_event)(void *ctx, dash_ev_t *ev, uint32_t timeout_ms); /* CMD/DATA write, CONNECTED, DISCONNECTED, STOP */
     void    (*notify_cmd)(void *ctx, const uint8_t *p, size_t n);
     void    (*notify_data)(void *ctx, const uint8_t *p, size_t n);
     void    (*disconnect)(void *ctx);
     void    (*advertise)(void *ctx, const dash_adv_t *adv);
-    int64_t (*now_ms)(void *ctx);            /* Wanduhr, ms seit Unix-Epoche */
+    int64_t (*now_ms)(void *ctx);            /* wall clock, ms since the Unix epoch */
     void    (*save)(void *ctx, const dash_state_t *st);
     void    (*lock)(void *ctx);  void (*unlock)(void *ctx);
     void    (*crash)(void *ctx);
 } dash_io_t;
 ```
 
-`dash_pod_run()` ist eine blockierende Endlosschleife über `next_event`; `dash_state_t` (Pairing-LTK, Pod-ID, `msg_seq`, `cmd_seq`,
-`nonce_seq`, Session-Schlüssel, `progress`, Reservoir in Pulsen à 0,05 IE, Alarme, Fehler …) wird über `save()` persistiert.
+`dash_pod_run()` is a blocking endless loop over `next_event`; `dash_state_t` (pairing LTK, pod ID, `msg_seq`, `cmd_seq`,
+`nonce_seq`, session keys, `progress`, reservoir in pulses of 0.05 U, alarms, faults ...) is persisted through `save()`.
 
-## 2. Protokollüberblick (aus ESP-Sim abgeleitet)
+## 2. Protocol overview (derived from ESP-Sim)
 
-**Advertising.** Der Pod sendet **9 UUIDs (16 Bit)** als vollständige Liste: `0x4024`, dann `0xC001` (Alarm aktiv: `0xC005`, Fehler: `0xC00A`;
-unpaired: `0x2470`), `0x000A`, **Pod-ID-Hälften** (Bytes 0–1 und 2–3 der 4-Byte-ID; unpaired `0xFFFF`/`0xFFFE`), `0x0814`, `0x6DB1`, `0x0006`, `0xE451`.
-Dazu Herstellerdaten im iBeacon-Format (25 Byte, beginnend `4C 00 02 15`, mit Fehler-/Alarm-Bytes) und der Gerätename (ESP-Sim: `" :: Fake POD ::"`).
-Der ESP-Sim nutzt erweiterte Advertising-Sätze (Zephyr: `bt_le_ext_adv_*`, nRF54L15 unterstützt das); Aufteilung Advertising/Scan-Response
-ist aus `main/ble.c` zu übernehmen.
+**Advertising.** The pod sends **9 UUIDs (16 bit)** as a complete list: `0x4024`, then `0xC001` (alarm active: `0xC005`, fault: `0xC00A`;
+unpaired: `0x2470`), `0x000A`, **pod ID halves** (bytes 0-1 and 2-3 of the 4-byte ID; unpaired `0xFFFF`/`0xFFFE`), `0x0814`, `0x6DB1`, `0x0006`, `0xE451`.
+In addition manufacturer data in iBeacon format (25 bytes, starting `4C 00 02 15`, with fault/alarm bytes) and the device name (ESP-Sim: `" :: Fake POD ::"`).
+ESP-Sim uses extended advertising sets (Zephyr: `bt_le_ext_adv_*`; the nRF52840 supports that); the split between advertising data and
+scan response is to be taken from `main/ble.c`.
 
-**GATT.** Service `1A7E4024-E3ED-4464-8B7E-751E03D0DC5F`; Characteristics `…2441` (Command) und `…2442` (Data); `…2443` ist nur Omnipod 5.
-Alle Characteristics: Write, Write-Without-Response, Notify; **keine** Link-Layer-Verschlüsselung/Bonding nötig (Sicherheit liegt in der Anwendungsschicht).
-(ESP-Sim bildet die 128-Bit-UUIDs mit einem Makro `DASH_UUID(b12,b13)`; Basis `…E3ED-4464-8B7E-751E03D0DC5F`.)
+**GATT.** Service `1A7E4024-E3ED-4464-8B7E-751E03D0DC5F`; characteristics `...2441` (command) and `...2442` (data); `...2443` is Omnipod 5 only.
+All characteristics: write, write-without-response, notify; **no** link-layer encryption/bonding needed (security lives in the application layer).
+(ESP-Sim builds the 128-bit UUIDs with a macro `DASH_UUID(b12,b13)`; base `...E3ED-4464-8B7E-751E03D0DC5F`.)
 
-**Link-Layer** (`link.c`): Nachricht anbieten mit **RTS** (Command-Characteristic) → Phone antwortet **CTS** → Fragmente à 20 Byte auf Data mit **CRC-32**
-→ **Success/Fail**. Quirks des Go-Originals sind beibehalten (kurze Nachrichten: erstes Paket bis 21 Byte; nur mehrfragmentige Nachrichten warten auf Success).
-ATT-MTU 23 genügt – im DASH-Modus keine MTU-Verhandlung erzwingen.
+**Link layer** (`link.c`): offer a message with **RTS** (command characteristic) -> phone answers **CTS** -> fragments of 20 bytes on data with **CRC-32**
+-> **success/fail**. Quirks of the Go original are kept (short messages: first packet up to 21 bytes; only multi-fragment messages wait for success).
+ATT MTU 23 is sufficient - do not force an MTU negotiation in DASH mode.
 
-**Nachrichtenschicht** (`message.c`): 16-Byte-Header (Version, EQOS, Flags, Typ, `seq`, `ack_num`, `src`/`dst` je 4 Byte), Nutzlast; verschlüsselte Nachrichten tragen
-Chiffretext + **8-Byte-CCM-Tag**; der Header ist AAD. Befehle stehen entschlüsselt als `S0.0=<len><cmd>…,G0.0` (+CRC-16 mit OmnipodKit-Tabelle).
+**Message layer** (`message.c`): 16-byte header (version, EQOS, flags, type, `seq`, `ack_num`, `src`/`dst` 4 bytes each), payload; encrypted messages carry
+ciphertext + **8-byte CCM tag**; the header is AAD. Commands appear decrypted as `S0.0=<len><cmd>...,G0.0` (+ CRC-16 with the OmnipodKit table).
 
-**Pairing** (`pair.c`): **X25519**-Schlüsseltausch, Bestätigungen per **AES-CMAC** → **LTK** (16 Byte).
-**Achtung:** ESP-Sim setzt privaten Pod-Schlüssel und Nonce auf **0** („a simulator needs no secrecy“). Für ein echtes Gerät **inakzeptabel** – dort `dash_random()` (CRACEN-TRNG) verwenden.
+**Pairing** (`pair.c`): **X25519** key exchange, confirmations by **AES-CMAC** -> **LTK** (16 bytes).
+**Warning:** ESP-Sim sets the private pod key and the nonce to **0** ("a simulator needs no secrecy"). **Unacceptable** for a real device - use `dash_random()` (hardware TRNG) there.
 
-**Sitzung** (`eap.c`): **EAP-AKA mit Milenage** (RAND/RES/AUTN, SQN-Zähler `eap_aka_seq`) → `ck` (16 Byte) und `nonce_prefix` (8 Byte); danach **AES-128-CCM**
-mit Nonce = `prefix ‖ Zähler` (`dash_nonce(prefix, seq, pod_receiving)`), Zähler `nonce_seq` persistent.
+**Session** (`eap.c`): **EAP-AKA with Milenage** (RAND/RES/AUTN, SQN counter `eap_aka_seq`) -> `ck` (16 bytes) and `nonce_prefix` (8 bytes); afterwards **AES-128-CCM**
+with nonce = `prefix || counter` (`dash_nonce(prefix, seq, pod_receiving)`), counter `nonce_seq` persistent.
 
-## 3. Portierungsplan nRF54L15 / Zephyr
+## 3. Porting plan nRF52840 / Zephyr
 
-### 3.1 Architektur
+### 3.1 Architecture
 
-- Neues Verzeichnis `firmware/dash/` (GPL-Komponente, siehe Abschnitt 6) mit **unverändert übernommenem** `components/dashpod/{include,src}` (außer `o5.c`, `platform_mbedtls.c`) – möglichst als Git-Subtree, damit Upstream-Fixes einfließen.
-- `firmware/dash/dash_io_zephyr.c` implementiert `dash_io_t`; `firmware/dash/dash_bridge.c` übersetzt DASH-Befehle in Aufrufe des vorhandenen Kerns (`op_pump_*`, Abschnitt 4).
-- Moduswahl **zur Build-Zeit** (`CONFIG_OPENPATCH_MODE_DASH`) mit eigener `prj-dash.conf`: native Firmware und DASH-Firmware sind getrennte Images (vermeidet GATT-/Advertising-Mischbetrieb und trennt die Lizenzfrage sauber). Laufzeit-Umschalten kann später per Taste beim Einschalten folgen.
-- `dash_pod_run()` läuft in einem eigenen Zephyr-Thread (Stack ≈ 6 KB, Priorität unter dem BT-Stack). Der **Delivery-Tick** (`op_pump_tick`) bleibt im Haupt-Thread; Zugriff auf den Kern über einen Mutex oder (besser) eine Message-Queue vom DASH-Thread zum Haupt-Thread, damit der Kern single-threaded bleibt.
+- New directory `firmware/dash/` (GPL component, see section 6) with **unmodified** `components/dashpod/{include,src}` (except `o5.c`, `platform_mbedtls.c`) - preferably as a git subtree so upstream fixes flow in.
+- `firmware/dash/dash_io_zephyr.c` implements `dash_io_t`; `firmware/dash/dash_bridge.c` translates DASH commands into calls of the existing core (`op_pump_*`, section 4).
+- Mode selection **at build time** (`CONFIG_OPENPATCH_MODE_DASH`) with its own `prj-dash.conf`: native firmware and DASH firmware are separate images (avoids mixed GATT/advertising operation and keeps the licence question clean). Run-time switching can follow later via a button press at power-up.
+- `dash_pod_run()` runs in its own Zephyr thread (stack approx. 6 KB, priority below the BT stack). The **delivery tick** (`op_pump_tick`) stays in the main thread; access to the core goes through a mutex or (better) a message queue from the DASH thread to the main thread, so the core stays single-threaded (the existing `app_events` queue is the place for this).
 
-### 3.2 `dash_io_t` auf Zephyr
+### 3.2 `dash_io_t` on Zephyr
 
-| Feld | Zephyr-Umsetzung |
+| Field | Zephyr implementation |
 |---|---|
-| `next_event` | `k_msgq`/`k_poll`: GATT-Write-Callbacks (Command/Data) und `bt_conn_cb.connected/disconnected` stellen `dash_ev_t` ein; Timeout → `K_MSEC` |
-| `notify_cmd` / `notify_data` | `bt_gatt_notify_uuid()` auf den zwei Characteristics (20-Byte-Pakete, Default-MTU) |
+| `next_event` | `k_msgq`/`k_poll`: GATT write callbacks (command/data) and `bt_conn_cb.connected/disconnected` enqueue `dash_ev_t`; timeout -> `K_MSEC` |
+| `notify_cmd` / `notify_data` | `bt_gatt_notify_uuid()` on the two characteristics (20-byte packets, default MTU) |
 | `disconnect` | `bt_conn_disconnect(conn, BT_HCI_ERR_REMOTE_USER_TERM_CONN)` |
-| `advertise` | `bt_le_ext_adv_set_data()` mit 9×UUID16 + Herstellerdaten + Name (Inhalte aus `dash_advertised_services`/`dash_manufacturer_data`); bei Änderung von Pod-ID/Alarm/Fehler neu setzen |
-| `now_ms` | Wanduhr = gespeicherter Epoche-Offset + `k_uptime_get()`. nRF54L15 hat keine batteriegepufferte RTC im Pod → Offset wird gespeichert und bei Pairing/Befehlen vom Phone nachgeführt (**offen:** welcher DASH-Befehl die Controller-Zeit transportiert – aus OmnipodKit klären) |
-| `save` | Zephyr Settings/ZMS auf RRAM; `dash_state_t` ≈ 200 Byte, Schreiben nur bei Änderung, wear-aware (Zähler wie `nonce_seq` nicht bei jedem Paket in Flash) |
-| `lock`/`unlock` | `k_mutex` (nur nötig, falls ein zweiter Thread auf `dash_pod_t` zugreift) |
-| `crash` | `sys_reboot()` (Testfunktion „crash next command“, im Release entfernen) |
+| `advertise` | `bt_le_ext_adv_set_data()` with 9x UUID16 + manufacturer data + name (contents from `dash_advertised_services`/`dash_manufacturer_data`); set again when pod ID/alarm/fault change |
+| `now_ms` | wall clock = stored epoch offset + `k_uptime_get()`. The pod has no battery-backed RTC -> the offset is stored and tracked from phone commands/pairing (**open:** which DASH command carries the controller time - to be clarified from OmnipodKit) |
+| `save` | Zephyr settings (NVS) in the storage partition; `dash_state_t` approx. 200 bytes, write only on change, wear-aware (counters such as `nonce_seq` not written to flash on every packet) |
+| `lock`/`unlock` | `k_mutex` (only needed if a second thread accesses `dash_pod_t`) |
+| `crash` | `sys_reboot()` (test function "crash next command", remove in release) |
 
-### 3.3 Kryptographie
+### 3.3 Cryptography
 
-Der ESP-Sim-Kern verlangt nur `dash_aes128_encrypt_block`, `dash_sha256`, `dash_random` (+ P-256 nur für O5). Auf dem nRF54L15 über **PSA Crypto / CRACEN**:
+The ESP-Sim core only requires `dash_aes128_encrypt_block`, `dash_sha256`, `dash_random` (+ P-256 for O5 only). On the nRF52840 through **PSA Crypto**:
 
-- `dash_aes128_encrypt_block` → `psa_cipher_encrypt` mit `PSA_ALG_ECB_NO_PADDING` (ein Block) oder direkt CRACEN-AES.
-- `dash_sha256` → `psa_hash_compute`; `dash_random` → `psa_generate_random` (CRACEN-TRNG).
-- CMAC, CCM, Milenage und X25519 sind in ESP-Sim portables C auf der Blockfunktion – funktionieren unverändert; optional später auf `PSA_ALG_CMAC`/`PSA_ALG_CCM`/Curve25519-ECDH (CRACEN-beschleunigt) umstellen. Die Golden Vectors sichern jeden Austausch ab.
-- **Privaten Pod-Schlüssel und Nonce im Pairing zufällig erzeugen** (siehe oben) und `ltk`, `ck` in geschütztem Speicher (KMU/PSA persistent keys) ablegen.
-- O5-Code (`o5.c`, P-256, Zertifikat) entfällt → kleinerer Footprint.
+- `dash_aes128_encrypt_block` -> `psa_cipher_encrypt` with `PSA_ALG_ECB_NO_PADDING` (one block).
+- `dash_sha256` -> `psa_hash_compute`; `dash_random` -> `psa_generate_random` (hardware TRNG).
+- CMAC, CCM, Milenage and X25519 are portable C on the block function in ESP-Sim - they work unchanged; optionally switch later to `PSA_ALG_CMAC`/`PSA_ALG_CCM`/Curve25519 ECDH (hardware accelerated). The golden vectors protect every replacement.
+- **Generate the private pod key and the nonce in pairing randomly** (see above) and keep `ltk`, `ck` in protected storage (PSA persistent keys).
+- The O5 code (`o5.c`, P-256, certificate) is dropped -> smaller footprint.
 
-### 3.4 Speicher, Puffer
+### 3.4 Memory, buffers
 
-`DASH_MSG_MAX` ist 2048 (nur wegen O5-Zertifikaten ≈ 1,1 KB); für DASH reichen ≈ 256 Byte → `dash_pod_t` (derzeit je 2 KB `rx_buf`/`tx_buf`) und `dash_msg_t` (liegt auf dem Stack) schrumpfen deutlich. Die nRF54L15 hat zwar 256 KB RAM, der Thread-Stack sollte trotzdem geprüft werden.
+`DASH_MSG_MAX` is 2048 (only because of O5 certificates, approx. 1.1 KB); for DASH approx. 256 bytes suffice -> `dash_pod_t` (currently 2 KB each for `rx_buf`/`tx_buf`) and `dash_msg_t` (lives on the stack) shrink considerably. The nRF52840 has 256 KB RAM (the current OpenPatch app uses approx. 54 KB); the thread stack should still be checked.
 
-### 3.5 BLE-Besonderheiten
+### 3.5 BLE specifics
 
-- **Kein SMP/Bonding** im DASH-Modus (`CONFIG_BT_SMP=n`, Characteristic-Permissions ohne Verschlüsselung) – anders als der native Modus.
-- Verbindungsparameter und Advertising-Intervall so wählen, dass `OmnipodKit` (CoreBluetooth) zuverlässig findet/verbindet; mit realem Trio testen. Das Verhalten bei Reconnect (`DASH_EV_CONNECTED` bricht laufende Link-Übertragung ab) übernehmen.
-- Gerätename: nicht „Omnipod“ imitieren, sondern eine eigene Kennung wählen, sofern OmnipodKit nicht nach dem Namen filtert (aus OmnipodKit prüfen; Scan erfolgt über die Service-UUIDs).
+- **No SMP/bonding** in DASH mode (`CONFIG_BT_SMP=n`, characteristic permissions without encryption) - unlike the native mode.
+- Choose connection parameters and advertising interval so that `OmnipodKit` (CoreBluetooth) finds/connects reliably; test with a real Trio. Take over the reconnect behaviour (`DASH_EV_CONNECTED` aborts a running link transfer).
+- Device name: do not imitate "Omnipod" but choose an own identifier, unless OmnipodKit filters by name (check in OmnipodKit; scanning is done via the service UUIDs).
 
-## 4. Abbildung DASH-Befehle → `delivery_engine`/Pump-Controller
+## 4. Mapping DASH commands -> `delivery_engine`/pump controller
 
-ESP-Sim dekodiert absichtlich nur Kopf-Felder (`PROGRAM_INSULIN`: `table_num`, `duration`, `pulses`) und **liefert nichts**. Für den echten Pod müssen die vollständigen Programme dekodiert werden – das Format ist aus **OmnipodKit** (Programmierung von Basal-/Temp-/Bolus-Tabellen) abzuleiten; Golden Vectors aus OmnipodKit erzeugen (analog `tools/o5golden`).
+ESP-Sim deliberately decodes only head fields (`PROGRAM_INSULIN`: `table_num`, `duration`, `pulses`) and **delivers nothing**. For the real pod the full programs must be decoded - the format is to be derived from **OmnipodKit** (programming of basal/temp/bolus tables); generate golden vectors from OmnipodKit (analogous to `tools/o5golden`).
 
-Einheiten: 1 DASH-Puls = **0,05 IE = 50 mU** (passt zu unserem `OP_RATE_GRANULARITY_MU`/`OP_BOLUS_GRANULARITY_MU`). Bolusdauer in ESP-Sim: **2 s/Puls im Betrieb** = 1,5 IE/min = unsere Bolusrate; 1 s/Puls nur in der Aktivierung.
+Units: 1 DASH pulse = **0.05 U = 50 mU** (matches our `OP_RATE_GRANULARITY_MU`/`OP_BOLUS_GRANULARITY_MU`). Bolus duration in ESP-Sim: **2 s/pulse in operation** = 1.5 U/min = our bolus rate; 1 s/pulse only during activation.
 
-| DASH-Befehl (Code) | Wirkung auf unseren Pod |
+| DASH command (code) | Effect on our pod |
 |---|---|
-| `SET_UNIQUE_ID` (0x03) | Pod-ID (4 Byte) speichern → fließt in Advertising-UUIDs; kein Eingriff in die Engine |
-| `GET_VERSION` (0x07), `CNFG_DELIV_FLAG` (0x08) | feste Antworten (`dash_rsp_version`); Firmware-/Hardwarekennung bewusst als „Fremdgerät“ wählen, falls OmnipodKit es zulässt |
-| `GET_STATUS` (0x0E), Status-Typen 0/1/2/3/5/0x46/0x50/0x51 | aus `op_status_t` aufbauen: Reservoir in Pulsen (`reservoir_mu / 50`), Bolus aktiv/Rest, Temp aktiv, `progress` (8 ≥ 50 IE, 9 < 50 IE, 13 Fehler, 15 inaktiv), geförderte Pulsmenge, aktive Minuten, Fehler-/Alarmbytes |
-| `PROGRAM_INSULIN` Tabelle 0 (Basal; im ESP-Sim-Log `PROGRAM_BASAL` 0x13) | 48 Halbstunden-Slots → `op_basal_schedule_t` (gleiche Nachbarslots zu Segmenten verschmelzen) → `op_pump_set_schedule()` |
-| `PROGRAM_INSULIN` Tabelle 1 (Temp; Log `PROGRAM_TEMP_BASAL` 0x16) | Rate + `duration` (Halbstunden) → `op_pump_set_temp_basal(rate_mu_h, 30·duration)` |
-| `PROGRAM_INSULIN` Tabelle 2 (Bolus; Log `PROGRAM_BOLUS` 0x17) | `pulses·50` mU → `op_pump_bolus()` |
-| `STOP_DELIVERY` (Flags Bolus/Temp/Basal) | `op_pump_cancel_bolus()` / `op_pump_cancel_temp_basal()` / `op_pump_suspend()` |
-| `PROGRAM_ALERTS` (0x19), `SILENCE_ALERTS`, `PROGRAM_BEEPS` (0x1E) | Alarm-Slots (Reservoir niedrig, Ablauf …) in Summer-/Alarmlogik; Reservoir-Alarm gegen `op_res_*` |
-| `DEACTIVATE` (0x1C) | Abgabe stoppen (`suspend`), `progress = INACTIVE`; für den wiederverwendbaren Pod: erneute Aktivierung = neues Pairing nach Fill |
-| unbekannte Befehle | NACK wie ESP-Sim (`dash_rsp_nack`) |
+| `SET_UNIQUE_ID` (0x03) | store pod ID (4 bytes) -> goes into the advertising UUIDs; no intervention in the engine |
+| `GET_VERSION` (0x07), `CNFG_DELIV_FLAG` (0x08) | fixed answers (`dash_rsp_version`); choose firmware/hardware identifiers deliberately as "third-party device" if OmnipodKit allows it |
+| `GET_STATUS` (0x0E), status types 0/1/2/3/5/0x46/0x50/0x51 | build from `op_status_t`: reservoir in pulses (`reservoir_mu / 50`), bolus active/remaining, temp active, `progress` (8 >= 50 U, 9 < 50 U, 13 fault, 15 inactive), delivered pulse count, active minutes, fault/alarm bytes |
+| `PROGRAM_INSULIN` table 0 (basal; in the ESP-Sim log `PROGRAM_BASAL` 0x13) | 48 half-hour slots -> `op_basal_schedule_t` (merge equal neighbouring slots into segments) -> `op_pump_set_schedule()` |
+| `PROGRAM_INSULIN` table 1 (temp; log `PROGRAM_TEMP_BASAL` 0x16) | rate + `duration` (half hours) -> `op_pump_set_temp_basal(rate_mu_h, 30*duration)` |
+| `PROGRAM_INSULIN` table 2 (bolus; log `PROGRAM_BOLUS` 0x17) | `pulses*50` mU -> `op_pump_bolus()` |
+| `STOP_DELIVERY` (flags bolus/temp/basal) | `op_pump_cancel_bolus()` / `op_pump_cancel_temp_basal()` / `op_pump_suspend()` |
+| `PROGRAM_ALERTS` (0x19), `SILENCE_ALERTS`, `PROGRAM_BEEPS` (0x1E) | alarm slots (reservoir low, expiry ...) into buzzer/alarm logic; reservoir alarm against `op_res_*` |
+| `DEACTIVATE` (0x1C) | stop delivery (`suspend`), `progress = INACTIVE`; for the reusable pod: re-activation = new pairing after fill |
+| unknown commands | NACK like ESP-Sim (`dash_rsp_nack`) |
 
-Zustandsführung: DASH-`progress`, `last_prog_seq`, `cmd_seq`/`msg_seq`/`nonce_seq`, Pod-ID und LTK **persistent** (`dash_state_t`); Reservoir/Abgabezähler aus dem Kern (nicht doppelt führen – die Quelle der Wahrheit bleibt `reservoir_model`).
+State handling: DASH `progress`, `last_prog_seq`, `cmd_seq`/`msg_seq`/`nonce_seq`, pod ID and LTK **persistent** (`dash_state_t`); reservoir/delivery counters from the core (do not keep them twice - the source of truth stays `reservoir_model`).
 
-Wichtige Regeln:
+Important rules:
 
-1. **Der Sicherheitsüberwacher bleibt oberste Instanz.** Jeder DASH-Befehl läuft durch `op_sv_check_*`. Lehnt er ab (z. B. Bolus > 10 IE), muss ein DASH-konformer NACK/Fehler zurückgehen, den Trio versteht (Verhalten mit realem Trio testen; ggf. Max-Bolus in Trio gleich oder kleiner setzen).
-2. **Aktivierungsphase.** DASH aktiviert mit Prime (≈ 2,6 IE als Bolus bei `progress < …`) und Kanüleneinsetzen (0,5 IE). Unser Pod hat weder Schlauch noch Einstechmechanik (Insight-Flex-Kanüle wird vom Nutzer gesetzt; Totvolumen der Nadel ≈ 0,5 IE max.). Diese Pseudo-Boli dürfen **nicht** real gefördert werden (Gefahr, in den Körper zu fördern): im Zustand `PRIMING`/`INSERTING_CANNULA` nur quittieren (Timing wie das Original simulieren) bzw. höchstens `op_pump_prime()` (≤ 40 Schritte) ausführen. Reservoir-Abbuchung nur für real geförderte Schritte.
-3. **Pod-Lebensdauer.** Trio erwartet 80 h; für die Anzeige wird die Aktivierungszeit bei jedem Pairing neu gesetzt (spec: „200-IE-Pod mit 80-h-Lebensdauer“). Nach Ablauf meldet DASH Alarme/`ACTIVATION_TIME_EXCEEDED` – für den wiederverwendbaren Pod bewusst nur anzeigen, nicht hart abschalten, bis das Konzept entschieden ist.
-4. **Kommunikationsverlust.** Jede authentifizierte DASH-Nachricht ruft `op_de_comm_heartbeat()` auf; Temp-Basal fällt nach 30 min auf den Plan zurück (spec Abschnitt 7).
-5. **Fehlerabbildung.** Unsere Fehlerbits (OCCLUSION, ENCODER_DEVIATION, RESERVOIR_EMPTY, BATTERY_CRITICAL, LIMIT_EXCEEDED, INTERNAL) müssen auf DASH-Fehlercodes (`fault`-Byte, Pod-Info-Typ 2/3/5) abgebildet werden, damit Trio den Alarm anzeigt statt „alles in Ordnung“ zu glauben. Tabelle aus OmnipodKit (`PodInfoFaultEvent`) ableiten – **offen**.
-6. **Basalplan-Segmente.** DASH kennt 48 Halbstunden-Einträge; unser Kern erlaubt (Spec) 24 Segmente. Ein DASH-Plan mit mehr als 24 verschiedenen Nachbarsegmenten würde abgelehnt. Entscheidung nötig: `OP_BASAL_SEGMENTS_MAX` auf 48 anheben (Spec-Änderung) – empfohlen.
+1. **The safety supervisor stays the highest authority.** Every DASH command goes through `op_sv_check_*`. If it refuses (e.g. bolus > 10 U), a DASH-conformant NACK/fault must go back that Trio understands (test with a real Trio; if needed set max bolus in Trio equal or lower).
+2. **Activation phase.** DASH activates with a prime (approx. 2.6 U as a bolus at `progress < ...`) and cannula insertion (0.5 U). Our pod has neither a tube nor an insertion mechanism (the Insight Flex cannula is placed by the user; needle dead volume approx. 0.5 U max.). These pseudo boluses must **not** be really delivered (danger of delivering into the body): in state `PRIMING`/`INSERTING_CANNULA` only acknowledge (simulate timing like the original) or at most execute `op_pump_prime()` (<= 40 steps). Reservoir debit only for really delivered steps.
+3. **Pod lifetime.** Trio expects 80 h; for the display the activation time is reset on every pairing (spec: "200 U pod with 80 h lifetime"). After expiry DASH reports alarms/`ACTIVATION_TIME_EXCEEDED` - for the reusable pod deliberately only display, do not shut down hard, until the concept is decided.
+4. **Loss of communication.** Every authenticated DASH message calls `op_de_comm_heartbeat()`; temp basal falls back to the schedule after 30 min (spec section 7).
+5. **Fault mapping.** Our fault bits (OCCLUSION, ENCODER_DEVIATION, RESERVOIR_EMPTY, BATTERY_CRITICAL, LIMIT_EXCEEDED, INTERNAL) must be mapped to DASH fault codes (`fault` byte, pod-info type 2/3/5) so Trio shows the alarm instead of believing "everything is fine". Derive the table from OmnipodKit (`PodInfoFaultEvent`) - **open**.
+6. **Basal schedule segments.** DASH knows 48 half-hour entries; our core allows (spec) 24 segments. A DASH schedule with more than 24 distinct neighbouring segments would be rejected. Decision needed: raise `OP_BASAL_SEGMENTS_MAX` to 48 (spec change) - recommended.
 
-## 5. Teststrategie
+## 5. Test strategy
 
-1. **Golden Vectors übernehmen** (`test/host/golden_dash.h`, erzeugt aus dem Go-Original) und im Host-Test (`firmware/tests`) gegen die portierte Komponente laufen lassen: Pairing, EAP, LTK/CK, CCM, `GetVersion`.
-2. `host_io.c`-Äquivalent (`dash_io_t` für den Host) wiederverwenden, um komplette DASH-Sitzungen gegen den Kern mit **Mock-HAL** zu fahren (Bolus/Temp/Basal-Programmierung → Schrittzahlen, Veto durch den Überwacher, Fehlerabbildung).
-3. **Gegenprobe:** derselbe Trio-Testaufbau erst gegen ESP-Sim (ESP32-S3), dann gegen den OpenPatch-Pod; Abweichungen im Verhalten dokumentieren.
-4. Prüfstand mit Wasser (kein Insulin, kein Körper): Bolus-/Basalgenauigkeit über die Waage, Okklusion/Encoder-Fehler provozieren, Alarmkette in Trio prüfen.
+1. **Take over golden vectors** (`test/host/golden_dash.h`, generated from the Go original) and run them in the host test (`firmware/tests`) against the ported component: pairing, EAP, LTK/CK, CCM, `GetVersion`.
+2. Reuse the `host_io.c` equivalent (`dash_io_t` for the host) to run complete DASH sessions against the core with the **mock HAL** (bolus/temp/basal programming -> step counts, veto by the supervisor, fault mapping).
+3. **Cross-check:** same Trio test setup first against ESP-Sim (ESP32-S3), then against the OpenPatch pod; document deviations in behaviour.
+4. Test bench with water (no insulin, no body): bolus/basal accuracy via the scale, provoke occlusion/encoder faults, check the alarm chain in Trio.
 
-## 6. Lizenzfolgen (GPL-3.0)
+## 6. Licence consequences (GPL-3.0)
 
-ESP-Sim steht unter **GPL-3.0**; die gelesenen Quellen tragen `GPL-3.0-or-later`. Kopieren oder portieren von `components/dashpod` macht die Firmware zu einem **abgeleiteten Werk**:
+ESP-Sim is under **GPL-3.0**; the sources read carry `GPL-3.0-or-later`. Copying or porting `components/dashpod` makes the firmware a **derived work**:
 
-- **Das gesamte DASH-Firmware-Image (inkl. Kern, HAL, Zephyr-Anwendung) muss unter GPL-3.0(-or-later) stehen**, sobald es ESP-Sim-Code enthält. Das entspricht bereits der Annahme in spec/design-parameters.md (Abschnitt 6.2).
-- **Weitergabe** (Verkauf/Verschenken von Pods mit der Firmware, Binär-Downloads): Quellcode (auch der Kopplungs-/Bridge-Teile) muss mitgeliefert oder schriftlich angeboten werden; Lizenztexte und Urheberhinweise (ESP-Sim, `jeremybarnum/pod`, `LoopKit/pod`, `0pen-dash`, TweetNaCl) bleiben erhalten; Änderungen sind kenntlich zu machen.
-- **GPLv3 §6 („Installation Information“)**: Für „User Products“ (typischerweise persönlich genutzte Geräte, hier voraussichtlich der Pod) müssen die Informationen bereitgestellt werden, um geänderte Firmware auf dem Gerät zu installieren. Ein **gesperrter Secure Boot** ohne Schlüsselweitergabe ist dann nicht zulässig. Das steht im Spannungsfeld zu Sicherheitsanforderungen (signierte Updates) – Lösung: Updates per Nutzerschlüssel/Open-Signing, offener Bootloader, dokumentierte Flash-Prozedur.
-- **Trennung der Varianten:** Die native Firmware kann nur dann anders lizenziert (z. B. Apache-2.0/MIT) werden, wenn ihr Image **keinen** GPL-Code enthält. Ein gemeinsames Image mit DASH-Code ist GPL. Daher der Vorschlag getrennter Images (Abschnitt 3.1) – die Linkgrenze innerhalb eines Images trennt Lizenzen nicht.
-- **Empfehlung:** gesamte Firmware unter **GPL-3.0-or-later** stellen (einfachste, konsistente Lösung, passt zur Zielgruppe der Open-Source-Closed-Loop-Community). `SPDX-License-Identifier` in alle Dateien in `firmware/` aufnehmen, sobald entschieden. Das ist keine Rechtsberatung – vor einer Weitergabe juristisch prüfen lassen (auch Marken- und Medizinprodukterecht).
-- Protokollkenntnis aus OmnipodKit (loopandlearn) ist getrennt zu betrachten; deren Lizenz vor dem Übernehmen von Tabellen/Konstanten prüfen.
+- **The entire DASH firmware image (including core, HAL, Zephyr application) must be under GPL-3.0(-or-later)** as soon as it contains ESP-Sim code. This already matches the assumption in spec/design-parameters.md (section 6.2).
+- **Distribution** (selling/giving away pods with the firmware, binary downloads): the source code (including the coupling/bridge parts) must be supplied or offered in writing; licence texts and copyright notices (ESP-Sim, `jeremybarnum/pod`, `LoopKit/pod`, `0pen-dash`, TweetNaCl) are retained; changes must be marked.
+- **GPLv3 section 6 ("Installation Information")**: for "User Products" (typically personally used devices, here presumably the pod) the information needed to install modified firmware on the device must be provided. A **locked secure boot** without key hand-over is then not permitted. This is in tension with safety requirements (signed updates) - solution: updates via user key/open signing, open bootloader, documented flash procedure.
+- **Separation of the variants:** the native firmware can only be licensed differently (e.g. Apache-2.0/MIT) if its image contains **no** GPL code. A joint image with DASH code is GPL. Hence the proposal of separate images (section 3.1) - the link boundary inside one image does not separate licences.
+- **Recommendation:** put the entire firmware under **GPL-3.0-or-later** (simplest, consistent solution, fits the open-source closed-loop community audience). Add `SPDX-License-Identifier` to all files in `firmware/` once decided. This is not legal advice - have it checked legally before any distribution (also trademark and medical-device law).
+- Protocol knowledge from OmnipodKit (loopandlearn) is to be considered separately; check its licence before taking over tables/constants.
 
-## 7. Phasen
+## 7. Phases
 
-| Phase | Inhalt | Ergebnis |
+| Phase | Content | Result |
 |---|---|---|
-| 0 | Lizenzentscheidung; OmnipodKit analysieren (Programm-Payloads, Fehlercodes, Alarmslots, Zeitquelle) | Spezifikationsblatt, Golden Vectors für Programme |
-| 1 | `components/dashpod` als Subtree nach `firmware/dash/`; Zephyr-CMake; `dash_io_zephyr.c`; Host-Test mit Golden Vectors | Pairing/Sitzung auf dem Host reproduzierbar |
-| 2 | BLE-Bring-up auf nRF54L15 (Advertising, GATT, Link-Layer) mit iPhone/Trio | Trio findet den Pod und paart |
-| 3 | `dash_bridge.c`: Befehle → Pump-Controller, Statusantworten, Fehlerabbildung | Trio programmiert Basal/Temp/Bolus am Prüfstand |
-| 4 | Sicherheitsreview (Zufallsschlüssel, Persistenz von Zählern, Aktivierungsphase ohne Pseudo-Boli) | Review-Bericht |
-| 5 | Prüfstand mit Wasser, Fehlerinjektion | Testprotokoll |
+| 0 | Licence decision; analyse OmnipodKit (program payloads, fault codes, alarm slots, time source) | specification sheet, golden vectors for programs |
+| 1 | `components/dashpod` as subtree into `firmware/dash/`; Zephyr CMake; `dash_io_zephyr.c`; host test with golden vectors | pairing/session reproducible on the host |
+| 2 | BLE bring-up on the nRF52840 (advertising, GATT, link layer) with iPhone/Trio | Trio finds the pod and pairs |
+| 3 | `dash_bridge.c`: commands -> pump controller, status responses, fault mapping | Trio programs basal/temp/bolus on the test bench |
+| 4 | Security review (random keys, persistence of counters, activation phase without pseudo boluses) | review report |
+| 5 | Test bench with water, fault injection | test protocol |
 
-## 8. Offene Fragen / Risiken
+## 8. Open questions / risks
 
-1. Format der vollständigen `PROGRAM_INSULIN`-Payloads (Basal/Temp/Bolus) – ESP-Sim dekodiert nur den Kopf.
-2. Fehlercode-Abbildung unserer Fehlerbits auf DASH-Faults.
-3. Zeitquelle (Wanduhr) im Pod und welche DASH-Nachricht sie liefert.
-4. Anzahl Basalsegmente 24 vs. 48 (Spec-Änderung).
-5. Verhalten von Trio/OmnipodKit bei abgelehnten Befehlen (Limit-Veto) und bei abweichenden Versions-/Hardwarekennungen.
-6. Lizenz und Marken (Abschnitt 6); Regulierung: ein DASH-emulierendes Fremdgerät steuert Insulin über Software, die dafür nicht freigegeben ist – ausdrücklich nur experimentell.
-7. Persistenz-Verschleiß (RRAM-Zyklen) bei häufig geänderten Zählern.
+1. Format of the full `PROGRAM_INSULIN` payloads (basal/temp/bolus) - ESP-Sim decodes only the head.
+2. Mapping of our fault bits to DASH faults.
+3. Time source (wall clock) in the pod and which DASH message delivers it.
+4. Number of basal segments 24 vs. 48 (spec change).
+5. Behaviour of Trio/OmnipodKit on refused commands (limit veto) and on deviating version/hardware identifiers.
+6. Licence and trademarks (section 6); regulation: a DASH-emulating third-party device controls insulin through software that is not approved for it - explicitly experimental only.
+7. Persistence wear (flash cycles) with frequently changing counters.

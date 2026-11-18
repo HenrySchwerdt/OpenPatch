@@ -204,6 +204,7 @@ int op_rsp_encode_payload(const op_rsp_t *r, uint8_t *out, size_t cap)
         op_tlv_put_u32(&w, OP_TAG_SCHEDULED_MU, s->scheduled_mu);
         op_tlv_put_u32(&w, OP_TAG_NEXT_EVENT_ID, s->next_event_id);
         op_tlv_put_u16(&w, OP_TAG_FW_VERSION, s->fw_version);
+        op_tlv_put_u16(&w, OP_TAG_LAST_SEQ, s->last_seq);
     }
     if (r->has_history) {
         op_tlv_put_u32(&w, OP_TAG_NEXT_EVENT_ID, r->next_event_id);
@@ -266,6 +267,10 @@ static bool take_rsp_tag(op_rsp_t *o, uint8_t type, uint8_t tag, const uint8_t *
     case OP_TAG_FW_VERSION:
         if (vl != 2) return false;
         s->fw_version = rd16(v);
+        return true;
+    case OP_TAG_LAST_SEQ:
+        if (vl != 2) return false;
+        s->last_seq = rd16(v);
         return true;
     case OP_TAG_NEXT_EVENT_ID:
         if (vl != 4) return false;

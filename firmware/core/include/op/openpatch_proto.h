@@ -66,7 +66,8 @@ typedef enum {
     OP_TAG_CURRENT_RATE_MU_H = 0x16,
     OP_TAG_DELIVERED_MU = 0x17,    /* u32 lifetime */
     OP_TAG_SCHEDULED_MU = 0x18,    /* u32 */
-    OP_TAG_FW_VERSION = 0x19       /* u16 */
+    OP_TAG_FW_VERSION = 0x19,      /* u16 */
+    OP_TAG_LAST_SEQ = 0x1A         /* u16 highest accepted command seq (GetStatus; resync after pod reboot) */
 } op_tag_t;
 
 enum { OP_SUBOP_FILL = 1, OP_SUBOP_PRIME = 2 };
@@ -127,6 +128,7 @@ typedef struct {
 typedef struct {
     uint16_t flags, faults, battery_mv, temp_rate_mu_h, temp_remaining_min, current_rate_mu_h, fw_version;
     uint32_t reservoir_mu, bolus_remaining_mu, delivered_mu, scheduled_mu, next_event_id;
+    uint16_t last_seq; /* highest accepted command sequence number (filled by op_pump_handle_frame) */
 } op_status_t;
 
 typedef struct {

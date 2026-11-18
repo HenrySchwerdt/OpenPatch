@@ -31,7 +31,6 @@ config OPENPATCH_SIM_BATTERY
 config OPENPATCH_SIM_BATTERY_MV
 	int "Simulated battery voltage in mV"
 	default 3900
-	depends on OPENPATCH_SIM_BATTERY
 
 config OPENPATCH_VBAT_DIV_NUM
 	int "VBAT = V(SAADC) * NUM / DEN (divider 1.5M / 1M => 5/2)"

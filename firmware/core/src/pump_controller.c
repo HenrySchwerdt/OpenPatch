@@ -281,6 +281,7 @@ int op_pump_handle_frame(op_pump_t *p, op_session_t *s, const uint8_t *in, size_
         rsp.result = (uint8_t)-d;
     } else {
         op_pump_execute(p, &cmd, &rsp);
+        if (rsp.has_status) rsp.status.last_seq = s->last_rx_seq; /* lets the phone resync after a pod reboot */
     }
     uint8_t body[OP_FRAME_MAX];
     int n = op_rsp_encode_payload(&rsp, body, sizeof body);
