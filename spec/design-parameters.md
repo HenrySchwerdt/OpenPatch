@@ -2,7 +2,7 @@
 
 > All subprojects (mechanical/, electronics/, firmware/, ios/) MUST use these values.
 > Make changes only here, then propagate them to the subprojects.
-> Status: Concept v0.1 (2026-11-18). Experimental DIY device, NOT an approved medical device.
+> Status: Concept v0.2 (2026-11-18, two-pod system). Experimental DIY device, NOT an approved medical device.
 
 ## 1. Product concept
 
@@ -13,6 +13,17 @@
 - Filling with a syringe through a silicone septum (like Omnipod), insulin U100.
 - Inductively chargeable (no connector hole → easier to make waterproof).
 - Three variants that differ ONLY in reservoir/housing length: **70 U, 100 U, 200 U**.
+
+## 1b. Two-pod system (concept v0.2, proposed by the user 2026-11-18)
+
+- A user owns **two identical pods (A/B)**. One is docked on the cannula and delivers; the other sits on the Qi charger and is refilled.
+- **Max wear time per pod: 48 h** (warning at 44 h, delivery stop + alarm at 52 h). Insulin stays well under the ~3-day in-pump limit.
+- Size choice: OP-100 covers up to ~50 U/day for 2 days (incl. priming); OP-200 for higher TDD; OP-70 up to ~30 U/day.
+- Battery requirement drops to **≥ 2 days + 50 % reserve** (≈ 7–10 mAh at ~100 µA average, estimate) → the Rev A cell (17–26 mAh) is sufficient.
+- **Only one pod may ever deliver.** Enforced by two independent conditions:
+  1. **Dock detection (mandatory):** a magnet in the cannula adapter + Hall switch on the PCB; a pod that is not docked never delivers (hardware input to the safety supervisor).
+  2. **Explicit handover:** the app sends `Release` to the old pod and waits for its confirmation (delivery stopped, delivered total reported) before sending `Activate` to the new pod with the current basal schedule, active temp basal and remaining IOB context. The pod refuses `Activate` while another pod in the same pair has not confirmed release (pair ID + role in the protocol).
+- Trio sees **one** pump (OpenPatchKit manages the A/B pair internally). DASH compatibility mode remains possible, but every swap is a new "pod" with fresh pairing, so the native kit is the primary path.
 
 ## 1a. Assembly without a soldering iron (requirement)
 
