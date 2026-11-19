@@ -134,3 +134,12 @@ Note: In DASH mode Trio "sees" a 200 U pod with 80 h lifetime; reservoir display
 - Exact geometry is **not public** → must be measured by the user with calipers (measurement sheet: `mechanical/cannula-measurement.md`). Until then a parametric placeholder in the CAD:
   - Connector plate (assumption): 14 × 10 × 3.0 mm, needle entry in the center, snap groove 1.0 mm on both sides.
 - The pod has a receiving pocket on the underside into which the cannula head latches; the 30G needle pierces the cannula septum.
+
+## 8a. Modular dock insert (decision 2026-11-19, user)
+
+The Insight Flex fit is the slowest thing to get right, so it is isolated in **one small, cheap, swappable part**:
+- **Dock insert** (printed, e.g. JLC3DP SLA or PA12): contains *all* cannula-specific geometry — pocket, snap arms/latch, needle guide/centring onto the cannula septum, and the dock magnet seat. It is the only part iterated for the fit.
+- **Frozen dock interface on the pod** (`mechanical/params.json` → `dock_interface_frozen`, like `reservoir_frozen`): mechanical mount (e.g. dovetail/rail + one M1.2 screw or a snap, tool-free swap), datum faces, needle exit position and axis, dock-hall sensor position (fixed in the pod), magnet-to-sensor geometry. Changing it requires a decision in `docs/STATUS.md`.
+- The 30G needle stays in the pod (end cap); the insert only guides/centres the cannula onto it. Needle length is set per insert variant via an insert-side stop, not by changing the pod.
+- Every order contains a **variant set of inserts** (parameter sweep, e.g. 8–12 variants, labelled by embossed ID) so the fit can be iterated without rebuying the pump; a pod-less **fit-test coupon** uses the same interface.
+- A dummy cannula head (`cannula_adapter`) with the same interface lets the dock be tested on the bench without a real cannula.
