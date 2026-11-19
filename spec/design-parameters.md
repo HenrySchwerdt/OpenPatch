@@ -74,6 +74,11 @@
 - Before ordering: independent DFM review of the drawing + PCBWay's quote DFM feedback.
 - **Water only (decision 2026-11-19): the pump is never filled with insulin or any drug, not even into containers.** The wetted-path material choice (PP reservoir, medical platinum-cure silicone seals/septum/duckbill, stainless needle; never printed resin) is kept only as design preparation for a future legal manufacturer; the CNC PP reservoir is optional for this project.
 
+## 3b. Plunger coupling = central push rod, closed reservoir (decision 2026-11-19)
+
+- Finding: the previous side-slot coupling (carriage tongue through a slot in the +Y reservoir wall) leaks: the slot must span the whole stroke, so at a full reservoir about 12 mm of slot lie in front of the seal, in the water. It also pushed the plunger 7.2 mm off-axis (cocking, friction ×1.5–3, jamming risk).
+- Decision: the carriage drives a **push rod on the bore axis** that enters the reservoir from the open dry end (classic syringe-pump layout). The reservoir becomes a **closed tube without any wall opening** (only the port at the closed end); this replaces the slot in `reservoir_frozen` (re-freeze before ordering). The pod gets longer by about the stroke (OP-100 ≈ +13 mm); buildability and leak-tightness beat minimal size.
+
 ## 4. Drive — geared micro stepper + direct leadscrew, automatic refill (decision 2026-11-19)
 
 Rationale: buildability beats minimal size (builders are not watchmakers). No off-the-shelf integrated micro linear actuator meets force/drawing/orderability (`mechanical/linear-actuator-selection.md`); the SMA ratchet needs too many fine custom parts. SMA research stays as a later option for minimal size.
