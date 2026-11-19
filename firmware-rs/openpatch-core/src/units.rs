@@ -150,7 +150,7 @@ impl PulseCal {
         AngleCounts(p.0 as i64 * ANGLE_COUNTS_PER_TURN * 100 / self.turn_x100 as i64)
     }
 
-    /// Expected angle of one pulse in 1/1000 counts (e.g. 529 steps/turn: 7743 = 7.74 counts).
+    /// Expected angle of one pulse in 1/1000 counts (e.g. 529 steps/turn: 7742 = 7.74 counts).
     #[inline]
     pub fn angle_per_pulse_x1000(self) -> i64 {
         if self.turn_x100 == 0 {

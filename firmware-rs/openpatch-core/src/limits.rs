@@ -3,8 +3,9 @@
 
 use crate::units::{Millis, MilliUnits, MilliUnitsPerHour, PulseCal};
 
-/// Sane range of the per-step volume (4 mU .. 60 mU). NFP-608-26.45: 4.94 mU, Zhaowei 6.43: 20.3 mU.
-pub const CAL_UU_MIN: u32 = 4_000;
+/// Sane range of the per-step volume (1 mU .. 60 mU). NFP-608-26.45 direct: 4.94 mU, with the 15:12 gear
+/// pair: 6.17 mU, Zhaowei 6.43: 20.3 mU, syringe bench rig: 1.19 mU.
+pub const CAL_UU_MIN: u32 = 1_000;
 pub const CAL_UU_MAX: u32 = 60_000;
 
 /// Rate accumulator scale: R mU/h held for dt ms delivers R*dt / 3_600_000 mU.

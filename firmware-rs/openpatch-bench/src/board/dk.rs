@@ -42,8 +42,6 @@ pub const HAS_VBUS_SENSE: bool = false;
 #[allow(dead_code)]
 pub const DOCK_SIMULATED: bool = true;
 pub const ENCODER_SIMULATED: bool = true;
-/// Initial value of the simulated DOCKED input.
-pub const DOCK_SIM_INITIAL: bool = true;
 pub const BUTTON_ACTIVE_LOW: bool = true;
 
 pub fn take(p: Peripherals) -> (BoardIo, Common) {

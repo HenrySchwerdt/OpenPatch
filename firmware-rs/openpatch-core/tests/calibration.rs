@@ -110,7 +110,7 @@ fn cal_rejects_missing_corrupt_out_of_range_and_wrong_volume() {
     let c = tampered(|c| c.magic ^= 1);
     assert_eq!(DriveCal::validate(Some(&c)), Err(Error::NotFound));
     // out of the sane range, valid CRC
-    for bad in [0u32, 3_999, 60_001, 100_000, u32::MAX] {
+    for bad in [0u32, 999, 60_001, 100_000, u32::MAX] {
         let c = tampered(|c| c.uu_num = bad);
         assert_eq!(DriveCal::validate(Some(&c)), Err(Error::Limit), "{bad}");
     }
@@ -299,7 +299,7 @@ fn cal_every_tampered_record_blocks_delivery() {
 
 #[test]
 fn cal_out_of_range_with_valid_crc_blocks_delivery() {
-    for bad in [0u32, 1, 3999, 60_001, 1_000_000, 0xFFFF_FFFF] {
+    for bad in [0u32, 1, 999, 60_001, 1_000_000, 0xFFFF_FFFF] {
         let c = tampered(|c| c.uu_num = bad);
         let (mut p, h) = rig(Some(&c));
         expect_blocked(&mut p, &h);
@@ -311,7 +311,7 @@ fn cal_supervisor_range_check_is_independent() {
     // the supervisor does its own range check on the raw calibration it is handed
     let bad_cals = [
         PulseCal { uu_num: 0, uu_den: 1, turn_x100: 25_600 },
-        PulseCal { uu_num: 3999, uu_den: 1, turn_x100: 25_600 },
+        PulseCal { uu_num: 999, uu_den: 1, turn_x100: 25_600 },
         PulseCal { uu_num: 60_001, uu_den: 1, turn_x100: 25_600 },
         PulseCal { uu_num: 522_200, uu_den: 1, turn_x100: 25_600 }, // floor out of range
         PulseCal { uu_num: 26_100, uu_den: 0, turn_x100: 25_600 },

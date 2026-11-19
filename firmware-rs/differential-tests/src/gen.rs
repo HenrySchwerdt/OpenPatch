@@ -46,6 +46,7 @@ pub struct Gen {
     charger: bool,
     mode: Mode,
     mode_left: u32,
+    pct: u32,
 }
 
 /// Generation phases: `Normal` is the mixed stream; `Fast` mostly 5 s ticks (lets the pump
@@ -74,7 +75,7 @@ pub fn payload_of(d: &CmdDesc) -> Vec<u8> {
 
 impl Gen {
     pub fn new(seed: u64, setup: &Setup) -> Self {
-        Gen { rng: Rng::new(seed), seq: 0, uu: setup.cal.uu().max(1), capacity: setup.capacity, dock: true, charger: false, mode: Mode::Normal, mode_left: 100 }
+        Gen { rng: Rng::new(seed), seq: 0, uu: setup.cal.uu().max(1), capacity: setup.capacity, dock: true, charger: false, mode: Mode::Normal, mode_left: 100, pct: 100 }
     }
 
     fn max_prime_steps(&self) -> u64 {
@@ -300,6 +301,18 @@ impl Gen {
         };
     }
 
+    /// Actuator-health knob. A degraded value stays until an encoder / occlusion fault tripped on
+    /// both sides: a short degraded episode could trip only the Rust per-revolution check
+    /// (documented difference (4)); a persistent one makes the C window check fire as well.
+    fn pct_op(&mut self, p: &Pair) -> Op {
+        let tripped = p.r.supervisor().faults().bits() & 0x3 != 0;
+        if self.pct != 100 && !tripped {
+            return Op::DeliveredPct(self.pct);
+        }
+        self.pct = *self.rng.pick(&DELIVERED_PCT_CHOICES);
+        Op::DeliveredPct(self.pct)
+    }
+
     pub fn op(&mut self, p: &Pair) -> Op {
         let v = view(p);
         if self.seq > 65_000 {
@@ -321,7 +334,7 @@ impl Gen {
                 return Op::Battery(*self.rng.pick(&[3900u16, 3900, 3900, 3900, 3900, 3900, 3499, 3350, 3250]));
             }
             if q < cmd_pm + 25 {
-                return Op::DeliveredPct(*self.rng.pick(&DELIVERED_PCT_CHOICES));
+                return self.pct_op(p);
             }
             if q < cmd_pm + 30 {
                 return Op::Dock(self.rng.chance(800));
@@ -352,7 +365,7 @@ impl Gen {
                 Op::Charger(self.charger)
             }
             840..=869 => Op::Battery(*self.rng.pick(&[3900u16, 3900, 3900, 3900, 3900, 3900, 3900, 3900, 3700, 3600, 3499, 3400, 3350, 3300, 3299, 3100, 3000, 4100])),
-            870..=899 => Op::DeliveredPct(*self.rng.pick(&DELIVERED_PCT_CHOICES)),
+            870..=899 => self.pct_op(p),
             900..=919 => Op::StepsLimit(*self.rng.pick(&[-1i32, -1, -1, -1, 0, 1, 2, 5])),
             920..=934 => {
                 self.seq = 0;
@@ -409,6 +422,9 @@ pub fn run_generated(seed: u64, n: usize, stats: &mut crate::pair::Stats) -> (Se
         ops.push(op);
         if let Err(e) = res {
             return (setup, ops, Err((i, e)));
+        }
+        if pair.stopped {
+            break;
         }
     }
     stats.steps_all += stats.total_steps_c;

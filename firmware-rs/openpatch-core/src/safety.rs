@@ -225,8 +225,8 @@ impl SafetySupervisor {
     // ---- step veto -------------------------------------------------------------------------
     /// Latch faults detected by the caller (e.g. motor did not execute approved steps).
     pub fn latch(&mut self, mask: Faults) {
-        self.last_new_faults = self.last_new_faults | (mask & !self.faults);
-        self.faults = self.faults | mask;
+        self.last_new_faults |= (mask & !self.faults);
+        self.faults |= mask;
     }
 
     /// Veto point for EVERY step: how many of `requested` may run. Trimming below `requested`

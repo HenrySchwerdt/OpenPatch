@@ -1,5 +1,9 @@
 # Stubs, open points and what is NOT verified (`openpatch-bench`, bootloader)
 
+## Syringe rig assumptions
+
+`drive-syringe-rig-1ml` (id 0x30) assumes a barrel area of 17.94 mm^2 (627 900 / 529 uU = 1.19 mU per pulse): **VERIFY with a gravimetric run** before trusting any volume. Capacity is `CAPACITY_100` (100 U) as for all builds; the 1 ml U100 syringe holds 100 U. `CAL_UU_MIN` is now 1000 uU, the rig preset (1187 uU) is only slightly above it.
+
 ## Board / drive conflicts that need a hardware decision (read first)
 
 1. **Angle sensor vs pod FFC.** The core's primary angle channel is the TMAG5273 over I2C (0x35, P0.26 / P0.06; `Hal::angle_read`, `None` = refuse to deliver).
@@ -9,10 +13,10 @@
    runs: cargo feature **`angle-qdec-fallback`** synthesizes angle counts from the two DRV5032 hall switches (quadrature, 1024 counts per edge, 1 pole pair
    placeholder = 4096 counts per turn only at 4 edges). It is **NOT sufficient for the 3 % per revolution check**: expect ENCODER_DEVIATION faults.
    On the DK the angle is simulated from the executed pulses (exact).
-2. **Draw mode vs the hardware interlock.** `VMOT on = latch AND MCU_EN AND DOCKED` (hardware), but `FillDraw` requires the pump UNDOCKED. On the bench board the
+2. **Draw mode vs the hardware interlock** (limitation for `board-bench-e73`; solved in firmware for the DK and the syringe rig). `VMOT on = latch AND MCU_EN AND DOCKED` (hardware), but `FillDraw` requires the pump UNDOCKED. On the bench board the
    motor supply therefore cannot come up during a draw: `motor_enable(true)` fails the VMOT check, the reverse burst returns 0 pulses and the draw ends STALLED/fault.
    The firmware does not bypass the interlock. Options (hardware): a bench jumper that forces the DOCKED gate (Q6) for draw tests, or a separate "draw"
-   enable path. Draw works end to end only on the DK (no interlock) until then.
+   enable path. Draw works end to end on the **DK builds** (no interlock; BUTTON2 toggles the simulated DOCKED, so the pump can be undocked) including `drive-syringe-rig-1ml`. The safest minimal bench solution is exactly that: use the DK + rig for draw tests; a real fix on the controller board is hardware (a DRAW jumper forcing the DOCKED gate Q6 only while a draw is commanded, with the firmware still refusing it unless undocked + suspended). The firmware never bypasses the gate. Feature `dock-simulated` (software DOCKED, initial docked) is compile_error!ed with `board-bench-e73` unless `unsafe-bench-override` is also given, and even then the supply gate still needs the real DOCKED.
 3. TMAG5273 register map in `hal/tmag.rs` is from memory and unverified (TODO(verify-on-hardware)).
 
 
@@ -54,7 +58,7 @@ Unverified, in order of risk:
 * **Test calibrations** (core feature `test-calibrations`, ids >= 0x7F00) must never be in a firmware build: `config::assert_no_test_calibrations()` checks `drive_cal::PRESETS` at startup and panics (watchdog reset).
 * **Reverse (draw) bursts**: 600 Hz (hard cap 1000 pps by const assert), chunks <= 600 steps; the watchdog is serviced before every reverse chunk. Angle unwrap needs < half a turn between samples (20 ms sampling, margin >= 12x for every preset).
 * **Reservoir model** after a power loss can only be lower than reality (stored with a 64 step margin), except for the window in which a burst larger than the
-  remaining headroom completes before the flash write lands (one prime = up to 64 pulses = 0.32 U on the NFP drive).
+  remaining headroom completes before the flash write lands (one prime = up to 64 pulses = 0.39 U on the G15/12 drive).
 * **Angle default**: `angle-tmag`. The QDEC (`coarse-qdec`, off by default) is only a coarse cross-check log; it is never the primary angle channel.
 
 ## Core API wishes

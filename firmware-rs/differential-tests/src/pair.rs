@@ -87,6 +87,9 @@ pub struct Stats {
     pub total_steps_c: u64,
     /// Sum over all generated runs of the steps executed by the C mock motor.
     pub steps_all: u64,
+    /// Runs ended early at a Rust-only per-revolution ENCODER_DEVIATION trip (documented
+    /// difference (4); everything before the trip was compared strictly).
+    pub documented_rev_stops: u64,
 }
 
 pub struct Pair {
@@ -97,6 +100,12 @@ pub struct Pair {
     now: u64,
     prev_next_id: u32,
     prev_faults: u16,
+    prev_total_steps: u64,
+    /// Steps were executed while the actuator-health knob was degraded (pct != 100 or a step
+    /// limit) since the supervisors were last rebaselined.
+    tainted: bool,
+    /// Set when the Rust-only per-revolution check fired (see `Stats::documented_rev_stops`).
+    pub stopped: bool,
 }
 
 const SNAP_NAMES: &[(usize, &str)] = &[
@@ -329,6 +338,9 @@ impl Pair {
             now: 0,
             prev_next_id,
             prev_faults: 0,
+            prev_total_steps: 0,
+            tainted: false,
+            stopped: false,
         }
     }
 
@@ -336,6 +348,12 @@ impl Pair {
     pub fn check_boot(&mut self, stats: &mut Stats) -> Result<(), String> {
         self.prev_next_id = self.r.log().oldest_id();
         self.check(stats)
+    }
+
+    /// Send a command frame to the C pump only (used by tests of documented differences).
+    pub fn c_frame(&mut self, seq: u16, d: crate::desc::CmdDesc) {
+        let f = crate::gen::build_frame(PROTO_VERSION, d.ty, 0, seq, &crate::gen::payload_of(&d.encodable()));
+        let _ = self.c.handle_frame(&f);
     }
 
     pub fn now(&self) -> u64 {
@@ -347,6 +365,9 @@ impl Pair {
     }
 
     pub fn apply(&mut self, op: &Op, stats: &mut Stats) -> Result<(), String> {
+        if self.stopped {
+            return Ok(());
+        }
         stats.ops += 1;
         match op {
             Op::Frame(bytes) => {
@@ -354,7 +375,11 @@ impl Pair {
                 let mut out = [0u8; 256];
                 let cr = self.c.handle_frame(bytes);
                 let rr = self.r.handle_frame(&mut self.rs, bytes, &mut out).map(|n| out[..n].to_vec());
-                match compare_response(&cr, &rr)? {
+                let cmp = compare_response(&cr, &rr);
+                if cmp.is_err() && self.documented_stop(stats) {
+                    return Ok(());
+                }
+                match cmp? {
                     Ok(k) => {
                         stats.kinds.insert(k);
                     }
@@ -405,9 +430,39 @@ impl Pair {
         self.check(stats)
     }
 
-    fn check(&mut self, stats: &mut Stats) -> Result<(), String> {
-        // ---- mock / motor / buzzer parity
+    /// Documented difference (4): the Rust-only per-revolution angle check (4096 counts +-3 % per
+    /// commanded revolution) can latch ENCODER_DEVIATION where C's 10 % / 1 U window check has not
+    /// (yet) fired, after the actuator was degraded. Everything before is compared strictly; at
+    /// that point the run stops (the two pumps are legitimately in different fault states).
+    fn documented_stop(&mut self, stats: &mut Stats) -> bool {
         let cm = self.c.mock();
+        {
+            let m = self.rh.st();
+            if cm[0] > self.prev_total_steps && (m.delivered_pct != 100 || m.steps_limit >= 0) {
+                self.tainted = true;
+            }
+            self.prev_total_steps = cm[0];
+        }
+        let cf = self.c.snapshot();
+        let rf = self.r.supervisor().faults().bits() as u64;
+        let rcmd = self.r.supervisor().commanded_counts().0 as u64;
+        if self.tainted && (rf & 0x2) != 0 && (cf[0] & 0x2) == 0 {
+            self.stopped = true;
+            stats.documented_rev_stops += 1;
+            return true;
+        }
+        if cf[35] == 0 && rcmd == 0 {
+            self.tainted = false; // both supervisors rebaselined, nothing commanded since
+        }
+        false
+    }
+
+    fn check(&mut self, stats: &mut Stats) -> Result<(), String> {
+        if self.documented_stop(stats) {
+            return Ok(());
+        }
+        let cm = self.c.mock();
+        // ---- mock / motor / buzzer parity
         {
             let m = self.rh.st();
             let pairs: [(&str, u64, u64); 7] = [
@@ -493,6 +548,9 @@ pub fn run(setup: &Setup, ops: &[Op], stats: &mut Stats) -> Result<(), (usize, S
     p.check_boot(stats).map_err(|e| (usize::MAX, e))?;
     for (i, op) in ops.iter().enumerate() {
         p.apply(op, stats).map_err(|e| (i, e))?;
+        if p.stopped {
+            break;
+        }
     }
     Ok(())
 }

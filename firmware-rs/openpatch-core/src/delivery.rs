@@ -353,7 +353,7 @@ impl DeliveryEngine {
 
     /// Rounded up.
     pub fn temp_remaining(&self) -> Minutes {
-        Minutes(if self.temp_active { (self.temp_remaining_ms + 59_999) / 60_000 } else { 0 })
+        Minutes(if self.temp_active { self.temp_remaining_ms.div_ceil(60_000) } else { 0 })
     }
 
     pub fn report(&self) -> EngineReport {

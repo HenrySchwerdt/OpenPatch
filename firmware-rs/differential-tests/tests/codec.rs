@@ -299,3 +299,28 @@ fn known_vectors_match() {
     let n = encode_frame(&Frame { version: 1, type_: cmd::GET_STATUS, flags: 0, seq: 7, payload: &[] }, &mut out).unwrap();
     assert_eq!(c, out[..n].to_vec());
 }
+
+/// The generators must not be vacuous: a healthy share of inputs is accepted AND a healthy share
+/// rejected by both implementations.
+#[test]
+fn decode_corpora_exercise_accept_and_reject_paths() {
+    let (mut acc, mut rej) = (0u32, 0u32);
+    let mut r = Rng::new(0xABCD);
+    for _ in 0..4000 {
+        let d = CmdDesc::random(&mut r);
+        let mut payload = payload_of(&d);
+        if r.chance(400) && !payload.is_empty() {
+            let i = r.below(payload.len() as u64) as usize;
+            payload[i] ^= 1 << r.below(8);
+        }
+        let bytes = build_frame(PROTO_VERSION, d.ty, 0, 1, &payload);
+        let mut cs = CSession::new();
+        let mut rs = new_rust_session();
+        match compare_decode(&mut cs, &mut rs, &bytes) {
+            Ok(true) => acc += 1,
+            Ok(false) => rej += 1,
+            Err(e) => panic!("{e}"),
+        }
+    }
+    assert!(acc > 1000 && rej > 100, "accepted {acc}, rejected {rej}");
+}

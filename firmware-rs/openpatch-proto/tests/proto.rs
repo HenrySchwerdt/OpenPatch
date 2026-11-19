@@ -272,6 +272,9 @@ fn rsp_roundtrip_status() {
         wear_s: 3600,
         role: ROLE_B,
         delivery_state: DS_PAUSED_UNDOCKED,
+        draw_state: draw::STALLED,
+        draw_requested_mu: 5000,
+        draw_done_mu: 4321,
     };
     let r = Response { type_: cmd::GET_STATUS, seq: 77, result: 0, status: Some(st), ..Default::default() };
     let mut buf = [0u8; 200];
@@ -418,6 +421,9 @@ fn arb_status() -> impl Strategy<Value = Status> {
             wear_s: d.1,
             role: d.2,
             delivery_state: d.3,
+            draw_state: d.2,
+            draw_requested_mu: d.0,
+            draw_done_mu: d.1,
         })
 }
 

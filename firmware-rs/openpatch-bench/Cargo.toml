@@ -18,10 +18,20 @@ board-bench-e73 = []        # electronics/bench/pin-assignment.md (Ebyte E73-2G4
 board-nrf52840-dk = []      # Nordic nRF52840-DK, no motor driver / interlock (docs/boards.md)
 
 # ---- drive calibration preset (exactly one, no default; stored on first boot, compared at every boot) ----
-drive-nfp-608-26-45 = []          # primary: NFP-608-26.45-SGM + M1.6x0.35 leadscrew
+drive-nfp-608-26-45-g15-12 = []   # primary: NFP-608-26.45, purchased gear pair 15T -> 12T, ratio 21.16 (id 0x24)
+drive-nfp-608-26-45-g1-1 = []     # NFP-608-26.45 coaxial (id 0x20)
+drive-syringe-rig-1ml = []        # bench rig: NFP direct on a 1 ml U100 syringe plunger (id 0x30, area ASSUMED)
 drive-zwbpd006006-6-43 = []
 drive-zwbpd006006-4-8 = []
 drive-faulhaber-adm0620-16 = []
+
+# ---- dock input from software (bench rigs without the dock hall switch; also what draw tests need) ----
+# DOCKED is reported from software (initial = docked, DK BUTTON2 toggles). Hardware interlock boards
+# refuse it at compile time unless `unsafe-bench-override` is also given.
+dock-simulated = []
+# Allows dock-simulated on board-bench-e73. The hardware interlock still needs the real DOCKED
+# gate for VMOT, so this only fools the firmware, never the supply gate. Bench only.
+unsafe-bench-override = []
 
 # ---- absolute leadscrew angle source (exactly one) ----
 angle-tmag = []                   # TMAG5273 over I2C 0x35 (P0.26 / P0.06), the real channel

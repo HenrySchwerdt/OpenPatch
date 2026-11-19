@@ -2,7 +2,7 @@
 
 Exactly one board feature must be enabled (`compile_error!` otherwise): `board-bench-e73` (default) or `board-nrf52840-dk`.
 Everything board specific is in `openpatch-bench/src/board/{e73,dk}.rs` (pins as typed peripherals, polarity / presence consts).
-Exactly one drive feature (NO default): `drive-nfp-608-26-45` (primary), `drive-zwbpd006006-6-43`, `drive-zwbpd006006-4-8`, `drive-faulhaber-adm0620-16`. Exactly one angle feature: `angle-tmag` (default) or `angle-qdec-fallback`; `coarse-qdec` is an optional cross-check log. The pin map below is the STEPPER map (STSPIN220); the board documentation currently in the repository differs, see docs/stubs.md.
+Exactly one drive feature (NO default): `drive-nfp-608-26-45-g15-12` (primary, gear pair 15T->12T, ratio 21.16, id 0x24), `drive-nfp-608-26-45-g1-1` (coaxial, 0x20), `drive-syringe-rig-1ml` (bench rig, 0x30), `drive-zwbpd006006-6-43`, `drive-zwbpd006006-4-8`, `drive-faulhaber-adm0620-16`. Exactly one angle feature: `angle-tmag` (default) or `angle-qdec-fallback`; `coarse-qdec` is an optional cross-check log. The pin map below is the STEPPER map (STSPIN220); the board documentation currently in the repository differs, see docs/stubs.md.
 
 ## `board-bench-e73`: bench controller board (Ebyte E73-2G4M08S1CX), `electronics/bench/pin-assignment.md` applied exactly
 
@@ -80,4 +80,11 @@ No motor driver, interlock, TPL5010 or current shunt. The STCK pin simply toggle
 DK pins are taken from the nRF52840-DK Arduino header numbering (A0 = P0.03, A1 = P0.04, A2 = P0.28, D0 to D13 = P1.01 to P1.15 without
 P1.09, SDA/SCL = P0.26/P0.27); check against the board documentation if something does not respond. P0.05 to P0.08 (UART bridge),
 P0.09/P0.10 (NFC), P0.17 to P0.23 (QSPI flash) and P0.18 (reset) are avoided.
-Run on the DK: `cargo run --release --no-default-features --features board-nrf52840-dk,angle-tmag,drive-nfp-608-26-45,dev-plaintext`.
+Run on the DK: `cargo run --release --no-default-features --features board-nrf52840-dk,angle-tmag,drive-nfp-608-26-45-g15-12,dev-plaintext`.
+
+## Software DOCKED (`dock-simulated`) and the interlock board
+
+`dock-simulated` reports DOCKED from software (initial docked; on the DK BUTTON2 toggles it, which is also how a draw is made possible). It is always the case on the DK. On
+`board-bench-e73` it is `compile_error!` unless `unsafe-bench-override` is also given, because the hardware interlock gate (`VMOT on = latch AND MCU_EN AND DOCKED`) must
+not be undermined by a firmware flag; even with the override the supply gate still needs the real DOCKED signal (only the firmware's own checks are fooled), and without a toggle
+button the pump can never be undocked for a draw. Draw on the bench controller board remains a documented limitation (docs/stubs.md).

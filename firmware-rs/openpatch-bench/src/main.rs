@@ -177,9 +177,9 @@ async fn main(spawner: Spawner) {
         Some(w) => (Some(w.done), Some(w.wake)),
         None => (None, None),
     };
-    #[cfg(feature = "board-nrf52840-dk")]
-    shared::DOCK_SIM.store(board::DOCK_SIM_INITIAL, core::sync::atomic::Ordering::Relaxed);
-    let hal = BenchHal::new(stepper, adc, angle, drv, io.dock_n.take(), done_pin);
+    shared::DOCK_SIM.store(DOCK_SIM_INITIAL, core::sync::atomic::Ordering::Relaxed);
+    let dock_pin = io.dock_n.take().filter(|_| !DOCK_FROM_SOFTWARE);
+    let hal = BenchHal::new(stepper, adc, angle, drv, dock_pin, done_pin);
     if let Some(w) = wake_pin {
         spawner.spawn(hal::wake_task(embassy_nrf::gpio::Input::new(w, embassy_nrf::gpio::Pull::None)).unwrap());
     }

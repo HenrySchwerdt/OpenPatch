@@ -5,7 +5,7 @@ mod common;
 
 use common::*;
 use openpatch_core::drive_cal::{
-    Preset, FAULHABER_ADM0620_16, NFP_608_2645, PRESETS, ZWBPD006006_4_8, ZWBPD006006_6_43,
+    Preset, FAULHABER_ADM0620_16, NFP_608_2645_G1_1, PRESETS, ZWBPD006006_4_8, ZWBPD006006_6_43,
 };
 use openpatch_core::limits::*;
 use openpatch_core::*;
@@ -26,7 +26,7 @@ struct Expect {
 
 fn expectations() -> [Expect; 4] {
     [
-        Expect { preset: NFP_608_2645, uu_num: 2_611_000, uu_den: 529, floor_uu: 4_935, turn_x100: 52_900,
+        Expect { preset: NFP_608_2645_G1_1, uu_num: 2_611_000, uu_den: 529, floor_uu: 4_935, turn_x100: 52_900,
             steps_per_unit: 202, angle_x1000: 7_742, wire_id: 0x20, mock_counts: 8, mock_pct: 97 },
         Expect { preset: ZWBPD006006_6_43, uu_num: 13_055_000, uu_den: 643, floor_uu: 20_303, turn_x100: 12_860,
             steps_per_unit: 49, angle_x1000: 31_850, wire_id: 0x21, mock_counts: 32, mock_pct: 100 },
@@ -119,8 +119,8 @@ fn preset_steps_per_turn_and_angle_per_step() {
         assert_eq!(c.expected_angle(Pulses(steps_100_turns as u32)), AngleCounts(409_600));
     }
     // NFP: 529 steps per turn, 7.74 counts per step
-    assert_eq!(NFP_608_2645.cal().expected_angle(Pulses(529)), AngleCounts(4096));
-    assert_eq!(NFP_608_2645.cal().expected_angle(Pulses(1)), AngleCounts(7));
+    assert_eq!(NFP_608_2645_G1_1.cal().expected_angle(Pulses(529)), AngleCounts(4096));
+    assert_eq!(NFP_608_2645_G1_1.cal().expected_angle(Pulses(1)), AngleCounts(7));
 }
 
 #[test]
@@ -316,4 +316,52 @@ fn missing_calibration_latches_no_calibration_and_delivers_nothing() {
     assert!(!hal.st().stepped_while_disabled);
     assert_eq!(p.acknowledge(Faults(0xFFFF)), Err(Error::Persists));
     assert!(p.get_status().faults & Faults::NO_CALIBRATION.bits() != 0);
+}
+
+// ---- gear-pair and syringe-rig presets ----
+use openpatch_core::drive_cal::{self, NFP_608_2645_G15_12, SYRINGE_RIG_1ML};
+
+#[test]
+fn preset_g15_12_gear_pair_is_the_exact_rational() {
+    // 0.35 * 12 / (20 * 26.45 * 15) * 7.46 U per step = 3 263 750 / 529 uU
+    let p = NFP_608_2645_G15_12;
+    assert_eq!((p.uu_num, p.uu_den), (3_263_750, 529));
+    assert_eq!(p.gear_ratio_x100, 2116); // 26.45 * 12/15 = 21.16 effective
+    let cal = p.cal();
+    assert_eq!(cal.turn_x100, 42_320); // 423.2 steps per screw turn
+    assert_eq!(cal.micro_u_floor(), 6_169);
+    // the G1_1 preset is the same drive without the pair: ratio of U/step is exactly 15/12 = 1.25... inverted
+    let g = NFP_608_2645_G1_1.cal();
+    assert_eq!(g.micro_u_floor(), 4_935);
+    // U/step(G15_12) / U/step(G1_1) = 5/4 exactly
+    assert_eq!(p.uu_num as u64 * NFP_608_2645_G1_1.uu_den as u64 * 4, NFP_608_2645_G1_1.uu_num as u64 * p.uu_den as u64 * 5);
+    // whole pump numbers
+    assert_eq!(cal.mu_to_pulses(MilliUnits(1000)).0, 162); // 1000000 / 6169.66
+    assert_eq!(g.mu_to_pulses(MilliUnits(1000)).0, 202);
+    // gear-pair record validates and round-trips through flash bytes
+    let rec = DriveCal::from_preset(&p);
+    assert_eq!(DriveCal::validate(Some(&rec)), Ok(()));
+    assert_eq!(DriveCal::from_bytes(&rec.to_bytes()), rec);
+}
+
+#[test]
+fn preset_syringe_rig_is_marked_and_exact() {
+    // VERIFY: barrel area 17.94 mm^2 assumed. 0.35/529 * 17.94 / 10 U = 627 900 / 529 uU
+    let p = SYRINGE_RIG_1ML;
+    assert_eq!((p.uu_num, p.uu_den), (627_900, 529));
+    let cal = p.cal();
+    assert_eq!(cal.micro_u_floor(), 1_186);
+    assert_eq!(cal.turn_x100, 52_900);
+    assert_eq!(DriveCal::validate(Some(&DriveCal::from_preset(&p))), Ok(()));
+    // 1 ml = 100 U syringe: one leadscrew turn pushes 0.35 mm * 17.94 mm^2 = 6.279 ul = 0.6279 U
+    assert_eq!(cal.pulses_to_micro(Pulses(529)).0, 627_900);
+}
+
+#[test]
+fn every_production_preset_ids_are_unique_and_below_test_range() {
+    let mut ids: Vec<u16> = drive_cal::PRESETS.iter().map(|p| p.id as u16).collect();
+    ids.sort();
+    ids.dedup();
+    assert_eq!(ids.len(), drive_cal::PRESETS.len());
+    assert!(drive_cal::PRESETS.iter().filter(|p| (p.id as u16) < 0x7F00).count() >= 6);
 }

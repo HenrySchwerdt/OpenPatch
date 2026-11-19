@@ -7,30 +7,31 @@ use openpatch_core::drive_cal::{self, DriveCal, Preset};
 // ---------------------------------------------------------------------------------------------
 // Drive selection (cargo features, exactly one, NO default)
 // ---------------------------------------------------------------------------------------------
-#[cfg(not(any(
-    feature = "drive-nfp-608-26-45",
-    feature = "drive-zwbpd006006-6-43",
-    feature = "drive-zwbpd006006-4-8",
-    feature = "drive-faulhaber-adm0620-16"
-)))]
-compile_error!("select exactly one drive feature: drive-nfp-608-26-45 | drive-zwbpd006006-6-43 | drive-zwbpd006006-4-8 | drive-faulhaber-adm0620-16 (there is no default)");
-#[cfg(any(
-    all(feature = "drive-nfp-608-26-45", feature = "drive-zwbpd006006-6-43"),
-    all(feature = "drive-nfp-608-26-45", feature = "drive-zwbpd006006-4-8"),
-    all(feature = "drive-nfp-608-26-45", feature = "drive-faulhaber-adm0620-16"),
-    all(feature = "drive-zwbpd006006-6-43", feature = "drive-zwbpd006006-4-8"),
-    all(feature = "drive-zwbpd006006-6-43", feature = "drive-faulhaber-adm0620-16"),
-    all(feature = "drive-zwbpd006006-4-8", feature = "drive-faulhaber-adm0620-16"),
-))]
-compile_error!("enable exactly one drive feature");
+const DRIVE_FEATURES: u8 = cfg!(feature = "drive-nfp-608-26-45-g15-12") as u8
+    + cfg!(feature = "drive-nfp-608-26-45-g1-1") as u8
+    + cfg!(feature = "drive-syringe-rig-1ml") as u8
+    + cfg!(feature = "drive-zwbpd006006-6-43") as u8
+    + cfg!(feature = "drive-zwbpd006006-4-8") as u8
+    + cfg!(feature = "drive-faulhaber-adm0620-16") as u8;
+const _: () = assert!(
+    DRIVE_FEATURES == 1,
+    "select EXACTLY ONE drive feature (no default): drive-nfp-608-26-45-g15-12 | drive-nfp-608-26-45-g1-1 | drive-syringe-rig-1ml | drive-zwbpd006006-6-43 | drive-zwbpd006006-4-8 | drive-faulhaber-adm0620-16"
+);
+
+#[cfg(all(feature = "dock-simulated", feature = "board-bench-e73", not(feature = "unsafe-bench-override")))]
+compile_error!("dock-simulated is refused on board-bench-e73 (hardware interlock board): add `unsafe-bench-override` only if you know the interlock gate still needs the real DOCKED");
 
 #[cfg(all(feature = "angle-tmag", feature = "angle-qdec-fallback"))]
 compile_error!("enable exactly one angle source: angle-tmag | angle-qdec-fallback");
 #[cfg(not(any(feature = "angle-tmag", feature = "angle-qdec-fallback")))]
 compile_error!("enable exactly one angle source: angle-tmag | angle-qdec-fallback");
 
-#[cfg(feature = "drive-nfp-608-26-45")]
-pub const PRESET: &Preset = &drive_cal::NFP_608_2645;
+#[cfg(feature = "drive-nfp-608-26-45-g15-12")]
+pub const PRESET: &Preset = &drive_cal::NFP_608_2645_G15_12;
+#[cfg(feature = "drive-nfp-608-26-45-g1-1")]
+pub const PRESET: &Preset = &drive_cal::NFP_608_2645_G1_1;
+#[cfg(feature = "drive-syringe-rig-1ml")]
+pub const PRESET: &Preset = &drive_cal::SYRINGE_RIG_1ML;
 #[cfg(feature = "drive-zwbpd006006-6-43")]
 pub const PRESET: &Preset = &drive_cal::ZWBPD006006_6_43;
 #[cfg(feature = "drive-zwbpd006006-4-8")]
@@ -51,6 +52,10 @@ pub fn assert_no_test_calibrations() {
         defmt::panic!("core built with test-calibrations: refusing to run firmware");
     }
 }
+
+/// DOCKED comes from software (DK always, or feature `dock-simulated`); initial value docked.
+pub const DOCK_FROM_SOFTWARE: bool = crate::board::DOCK_SIMULATED || cfg!(feature = "dock-simulated");
+pub const DOCK_SIM_INITIAL: bool = true;
 
 /// Motor steps per leadscrew turn x 100 (steps/rev x gear ratio x 100), exact.
 pub const TURN_X100: u32 = PRESET.steps_per_rev as u32 * PRESET.gear_ratio_x100 as u32;

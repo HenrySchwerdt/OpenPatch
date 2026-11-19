@@ -29,7 +29,7 @@
 | 0x22 | DRAW_REQUESTED_MU | u32 | requested volume |
 | 0x23 | DRAW_DONE_MU | u32 | volume actually drawn (also partial for stalled / aborted) |
 
-`STATE_FLAGS`: bit 11 `DRAWING`, bit 12 `PRIME_REQUIRED`. `FW_VERSION` = 0x0200. `DRIVE_CAL` carries the preset id (0x20 NFP-608-26.45, 0x21 / 0x22 Zhaowei,
+`STATE_FLAGS`: bit 11 `DRAWING`, bit 12 `PRIME_REQUIRED`. `FW_VERSION` = 0x0200. `DRIVE_CAL` carries the preset id (0x24 NFP G15/12, 0x20 NFP coaxial, 0x30 syringe rig, 0x21 / 0x22 Zhaowei,
 0x23 Faulhaber), floor uU per step, steps/rev and gear ratio x 100 (the exact rational stays in the pump).
 
 ## Notifications on the Alert characteristic (`...0004`, notify)

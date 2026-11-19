@@ -116,8 +116,8 @@ impl<C: Ccm> Session<C> {
     pub fn open<'a>(&mut self, input: &'a [u8], plain: &'a mut [u8]) -> Result<Opened<'a>, Error> {
         let f = decode_frame(input)?;
         let is_response = f.flags & FLAG_RESPONSE != 0;
-        let payload: &'a [u8];
-        if f.flags & FLAG_ENCRYPTED != 0 {
+        
+        let payload: &'a [u8] = if f.flags & FLAG_ENCRYPTED != 0 {
             if !self.has_crypto {
                 return Err(Error::Auth);
             }
@@ -134,12 +134,12 @@ impl<C: Ccm> Session<C> {
             self.ccm
                 .decrypt(&nonce, &input[..FRAME_HEADER], &f.payload[..ct_len], &tag, &mut plain[..ct_len])
                 .map_err(|_| Error::Auth)?;
-            payload = &plain[..ct_len];
+            &plain[..ct_len]
         } else if !self.allow_plaintext {
             return Err(Error::Auth);
         } else {
-            payload = f.payload;
-        }
+            f.payload
+        };
 
         if !is_response {
             if self.rx_seen && f.seq <= self.last_rx_seq {

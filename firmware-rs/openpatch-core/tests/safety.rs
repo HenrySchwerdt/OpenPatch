@@ -313,7 +313,7 @@ fn sv_wear_expiry_latches_and_needs_new_activation() {
 fn sv_missing_or_invalid_calibration_refuses_and_cannot_be_acknowledged() {
     let bad = [
         PulseCal::NONE,
-        PulseCal { uu_num: 3_999, uu_den: 1, turn_x100: 25_600 },
+        PulseCal { uu_num: 999, uu_den: 1, turn_x100: 25_600 },
         PulseCal { uu_num: 60_001, uu_den: 1, turn_x100: 25_600 },
         PulseCal { uu_num: TEST_UU, uu_den: 1, turn_x100: 0 },
     ];
@@ -632,7 +632,7 @@ fn motor_current_count_is_cleared_by_rebaseline_and_ack() {
 // ---- production calibration NFP-608-26.45 -------------------------------------------------------------------
 
 fn nfp() -> PulseCal {
-    DriveCal::preset(DriveId::Nfp608_26_45 as u16).unwrap().pulse_cal().unwrap()
+    DriveCal::preset(DriveId::Nfp608_26_45G1_1 as u16).unwrap().pulse_cal().unwrap()
 }
 
 #[test]

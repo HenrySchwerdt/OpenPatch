@@ -9,7 +9,11 @@
 //!
 //! `U/step = 0.35 mm / (steps_per_rev * ratio) * 74.6 mm^2 / 10` (M1.6 x 0.35 leadscrew, 74.6 mm^2
 //! reservoir, U100: 1 U = 10 ul), i.e. `uU/step = 130 550 / ratio`:
-//! * `Nfp608_26_45`: 20 x 26.45 = 529 steps/turn -> 2 611 000 / 529 uU = 4 935.5 uU/step
+//! * `Nfp608_26_45G1_1` (coaxial): 20 x 26.45 = 529 steps/turn -> 2 611 000 / 529 uU = 4 935.5 uU/step
+//! * `Nfp608_26_45G15_12` (purchased gear pair, 15 T on the motor, 12 T on the screw, effective ratio
+//!   26.45 x 12/15 = 21.16): 423.2 steps/turn -> 3 263 750 / 529 uU = 6 169.7 uU/step
+//! * `SyringeRig1ml` (bench rig, NFP direct, plunger of a 1 ml U100 syringe, area VERIFY):
+//!   0.35 mm / 529 * 17.94 mm^2 / 10 -> 627 900 / 529 uU = 1 186.9 uU/step
 //! * `Zwbpd006006_6_43`: 20 x 6.43 -> 13 055 000 / 643 uU = 20 303.3 uU/step
 //! * `Zwbpd006006_4_8`: 20 x 4.8 -> 1 305 500 / 48 uU = 27 197.9 uU/step
 //! * `FaulhaberAdm0620_16`: 20 x 16 -> 130 550 / 16 uU = 8 159.4 uU/step
@@ -24,14 +28,19 @@ pub const DRIVE_CAL_MAGIC: u32 = 0x4F50_4443; // "OPDC"
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 #[repr(u16)]
 pub enum DriveId {
-    /// Primary: NFP-608-26.45-SGM geared stepper (20 steps/rev, ratio 26.45).
-    Nfp608_26_45 = 0x20,
+    /// NFP-608-26.45-SGM geared stepper, coaxial with the leadscrew (20 steps/rev, ratio 26.45).
+    Nfp608_26_45G1_1 = 0x20,
     /// Zhaowei ZWBPD006006, 1-stage ratio 6.43.
     Zwbpd006006_6_43 = 0x21,
     /// Zhaowei ZWBPD006006, 1-stage ratio 4.8.
     Zwbpd006006_4_8 = 0x22,
     /// Faulhaber ADM0620 + 16:1.
     FaulhaberAdm0620_16 = 0x23,
+    /// Primary: NFP-608-26.45 + purchased gear pair 15 T (motor) -> 12 T (screw).
+    Nfp608_26_45G15_12 = 0x24,
+    /// Insulin BENCH RIG: NFP direct pushing a standard 1 ml U100 syringe plunger. The barrel area
+    /// is an assumed 17.94 mm^2 (ID 4.78 mm): VERIFY against the measured barrel ID of the rig.
+    SyringeRig1ml = 0x30,
     /// HOST TESTS ONLY (feature `test-calibrations`): 26 100 uU/step, 256 steps/turn (16 counts/step).
     #[cfg(feature = "test-calibrations")]
     Test26100 = 0x7F01,
@@ -62,8 +71,15 @@ impl Preset {
     }
 }
 
-pub const NFP_608_2645: Preset =
-    Preset { id: DriveId::Nfp608_26_45, steps_per_rev: 20, gear_ratio_x100: 2645, uu_num: 2_611_000, uu_den: 529 };
+pub const NFP_608_2645_G1_1: Preset =
+    Preset { id: DriveId::Nfp608_26_45G1_1, steps_per_rev: 20, gear_ratio_x100: 2645, uu_num: 2_611_000, uu_den: 529 };
+/// Effective ratio 26.45 * 12/15 = 21.16 (x100 = 2116, exact); 0.35 * 12 / (20 * 26.45 * 15) * 7.46 U.
+pub const NFP_608_2645_G15_12: Preset =
+    Preset { id: DriveId::Nfp608_26_45G15_12, steps_per_rev: 20, gear_ratio_x100: 2116, uu_num: 3_263_750, uu_den: 529 };
+/// VERIFY: barrel area 17.94 mm^2 is an assumption (BD-class 1 ml U100, ID 4.78 mm) until the
+/// mechanics agent publishes the measured value. uU/step = 0.35 / 529 * 17.94 / 10 * 1e6.
+pub const SYRINGE_RIG_1ML: Preset =
+    Preset { id: DriveId::SyringeRig1ml, steps_per_rev: 20, gear_ratio_x100: 2645, uu_num: 627_900, uu_den: 529 };
 pub const ZWBPD006006_6_43: Preset =
     Preset { id: DriveId::Zwbpd006006_6_43, steps_per_rev: 20, gear_ratio_x100: 643, uu_num: 13_055_000, uu_den: 643 };
 pub const ZWBPD006006_4_8: Preset =
@@ -79,7 +95,9 @@ pub const TEST_8156: Preset =
 
 /// All presets available in this build.
 pub const PRESETS: &[Preset] = &[
-    NFP_608_2645,
+    NFP_608_2645_G1_1,
+    NFP_608_2645_G15_12,
+    SYRINGE_RIG_1ML,
     ZWBPD006006_6_43,
     ZWBPD006006_4_8,
     FAULHABER_ADM0620_16,

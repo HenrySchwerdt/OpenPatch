@@ -9,9 +9,9 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 EXTRA=""
 [[ "${1:-}" == "--dev" ]] && EXTRA=",dev-plaintext"
-# No implicit drive default in the app: pass it explicitly. Matrix: bench-e73 and nrf52840-dk, NFP-608-26.45.
-# Other drives: DRIVE=drive-zwbpd006006-6-43 | drive-zwbpd006006-4-8 | drive-faulhaber-adm0620-16
-DRIVE="${DRIVE:-drive-nfp-608-26-45}"
+# No implicit drive default in the app: pass it explicitly. Matrix: bench-e73 and nrf52840-dk, NFP-608-26.45 G15/12 + a syringe rig build on the DK.
+# Other drives: DRIVE=drive-nfp-608-26-45-g1-1 | drive-syringe-rig-1ml | drive-zwbpd006006-6-43 | drive-zwbpd006006-4-8 | drive-faulhaber-adm0620-16
+DRIVE="${DRIVE:-drive-nfp-608-26-45-g15-12}"
 # Angle source: angle-tmag (default) or angle-qdec-fallback (NOT sufficient for the 3 %/turn check).
 ANGLE="${ANGLE:-angle-tmag}"
 
@@ -20,8 +20,8 @@ echo "== bootloader"
 rust-size "$ROOT/openpatch-bootloader/target/thumbv7em-none-eabihf/release/openpatch-bootloader"
 
 mkdir -p "$ROOT/openpatch-bench/target/images"
-build_app() { # <name> <board feature>
-  local name="$1" board="$2"
+build_app() { # <name> <board feature> [drive override]
+  local name="$1" board="$2" DRIVE="${3:-$DRIVE}"
   echo "== app: $name ($board, $DRIVE, $ANGLE$EXTRA)"
   ( cd "$ROOT/openpatch-bench" && \
     cargo build --release --target-dir "target/$name" --no-default-features --features "$board,$DRIVE,$ANGLE$EXTRA" )
@@ -32,4 +32,6 @@ build_app() { # <name> <board feature>
 }
 build_app e73 board-bench-e73
 build_app dk board-nrf52840-dk
+# bench rig: NFP direct on a 1 ml U100 syringe, software DOCKED (DK only); draw capable
+build_app rig board-nrf52840-dk,dock-simulated drive-syringe-rig-1ml
 echo "done. Flash: probe-rs download --chip nRF52840_xxAA <bootloader elf>, then the app elf (see docs/bootloader.md)."
