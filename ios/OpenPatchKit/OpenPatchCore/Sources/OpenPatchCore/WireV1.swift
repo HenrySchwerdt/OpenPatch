@@ -19,6 +19,8 @@ public enum V1 {
         case getStatus = 0x01, setBasalSchedule, setTempBasal, cancelTempBasal, bolus, cancelBolus
         case suspend, resume, fillPrime, acknowledge, getHistory
         case setPairing = 0x0C, activate = 0x0D, release = 0x0E
+        /// Diagnostics (docs/06-diagnostics.md 5.4).
+        case getFaultLog = 0x10, runSelfTest = 0x11, clearDiag = 0x12
     }
 
     public enum Tag: UInt8 {
@@ -27,12 +29,18 @@ public enum V1 {
         case stateFlags = 0x10, reservoirMU, batteryMV, bolusRemainingMU, tempRateMUh, tempRemainingMin
         case currentRateMUh, deliveredMU, scheduledMU, fwVersion
         case lastSeq = 0x1A, driveCal = 0x1B, podInfo = 0x1C, pairID = 0x1D, role = 0x1E, activationID = 0x1F, actDeliveredMU = 0x20
+        case notifyKind = 0x25, notifyArg = 0x26
+        /// Diagnostics (docs/06-diagnostics.md 5.4).
+        case diagSummary = 0x27, fruHealth = 0x28, diagRecord = 0x29, nextDiagID = 0x2A, oldestDiagID = 0x2B, diagLatched = 0x2C
+        case selftestState = 0x2D, diagCode = 0x2E, podUID = 0x2F
     }
 
     public enum Result: UInt8, Equatable {
         case ok = 0, badArg, limit, busy, fault, suspended, notSuspended, reservoir, persists, unsupported
         case frame, crc, version, replay, auth, tooLarge, hourly, notFound, session
         case notDocked, released, alreadyActive, pair, wearExpired, charging
+        /// Diagnostics: not suspended / draw or test running; Resume or Activate refused by a latched code; code not clearable.
+        case selfTestRefused = 28, latched = 29, notClearable = 30
     }
 
     public struct StateFlags: OptionSet {
@@ -49,6 +57,10 @@ public enum V1 {
         public static let wearWarning = StateFlags(rawValue: 1 << 8)
         public static let docked = StateFlags(rawValue: 1 << 9)
         public static let activePod = StateFlags(rawValue: 1 << 10)
+        /// Any W/F/L diagnostic record is active.
+        public static let diagActive = StateFlags(rawValue: 1 << 13)
+        /// The latched set is not empty: Resume and Activate are refused.
+        public static let latched = StateFlags(rawValue: 1 << 14)
     }
 
     /// FAULT_MASK bits (spec 4.1).
@@ -67,6 +79,8 @@ public enum V1 {
         case boot = 1, bolusStart, bolusDone, bolusCancel, tempStart, tempDone, tempCancel, tempCommFallback
         case basalSet, suspend, resume, fill, prime, fault, ack, lowReservoir, lowBattery
         case undocked = 18, docked, activate, release, wearWarning, wearExpired, paired
+        /// A diagnostic record exists: a = code, b = ctx_a.
+        case diag = 31
     }
 
     public struct TLV: Equatable {
