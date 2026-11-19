@@ -15,8 +15,13 @@ pub struct MotorParams {
     pub gearhead_ratio: f64,
     /// Gearhead efficiency (spec 4: ~0.64).
     pub gearhead_eff: f64,
-    /// Pull-out torque at the rotor shaft in gf*cm (spec 4: 1.6).
+    /// Pull-out torque at the rotor shaft in gf*cm at the RATED current (spec 4: 1.6 at 4.8 V / 181 mA). The torque in
+    /// use scales with `run_current_ma / rated_current_ma` (ASSUMPTION: torque proportional to the phase current).
     pub pullout_gf_cm: f64,
+    /// STSPIN220 peak phase current (mA): `openpatch_core::limits::MOTOR_RUN_CURRENT_MA` (VREF 0.160 V / 1.0 ohm).
+    pub run_current_ma: f64,
+    /// Motor rating (mA per phase): `openpatch_core::limits::MOTOR_RATED_CURRENT_MA`.
+    pub rated_current_ma: f64,
     /// Step rate at which the pull-out figure is valid (ASSUMPTION: the bench forward rate).
     pub rolloff_ref_hz: f64,
     /// Corner frequency of the speed derating (ASSUMPTION, back-EMF; docs/architecture.md).
@@ -31,9 +36,10 @@ pub struct MotorParams {
     pub vmot_full_v: f64,
     /// Below this supply the driver does nothing (STSPIN220 VS min 1.8 V).
     pub vmot_min_v: f64,
-    /// Supply current of the free-running stage (mA, I_SENSE at the shunt).
+    /// Supply current of the free-running stage (mA, I_SENSE at the shunt): `limits::MOTOR_FREE_CURRENT_MA`.
     pub i_free_ma: f64,
-    /// Supply current with a stalled / fully loaded rotor (mA). The core threshold is 140 mA.
+    /// Supply current with a stalled / fully loaded rotor (mA): `limits::MOTOR_STALL_CURRENT_MA`. The core thresholds
+    /// are `limits::OCCLUSION_CURRENT_MA` (forward) and `DRAW_STALL_CURRENT_MA` (draw).
     pub i_stall_ma: f64,
     /// 1-sigma noise of the current sense (mA).
     pub i_noise_ma: f64,
@@ -49,6 +55,8 @@ impl Default for MotorParams {
             gearhead_ratio: 26.45,
             gearhead_eff: 0.64,
             pullout_gf_cm: 1.6,
+            run_current_ma: openpatch_core::limits::MOTOR_RUN_CURRENT_MA as f64,
+            rated_current_ma: openpatch_core::limits::MOTOR_RATED_CURRENT_MA as f64,
             rolloff_ref_hz: 200.0,
             rolloff_corner_hz: 500.0,
             torque_ripple_pct: 4.0,
@@ -56,8 +64,8 @@ impl Default for MotorParams {
             reverse_rate_hz: 600.0,
             vmot_full_v: 3.3,
             vmot_min_v: 1.8,
-            i_free_ma: 70.0,
-            i_stall_ma: 175.0,
+            i_free_ma: openpatch_core::limits::MOTOR_FREE_CURRENT_MA as f64,
+            i_stall_ma: openpatch_core::limits::MOTOR_STALL_CURRENT_MA as f64,
             i_noise_ma: 3.0,
             current_sense: true,
         }
@@ -68,9 +76,10 @@ impl Default for MotorParams {
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(default, deny_unknown_fields)]
 pub struct DriveParams {
-    /// Teeth of the gear on the gearhead output (spec 4: 15).
+    /// Teeth of the gear on the gearhead output (spec 4: 16, GHW step-down pair).
     pub z_motor: f64,
-    /// Teeth of the gear on the leadscrew (spec 4: 12). 15:12 -> 0.00617 U/step; 18:18 -> 0.00494.
+    /// Teeth of the gear on the leadscrew (spec 4: 20). 16:20 -> 0.003949 U/step; 15:12 -> 0.00617 and
+    /// 18:18 -> 0.00494 (NOT the pair of the current CAD).
     pub z_screw: f64,
     /// Gear pair efficiency (ASSUMPTION: module 0.3 purchased pair).
     pub pair_eff: f64,
@@ -105,8 +114,8 @@ pub struct DriveParams {
 impl Default for DriveParams {
     fn default() -> Self {
         DriveParams {
-            z_motor: 15.0,
-            z_screw: 12.0,
+            z_motor: 16.0,
+            z_screw: 20.0,
             pair_eff: 0.95,
             pair_backlash_deg: 2.0,
             gearhead_backlash_deg: 1.5,
@@ -305,15 +314,20 @@ mod tests {
     #[test]
     fn defaults_match_spec() {
         let p = Params::default();
-        // spec 4: 15:12 -> 0.00617 U/step
-        assert!((p.true_u_per_step() - 0.006170).abs() < 2e-5, "{}", p.true_u_per_step());
-        assert!((p.steps_per_screw_turn() - 423.2).abs() < 1e-9);
+        // spec 4: 16:20 -> 0.35 * 0.8 / (20 * 26.45) * 74.6 / 10 = 0.003949 U/step (the core's exact
+        // rational 2 088 800 / 529 uU)
+        assert!((p.true_u_per_step() - 0.003_948_58).abs() < 1e-8, "{}", p.true_u_per_step());
+        assert!((p.steps_per_screw_turn() - 661.25).abs() < 1e-9);
         // spec 3: 100 U -> 13.4 mm (+1.0)
         assert!((p.stroke_mm() - 14.4).abs() < 0.01);
     }
 
     #[test]
-    fn g1_1_matches_spec() {
+    fn the_other_pairs_match_their_published_numbers() {
+        let mut p = Params::default();
+        p.drive.z_motor = 15.0;
+        p.drive.z_screw = 12.0;
+        assert!((p.true_u_per_step() - 0.006170).abs() < 2e-5);
         let mut p = Params::default();
         p.drive.z_motor = 18.0;
         p.drive.z_screw = 18.0;

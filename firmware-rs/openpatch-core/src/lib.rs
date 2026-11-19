@@ -16,6 +16,7 @@ pub mod hal;
 pub mod interlock;
 pub mod limits;
 pub mod log;
+pub mod persist;
 pub mod pod;
 mod draw;
 pub mod pump;

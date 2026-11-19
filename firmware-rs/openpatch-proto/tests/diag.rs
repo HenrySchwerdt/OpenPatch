@@ -188,7 +188,9 @@ fn new_result_codes_have_the_documented_values() {
     for c in 28..=30u8 {
         assert_eq!(Error::from_code(c).unwrap().code(), c);
     }
-    assert_eq!(Error::from_code(31), None);
+    // 31 is the Rust extension `NoSchedule` (Resume without a basal schedule); 32 and above are unassigned
+    assert_eq!(Error::from_code(31), Some(Error::NoSchedule));
+    assert_eq!(Error::from_code(32), None);
     assert_eq!((st::DIAG_ACTIVE, st::LATCHED), (1 << 13, 1 << 14));
     assert_eq!((notify::DIAG_RAISED, notify::DIAG_CLEARED, notify::SELFTEST_PROGRESS), (5, 6, 7));
 }

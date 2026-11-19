@@ -15,11 +15,11 @@ Snapshot 2026-11-19 (73 rows): Done 29, Partial 7, Prop 25, Open 11 (three of th
 | P-5 | Low-order X25519 points rejected | Done | `handshake_props.rs::low_order_public_keys_are_rejected` |
 | P-6 | Frame integrity (any bit flip rejected) | Done | `proto_props.rs::sealed_frame_bitflip_rejected`; fuzz `ccm_open` (1.7 M) |
 | P-7 | In-session replay/ordering | Done | `proto_props.rs::replay_and_ordering`; Kani `proof_session_replay_monotonic`; fuzz `session_open` |
-| P-8 | Direction separation / no reflection, no nonce reuse | **Open** | FINDING-001; proposal 01 s.1 |
+| P-8 | Direction separation / no reflection, no nonce reuse | **Done** | FINDING-001 fixed: `LinkRole`, `finding_001_reflection.rs::fixed_*` |
 | P-9 | Constant-time, audited AEAD on both ends | Prop | proposal 01 s.2 (ChaCha20-Poly1305); Swift CCM is hand-written (FINDING-011) |
 | P-10 | Version negotiation with downgrade protection | Prop | proposal 01 s.3 |
 | P-11 | RNG: seed health tests, periodic reseed | Prop | proposal 03 s.4 |
-| P-12 | Handshake DoS bounds (rate limit, pending slots) | Prop | FINDING-004; proposal 03 s.5 |
+| P-12 | Handshake DoS bounds (rate limit, pending slots) | Partial (4 pending slots by confirm tag done; rate limit proposed) | FINDING-004; proposal 03 s.5 |
 | P-13 | Static identifier `PS_ID` removed | Prop | FINDING-005; proposal 03 s.5.4 |
 
 ## B. Pairing and identity
@@ -37,12 +37,12 @@ Snapshot 2026-11-19 (73 rows): Done 29, Partial 7, Prop 25, Open 11 (three of th
 |---|---|---|---|
 | Z-1 | Hard limits cannot be raised through any command | Done | `safety_props.rs::p4/p5`; Kani `proof_configure_hard_caps`, `proof_check_bolus_hard_limit` |
 | Z-2 | Per-minute and wall-clock-hour caps hold for arbitrary sequences, with a fault-acknowledging adversary | Done | `safety_props.rs::p1/p2`; Kani `proof_approve_steps_*` |
-| Z-3 | Exact sliding-hour bound known and tested (16.7 U) | Done (documents FINDING-003) | `safety_props.rs::p3`, `finding_003_*` |
-| Z-4 | Sliding hour equals the spec's 15 U | Open | FINDING-003; proposal 07 s.5 |
+| Z-3 | Exact sliding-hour bound known and tested | Done | `safety_props.rs::p3`, `fixed_finding_003_*` |
+| Z-4 | Sliding hour equals the spec's 15 U | **Done** (true rolling window, <= 15 U physical incl. tolerance margin) | FINDING-003 fixed |
 | Z-5 | Dangerous-command class with fresh/physical confirmation | Prop | proposal 07 s.2-3 |
 | Z-6 | Limit-class faults cleared only by physical presence | Prop | proposal 07 s.2.6 |
 | Z-7 | Pod behaviour without a session fails safe (refuse everything, basal continues) | Done (logic) | `proto_props.rs::keyless_session_refuses_everything`; core tests |
-| Z-8 | Comm-loss fallback cannot be defeated by frame reflection | **Open** | FINDING-001 |
+| Z-8 | Comm-loss fallback cannot be defeated by frame reflection | **Done** | FINDING-001 fixed |
 | HW-1 | Hardware interlock (MCU_EN AND watchdog latch AND DOCKED) | Partial (design; board not fabricated/verified) | `docs/02-safety.md` s.2, `spec` s.7a |
 | HW-2 | Hardware step budget per arm window (~1.6 U) | Partial (design only) | `spec` s.7a |
 | HW-3 | Hardware bound on dose per hour independent of firmware | Open -> Prop | THREAT-MODEL s.4; proposal 07 s.4 |
@@ -76,7 +76,7 @@ Snapshot 2026-11-19 (73 rows): Done 29, Partial 7, Prop 25, Open 11 (three of th
 | V-8 | Differential tests Rust vs C reference | Done (pre-existing) | `firmware-rs/differential-tests` |
 | V-9 | Independent penetration test | Open | - |
 | V-10 | Hardware-in-loop security tests (APPROTECT, fault injection) | Open | `stubs.md` (nothing has run on a target) |
-| V-11 | Known-issue regression tests flip when a finding is fixed | Done | `finding_001_reflection.rs`, `handshake_props.rs`, `safety_props.rs`; CI step "fixed_* must still fail" |
+| V-11 | Known-issue regression tests flip when a finding is fixed | Done | `finding_001_reflection.rs`, `handshake_props.rs`, `safety_props.rs`; CI step "FINDING-001 stays fixed" |
 
 ## F. Supply chain and build
 | ID | Control | Status | Evidence |

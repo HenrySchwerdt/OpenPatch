@@ -60,7 +60,7 @@ Unverified, in order of risk:
 * **Test calibrations** (core feature `test-calibrations`, ids >= 0x7F00) must never be in a firmware build: `config::assert_no_test_calibrations()` checks `drive_cal::PRESETS` at startup and panics (watchdog reset).
 * **Reverse (draw) bursts**: 600 Hz (hard cap 1000 pps by const assert), chunks <= 600 steps; the watchdog is serviced before every reverse chunk. Angle unwrap needs < half a turn between samples (20 ms sampling, margin >= 12x for every preset).
 * **Reservoir model** after a power loss can only be lower than reality (stored with a 64 step margin), except for the window in which a burst larger than the
-  remaining headroom completes before the flash write lands (one prime = up to 64 pulses = 0.39 U on the G15/12 drive).
+  remaining headroom completes before the flash write lands (one prime burst = up to 64 pulses = 0.25 U on the 16:20 drive).
 * **Angle default**: `angle-tmag`. The QDEC (`coarse-qdec`, off by default) is only a coarse cross-check log; it is never the primary angle channel.
 
 ## Core API wishes

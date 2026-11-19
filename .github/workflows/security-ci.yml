@@ -75,11 +75,13 @@ jobs:
       - name: proptest properties + known-issue demonstrators
         working-directory: security/verify
         run: cargo test --release --locked --features handshake
-      - name: ignored "fixed_*" tests must still FAIL while the findings are open (flip them when fixed)
+      - name: FINDING-001 stays fixed (reflected pod frames are refused, no nonce reuse)
         working-directory: security/verify
         run: |
-          if cargo test --release --features handshake --test finding_001_reflection -- --ignored; then
-            echo "FINDING-001 appears FIXED: flip the known_issue_* / fixed_* tests and close it in security/THREAT-MODEL.md section 9"; exit 1
+          # the fixed_* tests assert the repaired behaviour: a failure here means the reflection finding regressed
+          cargo test --release --locked --features handshake --test finding_001_reflection fixed_
+          if grep -n "known_issue_reflected\|known_issue_nonce_reuse\|known_issue_two_time_pad" tests/finding_001_reflection.rs; then
+            echo "a known_issue_* demonstrator for FINDING-001 is back"; exit 1
           fi
       - name: offline OOB guessing demonstrator (FINDING-002) still reproduces
         run: python3 -I security/poc/oob_offline_guess.py docs/vectors/session-key-agreement.json

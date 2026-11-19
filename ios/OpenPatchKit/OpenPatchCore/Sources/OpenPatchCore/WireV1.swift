@@ -19,9 +19,17 @@ public enum V1 {
         case getStatus = 0x01, setBasalSchedule, setTempBasal, cancelTempBasal, bolus, cancelBolus
         case suspend, resume, fillPrime, acknowledge, getHistory
         case setPairing = 0x0C, activate = 0x0D, release = 0x0E
-        /// Diagnostics (docs/06-diagnostics.md 5.4).
-        case getFaultLog = 0x10, runSelfTest = 0x11, clearDiag = 0x12
+        /// Extension (Rust pod): automatic draw.
+        case fillDraw = 0x0F
+        /// Diagnostics (docs/06-diagnostics.md 5.4). Ids 0x20..0x22 so that the response types 0xA0..0xA2 never collide with
+        /// the Alert notification frame type 0x90 (the first draft used 0x10..0x12 and `GetFaultLog` answered as 0x90).
+        case getFaultLog = 0x20, runSelfTest = 0x21, clearDiag = 0x22
     }
+
+    /// Handshake frame types (requests; responses are `type | 0x80`).
+    public static let handshakeTypes: [UInt8] = [0x40, 0x41, 0x42, 0x43]
+    /// Frame type of unsolicited Alert notifications.
+    public static let notificationType: UInt8 = 0x90
 
     public enum Tag: UInt8 {
         case result = 0x01, basalSeg, rateMUh, durationMin, amountMU, fillMU, primeSteps, subOp, faultMask
@@ -41,6 +49,8 @@ public enum V1 {
         case notDocked, released, alreadyActive, pair, wearExpired, charging
         /// Diagnostics: not suspended / draw or test running; Resume or Activate refused by a latched code; code not clearable.
         case selfTestRefused = 28, latched = 29, notClearable = 30
+        /// Rust extension: `Resume` refused because the pod holds no basal schedule (send `SetBasalSchedule` first).
+        case noSchedule = 31
     }
 
     public struct StateFlags: OptionSet {

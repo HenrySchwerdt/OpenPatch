@@ -22,7 +22,7 @@ scenario (TOML / JSON) -> Runner -> Device -> Pump<SimHal> (openpatch-core, unch
 | `electrical.rs` | battery, TMAG5273 sampling (13 bit -> 12 bit, noise, nonlinearity, magnet strength) and the 12 bit unwrap of `hal/angle.rs` |
 | `flash.rs` | settings records with write latency and power-loss injection (A/B atomic or pessimistic) |
 | `world.rs` | simulation clock, interlock gate `MCU_EN AND latch AND (DOCKED OR DIR_REVERSE)`, TPL5010, brown-out, `SimHal: Hal` |
-| `device.rs` | boot + restore from flash, 1 s tick, persistence policy of `openpatch-bench`, a phone that talks the real protocol path |
+| `device.rs` | boot + restore from flash (pod, reservoir, basal schedule, temp basal), 1 s tick, the persistence policy of `openpatch-bench` (the same `openpatch_core::persist` code), a phone that talks the real protocol path |
 | `scenario.rs`, `scenarios.rs`, `scenarios/*.toml` | scenario format and the built-in library (25 scenarios) |
 | `runner.rs` | executes a scenario, writes the CSV time series and the JSON verdict |
 | `montecarlo.rs` | N pods with manufacturing tolerances: accuracy and occlusion distributions |
@@ -121,11 +121,11 @@ for the `dev-plaintext` bench build. Encrypted sessions would plug in through th
 
 ```sh
 cargo test -p openpatch-sim                                # scenarios, hardware models, physics, Monte Carlo
-cargo test -p openpatch-sim --test findings -- --ignored   # open findings: fail by design
+cargo test -p openpatch-sim --test findings                # the six former findings F1..F6, fixed: regression tests
 ```
 
 `tests/scenarios.rs` one test per scenario with the acceptance criterion of `spec/design-parameters.md`
 section 7 / `docs/02-safety.md`; `tests/hardware.rs` the gate, watchdog, supply, sensor and flash
 models; `tests/physics.rs` the plant against first principles (area, lead error, lost motion,
 conservation of volume); `tests/montecarlo.rs` the distributions; `tests/findings.rs` the core bugs
-and design gaps found with this simulator (`#[ignore]`d, failing, described in their doc comments).
+and design gaps found with this simulator (F1..F6, all fixed, described in their doc comments and in REPORT.md section 6).

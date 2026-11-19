@@ -27,8 +27,12 @@ public struct DriveCalibration: Equatable, Hashable, Codable {
     /// Premium: Faulhaber ADM0620 + 06/1 16:1: 0.0082 U per step (~122.6 steps/U).
     public static let faulhaber_16_1 = DriveCalibration(driveID: 2, microUnitsPerStep: 8_156, stepsPerRevolution: 20, gearRatioTimes100: 1600)
 
+    /// Rust bench pod (current CAD): NFP-608-26.45 + GHW 16:20 step-down pair, total ratio 33.0625, 2 088 800 / 529 uU = 3 948.6 uU
+    /// per step (the pod reports the floor, 3 948; the ratio x 100 is rounded, 3306). Firmware id 0x25.
+    public static let nfp608_26_45_g16_20 = DriveCalibration(driveID: 0x25, microUnitsPerStep: 3_948, stepsPerRevolution: 20, gearRatioTimes100: 3_306)
+
     /// The only drives the app accepts. A pod reporting anything else is refused.
-    public static let known: [DriveCalibration] = [.zwbpd006006_5_1, .faulhaber_16_1]
+    public static let known: [DriveCalibration] = [.zwbpd006006_5_1, .faulhaber_16_1, .nfp608_26_45_g16_20]
 
     public var isKnown: Bool { Self.known.contains(self) }
 

@@ -295,6 +295,10 @@ fn arr<const N: usize>(v: Option<&[u8]>) -> Option<[u8; N]> {
 // Pod side
 // ------------------------------------------------------------------------------------------
 
+/// Half-open handshakes the responder keeps at once (FINDING-004). A FINISH is matched to its slot by the key
+/// confirmation tag, so a replayed INIT or a bogus FINISH no longer displaces the phone's handshake.
+pub const PENDING_SLOTS: usize = 4;
+
 enum Pending {
     Pair { ps: [u8; PS_LEN], ck: [u8; 32], th: [u8; 32] },
     Session { keys: SessionKeys, ck: [u8; 32], th: [u8; 32] },
@@ -315,17 +319,18 @@ pub struct Output {
     pub event: Event,
 }
 
-/// Pod side state machine. One pending (half-open) handshake at a time; the running session is
-/// owned by the caller and is only replaced on [`Event::SessionUp`].
+/// Pod side state machine. Up to [`PENDING_SLOTS`] pending (half-open) handshakes (oldest evicted); the running
+/// session is owned by the caller and is only replaced on [`Event::SessionUp`].
 pub struct Responder {
     ps: Option<[u8; PS_LEN]>,
     oob_salt: [u8; 32],
-    pending: Option<Pending>,
+    pending: [Option<Pending>; PENDING_SLOTS],
+    next_slot: usize,
 }
 
 impl Responder {
     pub fn new(ps: Option<[u8; PS_LEN]>) -> Self {
-        Self { ps, oob_salt: [0; 32], pending: None }
+        Self { ps, oob_salt: [0; 32], pending: [None, None, None, None], next_slot: 0 }
     }
 
     /// Out-of-band pairing code known to the pod (empty = none).
@@ -340,12 +345,12 @@ impl Responder {
     /// Erase the pairing secret (factory reset).
     pub fn forget(&mut self) {
         self.ps = None;
-        self.pending = None;
+        self.pending = [None, None, None, None];
     }
 
     /// Link closed: drop any half-open handshake.
     pub fn reset(&mut self) {
-        self.pending = None;
+        self.pending = [None, None, None, None];
     }
 
     /// Process one handshake request frame. `None` = dropped silently (bad CRC/version/flags,
@@ -363,8 +368,7 @@ impl Responder {
         match f.type_ {
             htype::PAIR_INIT | htype::SESSION_INIT => {
                 let mode = if f.type_ == htype::PAIR_INIT { Mode::Pair } else { Mode::Session };
-                // A new INIT replaces any half-open handshake (but never the running session).
-                self.pending = None;
+                // A new INIT takes the oldest slot: it never displaces the others, nor the running session.
                 if mode == Mode::Pair && !pairing_open {
                     return reject(hresult::AUTH, out);
                 }
@@ -415,23 +419,34 @@ impl Responder {
                     out,
                 )
                 .ok()?;
-                self.pending = Some(pending);
+                self.pending[self.next_slot] = Some(pending);
+                self.next_slot = (self.next_slot + 1) % PENDING_SLOTS;
                 Some(Output { reply_len: n, event: Event::None })
             }
             htype::PAIR_FINISH | htype::SESSION_FINISH => {
-                let pending = self.pending.take();
                 let want_pair = f.type_ == htype::PAIR_FINISH;
-                let (ck, th) = match (&pending, want_pair) {
-                    (Some(Pending::Pair { ck, th, .. }), true) | (Some(Pending::Session { ck, th, .. }), false) => (*ck, *th),
-                    _ => return reject(hresult::SESSION, out),
-                };
                 if want_pair && !pairing_open {
                     return reject(hresult::AUTH, out);
                 }
-                let expect = confirm_tag(&ck, Side::App, &th);
-                if !fields.confirm.is_some_and(|v| tag_eq(v, &expect)) {
-                    return reject(hresult::AUTH, out);
+                // find the slot of this handshake by its key confirmation tag; a failed FINISH discards nothing
+                let mut found = None;
+                let mut any_of_kind = false;
+                for (i, slot) in self.pending.iter().enumerate() {
+                    let (ck, th) = match (slot, want_pair) {
+                        (Some(Pending::Pair { ck, th, .. }), true) | (Some(Pending::Session { ck, th, .. }), false) => (*ck, *th),
+                        _ => continue,
+                    };
+                    any_of_kind = true;
+                    let expect = confirm_tag(&ck, Side::App, &th);
+                    if fields.confirm.is_some_and(|v| tag_eq(v, &expect)) {
+                        found = Some(i);
+                        break;
+                    }
                 }
+                let Some(i) = found else {
+                    return reject(if any_of_kind { hresult::AUTH } else { hresult::SESSION }, out);
+                };
+                let pending = self.pending[i].take();
                 let event = match pending {
                     Some(Pending::Pair { ps, .. }) => {
                         self.ps = Some(ps);

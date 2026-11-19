@@ -47,6 +47,10 @@ pub enum MotorFault {
 pub trait Hal {
     /// Execute `steps` forward motor steps (blocking, short). Returns the steps executed.
     fn motor_step(&mut self, steps: Pulses) -> Pulses;
+    /// Reverse (draw) step rate for the following draw, pulses per second. The core derives it from the fill needle gauge
+    /// (`limits::draw_pps`: <= 600 pps default, lower for fine needles); the HAL clamps it to its own hard cap
+    /// (1000 pps). Default: the HAL keeps its compile-time rate.
+    fn set_draw_rate_pps(&mut self, _pps: u32) {}
     /// Execute `steps` REVERSE steps (draw mode only), rate-limited by the HAL to <= 1000 pps.
     /// Default: unsupported (0 executed).
     fn motor_step_reverse(&mut self, _steps: Pulses) -> Pulses {

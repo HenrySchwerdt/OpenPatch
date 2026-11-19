@@ -6,6 +6,7 @@ events = [
   { at_s = 600.0, action = "bolus", units = 5.0 },
   { at_s = 640.0, action = "brownout", dip_mv = 2200.0, duration_ms = 50.0 },
   { at_s = 690.0, action = "set_basal", profile = [[0.0, 0.5]] },
+  { at_s = 695.0, action = "acknowledge" },
   { at_s = 700.0, action = "resume" },
 ]
 

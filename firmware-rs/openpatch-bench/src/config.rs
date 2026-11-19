@@ -7,7 +7,8 @@ use openpatch_core::drive_cal::{self, DriveCal, Preset};
 // ---------------------------------------------------------------------------------------------
 // Drive selection (cargo features, exactly one, NO default)
 // ---------------------------------------------------------------------------------------------
-const DRIVE_FEATURES: u8 = cfg!(feature = "drive-nfp-608-26-45-g15-12") as u8
+const DRIVE_FEATURES: u8 = cfg!(feature = "drive-nfp-608-26-45-g16-20") as u8
+    + cfg!(feature = "drive-nfp-608-26-45-g15-12") as u8
     + cfg!(feature = "drive-nfp-608-26-45-g1-1") as u8
     + cfg!(feature = "drive-syringe-rig-1ml") as u8
     + cfg!(feature = "drive-zwbpd006006-6-43") as u8
@@ -15,10 +16,11 @@ const DRIVE_FEATURES: u8 = cfg!(feature = "drive-nfp-608-26-45-g15-12") as u8
     + cfg!(feature = "drive-faulhaber-adm0620-16") as u8;
 const _: () = assert!(
     DRIVE_FEATURES == 1,
-    "select EXACTLY ONE drive feature (no default): drive-nfp-608-26-45-g15-12 | drive-nfp-608-26-45-g1-1 | drive-syringe-rig-1ml | drive-zwbpd006006-6-43 | drive-zwbpd006006-4-8 | drive-faulhaber-adm0620-16"
+    "select EXACTLY ONE drive feature (no default): drive-nfp-608-26-45-g16-20 | drive-nfp-608-26-45-g15-12 | drive-nfp-608-26-45-g1-1 | drive-syringe-rig-1ml | drive-zwbpd006006-6-43 | drive-zwbpd006006-4-8 | drive-faulhaber-adm0620-16"
 );
 
 #[cfg(not(any(
+    feature = "drive-nfp-608-26-45-g16-20",
     feature = "drive-nfp-608-26-45-g15-12",
     feature = "drive-nfp-608-26-45-g1-1",
     feature = "drive-syringe-rig-1ml",
@@ -26,7 +28,7 @@ const _: () = assert!(
     feature = "drive-zwbpd006006-4-8",
     feature = "drive-faulhaber-adm0620-16"
 )))]
-compile_error!("select EXACTLY ONE drive feature (no default); the project default is drive-nfp-608-26-45-g15-12 (scripts/build.sh)");
+compile_error!("select EXACTLY ONE drive feature (no default); the project default is drive-nfp-608-26-45-g16-20 (scripts/build.sh)");
 
 #[cfg(all(feature = "dock-simulated", feature = "board-bench-e73", not(feature = "unsafe-bench-override")))]
 compile_error!("dock-simulated is refused on board-bench-e73 (hardware interlock board): add `unsafe-bench-override` only if you know the interlock gate still needs the real DOCKED");
@@ -36,6 +38,8 @@ compile_error!("enable exactly one angle source: angle-tmag | angle-qdec-fallbac
 #[cfg(not(any(feature = "angle-tmag", feature = "angle-qdec-fallback")))]
 compile_error!("enable exactly one angle source: angle-tmag | angle-qdec-fallback");
 
+#[cfg(feature = "drive-nfp-608-26-45-g16-20")]
+pub const PRESET: &Preset = &drive_cal::NFP_608_2645_G16_20;
 #[cfg(feature = "drive-nfp-608-26-45-g15-12")]
 pub const PRESET: &Preset = &drive_cal::NFP_608_2645_G15_12;
 #[cfg(feature = "drive-nfp-608-26-45-g1-1")]
@@ -95,9 +99,11 @@ pub const STEP_PWM_DUTY_TICKS: u16 = STEP_PWM_PERIOD_TICKS / 2;
 /// Upper bound of one burst. The core never asks for more than a prime (max 64 steps on the 16:1
 /// drive) or a few steps of a bolus tick; anything above is refused (returns 0 steps).
 pub const MAX_BURST_STEPS: u32 = 128;
-/// Reverse (draw) bursts: the core asks for chunks of 500 steps. The HAL limits the rate to
-/// <= 1000 pps (hard cap `REVERSE_RATE_MAX_HZ`); 600 Hz keeps a 500 step chunk below 0.9 s so the
-/// TPL5010 (about 2 s) is serviced between chunks.
+/// Reverse (draw) bursts: the core asks for chunks of at most 500 steps and at most 0.8 s of motion at the rate in
+/// use (`limits::draw_chunk_steps`). The HAL limits the rate to <= 1000 pps (hard cap `REVERSE_RATE_MAX_HZ`); the
+/// core sets the rate per draw from the fill needle gauge (`Hal::set_draw_rate_pps`, 29G: 600 pps default, finer needles
+/// less), 600 Hz keeps a chunk below 0.8 s so the TPL5010 (about 2 s) is serviced between chunks. This constant is the
+/// rate used until the core sets one.
 pub const REVERSE_RATE_HZ: u32 = 600;
 pub const REVERSE_RATE_MAX_HZ: u32 = 1_000;
 const _: () = assert!(REVERSE_RATE_HZ <= REVERSE_RATE_MAX_HZ);

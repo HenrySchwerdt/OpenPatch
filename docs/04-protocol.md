@@ -63,7 +63,7 @@ handshake frame is only echoed by the response (the phone uses 0 for INIT and 1 
 | `0x42` | `SESSION_INIT` | phone -> pod; response `0xC2` |
 | `0x43` | `SESSION_FINISH` | phone -> pod; response `0xC3` |
 
-(`0x0F` is already taken by the Rust `FillDraw` extension, `0x90` by Alert notifications.)
+(`0x0F` is already taken by the Rust `FillDraw` extension, `0x20..0x22` by the diagnostics commands, `0x90` by Alert notifications. Command ids never use the response bit, and `openpatch-proto/tests/proto.rs::response_types_never_collide_with_any_other_frame_type` keeps every response type distinct from every other frame type.)
 
 | Tag | Name | Length | Content |
 |---|---|---|---|
@@ -149,7 +149,7 @@ is authenticated and a MITM in the pairing window cannot succeed. The bench pod 
 2. The phone sends `SESSION_INIT` with `PS_ID`. A pod without `PS`, or with another `PS`, answers `PAIR`.
 3. The pod answers with its ephemeral key, nonce and `confirm_pod`, and keeps the derived keys as *pending*. A further INIT replaces the pending handshake, never the running session.
 4. The phone verifies `confirm_pod`, sends `SESSION_FINISH` with `confirm_app`.
-5. The pod verifies `confirm_app`. **Only now** does it install the new keys (a new `Session`, sequence state reset) and answer `OK`. A wrong tag answers `AUTH`, discards the pending handshake and leaves the running session untouched, so an attacker who only knows the (public) `PS_ID` cannot kick the phone out.
+5. The pod verifies `confirm_app`. **Only now** does it install the new keys (a new `Session`, sequence state reset) and answer `OK`. The pod keeps up to 4 pending handshakes and matches a FINISH to its handshake by the confirmation tag; a wrong tag answers `AUTH`, discards nothing and leaves the running session untouched, so an attacker who only knows the (public) `PS_ID` can neither replace nor cancel the phone's pending handshake with one INIT or a bogus FINISH (a flood of 4 or more INITs still evicts the oldest slot: FINDING-004 residual, rate limit proposed in `security/proposals/03`).
 6. The phone installs the same keys on receipt of `OK`. From then on all commands carry `flags.encrypted`.
 7. When the link closes, the pod erases the session and half-open handshakes. Session keys never outlive a connection.
 
@@ -159,6 +159,7 @@ Frame format, AAD (the 7 header bytes) and the 13 byte nonce `salt(4) || dir(1) 
 
 * `salt` is the session's `salt` from the key schedule, no longer a constant.
 * The AES key is selected by `dir`: `dir = 0` (commands) uses `key_c2p`, `dir = 1` (responses, echo of the command `seq`) and `dir = 2` (unsolicited notifications on the Alert characteristic, frame type `0x90`, the pod's own counter) use `key_p2c`. A frame cannot be reflected into the other direction (different key and nonce).
+* **Direction is fixed by the receiver's role, never by the frame header** (FINDING-001): a pod accepts only phone->pod command frames (no `RESPONSE` flag, nonce direction 0, strict replay check) and refuses every other frame before the key is used, the replay state moves or the comm heartbeat is refreshed; a phone accepts only responses (direction 1) and notifications (frame type `0x90`, direction 2). Frame types never overlap: command ids `0x01..0x0F` and the diagnostics commands `0x20..0x22` (responses `0xA0..0xA2`), handshake `0x40..0x43` (responses `0xC0..0xC3`), notifications `0x90`.
 * **Nonce uniqueness**: a key is used for exactly one session; within a session `(dir, seq)` never repeats because command `seq` is strictly increasing and capped at `0xFFFE`.
 * **Replay rules inside a session are unchanged**: command `seq` must increase strictly (gaps allowed), equal or lower -> `REPLAY` (dropped); state advances only after successful authentication; `seq = 0xFFFF` is reserved.
 * **The sequence space is per session.** A new session starts with a fresh counter (the phone uses 1, the pod accepts anything above 0). The persisted `LAST_SEQ` ceiling (v1 section 5.2, 6.1) stays in the pod and in `GetStatus`, but it is no longer what protects against replays across connections or reboots: a frame of an older session fails authentication outright because the key differs. The v1 advice "start at last known + 16" is therefore only needed with the development key. Reaching `0xFFFE` is no longer terminal: the phone runs `SESSION_INIT` again (`SESSION` error handling).
