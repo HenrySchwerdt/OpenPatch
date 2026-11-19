@@ -150,3 +150,19 @@ Reverse order. Reusable: motor, sensor board, magnets, FFC, screws, coupler (bra
 * **Dock insert** (`out/bench/fab/dock-inserts/insert_vNN`): slide the insert into the dock window from the +X mouth (arms toward you) until its front face meets the rear dock face and the two detent bumps click into the flange holes. Swap: push it out with a pin from the open end. Same fit on a bare `dock_fixture` for fit tests (permissive, CERN-OHL-P-2.0). The needle stays in the end cap.
 * **Tongue shim:** glue a 0.5 x 1.4 mm stainless strip (about 4 mm long) into the carriage pocket (open face toward the reservoir) with one drop of cyanoacrylate; the free end enters the plunger socket. Do not bend it.
 * **Plunger (2026-11-19 seal study):** there is no separate nose any more; the core reaches the end face (dead layer 0.04 mm). Cast the bead seal (variants S1/S2/T, `SEAL-AND-DEAD-VOLUME.md`), oil it with 350 cSt silicone oil, optionally wrap the two flanges with one turn of 0.1 mm PTFE tape. Water test only.
+
+
+## B5. Fluid module (clamped sandwich), drop-in order (2026-11-19)
+
+Water only, bench pod, never on a person. Parts: `end_cap` (base), `end_cap_lid`, `cap_gasket`, O-ring 2.0 x 0.5, check valve, septum disc d4.0, 30G needle with PTFE hub, 2 x M1.2 x 6 screws. Tools: tweezers, 0.5 mm wire, syringe with IPA, calipers.
+
+1. Print base and lid (SLA), wash, UV-cure, flush the d0.6 spigot grooves and the via with IPA while the module is OPEN (everything is visible from the top). Check that the lands (split faces) are flat (lay a feeler 0.05 on a glass plate).
+2. Cut the gasket from 0.5 mm silicone sheet (cutting plotter or the printed template `cap_gasket`, 3 legs 0.8 wide) and check it against the base recess.
+3. Drop the **O-ring** into the base half groove at the rear face (it stays by the 10 % stretch on the d2.2 inner wall).
+4. Lay the **gasket** into the recess (it stands 0.1 proud).
+5. Drop the **check valve** into its pocket (duckbill with the flow arrow towards the needle; cartridge variants per `coax.valve_variants`).
+6. Drop the **septum disc** into its pocket (0.2 mm proud of the -Y face).
+7. Put the **lid** on (the lid half groove takes the O-ring top), insert the two M1.2 screws and tighten until the lid sits on the lands (hard stop, do not over-tighten: the lands set 20 % gasket, 15 % septum, 8 % valve squeeze).
+8. Press the PTFE hub with the UV-bonded needle into the shroud bore (printed jig keeps the needle on the axis, 4.8 mm free length).
+9. Seat the module on the reservoir port (spigot into the d2.0 port, O-ring against the PP end face) and hold it with the housing (open item: crush rib / clamp).
+10. Test: 30 kPa pressure and 40 kPa vacuum hold (see the bench tests); fill through the septum with the plunger homed, prime with the outlet up.

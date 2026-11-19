@@ -113,6 +113,9 @@ def check_extra(p: dict, L: dict, bodies: list) -> tuple[list, list]:
 BENCH_MIN_CLR = 0.2     # board / sensors / FFC to any metal or shell part that is not a mating part
 
 
+FLUID_WARNS: list = []
+
+
 def check_fluid_boundary(p: dict, L: dict) -> tuple[list, list]:
     """Fluid-boundary check at both plunger extremes (full = plunger at the rear stop, empty = at the front stop).
 
@@ -126,6 +129,7 @@ def check_fluid_boundary(p: dict, L: dict) -> tuple[list, list]:
     rs, sl = p["reservoir"], p["seal"]
     v = variant(p)
     problems, known = [], []
+    warns_valve: list = []
     a, b = ring_range(p, v["rings"][-1])                      # front-most bead of the active variant
     land_c = (a + b) / 2                                      # centre of the land
     for tag, xr in (("full", L["xrear_full"]), ("empty", L["xrear_empty"])):
@@ -139,6 +143,18 @@ def check_fluid_boundary(p: dict, L: dict) -> tuple[list, list]:
                 known.append(f"fluid boundary: wall opening '{op['name']}' x {op['x'][0]:.1f}..{op['x'][1]:.1f} reaches {op['x'][1] - line:.1f} mm in front of the "
                              f"front seal contact line (x={line:.1f}) at the {tag} position: the wetted zone leaks into the pod through it")
     if p.get("mode") == "bench":
+        vv = p["coax"].get("valve_variants", {})
+        sw = p["dock"]["cap"]["sandwich"]
+        x_room = p["dock"]["block_len"] - p["dock"]["valve_x0"] - 0.2
+        d_room = 2 * (L["dock"]["z_n"] - L["wall"] - 0.4) / (1.0 - sw["valve"]["compress"])
+        for nm, v in vv.items():
+            if nm.startswith("_"):
+                continue
+            fits = v["d"] <= d_room + 1e-9 and v["len"] <= x_room + 1e-9
+            known.append(f"INFO valve variant '{nm}' d{v['d']} x {v['len']}{'' if v['len_verified'] else ' [len UNVERIFIED]'}: "
+                         f"{'fits the sandwich pocket' if fits else 'DOES NOT FIT the current block (room d <= %.1f, len <= %.1f)' % (d_room, x_room)}") if False else None
+            if not fits:
+                warns_valve.append(f"valve variant '{nm}' (d{v['d']} x {v['len']}) does not fit the sandwich on the needle axis (room d <= {d_room:.1f}, len <= {x_room:.1f}): needs a bigger block / axis shift (dock datum is frozen)")
         from op_cap import cap_interfaces
         for itf in cap_interfaces(p, L):
             if itf["gap"] >= 0.0 and not itf["seal"]:
@@ -147,6 +163,7 @@ def check_fluid_boundary(p: dict, L: dict) -> tuple[list, list]:
                 problems.append(f"fluid: O-ring squeeze {100 * itf['squeeze']:.0f} % of '{itf['name']}' outside 8..30 %")
             if itf.get("squeeze") is not None and "radial compression" in (itf["seal"] or "") and not (0.10 <= itf["squeeze"] <= 0.20):
                 problems.append(f"fluid: septum radial compression {100 * itf['squeeze']:.0f} % outside 10..20 %")
+    FLUID_WARNS[:] = warns_valve
     return problems, known
 
 
@@ -365,7 +382,7 @@ def check_size(outdir: Path, variant: str, p: dict, ignore_length: bool, with_va
             problems.append(f"interference {i['a']} x {i['b']}: {i['volume_mm3']:.4f} mm3")
     for u in interf.get("unchecked", []):
         problems.append(f"pair not checked: {u['a']} x {u['b']}: {u['reason'][:80]}")
-    frags = [b["name"] for b in bodies if re.search(r" \(\d+\)$", b["name"])]
+    frags = [b["name"] for b in bodies if re.search(r" \(\d+\)$", b["name"]) and not b["name"].startswith("cap_gasket")]    # the silicone sheet is cut in 2-3 loose pieces (islands between the slots)
     if frags:          # SolidCraft names disconnected pieces of a body "name (1)": loose fragments in a printed part
         problems.append(f"disconnected fragments (body split into several solids): {frags}")
     not_closed = [b["name"] for b in bodies if not b.get("closed")]
@@ -386,6 +403,7 @@ def check_size(outdir: Path, variant: str, p: dict, ignore_length: bool, with_va
     if mode == "bench":
         pf, known = check_fluid_boundary(p, L)
         problems += pf
+        warns += list(FLUID_WARNS)
     if mode == "bench" and not L["coax"]:
         pr_, wr_ = check_real_models(outdir, variant)
         problems += pr_

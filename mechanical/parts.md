@@ -189,10 +189,14 @@ keeps a 1.0 mm envelope (`bench.ffc.conn`) for a **<= 1.2 mm bottom-contact ZIF,
 Do not order the FH12 for the pod board until a low-profile part is confirmed.
 
 
-## Cap seals (2026-11-19 review fix)
+## Fluid module soft parts (clamped sandwich, 2026-11-19)
 
-| part | spec | note |
+| part | spec / catalogue source | note |
 |---|---|---|
-| cap face O-ring | **2.0 x 0.5 mm** (ID x CS), NBR 70 or silicone 50-70, 1 per cap (+ spares) | SEARCH-TERM "O-ring 2x0.5"; groove ID d2.2 stretch 10 %, squeeze 16 %; water only |
-| fill septum | silicone disc d4.0 x 2.0, Shore A 40-50, bore d3.4 (15 % radial compression) | punch 4.0 from 2 mm sheet, insert with tweezers, shell wall compresses 0.1 mm |
-| needle hub | PTFE d2.0 x 0.7 pressed into a d1.92 bore | bench only |
+| module O-ring | **2.0 x 0.5 mm (ID x CS)**, NBR 70 or silicone 50-70, 2 per pod (+ spares); SEARCH-TERM "O-ring 2x0.5" (any metric O-ring catalogue) | stretch 10 % on d2.2, squeeze 16 % |
+| gasket sheet | **silicone sheet 0.5 mm**, Shore A 40-50, e.g. AliExpress / Amazon "silicone rubber sheet 0.5 mm" (the same sheet as the housing gasket); cut with a cutting plotter or a printed template | channels are slots 0.8 wide |
+| septum | **4 mm disc punched with a 4 mm biopsy punch** from a PTFE/silicone vial septum, 2 mm thick (mz-at.de vial septa, or 2 mm silicone sheet); biopsy punch 4 mm | 15 % compression by the pocket ceiling |
+| check valve (default) | silicone duckbill ~3.0-3.2 mm x ~2.8-3.0 mm (marketplace "silicone duckbill check valve 3 mm") or Qosina 80105 with tube stubs | length UNVERIFIED |
+| check valve (alternatives) | The Lee Company CCPI4510004S (0.6 psid, OD 4.69, reamed bore 4.54), Beswick CKV-M3 (5 mm hex, < 0.5 psig) | do not fit the current block, see SEAL-AND-DEAD-VOLUME.md |
+| needle | 30G blunt dispensing needle (EFD type), cut from its luer hub, UV resin (e.g. Loctite 4310 class) in a printed alignment jig | bench only |
+| screws | 2 x M1.2 x 6 (as the housing) | clamp the halves |

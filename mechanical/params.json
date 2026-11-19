@@ -668,7 +668,7 @@
    "spigot_len": 2.4,
    "spigot_d": 1.98,
    "block_y0": 1.0,
-   "block_up_y": 3.0,
+   "block_up_y": 4.2,
    "jog_x": 0.9,
    "wall_hole_d": 2.0,
    "prime_d": 0.6,
@@ -696,7 +696,8 @@
       0.25,
       4.3
      ],
-     "y_margin": 0.3
+     "y_margin": 0.3,
+     "y_max_rel": 2.3
     },
     "valve": {
      "type": "duckbill",
@@ -717,14 +718,15 @@
      "head_depth": 0.5,
      "pos": [
       [
-       3.6,
-       2.2
+       3.3,
+       3.1
       ],
       [
        3.6,
-       -2.5
+       -4.5
       ]
-     ]
+     ],
+     "notch_half": 0.9
     }
    }
   },
@@ -745,7 +747,45 @@
   "slot_z": [
    2.4,
    4.8
-  ]
+  ],
+  "valve_variants": {
+   "_comment": "Swappable check-valve seat variants (docs/FLUID-PARTS-RESEARCH.md). The active one is coax.valve_d / valve_len (CAD) = 'duckbill_generic'. 'len_verified' false = UNVERIFIED, keep parametric; check.py reports which variants fit the sandwich on the needle axis (z_n) inside the block (x room = block_len - valve_x0 - 0.2, z room above the pod floor).",
+   "duckbill_generic": {
+    "d": 3.0,
+    "len": 2.8,
+    "seat": "dropped in, 8 % compression by the lid ceiling",
+    "source": "generic micro duckbill (placeholder)",
+    "len_verified": false
+   },
+   "marketplace_duckbill_3p2": {
+    "d": 3.2,
+    "len": 3.0,
+    "seat": "dropped in, 8 % compression",
+    "source": "marketplace silicone duckbill 3.2 mm (cheap prototype)",
+    "len_verified": false
+   },
+   "qosina_80105": {
+    "d": 3.4,
+    "len": 8.0,
+    "seat": "tubing ports 3.4 mm: needs silicone tube stubs, too long for the block",
+    "source": "Qosina 80105, 1.5-5 psi",
+    "len_verified": false
+   },
+   "lee_ccpi4510004s": {
+    "d": 4.69,
+    "len": 4.5,
+    "seat": "PRESS-IN into a reamed 4.54 mm bore (the only press-in); stainless, metal seat: not zero-leak in reverse, 0.6 psid",
+    "source": "The Lee Company CCPI4510004S",
+    "len_verified": false
+   },
+   "beswick_ckv_m3": {
+    "d": 5.77,
+    "len": 6.0,
+    "seat": "5 mm hex body (corner 5.77), +1 mm height",
+    "source": "Beswick CKV-M3 duckbill, < 0.5 psig",
+    "len_verified": false
+   }
+  }
  },
  "reservoir_frozen": {
   "_comment": "FROZEN INTERFACE of the CNC polypropylene reservoir (one order per size). Everything else (cap, septum, duckbill, needle, dock, housing) adapts to these numbers; do not change after the order.",

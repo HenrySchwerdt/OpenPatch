@@ -67,6 +67,8 @@ def build_cap(s: Script, p: dict, L: dict) -> dict:
     jx = cp["jog_x"]
     xs = cp["septum_x"]
     nsh = 2.8                                           # pilot depth of the clamp screws
+    gy1 = yc + sw["gasket"]["y_max_rel"]                # the gasket stays south of the screw-A land
+    nb_y, nh = sw["screws"]["pos"][1][1], sw["screws"]["notch_half"]
     # ------------------------------------------------------------------ base
     s.box("end_cap", (x0, x1), (y0, y1), (z0, zs))
     j = [_half(s, "t_spg_l", ("X", (0, yc, zp), cp["spigot_d"], xr - cp["spigot_len"], xr + 0.01), (xr - cp["spigot_len"] - 0.1, xr + 0.1), (yc - 2, yc + 2), (zp - 2, zs)),
@@ -75,7 +77,9 @@ def build_cap(s: Script, p: dict, L: dict) -> dict:
     s.tube("t_og_b", "X", (0, yc, zp), og["groove_inner_d"] + 2 * og["groove_w"], og["groove_inner_d"], xr - 0.1, xr + og["groove_depth"])
     cuts = [
         "t_og_b",
-        s.box("t_g_rec", (xr + gx0, xr + gx1), (y0 + gm, y1 - gm), (zs - rec, zs + 0.1)),                              # gasket recess (0.4 deep)
+        s.box("t_g_rec_a", (xr + gx0, xr + 2.85), (y0 + gm, gy1), (zs - rec, zs + 0.1)),                               # gasket recess (0.4 deep), west part
+        s.box("t_g_rec_b", (xr + 2.85, xr + gx1), (y0 + gm, yc + nb_y - nh), (zs - rec, zs + 0.1)),                    # east part below the screw-B land
+        s.box("t_g_rec_c", (xr + 2.85, xr + gx1), (yc + nb_y + nh, gy1), (zs - rec, zs + 0.1)),                        # east part above the screw-B land
         s.cyl("t_cap_p", "X", (0, yc, zp), dp, xr - cp["spigot_len"] - 0.1, xr + gx0 + 0.1),                          # port channel (half groove in the spigot)
         s.cyl("t_cap_via", "Z", (xr + jx, yc, 0), sw["via_d"], zn - 0.3, zs - rec + 0.1),                             # via: slot layer -> valve plenum
         s.cyl("t_cap_plen", "X", (0, yc, zn), sw["plenum_d"], xr + jx - 0.4, xr + vx0 + 0.05),                        # valve inlet plenum
@@ -103,7 +107,7 @@ def build_cap(s: Script, p: dict, L: dict) -> dict:
         lcuts.append(s.cyl(f"t_cap_hd{k}", "Z", (xr + sx, yc + sy, 0), sc["head_d"], zt - sc["head_depth"], zt + 0.1))
     s.cut("end_cap_lid", lcuts)
     # ------------------------------------------------------------------ gasket (silicone sheet, channels = slots)
-    s.box("cap_gasket", (xr + gx0, xr + gx1), (y0 + gm, y1 - gm), (zs - rec, zs - rec + gt))
+    s.box("cap_gasket", (xr + gx0, xr + gx1), (y0 + gm, gy1), (zs - rec, zs - rec + gt))
     gc = [
         s.box("t_gs_p", (xr + gx0 - 0.1, xr + jx + ws / 2), (yc - ws / 2, yc + ws / 2), (zs - 1, zs + 1)),                      # port slot
         s.box("t_gs_1", (xr + jx - ws / 2, xr + jx + ws / 2), (ya - ws / 2, yc + ws / 2), (zs - 1, zs + 1)),                    # leg 1 (junction -> lane)
@@ -112,8 +116,7 @@ def build_cap(s: Script, p: dict, L: dict) -> dict:
         s.box("t_gs_v", (xr + vx0, xr + vx0 + vlen), (yc - vd / 2 - vfl, yc + vd / 2 + vfl), (zs - 1, zs + 1)),                  # valve pocket opening
         s.box("t_gs_s", (xr + xs - (sdia + sfl) / 2, xr + xs + (sdia + sfl) / 2), (y0 - 0.1, y0 + sd), (zs - 1, zs + 1)),        # septum pocket opening
     ]
-    for k, (sx, sy) in enumerate(sc["pos"]):
-        gc.append(s.cyl(f"t_gs_sc{k}", "Z", (xr + sx, yc + sy, 0), sc["clear"], zs - 1, zs + 1))
+    gc.append(s.box("t_gs_notch", (xr + 2.85, xr + gx1 + 0.1), (yc + nb_y - nh, yc + nb_y + nh), (zs - 1, zs + 1)))      # land for clamp screw B
     s.cut("cap_gasket", gc)
     return G
 

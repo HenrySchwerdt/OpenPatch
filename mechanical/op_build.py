@@ -31,7 +31,9 @@ BENCH_PART_NAMES = [b for v in BENCH_MFG_PARTS.values() for b in v] + BENCH_PURC
 BENCH_EXCLUDE_PAIRS = [["gear_a", "gear_b"],     # meshing teeth: both modelled as tip circles, overlap = tooth engagement
                        ["needle_hub", "end_cap"], ["needle", "end_cap"], ["duckbill_valve", "end_cap"],
                        ["septum", "end_cap"], ["septum", "end_cap_lid"], ["septum", "bottom"], ["cap_oring", "reservoir"], ["cap_oring", "end_cap"], ["cap_oring", "end_cap_lid"],
-                       ["duckbill_valve", "end_cap_lid"], ["cap_gasket", "end_cap"], ["cap_gasket", "end_cap_lid"], ["end_cap", "end_cap_lid"], ["needle", "end_cap_lid"]]
+                       ["duckbill_valve", "end_cap_lid"], ["cap_gasket", "end_cap"], ["cap_gasket", "end_cap_lid"], ["end_cap", "end_cap_lid"], ["needle", "end_cap_lid"],
+                       ["cap_gasket (1)", "end_cap_lid"], ["cap_gasket (2)", "end_cap_lid"], ["cap_gasket (1)", "end_cap"], ["cap_gasket (2)", "end_cap"],
+                       ["cap_gasket (1)", "cap_oring"], ["cap_gasket (2)", "cap_oring"], ["cap_gasket", "cap_oring"]]
 
 
 def part_sets(mode: str) -> tuple[dict, list, list]:

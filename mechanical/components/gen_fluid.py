@@ -47,7 +47,7 @@ def needle_part() -> Part:
 
 
 # --- duckbill valve (placeholder) ----------------------------------------------------------------------
-DB_OD, DB_ID, DB_SLEEVE, DB_BILL = 3.0, 2.0, 2.0, 2.2     # OD <= 3 (PARTS-LOCK #16); rest generic
+DB_OD, DB_ID, DB_SLEEVE, DB_BILL = 3.0, 2.0, 1.3, 1.5     # OD <= 3 (PARTS-LOCK #16); total length 2.8 (fits the clamped sandwich pocket); rest generic
 
 
 def duckbill() -> Part:
@@ -97,7 +97,7 @@ META = {
         source="PARTS-LOCK #16 CANDIDATE: 'miniature silicone duckbill OD <= 3 mm, cracking 1-5 kPa'. Shape generic (Minivalve/Vernay "
                "style); no vendor drawing yet",
         confidence="placeholder",
-        notes="Every dimension except OD<=3 is invented (sleeve ID 2.0 x 2.0 long, bills 2.2 long, slit closed to 0.08). "
+        notes="Every dimension except OD<=3 is invented (sleeve ID 2.0 x 1.3 long, bills 1.5 long, slit closed to 0.08). "
               "Replace when a part is sourced."),
     "septum_d4x2": dict(
         title="Fill septum disc d4 x 2 (punched from platinum-cure silicone sheet)",
