@@ -167,3 +167,11 @@ ZW motor 10-25 + rod/nuts 1 + gears 2 + bushings 1 + magnet 1 + needle 1 + septu
 ## 7. Rev B note: SMA ratchet wheel from a standard micro gear
 
 A standard **module 0.1 spur gear (about 56 teeth, pitch dia 5.6, OD 5.8, bore 1.0-2.0)** (search "0.1 modulus 56T spur gear 1mm bore", AliExpress/KHK-class, SEARCH-TERM, ~2-4 USD, VERIFY OD/teeth) can serve as the ratchet wheel of the SMA drive: tooth pitch 0.314 mm, a **stencil-cut stainless (50-100 um) pawl** driven by the SMA wire advances one tooth per stroke. With the 0.35 mm leadscrew pitch one tooth = 0.35/56 mm of carriage travel (6.25 um) = 0.466 ul = 0.0466 U per tooth (U100, 74.6 mm2): about one pulse = the 0.05 U minimum. Not part of Rev A.
+
+
+## 8. Reservoir: frozen CNC polypropylene part + separate end cap (decision 2026-11-19)
+
+The reservoir is ONE CNC PP piece per size (`out/bench/fab/reservoir-cnc/`, README with the PCBWay order settings): blind stadium bore 16.00 x 5.00 (R2.5 = d5 end mill), wall 0.8, closed end wall 2.5 with a single
+d2.0 H7 port, arm slot in the +Y wall; nothing else. Frozen numbers: `params.json -> reservoir_frozen`. The **end cap** (`end_cap`, SLA for water; PP later) presses onto the port (d1.98 spigot) and carries the fill septum
+(through a d2.0 hole in the -Y wall), the duckbill valve pocket and the needle-hub guard tube; valve/septum/dock changes only touch the cap. Seal: platinum-cure medical silicone lip seals (mould as before) or a bromobutyl stopper
+cut to the stadium shape; see the CNC README. Tests with water OR insulin into containers only, never a person.

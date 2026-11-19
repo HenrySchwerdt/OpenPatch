@@ -44,6 +44,18 @@ pub struct Gen {
     capacity: u32,
     dock: bool,
     charger: bool,
+    mode: Mode,
+    mode_left: u32,
+}
+
+/// Generation phases: `Normal` is the mixed stream; `Fast` mostly 5 s ticks (lets the pump
+/// actually deliver: hourly limit, reservoir empty, temp done, encoder faults); `Quiet` is a long
+/// stretch with (almost) no frames (comm-loss fallback of the temp basal, wear).
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+enum Mode {
+    Normal,
+    Fast,
+    Quiet,
 }
 
 pub fn build_frame(ver: u8, ty: u8, flags: u8, seq: u16, payload: &[u8]) -> Vec<u8> {
@@ -62,7 +74,7 @@ pub fn payload_of(d: &CmdDesc) -> Vec<u8> {
 
 impl Gen {
     pub fn new(seed: u64, setup: &Setup) -> Self {
-        Gen { rng: Rng::new(seed), seq: 0, uu: setup.cal.uu().max(1), capacity: setup.capacity, dock: true, charger: false }
+        Gen { rng: Rng::new(seed), seq: 0, uu: setup.cal.uu().max(1), capacity: setup.capacity, dock: true, charger: false, mode: Mode::Normal, mode_left: 100 }
     }
 
     fn max_prime_steps(&self) -> u64 {
@@ -71,13 +83,13 @@ impl Gen {
 
     fn next_seq(&mut self) -> u16 {
         let r = self.rng.below(1000);
-        if r < 20 {
+        if r < 5 {
             return self.rng.below(65535) as u16;
         }
-        if r < 23 {
+        if r < 7 {
             return *self.rng.pick(&[0xFFFEu16, 0xFFFF]);
         }
-        if r < 55 {
+        if r < 30 {
             return self.seq; // replay
         }
         self.seq = self.seq.saturating_add(1 + self.rng.below(2) as u16);
@@ -165,7 +177,7 @@ impl Gen {
                 d.duration = if valid { (30 * self.rng.range(1, 24)) as u16 } else { *self.rng.pick(&[0u16, 29, 31, 721, 750, 65535]) };
             }
             cmd::BOLUS => {
-                let hi = if self.rng.chance(800) { 30 } else { 200 };
+                let hi = if self.mode == Mode::Fast || self.rng.chance(250) { 200 } else { 30 };
                 d.amount = if valid {
                     (50 * self.rng.range(1, hi)) as u32
                 } else {
@@ -278,11 +290,46 @@ impl Gen {
         }
     }
 
+    fn switch_mode(&mut self) {
+        let m = self.rng.below(100);
+        self.mode = if m < 45 { Mode::Normal } else if m < 80 { Mode::Fast } else { Mode::Quiet };
+        self.mode_left = match self.mode {
+            Mode::Normal => self.rng.range(40, 250) as u32,
+            Mode::Fast => self.rng.range(100, 700) as u32,
+            Mode::Quiet => self.rng.range(300, 600) as u32,
+        };
+    }
+
     pub fn op(&mut self, p: &Pair) -> Op {
         let v = view(p);
         if self.seq > 65_000 {
             self.seq = 0;
             return Op::NewSession;
+        }
+        if self.mode_left == 0 {
+            self.switch_mode();
+        }
+        self.mode_left -= 1;
+        if self.mode != Mode::Normal {
+            let q = self.rng.below(1000);
+            let cmd_pm = if self.mode == Mode::Fast { 90 } else { 2 };
+            if q < cmd_pm {
+                let d = self.command(&v);
+                return Op::Frame(build_frame(PROTO_VERSION, d.ty, 0, self.next_seq(), &payload_of(&d)));
+            }
+            if q < cmd_pm + 15 {
+                return Op::Battery(*self.rng.pick(&[3900u16, 3900, 3900, 3900, 3900, 3900, 3499, 3350, 3250]));
+            }
+            if q < cmd_pm + 25 {
+                return Op::DeliveredPct(*self.rng.pick(&DELIVERED_PCT_CHOICES));
+            }
+            if q < cmd_pm + 30 {
+                return Op::Dock(self.rng.chance(800));
+            }
+            if q < cmd_pm + 33 {
+                return Op::Charger(self.rng.chance(200));
+            }
+            return Op::Tick(if self.rng.chance(900) { 5000 } else { 1000 });
         }
         let r = self.rng.below(1000);
         match r {
@@ -304,7 +351,7 @@ impl Gen {
                 self.charger = if self.charger { self.rng.chance(400) } else { self.rng.chance(60) };
                 Op::Charger(self.charger)
             }
-            840..=869 => Op::Battery(*self.rng.pick(&[3900u16, 3900, 3900, 3900, 3700, 3499, 3400, 3350, 3300, 3299, 3100, 3000, 4100])),
+            840..=869 => Op::Battery(*self.rng.pick(&[3900u16, 3900, 3900, 3900, 3900, 3900, 3900, 3900, 3700, 3600, 3499, 3400, 3350, 3300, 3299, 3100, 3000, 4100])),
             870..=899 => Op::DeliveredPct(*self.rng.pick(&DELIVERED_PCT_CHOICES)),
             900..=919 => Op::StepsLimit(*self.rng.pick(&[-1i32, -1, -1, -1, 0, 1, 2, 5])),
             920..=934 => {
@@ -364,5 +411,6 @@ pub fn run_generated(seed: u64, n: usize, stats: &mut crate::pair::Stats) -> (Se
             return (setup, ops, Err((i, e)));
         }
     }
+    stats.steps_all += stats.total_steps_c;
     (setup, ops, Ok(()))
 }

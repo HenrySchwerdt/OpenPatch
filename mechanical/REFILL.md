@@ -1,6 +1,7 @@
-# Bench pod refill: automatic draw mode (water only)
+# Bench pod refill: automatic draw mode (water or insulin into containers only)
 
-TEST PROJECT: bench use with **water only**, never on a person, never with insulin (see `DISCLAIMER.md`). Spec §4: geared stepper NFP-608-26.45-SGM, coaxial sleeve coupler,
+TEST PROJECT: bench use with **water or insulin into containers only** (vial on a balance, syringe, beaker), **never connected to a person** (see `DISCLAIMER.md`). Insulin tests need the CNC polypropylene
+reservoir (`out/bench/fab/reservoir-cnc/`) and a silicone/bromobutyl-wetted fluid path; printed resin parts (end cap, SLA reservoir) are **water only**. Spec §4: geared stepper NFP-608-26.45-SGM, coaxial sleeve coupler,
 fixed nut in the carriage, one-way duckbill check valve in the outlet path. No crank, no slider, no half-nut, no ratchet (SMA research is only a note in `parts.md`).
 
 ## Procedure (bench, water)
@@ -29,14 +30,14 @@ Firmware level = step count from the rear stop (exact); the TMAG angle verifies 
   silicone duckbill valves (smallest standard sizes), Vernay miniature duckbill (VA series), or AliExpress "silicone duckbill check valve 3 mm micro". Typical cracking pressure of micro silicone
   duckbills is 1-5 kPa (about 0.15-0.7 psi) forward, sealing pressure rises with back-pressure. Pick the lowest cracking pressure that still holds 20 kPa back-pressure without leaking
   (test with the syringe).
-* Pocket: bore d3.05 along the outlet axis in the dock end block (x_r1 + 0.6 .. +4.0) with an open slot on top: drop the valve in with tweezers before the board and lid go on; the printed block
-  holds it, the hub shroud continues the flow channel d0.7 to the needle hub.
+* Pocket: bore d3.05 along the outlet axis in the **end cap** (x_r1 + 0.6 .. +4.0) with an open slot on top: drop the valve in with tweezers before the board and lid go on; the cap holds it,
+  the cap's guard tube continues the flow channel d0.7 to the needle hub. The cap is a separate part pressed (d1.98 spigot) onto the d2.0 H7 port of the frozen CNC reservoir, so valve, septum and dock can change without touching the reservoir.
 * Effect on accuracy: the cracking pressure adds a few kPa to the delivery pressure (negligible vs. the occlusion limit); dead volume about 3 mm3 (0.3 U) is primed once.
 
 ## Occlusion / safety notes
 * Occlusion = pulses without the expected TMAG angle increment + motor current rise; the duckbill cracking pressure is part of the baseline.
 * Draw mode needs the same hardware interlock as delivery (MCU enable AND TPL5010 latch), plus NOT DOCKED.
-* Water only on the bench: the printed reservoir and the valve are not validated for insulin.
+* Water only for the SLA parts (cap, SLA reservoir): not validated for insulin. Insulin bench tests: CNC PP reservoir + PP/silicone parts in the wetted path, container only, never a person.
 
 ## Open items
 * Measure the real motor thrust and the seal friction (pull test); choose the valve (cracking pressure).

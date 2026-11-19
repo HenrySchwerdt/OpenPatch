@@ -34,6 +34,11 @@ impl Rng {
     pub fn pick<'a, T>(&mut self, xs: &'a [T]) -> &'a T {
         &xs[self.below(xs.len() as u64) as usize]
     }
+    /// `lo..=hi` random bytes.
+    pub fn bytes_between(&mut self, lo: u64, hi: u64) -> Vec<u8> {
+        let n = self.range(lo, hi) as usize;
+        self.bytes(n)
+    }
     pub fn bytes(&mut self, n: usize) -> Vec<u8> {
         (0..n).map(|_| self.next_u64() as u8).collect()
     }

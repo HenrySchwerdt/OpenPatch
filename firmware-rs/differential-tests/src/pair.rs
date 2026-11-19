@@ -85,6 +85,8 @@ pub struct Stats {
     pub fault_bit_counts: [u64; 8],
     pub event_types_seen: BTreeSet<i64>,
     pub total_steps_c: u64,
+    /// Sum over all generated runs of the steps executed by the C mock motor.
+    pub steps_all: u64,
 }
 
 pub struct Pair {

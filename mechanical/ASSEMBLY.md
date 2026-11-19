@@ -100,7 +100,7 @@ Files: `python3 generate.py --variant bench` -> `out/bench/` (`OP-xx.layout.json
 Tools: **tweezers, small screwdriver (PH000 / 1.5 mm slotted)**, 0.5 / 1.0 / 2.0 mm drills in a pin vise, deburring tool, cyanoacrylate (thread-locker 638 optional), 4 mm + 2 mm biopsy punches,
 razor blade. **No soldering iron:** the pod sensor board arrives assembled (JLC PCBA); the motor keeps its factory lead with the JST 1.25 plug (soldered by the manufacturer).
 
-Parts per pod: printed bottom, top, carriage, reservoir, plunger core, cannula adapter, sleeve coupler; cast lip seals + gasket; NFP-608-26.45-SGM motor with lead; M1.6 leadscrew + M1.6 nut;
+Parts per pod: printed bottom, top, carriage, plunger core, cannula adapter, sleeve coupler, **end cap** (SLA); **CNC PP reservoir** (`fab/reservoir-cnc`; SLA copy for water); cast lip seals + gasket; NFP-608-26.45-SGM motor with lead; M1.6 leadscrew + M1.6 nut;
 duckbill check valve (OD <= 3 mm); pod sensor board (OP-100, same for all sizes); magnets d2x1: spindle (diametric), dock (axial, goes into the adapter); 10-pin FFC cable; 30G needle with press-fit hub;
 4 mm fill septum; M1.2 screws (6 x 6 mm lid, 2 x 4 mm board).
 
@@ -112,8 +112,8 @@ Test-fit the printed `dock-coupon` to a spare cannula head as described in `cann
 2. Dock: flex each snap arm by hand 2 mm and release. Adapter: magnet pocket d2.1, septum bore d0.5, hose barb channel d0.7.
 3. Motor: measure the shaft (d2.0 with D-flat 1.5), free shaft length and the pin block position on the real part; correct `drive_presets.nfp_608_26` if different, regenerate.
 
-## B2. Plunger, seal, reservoir, carriage
-Cast the lip seals in `mould/`, assemble plunger core + seals, push into the reservoir (sections 1-2 above). Carriage with the **fixed M1.6 nut** (press into the hex pocket).
+## B2. Plunger, seal, reservoir, end cap, carriage
+Cast the lip seals in `mould/`, assemble plunger core + seals, push into the reservoir from the open end (sections 1-2 above). Press the **end cap** (d1.98 spigot) onto the d2.0 port of the closed end by hand until the cap block touches the reservoir end face; the fill septum plug (d4 x 2, punched) goes into the cap's side bore (access hole in the -Y shell wall). Carriage with the **fixed M1.6 nut** (press into the hex pocket).
 
 ## B3. Motor, coupler, leadscrew
 1. Lay the motor in the three cradles of the lane (rear boss toward the dry end wall, **terminal pins pointing to the +Y wall**). The lead (4 wires) goes through the slot in the +Y wall:
@@ -123,7 +123,7 @@ Cast the lip seals in `mould/`, assemble plunger core + seals, push into the res
 4. Turn the screw by hand: the carriage must run between the rear stop blocks and the far bearing block without binding.
 
 ## B4. Duckbill valve and needle
-1. Drop the **duckbill valve** into the open slot of the dock end block (flow direction toward the needle, i.e. toward +X), push it into the d3.05 bore with tweezers.
+1. Drop the **duckbill valve** into the open slot of the end cap (flow direction toward the needle, i.e. toward +X), push it into the d3.05 bore with tweezers.
 2. Needle in its hub (tip protruding 3.5 mm), hub into the bore of the guard tube from the dock mouth, until it bottoms. Check the tip position as in section B7 of the coupon notes.
 
 ## B5. Pod sensor board

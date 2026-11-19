@@ -42,7 +42,7 @@ PARTS = {
                      "+-0.1 mm. Seal grooves (0.8 mm wide) + socket for carriage tongue. Water test only.", True),
     "reservoir": ("SLA (clear resin preferred, 'BioMed Clear'-class if offered, else standard clear)", "clear resin",
                   "clear", "wash + UV post-cure; inner bore stays unpolished", 1,
-                  "WATER-TEST ONLY - not insulin-contact, not sterile, not validated. +-0.1 mm; check bore 16.0 x 5.0 with a "
+                  "WATER-TEST ONLY (SLA copy; for insulin use the CNC PP part in reservoir-cnc/) - not sterile, not validated. +-0.1 mm; check bore 16.0 x 5.0 with a "
                   "pin gauge; bore may need light honing. Single piece; open dry end.", True),
     "reservoir_cnc_lower": ("CNC (PCBWay CNC; polypropylene) - OPTIONAL, expensive", "PP natural", "natural", "as machined", 1,
                             "Half of the reservoir (split at bore centre plane). Bond halves after machining. Only for the later "
@@ -61,6 +61,9 @@ BENCH_PARTS["bottom"] = (PARTS["bottom"][0], "PA12", "grey (natural)", "bead-bla
                          "FFC exit slot is in the lid. Porous: NOT watertight.", True)
 BENCH_PARTS["top"] = (PARTS["top"][0], "PA12", "grey (natural)", "bead-blasted standard", 1,
                       "+-0.2 mm. FFC slot 8.0 x 1.1 mm in the +X wall, dome mouth in the lap. Screw holes dia 1.4 may need a drill.", True)
+BENCH_PARTS["end_cap"] = ("SLA (tough resin; later PP / CNC)", "tough resin", "any", "no coating; clear internal channels d0.7 with a 0.5 mm wire", 2,
+                          "+-0.05 mm. End cap pressed onto the d2.0 H7 port of the CNC reservoir (spigot d1.98 x 2.0): fill septum bore d4.2 (side), duckbill pocket d3.05 with open slot, needle guard tube d3.2 / bore d2.0, "
+                          "internal channels d0.7. WATER ONLY in SLA resin.", True)
 BENCH_PARTS["coupler"] = ("SLA (tough resin) - or turned brass tube (preferred)", "tough resin / brass", "any", "no coating", 2,
                           "+-0.05 mm. Sleeve coupler d3.0 x 6.0: D-bore d2.04 / flat 1.5 (3.2 deep) for the NFP shaft, M1.6 bore d1.64 (2.8 deep) for the leadscrew; "
                           "retain with one drop of cyanoacrylate / Loctite 638. VERIFY the shaft D-flat on the real motor.", True)
@@ -96,7 +99,7 @@ def write_bench_readme(p: dict, vols: dict, sizes: list, PARTS: dict) -> None:
         if PARTS[part][0].startswith("MJF"):
             return qty * max(MJF_MIN_PART, vol * PA12_DENSITY * MJF_BILL_FACTOR * MJF_PER_G)
         return qty * max(SLA_MIN_PART, vol * SLA_BILL_FACTOR * SLA_PER_CM3 * 4)
-    cols = [("bottom", 1), ("top", 1), ("carriage", 2), ("plunger_core", 2), ("reservoir", 1), ("cannula_adapter", 2), ("coupler", 2)]
+    cols = [("bottom", 1), ("top", 1), ("carriage", 2), ("plunger_core", 2), ("reservoir", 1), ("cannula_adapter", 2), ("coupler", 2), ("end_cap", 2)]
     lines = ["| size | " + " | ".join(f"{c} x{q}" for c, q in cols) + " | subtotal |", "|---|" + "---|" * (len(cols) + 1)]
     tot = 0.0
     sub = {}
@@ -154,7 +157,7 @@ def main() -> None:
     PARTS = BENCH_PARTS if BENCH else globals()["PARTS"]
     if FAB.exists():
         for child in FAB.iterdir():          # keep dock-coupon/ (built by generate.py --coupon)
-            if child.name not in ("dock-coupon", "stencil"):
+            if child.name not in ("dock-coupon", "stencil", "reservoir-cnc"):
                 shutil.rmtree(child) if child.is_dir() else child.unlink()
     FAB.mkdir(parents=True, exist_ok=True)
     rows, vols = [], {}
@@ -162,7 +165,7 @@ def main() -> None:
     for sz in sizes:
         d = FAB / sz
         d.mkdir()
-        v = volumes(OUT / f"{sz}.sc", ["bottom", "top", "carriage", "plunger_core", "reservoir", "cannula_adapter"])
+        v = volumes(OUT / f"{sz}.sc", ["bottom", "top", "carriage", "plunger_core", "reservoir", "cannula_adapter", "coupler", "end_cap"])
         vols[sz] = v
         for part, (proc, mat, col, fin, qty, tol, upload) in PARTS.items():
             if not upload:
