@@ -4,7 +4,7 @@ Everything geometric is read from ../params.json (and, where present, ../out/ben
 generate.py), so `python3 run_all.py` re-evaluates the design after every CAD change.  Material / process
 assumptions live in CONST below, each with a source or an explicit ASSUMPTION tag.
 
-TEST PROJECT, bench use only (water / insulin into containers), never on a person.
+TEST PROJECT, bench use only (WATER ONLY, never insulin or any drug), never on a person.
 """
 from __future__ import annotations
 

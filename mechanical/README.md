@@ -42,7 +42,7 @@ Open `out/OP-xx.sc` in SolidCraft for the feature history; sketches use fixed nu
 ## What Rev A models (all three sizes, all bodies are separate solids)
 
 * **Drive:** Zhaowei 6 mm planetary-gear stepper (cheap default, preset `zw_pd6_1stage`, 23.7 mm) or Faulhaber
-  ADM0620 + 06/1 (premium preset). 1:1 spur pair (module 0.3, z = 18, centre distance 5.4) from the gearbox to an
+  ADM0620 + 06/1 (premium preset). step-down spur pair (module 0.3, z16 motor : z20 screw, built centre 5.51; the earlier 1:1 z18 pair is superseded) from the gearbox to an
   **M1.6 x 0.35 leadscrew** in its own lane beside the reservoir. Motor in saddles (3 per motor), screw in two
   bearing blocks with 3.0 mm bushings, **carriage** (nut hex pocket for DIN 934 M1.6, guide groove on a **rail** in
   the floor, tongue through the reservoir slot into the plunger socket), dia 2 x 1 **diametric magnet** on the screw
@@ -127,5 +127,13 @@ plunger_seal,gasket}.step/.stl`, `{mould_lower,mould_upper}.step/.stl`, `{reserv
 
 * **Drive (final 2026-11-19): NFP-608-26.45-SGM geared stepper, coaxial with the leadscrew via a sleeve coupler** (`op_coax.py`), fixed nut, duckbill check valve (`REFILL.md`: automatic draw mode, water only).
   
-* **Layout switch (2026-11-19):** `params.json -> bench.drive_layout`: `side_gears` (default: NFP motor beside the leadscrew, purchased gear pair z18:z18 centre 5.4, pod 40.9 / 44.9 / 58.3 x 32.0 x 8.5) or `coaxial` (sleeve coupler, 65 / 69 / 83 x 27). Gear pair and centre distance: `bench.gears` (check.py rejects centres < 5.3 mm).
+* **Layout switch (2026-11-19):** `params.json -> bench.drive_layout`: `side_gears` (default: NFP motor beside the leadscrew, purchased gear pair z16:z20 (U/step 0.00395), built centre 5.51, pod **43.0 / 47.0 / 60.4 x 32.0 x 8.4 mm**) or `coaxial` (sleeve coupler, 65 / 69 / 83 x 27). Gear pair and centre distance: `bench.gears` (check.py rejects centres < 5.5 mm).
   The frozen CNC reservoir (`reservoir-cnc/`) and the end cap are identical in both layouts.
+
+
+## Update 2026-11-19 (bench pod finish)
+* **CLI discovery:** `SOLIDCRAFT_CLI` env, then `solidcraft-cli` on PATH, then the macOS app bundle (`op_layout.find_cli`).
+* **Envelope (bench, side_gears):** OP-70 43.0, OP-100 47.0, OP-200 60.4 mm x 32.0 x **8.4** mm (height nominal 8.4: lid recess 0.3 mm over the reservoir, pod board 0.6 mm). `check.py --variant bench`: all PASS, 39 bodies, no interference, no disconnected fragments (new check).
+* **Gears:** 16:20 step-down, tips modelled as circles; see `parts.md` section 1. **Spindle magnet:** diametric d3 x 1.5 (`drive.mag_d/mag_t`), board and TMAG follow it (`bench_geometry`).
+* **Modular dock (spec 8a):** `params.json -> dock_interface_frozen` (window half 6.85, flange pocket half 7.6, ledge z 0..0.45, detent d0.5 bumps, mouth half 6.2, insert datum x0_u 4.4, tail_u 21.2). `op_dock.build_insert` builds the insert, `op_coupon.py` the 12-variant set (A_dome_d x N_hook_h) and the pod-less fixture -> `out/bench/fab/dock-inserts/` (`python3 generate.py --coupon`). `check.py` assembles the nominal insert on every size and all 12 variants on the first size (interference + needle alignment).
+* **Sim-driven changes:** nut float 0.3 mm (hex pocket AF 3.8, carriage 4.8 wide, rail top 1.4), stainless tongue shim (0.5 x 1.4) instead of the printed tongue, plunger nose 0.7 mm (dead layer 0.3 mm, CNC part unchanged), snap arms 0.6 mm thick / free length 10.4 mm (needle_free 4.8, tail 20.3), guard-bore lead-in 0.4, hook ramp 0.5, gap_y 1.5 (dock axis y 11.2).

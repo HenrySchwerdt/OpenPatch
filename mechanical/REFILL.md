@@ -1,6 +1,6 @@
-# Bench pod refill: automatic draw mode (water or insulin into containers only)
+# Bench pod refill: automatic draw mode (water only)
 
-TEST PROJECT: bench use with **water or insulin into containers only** (vial on a balance, syringe, beaker), **never connected to a person** (see `DISCLAIMER.md`). Insulin tests need the CNC polypropylene
+TEST PROJECT: bench use with **water only** (beaker, vial or syringe on a balance), **never filled with insulin or any other drug and never connected to a person** (see `DISCLAIMER.md`). The CNC polypropylene reservoir is an optional material preparation for a future manufacturer, never filled with insulin.
 reservoir (`out/bench/fab/reservoir-cnc/`) and a silicone/bromobutyl-wetted fluid path; printed resin parts (end cap, SLA reservoir) are **water only**. Spec §4: geared stepper NFP-608-26.45-SGM, coaxial sleeve coupler,
 fixed nut in the carriage, one-way duckbill check valve in the outlet path. No crank, no slider, no half-nut, no ratchet (SMA research is only a note in `parts.md`).
 
@@ -24,7 +24,7 @@ A window in the lid over the carriage lane (`t_fillwin`, 2 mm wide) shows the ca
 Firmware level = step count from the rear stop (exact); the TMAG angle verifies the leadscrew angle: 1 turn = 0.35 mm x 74.63 mm2 = 26.1 mm3 = 2.61 U (so 0.00494 U = 0.68 deg of leadscrew).
 
 ## Duckbill check valve
-* Function: forward flow (reservoir -> needle) opens it at the cracking pressure; reverse flow (air or insulin back toward the reservoir) closes it harder. It also stops free flow
+* Function: forward flow (reservoir -> needle) opens it at the cracking pressure; reverse flow (air or liquid back toward the reservoir) closes it harder. It also stops free flow
   when the reservoir is under pressure from outside and blocks siphoning.
 * Part (SEARCH-TERM, all VERIFY, no listing was fetched): miniature silicone duckbill valve, **OD <= 3.0 mm, length about 3.4 mm** (`cannula/coax valve_d / valve_len`), e.g. Minivalve International
   silicone duckbill valves (smallest standard sizes), Vernay miniature duckbill (VA series), or AliExpress "silicone duckbill check valve 3 mm micro". Typical cracking pressure of micro silicone
@@ -37,7 +37,7 @@ Firmware level = step count from the rear stop (exact); the TMAG angle verifies 
 ## Occlusion / safety notes
 * Occlusion = pulses without the expected TMAG angle increment + motor current rise; the duckbill cracking pressure is part of the baseline.
 * Draw mode needs the same hardware interlock as delivery (MCU enable AND TPL5010 latch), plus NOT DOCKED.
-* Water only for the SLA parts (cap, SLA reservoir): not validated for insulin. Insulin bench tests: CNC PP reservoir + PP/silicone parts in the wetted path, container only, never a person.
+* Water only, for all parts (SLA cap, SLA reservoir, PP/silicone parts): nothing in this project is validated for insulin; the pump is never filled with insulin or any other drug.
 
 ## Open items
 * Measure the real motor thrust and the seal friction (pull test); choose the valve (cracking pressure).

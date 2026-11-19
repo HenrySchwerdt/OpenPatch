@@ -4103,7 +4103,7 @@
  {
   "command": "file.export_step",
   "params": {
-   "path": "mechanical/out/OP-70_assembly.step",
+   "path": "out/OP-70_assembly.step",
    "bodies": [
     "bottom",
     "top",
@@ -4140,7 +4140,7 @@
  {
   "command": "file.export_step",
   "params": {
-   "path": "mechanical/out/OP-70_bottom.step",
+   "path": "out/OP-70_bottom.step",
    "bodies": [
     "bottom"
    ]
@@ -4149,7 +4149,7 @@
  {
   "command": "file.export_stl",
   "params": {
-   "path": "mechanical/out/OP-70_bottom.stl",
+   "path": "out/OP-70_bottom.stl",
    "bodies": [
     "bottom"
    ],
@@ -4159,7 +4159,7 @@
  {
   "command": "file.export_step",
   "params": {
-   "path": "mechanical/out/OP-70_top.step",
+   "path": "out/OP-70_top.step",
    "bodies": [
     "top"
    ]
@@ -4168,7 +4168,7 @@
  {
   "command": "file.export_stl",
   "params": {
-   "path": "mechanical/out/OP-70_top.stl",
+   "path": "out/OP-70_top.stl",
    "bodies": [
     "top"
    ],
@@ -4178,7 +4178,7 @@
  {
   "command": "file.export_step",
   "params": {
-   "path": "mechanical/out/OP-70_carriage.step",
+   "path": "out/OP-70_carriage.step",
    "bodies": [
     "carriage"
    ]
@@ -4187,7 +4187,7 @@
  {
   "command": "file.export_stl",
   "params": {
-   "path": "mechanical/out/OP-70_carriage.stl",
+   "path": "out/OP-70_carriage.stl",
    "bodies": [
     "carriage"
    ],
@@ -4197,7 +4197,7 @@
  {
   "command": "file.export_step",
   "params": {
-   "path": "mechanical/out/OP-70_reservoir.step",
+   "path": "out/OP-70_reservoir.step",
    "bodies": [
     "reservoir"
    ]
@@ -4206,7 +4206,7 @@
  {
   "command": "file.export_stl",
   "params": {
-   "path": "mechanical/out/OP-70_reservoir.stl",
+   "path": "out/OP-70_reservoir.stl",
    "bodies": [
     "reservoir"
    ],
@@ -4216,7 +4216,7 @@
  {
   "command": "file.export_step",
   "params": {
-   "path": "mechanical/out/OP-70_plunger_core.step",
+   "path": "out/OP-70_plunger_core.step",
    "bodies": [
     "plunger_core"
    ]
@@ -4225,7 +4225,7 @@
  {
   "command": "file.export_stl",
   "params": {
-   "path": "mechanical/out/OP-70_plunger_core.stl",
+   "path": "out/OP-70_plunger_core.stl",
    "bodies": [
     "plunger_core"
    ],
@@ -4235,7 +4235,7 @@
  {
   "command": "file.export_step",
   "params": {
-   "path": "mechanical/out/OP-70_plunger_seal.step",
+   "path": "out/OP-70_plunger_seal.step",
    "bodies": [
     "seal_a",
     "seal_b"
@@ -4245,7 +4245,7 @@
  {
   "command": "file.export_stl",
   "params": {
-   "path": "mechanical/out/OP-70_plunger_seal.stl",
+   "path": "out/OP-70_plunger_seal.stl",
    "bodies": [
     "seal_a",
     "seal_b"
@@ -4256,7 +4256,7 @@
  {
   "command": "file.export_step",
   "params": {
-   "path": "mechanical/out/OP-70_gasket.step",
+   "path": "out/OP-70_gasket.step",
    "bodies": [
     "gasket"
    ]
@@ -4265,7 +4265,7 @@
  {
   "command": "file.export_stl",
   "params": {
-   "path": "mechanical/out/OP-70_gasket.stl",
+   "path": "out/OP-70_gasket.stl",
    "bodies": [
     "gasket"
    ],
