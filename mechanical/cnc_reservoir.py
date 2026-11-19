@@ -7,6 +7,7 @@ the carriage-arm slot in the +Y wall.  No septum, valve, dock or fill features (
 """
 from __future__ import annotations
 
+import html
 import json
 import shutil
 import subprocess
@@ -27,7 +28,7 @@ def svg_drawing(variant: str, p: dict, L: dict) -> str:
     slot_x0 = L["xrear_full"] + p["seal"]["tongue_off"][0] - 0.2 - x0
     slot_x1 = L["xrear_empty"] + p["seal"]["tongue_off"][1] + 0.2 - x0
     slot_h = p["drive"]["arm_t"] + 2 * p["drive"]["slot_clr"]
-    X0, Y0 = 70.0, 70.0
+    X0, Y0 = 130.0, 90.0
     els: list[str] = []
 
     def rect(x, y, w, h, fill="none", stroke="#000", sw=1.2, rx=0, dash=None):
@@ -39,7 +40,7 @@ def svg_drawing(variant: str, p: dict, L: dict) -> str:
         els.append(f'<line x1="{x0_:.1f}" y1="{y0_:.1f}" x2="{x1_:.1f}" y2="{y1_:.1f}" stroke="{stroke}" stroke-width="{sw}"{d}/>')
 
     def text(x, y, t, size=11, anchor="start", weight="normal", fill="#000"):
-        els.append(f'<text x="{x:.1f}" y="{y:.1f}" font-size="{size}" text-anchor="{anchor}" font-weight="{weight}" fill="{fill}">{t}</text>')
+        els.append(f'<text x="{x:.1f}" y="{y:.1f}" font-size="{size}" text-anchor="{anchor}" font-weight="{weight}" fill="{fill}">{html.escape(t, quote=False)}</text>')
 
     def hdim(xa, xb, y, label, off=18):
         line(xa, y, xa, y + off + 4, "#06c", 0.5)
@@ -67,7 +68,7 @@ def svg_drawing(variant: str, p: dict, L: dict) -> str:
     hdim(sx, sx + Lw, sy + Hh, f"{length:.2f} +-0.1 overall", 22)
     hdim(sx, sx + bore_depth * S, sy + Hh, f"{bore_depth:.2f} bore depth (blind, +0.1/0)", 48)
     hdim(sx + bore_depth * S, sx + Lw, sy, f"{fz['end_wall']:.1f} end wall", -16)
-    text(sx + bore_depth * S + 6, pz - 8, f"port d{fz['port_d']:.1f} {fz['port_tol'].split()[0]}, chamfer {fz['port_chamfer']}x45", 10)
+    text(sx + bore_depth * S + 4, pz + 22, f"port d{fz['port_d']:.1f} {fz['port_tol'].split()[0]}, chamfer {fz['port_chamfer']}x45", 10)
     text(sx + 4, sy + ib + 14, "stadium bore 16.00 x 5.00, open dry end (datum A)", 10)
     vdim(sx, sy, sy + Hh, f"{oh:.1f}", -18)
     vdim(sx + 0, sy + ib, sy + ib + rs["h_in"] * S, f"{rs['h_in']:.2f}", -50)
@@ -83,7 +84,7 @@ def svg_drawing(variant: str, p: dict, L: dict) -> str:
     hdim(sx + slot_x0 * S, sx + slot_x1 * S, ty + wpx, f"slot {slot_x0:.2f} .. {slot_x1:.2f}  (width {slot_h:.2f} +0.1/0)", 22)
 
     # ---- view 3: end view (stadium cross-section) ---------------------------------------------------------------
-    cx, cy = sx + Lw + 190, sy + 60
+    cx, cy = sx + Lw + 230, sy + 60
     wo, ho, wi, hi = ow * S, oh * S, fz["bore_w"] * S, fz["bore_h"] * S
     rect(cx - wo / 2, cy - ho / 2, wo, ho, "#e8eef4", rx=ho / 2)
     rect(cx - wi / 2, cy - hi / 2, wi, hi, "#ffffff", rx=hi / 2)

@@ -14,7 +14,7 @@
  },
  "transform": {
   "board_origin_in_pod_mm": [
-   62.7,
+   64.4,
    4.6
   ],
   "rotation_deg": 0,
@@ -183,7 +183,7 @@
    "what": "locating pin",
    "center_board_mm": [
     8.9,
-    12.8
+    13.4
    ],
    "d_mm": 2.0,
    "layers": "top+bottom: no components, no exposed copper"
@@ -262,7 +262,7 @@
     18.0
    ],
    "center_pod_mm": [
-    64.5,
+    66.2,
     22.6
    ],
    "body_xyz_mm": [
@@ -293,7 +293,7 @@
     16.5
    ],
    "center_pod_mm": [
-    63.6,
+    65.3,
     21.1
    ],
    "body_xyz_mm": [
@@ -328,7 +328,7 @@
     19.2
    ],
    "center_pod_mm": [
-    63.6,
+    65.3,
     23.8
    ],
    "body_xyz_mm": [
@@ -360,11 +360,11 @@
    "side": "bottom",
    "center_board_mm": [
     15.0,
-    5.7
+    6.9
    ],
    "center_pod_mm": [
-    77.7,
-    10.3
+    79.4,
+    11.5
    ],
    "body_xyz_mm": [
     1.1,
@@ -394,7 +394,7 @@
  "magnets": {
   "spindle": {
    "center_pod_mm": [
-    61.65,
+    63.35,
     22.6,
     4.2
    ],
@@ -402,7 +402,7 @@
    "t_mm": 1.0,
    "axis": "X",
    "magnetisation": "diametric (rotates with the spindle)",
-   "end_face_x_pod": 62.15,
+   "end_face_x_pod": 63.85,
    "spindle_axis_yz_pod": [
     22.6,
     4.2
@@ -410,8 +410,8 @@
   },
   "dock": {
    "center_pod_mm": [
-    77.7,
-    10.3,
+    79.4,
+    11.5,
     3.8
    ],
    "d_mm": 2.0,
@@ -485,7 +485,7 @@
    13.9
   ],
   "center_pod_mm": [
-   76.8,
+   78.5,
    18.5
   ],
   "body_mm": {
@@ -510,8 +510,8 @@
   "exit_slot": {
    "wall": "+X end wall (lid part)",
    "x_pod": [
-    79.9,
-    81.0
+    81.6,
+    82.7
    ],
    "y_pod": [
     14.5,
@@ -524,7 +524,7 @@
    "centre_y_pod": 18.5,
    "sealed": false
   },
-  "inner_wall_x_pod": 80.0
+  "inner_wall_x_pod": 81.7
  },
  "mounting": {
   "locating_pins": [
@@ -532,11 +532,11 @@
     "id": "PIN1",
     "center_board_mm": [
      8.9,
-     12.8
+     13.4
     ],
     "center_pod_mm": [
-     71.6,
-     17.4
+     73.3,
+     18.0
     ],
     "pin_d_mm": 1.0,
     "pin_top_z_pod": 5.9,
@@ -550,7 +550,7 @@
      17.4
     ],
     "center_pod_mm": [
-     78.2,
+     79.9,
      22.0
     ],
     "pin_d_mm": 1.0,
@@ -566,7 +566,7 @@
     14.8
    ],
    "center_pod_mm": [
-    71.6,
+    73.3,
     19.4
    ],
    "board_hole_d_mm": 1.4,
@@ -582,7 +582,7 @@
      17.8
     ],
     "center_pod_mm": [
-     68.0,
+     69.7,
      22.4
     ],
     "d_mm": 1.6,
@@ -596,7 +596,7 @@
      11.4
     ],
     "center_pod_mm": [
-     78.2,
+     79.9,
      16.0
     ],
     "d_mm": 1.6,
@@ -612,7 +612,7 @@
      17.8
     ],
     "center_pod_mm": [
-     67.5,
+     69.2,
      22.4
     ],
     "d_mm": 1.2,
@@ -625,7 +625,7 @@
      18.2
     ],
     "center_pod_mm": [
-     73.9,
+     75.6,
      22.8
     ],
     "d_mm": 1.2,
@@ -638,7 +638,7 @@
      8.7
     ],
     "center_pod_mm": [
-     77.2,
+     78.9,
      13.3
     ],
     "d_mm": 1.2,
@@ -656,14 +656,14 @@
   "magnet": "\u00d82 x 1 mm axial NdFeB in the rear latch lug, top face z=4.30"
  },
  "dock": {
-  "note": "slide-on dock: horizontal needle axis y=10.30 z=3.00, dome centre x=72.10 when latched; all cannula.* values TODO-MEASURE",
-  "arm_strain_pct": 1.19
+  "note": "slide-on dock: horizontal needle axis y=11.50 z=3.00, dome centre x=73.80 when latched; all cannula.* values TODO-MEASURE",
+  "arm_strain_pct": 2.62
  },
  "references": {
   "pod_layout_full": "OP-200.mech.json",
   "motor_end_x_pod": 20.9,
-  "x_r1": 61.0,
-  "x_dome_centre": 72.1,
+  "x_r1": 62.7,
+  "x_dome_centre": 73.8,
   "spindle_axis_pod_yz": [
    22.6,
    4.2
