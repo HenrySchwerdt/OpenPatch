@@ -4,6 +4,9 @@
 #include <zephyr/drivers/pwm.h>
 #include <zephyr/kernel.h>
 
+/* Optional: Rev A pod has no buzzer (alarms via BLE/Trio), the dev kit and the bench controller do. */
+#if DT_NODE_HAS_STATUS(DT_ALIAS(pwm_buzzer), okay)
+
 static const struct device *const g_pwm = DEVICE_DT_GET(DT_ALIAS(pwm_buzzer));
 
 #define TONE_PERIOD_NS 250000u /* 4 kHz piezo resonance */
@@ -74,3 +77,11 @@ void buzzer_silence(void)
         tone(false);
     }
 }
+
+#else /* no buzzer on this board */
+
+int buzzer_init(void) { return 0; }
+void buzzer_set(op_buzzer_t pattern) { ARG_UNUSED(pattern); }
+void buzzer_silence(void) {}
+
+#endif

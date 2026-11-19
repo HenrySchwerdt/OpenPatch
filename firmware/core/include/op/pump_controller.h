@@ -9,6 +9,7 @@
 #include "op/delivery_engine.h"
 #include "op/drive_cal.h"
 #include "op/event_log.h"
+#include "op/occlusion.h"
 #include "op/op_hal.h"
 #include "op/openpatch_proto.h"
 #include "op/reservoir_model.h"
@@ -49,12 +50,22 @@ typedef struct {
     bool low_res_reported;
     bool low_batt_reported;
     uint32_t tick_overruns;
+    /* motor current (hal->motor_stats): occlusion detector + peak since the last op_pump_take_motor_peak() */
+    op_occ_t occ;
+    uint16_t mot_peak_ma;
+    uint32_t mot_bursts;
 } op_pump_t;
 
 /* cal may be NULL (missing). A missing or invalid calibration (op_drive_cal_validate) leaves the
  * pump permanently without delivery: OP_FAULT_NO_CALIBRATION is latched and cannot be acknowledged. */
 void op_pump_init(op_pump_t *p, const op_hal_t *hal, const op_drive_cal_t *cal, uint32_t capacity_mu,
                   uint32_t restored_next_event_id);
+/* Configure the occlusion detector (platform tuning, default op_occ_default_cfg). It only runs when
+ * the HAL has a motor_stats hook; NULL cfg disables it. Call right after op_pump_init(). */
+void op_pump_set_occlusion_cfg(op_pump_t *p, const op_occ_cfg_t *cfg);
+/* Highest motor current seen since the previous call (0 = none/no current sense) and the number of
+ * motor bursts in that time; clears both. Either pointer may be NULL. */
+uint16_t op_pump_take_motor_peak(op_pump_t *p, uint32_t *bursts);
 /* call every ~1 s from the main loop */
 void op_pump_tick(op_pump_t *p);
 

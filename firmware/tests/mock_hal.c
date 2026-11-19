@@ -25,6 +25,16 @@ static uint64_t m_time(void *c) { return ((mock_hal_t *)c)->now_ms; }
 static bool m_docked(void *c) { return ((mock_hal_t *)c)->docked; }
 static bool m_charger(void *c) { return ((mock_hal_t *)c)->charger; }
 
+static bool m_stats(void *c, op_motor_stats_t *o)
+{
+    mock_hal_t *m = c;
+    if (!m->has_stats) return false;
+    o->peak_ma = m->peak_ma;
+    o->mean_ma = m->mean_ma;
+    o->samples = m->stats_samples;
+    return true;
+}
+
 void mock_hal_init(mock_hal_t *m)
 {
     memset(m, 0, sizeof *m);
@@ -32,10 +42,19 @@ void mock_hal_init(mock_hal_t *m)
     m->delivered_pct = 100;
     m->steps_limit = -1;
     m->docked = true;
+    m->stats_samples = 10;
 }
 
 op_hal_t mock_hal_make(mock_hal_t *m)
 {
-    op_hal_t h = {m, m_step, m_enable, m_enc, m_kick, m_buzz, m_batt, m_time, m_docked, m_charger};
+    op_hal_t h = {m, m_step, m_enable, m_enc, m_kick, m_buzz, m_batt, m_time, m_docked, m_charger, m->has_stats ? m_stats : NULL};
+    return h;
+}
+
+op_hal_t mock_hal_make_no_battery(mock_hal_t *m)
+{
+    op_hal_t h = mock_hal_make(m);
+    h.battery_mv = NULL;
+    m->no_battery = true;
     return h;
 }

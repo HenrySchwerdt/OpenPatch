@@ -1,4 +1,4 @@
 # SPDX-License-Identifier: Apache-2.0
-description: Generic I2C chip accessed with raw register reads by OpenPatch code (TMAG5273, BQ25120A).
+description: Generic I2C chip accessed with raw register reads by OpenPatch code (TMAG5273).
 compatible: "openpatch,i2c-chip"
 include: i2c-device.yaml

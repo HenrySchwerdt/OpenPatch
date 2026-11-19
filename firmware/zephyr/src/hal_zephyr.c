@@ -19,6 +19,7 @@
 #include "board_io.h"
 #include "buzzer.h"
 #include "charger.h"
+#include "current_sense.h"
 #include "dock.h"
 #include "encoder.h"
 #include "safety_latch.h"
@@ -28,8 +29,13 @@
 LOG_MODULE_REGISTER(hal, LOG_LEVEL_INF);
 
 static const struct gpio_dt_spec g_dir = GPIO_DT_SPEC_GET(OP_ZU, motor_dir_gpios);
+/* MODE1/MODE2 are optional: the bench controller straps them on the board */
+#if OP_HAS(motor_mode1_gpios)
 static const struct gpio_dt_spec g_mode1 = GPIO_DT_SPEC_GET(OP_ZU, motor_mode1_gpios);
+#endif
+#if OP_HAS(motor_mode2_gpios)
 static const struct gpio_dt_spec g_mode2 = GPIO_DT_SPEC_GET(OP_ZU, motor_mode2_gpios);
+#endif
 static const struct gpio_dt_spec g_stby = GPIO_DT_SPEC_GET(OP_ZU, motor_stby_gpios);
 static const struct gpio_dt_spec g_fault = GPIO_DT_SPEC_GET(OP_ZU, motor_fault_gpios);
 /* STCK (= MODE3) is owned by step_gen; DIR (= MODE4) is set here */
@@ -47,7 +53,9 @@ static int hal_motor_step(void *ctx, uint32_t steps)
 {
     ARG_UNUSED(ctx);
     if (!g_armed || steps == 0) return 0; /* not armed: nothing ran, the supervisor will latch INTERNAL */
+    current_sense_begin();
     uint32_t done = step_gen_run(steps);
+    current_sense_end();
     encoder_sim_advance(done);
 
     uint32_t q;
@@ -77,8 +85,12 @@ static void hal_motor_enable(void *ctx, bool enable)
 
     gpio_pin_set_dt(&g_stby, 0);
     gpio_pin_configure_dt(&g_stck_mode, GPIO_OUTPUT_INACTIVE);
+#if OP_HAS(motor_mode1_gpios)
     gpio_pin_set_dt(&g_mode1, MODE_BIT(0));
+#endif
+#if OP_HAS(motor_mode2_gpios)
     gpio_pin_set_dt(&g_mode2, MODE_BIT(1));
+#endif
     gpio_pin_set_dt(&g_stck_mode, MODE_BIT(2)); /* MODE3 */
     gpio_pin_set_dt(&g_dir, MODE_BIT(3));       /* MODE4 */
 
@@ -86,7 +98,8 @@ static void hal_motor_enable(void *ctx, bool enable)
     if (safety_latch_present()) {
         k_msleep(LATCH_SETTLE_MS);
         uint16_t vmot = battery_vmot_mv();
-        if (!IS_ENABLED(CONFIG_OPENPATCH_SIM_BATTERY) && vmot < CONFIG_OPENPATCH_VMOT_MIN_MV) {
+        if (battery_vmot_available() && !IS_ENABLED(CONFIG_OPENPATCH_SIM_BATTERY) &&
+            vmot < CONFIG_OPENPATCH_VMOT_MIN_MV) {
             LOG_ERR("VMOT %u mV after arming - load switch not conducting", vmot);
             safety_latch_kill();
             return;
@@ -136,6 +149,12 @@ static uint64_t hal_time_ms(void *ctx)
     return (uint64_t)k_uptime_get();
 }
 
+static bool hal_motor_stats(void *ctx, op_motor_stats_t *out)
+{
+    ARG_UNUSED(ctx);
+    return current_sense_stats(out);
+}
+
 static bool hal_docked(void *ctx)
 {
     ARG_UNUSED(ctx);
@@ -150,7 +169,16 @@ static bool hal_charger_present(void *ctx)
 
 int hal_zephyr_init(op_hal_t *out)
 {
-    const struct gpio_dt_spec *outs[] = {&g_dir, &g_mode1, &g_mode2, &g_stby};
+    const struct gpio_dt_spec *outs[] = {
+        &g_dir,
+#if OP_HAS(motor_mode1_gpios)
+        &g_mode1,
+#endif
+#if OP_HAS(motor_mode2_gpios)
+        &g_mode2,
+#endif
+        &g_stby,
+    };
     for (size_t i = 0; i < ARRAY_SIZE(outs); i++) {
         if (!gpio_is_ready_dt(outs[i]) || gpio_pin_configure_dt(outs[i], GPIO_OUTPUT_INACTIVE) != 0) return -ENODEV;
     }
@@ -159,6 +187,7 @@ int hal_zephyr_init(op_hal_t *out)
     int rc = safety_latch_init();
     if (!rc) rc = step_gen_init();
     if (!rc) rc = battery_init();
+    if (!rc) rc = current_sense_init();
     if (!rc) rc = buzzer_init();
     if (!rc) rc = encoder_init();
     if (!rc) rc = dock_init();
@@ -177,10 +206,11 @@ int hal_zephyr_init(op_hal_t *out)
         .encoder_read = hal_encoder_read,
         .watchdog_kick = hal_watchdog_kick,
         .buzzer = hal_buzzer,
-        .battery_mv = hal_battery_mv,
+        .battery_mv = IS_ENABLED(CONFIG_OPENPATCH_BATTERY_MONITOR) ? hal_battery_mv : NULL,
         .time_ms = hal_time_ms,
         .docked = hal_docked,
         .charger_present = hal_charger_present,
+        .motor_stats = current_sense_available() ? hal_motor_stats : NULL,
     };
     return 0;
 }

@@ -18,14 +18,32 @@ static uint32_t res_for_observe(const op_pump_t *p)
     return p->res.filled ? op_res_remaining_mu(&p->res) : UINT32_MAX;
 }
 
+static uint16_t battery_mv(const op_pump_t *p)
+{
+    return p->hal->battery_mv ? p->hal->battery_mv(p->hal->ctx) : OP_BATTERY_NONE_MV;
+}
+
 static uint32_t run_motor(op_pump_t *p, uint32_t steps)
 {
+    bool sense = p->occ.enabled && p->hal->motor_stats;
+    int32_t enc0 = sense ? enc_now(p) : 0;
     p->hal->motor_enable(p->hal->ctx, true);
     int n = p->hal->motor_step(p->hal->ctx, steps);
     p->hal->motor_enable(p->hal->ctx, false);
     uint32_t done = n < 0 ? 0u : (uint32_t)n;
     if (done > steps) done = steps;
     op_res_consume(&p->res, done);
+    if (sense && done > 0) {
+        op_motor_stats_t st = {0};
+        if (!p->hal->motor_stats(p->hal->ctx, &st)) st.samples = 0;
+        if (st.samples) {
+            p->mot_bursts++;
+            if (st.peak_ma > p->mot_peak_ma) p->mot_peak_ma = st.peak_ma;
+        }
+        int32_t travel = enc_now(p) - enc0;
+        if (op_occ_feed(&p->occ, done, travel, st.peak_ma, st.mean_ma, st.samples))
+            op_sv_latch(&p->sv, OP_FAULT_OCCLUSION); /* the caller's sync_faults() logs, alarms and stops */
+    }
     return done;
 }
 
@@ -42,10 +60,10 @@ static void sync_faults(op_pump_t *p, uint16_t before)
 
 static void observe(op_pump_t *p)
 {
-    op_sv_observe(&p->sv, now_ms(p), p->hal->battery_mv(p->hal->ctx), res_for_observe(p), enc_now(p));
+    op_sv_observe(&p->sv, now_ms(p), battery_mv(p), res_for_observe(p), enc_now(p));
     if (op_sv_battery_low(&p->sv) && !p->low_batt_reported) {
         p->low_batt_reported = true;
-        log_ev(p, OP_EV_LOW_BATTERY, p->hal->battery_mv(p->hal->ctx), 0);
+        log_ev(p, OP_EV_LOW_BATTERY, battery_mv(p), 0);
     } else if (!op_sv_battery_low(&p->sv)) {
         p->low_batt_reported = false;
     }
@@ -112,6 +130,11 @@ void op_pump_init(op_pump_t *p, const op_hal_t *hal, const op_drive_cal_t *cal, 
     op_log_restore(&p->log, restored_next_event_id);
     uint64_t t = now_ms(p);
     op_sv_init(&p->sv, t, enc_now(p), uu);
+    if (hal->motor_stats) {
+        op_occ_cfg_t oc;
+        op_occ_default_cfg(&oc);
+        op_occ_init(&p->occ, &oc);
+    }
     p->pod.docked = hal_docked(p); /* no event for the boot state */
     op_sv_set_docked(&p->sv, p->pod.docked);
     p->last_tick_ms = t;
@@ -120,6 +143,20 @@ void op_pump_init(op_pump_t *p, const op_hal_t *hal, const op_drive_cal_t *cal, 
     log_ev(p, OP_EV_BOOT, 0, 0);
     observe(p);
     if (p->sv.faults) sync_faults(p, 0); /* e.g. NO_CALIBRATION: log + alarm, driver stays off */
+}
+
+void op_pump_set_occlusion_cfg(op_pump_t *p, const op_occ_cfg_t *cfg)
+{
+    op_occ_init(&p->occ, p->hal->motor_stats ? cfg : NULL);
+}
+
+uint16_t op_pump_take_motor_peak(op_pump_t *p, uint32_t *bursts)
+{
+    uint16_t peak = p->mot_peak_ma;
+    if (bursts) *bursts = p->mot_bursts;
+    p->mot_peak_ma = 0;
+    p->mot_bursts = 0;
+    return peak;
 }
 
 void op_pump_tick(op_pump_t *p)
@@ -235,6 +272,7 @@ op_err_t op_pump_fill(op_pump_t *p, uint32_t fill_mu)
     op_err_t e = op_res_fill(&p->res, fill_mu);
     if (e != OP_OK) return e;
     op_sv_rebaseline(&p->sv, enc_now(p)); /* the piston moved while filling */
+    op_occ_reset(&p->occ);
     p->low_res_reported = op_res_is_low(&p->res);
     log_ev(p, OP_EV_FILL, (int32_t)fill_mu, 0);
     return OP_OK;
@@ -267,6 +305,7 @@ op_err_t op_pump_acknowledge(op_pump_t *p, uint16_t mask)
     op_err_t e = op_sv_acknowledge(&p->sv, mask);
     uint16_t cleared = (uint16_t)(before & ~p->sv.faults);
     if (cleared) log_ev(p, OP_EV_ACK, cleared, 0);
+    if (cleared & (OP_FAULT_OCCLUSION | OP_FAULT_ENCODER_DEVIATION | OP_FAULT_INTERNAL)) op_occ_reset(&p->occ);
     if (p->sv.faults == 0) p->hal->buzzer(p->hal->ctx, OP_BUZZER_OFF);
     return e;
 }
@@ -288,7 +327,7 @@ void op_pump_get_status(const op_pump_t *p, op_status_t *out)
     out->flags = f;
     out->faults = p->sv.faults;
     out->reservoir_mu = op_res_remaining_mu(&p->res);
-    out->battery_mv = p->hal->battery_mv(p->hal->ctx);
+    out->battery_mv = battery_mv(p);
     out->bolus_remaining_mu = op_de_bolus_remaining_mu(&p->de);
     out->temp_rate_mu_h = p->de.temp_active ? (uint16_t)p->de.temp_rate_mu_h : 0;
     out->temp_remaining_min = (uint16_t)op_de_temp_remaining_min(&p->de);

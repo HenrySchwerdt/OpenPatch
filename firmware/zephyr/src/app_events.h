@@ -13,6 +13,7 @@ enum app_evt_type {
     APP_EVT_BUTTON_SHORT,
     APP_EVT_BUTTON_LONG,
     APP_EVT_CHARGER_CHANGED,
+    APP_EVT_BENCH_CMD, /* bench shell command, see bench.h (bench boards only) */
 };
 
 struct app_evt {

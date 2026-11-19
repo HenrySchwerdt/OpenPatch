@@ -47,6 +47,14 @@ config OPENPATCH_SIM_DOCK
 	  the simulated input; it starts UNDOCKED, so nothing delivers until it is pressed.
 	  Bench use only.
 
+config OPENPATCH_BATTERY_MONITOR
+	bool "Board has a battery that the firmware monitors (VBAT via SAADC)"
+	default y
+	help
+	  Disabled for the USB-powered bench controller: the HAL then gives the core no battery hook,
+	  so there are no battery faults, no low-battery events and no battery alarms, and GetStatus
+	  reports OP_BATTERY_NONE_MV (0xFFFF).
+
 config OPENPATCH_SIM_BATTERY
 	bool "Report a fixed battery voltage instead of reading SAADC"
 	default y if BOARD_NRF52840DK
@@ -113,6 +121,59 @@ config OPENPATCH_QDEC_MAX_UNSEEN_STEPS
 	  Hall path B gives about one count per spindle half-turn (5:1 drive: 25 steps per count,
 	  0.65 U). The default keeps the unmonitored volume near 1.6 U (60 steps x 0.0261 U on the
 	  5:1 drive). Used when the QDEC node is enabled in the devicetree.
+
+config OPENPATCH_TMAG_OPTIONAL
+	bool "TMAG5273 is an optional part: continue with a simulated encoder if it does not answer"
+	help
+	  Bench pod: the TMAG5273 may not be fitted. Without it there is no spindle slip measurement
+	  (the occlusion detector cannot see a blocked line); see firmware/docs/bench-testing.md.
+
+config OPENPATCH_IMOT_MV_PER_A
+	int "Motor current sense gain in mV per A at the SAADC input (1 ohm = 1000)"
+	default 1000
+	range 1 100000
+	help
+	  Only used with an "imot" io-channel (bench controller). VERIFY against the sense resistor and
+	  analog front end of the real board.
+
+config OPENPATCH_OCC_ABS_PEAK_MA
+	int "Occlusion detector: peak motor current (mA) that counts as stalled when the spindle also slips"
+	default 150
+
+config OPENPATCH_OCC_RISE_PCT
+	int "Occlusion detector: mean current as % of the learned healthy baseline that counts as loaded"
+	default 150
+
+config OPENPATCH_OCC_SLIP_PCT_MIN
+	int "Occlusion detector: encoder slip (%) needed together with a current criterion"
+	default 30
+	range 1 100
+
+config OPENPATCH_OCC_STALL_SLIP_PCT
+	int "Occlusion detector: encoder slip (%) that counts on its own"
+	default 60
+	range 1 100
+
+config OPENPATCH_OCC_WINDOW_STEPS
+	int "Occlusion detector: steps per evaluation window"
+	default 8
+	range 1 1000
+
+config OPENPATCH_OCC_STRIKES
+	int "Occlusion detector: consecutive bad windows that declare an occlusion"
+	default 2
+	range 1 20
+
+config OPENPATCH_OCC_BASELINE_WINDOWS
+	int "Occlusion detector: healthy windows before the relative current test is armed"
+	default 3
+
+config OPENPATCH_BENCH_MODE
+	bool "Bench test mode: shell commands for gravimetric WATER tests (TEST ONLY)"
+	depends on SHELL
+	help
+	  Adds the `bench` shell command set (docs: firmware/docs/bench-testing.md). The safety
+	  supervisor stays fully active. Never enable on a pod that could ever be worn.
 
 config OPENPATCH_LONG_PRESS_MS
 	int "Button hold time for emergency stop (suspend delivery)"

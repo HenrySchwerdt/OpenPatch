@@ -37,7 +37,11 @@ typedef enum {
     OP_EV_RELEASE = 21,      /* a = delivered mU since activation, b = reason (OP_REL_*) */
     OP_EV_WEAR_WARNING = 22, /* a = wear minutes */
     OP_EV_WEAR_EXPIRED = 23, /* a = wear minutes */
-    OP_EV_PAIRED = 24        /* a = role, b = pair id */
+    OP_EV_PAIRED = 24,       /* a = role, b = pair id */
+    /* bench test mode only (op/bench_test.h) */
+    OP_EV_BENCH_START = 25,  /* a = pulses, b = amount mU */
+    OP_EV_BENCH_PULSE = 26,  /* a = pulse index (1-based), b = steps delivered in this pulse */
+    OP_EV_BENCH_END = 27     /* a = pulses completed, b = OP_BENCH_END_* */
 } op_event_type_t;
 
 typedef struct {

@@ -1,12 +1,16 @@
 /*
- * BQ25120A is only probed (STATUS register 0x00) and its INT pin logged; charge current and
- * SYS voltage are left at the resistor/OTP defaults for Rev A bring-up (TODO: program
- * fast-charge current <= 0.5 C and SYS_VOUT over I2C once the board exists).
+ * Charger presence, board-configurable through the devicetree (no charger driver, no I2C):
+ *   qi-chg-gpios   Qi receiver CHG output (BQ51013B, open drain): Qi field present / charging
+ *   chg-stat-gpios charge controller STAT output (MCP73832, open drain, low = charging)
+ * A board lists the pins it has: Rev A pod has both, the dev kit and the USB-powered bench
+ * controller have none (charger_active() is then always false and no event is ever posted).
+ * Either input asserted means "on a charger": the core forces a pod that is on a charger to
+ * RELEASED (two-pod rule, docs/openpatch-protocol.md 3.4), and main() stops delivery at once.
+ * The MCP73832 has no charge-current or voltage registers: both are set by hardware (PROG resistor).
  */
 #include "charger.h"
 
 #include <zephyr/drivers/gpio.h>
-#include <zephyr/drivers/i2c.h>
 #include <zephyr/kernel.h>
 #include <zephyr/logging/log.h>
 
@@ -15,59 +19,57 @@
 
 LOG_MODULE_REGISTER(charger, LOG_LEVEL_INF);
 
+struct chg_input {
+    const struct gpio_dt_spec *spec;
+    struct gpio_callback cb;
+};
+
+static void chg_isr(const struct device *port, struct gpio_callback *cb, uint32_t pins)
+{
+    ARG_UNUSED(port);
+    ARG_UNUSED(cb);
+    ARG_UNUSED(pins);
+    app_evt_post(APP_EVT_CHARGER_CHANGED, NULL, 0);
+}
+
 #if OP_HAS(qi_chg_gpios)
 static const struct gpio_dt_spec g_qi = GPIO_DT_SPEC_GET(OP_ZU, qi_chg_gpios);
-static struct gpio_callback g_qi_cb;
-
-static void qi_isr(const struct device *port, struct gpio_callback *cb, uint32_t pins)
-{
-    ARG_UNUSED(port);
-    ARG_UNUSED(cb);
-    ARG_UNUSED(pins);
-    app_evt_post(APP_EVT_CHARGER_CHANGED, NULL, 0);
-}
-
-bool charger_active(void) { return gpio_pin_get_dt(&g_qi) > 0; }
-#else
-bool charger_active(void) { return false; }
+#endif
+#if OP_HAS(chg_stat_gpios)
+static const struct gpio_dt_spec g_stat = GPIO_DT_SPEC_GET(OP_ZU, chg_stat_gpios);
 #endif
 
-#if OP_HAS(charger_int_gpios)
-static const struct gpio_dt_spec g_int = GPIO_DT_SPEC_GET(OP_ZU, charger_int_gpios);
-static struct gpio_callback g_int_cb;
-
-static void int_isr(const struct device *port, struct gpio_callback *cb, uint32_t pins)
-{
-    ARG_UNUSED(port);
-    ARG_UNUSED(cb);
-    ARG_UNUSED(pins);
-    app_evt_post(APP_EVT_CHARGER_CHANGED, NULL, 0);
-}
+static struct chg_input g_inputs[] = {
+#if OP_HAS(qi_chg_gpios)
+    {.spec = &g_qi},
 #endif
+#if OP_HAS(chg_stat_gpios)
+    {.spec = &g_stat},
+#endif
+};
+
+bool charger_active(void)
+{
+    for (size_t i = 0; i < ARRAY_SIZE(g_inputs); i++)
+        if (gpio_pin_get_dt(g_inputs[i].spec) > 0) return true;
+    return false;
+}
 
 int charger_init(void)
 {
-#if DT_NODE_HAS_STATUS(DT_NODELABEL(bq25120a), okay)
-    static const struct i2c_dt_spec bq = I2C_DT_SPEC_GET(DT_NODELABEL(bq25120a));
-    uint8_t status;
-    if (i2c_is_ready_dt(&bq) && i2c_reg_read_byte_dt(&bq, 0x00, &status) == 0)
-        LOG_INF("BQ25120A status 0x%02x", status);
-    else
-        LOG_WRN("BQ25120A not answering on I2C");
-#endif
-#if OP_HAS(qi_chg_gpios)
-    if (!gpio_is_ready_dt(&g_qi)) return -ENODEV;
-    gpio_pin_configure_dt(&g_qi, GPIO_INPUT);
-    gpio_pin_interrupt_configure_dt(&g_qi, GPIO_INT_EDGE_BOTH);
-    gpio_init_callback(&g_qi_cb, qi_isr, BIT(g_qi.pin));
-    gpio_add_callback(g_qi.port, &g_qi_cb);
-#endif
-#if OP_HAS(charger_int_gpios)
-    if (!gpio_is_ready_dt(&g_int)) return -ENODEV;
-    gpio_pin_configure_dt(&g_int, GPIO_INPUT);
-    gpio_pin_interrupt_configure_dt(&g_int, GPIO_INT_EDGE_TO_ACTIVE);
-    gpio_init_callback(&g_int_cb, int_isr, BIT(g_int.pin));
-    gpio_add_callback(g_int.port, &g_int_cb);
-#endif
+    if (ARRAY_SIZE(g_inputs) == 0) {
+        LOG_INF("no charger on this board");
+        return 0;
+    }
+    for (size_t i = 0; i < ARRAY_SIZE(g_inputs); i++) {
+        const struct gpio_dt_spec *s = g_inputs[i].spec;
+        if (!gpio_is_ready_dt(s)) return -ENODEV;
+        int rc = gpio_pin_configure_dt(s, GPIO_INPUT);
+        if (!rc) rc = gpio_pin_interrupt_configure_dt(s, GPIO_INT_EDGE_BOTH);
+        if (rc) return rc;
+        gpio_init_callback(&g_inputs[i].cb, chg_isr, BIT(s->pin));
+        rc = gpio_add_callback(s->port, &g_inputs[i].cb);
+        if (rc) return rc;
+    }
     return 0;
 }

@@ -17,6 +17,8 @@ int32_t encoder_read_substeps(void);
 void encoder_set_steps_per_spindle_rev(uint32_t steps);
 /* tell the simulated encoder how many steps really ran (no-op with real hardware) */
 void encoder_sim_advance(uint32_t steps);
+/* true if path A is open loop (no TMAG5273 node, CONFIG_OPENPATCH_SIM_ENCODER, or an optional TMAG that did not answer) */
+bool encoder_is_simulated(void);
 /* path B: |QDEC counts| accumulated since boot; false if there is no QDEC */
 bool encoder_qdec_counts(uint32_t *abs_counts);
 

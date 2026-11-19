@@ -35,10 +35,6 @@ void encoder_set_steps_per_spindle_rev(uint32_t steps)
     g_steps_per_spindle_rev = steps;
 }
 
-#if OP_HAS(charger_per_en_gpios)
-static const struct gpio_dt_spec g_per_en = GPIO_DT_SPEC_GET(OP_ZU, charger_per_en_gpios);
-#endif
-
 static int64_t g_sim_substeps;
 
 #if HAVE_TMAG
@@ -52,6 +48,7 @@ static const struct i2c_dt_spec g_tmag = I2C_DT_SPEC_GET(DT_NODELABEL(tmag5273))
 static int64_t g_pos_counts;
 static uint16_t g_last_angle;
 static bool g_primed;
+static bool g_tmag_ok = true; /* false: optional TMAG5273 did not answer, encoder is simulated */
 
 static int tmag_sample(uint16_t *angle16)
 {
@@ -69,18 +66,18 @@ static int tmag_sample(uint16_t *angle16)
 
 int encoder_init(void)
 {
-#if OP_HAS(charger_per_en_gpios)
-    /* hall supply (VPER) via BQ25120A LSCTRL. Always on in Rev A, duty-cycling is a TODO. */
-    if (gpio_is_ready_dt(&g_per_en)) {
-        gpio_pin_configure_dt(&g_per_en, GPIO_OUTPUT_ACTIVE);
-        k_msleep(5);
-    }
-#endif
 #if HAVE_TMAG
     if (!i2c_is_ready_dt(&g_tmag)) return -ENODEV;
     int rc = i2c_reg_write_byte_dt(&g_tmag, TMAG_REG_SENSOR_CONFIG_1, 0x30); /* X + Y channels */
     if (!rc) rc = i2c_reg_write_byte_dt(&g_tmag, TMAG_REG_SENSOR_CONFIG_2, 0x04); /* angle from X-Y */
     if (rc) {
+        if (IS_ENABLED(CONFIG_OPENPATCH_TMAG_OPTIONAL)) {
+            /* Optional part (bench pod): without it there is no spindle slip measurement, so the
+             * occlusion detector cannot see a blocked line; only the hall QDEC watchdog remains. */
+            LOG_WRN("TMAG5273 not answering (%d): spindle encoder SIMULATED (open loop)", rc);
+            g_tmag_ok = false;
+            return 0;
+        }
         LOG_ERR("TMAG5273 configuration failed (%d)", rc);
         return rc;
     }
@@ -95,9 +92,19 @@ void encoder_sim_advance(uint32_t steps)
     g_sim_substeps += (int64_t)steps * OP_ENC_SUBSTEPS;
 }
 
+bool encoder_is_simulated(void)
+{
+#if HAVE_TMAG
+    return !g_tmag_ok;
+#else
+    return true;
+#endif
+}
+
 int32_t encoder_read_substeps(void)
 {
 #if HAVE_TMAG
+    if (!g_tmag_ok) return (int32_t)g_sim_substeps;
     uint16_t a;
     if (tmag_sample(&a) != 0) {
         LOG_ERR("encoder read failed"); /* position freezes -> the supervisor sees a stall */

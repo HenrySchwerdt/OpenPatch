@@ -63,6 +63,7 @@
 #define OP_BATTERY_CRITICAL_MV 3300u      /* assumption, see docs */
 #define OP_BATTERY_LOW_MV 3500u
 #define OP_BATTERY_HYSTERESIS_MV 100u
+#define OP_BATTERY_NONE_MV 0xFFFFu        /* reported when the board has no battery monitoring */
 #define OP_DEFAULT_LOW_RESERVOIR_MU 10000u
 #define OP_MAX_PRIME_MU 524u              /* ~0.52 U, needle dead volume only (volume, not steps) */
 #define OP_TICK_MAX_DT_MS 5000u           /* controller clamps stalls (no catch-up) */

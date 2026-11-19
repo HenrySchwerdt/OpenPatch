@@ -1,9 +1,11 @@
 #!/usr/bin/env bash
-# Build the OpenPatch firmware with MCUboot (sysbuild) for the Rev A board and/or the nRF52840-DK.
-# Usage: firmware/scripts/build.sh [reva|dk|all] [--dev] [--pristine]
+# Build the OpenPatch firmware with MCUboot (sysbuild) for the Rev A pod, the bench controller and/or the nRF52840-DK.
+# Usage: firmware/scripts/build.sh [reva|dk|bench|all] [--dev] [--pristine]
 #   reva  : openpatch_reva/nrf52840   (default: production-like, plaintext frames rejected)
 #   dk    : nrf52840dk/nrf52840       (always built with dev.conf: plaintext + simulated encoder/battery)
-#   --dev : also apply dev.conf to the reva build (bench pod WITHOUT insulin only)
+#   bench : openpatch_bench/nrf52840  (bench controller, TEST ONLY / water only: bench shell on RTT, no battery;
+#                                      plaintext BLE frames rejected unless --dev)
+#   --dev : also apply dev.conf to the reva and bench builds (bench units WITHOUT insulin only)
 # Environment overrides: NCS_ROOT (~/ncs/v3.4.2), NCS_VENV (~/ncs/venv), ZEPHYR_SDK_INSTALL_DIR (~/zephyr-sdk-1.0.1)
 set -euo pipefail
 
@@ -51,4 +53,7 @@ esac
 case "$target" in
   dk|all) build_one nrf52840dk/nrf52840 dk -DEXTRA_CONF_FILE=dev.conf ;;
 esac
-case "$target" in reva|dk|all) ;; *) echo "usage: $0 [reva|dk|all] [--dev] [--pristine]"; exit 2 ;; esac
+case "$target" in
+  bench|all) build_one openpatch_bench/nrf52840 bench $([[ $dev == 1 ]] && echo "-DEXTRA_CONF_FILE=dev.conf") ;;
+esac
+case "$target" in reva|dk|bench|all) ;; *) echo "usage: $0 [reva|dk|bench|all] [--dev] [--pristine]"; exit 2 ;; esac

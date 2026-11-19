@@ -30,7 +30,6 @@
 	};
 
 	aliases {
-		pwm-buzzer = &pwm0;
 		qdec-hall = &qdec0;
 		watchdog0 = &wdt0;
 	};
@@ -57,17 +56,17 @@
 
 		/* ---- misc inputs / enables ---- */
 		button-gpios = <&gpio0 15 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>; /* BTN_N */
-		/* Hall switch (e.g. DRV5032 class) + magnet in the cannula adapter: asserted = docked.
-		 * VERIFY: pin is a placeholder on a free nRF52840 pad, assign on the schematic. */
-		dock-gpios = <&gpio1 9 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
-		qi-chg-gpios = <&gpio0 17 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>; /* BQ51003 CHG, open drain */
-		charger-int-gpios = <&gpio0 13 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>; /* BQ25120A INT */
-		charger-per-en-gpios = <&gpio0 24 GPIO_ACTIVE_HIGH>;           /* LSCTRL -> VPER (hall supply) */
+		/* DOCK_N: dock Hall switch DRV5032FA, active low = cannula-adapter magnet present = docked
+		 * (P0.03, electronics/pin-assignment.md; also gates the motor supply in hardware) */
+		dock-gpios = <&gpio0 3 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
+		qi-chg-gpios = <&gpio0 17 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>; /* BQ51013B CHG, open drain */
+		/* CHG_STAT: MCP73832 STAT, open drain, low = charging (no I2C charger on Rev A) */
+		chg-stat-gpios = <&gpio0 13 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
 		tmag-int-gpios = <&gpio0 8 GPIO_ACTIVE_HIGH>;
 
-		/* ---- SAADC: 1.5M/1M dividers on VMOT and VBAT (V_adc = V * 0.4) ---- */
-		io-channels = <&adc 2>, <&adc 3>;
-		io-channel-names = "vmot", "vbat";
+		/* ---- SAADC: VBAT only (1.5M/1M divider, V_adc = V * 0.4); VMOT sense is not populated ---- */
+		io-channels = <&adc 3>;
+		io-channel-names = "vbat";
 	};
 };
 
@@ -96,18 +95,7 @@
 	#address-cells = <1>;
 	#size-cells = <0>;
 
-	/* VMOT_SENSE on P0.04 / AIN2: 4.2 V * 0.4 = 1.68 V; gain 1/4 on the 0.6 V ref = 2.4 V full scale */
-	channel@2 {
-		reg = <2>;
-		zephyr,gain = "ADC_GAIN_1_4";
-		zephyr,reference = "ADC_REF_INTERNAL";
-		zephyr,acquisition-time = <ADC_ACQ_TIME(ADC_ACQ_TIME_MICROSECONDS, 40)>; /* 600k source */
-		zephyr,input-positive = <NRF_SAADC_AIN2>;
-		zephyr,resolution = <12>;
-		zephyr,oversampling = <3>;
-	};
-
-	/* VBAT_SENSE on P0.05 / AIN3 */
+	/* VBAT_SENSE on P0.05 / AIN3: 4.2 V * 0.4 = 1.68 V; gain 1/4 on the 0.6 V ref = 2.4 V full scale */
 	channel@3 {
 		reg = <3>;
 		zephyr,gain = "ADC_GAIN_1_4";
@@ -127,24 +115,12 @@
 	pinctrl-1 = <&i2c0_sleep>;
 	pinctrl-names = "default", "sleep";
 
-	/* TMAG5273A1 3D hall: absolute spindle angle (path A of the delivery verification) */
+	/* TMAG5273A1 3D hall: absolute spindle angle (path A of the delivery verification).
+	 * The only I2C device on Rev A: the charger is an MCP73832 (no I2C, status pin only). */
 	tmag5273: tmag5273@35 {
 		compatible = "openpatch,i2c-chip";
 		reg = <0x35>;
 	};
-
-	/* BQ25120A charger / buck / load switch */
-	bq25120a: bq25120a@6a {
-		compatible = "openpatch,i2c-chip";
-		reg = <0x6a>;
-	};
-};
-
-&pwm0 {
-	status = "okay";
-	pinctrl-0 = <&pwm0_default>;
-	pinctrl-1 = <&pwm0_sleep>;
-	pinctrl-names = "default", "sleep";
 };
 
 /* Path B: the QDEC peripheral counts HALL_A/HALL_B without the CPU (4 counts per spindle revolution). */
