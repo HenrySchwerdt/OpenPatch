@@ -1249,12 +1249,12 @@
    "screw_y_above": 1.0
   },
   "battery": {
-   "part": "PLACEHOLDER until mechanical/battery-selection.md: 401012 (4.0 x 10 x 12, 40 mAh, PCM; ampul.eu listing 3.23 EUR, VERIFY); envelope incl. swell + pad",
-   "l": 13.0,
+   "part": "Ampul 301030 Li-Pol 3.7 V, 3.0 x 10 x 30 mm, 90 mAh listed (60 mAh realistic per the Liter table), integrated protection chip, two wires, EUR 4.00, https://ampul.eu/en/battery/6782-li-pol-battery-90mah-37v-301030 (page read; measure on arrival); backup: Soldered 350824 40 mAh JST-PH (BerryBase.de), mechanical/battery-selection.md. Envelope incl. swell + wires/PCM end",
+   "l": 31.5,
    "w": 10.6,
-   "t": 4.4,
+   "t": 3.6,
    "z0": 1.0,
-   "mAh": 40.0
+   "mAh": 90.0
   },
   "width": 34.6,
   "volume_ml": {
