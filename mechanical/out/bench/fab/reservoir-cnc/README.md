@@ -1,6 +1,6 @@
 # CNC polypropylene reservoir (frozen interface) - PCBWay CNC package
 
-BENCH TEST PART: water or insulin into containers (vial on a balance) only; not a medical device; never connected to a person.
+BENCH TEST PART: water only (beaker or vial on a balance); not a medical device; never connected to a person.
 Per size: `OP-xx_reservoir_cnc.step` (master), `OP-xx_reservoir_cnc_drawing.pdf` (+ `.svg`, `.png`). Order **once per size, qty 2** (spare).
 
 ## What the part is (and is not)
@@ -36,5 +36,4 @@ length per size below (+-0.1); arm slot height 1.60 on the bore axis; datums A o
 
 ## Seals
 Plunger lip seals are cast from **platinum-cure medical silicone** (Shore A 40-50, e.g. a 2-part LSR/RTV marked ISO 10993 / USP VI; SEARCH-TERM "platinum cure silicone USP class VI Shore 40") in the mould of this folder's sibling `mould/`.
-Alternative for a first insulin test: a **bromobutyl** plunger stopper from an insulin cartridge/vial cut to the stadium shape (the stadium bore does not accept a standard round O-ring; a round O-ring variant would
-need a circular bore). VERIFY material compatibility with the insulin used; platinum-cure silicone is common in insulin infusion sets but silicone oil lubrication can aggregate some insulins.
+Material note only (water-only project, never filled with insulin or any other drug): a bromobutyl plunger stopper cut to the stadium shape is one possible seal material for a future manufacturer; the stadium bore does not accept a standard round O-ring.

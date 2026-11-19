@@ -1,8 +1,8 @@
 # Reservoir, SLA print copy - WATER ONLY
 
 These files are print-ready copies of the **frozen** CNC reservoir geometry (`params.json` -> `reservoir_frozen`) for the first,
-water-only bench builds (SLA resin, e.g. JLC3DP). **They must never contact insulin**: printed resin is not insulin-compatible,
-not validated, not sterile. Insulin tests (into containers only, never a person) use the CNC polypropylene part in
+water-only bench builds (SLA resin, e.g. JLC3DP). **They must never be filled with insulin or any other drug (water only)**: printed resin is not validated for any drug,
+not sterile. The CNC polypropylene part in
 `../reservoir-cnc/`.
 
 * Geometry identical to `../reservoir-cnc/` (same bore 16.00 x 5.00, port d2.0 at the closed end); nothing in `reservoir_frozen` was changed.

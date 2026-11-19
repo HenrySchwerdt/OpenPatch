@@ -42,11 +42,11 @@ PARTS = {
                      "+-0.1 mm. Seal grooves (0.8 mm wide) + socket for carriage tongue. Water test only.", True),
     "reservoir": ("SLA (clear resin preferred, 'BioMed Clear'-class if offered, else standard clear)", "clear resin",
                   "clear", "wash + UV post-cure; inner bore stays unpolished", 1,
-                  "WATER-TEST ONLY (SLA copy; for insulin use the CNC PP part in reservoir-cnc/) - not sterile, not validated. +-0.1 mm; check bore 16.0 x 5.0 with a "
+                  "WATER ONLY (SLA copy; the CNC PP part in reservoir-cnc/ is only a material preparation for a future manufacturer) - not sterile, not validated. +-0.1 mm; check bore 16.0 x 5.0 with a "
                   "pin gauge; bore may need light honing. Single piece; open dry end.", True),
     "reservoir_cnc_lower": ("CNC (PCBWay CNC; polypropylene) - OPTIONAL, expensive", "PP natural", "natural", "as machined", 1,
                             "Half of the reservoir (split at bore centre plane). Bond halves after machining. Only for the later "
-                            "insulin-contact candidate; not part of the cheap monthly loop.", False),
+                            "optional material preparation (never filled with insulin); not part of the cheap monthly loop.", False),
     "reservoir_cnc_upper": ("CNC (PCBWay CNC; polypropylene) - OPTIONAL", "PP natural", "natural", "as machined", 1, "see lower half", False),
     "plunger_seal": ("DO NOT ORDER - cast in the mould (silicone, Shore A 40-50)", "-", "-", "-", 0,
                      "Reference geometry (assembly state). Cast with mould_lower/upper.", False),
@@ -129,7 +129,7 @@ to the bench controller. Folders: `OP-70/`, `OP-100/`, `OP-200/` (upload), `moul
 | `mould/mould_lower.stl`, `mould_upper.stl` | {MOULD[0]} | {MOULD[1]} | {MOULD[2]} | {MOULD[3]} | {MOULD[4]} set (all sizes) | {MOULD[5]} |
 | `dock-inserts/insert_v01..v12.stl` | SLA tough resin (or MJF PA12) | tough resin / PA12 | any | support marks off arms | 12 (shared by all sizes) | swappable dock insert variants (ID on the -Y arm), see `variants.csv` |
 | `dock-inserts/dock_fixture.stl` | MJF PA12 or SLA | PA12 / tough resin | any | standard | 1 | pod-less fixture with the frozen dock interface: fit the inserts to a real cannula head without a pod |
-| `reservoir-sla-water-only/<SIZE>_reservoir_WATER-ONLY_sla.stl` | SLA clear resin | clear | clear | wash + UV | 1 per size | **WATER ONLY - must NEVER contact insulin** (printed resin is not insulin-compatible). Print copy of the frozen reservoir geometry; insulin tests use the CNC PP part in `reservoir-cnc/` |
+| `reservoir-sla-water-only/<SIZE>_reservoir_WATER-ONLY_sla.stl` | SLA clear resin | clear | clear | wash + UV | 1 per size | **WATER ONLY - never insulin or any drug** (printed resin is not validated for any drug). Print copy of the frozen reservoir geometry; the CNC PP part in `reservoir-cnc/` is an optional material preparation, also never filled with insulin |
 
 Not uploaded (`reference_not_ordered/`): `plunger_seal` (cast in the mould) and `gasket` (cut from 0.5 mm silicone sheet).
 The reservoir is an SLA clear part (water test only), same as the integrated variant. CNC reservoir halves are not part of the bench loop.
@@ -211,13 +211,13 @@ def main() -> None:
                     shutil.copy(src, wo / f"{sz}_reservoir_WATER-ONLY_sla.{ext}")
             rows.append([f"reservoir-sla-water-only/{sz}_reservoir_WATER-ONLY_sla.stl", "SLA clear resin (JLC3DP)", "clear resin", "clear",
                          "wash + UV post-cure, bore not polished", 1,
-                         "WATER ONLY - NEVER INSULIN. Print copy of the frozen CNC reservoir geometry (reservoir_frozen unchanged). "
+                         "WATER ONLY - NEVER INSULIN OR ANY OTHER DRUG. Print copy of the frozen CNC reservoir geometry (reservoir_frozen unchanged). "
                          "SLA: bore 16.0 x 5.0 and the d2.0 port may need +0.05..0.1 mm / a reamer; do not change reservoir_frozen, document the deviation.", ""])
         (wo / "README.md").write_text(
             "# Reservoir, SLA print copy - WATER ONLY\n\n"
             "These files are print-ready copies of the **frozen** CNC reservoir geometry (`params.json` -> `reservoir_frozen`) for the first,\n"
-            "water-only bench builds (SLA resin, e.g. JLC3DP). **They must never contact insulin**: printed resin is not insulin-compatible,\n"
-            "not validated, not sterile. Insulin tests (into containers only, never a person) use the CNC polypropylene part in\n"
+            "water-only bench builds (SLA resin, e.g. JLC3DP). **They must never be filled with insulin or any other drug (water only)**: printed resin is not validated for any drug,\n"
+            "not sterile. The CNC polypropylene part in\n"
             "`../reservoir-cnc/`.\n\n"
             "* Geometry identical to `../reservoir-cnc/` (same bore 16.00 x 5.00, port d2.0 at the closed end); nothing in `reservoir_frozen` was changed.\n"
             "* SLA tolerance is about +-0.1 mm: check the bore with the plunger, ream the port to d2.0 if the cap spigot does not enter. If SLA needs a\n"
@@ -265,7 +265,7 @@ quote tool; `assembly_reference.step` and `reference_not_ordered/` are NOT to be
 
 Not uploaded (reference geometry in `reference_not_ordered/`): `plunger_seal` (cast in the mould) and `gasket`
 (die/laser-cut from silicone sheet). CNC reservoir halves (`reservoir_cnc_*`) are in `out/` only; they are the
-optional insulin-contact route and are not part of the cheap monthly loop.
+optional material preparation for a future manufacturer (never filled with insulin) and are not part of the cheap monthly loop.
 
 ## Vendor choice (low cost first)
 
@@ -307,8 +307,7 @@ Assumptions (edit in `fab.py`): MJF PA12 {MJF_PER_G:.2f} USD/g x density {PA12_D
 * Good for hand-reviewed thin features and for combining with PCB/PCBA orders.
 
 ## Both
-* Water-test parts (reservoir, plunger core) are NOT biocompatible or sterile. Never put insulin or anything that
-  goes to a person through printed Rev A parts.
+* Water-test parts (reservoir, plunger core) are NOT biocompatible or sterile. The pump is never filled with insulin or any other drug (water only) and is never connected to a person.
 * Always request the quote for the smallest size (OP-70) first to see per-part minimums before ordering 3 sizes.
 """
     (FAB / "vendor-notes.md").write_text(vendor, encoding="utf-8")

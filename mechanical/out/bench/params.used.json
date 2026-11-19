@@ -25,7 +25,7 @@
   "corner_r": 4.0,
   "top_fillet": 1.0,
   "width": 32.0,
-  "height": 8.5,
+  "height": 8.4,
   "lap_low": 5.0,
   "lap_high": 5.5,
   "lap_gap": 0.1,
@@ -56,7 +56,8 @@
   "plunger_clr": 0.2,
   "plunger_gap": 0.2,
   "fill_fraction": 1.0,
-  "cnc_split": true
+  "cnc_split": true,
+  "nose_len": 0.7
  },
  "septum": {
   "d": 4.0,
@@ -87,19 +88,19 @@
   "arm_t": 1.4,
   "slot_clr": 0.1,
   "lane_clr": 0.1,
-  "screw_lane_w": 4.4,
+  "screw_lane_w": 4.8,
   "motor_d": 6.0,
   "motor_len": 8.0,
   "gearhead_len": 8.1,
   "gear_x0": 2.0,
-  "gear_t": 1.2,
+  "gear_t": 1.4,
   "gear_d": 5.0,
   "post_bore_d": 2.0,
   "_comment": "Faulhaber ADM0620-2R-V3 (\u00d86, 9.5 mm, 20 st/rev, 0.2 mNm) + 06/1 planetary 16:1 (nominal; 2 stages). gearhead_len DERIVED (9.2+2.7/stage), VERIFY on datasheet. Screw M1.6x0.35 stainless rod, DIN 934 M1.6 nut.",
   "nut_af": 3.2,
-  "nut_hex_clr": 0.1,
+  "nut_hex_clr": 0.6,
   "carriage_len": 4.0,
-  "carriage_bw": 4.4,
+  "carriage_bw": 4.8,
   "carriage_bh": 6.2,
   "tongue_x": 0.6,
   "motor_tail": 0.7,
@@ -117,9 +118,9 @@
   "mag_d": 3.0,
   "mag_t": 1.5,
   "rail_w": 0.9,
-  "rail_top": 1.6,
+  "rail_top": 1.4,
   "groove_w": 1.2,
-  "groove_d": 0.5,
+  "groove_d": 0.3,
   "cradle_t": 1.2,
   "cradle_up": 1.2,
   "active_preset": "nfp_608_26",
@@ -224,7 +225,12 @@
   ],
   "dry_x": 2.0,
   "c_dx": 3.0,
-  "c_y": 18.8
+  "c_y": 18.8,
+  "dry_y_side": [
+   4.2,
+   11.7,
+   17.0
+  ]
  },
  "button": {
   "d_memb": 5.0,
@@ -357,7 +363,7 @@
  },
  "bench": {
   "_comment": "Bench pod (spec 4a). u = x - x_r1. All board features are relative to x_r1 -> one board for all sizes.",
-  "board_t": 0.8,
+  "board_t": 0.6,
   "u_left": 1.7,
   "lobe_u": 9.0,
   "right_gap": 0.6,
@@ -370,8 +376,8 @@
    25.5
   ],
   "leg_u": [
-   14.0,
-   18.4
+   15.3,
+   19.7
   ],
   "leg_v0": 4.6,
   "corner_r": 2.5,
@@ -417,8 +423,8 @@
    "cable_out": 12.0,
    "slot_w": 8.0,
    "slot_z": [
-    6.0,
-    7.1
+    5.8,
+    6.9
    ]
   },
   "mount": {
@@ -488,7 +494,7 @@
   "board_z0": 5.3,
   "revB_motor_contacts_note": "Rev B spring-contact variant: order the NFP motor WITHOUT lead; pins B,A-,B+,A at 1.2 mm pitch, see layout.json motor_pins_revB",
   "width": 27.0,
-  "tail_len": 19.0,
+  "tail_len": 20.3,
   "length_targets": {
    "OP-70": 65.5,
    "OP-100": 69.5,
@@ -500,12 +506,13 @@
    "coaxial": 27.0
   },
   "gears": {
-   "_comment": "GHW-Modellbau module 0.3 brass gears (gear-selection.md), modelled as TIP circles. DECISION 2026-11-19: 1:1 pair z18:z18, centre 5.40 (firmware feature drive-nfp-608-26-45-g1-1, 0.004938 U/step). 15:12 (centre 4.05) cannot fit: the NFP motor body beside the carriage lane needs centre >= 5.3 (carriage +Y edge y_s+2.2, motor r3.0). The ratio-equivalent 20:16 (centre 5.4, tip OD 6.6) does not fit either: cavity height is 6.7 with the axis 3.3 above the floor (zero floor clearance) and the tip would leave the +Y wall (y_m+3.3 > 31.1). 18:18 tip OD 6.0: y_m+3.0 = 31.0 vs wall 31.1. x0 = gear plane start: the R4 rear corner limits the tip circle to x >= 3.22.",
-   "z_motor": 18,
-   "z_screw": 18,
+   "_comment": "GHW-Modellbau module 0.3 brass gears (gear-selection.md), modelled as TIP circles. DECISION 2026-11-19 (coordinator + sim): STEP-DOWN pair z16 (motor, GHW 390754, bore 2.0) : z20 (screw, GHW 753020 20 Z B, bore 2.0, hub trimmed). Screw turns z_motor/z_screw = 0.8 per motor turn: U/step = 0.00494 x 16/20 = 0.003951 (firmware preset needs ratio 26.45 x 20/16 = 33.06). Theoretical centre 0.15 x 36 = 5.40, built centre = theoretical + centre_add 0.11 = 5.51 (backlash window, sim 3.1). 15:12 (4.05) and 15:15 (4.50) cannot clear the carriage lane (needs >= 5.5 with the 4.8 mm carriage); 20:16 / 18:18 tips do not fit the 6.7 mm cavity without relief. z20 tip OD 6.6: 0.25 mm floor and lid relief pockets over the screw gear. x0 = gear plane start (rear corner limits the motor-gear tip circle to x >= 2.5, dry screw bosses at x 0.9..3.1 limit it to the screw-gear tip).",
+   "z_motor": 16,
+   "z_screw": 20,
    "module": 0.3,
-   "min_centre": 5.3,
-   "x0": 3.3
+   "min_centre": 5.5,
+   "x0": 2.6,
+   "centre_add": 0.11
   },
   "lead": {
    "pocket_floor": 0.35,
@@ -525,21 +532,35 @@
   },
   "length_targets_by_layout": {
    "side_gears": {
-    "OP-70": 42.5,
-    "OP-100": 46.5,
-    "OP-200": 60.0
+    "OP-70": 43.5,
+    "OP-100": 47.5,
+    "OP-200": 61.0
    },
    "coaxial": {
     "OP-70": 65.5,
     "OP-100": 69.5,
     "OP-200": 83.0
    }
+  },
+  "gap_y": 1.5,
+  "motor_trough_clr": 0.05,
+  "lid_recess": {
+   "over_reservoir": 0.3,
+   "over_gear_b": 0.25,
+   "floor_relief_gear_b": 0.25
+  },
+  "shim": {
+   "t": 0.5,
+   "h": 1.4,
+   "pocket_depth": 1.5,
+   "clr": 0.025,
+   "_comment": "stainless steel tongue shim (laser cut, 0.5 x 1.4) glued into a carriage pocket; replaces the printed tongue (sim 4.4-4.6)"
   }
  },
  "dock_interface_frozen": {
   "_comment": "FROZEN INTERFACE between the pod (bottom shell + end cap + pod sensor board) and the swappable DOCK INSERT (spec 8a). All insert variants fit this; the pod never changes for a new cannula fit. Pod frame: x relative to x_r1 (u), y relative to the dock axis y_c. Changing any number needs a decision entry in docs/STATUS.md.",
   "x0_u": 4.4,
-  "tail_u": 19.9,
+  "tail_u": 21.2,
   "win_half": 6.85,
   "pocket_half": 7.6,
   "ledge_z": [
@@ -572,16 +593,16 @@
  },
  "dock": {
   "_comment": "pod side of the slide-on dock. y_c = dock axis in pod Y. arm_in = relaxed inner half spacing of the snap arms.",
-  "y_c": 11.5,
+  "y_c": 11.2,
   "hub_x0": 4.8,
   "hub_t": 0.7,
   "hub_d": 2.0,
   "hub_clr": 0.0,
-  "needle_free": 3.5,
+  "needle_free": 4.8,
   "block_len": 4.4,
   "block_half_y": 3.0,
   "block_up": 2.2,
-  "arm_t": 0.8,
+  "arm_t": 0.6,
   "arm_z": [
    1.3,
    4.95
@@ -592,7 +613,7 @@
   "dome_clr": 0.1,
   "mouth_over": 0.6,
   "arm_gap_clr": 0.2,
-  "hook_ramp": 0.4,
+  "hook_ramp": 0.5,
   "valve_x0": 0.6,
   "cap": {
    "septum_x": 2.2,
@@ -602,7 +623,8 @@
    "block_up_y": 3.0,
    "jog_x": 0.3,
    "wall_hole_d": 2.0
-  }
+  },
+  "guard_lead_in": 0.4
  },
  "coax": {
   "_comment": "Coaxial NFP motor + sleeve coupler (see op_coax.py). All lengths VERIFY with the real motor.",

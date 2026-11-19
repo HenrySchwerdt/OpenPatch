@@ -142,7 +142,7 @@ def draw(variant: str) -> Path:
     out = [f'<svg xmlns="http://www.w3.org/2000/svg" width="{int(Ln*S+2*M)}" height="{H}" viewBox="0 0 {int(Ln*S+2*M)} {H}" font-family="Helvetica,Arial,sans-serif">',
            '<rect width="100%" height="100%" fill="#ffffff"/>',
            f'<text x="{M}" y="26" font-size="18" font-weight="bold">OpenPatch bench pod {variant}: top view (X right, Y up), {Ln:.1f} x {W:.1f} x 8.5 mm</text>',
-           f'<text x="{M}" y="46" font-size="12" fill="#555">schematic to scale; bench only (water/insulin into containers, never a person); green = pod sensor board (z 5.3..6.1, above the drive)</text>'] + els
+           f'<text x="{M}" y="46" font-size="12" fill="#555">schematic to scale; bench only (water only, never a person); green = pod sensor board (z 5.3..6.1, above the drive)</text>'] + els
     base = int(W * S + 2 * M + 10)
     for n, (x, y, text, tx, ty) in enumerate(items, 1):
         out.append(f'<circle cx="{px(x):.1f}" cy="{py(y):.1f}" r="8" fill="#c00" fill-opacity="0.85"/>')

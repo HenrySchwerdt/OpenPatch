@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: CERN-OHL-P-2.0
 """Dock insert variant set + pod-less fit-test fixture (spec 8a).
 
 The cannula-specific geometry lives in the swappable DOCK INSERT (op_dock.build_insert).  This module builds

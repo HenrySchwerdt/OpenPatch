@@ -66,7 +66,7 @@ def compute_layout(p: dict, variant: str) -> dict:
     # gear plane: bench side_gears uses bench.gears.x0 (the gear tips must clear the R4 rear corner, see params comment)
     gear_x0 = p["bench"]["gears"].get("x0", dr["gear_x0"]) if bench and p["bench"]["drive_layout"] == "side_gears" else dr["gear_x0"]
     gear_x1 = gear_x0 + dr["gear_t"]
-    y_r0 = yi0 + sp["gap_y"]
+    y_r0 = yi0 + (p["bench"]["gap_y"] if bench else sp["gap_y"])
     y_r = y_r0 + res_w_out / 2
     y_s = y_r0 + res_w_out + dr["lane_clr"] + dr["screw_lane_w"] / 2
     coax = None
@@ -80,8 +80,9 @@ def compute_layout(p: dict, variant: str) -> dict:
     x_r1 = x_r0 + res_len
     x_in0, x_in1 = x_r0 + rs["wall"], x_r1 - end_wall
     gz = p["bench"]["gears"] if (bench and layout == "side_gears") else {"z_motor": dr["gear_z"], "z_screw": dr["gear_z"], "module": dr["gear_module"]}
-    gear_center = gz["module"] * (gz["z_motor"] + gz["z_screw"]) / 2
-    gears = {"z_motor": gz["z_motor"], "z_screw": gz["z_screw"], "module": gz["module"], "centre": gear_center,
+    gear_center_th = gz["module"] * (gz["z_motor"] + gz["z_screw"]) / 2
+    gear_center = gear_center_th + gz.get("centre_add", 0.0)
+    gears = {"z_motor": gz["z_motor"], "z_screw": gz["z_screw"], "module": gz["module"], "centre": gear_center, "centre_theoretical": gear_center_th,
              "root_motor": gz["module"] * (gz["z_motor"] - 2.5), "root_screw": gz["module"] * (gz["z_screw"] - 2.5),
              "tip_motor": gz["module"] * (gz["z_motor"] + 2), "tip_screw": gz["module"] * (gz["z_screw"] + 2),
              "x0": gear_x0, "x1": gear_x1,

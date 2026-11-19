@@ -13,12 +13,12 @@ quote tool; `assembly_reference.step` and `reference_not_ordered/` are NOT to be
 | `<SIZE>/top.stl` | MJF PA12 | PA12 | grey (natural) | bead-blasted standard | 1 | +-0.2 mm. 0.5 mm button membrane is at the printable limit - order 2 and keep the better one. Acoustic port dia 1.2 and screw holes dia 1.4 may need a drill. |
 | `<SIZE>/carriage.stl` | SLA (JLC3DP: resin 8001 / 9000-type tough; PCBWay: SLA Somos/8000-type) | tough resin | any (white/grey) | support marks on the outside only; do not sand the hex pocket | 2 | +-0.1 mm (hex pocket AF 3.3 for DIN 934 M1.6 nut, dia 1.9 screw bore, rail groove 1.2 x 0.5). Order 2: nut fit is the first test. |
 | `<SIZE>/plunger_core.stl` | SLA | tough or clear resin | any | no coating | 2 | +-0.1 mm. Seal grooves (0.8 mm wide) + socket for carriage tongue. Water test only. |
-| `<SIZE>/reservoir.stl` | SLA (clear resin preferred, 'BioMed Clear'-class if offered, else standard clear) | clear resin | clear | wash + UV post-cure; inner bore stays unpolished | 1 | WATER-TEST ONLY - not insulin-contact, not sterile, not validated. +-0.1 mm; check bore 16.0 x 5.0 with a pin gauge; bore may need light honing. Single piece; open dry end. |
+| `<SIZE>/reservoir.stl` | SLA (clear resin preferred, 'BioMed Clear'-class if offered, else standard clear) | clear resin | clear | wash + UV post-cure; inner bore stays unpolished | 1 | WATER ONLY - never insulin, not sterile, not validated. +-0.1 mm; check bore 16.0 x 5.0 with a pin gauge; bore may need light honing. Single piece; open dry end. |
 | `mould/mould_lower.stl`, `mould_upper.stl` | SLA (high detail, e.g. JLC3DP 8001 / PCBWay SLA) | tough resin | any | wash + UV cure; drill sprue dia 0.7 / vent dia 0.5 clear | 1 set (all sizes) | One set for ALL sizes. +-0.05..0.1 mm. Check the 4 pin/hole fits (pin dia 2.0 / hole 2.2). |
 
 Not uploaded (reference geometry in `reference_not_ordered/`): `plunger_seal` (cast in the mould) and `gasket`
 (die/laser-cut from silicone sheet). CNC reservoir halves (`reservoir_cnc_*`) are in `out/` only; they are the
-optional insulin-contact route and are not part of the cheap monthly loop.
+optional material preparation for a future manufacturer (never filled with insulin) and are not part of the cheap monthly loop.
 
 ## Vendor choice (low cost first)
 

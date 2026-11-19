@@ -14,17 +14,17 @@
  },
  "transform": {
   "board_origin_in_pod_mm": [
-   24.2,
+   23.7,
    4.6
   ],
   "rotation_deg": 0,
   "mirror": false,
   "board_to_pod": "x_pod = X0 + bx ; y_pod = V0 + by ; board top (F.Cu) faces +Z_pod",
   "board_bottom_z_pod": 5.3,
-  "board_top_z_pod": 6.1
+  "board_top_z_pod": 5.9
  },
  "board": {
-  "thickness_mm": 0.8,
+  "thickness_mm": 0.6,
   "layers": 2,
   "copper_oz": 1,
   "finish": "ENIG not required, HASL ok (no fine pitch except FFC/X2SON)",
@@ -42,71 +42,71 @@
     9.9
    ],
    [
-    12.1,
+    13.4,
     9.9
    ],
    [
-    12.1,
+    13.4,
     0.0
    ],
    [
-    16.5,
+    17.8,
     0.0
    ],
    [
-    16.5,
+    17.8,
     9.9
    ],
    [
-    16.5,
+    17.8,
     18.4
    ],
    [
-    16.4786,
+    17.7786,
     18.7263
    ],
    [
-    16.4148,
+    17.7148,
     19.047
    ],
    [
-    16.3097,
+    17.6097,
     19.3567
    ],
    [
-    16.1651,
+    17.4651,
     19.65
    ],
    [
-    15.9834,
+    17.2834,
     19.9219
    ],
    [
-    15.7678,
+    17.0678,
     20.1678
    ],
    [
-    15.5219,
+    16.8219,
     20.3834
    ],
    [
-    15.25,
+    16.55,
     20.5651
    ],
    [
-    14.9567,
+    16.2567,
     20.7097
    ],
    [
-    14.647,
+    15.947,
     20.8148
    ],
    [
-    14.3263,
+    15.6263,
     20.8786
    ],
    [
-    14.0,
+    15.3,
     20.9
    ],
    [
@@ -124,7 +124,7 @@
   ],
   "outline_note": "closed CCW polygon, last point connects to first; the arc at (+X,+Y) corner is R2.5 flattened. Inside corners: add R0.5 for routing.",
   "bbox_mm": [
-   16.5,
+   17.8,
    20.9
   ],
   "edge_clearance_to_housing_mm": {
@@ -135,9 +135,9 @@
  "stack_z_pod": {
   "floor_z": 0.9,
   "board_bottom": 5.3,
-  "board_top": 6.1,
-  "lid_inner_z": 7.6,
-  "top_free_mm": 1.5,
+  "board_top": 5.9,
+  "lid_inner_z": 7.5,
+  "top_free_mm": 1.6,
   "bottom_free_mm_over_open_floor": 4.4
  },
  "keepout_heights_mm": [
@@ -149,7 +149,7 @@
     7.1,
     20.1
    ],
-   "top_max_mm": 1.3,
+   "top_max_mm": 1.4,
    "bottom_max_mm": 1.5,
    "note": "bottom: TMAG5273 1.45 mm hangs in free air (floor is 4.0 mm below)"
   },
@@ -158,22 +158,22 @@
    "rect_board": [
     7.1,
     9.9,
-    16.5,
+    17.8,
     20.9
    ],
-   "top_max_mm": 1.3,
+   "top_max_mm": 1.4,
    "bottom_max_mm": 1.0,
    "note": "bottom: free air (floor is 4.4 mm below); top: FFC connector 1.0 mm"
   },
   {
    "region": "leg over the dock channel",
    "rect_board": [
-    12.1,
+    13.4,
     0.0,
-    16.5,
+    17.8,
     9.9
    ],
-   "top_max_mm": 1.3,
+   "top_max_mm": 1.4,
    "bottom_max_mm": 0.4,
    "note": "bottom: ONLY HALL_DOCK (0.4 mm). The dome (top at z=5.0) and the adapter lug (top z=4.3) slide under this leg, board bottom z=5.3"
   }
@@ -259,11 +259,11 @@
    "side": "bottom",
    "center_board_mm": [
     1.8,
-    18.0
+    17.9
    ],
    "center_pod_mm": [
-    26.0,
-    22.6
+    25.5,
+    22.5
    ],
    "body_xyz_mm": [
     2.9,
@@ -290,11 +290,11 @@
    "side": "top",
    "center_board_mm": [
     0.9,
-    16.5
+    16.4
    ],
    "center_pod_mm": [
-    25.1,
-    21.1
+    24.6,
+    21.0
    ],
    "body_xyz_mm": [
     1.4,
@@ -303,10 +303,10 @@
    ],
    "rotation_note": "package ROTATED 90 deg: its 1.4 mm side lies along pod X, its 1.1 mm side along pod Y (A and B are 2.7 mm apart in Y, edge gap 1.6 mm)",
    "z_body_pod": [
-    6.1,
-    6.5
+    5.9,
+    6.3
    ],
-   "z_sensing_pod": 6.3,
+   "z_sensing_pod": 6.1,
    "sensing_axis_pod": [
     0,
     0,
@@ -314,9 +314,9 @@
    ],
    "sensing_face": "package top (+Z_pod, away from the board)",
    "air_gap_to_magnet_end_face_mm": 0.45,
-   "dist_to_magnet_centre_mm": 3.205,
-   "expected_Bz_amplitude_mT": 26.8,
-   "expected_Bz_phase_deg": -79.0,
+   "dist_to_magnet_centre_mm": 3.077,
+   "expected_Bz_amplitude_mT": 28.0,
+   "expected_Bz_phase_deg": -90.0,
    "note": "Above-and-beyond the magnet end. Bz(theta) phases of A and B differ by ~44 deg (mod 180): for OMNIPOLAR switches (|B| > BOP, two edges per 180 deg) that is a true quadrature (A/B edges alternate, order gives direction). Amplitude ~8 mT vs BOP 3.9 mT: ~2x margin. Model estimate +-20 %: verify on the bench."
   },
   {
@@ -325,11 +325,11 @@
    "side": "top",
    "center_board_mm": [
     0.9,
-    19.2
+    19.1
    ],
    "center_pod_mm": [
-    25.1,
-    23.8
+    24.6,
+    23.7
    ],
    "body_xyz_mm": [
     1.4,
@@ -338,10 +338,10 @@
    ],
    "rotation_note": "package ROTATED 90 deg: its 1.4 mm side lies along pod X, its 1.1 mm side along pod Y (A and B are 2.7 mm apart in Y, edge gap 1.6 mm)",
    "z_body_pod": [
-    6.1,
-    6.5
+    5.9,
+    6.3
    ],
-   "z_sensing_pod": 6.3,
+   "z_sensing_pod": 6.1,
    "sensing_axis_pod": [
     0,
     0,
@@ -349,9 +349,9 @@
    ],
    "sensing_face": "package top (+Z_pod, away from the board)",
    "air_gap_to_magnet_end_face_mm": 0.45,
-   "dist_to_magnet_centre_mm": 3.076,
-   "expected_Bz_amplitude_mT": 26.0,
-   "expected_Bz_phase_deg": 72.0,
+   "dist_to_magnet_centre_mm": 2.943,
+   "expected_Bz_amplitude_mT": 26.5,
+   "expected_Bz_phase_deg": 86.0,
    "note": "Above-and-beyond the magnet end. Bz(theta) phases of A and B differ by ~44 deg (mod 180): for OMNIPOLAR switches (|B| > BOP, two edges per 180 deg) that is a true quadrature (A/B edges alternate, order gives direction). Amplitude ~8 mT vs BOP 3.9 mT: ~2x margin. Model estimate +-20 %: verify on the bench."
   },
   {
@@ -359,12 +359,12 @@
    "part": "DRV5032FADMR (X2SON-4 1.1x1.4, LCSC C2152496), omnipolar switch",
    "side": "bottom",
    "center_board_mm": [
-    14.8,
-    6.9
+    16.1,
+    6.6
    ],
    "center_pod_mm": [
-    39.0,
-    11.5
+    39.8,
+    11.2
    ],
    "body_xyz_mm": [
     1.1,
@@ -394,24 +394,24 @@
  "magnets": {
   "spindle": {
    "center_pod_mm": [
-    23.2,
-    22.6,
+    22.7,
+    22.5,
     4.2
    ],
    "d_mm": 3.0,
    "t_mm": 1.5,
    "axis": "X",
    "magnetisation": "diametric (rotates with the spindle)",
-   "end_face_x_pod": 23.95,
+   "end_face_x_pod": 23.45,
    "spindle_axis_yz_pod": [
-    22.6,
+    22.5,
     4.2
    ]
   },
   "dock": {
    "center_pod_mm": [
-    39.0,
-    11.5,
+    39.8,
+    11.2,
     3.8
    ],
    "d_mm": 2.0,
@@ -424,27 +424,27 @@
   "assumed_Br_T": 1.3
  },
  "motor": {
-  "bench_variant": "SIDE-BY-SIDE layout (bench.drive_layout = side_gears): NFP motor beside the leadscrew lane, gear pair GHW module 0.3 z18 (motor) : z18 (screw), centre 5.40 mm. The motor keeps its factory lead (4 x 30 AWG, JST 1.25); it leaves through a floor channel and a slot in the +X end wall, plugs into the bench controller board (not into this board).",
+  "bench_variant": "SIDE-BY-SIDE layout (bench.drive_layout = side_gears): NFP motor beside the leadscrew lane, gear pair GHW module 0.3 z16 (motor) : z20 (screw), centre 5.51 mm. The motor keeps its factory lead (4 x 30 AWG, JST 1.25); it leaves through a floor channel and a slot in the +X end wall, plugs into the bench controller board (not into this board).",
   "gear_pair": {
-   "z_motor": 18,
-   "z_screw": 18,
-   "ratio_motor_to_screw": 1.0,
-   "centre_mm": 5.3999999999999995,
-   "u_per_step": 0.004938040440402206,
+   "z_motor": 16,
+   "z_screw": 20,
+   "ratio_motor_to_screw": 1.25,
+   "centre_mm": 5.51,
+   "u_per_step": 0.003950432352321765,
    "formula": "0.35 / (20 x 26.45 x ratio) x 74.63 / 10, ratio = z_screw / z_motor"
   },
   "motor_axis_pod": {
-   "y": 28.0,
+   "y": 28.01,
    "z": 4.2,
-   "leadscrew_y": 22.6
+   "leadscrew_y": 22.5
   },
   "motor_pins_pod": {
-   "x_pod": 16.4,
+   "x_pod": 15.9,
    "y_pod_centres": [
-    29.8,
-    28.6,
-    27.4,
-    26.2
+    29.81,
+    28.61,
+    27.41,
+    26.21
    ],
    "direction": "-Z (down, bent/trimmed, see parts.md)",
    "pitch_mm": 1.2
@@ -454,8 +454,8 @@
    "centre_y_pod": 26.8,
    "floor_z_pod": 0.4,
    "slot_x_pod": [
-    41.2,
-    42.3
+    42.0,
+    43.1
    ],
    "slot_y_pod": [
     25.7,
@@ -479,7 +479,7 @@
    13.9
   ],
   "center_pod_mm": [
-   38.1,
+   37.6,
    18.5
   ],
   "body_mm": {
@@ -489,8 +489,8 @@
    "note": "envelope incl. latch tabs, +-0.4 mm (VERIFY with the vendor drawing)"
   },
   "z_body_pod": [
-   6.1,
-   7.1
+   5.9,
+   6.9
   ],
   "cable_exit_direction": "+X (cable leaves toward the +X end wall)",
   "cable_entry_edge_board_x": 15.9,
@@ -498,27 +498,27 @@
   "cable": {
    "type": "FFC 10 P 0.5 mm, 0.3 mm thick",
    "width_mm": 6.0,
-   "centre_z_pod": 6.35,
+   "centre_z_pod": 6.15,
    "length_note": "300 mm typical"
   },
   "exit_slot": {
    "wall": "+X end wall (lid part)",
    "x_pod": [
-    41.2,
-    42.3
+    42.0,
+    43.1
    ],
    "y_pod": [
     14.5,
     22.5
    ],
    "z_pod": [
-    6.0,
-    7.1
+    5.8,
+    6.9
    ],
    "centre_y_pod": 18.5,
    "sealed": false
   },
-  "inner_wall_x_pod": 41.3
+  "inner_wall_x_pod": 42.1
  },
  "mounting": {
   "locating_pins": [
@@ -529,7 +529,7 @@
      13.9
     ],
     "center_pod_mm": [
-     32.9,
+     32.4,
      18.5
     ],
     "pin_d_mm": 1.0,
@@ -544,7 +544,7 @@
      17.4
     ],
     "center_pod_mm": [
-     39.5,
+     39.0,
      22.0
     ],
     "pin_d_mm": 1.0,
@@ -560,7 +560,7 @@
     14.8
    ],
    "center_pod_mm": [
-    32.9,
+    32.4,
     19.4
    ],
    "board_hole_d_mm": 1.4,
@@ -576,7 +576,7 @@
      17.8
     ],
     "center_pod_mm": [
-     29.3,
+     28.8,
      22.4
     ],
     "d_mm": 1.6,
@@ -590,7 +590,7 @@
      15.8
     ],
     "center_pod_mm": [
-     39.5,
+     39.0,
      20.4
     ],
     "d_mm": 1.6,
@@ -606,7 +606,7 @@
      17.8
     ],
     "center_pod_mm": [
-     28.8,
+     28.3,
      22.4
     ],
     "d_mm": 1.2,
@@ -619,7 +619,7 @@
      18.2
     ],
     "center_pod_mm": [
-     35.2,
+     34.7,
      22.8
     ],
     "d_mm": 1.2,
@@ -632,7 +632,7 @@
      8.7
     ],
     "center_pod_mm": [
-     38.5,
+     38.0,
      13.3
     ],
     "d_mm": 1.2,
@@ -650,16 +650,16 @@
   "magnet": "\u00d82 x 1 mm axial NdFeB in the rear latch lug, top face z=4.30"
  },
  "dock": {
-  "note": "slide-on dock: horizontal needle axis y=11.50 z=3.00, dome centre x=33.40 when latched; all cannula.* values TODO-MEASURE",
-  "arm_strain_pct": 2.62
+  "note": "slide-on dock: horizontal needle axis y=11.20 z=3.00, dome centre x=34.20 when latched; all cannula.* values TODO-MEASURE",
+  "arm_strain_pct": 1.5
  },
  "references": {
   "pod_layout_full": "OP-70.mech.json",
-  "motor_end_x_pod": 22.2,
-  "x_r1": 22.3,
-  "x_dome_centre": 33.4,
+  "motor_end_x_pod": 21.7,
+  "x_r1": 21.8,
+  "x_dome_centre": 34.2,
   "spindle_axis_pod_yz": [
-   22.6,
+   22.5,
    4.2
   ]
  }

@@ -41,6 +41,8 @@ def build_plunger(s: Script, p: dict, L: dict) -> None:
     tools.append(s.box("t_sock", (xr + sx[0], xr + sx[1]), (y_end - sl["socket_depth"], y_end + 0.1),
                        (zc - dr["arm_t"] / 2 - 0.05, zc + dr["arm_t"] / 2 + 0.05)))
     s.cut("plunger_core", tools)
+    if L["mode"] == "bench" and rs.get("nose_len", 0) > 0:      # separate printed nose: fills the dead layer in front of the plunger
+        s.stadium("plunger_nose", (xr + rs["plunger_len"], xr + rs["plunger_len"] + rs["nose_len"]), yr, zc, wc, hc)
     # Silikon-Dichtlippen (Montagezustand = Bohrungsmaß; Gussmaß +0.3, siehe Form)
     ao = sl["assembly_gap"]
     for k, nm in enumerate(("seal_a", "seal_b")):
@@ -55,15 +57,24 @@ def build_carriage(s: Script, p: dict, L: dict) -> None:
     s.box("carriage", (xr, xr + cl), (ys - bw / 2, ys + bw / 2), (zc - bh / 2, zc + bh / 2))
     to = sl["tongue_off"]
     y_end = L["y_r"] + (p["reservoir"]["w_in"] - 2 * p["reservoir"]["plunger_clr"]) / 2
-    tongue = s.box("t_tongue", (xr + to[0], xr + to[1]), (y_end - sl["socket_depth"] + 0.1, ys - bw / 2 + 0.2),
-                   (zc - dr["arm_t"] / 2, zc + dr["arm_t"] / 2))
-    s.join("carriage", [tongue])
+    sh = p["bench"]["shim"] if L["mode"] == "bench" else None
+    if sh is None:      # integrated variant: printed tongue
+        tongue = s.box("t_tongue", (xr + to[0], xr + to[1]), (y_end - sl["socket_depth"] + 0.1, ys - bw / 2 + 0.2),
+                       (zc - dr["arm_t"] / 2, zc + dr["arm_t"] / 2))
+        s.join("carriage", [tongue])
     apo = (dr["nut_af"] + dr["nut_hex_clr"]) / 2
     cuts = [s.cyl("t_chole", "X", (0, ys, zc), 1.9, xr - 0.1, xr + cl + 0.1),
             s.hexprism("t_hexp", (xr - 0.1, xr + dr["nut_len"] + 0.1), ys, zc, apo, angle=0.0),
             s.box("t_groove", (xr - 0.1, xr + cl + 0.1), (ys - dr["groove_w"] / 2, ys + dr["groove_w"] / 2),
                   (zc - bh / 2 - 0.1, zc - bh / 2 + dr["groove_d"]))]
+    if sh is not None:      # pocket for the stainless tongue shim (open towards the reservoir)
+        xm = xr + (to[0] + to[1]) / 2
+        cuts.append(s.box("t_shimpocket", (xm - sh["t"] / 2 - sh["clr"], xm + sh["t"] / 2 + sh["clr"]), (ys - bw / 2 - 0.1, ys - bw / 2 + sh["pocket_depth"]),
+                          (zc - sh["h"] / 2 - sh["clr"], zc + sh["h"] / 2 + sh["clr"])))
     s.cut("carriage", cuts)
+    if sh is not None:
+        s.box("tongue_shim", (xm - sh["t"] / 2, xm + sh["t"] / 2), (y_end - sl["socket_depth"] + 0.1, ys - bw / 2 + sh["pocket_depth"] - 0.1),
+              (zc - sh["h"] / 2, zc + sh["h"] / 2))
     # M1.6-Mutter (DIN 934), Kauf
     s.hexprism("nut", (xr + 0.05, xr + 0.05 + dr["nut_len"]), ys, zc, dr["nut_af"] / 2, angle=0.0)
     s.cyl("t_nbore", "X", (0, ys, zc), dr["screw_d"] + 0.05, xr - 0.1, xr + 2.0)

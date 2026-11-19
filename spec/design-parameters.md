@@ -42,9 +42,9 @@
 
 | Size | Volume U100 | Target L × W × H (mm) | Omnipod DASH for comparison |
 |---|---|---|---|
-| OP-70  | 0.70 ml | **38.0 × 32 × 8.5** (CAD ✓) | 52 × 39 × 14.5 mm |
-| OP-100 | 1.00 ml | **42.0 × 32 × 8.5** (CAD ✓) | |
-| OP-200 | 2.00 ml | **55.4 × 32 × 8.5** (CAD ✓) | |
+| OP-70  | 0.70 ml | **43.0 × 32 × 8.4** (bench pod, CAD ✓; integrated variant parked) | 52 × 39 × 14.5 mm |
+| OP-100 | 1.00 ml | **47.0 × 32 × 8.4** (bench pod, CAD ✓) | |
+| OP-200 | 2.00 ml | **60.4 × 32 × 8.4** (bench pod, CAD ✓) | |
 
 - **Build height 8.5 mm** (8.0 is not achievable with the 16×5 reservoir: stack = 8.4 mm; only with 0.6 mm reservoir wall + 0.75 mm shell) including housing wall and Velcro surface. Corners R ≥ 4 mm, top slightly domed (pillow shape).
 - Housing wall thickness: 0.9 mm (MJF PA12 or SLA resin for prototype; later injection-molded PC/PP).
@@ -72,9 +72,9 @@
 Rationale: buildability beats minimal size (builders are not watchmakers). No off-the-shelf integrated micro linear actuator meets force/drawing/orderability (`mechanical/linear-actuator-selection.md`); the SMA ratchet needs too many fine custom parts. SMA research stays as a later option for minimal size.
 
 - **Motor:** **NFP-608-26.45-SGM** (Ø6.0 mm, body 15.1 mm, 20 steps/rev, 2-stage ratio 26.45, 4.8 V, 26.5 Ω/phase, shaft Ø2.0 with D-flat 1.5; vendor drawing in the datasheet PDF). ~$6.60 at nfpshop.com.
-- **Coupling (2026-11-19, final):** motor **beside** the reservoir (parallel axes) driving the leadscrew through a **purchased gear pair** (GHW-Modellbau module 0.3, 15 T on the motor → 12 T on the screw, ~6 €; see `mechanical/gear-selection.md`) to keep the pod short (~42 × 27 mm for OP-100). U/step = 0.35 × (z_motor/z_screw)... see firmware preset; 15:12 → 0.00617 U/step. Coaxial sleeve coupler kept as an option. Previous text: a simple **sleeve coupler** (brass tube or SLA part, D-bore on the motor side, M1.6 thread/press on the screw side) puts the motor coaxially on the leadscrew — no gears, no ratchet, no pawls, no half-nut.
+- **Coupling (2026-11-19, final, supersedes 15:12 and 18:18):** motor **beside** the reservoir (parallel axes) driving the leadscrew through a **purchased step-down gear pair**, GHW-Modellbau module 0.3: **16 T on the motor (390754, bore 2.0) : 20 T on the screw (753020, bore 2.0, hub turned off)**, ~19 €; theoretical centre 5.40 mm, **built centre 5.51 mm**. Reason (real CAD geometry): 15:12 (centre 4.05) and 15:15 (4.50) cannot clear the carriage lane (centre >= 5.5 needed with the 4.8 mm carriage), 20:16 does not fit the 6.7 mm cavity (tip OD 6.6 on the motor), 18:18 fits but costs 32 € and gives less thrust. **Firmware needs the matching preset (screw advance per motor turn 0.8, total ratio 26.45 / 0.8 = 33.06); `drive-nfp-608-26-45-g15-12` (ratio 21.16) and `g1-1` (26.45) are both WRONG for this pod: 0.00395 U/step.** The coaxial sleeve option remains in CAD (`bench.drive_layout = coaxial`).
 - **Leadscrew/carriage/reservoir:** M1.6 × 0.35 leadscrew in its own lane, fixed nut in the carriage, carriage arm pushes the stadium plunger (unchanged).
-- **Resolution:** U/step = 0.35 / (20 × 26.45) × 74.6 / 10 = **0.00494 U/step**; 0.05 U ≈ 10 steps; exact rational in firmware, no default.
+- **Resolution:** U/step = 0.35 × (16/20) / (20 × 26.45) × 74.63 / 10 = **0.003951 U/step** (16:20 pair); 0.05 U ≈ 12.7 steps; exact rational in firmware, no default.
 - **Thrust:** pull-out 1.6 gf·cm × 26.45 × ~0.64 gear eff. ≈ 2.65 N·mm → ≈ 9.5 N at 20 % screw efficiency (≥ 5 N required; verify on the bench).
 - **Refill = automatic draw mode (no crank, no slider):** pod undocked + suspended → user selects the fill amount in the app → holds the syringe/vial needle in the septum → the motor **retracts exactly that volume and draws the insulin in**, then stops by itself (100 U ≈ 20 s). A **one-way duckbill check valve in the outlet** prevents air being drawn in through the outlet needle (and adds anti-siphon / anti-free-flow protection). Rear end-stop on the housing + stall detection; fill level known exactly from step count + encoder.
 - **Encoder:** TMAG5273 angle sensor on a diametric magnet at the leadscrew end (per-revolution verification and stall detection); DRV5032 pair optional.

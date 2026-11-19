@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: CERN-OHL-P-2.0
 """Slide-on dock for the Insight Flex cannula head (dome with side septum), shared by both pod variants.
 
 The pod is pushed FLAT along the skin onto the dome.  The dome enters a channel that is open at the +X end wall

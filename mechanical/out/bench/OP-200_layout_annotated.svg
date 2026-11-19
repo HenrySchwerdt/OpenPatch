@@ -1,86 +1,86 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1073" height="832" viewBox="0 0 1073 832" font-family="Helvetica,Arial,sans-serif">
+<svg xmlns="http://www.w3.org/2000/svg" width="1086" height="832" viewBox="0 0 1086 832" font-family="Helvetica,Arial,sans-serif">
 <rect width="100%" height="100%" fill="#ffffff"/>
-<text x="60" y="26" font-size="18" font-weight="bold">OpenPatch bench pod OP-200: top view (X right, Y up), 59.6 x 32.0 x 8.5 mm</text>
-<text x="60" y="46" font-size="12" fill="#555">schematic to scale; bench only (water/insulin into containers, never a person); green = pod sensor board (z 5.3..6.1, above the drive)</text>
-<rect x="60.0" y="60.0" width="953.6" height="512.0" rx="64.0" fill="#f4f6f8" fill-opacity="1.0" stroke="#222" stroke-width="1"/>
-<rect x="74.4" y="74.4" width="924.8" height="483.2" rx="49.6" fill="#ffffff" fill-opacity="1.0" stroke="#999" stroke-width="1"/>
-<rect x="133.6" y="247.2" width="561.6" height="281.6" rx="52.8" fill="#bfe8f2" fill-opacity="0.8" stroke="#2a7f96" stroke-width="1"/>
-<rect x="149.6" y="263.2" width="60.8" height="249.6" rx="0.0" fill="#e0803a" fill-opacity="0.8" stroke="#a04a10" stroke-width="1"/>
-<rect x="149.6" y="175.2" width="64.0" height="70.4" rx="0.0" fill="#f0c040" fill-opacity="1.0" stroke="#a08000" stroke-width="1"/>
-<rect x="146.4" y="76.0" width="129.6" height="96.0" rx="0.0" fill="#b9bec6" fill-opacity="1.0" stroke="#444" stroke-width="1"/>
-<rect x="276.0" y="76.0" width="128.0" height="96.0" rx="0.0" fill="#8a8f98" fill-opacity="1.0" stroke="#444" stroke-width="1"/>
-<rect x="404.0" y="103.2" width="11.2" height="41.6" rx="0.0" fill="#666" fill-opacity="1.0" stroke="#333" stroke-width="1"/>
-<rect x="133.6" y="96.0" width="12.8" height="56.0" rx="0.0" fill="#999" fill-opacity="1.0" stroke="#444" stroke-width="1"/>
-<rect x="112.8" y="173.2" width="19.2" height="74.4" rx="0.0" fill="#d4a017" fill-opacity="1.0" stroke="#7a5a00" stroke-width="1"/>
-<rect x="112.8" y="86.8" width="19.2" height="74.4" rx="0.0" fill="#d4a017" fill-opacity="1.0" stroke="#7a5a00" stroke-width="1"/>
-<line x1="76.0" y1="210.4" x2="697.6" y2="210.4" stroke="#222" stroke-width="2"/>
-<rect x="295.2" y="87.2" width="54.4" height="73.6" rx="0.0" fill="#c06020" fill-opacity="1.0" stroke="#703000" stroke-width="1"/>
-<line x1="322.4" y1="143.2" x2="1061.6" y2="143.2" stroke="#d02020" stroke-width="1.6" stroke-dasharray="4,3"/>
-<rect x="138.4" y="176.0" width="11.2" height="8.8" rx="0.0" fill="#555" fill-opacity="1.0" stroke="#222" stroke-width="1"/>
-<rect x="138.4" y="236.0" width="11.2" height="8.8" rx="0.0" fill="#555" fill-opacity="1.0" stroke="#222" stroke-width="1"/>
-<circle cx="709.6" cy="210.4" r="16.0" fill="#cc2222" fill-opacity="1.0" stroke="#880000" stroke-width="1"/>
-<rect x="695.2" y="340.0" width="70.4" height="216.0" rx="0.0" fill="#d8dde3" fill-opacity="1.0" stroke="#555" stroke-width="1"/>
-<rect x="765.6" y="292.0" width="12.8" height="192.0" rx="0.0" fill="#9fb3c8" fill-opacity="1.0" stroke="#445" stroke-width="1"/>
-<rect x="698.4" y="524.0" width="64.0" height="32.0" rx="0.0" fill="#f2c6a0" fill-opacity="1.0" stroke="#a05020" stroke-width="1"/>
-<rect x="704.8" y="364.0" width="54.4" height="48.0" rx="0.0" fill="#5ec8e8" fill-opacity="1.0" stroke="#1a6a85" stroke-width="1"/>
-<line x1="772.0" y1="388.0" x2="839.2" y2="388.0" stroke="#111" stroke-width="1.2"/>
-<rect x="765.6" y="290.4" width="248.0" height="195.2" rx="0.0" fill="#ffffff" fill-opacity="0.0" stroke="#aaa" stroke-width="1" stroke-dasharray="5,4"/>
-<rect x="778.4" y="471.2" width="160.0" height="12.8" rx="0.0" fill="#9fb3c8" fill-opacity="1.0" stroke="#445" stroke-width="1"/>
-<line x1="924.0" y1="440.7" x2="924.0" y2="471.2" stroke="#445" stroke-width="3"/>
-<rect x="778.4" y="292.0" width="160.0" height="12.8" rx="0.0" fill="#9fb3c8" fill-opacity="1.0" stroke="#445" stroke-width="1"/>
-<line x1="924.0" y1="335.3" x2="924.0" y2="304.8" stroke="#445" stroke-width="3"/>
-<circle cx="872.8" cy="388.0" r="80.0" fill="#e8f6ff" fill-opacity="0.45" stroke="#2a6a9a" stroke-width="1" stroke-dasharray="6,3"/>
-<polygon points="725.6,248.8 839.2,248.8 839.2,340.0 919.2,340.0 919.2,498.4 989.6,498.4 989.6,340.0 989.6,204.0 989.3,198.8 988.2,193.6 986.6,188.7 984.2,184.0 981.3,179.6 977.9,175.7 974.0,172.3 969.6,169.4 964.9,167.0 960.0,165.4 954.8,164.3 949.6,164.0 839.2,164.0 839.2,176.8 725.6,176.8" fill="#2e8b57" fill-opacity="0.35" stroke="#145a32" stroke-width="1"/>
-<rect x="731.2" y="188.0" width="46.4" height="44.8" rx="0.0" fill="#ffd400" fill-opacity="1.0" stroke="#333" stroke-width="1"/>
-<rect x="728.8" y="225.6" width="22.4" height="17.6" rx="0.0" fill="#ffd400" fill-opacity="1.0" stroke="#333" stroke-width="1"/>
-<rect x="728.8" y="182.4" width="22.4" height="17.6" rx="0.0" fill="#ffd400" fill-opacity="1.0" stroke="#333" stroke-width="1"/>
-<rect x="953.6" y="376.8" width="17.6" height="22.4" rx="0.0" fill="#ff7f00" fill-opacity="1.0" stroke="#333" stroke-width="1"/>
-<rect x="916.0" y="216.8" width="64.0" height="118.4" rx="0.0" fill="#222" fill-opacity="0.8" stroke="#000" stroke-width="1"/>
-<line x1="980.0" y1="276.0" x2="1077.6" y2="276.0" stroke="#e8c36a" stroke-width="4"/>
-<rect x="157.6" y="194.4" width="476.8" height="32.0" rx="0.0" fill="#ffffff" fill-opacity="0.0" stroke="#c00" stroke-width="1" stroke-dasharray="3,2"/>
-<circle cx="340.0" cy="76.0" r="8" fill="#c00" fill-opacity="0.85"/>
-<text x="340.0" y="80.0" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">1</text>
+<text x="60" y="26" font-size="18" font-weight="bold">OpenPatch bench pod OP-200: top view (X right, Y up), 60.4 x 32.0 x 8.5 mm</text>
+<text x="60" y="46" font-size="12" fill="#555">schematic to scale; bench only (water only, never a person); green = pod sensor board (z 5.3..6.1, above the drive)</text>
+<rect x="60.0" y="60.0" width="966.4" height="512.0" rx="64.0" fill="#f4f6f8" fill-opacity="1.0" stroke="#222" stroke-width="1"/>
+<rect x="74.4" y="74.4" width="937.6" height="483.2" rx="49.6" fill="#ffffff" fill-opacity="1.0" stroke="#999" stroke-width="1"/>
+<rect x="125.6" y="252.0" width="561.6" height="281.6" rx="52.8" fill="#bfe8f2" fill-opacity="0.8" stroke="#2a7f96" stroke-width="1"/>
+<rect x="141.6" y="268.0" width="60.8" height="249.6" rx="0.0" fill="#e0803a" fill-opacity="0.8" stroke="#a04a10" stroke-width="1"/>
+<rect x="141.6" y="176.8" width="64.0" height="70.4" rx="0.0" fill="#f0c040" fill-opacity="1.0" stroke="#a08000" stroke-width="1"/>
+<rect x="138.4" y="75.8" width="129.6" height="96.0" rx="0.0" fill="#b9bec6" fill-opacity="1.0" stroke="#444" stroke-width="1"/>
+<rect x="268.0" y="75.8" width="128.0" height="96.0" rx="0.0" fill="#8a8f98" fill-opacity="1.0" stroke="#444" stroke-width="1"/>
+<rect x="396.0" y="103.0" width="11.2" height="41.6" rx="0.0" fill="#666" fill-opacity="1.0" stroke="#333" stroke-width="1"/>
+<rect x="125.6" y="95.8" width="12.8" height="56.0" rx="0.0" fill="#999" fill-opacity="1.0" stroke="#444" stroke-width="1"/>
+<rect x="104.8" y="170.0" width="19.2" height="84.0" rx="0.0" fill="#d4a017" fill-opacity="1.0" stroke="#7a5a00" stroke-width="1"/>
+<rect x="104.8" y="91.4" width="19.2" height="64.8" rx="0.0" fill="#d4a017" fill-opacity="1.0" stroke="#7a5a00" stroke-width="1"/>
+<line x1="76.0" y1="212.0" x2="689.6" y2="212.0" stroke="#222" stroke-width="2"/>
+<rect x="287.2" y="87.0" width="54.4" height="73.6" rx="0.0" fill="#c06020" fill-opacity="1.0" stroke="#703000" stroke-width="1"/>
+<line x1="314.4" y1="143.2" x2="1074.4" y2="143.2" stroke="#d02020" stroke-width="1.6" stroke-dasharray="4,3"/>
+<rect x="130.4" y="177.6" width="11.2" height="8.8" rx="0.0" fill="#555" fill-opacity="1.0" stroke="#222" stroke-width="1"/>
+<rect x="130.4" y="237.6" width="11.2" height="8.8" rx="0.0" fill="#555" fill-opacity="1.0" stroke="#222" stroke-width="1"/>
+<circle cx="701.6" cy="212.0" r="16.0" fill="#cc2222" fill-opacity="1.0" stroke="#880000" stroke-width="1"/>
+<rect x="687.2" y="344.8" width="70.4" height="211.2" rx="0.0" fill="#d8dde3" fill-opacity="1.0" stroke="#555" stroke-width="1"/>
+<rect x="757.6" y="300.0" width="12.8" height="185.6" rx="0.0" fill="#9fb3c8" fill-opacity="1.0" stroke="#445" stroke-width="1"/>
+<rect x="690.4" y="524.0" width="64.0" height="32.0" rx="0.0" fill="#f2c6a0" fill-opacity="1.0" stroke="#a05020" stroke-width="1"/>
+<rect x="696.8" y="368.8" width="54.4" height="48.0" rx="0.0" fill="#5ec8e8" fill-opacity="1.0" stroke="#1a6a85" stroke-width="1"/>
+<line x1="764.0" y1="392.8" x2="852.0" y2="392.8" stroke="#111" stroke-width="1.2"/>
+<rect x="757.6" y="298.4" width="268.8" height="188.8" rx="0.0" fill="#ffffff" fill-opacity="0.0" stroke="#aaa" stroke-width="1" stroke-dasharray="5,4"/>
+<rect x="770.4" y="476.0" width="180.8" height="9.6" rx="0.0" fill="#9fb3c8" fill-opacity="1.0" stroke="#445" stroke-width="1"/>
+<line x1="936.8" y1="445.5" x2="936.8" y2="476.0" stroke="#445" stroke-width="3"/>
+<rect x="770.4" y="300.0" width="180.8" height="9.6" rx="0.0" fill="#9fb3c8" fill-opacity="1.0" stroke="#445" stroke-width="1"/>
+<line x1="936.8" y1="340.1" x2="936.8" y2="309.6" stroke="#445" stroke-width="3"/>
+<circle cx="885.6" cy="392.8" r="80.0" fill="#e8f6ff" fill-opacity="0.45" stroke="#2a6a9a" stroke-width="1" stroke-dasharray="6,3"/>
+<polygon points="717.6,248.8 831.2,248.8 831.2,340.0 932.0,340.0 932.0,498.4 1002.4,498.4 1002.4,340.0 1002.4,204.0 1002.1,198.8 1001.0,193.6 999.4,188.7 997.0,184.0 994.1,179.6 990.7,175.7 986.8,172.3 982.4,169.4 977.7,167.0 972.8,165.4 967.6,164.3 962.4,164.0 831.2,164.0 831.2,176.8 717.6,176.8" fill="#2e8b57" fill-opacity="0.35" stroke="#145a32" stroke-width="1"/>
+<rect x="723.2" y="189.6" width="46.4" height="44.8" rx="0.0" fill="#ffd400" fill-opacity="1.0" stroke="#333" stroke-width="1"/>
+<rect x="720.8" y="227.2" width="22.4" height="17.6" rx="0.0" fill="#ffd400" fill-opacity="1.0" stroke="#333" stroke-width="1"/>
+<rect x="720.8" y="184.0" width="22.4" height="17.6" rx="0.0" fill="#ffd400" fill-opacity="1.0" stroke="#333" stroke-width="1"/>
+<rect x="966.4" y="381.6" width="17.6" height="22.4" rx="0.0" fill="#ff7f00" fill-opacity="1.0" stroke="#333" stroke-width="1"/>
+<rect x="908.0" y="216.8" width="64.0" height="118.4" rx="0.0" fill="#222" fill-opacity="0.8" stroke="#000" stroke-width="1"/>
+<line x1="972.0" y1="276.0" x2="1090.4" y2="276.0" stroke="#e8c36a" stroke-width="4"/>
+<rect x="149.6" y="196.0" width="476.8" height="32.0" rx="0.0" fill="#ffffff" fill-opacity="0.0" stroke="#c00" stroke-width="1" stroke-dasharray="3,2"/>
+<circle cx="332.0" cy="75.8" r="8" fill="#c00" fill-opacity="0.85"/>
+<text x="332.0" y="79.8" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">1</text>
 <text x="60.0" y="658" font-size="13" fill="#222"><tspan fill="#c00" font-weight="bold">1</tspan>  Stepper motor NFP-608 (motor part 8.0 mm)</text>
-<circle cx="211.2" cy="76.0" r="8" fill="#c00" fill-opacity="0.85"/>
-<text x="211.2" y="80.0" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">2</text>
-<text x="536.8" y="658" font-size="13" fill="#222"><tspan fill="#c00" font-weight="bold">2</tspan>  Gearbox 26.45:1 (8.1 mm)</text>
-<circle cx="322.4" cy="143.2" r="8" fill="#c00" fill-opacity="0.85"/>
-<text x="322.4" y="147.2" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">3</text>
+<circle cx="203.2" cy="75.8" r="8" fill="#c00" fill-opacity="0.85"/>
+<text x="203.2" y="79.8" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">2</text>
+<text x="543.2" y="658" font-size="13" fill="#222"><tspan fill="#c00" font-weight="bold">2</tspan>  Gearbox 26.45:1 (8.1 mm)</text>
+<circle cx="314.4" cy="143.2" r="8" fill="#c00" fill-opacity="0.85"/>
+<text x="314.4" y="147.2" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">3</text>
 <text x="60.0" y="678" font-size="13" fill="#222"><tspan fill="#c00" font-weight="bold">3</tspan>  4 motor pins -> factory lead (red) -> wall slot</text>
-<circle cx="122.4" cy="178.4" r="8" fill="#c00" fill-opacity="0.85"/>
-<text x="122.4" y="182.4" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">4</text>
-<text x="536.8" y="678" font-size="13" fill="#222"><tspan fill="#c00" font-weight="bold">4</tspan>  Gear pair module 0.3 (z18 : z18, centre 5.40)</text>
-<circle cx="245.6" cy="210.4" r="8" fill="#c00" fill-opacity="0.85"/>
-<text x="245.6" y="214.4" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">5</text>
+<circle cx="114.4" cy="180.0" r="8" fill="#c00" fill-opacity="0.85"/>
+<text x="114.4" y="184.0" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">4</text>
+<text x="543.2" y="678" font-size="13" fill="#222"><tspan fill="#c00" font-weight="bold">4</tspan>  Gear pair module 0.3 (z16 : z20, centre 5.51)</text>
+<circle cx="237.6" cy="212.0" r="8" fill="#c00" fill-opacity="0.85"/>
+<text x="237.6" y="216.0" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">5</text>
 <text x="60.0" y="698" font-size="13" fill="#222"><tspan fill="#c00" font-weight="bold">5</tspan>  M1.6 leadscrew (thread side)</text>
-<circle cx="181.6" cy="175.2" r="8" fill="#c00" fill-opacity="0.85"/>
-<text x="181.6" y="179.2" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">6</text>
-<text x="536.8" y="698" font-size="13" fill="#222"><tspan fill="#c00" font-weight="bold">6</tspan>  Carriage + fixed nut (full position)</text>
-<circle cx="414.4" cy="388.0" r="8" fill="#c00" fill-opacity="0.85"/>
-<text x="414.4" y="392.0" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">7</text>
+<circle cx="173.6" cy="176.8" r="8" fill="#c00" fill-opacity="0.85"/>
+<text x="173.6" y="180.8" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">6</text>
+<text x="543.2" y="698" font-size="13" fill="#222"><tspan fill="#c00" font-weight="bold">6</tspan>  Carriage + fixed nut (full position)</text>
+<circle cx="406.4" cy="392.8" r="8" fill="#c00" fill-opacity="0.85"/>
+<text x="406.4" y="396.8" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">7</text>
 <text x="60.0" y="718" font-size="13" fill="#222"><tspan fill="#c00" font-weight="bold">7</tspan>  Reservoir (stadium 16 x 5 inside)</text>
-<circle cx="732.0" cy="364.0" r="8" fill="#c00" fill-opacity="0.85"/>
-<text x="732.0" y="368.0" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">8</text>
-<text x="536.8" y="718" font-size="13" fill="#222"><tspan fill="#c00" font-weight="bold">8</tspan>  Duckbill check valve (in the end cap)</text>
-<circle cx="730.4" cy="540.0" r="8" fill="#c00" fill-opacity="0.85"/>
-<text x="730.4" y="544.0" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">9</text>
+<circle cx="724.0" cy="368.8" r="8" fill="#c00" fill-opacity="0.85"/>
+<text x="724.0" y="372.8" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">8</text>
+<text x="543.2" y="718" font-size="13" fill="#222"><tspan fill="#c00" font-weight="bold">8</tspan>  Duckbill check valve (in the end cap)</text>
+<circle cx="722.4" cy="540.0" r="8" fill="#c00" fill-opacity="0.85"/>
+<text x="722.4" y="544.0" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">9</text>
 <text x="60.0" y="738" font-size="13" fill="#222"><tspan fill="#c00" font-weight="bold">9</tspan>  Fill septum (end cap, needle through the -Y wall hole)</text>
-<circle cx="872.8" cy="388.0" r="8" fill="#c00" fill-opacity="0.85"/>
-<text x="872.8" y="392.0" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">10</text>
-<text x="536.8" y="738" font-size="13" fill="#222"><tspan fill="#c00" font-weight="bold">10</tspan>  Cannula dome (latched) + snap arms</text>
-<circle cx="754.4" cy="210.4" r="8" fill="#c00" fill-opacity="0.85"/>
-<text x="754.4" y="214.4" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">11</text>
+<circle cx="885.6" cy="392.8" r="8" fill="#c00" fill-opacity="0.85"/>
+<text x="885.6" y="396.8" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">10</text>
+<text x="543.2" y="738" font-size="13" fill="#222"><tspan fill="#c00" font-weight="bold">10</tspan>  Cannula dome (latched) + snap arms</text>
+<circle cx="746.4" cy="212.0" r="8" fill="#c00" fill-opacity="0.85"/>
+<text x="746.4" y="216.0" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">11</text>
 <text x="60.0" y="758" font-size="13" fill="#222"><tspan fill="#c00" font-weight="bold">11</tspan>  TMAG5273 (under board)</text>
-<circle cx="962.4" cy="388.0" r="8" fill="#c00" fill-opacity="0.85"/>
-<text x="962.4" y="392.0" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">12</text>
-<text x="536.8" y="758" font-size="13" fill="#222"><tspan fill="#c00" font-weight="bold">12</tspan>  Dock hall (above adapter magnet)</text>
-<circle cx="996.0" cy="276.0" r="8" fill="#c00" fill-opacity="0.85"/>
-<text x="996.0" y="280.0" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">13</text>
+<circle cx="975.2" cy="392.8" r="8" fill="#c00" fill-opacity="0.85"/>
+<text x="975.2" y="396.8" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">12</text>
+<text x="543.2" y="758" font-size="13" fill="#222"><tspan fill="#c00" font-weight="bold">12</tspan>  Dock hall (above adapter magnet)</text>
+<circle cx="988.0" cy="276.0" r="8" fill="#c00" fill-opacity="0.85"/>
+<text x="988.0" y="280.0" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">13</text>
 <text x="60.0" y="778" font-size="13" fill="#222"><tspan fill="#c00" font-weight="bold">13</tspan>  FFC connector + cable exit (+X)</text>
-<circle cx="705.6" cy="226.4" r="8" fill="#c00" fill-opacity="0.85"/>
-<text x="705.6" y="230.4" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">14</text>
-<text x="536.8" y="778" font-size="13" fill="#222"><tspan fill="#c00" font-weight="bold">14</tspan>  Spindle magnet</text>
-<circle cx="364.0" cy="226.4" r="8" fill="#c00" fill-opacity="0.85"/>
-<text x="364.0" y="230.4" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">15</text>
+<circle cx="697.6" cy="228.0" r="8" fill="#c00" fill-opacity="0.85"/>
+<text x="697.6" y="232.0" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">14</text>
+<text x="543.2" y="778" font-size="13" fill="#222"><tspan fill="#c00" font-weight="bold">14</tspan>  Spindle magnet</text>
+<circle cx="356.0" cy="228.0" r="8" fill="#c00" fill-opacity="0.85"/>
+<text x="356.0" y="232.0" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">15</text>
 <text x="60.0" y="798" font-size="13" fill="#222"><tspan fill="#c00" font-weight="bold">15</tspan>  Fill window (scale in U) in the lid</text>
 </svg>

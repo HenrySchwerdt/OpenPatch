@@ -208,6 +208,13 @@ def generate_coupon(p: dict) -> None:
     run_cli("run", str(sj), "--save", str(d / "dock_inserts.sc"), "--quiet")
     sj.unlink()
     (d / "dock_inserts.sc").unlink()
+    (d / "LICENSE.md").write_text(
+        "# Licence of this folder\n\n"
+        "SPDX-License-Identifier: CERN-OHL-P-2.0\n\n"
+        "The dock inserts, the dock fixture, the variants table and their generators (`mechanical/op_dock.py`, `mechanical/op_coupon.py`,\n"
+        "`mechanical/cannula-measurement.md`) are released under the permissive CERN Open Hardware Licence Version 2 - Permissive\n"
+        "(CERN-OHL-P-2.0). The rest of the repository is under the project's non-commercial dual licence. Test project, not a medical\n"
+        "device; never for use on a person.\n", encoding="utf-8")
     with open(d / "variants.csv", "w", encoding="utf-8") as fh:
         fh.write("id,file,cannula.A_dome_d,cannula.N_hook_h,hook_gap_mm,arm_strain_pct,arm_tip_travel_mm,arm_force_N\n")
         for v in vs:

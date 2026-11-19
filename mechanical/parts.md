@@ -13,18 +13,19 @@ All dimensions below are the ones used in `params.json` (single source of truth)
 
 ## 1. Drive: NFP-608-26.45-SGM geared stepper BESIDE the leadscrew + purchased gear pair (default, `bench.drive_layout = side_gears`; coaxial sleeve-coupler layout kept as option `coaxial`)
 
-**Gear pair (purchased brass, GHW-Modellbau module 0.3, source `gear-selection.md`, page <https://ghw-modellbau.de/Spur-gear-Brass-Module-03-10-120-T>, all VERIFY, check delivery country at checkout):**
+**Gear pair (FINAL 2026-11-19, step-down 16 : 20, purchased brass, GHW-Modellbau module 0.3, page <https://ghw-modellbau.de/Spur-gear-Brass-Module-03-10-120-T>; article numbers and prices read from the page on 2026-11-19, check delivery country at checkout):**
 
-| use | GHW order no | z | bore | OD | face | price (as listed, incl. VAT) | remark |
+| use | GHW order no | z | bore | OD (tip) | face | price (incl. VAT) | remark |
 |---|---|---|---|---|---|---|---|
-| motor gear (NFP D-shaft d2.0 / flat 1.5) | 390755 (18 Z) | 18 | 2.0 | 6.0 | 5 mm (skim/part to about 1.4-2 mm on a lathe, or order the thin 753xxx type if offered at z18) | 16.15 EUR | Loctite 638 on the round bore + flat gap |
-| screw gear (M1.6 rod) | 390755 (18 Z) | 18 | 2.0 -> needs a **sleeve** d2.0 OD x d1.6 ID, 2 mm long (brass tube / SLA) pressed on the rod | 6.0 | same | 16.15 EUR | bore 1.5 gears exist only for z10/z12 |
+| motor gear (NFP D-shaft d2.0 / flat 1.5) | **390754** (16 Z, only variant) | 16 | 2.0 | 5.4 | 5 mm -> skim to 1.4 mm on a lathe | 16.15 EUR | Loctite 638 on the round bore; the flat leaves a 0.5 mm gap the adhesive fills |
+| screw gear (M1.6 rod) | **753020** (20 Z B) | 20 | 2.0 -> **sleeve** d2.0 OD x d1.6 ID, 1.4 mm long (brass tube / SLA) on the rod | 6.6 | 1.4 mm + hub d4 x 2.5 | 3.10 EUR | **turn the hub off** (it does not fit between the dry bush and the reservoir); alternative 390756 (20 Z A, 5 wide, 16.15 EUR) |
 
-Ratio z_screw/z_motor = **18/18 = 1.000** -> **U/step = 0.35 / (20 x 26.45 x 1.000) x 74.63 / 10 = 0.004938 U** (0.05 U = about 10 steps). Centre distance 0.3 x (18+18)/2 = **5.40 mm** (CAD value; add 0.05 backlash).
-**The lead pair 15:12 (centre 4.05, 0.00617 U/step) and 15:15 (centre 4.50) do NOT fit in this pod:** the NFP motor body (d6) beside the leadscrew lane needs a centre distance >= 5.3 mm to clear the carriage (lane edge y_s + 2.2); the CAD check
-`gear centre distance < 5.3` fails (tested: 15:12 gives carriage x gearhead interference 13.6 mm3). They work only with the coaxial layout (no gear pair) or with a carriage narrower than 4.4 mm. Other exact values if you change the pair later:
-U/step = 0.004938 / (z_screw / z_motor): 15:12 -> 0.00617, 15:15 -> 0.00494, 16:16 -> 0.00494 (centre 4.8, also too small).
-Gear search terms for a cheaper source: "0.3 modulus 18 teeth brass spur gear 2 mm bore" (VERIFY the listing, buy an assortment first).
+Total about **19.25 EUR**. Ratio: the screw turns z_motor/z_screw = **16/20 = 0.8** per motor turn -> **U/step = 0.35 x 0.8 / (20 x 26.45) x 74.63 / 10 = 0.003951 U** (0.05 U = 12.7 steps; firmware preset needs screw advance per step 0.35 x 0.8 / (20 x 26.45) mm, i.e. ratio 26.45 / 0.8 = 33.06). Centre distance: theoretical 0.3 x (16+20) / 2 = 5.40 mm, **built 5.51 mm (+0.11 backlash window, params `bench.gears.centre_add`)**; trough in the floor (motor_d + 0.05) is the motor datum, two zero-preload lid pads hold it down.
+
+**Why not 15:12 (the catalogue cheap pair, 753015 + 753012, 5.95 EUR)?** Centre 4.05 mm: the NFP motor body (d6) beside the leadscrew lane needs centre >= carriage half width (2.4 with the 0.3 mm nut float) + 3.0 + 0.1 = 5.5 mm, otherwise the motor collides with the carriage (checked: carriage x gearhead interference). It also has the lowest thrust of all pairs (sim 1.1: 2.6 N). 15:15 (4.50) fails the same way. The ratio-equivalent 20:16 (centre 5.4) needs a z20 gear on the MOTOR: tip OD 6.6 vs cavity height 6.7 and the +Y wall (y_m + 3.3 > inner wall) - impossible. 18:18 (centre 5.4, tips 6.0) fits but costs 32.30 EUR and gives less thrust (sim 1.1). The chosen 16:20 has the same centre as 18:18, +25 % screw torque, and the z20 tip (6.6) fits only with a 0.25 mm floor relief and a 0.25 mm lid recess over the screw gear (both in the CAD).
+The modelled gears are TIP circles (earlier root-circle models hid a collision of the 18:18 gear with the R4 rear corner); `check.py` flags any overlap. Other exact values: U/step = 0.004938 x z_motor / z_screw.
+
+**Leadscrew length (M1.6 rod, DIN 976, cut to length incl. 1.0 dry-bush journal):** OP-70 **21.0 mm**, OP-100 **25.0 mm**, OP-200 **38.5 mm** (from `mech.json`: dry bush start x 1.0 .. end face x_r1 + 0.15). Magnet (diametric d3 x 1.5, glued to the rod end face) adds 1.5 mm. Carriage tongue shim: **stainless 0.5 x 1.4 x ~4 mm** (laser cut or from a feeler gauge), glued into the carriage pocket; plunger nose: printed 0.7 mm stadium disc (`plunger_nose`), glued to the plunger front.
 
 Superseded notes below: the coaxial layout (sleeve coupler d3.0 x 5.6, D-bore on the shaft, M1.6 on the screw) is still generated with `--set bench.drive_layout=\"coaxial\"`; it makes the pod 65/69/83 x 27 mm.
 
@@ -42,7 +43,7 @@ Source: nfpshop.com, datasheet `stepper-gear-motor-spec-NFP-608-26.45-SGM.pdf` (
 | terminals | 4 pins at **1.2 mm pitch (3 x 1.2)** on the motor section, pointing radially "down" in the end view, order B, A-, B+, A; pin length ~1.05 mm beyond the terminal block (block 3.4 x 4.6 x 0.65, 11.0 mm behind the front face) | VERIFIED-DATASHEET / pin and block size DERIVED, VERIFY |
 | lead | factory lead 4 x 30 AWG soldered to the pins + JST 1.25 mm plug | per coordinator |
 | steps / ratio | 20 steps/rev (18 deg), planetary ratio **26.45** | per datasheet |
-| resolution | with the 1:1 gear pair: 0.35 / (20 x 26.45) = 0.662 um/step -> **0.00494 U/step** (U100; 74.6 mm2 bore). Min pulse 0.05 U = 10 steps | computed (`op_layout.u_per_step`) |
+| resolution | with the 16:20 gear pair: 0.35 x 0.8 / (20 x 26.45) = 0.529 um/step -> **0.00395 U/step** (U100; 74.6 mm2 bore). Min pulse 0.05 U = 10 steps | computed (`op_layout.u_per_step`) |
 
 Bench pod: the **factory lead is kept** (soldered to the pins by the maker). Because the motor now lies coaxially on the lane the terminal pins point **+Y** (row along Z) and the lead leaves through a
 3 x 2.4 mm slot in the +Y wall (strain relief: two staggered posts, the wires weave between them); the JST 1.25 plug goes to the bench controller board. Rev B: bare-pin or FPC-tail motor, pin coordinates in
@@ -129,14 +130,14 @@ magnet turn per screw turn). 100 U needs 13.4 mm = 38 300 full steps at ratio 5.
 
 | part | Rev A route | material | use |
 |---|---|---|---|
-| reservoir (16.0 x 5.0 stadium bore, 0.8 mm wall, dry end open) | **SLA clear resin** from JLC3DP/PCBWay (single piece, `*_reservoir.stl`) | clear resin ("BioMed Clear"-class if offered) | **water test ONLY** - not insulin-contact, not sterile |
-| reservoir, insulin-contact candidate | **CNC PP halves** (`*_reservoir_cnc_lower/upper.step`, PCBWay CNC, ~25+ USD each), bond halves; later COC/COP injection-moulded | polypropylene (USP VI grade) | candidate only; leachables/extractables NOT evaluated |
+| reservoir (16.0 x 5.0 stadium bore, 0.8 mm wall, dry end open) | **SLA clear resin** from JLC3DP/PCBWay (single piece, `*_reservoir.stl`) | clear resin ("BioMed Clear"-class if offered) | **water ONLY** - never insulin, not sterile |
+| reservoir, optional material preparation (never filled with insulin) | **CNC PP halves** (`*_reservoir_cnc_lower/upper.step`, PCBWay CNC, ~25+ USD each), bond halves; later COC/COP injection-moulded | polypropylene (USP VI grade) | preparation for a future manufacturer only; never filled with insulin; leachables/extractables NOT evaluated |
 | plunger core | SLA tough resin (`*_plunger_core.stl`); later PP/PEEK CNC | resin | water test only |
-| plunger lip seals | **cast silicone** around the core: print `mould/mould_lower` + `mould_upper` (SLA), cast two rings per plunger in the core grooves | 2-part platinum-cure silicone **Shore A 40** (e.g. Smooth-On Smooth-Sil 940 class; later USP Class VI / ISO 10993 grade from NuSil/Elkem/Wacker) | water test now; insulin only with a qualified medical silicone |
+| plunger lip seals | **cast silicone** around the core: print `mould/mould_lower` + `mould_upper` (SLA), cast two rings per plunger in the core grooves | 2-part platinum-cure silicone **Shore A 40** (e.g. Smooth-On Smooth-Sil 940 class; later USP Class VI / ISO 10993 grade from NuSil/Elkem/Wacker) | water only; never insulin |
 | lubricant | silicone oil 350 cSt (Rev A: any; later "medical fluid" grade, e.g. DOW 360 Medical Fluid 350 cSt class) - thin film in bore and on the lips | | |
 | mould details | split plane through bore centre, 4 pins dia 2.0 / holes 2.2, sprue dia 0.7 (22G syringe) + vent dia 0.5 per ring; free ring size = bore + 0.3 (compressed to bore in the assembly = 0.15/side) | | |
 
-Rule: **nothing printed or cast in Rev A may touch insulin that goes into a person.** The documents and CAD are for
+Rule: **this pump is never filled with insulin or any other drug, and nothing printed or cast in Rev A is ever connected to a person: water only.** The documents and CAD are for
 mechanical development only.
 
 ## 4. Battery envelope (decision requested by electronics)
@@ -179,4 +180,4 @@ A standard **module 0.1 spur gear (about 56 teeth, pitch dia 5.6, OD 5.8, bore 1
 The reservoir is ONE CNC PP piece per size (`out/bench/fab/reservoir-cnc/`, README with the PCBWay order settings): blind stadium bore 16.00 x 5.00 (R2.5 = d5 end mill), wall 0.8, closed end wall 2.5 with a single
 d2.0 H7 port, arm slot in the +Y wall; nothing else. Frozen numbers: `params.json -> reservoir_frozen`. The **end cap** (`end_cap`, SLA for water; PP later) presses onto the port (d1.98 spigot) and carries the fill septum
 (through a d2.0 hole in the -Y wall), the duckbill valve pocket and the needle-hub guard tube; valve/septum/dock changes only touch the cap. Seal: platinum-cure medical silicone lip seals (mould as before) or a bromobutyl stopper
-cut to the stadium shape; see the CNC README. Tests with water OR insulin into containers only, never a person.
+cut to the stadium shape; see the CNC README. Tests with water only, never a person.
