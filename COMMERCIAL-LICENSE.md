@@ -6,6 +6,14 @@
 Licensor: the OpenPatch maintainer (owner of the GitHub repository `HenrySchwerdt/ai-insulin-pump`) ("Licensor").
 Licensee: the party signing a licence agreement based on this template.
 
+## 0. Why this structure (intent, non-binding)
+
+The terms are designed so that open development is the commercially rational choice for companies:
+- **Be first, lose nothing:** the first company that funds approval and clinical trials (the sponsor) gets its audited investment back from every later licensee that benefits (§3a). Being first is therefore not a subsidy for competitors but a recoverable investment, and the sponsor sets the reference product.
+- **Followers pay fairly, patients pay little:** followers repay out of their own capped margin (§2), never via a higher end-customer price.
+- **Shared evidence grows:** the 5 % levy (§3) funds studies and verification whose results are open to everyone, so every licensee benefits from a growing common body of evidence.
+- **Improvements flow back:** share-back (§7) and post-market fault reporting into the shared fault catalogue (§4) keep improving one common, safer design instead of fragmenting it into closed forks.
+
 ## 1. Scope
 
 The community licences ([`LICENSE.md`](LICENSE.md)) cover non-commercial use only. This licence is **required for any commercial manufacture, sale, rental, lease, or paid or advertising-funded service** based on OpenPatch hardware, firmware, specifications or documentation ("Licensed Material"), except `ios/` (GPL-3.0-or-later, free for all users under its own terms).
