@@ -40,6 +40,22 @@ import numpy as np
 HERE = Path(__file__).resolve().parent
 RULES_FILE = HERE / "dfm_rules.json"
 SEQ_FILE = HERE / "assembly_sequence.json"
+SEQ_FILE_V010 = HERE / "assembly_sequence_v010.json"
+
+
+def seq_path(outdir: Path) -> Path:
+    """The v0.1.0 integrated pod (out/v010, params.used.json carries `v010_pod`) has its own build order; the bench pod keeps assembly_sequence.json."""
+    pu = Path(outdir) / "params.used.json"
+    try:
+        if pu.exists() and json.loads(pu.read_text()).get("v010_pod"):
+            return SEQ_FILE_V010
+    except Exception:       # noqa: BLE001
+        pass
+    return SEQ_FILE
+
+
+def is_v010(outdir: Path) -> bool:
+    return seq_path(outdir) == SEQ_FILE_V010
 EPS_VOL = 1e-4            # mm3, same as check.py MIN_OVERLAP_MM3
 
 
@@ -243,7 +259,7 @@ class Sequencer:
                 break
         return off
 
-    def sweep(self, mover: list[str], fixed: list[str], segs, tol_pairs: dict, step: float | None = None, want_depth: dict | None = None) -> dict:
+    def sweep(self, mover: list[str], fixed: list[str], segs, tol_pairs: dict, step: float | None = None, want_depth: dict | None = None, shifts: dict | None = None) -> dict:
         """Sweep `mover` along `segs`; return per fixed body {max_vol, s_of_max, first_s, hits:[(s,vol)], depth} (volumes in mm3)."""
         M, step = self.M, step or self.step
         mov = M.union(mover)
@@ -253,10 +269,11 @@ class Sequencer:
         lo, hi = mb[0] + offs.min(0) - 0.3, mb[1] + offs.max(0) + 0.3
         res: dict[str, dict] = {}
         for f in fixed:
-            fb = M.mesh[f].bounds
+            sv = np.asarray((shifts or {}).get(f, (0.0, 0.0, 0.0)), float)       # a part that is in a PARKED pose while this step runs (e.g. the screw retracted)
+            fb = M.mesh[f].bounds + sv
             if np.any(fb[1] < lo) or np.any(fb[0] > hi):
                 continue
-            fc = M.man(f) ^ box_man(lo, hi)
+            fc = (tr(M.man(f), sv) if np.any(sv) else M.man(f)) ^ box_man(lo, hi)
             if fc.is_empty():
                 continue
             rec = {"max_vol": 0.0, "s_max": None, "hits": [], "depth": {}}
@@ -315,7 +332,8 @@ class Sequencer:
         for e in st.get("engages", []):
             if e["kind"] == "snap":
                 flex_spec[e["pair"][1]] = e["flex"]
-        res = self.sweep(mover, present, segs, tol, want_depth=flex_spec)
+        shifts = {k: self.env.vec(v) for k, v in st.get("present_offsets", {}).items()}
+        res = self.sweep(mover, present, segs, tol, want_depth=flex_spec, shifts=shifts)
         blocked, engaged = [], []
         for f, r in res.items():
             e = tol.get(f)
@@ -513,6 +531,8 @@ class Access:
             if sc["source"] == "mech":
                 s = self.M.mech["screws"][sc["index"]]
                 xy = (s["x"], s["y"])
+            elif sc["source"] == "xy":
+                xy = tuple(self.S.env.val(c) for c in sc["xy"])
             else:
                 xy = tuple(self.M.layout["mounting"]["screw"]["center_pod_mm"])
             out.append({**sc, "xy": xy})
@@ -1627,10 +1647,12 @@ def sha_of(p: Path) -> str:
 
 def check_size(outdir: Path, size: str, args, primary: bool) -> dict:
     root = HERE.parent
-    rules, seq = jload(RULES_FILE), jload(SEQ_FILE)
+    rules, seq = jload(RULES_FILE), jload(seq_path(outdir))
     M = Model(outdir, size, quality=args.quality, refresh=args.refresh)
     only = args.only
     guide = "\n".join(p.read_text() for p in sorted((root / "docs" / "build-guide").glob("*.md"))) if (root / "docs" / "build-guide").exists() else ""
+    if is_v010(outdir):      # v0.1.0: post-processing must be documented in mechanical/ASSEMBLY.md (v010 build order)
+        guide = (HERE / "ASSEMBLY.md").read_text()
     img = outdir / "assembly-check" / "img"
     img.mkdir(parents=True, exist_ok=True)
     ctx = {"size": size, "M": M, "seq": seq, "rules": rules, "sha": sha_of(M.sc), "step": args.step, "date": time.strftime("%Y-%m-%d"),
@@ -1692,7 +1714,7 @@ def check_size(outdir: Path, size: str, args, primary: bool) -> dict:
 
 
 def ctx_from_results(outdir: Path, size: str, args) -> dict:
-    rules, seq = jload(RULES_FILE), jload(SEQ_FILE)
+    rules, seq = jload(RULES_FILE), jload(seq_path(outdir))
     M = Model(outdir, size, quality=args.quality)
     r = jload(outdir / "assembly-check" / f"results-{size}.json")
     used = {p for s_ in r["steps"] for p in s_["parts"]} | {b for c in seq["contexts"].values() for b in c["base"]}
@@ -1761,7 +1783,9 @@ def main() -> None:
         bad = [f"step {s['id']} blocked" for s in ctx["steps"] if s["status"] in ("BLOCKED", "FINAL-INTERFERENCE")]
         bad += [f"access {a['id']} blocked" for a in ctx["access"] if a["status"] == "BLOCKED"]
         bad += [f"DFM {x['name']}: part cannot be made as drawn" for x in ctx["dfm"] if x.get("verdict") == "FAIL"]
-        bad += [f"fit {f['id']} fails and the build guide does not cover the post-processing" for f in ctx["fits"] if f["status"] == "FAIL" and f.get("in_build_guide") is not True]
+        v10 = is_v010(outdir)
+        bad += [f"fit {f['id']} fails and the build guide does not cover the post-processing" for f in ctx["fits"]
+                if (f["status"] == "FAIL" or (v10 and f.get("status_vendor") == "FAIL")) and f.get("in_build_guide") is not True]
         print(f"\n[{size}] {len(bad)} blocking finding(s)")
         for b in bad:
             print("   FAIL:", b)

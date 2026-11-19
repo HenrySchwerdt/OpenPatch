@@ -37,7 +37,7 @@ def variant_params(p: dict, v: dict) -> dict:
 def pod_frame(p: dict, x_r1: float = 0.0, length: float | None = None) -> dict:
     """Minimal layout dict for build_insert / build_pod_dock_interface in the pod frame."""
     F = p["dock_interface_frozen"]
-    return {"x_r1": x_r1, "wall": p["shell"]["wall"], "length": x_r1 + F["tail_u"] if length is None else length, "mode": "bench"}
+    return {"x_r1": x_r1, "wall": p["shell"]["wall"] + (p["pod"]["dock"]["floor_pad"] if p.get("v010_pod") else 0.0), "length": x_r1 + F["tail_u"] if length is None else length, "mode": "bench"}
 
 
 def add_variant_inserts(s: Script, p: dict, vs: list[dict], x_r1: float = 0.0, length: float | None = None,
