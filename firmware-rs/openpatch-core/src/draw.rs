@@ -7,7 +7,7 @@
 //! commanded and measured), mandatory priming follows.
 
 use crate::faults::Faults;
-use crate::hal::{Buzzer, Hal};
+use crate::hal::{Buzzer, Hal, MotorDir};
 use crate::limits::*;
 use crate::log::EventType;
 use crate::pump::{draw_state, Notification, Pump};
@@ -81,10 +81,18 @@ impl<H: Hal> Pump<H> {
             return;
         };
         let steps = Pulses(self.draw.remaining_steps.min(DRAW_CHUNK_STEPS));
-        self.hal.motor_enable(true);
+        // DIR = reverse is set before the supply is requested (the bench gate needs it).
+        self.hal.motor_enable_dir(MotorDir::Reverse);
         let n = self.hal.motor_step_reverse(steps);
         self.hal.motor_enable(false);
         let executed = Pulses(n.0.min(steps.0));
+        if let Some(f) = self.hal.motor_fault() {
+            self.last_motor_fault = Some(f);
+            self.sv.latch(Faults::INTERNAL);
+            self.draw.executed_steps += executed.0;
+            self.draw_finish(draw_state::ABORTED);
+            return;
+        }
         let peak = self.hal.motor_current_peak_ma();
         let Some(a1) = self.hal.angle_read() else {
             self.sv.latch(Faults::INTERNAL);
@@ -103,7 +111,7 @@ impl<H: Hal> Pump<H> {
 
         let slipped = steps.0 > 0 && (confirmed.0 as i64) * 100 < (steps.0 as i64) * DRAW_STALL_PCT;
         match peak {
-            Some(ma) if ma > OCCLUSION_CURRENT_MA => self.draw.high_current += 1,
+            Some(ma) if ma > self.sv.occlusion_current_ma() => self.draw.high_current += 1,
             Some(_) => self.draw.high_current = 0,
             None => {}
         }

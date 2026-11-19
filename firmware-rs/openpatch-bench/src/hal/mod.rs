@@ -6,6 +6,8 @@ use core::sync::atomic::Ordering;
 use embassy_nrf::gpio::{Input, Level, Output, OutputDrive, Pull};
 use embassy_time::Instant;
 use openpatch_core::units::{AngleCounts, Millis, Pulses};
+use openpatch_core::hal::{MotorDir, MotorFault};
+use openpatch_core::interlock;
 use openpatch_core::{Buzzer, Hal};
 
 use crate::board;
@@ -95,16 +97,33 @@ impl BenchHal {
     /// Common burst: checks, power state, sampling of current and angle, honest executed count.
     fn burst(&mut self, steps: Pulses, forward: bool) -> Pulses {
         let max = if forward { MAX_BURST_STEPS } else { MAX_REVERSE_BURST_STEPS };
+        let dir = if forward { MotorDir::Forward } else { MotorDir::Reverse };
         if !self.drv.powered {
-            defmt::warn!("motor step without motor_enable(true): refused");
+            defmt::warn!("motor step without motor_enable: refused");
+            self.drv.fault.get_or_insert(MotorFault::SupplyMissing);
             return Pulses(0);
         }
-        if forward && !self.read_docked() {
-            defmt::warn!("forward step while not docked: refused");
+        // Forward while undocked is a FAULT (the gate is open in hardware, nothing may be retried),
+        // reverse while docked is refused too. Both cut the supply.
+        let docked = self.read_docked();
+        if let Err(r) = interlock::check_request(dir, docked) {
+            defmt::error!("motor step refused: {}", r);
+            self.drv.fault = Some(r.into());
+            self.drv.power_off(&mut self.adc);
+            INTERLOCK_FAILED.store(self.drv.failed, Ordering::Relaxed);
+            return Pulses(0);
+        }
+        // DIR changes while powered (not the normal path: `motor_enable_dir` sets it first) are
+        // checked against the gate model.
+        if let Err(e) = self.drv.change_direction(&mut self.adc, docked, dir) {
+            defmt::error!("direction change while powered failed: {}", e);
+            self.drv.fault = Some(e.to_fault());
+            INTERLOCK_FAILED.store(self.drv.failed, Ordering::Relaxed);
             return Pulses(0);
         }
         if steps.0 == 0 || steps.0 > max {
             defmt::warn!("motor step({}) outside 1..={}: refused", steps.0, max);
+            self.drv.fault.get_or_insert(MotorFault::Timeout);
             return Pulses(0);
         }
         if !forward {
@@ -112,7 +131,6 @@ impl BenchHal {
             const _: () = assert!(REVERSE_PERIOD_TICKS as u32 >= STEP_PWM_CLK_HZ / REVERSE_RATE_MAX_HZ);
             self.service_watchdog(); // chunks take up to ~0.9 s, keep the TPL5010 happy between them
         }
-        self.drv.set_direction(forward);
         let period = if forward { STEP_PWM_PERIOD_TICKS } else { REVERSE_PERIOD_TICKS };
         let mut peak_raw: u16 = 0;
         let mut samples: u32 = 0;
@@ -132,7 +150,6 @@ impl BenchHal {
                 angle.poll();
             }
         });
-        self.drv.set_direction(true);
         self.bursts = self.bursts.wrapping_add(1);
         let executed = burst.counted.min(steps.0);
         self.last_peak_ma = sense.then(|| adc::isense_to_ma(peak_raw));
@@ -156,7 +173,19 @@ impl BenchHal {
             // The STSPIN220 pulled EN/FAULT low (over-current / thermal): the power stage was off
             // for some or all of the burst. Report 0 pulses: the core latches INTERNAL / stops.
             defmt::error!("STSPIN220 EN/FAULT asserted during the burst: reporting 0 pulses");
+            self.drv.fault = Some(MotorFault::Driver);
             return Pulses(0);
+        }
+        // The supply must still follow the gate (dock lost mid burst opens the gate in forward).
+        let docked_now = self.read_docked();
+        if let Err(e) = self.drv.verify_supply(&mut self.adc, docked_now) {
+            defmt::error!("supply check after the burst failed: {}: reporting 0 pulses", e);
+            self.drv.fault = Some(e.to_fault());
+            INTERLOCK_FAILED.store(self.drv.failed, Ordering::Relaxed);
+            return Pulses(0);
+        }
+        if burst.timed_out {
+            self.drv.fault.get_or_insert(MotorFault::Timeout);
         }
         Pulses(executed)
     }
@@ -189,16 +218,27 @@ impl Hal for BenchHal {
 
     fn motor_enable(&mut self, enable: bool) {
         if enable {
-            let docked = self.read_docked();
-            // Draw runs undocked, so DOCKED is not required here; forward bursts re-check it.
-            match self.drv.power_up(&mut self.adc, docked, false) {
-                Ok(()) => {}
-                Err(e) => defmt::error!("motor power-up refused: {}", e),
-            }
+            self.motor_enable_dir(MotorDir::Forward);
         } else {
             self.drv.power_off(&mut self.adc);
+            INTERLOCK_FAILED.store(self.drv.failed, Ordering::Relaxed);
+        }
+    }
+
+    /// DIR is set BEFORE the supply is requested (`VMOT = MCU_EN AND latch AND (DOCKED OR DIR_REVERSE)`):
+    /// a draw (undocked, reverse) only comes up this way; forward needs DOCKED.
+    fn motor_enable_dir(&mut self, dir: MotorDir) {
+        let docked = self.read_docked();
+        self.drv.fault = None;
+        if let Err(e) = self.drv.power_up(&mut self.adc, docked, dir) {
+            defmt::error!("motor power-up refused: {}", e);
+            self.drv.fault = Some(e.to_fault());
         }
         INTERLOCK_FAILED.store(self.drv.failed, Ordering::Relaxed);
+    }
+
+    fn motor_fault(&mut self) -> Option<MotorFault> {
+        self.drv.fault.take()
     }
 
     /// Cumulative unwrapped leadscrew angle; `None` = sensor missing (the core refuses to deliver).

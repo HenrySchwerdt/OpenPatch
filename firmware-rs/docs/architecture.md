@@ -87,13 +87,16 @@ from the executed pulses.
 **Draw mode** (core `draw.rs`, protocol command 0x0F): runs from `Pump::tick()` in chunks of 500 reverse steps. The safety task is blocked for one chunk
 (<= 0.85 s at 600 Hz); the HAL services the TPL5010 DONE before every reverse chunk, and ticks keep their 1 s cadence. Progress / done / stalled / fault
 frames (type 0x90) are drained from `Pump::take_notification` after every tick and frame and notified on the Alert characteristic (docs/protocol-extensions.md).
-On the bench board the DOCKED interlock prevents VMOT during a draw (docs/stubs.md).
+On the bench board the supply gate lets a draw through only with DIR = reverse (`Hal::motor_enable_dir(Reverse)` sets it first, see the interlock section and docs/stubs.md).
 
 ## Hardware interlock sequence (`hal/driver.rs`, bench board)
 
-`VMOT on = latch AND MCU_EN AND DOCKED`. Each burst: `motor_enable(true)` = release KILL_N, MCU_EN high, **one ARM_CLK rising edge
+`VMOT = MCU_EN AND TPL5010_LATCH AND (DOCKED OR DIR_REVERSE)` (model + plan: `openpatch_core::interlock`, host tested). Each burst:
+`motor_enable_dir(dir)` = **DIR to the burst direction first** (it is an input of the gate), release KILL_N, MCU_EN high, **one ARM_CLK rising edge
 immediately before delivering**, LATCH_Q_MON must read high, VMOT_SENSE must show the supply, STBY high (MODE pins latched, full
-step), EN/FAULT must release; `motor_step`; `motor_enable(false)` = STBY low, EN/FAULT driven low, MCU_EN low, KILL_N low, then
+step), EN/FAULT must release. Forward needs DOCKED, reverse (draw) needs UNDOCKED: a forward step while undocked is refused, cuts the supply and is a
+fault (`MotorFault::ForwardWhileUndocked`); after a DIR change while powered and after each burst VMOT is compared with the gate model (missing = fault,
+present where the gate must be open = interlock failure); `motor_step`; `motor_enable(false)` = STBY low, EN/FAULT driven low, MCU_EN low, KILL_N low, then
 LATCH_Q_MON must read low and VMOT must collapse. If the supply is **not verified cut** (or the latch / VMOT is active while the
 driver is off at the idle check of every tick) the HAL latches `failed`: DONE is withheld, the alarm LED blinks, and the TPL5010
 resets the MCU within about 2 s (RSTn clears the latch independently of firmware). Faults in the core (`Pump::sync_faults`,
@@ -135,10 +138,10 @@ and the data set is a few small keyed records; `ekv` (LSM tree) pays off for man
    AUTH), feature `dev-plaintext` = fixed public development key + plaintext accepted. See docs/stubs.md.
 3. Replay protection with persisted seq ceiling (above).
 
-## Core API wishes (not implemented, worked around in the app)
+## Core API additions (formerly wishes)
 
-* `limits::OCCLUSION_CURRENT_MA` is a const: calibrating it on the bench needs a core rebuild. A setter on `SafetySupervisor`
-  (with the same hard upper bound) would allow tuning without touching the core.
-* `Hal::motor_step` can only report a step count: a STSPIN220 fault during a burst is reported as 0 steps (the core then latches
-  INTERNAL). A dedicated fault return would make the log and the alarm precise.
-* `bench::CsvRow` has no peak-current column; the peak is only in the defmt `debug` line of the HAL (docs/bench-testing.md).
+* `SafetySupervisor::set_occlusion_current_ma` / `Pump::set_occlusion_current_ma`: runtime occlusion current threshold, starts at `limits::OCCLUSION_CURRENT_MA`
+  (the hard limit) and can only be LOWERED (`Err(Limit)` above it or 0). Draw mode uses the same value.
+* `Hal::motor_fault() -> Option<MotorFault>` (take-and-clear, default `None`) and `Hal::motor_enable_dir(MotorDir)` (default `motor_enable(true)`). The core
+  queries the fault after every forward and reverse burst, latches INTERNAL and keeps the cause in `Pump::last_motor_fault()`; a draw is aborted.
+* `bench::CsvRow::peak_ma` (`Option<u16>`, empty field without a current sensor), column `peak_ma` appended to `CSV_HEADER`; fed from `Pump::take_peak_ma()`.

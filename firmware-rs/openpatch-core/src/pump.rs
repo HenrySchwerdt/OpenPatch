@@ -79,6 +79,8 @@ pub struct Pump<H: Hal> {
     pub(crate) draw: DrawJob,
     pub(crate) notes: heapless::Deque<Notification, 8>,
     pub(crate) notify_seq: u16,
+    pub(crate) last_motor_fault: Option<crate::hal::MotorFault>,
+    pub(crate) peak_ma: Option<u16>,
 }
 
 impl<H: Hal> Pump<H> {
@@ -112,6 +114,8 @@ impl<H: Hal> Pump<H> {
             draw: DrawJob::default(),
             notes: heapless::Deque::new(),
             notify_seq: 0,
+            last_motor_fault: None,
+            peak_ma: None,
             hal,
         };
         p.pod.docked = p.hal_docked(); // no event for the boot state
@@ -284,12 +288,20 @@ impl<H: Hal> Pump<H> {
     }
 
     fn run_motor(&mut self, steps: Pulses) -> Pulses {
-        self.hal.motor_enable(true);
+        self.hal.motor_enable_dir(crate::hal::MotorDir::Forward);
         let n = self.hal.motor_step(steps);
         self.hal.motor_enable(false);
         let done = Pulses(n.0.min(steps.0));
         self.res.consume(done);
+        if let Some(f) = self.hal.motor_fault() {
+            // The HAL knows why the burst failed: remember it (precise cause for logs / alarm).
+            self.last_motor_fault = Some(f);
+            self.sv.latch(Faults::INTERNAL);
+        }
         let peak = self.hal.motor_current_peak_ma();
+        if let Some(p) = peak {
+            self.peak_ma = Some(self.peak_ma.map_or(p, |q| q.max(p)));
+        }
         self.sv.observe_motor_burst(done, peak);
         done
     }
@@ -884,6 +896,23 @@ impl<H: Hal> Pump<H> {
 }
 
 impl<H: Hal> Pump<H> {
+    /// Cause reported by the HAL for the most recent failed burst / refused power-up, if any.
+    pub fn last_motor_fault(&self) -> Option<crate::hal::MotorFault> {
+        self.last_motor_fault
+    }
+
+    /// Largest motor-current peak (mA) of the forward bursts since the last call (take-and-clear);
+    /// `None` if the board has no current sensor or nothing ran. Used for the bench CSV.
+    pub fn take_peak_ma(&mut self) -> Option<u16> {
+        self.peak_ma.take()
+    }
+
+    /// Lower the occlusion motor-current threshold (mA) at runtime for bench tuning. Never above
+    /// the hard limit `limits::OCCLUSION_CURRENT_MA`, never 0 (`Err(Limit)`).
+    pub fn set_occlusion_current_ma(&mut self, ma: u16) -> Result<(), Error> {
+        self.sv.set_occlusion_current_ma(ma)
+    }
+
     /// `true` while no fault is latched.
     pub fn sv_ok(&self) -> bool {
         self.sv.motor_allowed()

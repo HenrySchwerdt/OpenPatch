@@ -22,7 +22,7 @@ Exactly one drive feature (NO default): `drive-nfp-608-26-45-g15-12` (primary, g
 | 17 | P1.09 | MOT_EN_FAULT | in (fault, low) / driven low to disable the stage |
 | 18 | P0.04 / AIN2 | VMOT_SENSE | SAADC ch1 (x2 divider, 40 us) |
 | 20 | P0.12 | MOT_STCK | PWM1 ch0 |
-| 22 | P0.07 | MOT_DIR | GPIO out |
+| 22 | P0.07 | MOT_DIR | GPIO out; also an input of the supply gate (reverse level = draw allowed while undocked), set first in every power-up |
 | 26 | P0.18 | NRST | reset pin: UICR PSELRESET[0,1] written at first boot |
 | 28 | P0.15 | BTN_N | GPIO in, active low |
 | 30 | P0.17 | WDT_WAKE | GPIO in, rising edge (flag only) |
@@ -53,7 +53,9 @@ LOW_BATTERY / BATTERY_CRITICAL on purpose.
 Angle: primary = TMAG5273 over TWIM0 (0x35, P0.26 / P0.06, `hal/tmag.rs`), `Hal::angle_read` returns the cumulative unwrapped 12 bit angle (4096 counts per leadscrew turn),
 `None` when it does not answer. The DRV5032FA quadrature on P1.02 / P1.04 is only used by `angle-qdec-fallback` (1024 counts per edge, 1 pole pair placeholder, NOT
 sufficient for the 3 %/turn check) and by `coarse-qdec` (log only). The DRV5032 output is sampled at 20 Hz: valid for <= about 5 edges/s only.
-Draw mode needs the pump undocked, which the DOCKED interlock gate prevents on this board (docs/stubs.md).
+Draw mode needs the pump undocked: with the new gate `VMOT = MCU_EN AND latch AND (DOCKED OR DIR_REVERSE)` the firmware sets MOT_DIR (P0.07) to the reverse level BEFORE
+MCU_EN / ARM (docs/stubs.md item 2). MOT_DIR is therefore an input of the hardware supply gate too; its pin is defined only in `board/e73.rs` (`mot_dir`) so the
+final pin map from `electronics/bench/pin-assignment.md` is a one-file sync.
 
 ## `board-nrf52840-dk`: Nordic nRF52840-DK (PCA10056)
 
@@ -85,6 +87,6 @@ Run on the DK: `cargo run --release --no-default-features --features board-nrf52
 ## Software DOCKED (`dock-simulated`) and the interlock board
 
 `dock-simulated` reports DOCKED from software (initial docked; on the DK BUTTON2 toggles it, which is also how a draw is made possible). It is always the case on the DK. On
-`board-bench-e73` it is `compile_error!` unless `unsafe-bench-override` is also given, because the hardware interlock gate (`VMOT on = latch AND MCU_EN AND DOCKED`) must
+`board-bench-e73` it is `compile_error!` unless `unsafe-bench-override` is also given, because the hardware interlock gate (`VMOT = latch AND MCU_EN AND (DOCKED OR DIR_REVERSE)`) must
 not be undermined by a firmware flag; even with the override the supply gate still needs the real DOCKED signal (only the firmware's own checks are fooled), and without a toggle
-button the pump can never be undocked for a draw. Draw on the bench controller board remains a documented limitation (docs/stubs.md).
+button the pump can never be undocked for a draw. Draw on the bench controller board goes through DIR_REVERSE (docs/stubs.md), not through a software DOCKED.

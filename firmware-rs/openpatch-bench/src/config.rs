@@ -18,6 +18,16 @@ const _: () = assert!(
     "select EXACTLY ONE drive feature (no default): drive-nfp-608-26-45-g15-12 | drive-nfp-608-26-45-g1-1 | drive-syringe-rig-1ml | drive-zwbpd006006-6-43 | drive-zwbpd006006-4-8 | drive-faulhaber-adm0620-16"
 );
 
+#[cfg(not(any(
+    feature = "drive-nfp-608-26-45-g15-12",
+    feature = "drive-nfp-608-26-45-g1-1",
+    feature = "drive-syringe-rig-1ml",
+    feature = "drive-zwbpd006006-6-43",
+    feature = "drive-zwbpd006006-4-8",
+    feature = "drive-faulhaber-adm0620-16"
+)))]
+compile_error!("select EXACTLY ONE drive feature (no default); the project default is drive-nfp-608-26-45-g15-12 (scripts/build.sh)");
+
 #[cfg(all(feature = "dock-simulated", feature = "board-bench-e73", not(feature = "unsafe-bench-override")))]
 compile_error!("dock-simulated is refused on board-bench-e73 (hardware interlock board): add `unsafe-bench-override` only if you know the interlock gate still needs the real DOCKED");
 
