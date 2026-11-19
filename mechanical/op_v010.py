@@ -83,7 +83,17 @@ def prepare(p: dict) -> dict:
     p["bench"]["board_t"] = v["board"]["t"]
     p["bench"]["mount"] = {**p["bench"]["mount"], **v["mount"]}
     p["v010_plan"] = {"lead_end_u": 0.0}
-    L0 = compute_layout(p, next(iter(p["variants"])))
+    if v.get("layout") == "stack":
+        import op_v010s
+        op_v010s.apply_overrides(p)
+        p["v010_plan"] = {"lead_end_u": 0.0}
+        L0 = compute_layout(p, v["sizes"][0])
+        plan = op_v010s.plan(p, L0)
+        p["bench"]["tail_len"] = plan["tail_len"]
+        p["v010_plan"] = plan
+        p["v010_electronics"] = read_electronics()
+        return p
+    L0 = compute_layout(p, v["sizes"][0])
     plan = strip_plan(p, L0)
     p["bench"]["tail_len"] = plan["tail_len"]
     p["v010_plan"] = plan
@@ -99,6 +109,9 @@ def _arc(cx: float, cy: float, r: float, a0: float, a1: float, n: int = 10) -> l
 
 
 def geometry(p: dict, L: dict) -> dict:
+    if p["v010"].get("layout") == "stack":
+        import op_v010s
+        return op_v010s.geometry(p, L)
     v, pl = p["v010"], p["v010_plan"]
     xr, B, D = L["x_r1"], L["bench"], L["dock"]
     bd, bt, e, c, pz, bn, ch, st = v["board"], v["battery"], v["e73"], v["connector"], v["piezo"], v["button"], v["charge"], v["strip"]
@@ -184,6 +197,9 @@ def _catalog_bodies(key: str) -> list[str]:
 
 
 def build(s: Script, p: dict, L: dict, G: dict) -> None:
+    if G.get("layout") == "stack":
+        import op_v010s
+        return op_v010s.build(s, p, L, G)
     from op_dock import build_insert
     from op_models import _box, _cut, _ins, _mat
     v = p["v010"]
@@ -268,7 +284,10 @@ def build(s: Script, p: dict, L: dict, G: dict) -> None:
     s.cut("top", lc)
 
 
-def part_lists(base_mfg: dict, base_names: list) -> tuple[dict, list]:
+def part_lists(base_mfg: dict, base_names: list, layout: str = "tail") -> tuple[dict, list]:
+    if layout == "stack":
+        import op_v010s
+        return {**base_mfg, **op_v010s.MFG_EXTRA}, [b for b in base_names if b not in REMOVED_BENCH] + op_v010s.NEW_BODIES
     mfg = dict(base_mfg)
     mfg["charge_gasket"] = ["charge_gasket"]
     names = [b for b in base_names if b not in REMOVED_BENCH] + NEW_BODIES
@@ -279,6 +298,9 @@ def part_lists(base_mfg: dict, base_names: list) -> tuple[dict, list]:
 # layout.json for the electronics
 # ----------------------------------------------------------------------------------------------------------------------
 def layout_json(p: dict, L: dict, G: dict) -> dict:
+    if G.get("layout") == "stack":
+        from op_v010s_layout import layout_json as lj
+        return lj(p, L, G)
     v = p["v010"]
     X0, V0 = G["X0"], G["V0"]
 
