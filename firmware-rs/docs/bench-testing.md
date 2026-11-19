@@ -7,7 +7,7 @@
 ## Building and flashing
 
 ```sh
-scripts/build.sh --dev                     # bootloader + both apps (drive nfp-608-26-45-g16-20, the GHW 16:20 pair of the current CAD, angle-tmag; dev = dev-plaintext)
+scripts/build.sh --dev                     # bootloader + both apps (drive nfp-608-26-45-cup-miter-1-1, the v0.1.0 cup pod, angle-tmag; dev = dev-plaintext)
 cd openpatch-bootloader && cargo run --release        # flash the bootloader first (probe-rs, SWD)
 cd ../openpatch-bench && cargo run --release --features drive-nfp-608-26-45-g16-20,dev-plaintext   # bench board, RTT log
 ```

@@ -7,6 +7,7 @@
 //! commanded and measured), mandatory priming follows.
 
 use crate::diag::{codes, Raise};
+use crate::drive_cal::DriveId;
 use crate::hal::{Buzzer, Hal, MotorDir};
 use crate::limits::*;
 use crate::log::EventType;
@@ -14,8 +15,31 @@ use crate::pump::{draw_state, Notification, Pump};
 use crate::units::*;
 use openpatch_proto::Error;
 
+/// How the plunger is retracted for a refill.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum FillMode {
+    /// Suction draw: the pod pulls fluid in by itself. Refused by drives without a check valve
+    /// ([`crate::drive_cal::Preset::allows_draw`]): the pod must never aspirate.
+    Draw,
+    /// Assisted pressure fill: the user pushes the syringe while the motor retracts at a fixed rate.
+    Assisted,
+}
+
 impl<H: Hal> Pump<H> {
-    /// Start (or with `amount` 0 cancel) a draw of `amount` mU.
+    /// Refill in the given mode. `Draw` is `Unsupported` on a drive that forbids aspiration (nothing moves).
+    pub fn fill_with_mode(&mut self, mode: FillMode, amount: MilliUnits) -> Result<(), Error> {
+        if mode == FillMode::Draw && amount.0 != 0 && !self.draw_allowed() {
+            return Err(Error::Unsupported);
+        }
+        self.assisted_fill(amount)
+    }
+
+    /// Unknown calibration counts as "not allowed" (never aspirate on an unverified drive).
+    fn draw_allowed(&self) -> bool {
+        DriveId::from_u16(self.cal.drive_id).map_or(false, |id| id.preset().allows_draw())
+    }
+
+    /// Start (or with `amount` 0 cancel) the assisted pressure fill of `amount` mU (the wire command `AssistedFill`).
     pub fn assisted_fill(&mut self, amount: MilliUnits) -> Result<(), Error> {
         if amount.0 == 0 {
             if !self.draw_running() {

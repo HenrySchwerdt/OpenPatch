@@ -16,6 +16,8 @@
 //!   529/16): 661.25 steps/turn -> 2 088 800 / 529 uU = 3 948.6 uU/step (0.003949 U; the mechanical report
 //!   quotes 0.00395 / 0.003951 with a 74.63 mm^2 area). `gear_ratio_x100` is 3306 (33.0625 rounded to
 //!   0.01): it only feeds the angle plausibility check (0.0076 % off), the dose uses the exact rational.
+//! * `Nfp608_26_45CupMiter1_1` (**v0.1.0 cup pod**, default of `scripts/build.sh`): miter pair 1:1, stadium bore 20.5 x 5.5:
+//!   840 503 125 / 119 554 uU = 7 030.3 uU/step (0.00703 U), 142 steps per U, derivation at the constant. No suction draw.
 //! * `Nfp608_26_45G15_12` (purchased gear pair, 15 T on the motor, 12 T on the screw, effective ratio
 //!   26.45 x 12/15 = 21.16): 423.2 steps/turn -> 3 263 750 / 529 uU = 6 169.7 uU/step. NOT the pair in the
 //!   current CAD (it does not clear the carriage lane); kept as an option only
@@ -48,6 +50,9 @@ pub enum DriveId {
     /// Primary: NFP-608-26.45 + GHW module 0.3 step-down pair 16 T (motor) -> 20 T (screw), total ratio
     /// 33.0625 (matches the current CAD, `mechanical/params.json`).
     Nfp608_26_45G16_20 = 0x25,
+    /// v0.1.0 "cup" pod: NFP-608-26.45 -> miter bevel pair z16:z16 (1:1) -> M1.6 x 0.35 rod rotating into a cup plunger in a
+    /// stadium bore 20.5 x 5.5 mm (106.26 mm^2). NO check valve: this pod never aspirates (`Preset::allows_draw` is false).
+    Nfp608_26_45CupMiter1_1 = 0x26,
     /// Insulin BENCH RIG: NFP direct pushing a standard 1 ml U100 syringe plunger. The barrel area
     /// is an assumed 17.94 mm^2 (ID 4.78 mm): VERIFY against the measured barrel ID of the rig.
     SyringeRig1ml = 0x30,
@@ -72,6 +77,14 @@ pub struct Preset {
 }
 
 impl Preset {
+    /// Whether the suction draw (`FillMode::Draw`: the motor retracts the plunger and the pod pulls fluid in by itself) is
+    /// allowed. The cup pod has no check valve between the tank and the needle: a suction draw could aspirate from the
+    /// cannula side, so it is refused there. Only the assisted pressure fill (the user pushes, the motor retracts at a
+    /// fixed rate) exists on that pod.
+    pub const fn allows_draw(&self) -> bool {
+        !matches!(self.id, DriveId::Nfp608_26_45CupMiter1_1)
+    }
+
     pub const fn cal(&self) -> PulseCal {
         PulseCal {
             uu_num: self.uu_num,
@@ -91,6 +104,16 @@ pub const NFP_608_2645_G15_12: Preset =
 /// rounded as 3306); uU/step = 130 550 / 33.0625 = 130 550 * 16 / 529 = 2 088 800 / 529 (exact).
 pub const NFP_608_2645_G16_20: Preset =
     Preset { id: DriveId::Nfp608_26_45G16_20, steps_per_rev: 20, gear_ratio_x100: 3306, uu_num: 2_088_800, uu_den: 529 };
+/// v0.1.0 CUP POD (`mechanical/out/v010-cup/*.mech.json`: bore 20.5 x 5.5, bore_area 106.258 mm^2, u_per_step 0.0070303; the
+/// V010-CUP.md table still says 20.3, the regenerated CAD data says 20.5). Miter pair 1:1 -> rod turns once per gearhead turn,
+/// so the ratio stays 26.45 (x100 = 2645, exact) and the angle check sees 20 x 26.45 = 529 steps per rod turn.
+/// Stadium area, exact rational: A = h (w - h) + pi (h/2)^2 with h = 5.5, w = 20.5, pi ~ 355/113 (rel. error 8.5e-8):
+///   A = 82.5 + (355/113)(121/16) = 192115 / 1808 mm^2 = 106.2583 mm^2.
+/// 1 U = 10 mm^3 = 1e6 uU, so 1 mm^3 = 1e5 uU. Advance per step = 0.35 / (20 x 26.45) = 0.35 / 529 mm.
+/// uU/step = (0.35 / 529) x (192115 / 1808) x 1e5 = 35000 x 192115 / (529 x 1808) = 840 503 125 / 119 554 = 7 030.32 uU
+/// (0.00703 U). Fits u32; `pulses_to_micro` widens to u64.
+pub const NFP_608_2645_CUP_MITER_1_1: Preset =
+    Preset { id: DriveId::Nfp608_26_45CupMiter1_1, steps_per_rev: 20, gear_ratio_x100: 2645, uu_num: 840_503_125, uu_den: 119_554 };
 /// VERIFY: barrel area 17.94 mm^2 is an assumption (BD-class 1 ml U100, ID 4.78 mm) until the
 /// mechanics agent publishes the measured value. uU/step = 0.35 / 529 * 17.94 / 10 * 1e6.
 pub const SYRINGE_RIG_1ML: Preset =
@@ -113,6 +136,7 @@ pub const PRESETS: &[Preset] = &[
     NFP_608_2645_G1_1,
     NFP_608_2645_G15_12,
     NFP_608_2645_G16_20,
+    NFP_608_2645_CUP_MITER_1_1,
     SYRINGE_RIG_1ML,
     ZWBPD006006_6_43,
     ZWBPD006006_4_8,
