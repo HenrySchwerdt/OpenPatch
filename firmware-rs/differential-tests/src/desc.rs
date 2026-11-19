@@ -112,7 +112,7 @@ impl CmdDesc {
                 temp: self.temp,
             },
             cmd::RELEASE => CommandBody::Release { pair_id: self.pair_id },
-            cmd::FILL_DRAW => CommandBody::FillDraw { amount_mu: self.fill_mu },
+            cmd::ASSISTED_FILL => CommandBody::AssistedFill { amount_mu: self.fill_mu },
             other => panic!("CmdDesc::to_command: unknown type {other:#x}"),
         };
         Command { seq: self.seq, time_of_day_ms: self.tod, body }
@@ -151,7 +151,7 @@ impl CmdDesc {
                 d.segs = segs(schedule);
                 d.temp = *temp;
             }
-            CommandBody::FillDraw { amount_mu } => d.fill_mu = *amount_mu,
+            CommandBody::AssistedFill { amount_mu } => d.fill_mu = *amount_mu,
             _ => {}
         }
         d.canon()

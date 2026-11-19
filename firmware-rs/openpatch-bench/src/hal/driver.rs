@@ -2,7 +2,7 @@
 //! single-gate disarm, readback classification, POST) live in `openpatch_core::bench_ctl` and are host tested; this file
 //! only binds the controller to the pins ([`EmbassyPins`]).
 //!
-//! `MOT_ALLOW = MCU_EN AND LATCH_Q AND OC_OK AND (DOCKED_H OR DIR_REV)` (INTERLOCK.md). DIR is part of the gate: the plan
+//! `MOT_ALLOW = MCU_EN AND LATCH_Q AND OC_OK AND (DOCKED_H XOR DIR_REV)` (INTERLOCK.md). DIR is part of the gate: the plan
 //! always sets it first, and it returns to forward only after the supply is verified cut. Power-down rotates the cutting
 //! gate (MCU_EN only, LATCH_CLR_N only, both) and verifies the collapse; STBY is low whenever the driver is idle (the
 //! motor would dissipate about 1.4 W at 160 mA in both phases).

@@ -45,7 +45,7 @@ no sequencing requirement), the UART pads, `TMAG_INT`, `SMA_*`. The old `KILL_N`
 
 ### The interlock and what the firmware checks (`openpatch_core::bench_ctl`, host tested; `openpatch-bench/src/hal/driver.rs` only binds it to the pins)
 
-`MOT_ALLOW = MCU_EN AND LATCH_Q AND OC_OK AND (DOCKED_H OR DIR_REV)`, `VMOT = VBUS` through the P-FET Q4 while `MOT_ALLOW`. The over-current latch (comparator U8 + latch U9, trip about 450 mA total supply current) is
+`MOT_ALLOW = MCU_EN AND LATCH_Q AND OC_OK AND (DOCKED_H XOR DIR_REV)`, `VMOT = VBUS` through the P-FET Q4 while `MOT_ALLOW`. The over-current latch (comparator U8 + latch U9, trip about 450 mA total supply current) is
 cleared **only** by cycling `MCU_EN` low. The firmware can only remove permission; the self-test pins `DOCK_TEST` and `OC_TEST` are pull-down paths that make a leg block / trip more easily.
 
 Readbacks (`Hal::interlock_state`, RB1..RB10): `PGATE_MON` (RB1), `DOCKED_H`, `DIR_REV`, `LATCH_Q`, `OC_OK`, `VMOT_SENSE`, `I_SENSE`, own-pin readback of `MCU_EN` / `ARM_CLK` / `LATCH_CLR_N` / `STBY`, `EN/FAULT`, `POD_ID_N`; plus `VBUS_SENSE`, the
@@ -63,6 +63,7 @@ is high is **Q4 shorted**: nothing on the board can cut it, so the controller is
 | POST-S | `PassiveChecks` (every boot via `BenchHal::boot_post_s`, and `RunSelfTest` sub-op 1) | supply absent (`VMOT_SENSE` < 0.3 V, `PGATE_MON` high), `LATCH_Q` low, `OC_OK` high, own pins as driven (STBY low), `DIR_REV` low at the forward level, VBUS 4.5 to 5.5 V, 3V3 3.0 to 3.6 V, `I_SENSE` idle offset, FFC / pod (`POD_ID_N`, TMAG ACK), `DOCKED_H` = NOT `DOCK_N` | `1-06-001` (Q4), `1-05-003`, `1-07-003` / `1-07-006` (dock path), `1-07-007` (own pin / OC), `4-40-003`, `A-A2-001/002`, `1-09-001`, `1-02-001/002`, `1-08-001/002`, `3-30-001` (FFC), `3-30-004` (docked without the pod) |
 | A01 | `GateCut` | latch sets (`MCU_EN` low: supply stays off, Q8 leg blocks); supply up via DOCK_TEST + reverse level; **cut with `LATCH_CLR_N` only**, then re-arm and **cut with `MCU_EN` only**, each verified on `PGATE_MON` and `VMOT_SENSE` | `1-05-002`, `1-05-001`, `1-07-002`, `1-07-001`, `1-06-001`, `1-06-002` |
 | A02 | `DockGateBlock` | with DOCK_TEST (undocked at the gate, works docked too) forward must stay off for 50 ms; reverse must conduct and `DIR_REV` follow; forward again must cut | `1-07-003` (Q6 / Q10 pair), `1-07-004`, `1-07-007` inst 6 (dead DIR path), `4-40-003` (inverted polarity), `1-06-001` |
+| A13 | `ReverseDockedBlock` | H14 (DOCKED XOR DIR_REV): with the pod really docked, docked + forward conducts, then DIR reverse must cut (`DOCK_TEST` can only force undocked, so the proof is UNKNOWN when undocked; A02 proves the other wrong combination, undocked + forward) | `1-07-008` |
 | A12 | `OverCurrentCut` | with the coils holding (STBY high, no step, at most 100 ms, needs `I_SENSE` >= 60 mA) `OC_TEST` must trip the latch (`OC_OK` low) and cut the supply; the latch clears only by cycling `MCU_EN` | `1-07-007` inst 7 (comparator / latch / Q13), `1-07-005` (latch stuck tripped), UNKNOWN when the motor draws no holding current |
 
 Every proof ends in the safe state (STBY low, `MCU_EN` low, latch held clear, test pins low, DIR forward level), also when it fails. The proofs never drive the motor (STBY stays low) except the bounded coil hold of A12. A proof that can not be made (DK, motor not
@@ -98,7 +99,7 @@ Angle: primary = TMAG5273 over TWIM0 (0x35, P0.26 / P0.06, `hal/tmag.rs`), `Hal:
 **Sensor plane**: the spindle magnet (axis along the leadscrew = pod X) rotates its field in the pod **Y-Z** plane, so the angle is computed from the Y and Z channels (`tmag5273::AnglePlane::YZ`, default; features `tmag-plane-xy` / `tmag-plane-xz` after the hand-turned-rod check T12), range **+-80 mT** on both axes
 (the field is estimated at 34 to 41 mT: marginal for +-40 mT; `tmag-range-40mt` restores it). The package-axis to pod-axis mapping is taken from the review and the layout drawing, NOT verified against the datasheet figure: UNVERIFIED until T12.
 The DRV5032FA quadrature on P1.02 / P1.04 is only used by `angle-qdec-fallback` (1024 counts per edge, 1 pole pair placeholder, NOT sufficient for the 3 %/turn check) and by `coarse-qdec` (log only).
-Draw mode needs the pump undocked: with the gate `MOT_ALLOW = MCU_EN AND LATCH_Q AND OC_OK AND (DOCKED_H OR DIR_REV)` the firmware sets MOT_DIR to the reverse level BEFORE `MCU_EN` / ARM (docs/stubs.md item 2).
+Draw mode needs the pump undocked: with the gate `MOT_ALLOW = MCU_EN AND LATCH_Q AND OC_OK AND (DOCKED_H XOR DIR_REV)` the firmware sets MOT_DIR to the reverse level BEFORE `MCU_EN` / ARM (docs/stubs.md item 2).
 
 ## `board-nrf52840-dk`: Nordic nRF52840-DK (PCA10056)
 
@@ -129,6 +130,11 @@ Run on the DK: `cargo run --release --no-default-features --features board-nrf52
 ## Software DOCKED (`dock-simulated`) and the interlock board
 
 `dock-simulated` reports DOCKED from software (initial docked; on the DK BUTTON2 toggles it, which is also how a draw is made possible). It is always the case on the DK. On
-`board-bench-e73` it is `compile_error!` unless `unsafe-bench-override` is also given, because the hardware interlock gate (`MOT_ALLOW = MCU_EN AND LATCH_Q AND OC_OK AND (DOCKED_H OR DIR_REV)`) must
+`board-bench-e73` it is `compile_error!` unless `unsafe-bench-override` is also given, because the hardware interlock gate (`MOT_ALLOW = MCU_EN AND LATCH_Q AND OC_OK AND (DOCKED_H XOR DIR_REV)`) must
 not be undermined by a firmware flag; even with the override the supply gate still needs the real DOCKED signal (only the firmware's own checks are fooled), and without a toggle
 button the pump can never be undocked for a draw. Draw on the bench controller board goes through DIR_REVERSE (docs/stubs.md), not through a software DOCKED.
+
+### H14 / H15 (spec 7a): DOCKED XOR DIR_REVERSE and the pressure anomaly
+
+The gate is now `DOCKED_H XOR DIR_REV`: forward only docked, reverse only undocked, both wrong combinations are cut in hardware. Firmware refuses a reverse request while docked before any pin moves (`interlock::check_request`, `MotorFault::ReverseWhileDocked`, raised as `7-70-008`).
+POST: A02 proves undocked + forward is cut and undocked + reverse conducts, A13 proves docked + reverse is cut (needs the real dock). `5-54-001 PRESSURE_ANOMALY_WHILE_DOCKED` (latched): docked, motor not driven since the last tick, leadscrew angle moved by more than `PRESSURE_ANOMALY_ANGLE_COUNTS` (300 counts, 0.19 U): the self-locking drive was back-driven (possible manual injection). Catalogue schema is now 2 (153 codes).

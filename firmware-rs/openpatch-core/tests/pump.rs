@@ -681,7 +681,7 @@ fn pump_strict_config_draw_requires_priming_again() {
     assert_eq!(p.resume(), Ok(()));
     assert_eq!(p.suspend(), Ok(()));
     hal.st().docked = false;
-    assert_eq!(p.fill_draw(MilliUnits(5000)), Ok(()));
+    assert_eq!(p.assisted_fill(MilliUnits(5000)), Ok(()));
     run_draw(&mut p, &hal);
     assert!(p.prime_required());
     hal.st().docked = true;

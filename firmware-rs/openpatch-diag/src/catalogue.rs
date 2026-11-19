@@ -5,10 +5,10 @@
 use crate::{Action, CodeInfo, DiagCode, Fru, Severity};
 
 /// Catalogue version, reported in `DIAG_SUMMARY.schema`.
-pub const SCHEMA_VERSION: u16 = 1;
+pub const SCHEMA_VERSION: u16 = 2;
 
 /// All catalogue rows, sorted by `code.identity()` (binary search).
-pub static CATALOGUE: [CodeInfo; 150] = [
+pub static CATALOGUE: [CodeInfo; 153] = [
     CodeInfo { code: DiagCode(0x10100100), name: "FLASH_IMAGE_BAD", severity: Severity::Fault, action: Action::UpdateFw, fru: Fru::Fw, fru2: Fru::None, legacy_bit: 5, hazards: 0x0002 },
     CodeInfo { code: DiagCode(0x10100200), name: "BROWNOUT_RESET", severity: Severity::Warning, action: Action::CheckPower, fru: Fru::Usb, fru2: Fru::Ctrl, legacy_bit: 0xFF, hazards: 0x0008 },
     CodeInfo { code: DiagCode(0x10100300), name: "UICR_RESET_PIN_WRONG", severity: Severity::Fault, action: Action::Reprovision, fru: Fru::Fw, fru2: Fru::Ctrl, legacy_bit: 5, hazards: 0x0002 },
@@ -33,6 +33,7 @@ pub static CATALOGUE: [CodeInfo; 150] = [
     CodeInfo { code: DiagCode(0x10700500), name: "GATE_MCUEN_STUCK_BLOCK", severity: Severity::Fault, action: Action::Replace, fru: Fru::Ctrl, fru2: Fru::None, legacy_bit: 5, hazards: 0x0004 },
     CodeInfo { code: DiagCode(0x10700600), name: "GATE_DOCK_STUCK_BLOCK", severity: Severity::Fault, action: Action::Isolate, fru: Fru::Ctrl, fru2: Fru::Podb, legacy_bit: 5, hazards: 0x0200 },
     CodeInfo { code: DiagCode(0x10700700), name: "GATE_INPUT_READBACK_MISMATCH", severity: Severity::Latched, action: Action::Replace, fru: Fru::Ctrl, fru2: Fru::None, legacy_bit: 5, hazards: 0x0802 },
+    CodeInfo { code: DiagCode(0x10700800), name: "GATE_REVERSE_DOCKED_STUCK_PASS", severity: Severity::Latched, action: Action::Replace, fru: Fru::Ctrl, fru2: Fru::None, legacy_bit: 5, hazards: 0x4002 },
     CodeInfo { code: DiagCode(0x10800100), name: "ISENSE_IDLE_OFFSET", severity: Severity::Fault, action: Action::Replace, fru: Fru::Ctrl, fru2: Fru::None, legacy_bit: 5, hazards: 0x0004 },
     CodeInfo { code: DiagCode(0x10800200), name: "ISENSE_SATURATED", severity: Severity::Fault, action: Action::Replace, fru: Fru::Ctrl, fru2: Fru::None, legacy_bit: 5, hazards: 0x0004 },
     CodeInfo { code: DiagCode(0x10800300), name: "ISENSE_DEAD", severity: Severity::Warning, action: Action::Replace, fru: Fru::Ctrl, fru2: Fru::None, legacy_bit: 0xFF, hazards: 0x0804 },
@@ -75,6 +76,7 @@ pub static CATALOGUE: [CodeInfo; 150] = [
     CodeInfo { code: DiagCode(0x55300100), name: "OCCLUSION_SHORTFALL", severity: Severity::Fault, action: Action::CheckCannula, fru: Fru::Cann, fru2: Fru::Needle, legacy_bit: 0, hazards: 0x0004 },
     CodeInfo { code: DiagCode(0x55300200), name: "OCCLUSION_CURRENT_RISE", severity: Severity::Fault, action: Action::CheckCannula, fru: Fru::Cann, fru2: Fru::Needle, legacy_bit: 0, hazards: 0x0004 },
     CodeInfo { code: DiagCode(0x55300300), name: "OCCLUSION_RAMP_WARNING", severity: Severity::Warning, action: Action::CheckCannula, fru: Fru::Cann, fru2: Fru::None, legacy_bit: 0xFF, hazards: 0x0004 },
+    CodeInfo { code: DiagCode(0x55400100), name: "PRESSURE_ANOMALY_WHILE_DOCKED", severity: Severity::Latched, action: Action::CheckCannula, fru: Fru::Cann, fru2: Fru::Ctrl, legacy_bit: 5, hazards: 0x8004 },
     CodeInfo { code: DiagCode(0x66000100), name: "ANGLE_CHANNEL_LOST", severity: Severity::Fault, action: Action::Isolate, fru: Fru::Podb, fru2: Fru::Ffc, legacy_bit: 5, hazards: 0x0006 },
     CodeInfo { code: DiagCode(0x66000200), name: "FIELD_TOO_WEAK", severity: Severity::Fault, action: Action::Replace, fru: Fru::Mags, fru2: Fru::Podb, legacy_bit: 5, hazards: 0x0804 },
     CodeInfo { code: DiagCode(0x66000300), name: "FIELD_TOO_STRONG", severity: Severity::Fault, action: Action::Retry, fru: Fru::Mags, fru2: Fru::None, legacy_bit: 5, hazards: 0x0004 },
@@ -91,6 +93,7 @@ pub static CATALOGUE: [CodeInfo; 150] = [
     CodeInfo { code: DiagCode(0x77000500), name: "STEPS_SHORT_OF_APPROVAL", severity: Severity::Fault, action: Action::Isolate, fru: Fru::Ctrl, fru2: Fru::Motor, legacy_bit: 5, hazards: 0x0004 },
     CodeInfo { code: DiagCode(0x77000600), name: "BOOKKEEPING_MISMATCH", severity: Severity::Latched, action: Action::ReportBug, fru: Fru::Fw, fru2: Fru::None, legacy_bit: 5, hazards: 0x2002 },
     CodeInfo { code: DiagCode(0x77000700), name: "VETO_STEP_REQUEST_ILLEGAL", severity: Severity::Warning, action: Action::ReportBug, fru: Fru::Fw, fru2: Fru::None, legacy_bit: 0xFF, hazards: 0x0202 },
+    CodeInfo { code: DiagCode(0x77000800), name: "REVERSE_REQUESTED_WHILE_DOCKED", severity: Severity::Fault, action: Action::ReportBug, fru: Fru::Fw, fru2: Fru::None, legacy_bit: 5, hazards: 0x4002 },
     CodeInfo { code: DiagCode(0x77100100), name: "ENGINE_STATE_INVALID", severity: Severity::Latched, action: Action::ReportBug, fru: Fru::Fw, fru2: Fru::None, legacy_bit: 5, hazards: 0x0002 },
     CodeInfo { code: DiagCode(0x77100200), name: "BASAL_SCHEDULE_CORRUPT", severity: Severity::Fault, action: Action::Retry, fru: Fru::None, fru2: Fru::None, legacy_bit: 5, hazards: 0x0040 },
     CodeInfo { code: DiagCode(0x77100300), name: "TIME_NOT_SET", severity: Severity::Warning, action: Action::Rephone, fru: Fru::App, fru2: Fru::None, legacy_bit: 0xFF, hazards: 0x0040 },
@@ -212,6 +215,8 @@ pub mod codes {
     pub const GATE_DOCK_STUCK_BLOCK: DiagCode = DiagCode(0x10700600);
     /// `1-07-007`
     pub const GATE_INPUT_READBACK_MISMATCH: DiagCode = DiagCode(0x10700700);
+    /// `1-07-008`
+    pub const GATE_REVERSE_DOCKED_STUCK_PASS: DiagCode = DiagCode(0x10700800);
     /// `1-08-001`
     pub const ISENSE_IDLE_OFFSET: DiagCode = DiagCode(0x10800100);
     /// `1-08-002`
@@ -296,6 +301,8 @@ pub mod codes {
     pub const OCCLUSION_CURRENT_RISE: DiagCode = DiagCode(0x55300200);
     /// `5-53-003`
     pub const OCCLUSION_RAMP_WARNING: DiagCode = DiagCode(0x55300300);
+    /// `5-54-001`
+    pub const PRESSURE_ANOMALY_WHILE_DOCKED: DiagCode = DiagCode(0x55400100);
     /// `6-60-001`
     pub const ANGLE_CHANNEL_LOST: DiagCode = DiagCode(0x66000100);
     /// `6-60-002`
@@ -328,6 +335,8 @@ pub mod codes {
     pub const BOOKKEEPING_MISMATCH: DiagCode = DiagCode(0x77000600);
     /// `7-70-007`
     pub const VETO_STEP_REQUEST_ILLEGAL: DiagCode = DiagCode(0x77000700);
+    /// `7-70-008`
+    pub const REVERSE_REQUESTED_WHILE_DOCKED: DiagCode = DiagCode(0x77000800);
     /// `7-71-001`
     pub const ENGINE_STATE_INVALID: DiagCode = DiagCode(0x77100100);
     /// `7-71-002`

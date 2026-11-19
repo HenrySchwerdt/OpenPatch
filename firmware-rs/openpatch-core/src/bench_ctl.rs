@@ -2,7 +2,7 @@
 //! self-test (POST), hardware independent and host-tested.
 //!
 //! Source of truth: `electronics/bench/INTERLOCK.md` and `pin-assignment.md` (Rev A).
-//! `MOT_ALLOW = MCU_EN AND LATCH_Q AND OC_OK AND (DOCKED_H OR DIR_REV)`, `VMOT = VBUS` through the P-FET Q4
+//! `MOT_ALLOW = MCU_EN AND LATCH_Q AND OC_OK AND (DOCKED_H XOR DIR_REV)`, `VMOT = VBUS` through the P-FET Q4
 //! while `MOT_ALLOW`. The board implements [`BenchPins`] (embassy pins on the target, an electrical model in the
 //! simulator), this module owns every decision. Rules it keeps:
 //!
@@ -74,6 +74,8 @@ pub mod leg {
     pub const DOCK: i32 = 3;
     pub const DIR: i32 = 4;
     pub const OC: i32 = 5;
+    /// Docked and reverse both reach the gate and it conducts: the XOR of the pair is lost (H14).
+    pub const XOR: i32 = 6;
     /// A leg of the series chain is open but the readbacks can not tell which one.
     pub const UNKNOWN: i32 = 0;
 }
@@ -228,6 +230,8 @@ pub fn first_open_leg(r: &PinRead) -> i32 {
         leg::OC
     } else if !r.docked_h && !r.dir_rev {
         leg::DOCK
+    } else if r.docked_h && r.dir_rev {
+        leg::XOR
     } else {
         leg::UNKNOWN
     }
@@ -245,6 +249,7 @@ fn stuck_pass(leg_id: i32, vmot_mv: u32) -> Finding {
         leg::MCU_EN => finding(codes::GATE_MCUEN_STUCK_PASS, vmot_mv as i32, leg_id, action),
         leg::LATCH => finding(codes::GATE_LATCH_STUCK_PASS, vmot_mv as i32, leg_id, action),
         leg::OC => finding(codes::GATE_INPUT_READBACK_MISMATCH.with_inst(pin::OC), vmot_mv as i32, leg_id, action),
+        leg::XOR => finding(codes::GATE_REVERSE_DOCKED_STUCK_PASS, vmot_mv as i32, leg_id, action),
         // Q6 or Q10: no midpoint readback on Rev A, so the pair is reported as one (ctx_b = 3)
         _ => finding(codes::GATE_DOCK_STUCK_PASS, vmot_mv as i32, leg::DOCK, action),
     }
@@ -778,6 +783,7 @@ impl<P: BenchPins> BenchCtl<P> {
             SelfTestStep::GateCut => self.proof_gate_cut(),
             SelfTestStep::DockGateBlock => self.proof_dock_dir(),
             SelfTestStep::OverCurrentCut => self.proof_over_current(),
+            SelfTestStep::ReverseDockedBlock => self.proof_reverse_docked(),
             SelfTestStep::PassiveChecks => match self.post_s() {
                 None => Ok(()),
                 Some(f) => Err(Some(f)),
@@ -978,6 +984,30 @@ impl<P: BenchPins> BenchCtl<P> {
             let r = self.pins.read();
             let v = self.pins.vmot_mv();
             return Err(Some(if r.mot_allow { finding(codes::GATE_DIRREV_STUCK_PASS, v as i32, leg::DIR, FailAction::Report) } else { q4_short(v) }));
+        }
+        Ok(())
+    }
+
+    /// A13 (H14): reverse while DOCKED must be cut. Needs the real dock: `DOCK_TEST` can force "undocked", never "docked".
+    /// Proves first that docked + forward conducts (so the cut below is the XOR and not some other leg), then flips DIR to
+    /// reverse and requires the supply to collapse. Stays UNKNOWN when the pod is not docked.
+    fn proof_reverse_docked(&mut self) -> Result<(), Option<Finding>> {
+        let r0 = self.precheck()?;
+        if !(r0.dock_n_low && r0.docked_h) || !r0.pod_present {
+            return Err(None);
+        }
+        self.pins.set_latch_clear(false);
+        self.set_dir(MotorDir::Forward);
+        self.pins.set_mcu_en(true);
+        self.pins.arm_edge();
+        if !self.post_wait(th::VMOT_MOVE_MS, |r, v| r.mot_allow && v >= th::VMOT_UP_MV) {
+            let r = self.pins.read();
+            let v = self.pins.vmot_mv();
+            return Err(Some(classify_supply(&r, v, &self.cfg).unwrap_or(finding(codes::VMOT_NOT_PRESENT, v as i32, 0, FailAction::Report))));
+        }
+        self.set_dir(MotorDir::Reverse);
+        if !self.post_wait(th::VMOT_MOVE_MS, |r, v| !r.mot_allow && v < th::VMOT_CUT_MV) {
+            return Err(Some(self.not_cut(leg::XOR)));
         }
         Ok(())
     }

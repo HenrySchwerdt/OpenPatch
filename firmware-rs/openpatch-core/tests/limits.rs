@@ -34,8 +34,9 @@ fn draw_rate_is_capped_by_the_fill_needle_gauge() {
     // the rate really used: the default 600 pps unless the needle is finer
     assert_eq!(draw_pps(FillNeedle::G29, cal), DRAW_DEFAULT_PPS);
     assert_eq!(draw_pps(FillNeedle::G27, cal), DRAW_DEFAULT_PPS);
-    assert_eq!(draw_pps(FillNeedle::G31, cal), FillNeedle::G31.max_pps(cal));
-    assert!(draw_pps(FillNeedle::G31, cal) < DRAW_DEFAULT_PPS);
+    // the fixed assisted-fill rate (200 pps) is below even the 31G cap (229 pps): the gauge can only lower it
+    assert_eq!(draw_pps(FillNeedle::G31, cal), FillNeedle::G31.max_pps(cal).min(DRAW_DEFAULT_PPS));
+    assert!(draw_pps(FillNeedle::G31, cal) <= DRAW_DEFAULT_PPS);
     // never above the hard cap
     assert!(DRAW_DEFAULT_PPS <= DRAW_MAX_PPS);
     // a chunk never blocks the safety task longer than 0.8 s at the rate in use

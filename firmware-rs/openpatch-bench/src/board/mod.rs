@@ -25,7 +25,7 @@ mod dk;
 #[cfg(feature = "board-nrf52840-dk")]
 pub use dk::*;
 
-/// Hardware interlock pins (E73 bench board only): `MOT_ALLOW = MCU_EN AND LATCH_Q AND OC_OK AND (DOCKED_H OR DIR_REV)`
+/// Hardware interlock pins (E73 bench board only): `MOT_ALLOW = MCU_EN AND LATCH_Q AND OC_OK AND (DOCKED_H XOR DIR_REV)`
 /// (`electronics/bench/INTERLOCK.md`). Outputs can only remove permission; the "diag" inputs are readbacks.
 pub struct InterlockPins {
     /// Latch clock: rising edge = ARM. Idle low.

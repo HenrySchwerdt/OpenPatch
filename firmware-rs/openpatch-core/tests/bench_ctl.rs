@@ -20,6 +20,8 @@ struct Faults {
     q13_short: bool,
     /// Q6 (dock leg) shorted: the pair `Q6 || Q10` always conducts.
     q6_short: bool,
+    /// Q10 shorted: the pair conducts for docked + reverse as well (the XOR is lost).
+    q10_short: bool,
     /// The DIR leg keeps conducting after DIR was reverse until MCU_EN is cycled low.
     dir_leg_sticky: bool,
     latch_stuck_high: bool,
@@ -124,7 +126,7 @@ impl Board {
         let en = self.mcu_en || self.f.q8_short;
         let oc = self.oc_ok || self.f.q13_short;
         let dir_leg = self.dir_rev() || (self.f.dir_leg_sticky && self.dir_seen_reverse && self.mcu_en);
-        let dock_pair = self.docked_h() || dir_leg || self.f.q6_short;
+        let dock_pair = (self.docked_h() != dir_leg) || self.f.q6_short || self.f.q10_short;
         latch && en && oc && dock_pair
     }
     fn switch_on(&self) -> bool {
@@ -323,10 +325,14 @@ fn has(v: &[DiagEvent], code: openpatch_diag::DiagCode) -> bool {
 fn gate_network_truth_table_includes_the_over_current_leg() {
     for bits in 0..32u32 {
         let (l, e, o, d, r) = (bits & 1 != 0, bits & 2 != 0, bits & 4 != 0, bits & 8 != 0, bits & 16 != 0);
-        assert_eq!(mot_allow(l, e, o, d, r), l && e && o && (d || r));
+        assert_eq!(mot_allow(l, e, o, d, r), l && e && o && (d != r));
     }
     // an over-current trip blocks even a docked, armed, enabled pod
     assert!(!mot_allow(true, true, false, true, false));
+    // H14: forward only docked, reverse only undocked: BOTH wrong combinations are cut
+    assert!(!mot_allow(true, true, true, true, true), "docked + reverse");
+    assert!(!mot_allow(true, true, true, false, false), "undocked + forward");
+    assert!(mot_allow(true, true, true, true, false) && mot_allow(true, true, true, false, true));
 }
 
 #[test]
@@ -796,4 +802,60 @@ fn a_board_without_the_interlock_never_reports_a_proof_as_passed() {
     assert!(c.pins.stby && !c.pins.mcu_en && c.pins.arm_edges == 0);
     assert!(c.verify_idle() && c.verify_supply(true).is_ok());
     assert!(c.power_off() && !c.pins.stby);
+}
+
+// ---- H14: (DOCKED XOR DIR_REVERSE): reverse while docked is cut, in hardware and refused in firmware ------------------
+
+#[test]
+fn post_proves_that_reverse_while_docked_is_cut() {
+    for fwd_high in [false, true] {
+        let mut c = ctl(|_| {}, fwd_high); // docked
+        assert_eq!(c.selftest(SelfTestStep::ReverseDockedBlock), SelfTestOutcome::Passed, "fwd_high {fwd_high}");
+        assert!(!c.pins.mcu_en && !c.pins.stby && c.pins.clr, "safe state");
+        assert!(events(&mut c).is_empty());
+    }
+    // undocked: the proof can not be made (DOCK_TEST can force undocked, never docked): UNKNOWN, never passed
+    let mut c = ctl(|b| b.hall_docked = false, false);
+    assert_eq!(c.selftest(SelfTestStep::ReverseDockedBlock), SelfTestOutcome::Unsupported);
+}
+
+#[test]
+fn a_pair_that_lost_its_xor_is_named_by_the_reverse_docked_proof() {
+    let mut c = ctl(|b| b.f.q10_short = true, false);
+    let o = c.selftest(SelfTestStep::ReverseDockedBlock);
+    assert!(same(failed_code(&o), codes::GATE_REVERSE_DOCKED_STUCK_PASS), "{o:?}");
+    assert!(!c.pins.mcu_en && !c.pins.stby, "cut and safe after the failure");
+}
+
+#[test]
+fn the_runtime_classification_names_reverse_while_docked_passing() {
+    let r = PinRead { latch_q: true, mcu_en: true, oc_ok: true, docked_h: true, dir_rev: true, mot_allow: true, ..PinRead::default() };
+    let f = classify_supply(&r, 4_800, &CtlCfg::BENCH).expect("finding");
+    assert_eq!(f.event.code.identity(), codes::GATE_REVERSE_DOCKED_STUCK_PASS.identity());
+}
+
+#[test]
+fn firmware_refuses_reverse_while_docked_before_any_pin_moves() {
+    let mut c = ctl(|_| {}, false); // docked
+    let arms = c.pins.arm_edges;
+    assert_eq!(c.power_up(true, MotorDir::Reverse), Err(PowerError::Refused(openpatch_core::interlock::Refusal::ReverseWhileDocked)));
+    assert_eq!((c.pins.arm_edges, c.pins.mcu_en), (arms, false));
+    // and while powered for forward: a direction change to reverse is refused, the supply is not touched
+    c.power_up(true, MotorDir::Forward).unwrap();
+    assert!(matches!(c.change_direction(true, MotorDir::Reverse), Err(PowerError::Refused(_))));
+    assert!(c.pins.vmot > 4_300.0);
+}
+
+#[test]
+fn the_hardware_gate_alone_cuts_both_wrong_combinations() {
+    // without any firmware sequencing: armed, MCU_EN high
+    for (docked, reverse, on) in [(true, false, true), (false, true, true), (true, true, false), (false, false, false)] {
+        let mut c = ctl(|b| b.hall_docked = docked, false);
+        c.pins.set_latch_clear(false);
+        c.pins.set_mcu_en(true);
+        c.pins.set_mot_dir(dir_level_high(if reverse { MotorDir::Reverse } else { MotorDir::Forward }, false));
+        c.pins.arm_edge();
+        c.pins.delay_us(40_000);
+        assert_eq!(c.pins.chain(), on, "docked {docked} reverse {reverse}");
+    }
 }

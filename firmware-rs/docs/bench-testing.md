@@ -104,7 +104,7 @@ Draw pulls water INTO the reservoir by driving the leadscrew in reverse. Procedu
 
 1. Pump **suspended** (`Suspend` / fresh boot) and **UNDOCKED** (E73: remove the dock magnet from DRV5032; DK: BUTTON2 toggles the simulated DOCKED to off).
    Docked gives result `Docked` (27), not suspended `NotSuspended`, a latched fault or a missing angle sensor `Fault`.
-2. Send protocol command 0x0F `FillDraw` with `FILL_MU` = volume in mU (`0` cancels). `Limit` if it does not fit (`capacity - remaining`), `Busy` while running.
+2. Send protocol command 0x0F `AssistedFill` with `FILL_MU` = volume in mU (`0` cancels). `Limit` if it does not fit (`capacity - remaining`), `Busy` while running.
 3. Watch progress: Alert notifications (type 0x90: kind 1 progress, 3 done, 4 stalled, 2 fault) and `GetStatus` `DRAW_STATE` (1 drawing, 2 done, 3 stalled, 4 aborted),
    `DRAW_REQUESTED_MU`, `DRAW_DONE_MU`; flag `DRAWING`. Defmt shows each 500 step reverse chunk (`burst fwd=false`, peak current).
 4. **Stall / end stop:** a chunk that executed short, < 50 % angle-confirmed reverse travel, or 3 chunks above the current threshold end the draw as STALLED
@@ -135,7 +135,7 @@ Build/flash on the DK: `cargo run --release --no-default-features --features boa
 1. Syringe with water, tip over a balance (0.1 mg), plunger on the motor leadscrew. **Barrel area 17.94 mm^2 is assumed: verify first** (1.19 mU = 0.119 ul per pulse):
    run 100 pulses, weigh, compute ul/pulse; if it differs, the preset is wrong, fix it in the core, do not trust volumes.
 2. Delivery: as in the gravimetric procedure above (docked). Maximum 1 ml = 100 U; keep the fill within the syringe contents.
-3. Draw (refill the syringe from a water source): BUTTON2 once = undocked, suspend, `FillDraw` mU; the plunger retracts, the angle confirms. Dock again (BUTTON2) and prime
+3. Draw (refill the syringe from a water source): BUTTON2 once = undocked, suspend, `AssistedFill` mU; the plunger retracts, the angle confirms. Dock again (BUTTON2) and prime
    before delivery (`PrimeRequired`).
 4. Never connect a body, never use insulin. The software DOCKED means the dock safety gate is NOT tested on this rig.
 

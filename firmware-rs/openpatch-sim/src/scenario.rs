@@ -60,6 +60,10 @@ pub enum Action {
     /// `RunSelfTest` through the protocol path: 1 = POST-S, 2 = POST-A, 3 = watchdog. The pod must be suspended. The
     /// verdict records the result and the diagnostic codes that are active afterwards.
     SelfTest { sub_op: u8 },
+    /// Assisted fill: the pressure (kPa) the user's syringe holds on the septum; 0 = a vial at ambient pressure.
+    FillPush { kpa: f64 },
+    /// Assisted fill: the fill needle is in the septum (`Draw` puts it there) or the user pulled it out / never pushes.
+    FillNeedle { in_septum: bool },
     /// Name a physical instant (shows up in the verdict).
     Mark { name: String },
 }

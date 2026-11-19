@@ -381,9 +381,9 @@ impl Runner {
         // 1. undock, draw the water in
         self.dev.world.borrow_mut().docked_phys = false;
         self.run_s(2.0);
-        let r = self.dev.cmd(CommandBody::FillDraw { amount_mu: fill_mu });
+        let r = self.dev.cmd(CommandBody::AssistedFill { amount_mu: fill_mu });
         if r != 0 {
-            return Err(format!("FillDraw refused: {r}"));
+            return Err(format!("AssistedFill refused: {r}"));
         }
         self.dev.world.borrow_mut().plant.fill_needle = true;
         for _ in 0..900 {
@@ -546,7 +546,7 @@ impl Runner {
         // draw completion
         if let (Some((t0, req, base)), Some(p)) = (self.draw_base, self.dev.pump.as_ref()) {
             if !p.draw_running() {
-                let drawn_now = self.dev.world.borrow().plant.drawn_ul;
+                let drawn_now = self.dev.world.borrow().plant.filled_ul();
                 let actual = (drawn_now - base) * MU_PER_UL;
                 let core_drawn = p.draw_drawn().0;
                 self.draws.push(DrawResult {
@@ -687,12 +687,12 @@ impl Runner {
             }
             Action::Draw { units } => {
                 let mu = (units * 1000.0).round() as u32;
-                let r = self.dev.cmd(CommandBody::FillDraw { amount_mu: mu });
+                let r = self.dev.cmd(CommandBody::AssistedFill { amount_mu: mu });
                 self.note_result("draw", r);
                 if r == 0 {
                     let mut w = self.dev.world.borrow_mut();
                     w.plant.fill_needle = true;
-                    self.draw_base = Some((t_s, mu, w.plant.drawn_ul));
+                    self.draw_base = Some((t_s, mu, w.plant.filled_ul()));
                 }
             }
             Action::Activate => {
@@ -772,6 +772,8 @@ impl Runner {
                 });
                 self.selftests.push(SelfTestRecord { t_s, sub_op: *sub_op, result, steps_passed: st.steps_passed, steps_failed: st.steps_failed, codes });
             }
+            Action::FillPush { kpa } => self.dev.world.borrow_mut().plant.fill_push_kpa = *kpa,
+            Action::FillNeedle { in_septum } => self.dev.world.borrow_mut().plant.fill_needle = *in_septum,
             Action::Mark { name } => self.dev.world.borrow_mut().mark(name),
         }
     }

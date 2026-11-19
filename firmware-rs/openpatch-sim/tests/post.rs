@@ -27,7 +27,7 @@ fn st(o: &openpatch_sim::runner::RunOutput, sub_op: u8) -> (u16, u16) {
 fn a_healthy_board_passes_every_proof_and_raises_no_code() {
     let o = run("post_clean");
     assert_eq!(st(&o, 1), (0b1, 0), "POST-S: the passive checks passed");
-    assert_eq!(st(&o, 2), (0b111, 0), "POST-A: gate cut, dock/DIR block, over-current leg");
+    assert_eq!(st(&o, 2), (0b1111, 0), "POST-A: gate cut, dock/DIR block, over-current leg, reverse while docked");
     assert!(o.verdict.selftests.iter().all(|s| s.codes.is_empty()), "{:?}", o.verdict.selftests);
     assert!(o.verdict.notes.is_empty(), "{:?}", o.verdict.notes);
 }
@@ -136,7 +136,7 @@ fn the_over_current_latch_cuts_the_world_supply_and_clears_only_with_mcu_en() {
 fn sim_hal_selftest_goes_through_the_core_proofs_and_reports_readbacks() {
     let w = world();
     let mut h = SimHal(w.clone());
-    for s in [SelfTestStep::PassiveChecks, SelfTestStep::GateCut, SelfTestStep::DockGateBlock, SelfTestStep::OverCurrentCut] {
+    for s in [SelfTestStep::PassiveChecks, SelfTestStep::GateCut, SelfTestStep::DockGateBlock, SelfTestStep::OverCurrentCut, SelfTestStep::ReverseDockedBlock] {
         assert_eq!(h.selftest(s), SelfTestOutcome::Passed, "{s:?}");
     }
     let rb = h.interlock_state().expect("bench board has readbacks");
@@ -153,10 +153,38 @@ fn the_pod_stays_serviced_by_the_watchdog_during_post_a() {
     let mut h = SimHal(w.clone());
     let t0 = w.borrow().t_us;
     h.watchdog_kick();
-    for s in [SelfTestStep::GateCut, SelfTestStep::DockGateBlock, SelfTestStep::OverCurrentCut] {
+    for s in [SelfTestStep::GateCut, SelfTestStep::DockGateBlock, SelfTestStep::OverCurrentCut, SelfTestStep::ReverseDockedBlock] {
         assert_eq!(h.selftest(s), SelfTestOutcome::Passed);
     }
     assert!(w.borrow().reset_pending.is_none(), "no watchdog reset during the proofs");
     assert!(w.borrow().t_us - t0 < 1_900_000, "POST-A proofs are short: {} us", w.borrow().t_us - t0);
 }
 
+
+#[test]
+fn a_pair_that_lost_its_xor_lets_reverse_through_while_docked_and_post_a_names_it() {
+    let o = run("post_xor_lost");
+    let (passed, failed) = st(&o, 2);
+    assert_eq!(failed & 0b1000, 0b1000, "step 4 (reverse while docked) failed");
+    assert!(codes(&o, 2).contains(&"1-07-008".to_string()), "{:?}", codes(&o, 2));
+    assert_eq!(passed & failed, 0);
+}
+
+#[test]
+fn the_world_gate_cuts_both_wrong_combinations_and_the_core_refuses_reverse_while_docked() {
+    let w = world();
+    let mut h = SimHal(w.clone());
+    {
+        let mut x = w.borrow_mut();
+        x.mcu_en = true;
+        x.latch_q = true;
+        x.docked_phys = true;
+        x.dir_reverse = true;
+    }
+    assert!(!w.borrow().vmot_on(), "docked + reverse is cut by the gate");
+    // a reverse burst while docked produces nothing and does not move the plunger
+    h.motor_enable(true);
+    assert_eq!(h.motor_step_reverse(openpatch_core::Pulses(10)).0, 0);
+    h.motor_enable(false);
+    assert_eq!(w.borrow().plant.rotor_steps, 0);
+}

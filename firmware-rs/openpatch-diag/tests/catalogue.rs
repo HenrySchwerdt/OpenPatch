@@ -57,10 +57,10 @@ fn code_from_str(s: &str) -> DiagCode {
 }
 
 #[test]
-fn catalogue_has_150_codes_with_the_documented_severity_split() {
-    assert_eq!(CATALOGUE.len(), 150);
+fn catalogue_has_153_codes_with_the_documented_severity_split() {
+    assert_eq!(CATALOGUE.len(), 153);
     let n = |s| CATALOGUE.iter().filter(|c| c.severity == s).count();
-    assert_eq!((n(Severity::Info), n(Severity::Warning), n(Severity::Fault), n(Severity::Latched)), (2, 54, 68, 26));
+    assert_eq!((n(Severity::Info), n(Severity::Warning), n(Severity::Fault), n(Severity::Latched)), (2, 54, 69, 28));
 }
 
 #[test]

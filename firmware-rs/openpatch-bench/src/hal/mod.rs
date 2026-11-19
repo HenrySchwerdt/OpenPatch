@@ -262,7 +262,7 @@ impl Hal for BenchHal {
         }
     }
 
-    /// DIR is set BEFORE the supply is requested (`VMOT = MCU_EN AND latch AND (DOCKED OR DIR_REVERSE)`):
+    /// DIR is set BEFORE the supply is requested (`VMOT = MCU_EN AND latch AND (DOCKED XOR DIR_REVERSE)`):
     /// a draw (undocked, reverse) only comes up this way; forward needs DOCKED.
     fn motor_enable_dir(&mut self, dir: MotorDir) {
         let docked = self.read_docked();

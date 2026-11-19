@@ -164,7 +164,7 @@ impl World {
         (self.docked_phys || self.hall_stuck_docked) && !self.board.f.ffc_unplugged
     }
 
-    /// `VMOT on = MCU_EN AND latch AND OC_OK AND (DOCKED OR DIR_REVERSE)`, through the P-FET (`board.rs`, faults included).
+    /// `VMOT on = MCU_EN AND latch AND OC_OK AND (DOCKED XOR DIR_REVERSE)`, through the P-FET (`board.rs`, faults included).
     pub fn vmot_on(&self) -> bool {
         self.switch_on()
     }
@@ -411,7 +411,8 @@ impl Hal for SimHal {
         Pulses(self.0.borrow_mut().burst(true, steps.0))
     }
     fn motor_step_reverse(&mut self, steps: Pulses) -> Pulses {
-        Pulses(self.0.borrow_mut().burst(false, steps.0))
+        let r = Pulses(self.0.borrow_mut().burst(false, steps.0));
+        r
     }
     fn set_draw_rate_pps(&mut self, pps: u32) {
         // the HAL clamps to its hard cap (REVERSE_RATE_MAX_HZ = 1000)

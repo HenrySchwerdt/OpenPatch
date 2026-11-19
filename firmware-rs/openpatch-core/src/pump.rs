@@ -124,6 +124,9 @@ pub struct Pump<H: Hal> {
     pub(crate) selftest: proto::SelfTestState,
     /// Pending `SELFTEST_PROGRESS` notification argument.
     pub(crate) selftest_note: Option<u32>,
+    /// Leadscrew angle at the end of the last tick, and whether the motor was driven since (H15 pressure anomaly check).
+    pub(crate) rest_angle: Option<i64>,
+    pub(crate) moved: bool,
     /// Write event type 31 for new diagnostic records (off by default, see [`Pump::set_diag_history`]).
     pub(crate) diag_history: bool,
     /// Next record id not yet written as event 31.
@@ -172,6 +175,8 @@ impl<H: Hal> Pump<H> {
             hal_rec: 0,
             selftest: proto::SelfTestState::default(),
             selftest_note: None,
+            rest_angle: None,
+            moved: false,
             diag_history: false,
             diag_hist_next: 0,
             takeup_pending: 0,
@@ -374,6 +379,7 @@ impl<H: Hal> Pump<H> {
     }
 
     fn run_motor(&mut self, steps: Pulses) -> Pulses {
+        self.moved = true;
         self.hal_rec = 0;
         self.hal.motor_enable_dir(crate::hal::MotorDir::Forward);
         let r = self.hal.motor_step_ex(steps);
@@ -410,7 +416,8 @@ impl<H: Hal> Pump<H> {
             MotorFault::SupplyUnexpected => Some(codes::VMOT_STUCK_ON),
             MotorFault::InterlockFailed => Some(codes::INTERLOCK_FAILED_LATCH),
             MotorFault::Timeout => Some(codes::STEP_COUNT_SHORT),
-            MotorFault::ForwardWhileUndocked | MotorFault::ReverseWhileDocked => None,
+            MotorFault::ReverseWhileDocked => Some(codes::REVERSE_REQUESTED_WHILE_DOCKED),
+            MotorFault::ForwardWhileUndocked => None,
         };
         match code {
             Some(c) => self.hal_rec = self.sv.raise(Raise::new(c).c(executed.0)),
@@ -542,7 +549,7 @@ impl<H: Hal> Pump<H> {
         self.selftest = proto::SelfTestState { state: proto::selftest::RUNNING, kind: sub_op, ..Default::default() };
         let steps: &[SelfTestStep] = match sub_op {
             proto::selftest::SUBOP_POST_S => &[SelfTestStep::PassiveChecks],
-            proto::selftest::SUBOP_POST_A => &[SelfTestStep::GateCut, SelfTestStep::DockGateBlock, SelfTestStep::OverCurrentCut],
+            proto::selftest::SUBOP_POST_A => &[SelfTestStep::GateCut, SelfTestStep::DockGateBlock, SelfTestStep::OverCurrentCut, SelfTestStep::ReverseDockedBlock],
             proto::selftest::SUBOP_WATCHDOG => &[SelfTestStep::WatchdogProof],
             _ => &[],
         };
@@ -669,6 +676,7 @@ impl<H: Hal> Pump<H> {
         if self.pod.active && self.hal_charger() {
             self.release_now(REL_CHARGER); // on a charger: forced released
         }
+        self.check_docked_pressure();
         self.wear_step(wear_dt);
         self.drain_hal_diag();
 
@@ -705,6 +713,20 @@ impl<H: Hal> Pump<H> {
         self.sync_faults(before);
         self.log_diag_history();
         self.hal.watchdog_kick();
+    }
+
+    /// H15: docked, the motor not driven since the last tick, and the leadscrew angle moved: the self-locking drive was
+    /// back-driven from the reservoir side (possible manual injection into the cannula). Raises `5-54-001` (latched).
+    /// The reference angle follows every driven tick, so commanded motion never trips it.
+    fn check_docked_pressure(&mut self) {
+        let angle = self.hal.angle_read().map(|a| a.0);
+        if let (Some(a), Some(r)) = (angle, self.rest_angle) {
+            if self.pod.docked && !self.moved && !self.draw_running() && (a - r).abs() > PRESSURE_ANOMALY_ANGLE_COUNTS {
+                self.sv.raise(Raise::new(codes::PRESSURE_ANOMALY_WHILE_DOCKED).a((a - r) as i32));
+            }
+        }
+        self.rest_angle = angle;
+        self.moved = false;
     }
 
     // ---- commands ----------------------------------------------------------------------------
@@ -1269,7 +1291,7 @@ impl<H: Hal> Pump<H> {
                 rsp.status = Some(self.get_status());
                 r
             }
-            CommandBody::FillDraw { amount_mu } => self.fill_draw(MilliUnits(*amount_mu)),
+            CommandBody::AssistedFill { amount_mu } => self.assisted_fill(MilliUnits(*amount_mu)),
             CommandBody::Release { pair_id } => {
                 let r = self.release(*pair_id);
                 if let Ok(mu) = r {

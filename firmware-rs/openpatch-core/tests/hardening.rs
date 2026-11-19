@@ -187,7 +187,7 @@ fn draw_pump() -> (Pump<MockHal>, MockHal) {
     activate(&mut p, 1000).unwrap();
     hal.st().docked = false;
     run_secs(&mut p, &hal, 1);
-    p.fill_draw(MilliUnits(5_000)).unwrap();
+    p.assisted_fill(MilliUnits(5_000)).unwrap();
     run_draw(&mut p, &hal);
     hal.st().docked = true;
     run_secs(&mut p, &hal, 1);
@@ -255,7 +255,7 @@ fn f4_relaxed_has_no_takeup_and_one_burst() {
     p.fill(MilliUnits(50_000)).unwrap();
     activate(&mut p, 1000).unwrap();
     hal.st().docked = false;
-    p.fill_draw(MilliUnits(5_000)).unwrap();
+    p.assisted_fill(MilliUnits(5_000)).unwrap();
     run_draw(&mut p, &hal);
     hal.st().docked = true;
     let s0 = hal.st().total_steps;
@@ -275,7 +275,7 @@ fn f5_the_draw_rate_is_derived_from_the_needle_and_a_fine_needle_shortens_the_ch
         p.fill(MilliUnits(10_000)).unwrap();
         activate(&mut p, 1000).unwrap();
         hal.st().docked = false;
-        p.fill_draw(MilliUnits(5_000)).unwrap();
+        p.assisted_fill(MilliUnits(5_000)).unwrap();
         let pps = draw_pps(needle, cal);
         assert_eq!(hal.st().draw_rate_pps, Some(pps));
         run_draw(&mut p, &hal);
@@ -296,7 +296,7 @@ fn f5_a_draw_burst_between_the_occlusion_and_the_draw_threshold_is_not_a_stall()
     activate(&mut p, 1000).unwrap();
     hal.st().docked = false;
     hal.st().current_ma = Some(current);
-    p.fill_draw(MilliUnits(40_000)).unwrap();
+    p.assisted_fill(MilliUnits(40_000)).unwrap();
     run_draw(&mut p, &hal);
     assert_eq!(p.draw_state(), openpatch_proto::draw::DONE);
     // a burst above the draw threshold stalls it
@@ -307,7 +307,7 @@ fn f5_a_draw_burst_between_the_occlusion_and_the_draw_threshold_is_not_a_stall()
     activate(&mut p, 1000).unwrap();
     hal.st().docked = false;
     hal.st().current_ma = Some(DRAW_STALL_CURRENT_MA + 5);
-    p.fill_draw(MilliUnits(40_000)).unwrap();
+    p.assisted_fill(MilliUnits(40_000)).unwrap();
     run_draw(&mut p, &hal);
     assert_eq!(p.draw_state(), openpatch_proto::draw::STALLED);
 }

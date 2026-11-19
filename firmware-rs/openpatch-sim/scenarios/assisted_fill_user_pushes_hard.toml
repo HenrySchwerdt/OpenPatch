@@ -1,0 +1,18 @@
+name = "assisted_fill_user_pushes_hard"
+description = "Assisted fill where the user pushes far too hard (150 kPa): the plunger is the limit, the volume is booked from the travel, and the excess leaves as drops at the needle tip (no check valve)."
+seed = 143
+duration_s = 700.0
+events = [
+  { at_s = 100.0, action = "suspend" },
+  { at_s = 110.0, action = "dock", on = false },
+  { at_s = 119.0, action = "fill_push", kpa = 150.0 },
+  { at_s = 120.0, action = "draw", units = 20.0 },
+  { at_s = 300.0, action = "dock", on = true },
+  { at_s = 310.0, action = "prime", units = 0.4 },
+  { at_s = 400.0, action = "prime", units = 0.4 },
+  { at_s = 500.0, action = "resume" },
+]
+
+[setup]
+fill_u = 30.0
+basal = [[0.0, 1.0]]

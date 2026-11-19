@@ -2,7 +2,7 @@
 //! injection, and [`SimPins`]: the `openpatch_core::bench_ctl::BenchPins` implementation over the shared [`World`]. The
 //! core's POST and sequencing (`BenchCtl`) therefore run unchanged against this model, exactly as they run on the target.
 //!
-//! `MOT_ALLOW = MCU_EN AND LATCH_Q AND OC_OK AND (DOCKED_H OR DIR_REV)`, `VMOT = USB 5 V` through the P-FET Q4 while
+//! `MOT_ALLOW = MCU_EN AND LATCH_Q AND OC_OK AND (DOCKED_H XOR DIR_REV)`, `VMOT = USB 5 V` through the P-FET Q4 while
 //! `MOT_ALLOW`. The model is analog only where the proofs need it: VMOT ramps up (tau 1 ms) and bleeds down (tau 10 ms,
 //! R101), the over-current latch arms 12 ms after `MCU_EN` rises and trips above 450 mA (45 mA with `OC_TEST`), and is
 //! cleared only by `MCU_EN` low.
@@ -33,6 +33,8 @@ pub struct BoardFaults {
     pub q13_short: bool,
     /// Q6 (dock leg) shorted: the `Q6 || Q10` pair always conducts.
     pub q6_short: bool,
+    /// Q10 shorted: the pair also conducts for docked + reverse (the XOR of H14 is lost).
+    pub q10_short: bool,
     /// The DIR leg keeps conducting after DIR was reverse until `MCU_EN` is cycled low.
     pub dir_leg_sticky: bool,
     pub latch_stuck_high: bool,
@@ -65,6 +67,7 @@ impl BoardFaults {
             "q5_short" => self.q5_short = on,
             "q13_short" => self.q13_short = on,
             "q6_short" => self.q6_short = on,
+            "q10_short" => self.q10_short = on,
             "dir_leg_sticky" => self.dir_leg_sticky = on,
             "latch_stuck_high" => self.latch_stuck_high = on,
             "latch_stuck_low" => self.latch_stuck_low = on,
@@ -174,7 +177,7 @@ impl World {
         let en = self.mcu_en || b.f.q8_short;
         let oc = b.oc_ok || b.f.q13_short;
         let dir_leg = self.dir_rev_gate() || (b.f.dir_leg_sticky && b.dir_seen_reverse && self.mcu_en);
-        let pair = self.docked_h() || dir_leg || b.f.q6_short;
+        let pair = (self.docked_h() != dir_leg) || b.f.q6_short || b.f.q10_short;
         self.power_on && latch && en && oc && pair
     }
 

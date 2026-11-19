@@ -143,7 +143,11 @@ pub const OCC_BASELINE_CREEP_BURSTS: u16 = 64;
 // ---------------------------------------------------------------------------------------------
 pub const DRAW_MAX_PPS: u32 = 1_000;
 /// Default draw rate (the bench `REVERSE_RATE_HZ`): lower than the cap, keeps torque margin.
-pub const DRAW_DEFAULT_PPS: u32 = 600;
+pub const DRAW_DEFAULT_PPS: u32 = ASSISTED_FILL_PPS;
+/// ASSISTED (PRESSURE) FILL, spec 3c: the user pushes water through the septum with a syringe while the motor retracts the
+/// plunger at this FIXED rate. 200 pps = 0.79 U/s on the 16:20 drive (100 U in about 2 minutes): what a hand can push through a
+/// small septum, and the rate at which the motor has its full torque (the suction draw at 600 pps had only 0.69 of it).
+pub const ASSISTED_FILL_PPS: u32 = 200;
 /// Largest number of steps in one tick-chunk of a draw job (0.5 s at 1000 pps). The chunk is also limited to
 /// 0.8 s of motion at the rate in use ([`draw_chunk_steps`]) so that a slow draw never starves the watchdog.
 pub const DRAW_CHUNK_STEPS: u32 = 500;
@@ -254,3 +258,8 @@ pub const fn cal_in_range(c: PulseCal) -> bool {
     let f = c.micro_u_floor();
     !c.is_none() && f >= CAL_UU_MIN && f <= CAL_UU_MAX
 }
+
+/// `5-54-001 PRESSURE_ANOMALY_WHILE_DOCKED` (H15): an uncommanded leadscrew move of more than this many counts between two
+/// ticks while docked. 300 counts = 0.073 turn = 48 steps = 0.19 U on the 16:20 drive: far above the sensor noise (a few
+/// counts), far below anything a manual injection through the cannula would move.
+pub const PRESSURE_ANOMALY_ANGLE_COUNTS: i64 = 300;

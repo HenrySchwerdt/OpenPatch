@@ -59,7 +59,7 @@ pub trait Hal {
     /// Driver power gate (second, independent path next to the hardware watchdog interlock).
     fn motor_enable(&mut self, enable: bool);
     /// Power the driver for motion in `dir`. A board whose supply gate depends on the direction
-    /// (bench board: `VMOT = MCU_EN AND latch AND (DOCKED OR DIR_REVERSE)`) sets DIR BEFORE it
+    /// (bench board: `MOT_ALLOW = MCU_EN AND latch AND (DOCKED XOR DIR_REVERSE)`) sets DIR BEFORE it
     /// requests the supply. Default: direction independent, same as `motor_enable(true)`.
     fn motor_enable_dir(&mut self, _dir: MotorDir) {
         self.motor_enable(true);
@@ -194,6 +194,9 @@ pub enum SelfTestStep {
     DockGateBlock,
     /// A08: the watchdog is effective (service command, resets the MCU).
     WatchdogProof,
+    /// A13: reverse while DOCKED is cut (H14, the XOR of the dock / DIR pair). Needs the real dock (the test pin can force
+    /// "undocked" but never "docked"): UNKNOWN when the pod is not docked.
+    ReverseDockedBlock,
     /// A12: the over-current leg (comparator, latch, supply switch) cuts the supply when the test pin lowers the
     /// reference, and the latch clears only by cycling MCU_EN. Needs the motor connected (holding current).
     OverCurrentCut,

@@ -5,7 +5,7 @@ import Foundation
 
 public enum DiagCatalogueData {
     /// Catalogue version (matches `DiagSummary.schema` of a pod with the same catalogue).
-    public static let schemaVersion: UInt16 = 1
+    public static let schemaVersion: UInt16 = 2
 
     public static let entries: [DiagCatalogueEntry] = [
         DiagCatalogueEntry(code: DiagCode(raw: 0x10100100), name: "FLASH_IMAGE_BAD", severity: .fault, action: .updateFw, fru: .fw, fru2: nil, legacyBit: 5, hazards: 0x0002, text: "Firmware image damaged."),
@@ -32,6 +32,7 @@ public enum DiagCatalogueData {
         DiagCatalogueEntry(code: DiagCode(raw: 0x10700500), name: "GATE_MCUEN_STUCK_BLOCK", severity: .fault, action: .replace, fru: .ctrl, fru2: nil, legacyBit: 5, hazards: 0x0004, text: "Motor enable gate will not open."),
         DiagCatalogueEntry(code: DiagCode(raw: 0x10700600), name: "GATE_DOCK_STUCK_BLOCK", severity: .fault, action: .isolate, fru: .ctrl, fru2: .podb, legacyBit: 5, hazards: 0x0200, text: "Dock gate never opens."),
         DiagCatalogueEntry(code: DiagCode(raw: 0x10700700), name: "GATE_INPUT_READBACK_MISMATCH", severity: .latched, action: .replace, fru: .ctrl, fru2: nil, legacyBit: 5, hazards: 0x0802, text: "A control signal is shorted."),
+        DiagCatalogueEntry(code: DiagCode(raw: 0x10700800), name: "GATE_REVERSE_DOCKED_STUCK_PASS", severity: .latched, action: .replace, fru: .ctrl, fru2: nil, legacyBit: 5, hazards: 0x4002, text: "Reverse while docked is not blocked."),
         DiagCatalogueEntry(code: DiagCode(raw: 0x10800100), name: "ISENSE_IDLE_OFFSET", severity: .fault, action: .replace, fru: .ctrl, fru2: nil, legacyBit: 5, hazards: 0x0004, text: "Motor current sensor offset."),
         DiagCatalogueEntry(code: DiagCode(raw: 0x10800200), name: "ISENSE_SATURATED", severity: .fault, action: .replace, fru: .ctrl, fru2: nil, legacyBit: 5, hazards: 0x0004, text: "Motor current sensor stuck high."),
         DiagCatalogueEntry(code: DiagCode(raw: 0x10800300), name: "ISENSE_DEAD", severity: .warning, action: .replace, fru: .ctrl, fru2: nil, legacyBit: nil, hazards: 0x0804, text: "Motor current sensor not responding."),
@@ -74,6 +75,7 @@ public enum DiagCatalogueData {
         DiagCatalogueEntry(code: DiagCode(raw: 0x55300100), name: "OCCLUSION_SHORTFALL", severity: .fault, action: .checkCannula, fru: .cann, fru2: .needle, legacyBit: 0, hazards: 0x0004, text: "Blockage detected."),
         DiagCatalogueEntry(code: DiagCode(raw: 0x55300200), name: "OCCLUSION_CURRENT_RISE", severity: .fault, action: .checkCannula, fru: .cann, fru2: .needle, legacyBit: 0, hazards: 0x0004, text: "Blockage detected."),
         DiagCatalogueEntry(code: DiagCode(raw: 0x55300300), name: "OCCLUSION_RAMP_WARNING", severity: .warning, action: .checkCannula, fru: .cann, fru2: nil, legacyBit: nil, hazards: 0x0004, text: "A blockage may be building."),
+        DiagCatalogueEntry(code: DiagCode(raw: 0x55400100), name: "PRESSURE_ANOMALY_WHILE_DOCKED", severity: .latched, action: .checkCannula, fru: .cann, fru2: .ctrl, legacyBit: 5, hazards: 0x8004, text: "Unexpected pressure while docked. Check the cannula and the pod."),
         DiagCatalogueEntry(code: DiagCode(raw: 0x66000100), name: "ANGLE_CHANNEL_LOST", severity: .fault, action: .isolate, fru: .podb, fru2: .ffc, legacyBit: 5, hazards: 0x0006, text: "Position sensor lost."),
         DiagCatalogueEntry(code: DiagCode(raw: 0x66000200), name: "FIELD_TOO_WEAK", severity: .fault, action: .replace, fru: .mags, fru2: .podb, legacyBit: 5, hazards: 0x0804, text: "Spindle magnet signal too weak."),
         DiagCatalogueEntry(code: DiagCode(raw: 0x66000300), name: "FIELD_TOO_STRONG", severity: .fault, action: .retry, fru: .mags, fru2: nil, legacyBit: 5, hazards: 0x0004, text: "Position sensor sees a strong magnet."),
@@ -90,6 +92,7 @@ public enum DiagCatalogueData {
         DiagCatalogueEntry(code: DiagCode(raw: 0x77000500), name: "STEPS_SHORT_OF_APPROVAL", severity: .fault, action: .isolate, fru: .ctrl, fru2: .motor, legacyBit: 5, hazards: 0x0004, text: "Motor did not follow commands."),
         DiagCatalogueEntry(code: DiagCode(raw: 0x77000600), name: "BOOKKEEPING_MISMATCH", severity: .latched, action: .reportBug, fru: .fw, fru2: nil, legacyBit: 5, hazards: 0x2002, text: "Internal dose records disagree."),
         DiagCatalogueEntry(code: DiagCode(raw: 0x77000700), name: "VETO_STEP_REQUEST_ILLEGAL", severity: .warning, action: .reportBug, fru: .fw, fru2: nil, legacyBit: nil, hazards: 0x0202, text: "An internal check blocked an illegal step."),
+        DiagCatalogueEntry(code: DiagCode(raw: 0x77000800), name: "REVERSE_REQUESTED_WHILE_DOCKED", severity: .fault, action: .reportBug, fru: .fw, fru2: nil, legacyBit: 5, hazards: 0x4002, text: "An internal check blocked a reverse step while docked."),
         DiagCatalogueEntry(code: DiagCode(raw: 0x77100100), name: "ENGINE_STATE_INVALID", severity: .latched, action: .reportBug, fru: .fw, fru2: nil, legacyBit: 5, hazards: 0x0002, text: "Internal state error."),
         DiagCatalogueEntry(code: DiagCode(raw: 0x77100200), name: "BASAL_SCHEDULE_CORRUPT", severity: .fault, action: .retry, fru: .none, fru2: nil, legacyBit: 5, hazards: 0x0040, text: "Basal schedule on the pod is invalid."),
         DiagCatalogueEntry(code: DiagCode(raw: 0x77100300), name: "TIME_NOT_SET", severity: .warning, action: .rephone, fru: .app, fru2: nil, legacyBit: nil, hazards: 0x0040, text: "Pod clock not set."),
@@ -210,6 +213,8 @@ extension DiagCode {
     public static let gateDockStuckBlock = DiagCode(raw: 0x10700600)
     /// `1-07-007`
     public static let gateInputReadbackMismatch = DiagCode(raw: 0x10700700)
+    /// `1-07-008`
+    public static let gateReverseDockedStuckPass = DiagCode(raw: 0x10700800)
     /// `1-08-001`
     public static let isenseIdleOffset = DiagCode(raw: 0x10800100)
     /// `1-08-002`
@@ -294,6 +299,8 @@ extension DiagCode {
     public static let occlusionCurrentRise = DiagCode(raw: 0x55300200)
     /// `5-53-003`
     public static let occlusionRampWarning = DiagCode(raw: 0x55300300)
+    /// `5-54-001`
+    public static let pressureAnomalyWhileDocked = DiagCode(raw: 0x55400100)
     /// `6-60-001`
     public static let angleChannelLost = DiagCode(raw: 0x66000100)
     /// `6-60-002`
@@ -326,6 +333,8 @@ extension DiagCode {
     public static let bookkeepingMismatch = DiagCode(raw: 0x77000600)
     /// `7-70-007`
     public static let vetoStepRequestIllegal = DiagCode(raw: 0x77000700)
+    /// `7-70-008`
+    public static let reverseRequestedWhileDocked = DiagCode(raw: 0x77000800)
     /// `7-71-001`
     public static let engineStateInvalid = DiagCode(raw: 0x77100100)
     /// `7-71-002`

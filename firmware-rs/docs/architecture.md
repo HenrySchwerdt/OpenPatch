@@ -91,7 +91,7 @@ On the bench board the supply gate lets a draw through only with DIR = reverse (
 
 ## Hardware interlock sequence (`openpatch_core::bench_ctl`, bound to the pins by `hal/driver.rs`, bench board)
 
-`MOT_ALLOW = MCU_EN AND LATCH_Q AND OC_OK AND (DOCKED_H OR DIR_REV)` (`electronics/bench/INTERLOCK.md`; model, plan and every decision are in the core and host tested, `openpatch-core/tests/bench_ctl.rs`, `openpatch-sim/tests/post.rs`).
+`MOT_ALLOW = MCU_EN AND LATCH_Q AND OC_OK AND (DOCKED_H XOR DIR_REV)` (`electronics/bench/INTERLOCK.md`; model, plan and every decision are in the core and host tested, `openpatch-core/tests/bench_ctl.rs`, `openpatch-sim/tests/post.rs`).
 Each burst: `motor_enable_dir(dir)` = **DIR to the burst direction first** (it is an input of the gate), release `LATCH_CLR_N`, `MCU_EN` high, **one `ARM_CLK` rising edge immediately before delivering**, `LATCH_Q` must read high, `PGATE_MON` must show `MOT_ALLOW` and `VMOT_SENSE` the
 supply, `OC_OK` must still be high, STBY high (hard-wired full step), EN/FAULT must release. Forward needs DOCKED, reverse (draw) needs UNDOCKED: a forward step while undocked is refused, cuts the supply and is a fault (`MotorFault::ForwardWhileUndocked`); after a DIR change while powered and after each burst
 `VMOT_SENSE` and the gate readbacks are compared with the model (a leg that passes although its input is closed, a switch that blocks although all inputs are open, an over-current trip = driver fault). `motor_enable(false)` = STBY low, EN/FAULT driven low, then **one gate cuts in rotation**

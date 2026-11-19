@@ -1,4 +1,4 @@
-//! Bench interlock model (`MOT_ALLOW = MCU_EN AND LATCH AND OC_OK AND (DOCKED OR DIR_REVERSE)`), the power-up plan,
+//! Bench interlock model (`MOT_ALLOW = MCU_EN AND LATCH AND OC_OK AND (DOCKED XOR DIR_REVERSE)`), the power-up plan,
 //! draw-mode direction sequencing at the Hal boundary, HAL fault return, runtime occlusion
 //! threshold and the peak-current CSV column.
 mod common;
@@ -18,7 +18,7 @@ fn gate_truth_table() {
         for mcu in [false, true] {
             for docked in [false, true] {
                 for dir in [Forward, Reverse] {
-                    let want = latch && mcu && (docked || dir == Reverse);
+                    let want = latch && mcu && (docked != (dir == Reverse));
                     assert_eq!(vmot_expected(latch, mcu, docked, dir), want);
                 }
             }
@@ -28,6 +28,8 @@ fn gate_truth_table() {
     assert!(vmot_expected(true, true, false, Reverse));
     assert!(!vmot_expected(true, true, false, Forward));
     assert!(vmot_expected(true, true, true, Forward));
+    // H14: (DOCKED XOR DIR_REVERSE): reverse while docked is cut too, in hardware
+    assert!(!vmot_expected(true, true, true, Reverse), "reverse while docked must not conduct");
 }
 
 #[test]
@@ -167,7 +169,7 @@ fn draw_requests_the_supply_with_reverse_direction_and_delivery_with_forward() {
     let (mut p, h) = new_pump();
     p.fill(MilliUnits(10_000)).unwrap();
     h.st().docked = false;
-    p.fill_draw(MilliUnits(2_000)).unwrap();
+    p.assisted_fill(MilliUnits(2_000)).unwrap();
     run_secs(&mut p, &h, 3);
     {
         let st = h.st();
@@ -199,7 +201,7 @@ fn hal_fault_during_draw_aborts_and_latches_internal() {
     p.fill(MilliUnits(10_000)).unwrap();
     h.st().docked = false;
     h.st().fault = Some(MotorFault::SupplyMissing);
-    p.fill_draw(MilliUnits(2_000)).unwrap();
+    p.assisted_fill(MilliUnits(2_000)).unwrap();
     run_draw(&mut p, &h);
     assert!(!p.draw_running());
     assert!(p.supervisor().faults().contains(Faults::INTERNAL));

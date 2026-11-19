@@ -2,7 +2,7 @@
 //! executes. Pure (no hardware), so the ordering and the gate logic are host-tested.
 //!
 //! Hardware (Rev A, `electronics/bench/INTERLOCK.md`):
-//! `MOT_ALLOW = MCU_EN AND LATCH_Q AND OC_OK AND (DOCKED OR DIR_REVERSE)`, `VMOT = VBUS` through the
+//! `MOT_ALLOW = MCU_EN AND LATCH_Q AND OC_OK AND (DOCKED XOR DIR_REVERSE)` (H14: forward only docked, reverse only undocked), `VMOT = VBUS` through the
 //! P-FET Q4 while `MOT_ALLOW`. `OC_OK` is the hardware over-current latch (trip about 450 mA, cleared only
 //! by cycling `MCU_EN` low).
 //! `DIR_REVERSE` is the STSPIN220 DIR line at its REVERSE level, a direct hardware input of the
@@ -26,9 +26,10 @@ pub const fn vmot_expected(latch: bool, mcu_en: bool, docked: bool, dir: MotorDi
     mot_allow(latch, mcu_en, true, docked, matches!(dir, MotorDir::Reverse))
 }
 
-/// The complete gate network of Rev A: every leg in series, the last one is the `DOCKED_H OR DIR_REV` pair.
+/// The complete gate network: every leg in series, the last one is the `DOCKED_H XOR DIR_REV` pair (H14): forward only
+/// docked, reverse only undocked, both wrong combinations are cut in hardware.
 pub const fn mot_allow(latch_q: bool, mcu_en: bool, oc_ok: bool, docked_h: bool, dir_rev: bool) -> bool {
-    latch_q && mcu_en && oc_ok && (docked_h || dir_rev)
+    latch_q && mcu_en && oc_ok && (docked_h != dir_rev)
 }
 
 /// `MOT_DIR` pin level for a direction. `forward_high` is the board polarity (`DIR_FORWARD_HIGH`: `false` with R96
