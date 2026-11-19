@@ -16,3 +16,6 @@ dist
 /docs/
 /licence/
 /legal/
+/.cache/
+/public/img/
+/public/media/

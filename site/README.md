@@ -30,6 +30,17 @@ GitHub Pages: `.github/workflows/pages.yml` runs `npm ci && npm run build` in `s
 * **Docs**: the list in `scripts/gen/docs.mjs` plus any new `docs/*.md`. A file is skipped when missing (or, for licence files, when it does not yet contain the current licence text), so the build works on any branch state.
 * Parsers are tolerant: a missing source or changed table shape degrades to a visible note on the page instead of failing the build. Check the build log line `build-site: N pages (...)`.
 
+## Images and build steps (renders pipeline)
+
+`scripts/gen/media.mjs` consumes what the render and build-guide agents write:
+
+* `docs/renders/manifest.json`: entries `{id, file, kind: hero|exploded|section|detail|step|component|turntable, title, caption, size, variant: light|dark}`. `file` is resolved against `docs/renders/`, then the repo root. A light and a dark entry with the same id (or a `-light` / `-dark` suffix) become one theme-aware image. Video files (mp4/webm) of kind `turntable` are copied as is.
+* `docs/build-guide/steps.json`: steps `{id, title, image, parts[], tools[], check, warnings}`. `parts` and `tools` may be strings or `{name, qty, image}`; optional `notes`, `group`, `check_image`.
+
+Every raster image is resized to 480/960/1600 px and written as AVIF + WebP into `public/img/` (cache in `.cache/`, both git-ignored). Kinds that the manifest does not cover fall back to interim CAD views from `mechanical/out/bench/` and `mechanical/components/out/`, flagged "Interim CAD view" on the page; without `steps.json` the build page follows `mechanical/ASSEMBLY.md`. The build log prints which kinds are still waiting.
+
+Facts (`scripts/gen/facts.mjs`): sizes from `mechanical/out/bench/OP-*.mech.json` (spec section 2 as fallback), gear pair and U/step from spec section 4, safety limits from spec section 7, cost from `docs/SHOPPING.md` section 0.1, simulation counts from `mechanical/sim/REPORT.md`, licence terms from `COMMERCIAL-LICENSE.md`. A prose document that disagrees with the generated data is listed as stale (build log and status page).
+
 ## 3D viewer and realistic models
 
 The viewer (`src/viewer/mount.ts`, three.js, about 160 kB gzip) loads only when the visitor presses "Load 3D model". The page itself ships no 3D code.
