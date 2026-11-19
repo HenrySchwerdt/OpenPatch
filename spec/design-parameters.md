@@ -58,6 +58,15 @@
 - Fill septum: silicone Ø 4 mm × 2 mm, on the side, with a fill channel into the reservoir.
 - Outlet: channel → stainless-steel hollow needle 30G (Ø 0.31 mm) that pierces the septum of the Insight Flex cannula head.
 
+## 3a. Reservoir = frozen CNC interface (decision 2026-11-19)
+
+- The reservoir is a **CNC-machined polypropylene part** (PCBWay CNC), ordered **once per size** (qty 2 incl. spare) and then never changed.
+- It is deliberately minimal: stadium bore 16.00 × 5.00 mm (R2.50 = Ø5 end mill), open dry end, one simple port at the closed end. **No septum, valve, needle or dock features in the CNC part.**
+- Fill septum, duckbill check valve and needle hub live in a separate, cheap **end cap** pressed onto the port; housing, dock and cap iterate around the reservoir.
+- Its envelope, datum faces, mounting features and port position are **frozen parameters** (`mechanical/params.json` → `reservoir_frozen`). Changing them requires an explicit decision recorded in `docs/STATUS.md`.
+- Before ordering: independent DFM review of the drawing + PCBWay's quote DFM feedback.
+- Insulin-contact parts for bench tests with insulin (into containers only): PP reservoir, medical platinum-cure silicone seals/septum/duckbill, stainless needle. Never printed resin.
+
 ## 4. Drive — geared micro stepper + direct leadscrew, automatic refill (decision 2026-11-19)
 
 Rationale: buildability beats minimal size (builders are not watchmakers). No off-the-shelf integrated micro linear actuator meets force/drawing/orderability (`mechanical/linear-actuator-selection.md`); the SMA ratchet needs too many fine custom parts. SMA research stays as a later option for minimal size.
