@@ -12,6 +12,7 @@ A reusable, very flat pod (target ≤ 8.5 mm, Omnipod DASH: 14.5 mm). It plugs d
 | [electronics/](electronics/) | Circuit as code, BOM, board outline (DXF → CADCraft), PCBWay costs |
 | [firmware/](firmware/) | C core (delivery, safety, protocol) with host tests, Zephyr skeleton, DASH compatibility plan |
 | [ios/](ios/) | `OpenPatchKit` for Trio (LoopKit PumpManager) |
+| [regulatory/](regulatory/) | Regulatory roadmap, standards matrix, technical-file skeleton, risk/software/usability/clinical structure, traceability tools (evidence for a future legal manufacturer; no IFU, no medical claim) |
 
 ## Tools
 - **SolidCraft** (3D, MCP server: `solidcraft-cli mcp`) for the housing

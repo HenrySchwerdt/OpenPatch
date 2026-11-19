@@ -1,0 +1,489 @@
+[
+ {
+  "id": "F01",
+  "title": "Device overview, isometric render per size (OP-70/100/200)",
+  "used_in": "TF 01 device description; eSTAR device description",
+  "status": "present",
+  "how": "Re-render: `python3 mechanical/generate.py --variant bench` then the SolidCraft render step in `site/scripts/render-product.sh` (about 12 min).",
+  "required": true,
+  "files": [
+   {
+    "path": "mechanical/out/bench/OP-100_iso.png",
+    "bytes": 477769
+   },
+   {
+    "path": "mechanical/out/bench/OP-200_iso.png",
+    "bytes": 718751
+   },
+   {
+    "path": "mechanical/out/bench/OP-70_iso.png",
+    "bytes": 973051
+   },
+   {
+    "path": "mechanical/out/OP-100_iso.png",
+    "bytes": 923937
+   },
+   {
+    "path": "mechanical/out/OP-200_iso.png",
+    "bytes": 1043178
+   },
+   {
+    "path": "mechanical/out/OP-70_iso.png",
+    "bytes": 887873
+   },
+   {
+    "path": "site/public/renders/hero-1200.png",
+    "bytes": 24954
+   },
+   {
+    "path": "site/public/renders/top100-900.png",
+    "bytes": 3404
+   },
+   {
+    "path": "site/public/renders/top200-900.png",
+    "bytes": 3534
+   },
+   {
+    "path": "site/public/renders/top70-900.png",
+    "bytes": 3185
+   }
+  ]
+ },
+ {
+  "id": "F02",
+  "title": "Exploded view of the assembly",
+  "used_in": "TF 01, TF 03 design and manufacturing",
+  "status": "present",
+  "how": "SolidCraft exploded render (site/scripts/render-product.sh).",
+  "required": true,
+  "files": [
+   {
+    "path": "mechanical/out/bench/OP-100_exploded.png",
+    "bytes": 437358
+   },
+   {
+    "path": "mechanical/out/bench/OP-200_exploded.png",
+    "bytes": 431693
+   },
+   {
+    "path": "mechanical/out/bench/OP-70_exploded.png",
+    "bytes": 435533
+   },
+   {
+    "path": "mechanical/out/OP-100_exploded.png",
+    "bytes": 530277
+   },
+   {
+    "path": "mechanical/out/OP-200_exploded.png",
+    "bytes": 553248
+   },
+   {
+    "path": "mechanical/out/OP-70_exploded.png",
+    "bytes": 516166
+   },
+   {
+    "path": "site/public/renders/exploded-1000.png",
+    "bytes": 110865
+   }
+  ]
+ },
+ {
+  "id": "F03",
+  "title": "Section views: reservoir, motor, leadscrew, cannula dock",
+  "used_in": "TF 01, TF 03",
+  "status": "present",
+  "how": "`python3 mechanical/generate.py --variant bench` (writes section PNGs).",
+  "required": true,
+  "files": [
+   {
+    "path": "mechanical/out/bench/OP-100_section_y_cannula.png",
+    "bytes": 57105
+   },
+   {
+    "path": "mechanical/out/bench/OP-100_section_y_motor.png",
+    "bytes": 40478
+   },
+   {
+    "path": "mechanical/out/bench/OP-100_section_y_reservoir.png",
+    "bytes": 57105
+   },
+   {
+    "path": "mechanical/out/bench/OP-100_section_y_screw.png",
+    "bytes": 82161
+   },
+   {
+    "path": "mechanical/out/bench/OP-200_section_y_cannula.png",
+    "bytes": 50781
+   },
+   {
+    "path": "mechanical/out/bench/OP-200_section_y_motor.png",
+    "bytes": 37963
+   },
+   {
+    "path": "mechanical/out/bench/OP-200_section_y_reservoir.png",
+    "bytes": 50781
+   },
+   {
+    "path": "mechanical/out/bench/OP-200_section_y_screw.png",
+    "bytes": 72405
+   },
+   {
+    "path": "mechanical/out/bench/OP-70_section_y_cannula.png",
+    "bytes": 65736
+   },
+   {
+    "path": "mechanical/out/bench/OP-70_section_y_motor.png",
+    "bytes": 40717
+   },
+   {
+    "path": "mechanical/out/bench/OP-70_section_y_reservoir.png",
+    "bytes": 65736
+   },
+   {
+    "path": "mechanical/out/bench/OP-70_section_y_screw.png",
+    "bytes": 93008
+   },
+   {
+    "path": "mechanical/out/bench/OP-100_section_plan_z4.2.png",
+    "bytes": 89322
+   },
+   {
+    "path": "mechanical/out/bench/OP-200_section_plan_z4.2.png",
+    "bytes": 80603
+   },
+   {
+    "path": "mechanical/out/bench/OP-70_section_plan_z4.2.png",
+    "bytes": 96291
+   }
+  ]
+ },
+ {
+  "id": "F04",
+  "title": "Annotated internal layout (reservoir, motor, gear pair, boards, dock)",
+  "used_in": "TF 01, TF 03",
+  "status": "present",
+  "how": "`python3 mechanical/annotate.py`. NOTE: STATUS.md flags a gear-ratio mismatch in the last snapshot; regenerate after the decision.",
+  "required": false,
+  "files": [
+   {
+    "path": "mechanical/out/bench/OP-100_layout_annotated.png",
+    "bytes": 108141
+   },
+   {
+    "path": "mechanical/out/bench/OP-200_layout_annotated.png",
+    "bytes": 110954
+   },
+   {
+    "path": "mechanical/out/bench/OP-70_layout_annotated.png",
+    "bytes": 107532
+   },
+   {
+    "path": "mechanical/out/bench/OP-100_layout_annotated.svg",
+    "bytes": 9905
+   },
+   {
+    "path": "mechanical/out/bench/OP-200_layout_annotated.svg",
+    "bytes": 10051
+   },
+   {
+    "path": "mechanical/out/bench/OP-70_layout_annotated.svg",
+    "bytes": 9904
+   }
+  ]
+ },
+ {
+  "id": "F05",
+  "title": "Frozen CNC reservoir drawings (dimensioned, per size)",
+  "used_in": "TF 03 design drawings; GSPR 10 (fluid path)",
+  "status": "present",
+  "how": "`python3 mechanical/cnc_reservoir.py`.",
+  "required": true,
+  "files": [
+   {
+    "path": "mechanical/out/bench/fab/reservoir-cnc/OP-100_reservoir_cnc_drawing.pdf",
+    "bytes": 57363
+   },
+   {
+    "path": "mechanical/out/bench/fab/reservoir-cnc/OP-200_reservoir_cnc_drawing.pdf",
+    "bytes": 57249
+   },
+   {
+    "path": "mechanical/out/bench/fab/reservoir-cnc/OP-70_reservoir_cnc_drawing.pdf",
+    "bytes": 57195
+   },
+   {
+    "path": "mechanical/out/bench/fab/reservoir-cnc/OP-100_reservoir_cnc_drawing.svg",
+    "bytes": 10255
+   },
+   {
+    "path": "mechanical/out/bench/fab/reservoir-cnc/OP-200_reservoir_cnc_drawing.svg",
+    "bytes": 10260
+   },
+   {
+    "path": "mechanical/out/bench/fab/reservoir-cnc/OP-70_reservoir_cnc_drawing.svg",
+    "bytes": 10253
+   }
+  ]
+ },
+ {
+  "id": "F06",
+  "title": "Dock coupon / dock insert renders and fit-test geometry",
+  "used_in": "TF 03; GSPR 14 (connection / interface)",
+  "status": "present",
+  "how": "`python3 mechanical/op_coupon.py`.",
+  "required": false,
+  "files": [
+   {
+    "path": "mechanical/out/bench/fab/dock-coupon/dock_coupon_iso.png",
+    "bytes": 626580
+   },
+   {
+    "path": "mechanical/out/bench/fab/dock-coupon/dock_coupon_top.png",
+    "bytes": 27727
+   },
+   {
+    "path": "mechanical/out/fab/dock-coupon/dock_coupon_iso.png",
+    "bytes": 626580
+   },
+   {
+    "path": "mechanical/out/fab/dock-coupon/dock_coupon_top.png",
+    "bytes": 27727
+   }
+  ]
+ },
+ {
+  "id": "F07",
+  "title": "Controller board renders (top, bottom)",
+  "used_in": "TF 03 electronics design; IEC 60601-1 construction",
+  "status": "present",
+  "how": "`kicad-cli pcb render` or `electronics/bench/tools/export_fab.py`.",
+  "required": true,
+  "files": [
+   {
+    "path": "electronics/bench/fab/jlcpcb/controller/openpatch-bench-controller-bottom.png",
+    "bytes": 105500
+   },
+   {
+    "path": "electronics/bench/fab/jlcpcb/controller/openpatch-bench-controller-top.png",
+    "bytes": 343086
+   },
+   {
+    "path": "electronics/fab/render/openpatch-op100-bottom.png",
+    "bytes": 120697
+   },
+   {
+    "path": "electronics/fab/render/openpatch-op100-top.png",
+    "bytes": 130086
+   }
+  ]
+ },
+ {
+  "id": "F08",
+  "title": "Pod sensor board render (top, bottom)",
+  "used_in": "TF 03",
+  "status": "missing",
+  "how": "`/Applications/KiCad/KiCad.app/Contents/MacOS/kicad-cli pcb render -o regulatory/figures/pod-top.png --side top electronics/bench/pod/pod.kicad_pcb` (pod board not built yet; see STATUS.md).",
+  "required": false,
+  "files": []
+ },
+ {
+  "id": "F09",
+  "title": "Schematic sheets as PDF (controller, pod) incl. hardware interlock",
+  "used_in": "TF 03; IEC 60601-1 clause 15; GSPR 17",
+  "status": "missing",
+  "how": "`kicad-cli sch export pdf -o regulatory/figures/controller-schematic.pdf <controller>.kicad_sch` (the controller is generated from a netlist; export the schematic from the generated project).",
+  "required": true,
+  "files": []
+ },
+ {
+  "id": "F10",
+  "title": "Fabrication outputs (Gerber archives) - listed, not copied",
+  "used_in": "TF 03 manufacturing information",
+  "status": "present",
+  "how": "`electronics/bench/tools/export_fab.py`.",
+  "required": false,
+  "files": [
+   {
+    "path": "electronics/bench/fab/jlcpcb/controller/openpatch-bench-controller-gerbers.zip",
+    "bytes": 195072
+   },
+   {
+    "path": "electronics/fab/jlcpcb/openpatch-reva-gerbers-jlcpcb.zip",
+    "bytes": 141450
+   },
+   {
+    "path": "electronics/fab/pcbway/openpatch-reva-gerbers.zip",
+    "bytes": 141450
+   }
+  ]
+ },
+ {
+  "id": "F11",
+  "title": "Board outline drawing (DXF)",
+  "used_in": "TF 03",
+  "status": "present",
+  "how": "CADCraft (2D) from `electronics/board-outline.dxf`; export to PDF.",
+  "required": false,
+  "files": [
+   {
+    "path": "electronics/board-outline.dxf",
+    "bytes": 40976
+   },
+   {
+    "path": "electronics/placement-plan.svg",
+    "bytes": 9815
+   }
+  ]
+ },
+ {
+  "id": "F12",
+  "title": "Simulation plots: thrust, dose accuracy, tolerance, structure, fluidics",
+  "used_in": "TF 06 verification (design-stage evidence)",
+  "status": "present",
+  "how": "`python3 mechanical/sim/run_all.py` (2 s).",
+  "required": false,
+  "files": [
+   {
+    "path": "mechanical/sim/plots/a1_force.png",
+    "bytes": 83166
+   },
+   {
+    "path": "mechanical/sim/plots/a2_dose.png",
+    "bytes": 91664
+   },
+   {
+    "path": "mechanical/sim/plots/a3_tolerance.png",
+    "bytes": 92936
+   },
+   {
+    "path": "mechanical/sim/plots/a4_snap.png",
+    "bytes": 72743
+   },
+   {
+    "path": "mechanical/sim/plots/a5_fluidics.png",
+    "bytes": 102909
+   }
+  ]
+ },
+ {
+  "id": "F13",
+  "title": "System architecture diagram (phone, pod, cannula)",
+  "used_in": "TF 01 device description; eSTAR",
+  "status": "text only (render needed)",
+  "how": "The diagram is a Mermaid block in `docs/01-architecture.md` (text only). Render: `npx -y @mermaid-js/mermaid-cli -i <extracted.mmd> -o regulatory/figures/system-architecture.svg`.",
+  "required": false,
+  "files": [
+   {
+    "path": "docs/01-architecture.md",
+    "bytes": 2902
+   }
+  ]
+ },
+ {
+  "id": "F14",
+  "title": "Hardware interlock block diagram (MCU_EN AND watchdog latch AND (DOCKED OR DIR_REV))",
+  "used_in": "TF 03; RISK; GSPR 17, 23",
+  "status": "text only (render needed)",
+  "how": "Text/Mermaid only today (docs/v010/ARCHITECTURE.md 7.1). Render as for F13; draw the final one from the electronics INTERLOCK document.",
+  "required": true,
+  "files": [
+   {
+    "path": "docs/02-safety.md",
+    "bytes": 4992
+   },
+   {
+    "path": "docs/v010/ARCHITECTURE.md",
+    "bytes": 31085
+   }
+  ]
+ },
+ {
+  "id": "F15",
+  "title": "Firmware task / ownership diagram (safety task vs BLE task)",
+  "used_in": "SOFTWARE architecture (IEC 62304 5.3)",
+  "status": "text only (render needed)",
+  "how": "ASCII diagram in the document; redraw as SVG for the submission.",
+  "required": false,
+  "files": [
+   {
+    "path": "firmware-rs/docs/architecture.md",
+    "bytes": 14304
+   }
+  ]
+ },
+ {
+  "id": "F16",
+  "title": "Pod and pair state diagram (suspended, active, released, faulted; two-pod handover)",
+  "used_in": "SOFTWARE, USABILITY, RISK",
+  "status": "missing",
+  "how": "To be generated from `firmware-rs/openpatch-core/src/pod.rs` and `ios/.../PairSwapCoordinator.swift` (state enums); draw with Mermaid `stateDiagram-v2`.",
+  "required": false,
+  "files": []
+ },
+ {
+  "id": "F17",
+  "title": "Dimensioned engineering drawings of housing parts (2D, DWG/PDF)",
+  "used_in": "TF 03 design drawings (Annex II 3)",
+  "status": "missing",
+  "how": "SolidCraft drawing export (`solidcraft-cli` drawing view of `mechanical/out/bench/fab/OP-100/*.step`) then CADCraft for dimensions; or `python3 mechanical/fab.py` extended. Not generated yet.",
+  "required": true,
+  "files": []
+ },
+ {
+  "id": "F18",
+  "title": "Labelling artwork: device label, symbols per ISO 15223-1, UDI carrier",
+  "used_in": "TF 02 labelling; MDR Annex I chapter III",
+  "status": "missing",
+  "how": "Legal manufacturer: label content and UDI are manufacturer-specific. Structure only in TECHNICAL-FILE/02-labelling-and-ifu.md.",
+  "required": true,
+  "files": []
+ },
+ {
+  "id": "F19",
+  "title": "Traceability matrix (hazard to verification)",
+  "used_in": "RISK; eSTAR traceability special control (880.5730)",
+  "status": "present",
+  "how": "`python3 regulatory/tools/trace.py --report regulatory/RISK/TRACE.md`.",
+  "required": false,
+  "files": [
+   {
+    "path": "regulatory/RISK/TRACE.md",
+    "bytes": 9551
+   }
+  ]
+ },
+ {
+  "id": "F20",
+  "title": "Website product renders (marketing quality, not for the file)",
+  "used_in": "reference only",
+  "status": "present",
+  "how": "Not suitable as regulatory drawings (not dimensioned); useful for the device description.",
+  "required": false,
+  "files": [
+   {
+    "path": "site/public/renders/exploded-1000.png",
+    "bytes": 110865
+   },
+   {
+    "path": "site/public/renders/hero-1200.png",
+    "bytes": 24954
+   },
+   {
+    "path": "site/public/renders/hero_graphite-1200.png",
+    "bytes": 33121
+   },
+   {
+    "path": "site/public/renders/top100-900.png",
+    "bytes": 3404
+   },
+   {
+    "path": "site/public/renders/top200-900.png",
+    "bytes": 3534
+   },
+   {
+    "path": "site/public/renders/top70-900.png",
+    "bytes": 3185
+   }
+  ]
+ }
+]

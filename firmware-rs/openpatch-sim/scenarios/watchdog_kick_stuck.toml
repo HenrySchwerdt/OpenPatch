@@ -1,0 +1,11 @@
+name = "watchdog_kick_stuck"
+description = "The DONE line is dead (hardware defect): the TPL5010 resets the MCU every period. The pod must never deliver in this state."
+seed = 73
+duration_s = 600.0
+events = [
+  { at_s = 100.0, action = "kick_stuck", on = true },
+]
+
+[setup]
+fill_u = 40.0
+basal = [[0.0, 2.0]]

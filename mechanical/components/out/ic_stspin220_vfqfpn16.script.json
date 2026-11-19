@@ -1,0 +1,680 @@
+[
+{
+"command": "solid.box",
+"params": {
+"length": 3.0,
+"width": 3.0,
+"height": 1.0,
+"corner": [
+-1.5,
+-1.5,
+0.0
+],
+"body_name": "body",
+"name": "body"
+}
+},
+{
+"command": "sketch.create",
+"params": {
+"plane": "XY",
+"offset": -0.1
+}
+},
+{
+"command": "sketch.line",
+"params": {
+"points": [
+[
+-1.6,
+1.05
+],
+[
+-1.05,
+1.6
+],
+[
+-1.6,
+1.6
+]
+],
+"closed": true
+}
+},
+{
+"command": "sketch.finish",
+"params": {}
+},
+{
+"command": "solid.extrude",
+"params": {
+"distance": 1.2000000000000002,
+"body_name": "chamfer_tool",
+"name": "chamfer_tool"
+}
+},
+{
+"command": "solid.combine",
+"params": {
+"target": "body",
+"tools": [
+"chamfer_tool"
+],
+"operation": "cut",
+"name": "cut body"
+}
+},
+{
+"command": "solid.box",
+"params": {
+"length": 0.42999999999999994,
+"width": 0.25,
+"height": 0.3,
+"corner": [
+-1.53,
+0.625,
+0
+],
+"body_name": "pad1",
+"name": "pad1"
+}
+},
+{
+"command": "solid.box",
+"params": {
+"length": 0.42999999999999994,
+"width": 0.25,
+"height": 0.3,
+"corner": [
+-1.53,
+0.125,
+0
+],
+"body_name": "pad2",
+"name": "pad2"
+}
+},
+{
+"command": "solid.box",
+"params": {
+"length": 0.42999999999999994,
+"width": 0.25,
+"height": 0.3,
+"corner": [
+-1.53,
+-0.375,
+0
+],
+"body_name": "pad3",
+"name": "pad3"
+}
+},
+{
+"command": "solid.box",
+"params": {
+"length": 0.42999999999999994,
+"width": 0.25,
+"height": 0.3,
+"corner": [
+-1.53,
+-0.875,
+0
+],
+"body_name": "pad4",
+"name": "pad4"
+}
+},
+{
+"command": "solid.box",
+"params": {
+"length": 0.25,
+"width": 0.42999999999999994,
+"height": 0.3,
+"corner": [
+-0.875,
+-1.53,
+0
+],
+"body_name": "pad5",
+"name": "pad5"
+}
+},
+{
+"command": "solid.box",
+"params": {
+"length": 0.25,
+"width": 0.42999999999999994,
+"height": 0.3,
+"corner": [
+-0.375,
+-1.53,
+0
+],
+"body_name": "pad6",
+"name": "pad6"
+}
+},
+{
+"command": "solid.box",
+"params": {
+"length": 0.25,
+"width": 0.42999999999999994,
+"height": 0.3,
+"corner": [
+0.125,
+-1.53,
+0
+],
+"body_name": "pad7",
+"name": "pad7"
+}
+},
+{
+"command": "solid.box",
+"params": {
+"length": 0.25,
+"width": 0.42999999999999994,
+"height": 0.3,
+"corner": [
+0.625,
+-1.53,
+0
+],
+"body_name": "pad8",
+"name": "pad8"
+}
+},
+{
+"command": "solid.box",
+"params": {
+"length": 0.42999999999999994,
+"width": 0.25,
+"height": 0.3,
+"corner": [
+1.1,
+-0.875,
+0
+],
+"body_name": "pad9",
+"name": "pad9"
+}
+},
+{
+"command": "solid.box",
+"params": {
+"length": 0.42999999999999994,
+"width": 0.25,
+"height": 0.3,
+"corner": [
+1.1,
+-0.375,
+0
+],
+"body_name": "pad10",
+"name": "pad10"
+}
+},
+{
+"command": "solid.box",
+"params": {
+"length": 0.42999999999999994,
+"width": 0.25,
+"height": 0.3,
+"corner": [
+1.1,
+0.125,
+0
+],
+"body_name": "pad11",
+"name": "pad11"
+}
+},
+{
+"command": "solid.box",
+"params": {
+"length": 0.42999999999999994,
+"width": 0.25,
+"height": 0.3,
+"corner": [
+1.1,
+0.625,
+0
+],
+"body_name": "pad12",
+"name": "pad12"
+}
+},
+{
+"command": "solid.box",
+"params": {
+"length": 0.25,
+"width": 0.42999999999999994,
+"height": 0.3,
+"corner": [
+0.625,
+1.1,
+0
+],
+"body_name": "pad13",
+"name": "pad13"
+}
+},
+{
+"command": "solid.box",
+"params": {
+"length": 0.25,
+"width": 0.42999999999999994,
+"height": 0.3,
+"corner": [
+0.125,
+1.1,
+0
+],
+"body_name": "pad14",
+"name": "pad14"
+}
+},
+{
+"command": "solid.box",
+"params": {
+"length": 0.25,
+"width": 0.42999999999999994,
+"height": 0.3,
+"corner": [
+-0.375,
+1.1,
+0
+],
+"body_name": "pad15",
+"name": "pad15"
+}
+},
+{
+"command": "solid.box",
+"params": {
+"length": 0.25,
+"width": 0.42999999999999994,
+"height": 0.3,
+"corner": [
+-0.875,
+1.1,
+0
+],
+"body_name": "pad16",
+"name": "pad16"
+}
+},
+{
+"command": "solid.box",
+"params": {
+"length": 1.7,
+"width": 1.7,
+"height": 0.10500000000000001,
+"corner": [
+-0.85,
+-0.85,
+-0.005
+],
+"body_name": "exposed_pad",
+"name": "exposed_pad"
+}
+},
+{
+"command": "solid.cylinder",
+"params": {
+"diameter": 0.3,
+"height": 0.15000000000000013,
+"base": [
+-0.95,
+0.95,
+0.95
+],
+"axis": "Z",
+"body_name": "dimple_body",
+"name": "dimple_body"
+}
+},
+{
+"command": "solid.combine",
+"params": {
+"target": "body",
+"tools": [
+"dimple_body"
+],
+"operation": "cut",
+"name": "cut body"
+}
+},
+{
+"command": "appearance.assign",
+"params": {
+"bodies": [
+"body"
+],
+"color": "#1a1a1c",
+"pbr": {
+"metallic": 0.0,
+"roughness": 0.45,
+"dielectric_ior": 1.5
+}
+}
+},
+{
+"command": "appearance.assign",
+"params": {
+"bodies": [
+"pad1"
+],
+"color": "#d4d6d9",
+"pbr": {
+"metallic": 1.0,
+"roughness": 0.3,
+"dielectric_ior": 1.5
+}
+}
+},
+{
+"command": "appearance.assign",
+"params": {
+"bodies": [
+"pad2"
+],
+"color": "#d4d6d9",
+"pbr": {
+"metallic": 1.0,
+"roughness": 0.3,
+"dielectric_ior": 1.5
+}
+}
+},
+{
+"command": "appearance.assign",
+"params": {
+"bodies": [
+"pad3"
+],
+"color": "#d4d6d9",
+"pbr": {
+"metallic": 1.0,
+"roughness": 0.3,
+"dielectric_ior": 1.5
+}
+}
+},
+{
+"command": "appearance.assign",
+"params": {
+"bodies": [
+"pad4"
+],
+"color": "#d4d6d9",
+"pbr": {
+"metallic": 1.0,
+"roughness": 0.3,
+"dielectric_ior": 1.5
+}
+}
+},
+{
+"command": "appearance.assign",
+"params": {
+"bodies": [
+"pad5"
+],
+"color": "#d4d6d9",
+"pbr": {
+"metallic": 1.0,
+"roughness": 0.3,
+"dielectric_ior": 1.5
+}
+}
+},
+{
+"command": "appearance.assign",
+"params": {
+"bodies": [
+"pad6"
+],
+"color": "#d4d6d9",
+"pbr": {
+"metallic": 1.0,
+"roughness": 0.3,
+"dielectric_ior": 1.5
+}
+}
+},
+{
+"command": "appearance.assign",
+"params": {
+"bodies": [
+"pad7"
+],
+"color": "#d4d6d9",
+"pbr": {
+"metallic": 1.0,
+"roughness": 0.3,
+"dielectric_ior": 1.5
+}
+}
+},
+{
+"command": "appearance.assign",
+"params": {
+"bodies": [
+"pad8"
+],
+"color": "#d4d6d9",
+"pbr": {
+"metallic": 1.0,
+"roughness": 0.3,
+"dielectric_ior": 1.5
+}
+}
+},
+{
+"command": "appearance.assign",
+"params": {
+"bodies": [
+"pad9"
+],
+"color": "#d4d6d9",
+"pbr": {
+"metallic": 1.0,
+"roughness": 0.3,
+"dielectric_ior": 1.5
+}
+}
+},
+{
+"command": "appearance.assign",
+"params": {
+"bodies": [
+"pad10"
+],
+"color": "#d4d6d9",
+"pbr": {
+"metallic": 1.0,
+"roughness": 0.3,
+"dielectric_ior": 1.5
+}
+}
+},
+{
+"command": "appearance.assign",
+"params": {
+"bodies": [
+"pad11"
+],
+"color": "#d4d6d9",
+"pbr": {
+"metallic": 1.0,
+"roughness": 0.3,
+"dielectric_ior": 1.5
+}
+}
+},
+{
+"command": "appearance.assign",
+"params": {
+"bodies": [
+"pad12"
+],
+"color": "#d4d6d9",
+"pbr": {
+"metallic": 1.0,
+"roughness": 0.3,
+"dielectric_ior": 1.5
+}
+}
+},
+{
+"command": "appearance.assign",
+"params": {
+"bodies": [
+"pad13"
+],
+"color": "#d4d6d9",
+"pbr": {
+"metallic": 1.0,
+"roughness": 0.3,
+"dielectric_ior": 1.5
+}
+}
+},
+{
+"command": "appearance.assign",
+"params": {
+"bodies": [
+"pad14"
+],
+"color": "#d4d6d9",
+"pbr": {
+"metallic": 1.0,
+"roughness": 0.3,
+"dielectric_ior": 1.5
+}
+}
+},
+{
+"command": "appearance.assign",
+"params": {
+"bodies": [
+"pad15"
+],
+"color": "#d4d6d9",
+"pbr": {
+"metallic": 1.0,
+"roughness": 0.3,
+"dielectric_ior": 1.5
+}
+}
+},
+{
+"command": "appearance.assign",
+"params": {
+"bodies": [
+"pad16"
+],
+"color": "#d4d6d9",
+"pbr": {
+"metallic": 1.0,
+"roughness": 0.3,
+"dielectric_ior": 1.5
+}
+}
+},
+{
+"command": "appearance.assign",
+"params": {
+"bodies": [
+"exposed_pad"
+],
+"color": "#d4d6d9",
+"pbr": {
+"metallic": 1.0,
+"roughness": 0.3,
+"dielectric_ior": 1.5
+}
+}
+},
+{
+"command": "file.export_step",
+"params": {
+"path": "ic_stspin220_vfqfpn16.step",
+"bodies": [
+"body",
+"pad1",
+"pad2",
+"pad3",
+"pad4",
+"pad5",
+"pad6",
+"pad7",
+"pad8",
+"pad9",
+"pad10",
+"pad11",
+"pad12",
+"pad13",
+"pad14",
+"pad15",
+"pad16",
+"exposed_pad"
+]
+}
+},
+{
+"command": "file.export_stl",
+"params": {
+"path": "ic_stspin220_vfqfpn16.stl",
+"bodies": [
+"body",
+"pad1",
+"pad2",
+"pad3",
+"pad4",
+"pad5",
+"pad6",
+"pad7",
+"pad8",
+"pad9",
+"pad10",
+"pad11",
+"pad12",
+"pad13",
+"pad14",
+"pad15",
+"pad16",
+"exposed_pad"
+],
+"quality": "standard"
+}
+},
+{
+"command": "file.export",
+"params": {
+"path": "ic_stspin220_vfqfpn16.glb",
+"bodies": [
+"body",
+"pad1",
+"pad2",
+"pad3",
+"pad4",
+"pad5",
+"pad6",
+"pad7",
+"pad8",
+"pad9",
+"pad10",
+"pad11",
+"pad12",
+"pad13",
+"pad14",
+"pad15",
+"pad16",
+"exposed_pad"
+],
+"quality": "standard"
+}
+}
+]

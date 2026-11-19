@@ -1,0 +1,224 @@
+[
+{
+"command": "sketch.create",
+"params": {
+"plane": "XY",
+"offset": 0.0
+}
+},
+{
+"command": "sketch.rectangle.rounded",
+"params": {
+"p0": [
+-5.5,
+-5.5
+],
+"p1": [
+5.5,
+5.5
+],
+"radius": 2.5
+}
+},
+{
+"command": "sketch.finish",
+"params": {}
+},
+{
+"command": "solid.extrude",
+"params": {
+"distance": 0.6,
+"body_name": "patch",
+"name": "patch"
+}
+},
+{
+"command": "sketch.create",
+"params": {
+"plane": "XZ",
+"offset": 0
+}
+},
+{
+"command": "sketch.line",
+"params": {
+"points": [
+[
+0,
+-0.6
+],
+[
+5.0,
+-0.6
+],
+[
+5.0,
+-1.6
+]
+]
+}
+},
+{
+"command": "sketch.arc.three_point",
+"params": {
+"start": [
+5.0,
+-1.6
+],
+"end": [
+0,
+-5.0
+],
+"through": [
+3.7,
+-4.0
+]
+}
+},
+{
+"command": "sketch.line",
+"params": {
+"points": [
+[
+0,
+-5.0
+],
+[
+0,
+-0.6
+]
+]
+}
+},
+{
+"command": "sketch.finish",
+"params": {}
+},
+{
+"command": "solid.revolve",
+"params": {
+"axis": "Z",
+"angle": 360,
+"body_name": "dome",
+"name": "dome"
+}
+},
+{
+"command": "solid.cylinder",
+"params": {
+"diameter": 3.6,
+"height": 2.4,
+"base": [
+3.6,
+0,
+3.0
+],
+"axis": "X",
+"body_name": "recess_tool",
+"name": "recess_tool"
+}
+},
+{
+"command": "solid.combine",
+"params": {
+"target": "dome",
+"tools": [
+"recess_tool"
+],
+"operation": "cut",
+"name": "cut dome"
+}
+},
+{
+"command": "solid.cylinder",
+"params": {
+"diameter": 3.4,
+"height": 1.0,
+"base": [
+2.6,
+0,
+3.0
+],
+"axis": "X",
+"body_name": "septum",
+"name": "septum"
+}
+},
+{
+"command": "appearance.assign",
+"params": {
+"bodies": [
+"patch"
+],
+"color": "#ece9e1",
+"pbr": {
+"metallic": 0.0,
+"roughness": 0.5,
+"dielectric_ior": 1.5
+}
+}
+},
+{
+"command": "appearance.assign",
+"params": {
+"bodies": [
+"dome"
+],
+"color": "#cfe3ea",
+"pbr": {
+"metallic": 0.0,
+"roughness": 0.2,
+"dielectric_ior": 1.5
+}
+}
+},
+{
+"command": "appearance.assign",
+"params": {
+"bodies": [
+"septum"
+],
+"color": "#d9ecef",
+"pbr": {
+"metallic": 0.0,
+"roughness": 0.35,
+"dielectric_ior": 1.5
+}
+}
+},
+{
+"command": "file.export_step",
+"params": {
+"path": "cannula_head_dummy.step",
+"bodies": [
+"patch",
+"dome",
+"septum"
+]
+}
+},
+{
+"command": "file.export_stl",
+"params": {
+"path": "cannula_head_dummy.stl",
+"bodies": [
+"patch",
+"dome",
+"septum"
+],
+"quality": "standard"
+}
+},
+{
+"command": "file.export",
+"params": {
+"path": "cannula_head_dummy.glb",
+"bodies": [
+"patch",
+"dome",
+"septum"
+],
+"quality": "standard"
+}
+}
+]

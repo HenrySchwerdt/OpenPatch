@@ -1,0 +1,16 @@
+name = "flash_power_loss_worst"
+description = "Same, but the torn write also destroys the previous copy of the record (pessimistic flash model). The pod must fail safe."
+seed = 92
+duration_s = 3600.0
+events = [
+  { at_s = 1500.0, action = "flash_power_loss", frac = 0.5, off_ms = 400.0 },
+  { at_s = 1700.0, action = "set_basal", profile = [[0.0, 2.0]] },
+  { at_s = 1800.0, action = "resume" },
+]
+
+[params.flash]
+tear_destroys_previous_prob = 1.0
+
+[setup]
+fill_u = 40.0
+basal = [[0.0, 2.0]]

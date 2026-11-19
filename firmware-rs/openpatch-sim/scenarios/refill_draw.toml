@@ -1,0 +1,16 @@
+name = "refill_draw"
+description = "Mid-life automatic refill: suspend, undock, draw 50 U with the motor reversing (interlock path DIR_REVERSE), dock, prime, resume."
+seed = 21
+duration_s = 7200.0
+events = [
+  { at_s = 1800.0, action = "suspend" },
+  { at_s = 1810.0, action = "dock", on = false },
+  { at_s = 1820.0, action = "draw", units = 50.0 },
+  { at_s = 1990.0, action = "dock", on = true },
+  { at_s = 2000.0, action = "prime", units = 0.4 },
+  { at_s = 2020.0, action = "resume" },
+]
+
+[setup]
+fill_u = 30.0
+basal = [[0.0, 1.0]]

@@ -1,0 +1,12 @@
+name = "magnet_falls_off"
+description = "The leadscrew magnet comes off in the middle of a 4 U bolus. The sensor now reads garbage; can the core still see that delivery is no longer verified?"
+seed = 51
+duration_s = 7200.0
+events = [
+  { at_s = 600.0, action = "bolus", units = 4.0 },
+  { at_s = 660.0, action = "magnet", strength = 0.0 },
+]
+
+[setup]
+fill_u = 40.0
+basal = [[0.0, 1.0]]

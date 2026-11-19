@@ -1,0 +1,11 @@
+name = "undocked_firmware_bug"
+description = "Firmware-bug injection: 200 forward pulses are issued straight on the HAL while the pod is undocked. Only the hardware interlock stands in the way."
+seed = 42
+duration_s = 600.0
+events = [
+  { at_s = 100.0, action = "dock", on = false },
+  { at_s = 110.0, action = "force_steps", n = 200 },
+]
+
+[setup]
+fill_u = 40.0

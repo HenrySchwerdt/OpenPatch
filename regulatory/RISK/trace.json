@@ -1,0 +1,667 @@
+{
+ "counts": {
+  "hazards": 13,
+  "requirements": 27,
+  "controls": 30,
+  "codes": 150,
+  "tests": 86,
+  "links": 31
+ },
+ "errors": [],
+ "gaps": [
+  "88 of 88 codes tagged C have no `diag_<code>` core test yet (planned, WP-1/WP-2)",
+  "H5: no diagnostic code (process/app control only, by design)",
+  "H11: all controls are still planned (nothing implemented)",
+  "H12: no diagnostic code (process/app control only, by design)",
+  "H12: all controls are still planned (nothing implemented)",
+  "H13: all controls are still planned (nothing implemented)"
+ ],
+ "per_hazard": {
+  "H1": {
+   "title": "Over-delivery",
+   "reqs": [
+    "spec#4#Resolution",
+    "spec#6#OpenPatch protocol",
+    "spec#7#Bolus speed",
+    "spec#7#Encoder deviation",
+    "spec#7#Max. basal rate",
+    "spec#7#Max. delivery per hour",
+    "spec#7#Max. single bolus",
+    "spec#7a#Hardware independence",
+    "spec#7a#Hardware step budget"
+   ],
+   "controls": [
+    [
+     "FW",
+     "firmware-rs/openpatch-core/src/limits.rs#MAX_HOURLY",
+     "impl"
+    ],
+    [
+     "FW",
+     "firmware-rs/openpatch-core/src/limits.rs#HARD_MAX_BOLUS",
+     "impl"
+    ],
+    [
+     "FW",
+     "firmware-rs/openpatch-core/src/limits.rs#HARD_MAX_BASAL",
+     "impl"
+    ],
+    [
+     "FW",
+     "firmware-rs/openpatch-core/src/limits.rs#BOLUS_RATE",
+     "impl"
+    ],
+    [
+     "HW",
+     "docs/02-safety.md#Hardware interlock (core)",
+     "impl"
+    ],
+    [
+     "FW",
+     "firmware-rs/openpatch-core/src/interlock.rs#gate",
+     "impl"
+    ],
+    [
+     "FW",
+     "firmware-rs/openpatch-core/src/limits.rs#ENCODER_TOLERANCE_PCT",
+     "impl"
+    ],
+    [
+     "HW",
+     "docs/06-diagnostics.md#HW-A, arm window and step budget",
+     "plan"
+    ],
+    [
+     "FW",
+     "firmware-rs/openpatch-proto/src/session.rs#Replay",
+     "impl"
+    ],
+    [
+     "FW",
+     "firmware-rs/openpatch-core/src/drive_cal.rs#DriveCal",
+     "impl"
+    ]
+   ],
+   "codes": [
+    "1-01-001",
+    "1-01-003",
+    "1-03-001",
+    "1-04-001",
+    "1-04-002",
+    "1-05-001",
+    "1-05-003",
+    "1-06-001",
+    "1-07-001",
+    "1-07-002",
+    "1-07-003",
+    "1-07-004",
+    "1-07-007",
+    "1-0B-002",
+    "2-20-001",
+    "2-20-002",
+    "2-20-003",
+    "3-30-001",
+    "3-31-003",
+    "4-40-003",
+    "4-41-002",
+    "4-41-003",
+    "4-42-003",
+    "6-60-001",
+    "6-60-005",
+    "6-60-006",
+    "6-60-007",
+    "6-60-008",
+    "7-70-001",
+    "7-70-002",
+    "7-70-003",
+    "7-70-004",
+    "7-70-006",
+    "7-70-007",
+    "7-71-001",
+    "7-74-004",
+    "7-76-001",
+    "7-76-002",
+    "7-77-002",
+    "7-77-003",
+    "7-7B-002",
+    "7-7B-004",
+    "7-7C-002",
+    "7-7D-001",
+    "7-7D-002",
+    "7-7D-003",
+    "9-90-002",
+    "9-91-001",
+    "9-91-002",
+    "9-91-003",
+    "9-91-005",
+    "9-92-001",
+    "9-92-002",
+    "9-93-001",
+    "B-B1-001",
+    "B-B1-002"
+   ],
+   "verifications": [
+    "bench02:4",
+    "bench:B07",
+    "bench:B08",
+    "bench:B11",
+    "bench:B12",
+    "bench:B15",
+    "diff:firmware-rs/differential-tests/tests/scenarios.rs",
+    "rust:firmware-rs/openpatch-core/tests/calibration.rs::cal_every_tampered_record_blocks_delivery",
+    "rust:firmware-rs/openpatch-core/tests/calibration.rs::cal_missing_blocks_delivery",
+    "rust:firmware-rs/openpatch-core/tests/delivery.rs::de_bolus_runs_at_1_5_u_per_min",
+    "rust:firmware-rs/openpatch-core/tests/interlock.rs::forward_undocked_is_refused_and_a_closed_gate_would_show_missing_supply",
+    "rust:firmware-rs/openpatch-core/tests/interlock.rs::gate_truth_table",
+    "rust:firmware-rs/openpatch-core/tests/interlock.rs::hal_fault_after_a_forward_burst_latches_internal_and_is_remembered",
+    "rust:firmware-rs/openpatch-core/tests/pump.rs::pump_bolus_rejections",
+    "rust:firmware-rs/openpatch-core/tests/pump.rs::pump_encoder_deviation_stops_delivery",
+    "rust:firmware-rs/openpatch-core/tests/pump.rs::pump_hourly_cap_rejects_second_large_bolus",
+    "rust:firmware-rs/openpatch-core/tests/pump.rs::pump_watchdog_is_kicked_every_tick",
+    "rust:firmware-rs/openpatch-core/tests/safety.rs::rev_tolerance_boundary_high_side",
+    "rust:firmware-rs/openpatch-core/tests/safety.rs::sv_check_bolus_rules",
+    "rust:firmware-rs/openpatch-core/tests/safety.rs::sv_check_schedule_and_temp",
+    "rust:firmware-rs/openpatch-core/tests/safety.rs::sv_encoder_deviation_over_10_percent_stops",
+    "rust:firmware-rs/openpatch-core/tests/safety.rs::sv_hourly_cap_trims_and_latches",
+    "rust:firmware-rs/openpatch-core/tests/safety.rs::sv_per_minute_backstop",
+    "rust:firmware-rs/openpatch-proto/tests/handshake.rs::every_session_gets_fresh_keys_and_old_frames_do_not_replay",
+    "rust:firmware-rs/openpatch-proto/tests/session.rs::session_replay_protection",
+    "sim:2.1"
+   ],
+   "notes": [
+    "15 U/h rolling limit in the supervisor (software only)",
+    "gate model is host-tested; the physical board has no measurement yet",
+    "optional hardware step budget (decision pending in 06-diagnostics 8",
+    "sequence numbers and replay protection",
+    "gear ratio / calibration mismatch (open 15:12 vs 18:18) is a 25 % dose error"
+   ]
+  },
+  "H2": {
+   "title": "Under-delivery / occlusion",
+   "reqs": [
+    "spec#1b#Dock detection",
+    "spec#4#Encoder",
+    "spec#4#Occlusion",
+    "spec#4#Thrust",
+    "spec#7#Occlusion alarm"
+   ],
+   "controls": [
+    [
+     "FW",
+     "firmware-rs/openpatch-core/src/limits.rs#OCCLUSION",
+     "impl"
+    ],
+    [
+     "FW",
+     "firmware-rs/openpatch-core/src/limits.rs#OCCLUSION_CURRENT_MA",
+     "impl"
+    ],
+    [
+     "HW",
+     "docs/02-safety.md#docking detection",
+     "impl"
+    ],
+    [
+     "FW",
+     "firmware-rs/openpatch-core/src/limits.rs#REV_TOLERANCE_PCT",
+     "impl"
+    ],
+    [
+     "PROC",
+     "mechanical/sim/REPORT.md#Thrust is the main risk",
+     "plan"
+    ]
+   ],
+   "codes": [
+    "1-03-001",
+    "1-06-002",
+    "1-06-003",
+    "1-07-005",
+    "1-08-001",
+    "1-08-002",
+    "1-08-003",
+    "2-20-001",
+    "2-20-003",
+    "2-20-004",
+    "2-20-005",
+    "2-22-001",
+    "3-30-001",
+    "3-30-002",
+    "3-30-003",
+    "3-31-001",
+    "3-31-002",
+    "3-31-003",
+    "3-31-004",
+    "4-40-001",
+    "4-40-002",
+    "4-41-001",
+    "4-41-003",
+    "4-42-001",
+    "4-42-002",
+    "5-50-001",
+    "5-50-002",
+    "5-50-003",
+    "5-51-001",
+    "5-53-001",
+    "5-53-002",
+    "5-53-003",
+    "6-60-001",
+    "6-60-002",
+    "6-60-003",
+    "6-60-004",
+    "6-60-005",
+    "6-60-006",
+    "6-60-007",
+    "6-62-001",
+    "7-70-005",
+    "7-72-001",
+    "7-72-002",
+    "7-77-001",
+    "7-79-001",
+    "9-90-002",
+    "9-91-004"
+   ],
+   "verifications": [
+    "bench02:2",
+    "bench:B13",
+    "bench:B14",
+    "bench:B16",
+    "rust:firmware-rs/openpatch-core/tests/pump.rs::pump_missing_angle_sensor_latches_internal_and_delivers_nothing",
+    "rust:firmware-rs/openpatch-core/tests/pump.rs::pump_motor_current_occlusion_latches_after_three_bursts",
+    "rust:firmware-rs/openpatch-core/tests/pump.rs::pump_per_revolution_check_trips_alone_at_95_percent",
+    "rust:firmware-rs/openpatch-core/tests/safety.rs::motor_current_consecutive_high_bursts_latch_occlusion",
+    "rust:firmware-rs/openpatch-core/tests/safety.rs::pump_total_stall_latches_occlusion_alarm_and_suspends",
+    "rust:firmware-rs/openpatch-core/tests/safety.rs::sv_slow_leak_below_deviation_still_trips_occlusion_at_2u",
+    "rust:firmware-rs/openpatch-core/tests/twopod.rs::dock_undocked_pod_never_steps_and_reports_paused",
+    "sim:1.1",
+    "sim:1.3",
+    "sim:1.4",
+    "sim:1.9",
+    "sim:4.4",
+    "sim:5.4",
+    "sim:5.5",
+    "sim:5.6"
+   ],
+   "notes": [
+    "sim says the stored volume makes the total undelivered at alarm larger than 2 U (FAIL 5.4)",
+    "current threshold is a placeholder",
+    "thrust margin currently FAIL in simulation; design changes recommended in REPORT.md"
+   ]
+  },
+  "H3": {
+   "title": "Unnoticed delivery stop",
+   "reqs": [
+    "docs/02-safety.md#1#Battery warning at 20",
+    "docs/02-safety.md#1#brown-out reset",
+    "spec#1b#Max wear time per pod"
+   ],
+   "controls": [
+    [
+     "FW",
+     "firmware-rs/openpatch-core/src/pod.rs#",
+     "impl"
+    ],
+    [
+     "FW",
+     "firmware-rs/openpatch-core/src/limits.rs#BATTERY_CRITICAL_MV",
+     "impl"
+    ],
+    [
+     "FW",
+     "firmware-rs/openpatch-core/src/limits.rs#WEAR_MAX",
+     "impl"
+    ]
+   ],
+   "codes": [
+    "1-01-002",
+    "1-01-004",
+    "1-02-001",
+    "1-0B-001",
+    "1-0C-002",
+    "7-74-001",
+    "7-74-002",
+    "7-74-003",
+    "7-7B-001",
+    "7-7B-002",
+    "8-82-002",
+    "9-94-001",
+    "A-A0-001",
+    "A-A0-002",
+    "A-A2-001"
+   ],
+   "verifications": [
+    "bench:B18",
+    "rust:firmware-rs/openpatch-core/tests/pump.rs::pump_boots_suspended_with_boot_event_and_restored_ids",
+    "rust:firmware-rs/openpatch-core/tests/pump.rs::pump_critical_battery_blocks_delivery",
+    "rust:firmware-rs/openpatch-core/tests/safety.rs::sv_battery_critical_latches_and_low_flag",
+    "rust:firmware-rs/openpatch-core/tests/twopod.rs::restore_active_pod_comes_up_suspended_with_wear_and_pairing",
+    "rust:firmware-rs/openpatch-core/tests/twopod.rs::wear_warning_at_44h_stop_and_alarm_at_52h",
+    "swift:ios/OpenPatchKit/OpenPatchCore/Tests/OpenPatchCoreTests/PairSwapTests.swift::test_wearAlerts"
+   ],
+   "notes": []
+  },
+  "H4": {
+   "title": "Air in the reservoir",
+   "reqs": [
+    "spec#3#Outlet",
+    "spec#4#Refill = automatic draw mode"
+   ],
+   "controls": [
+    [
+     "FW",
+     "firmware-rs/openpatch-core/src/limits.rs#MAX_PRIME",
+     "impl"
+    ],
+    [
+     "PROC",
+     "mechanical/REFILL.md#duckbill",
+     "impl"
+    ]
+   ],
+   "codes": [
+    "5-50-004",
+    "5-50-005",
+    "7-73-001",
+    "7-73-002"
+   ],
+   "verifications": [
+    "bench:B17",
+    "rust:firmware-rs/openpatch-core/tests/pump.rs::pump_fill_and_prime_rules",
+    "rust:firmware-rs/openpatch-core/tests/pump.rs::pump_strict_config_refuses_resume_until_prime_completed",
+    "sim:1.7",
+    "sim:5.1",
+    "sim:5.2",
+    "sim:5.8"
+   ],
+   "notes": [
+    "sim FAILs 5.1/5.2 (dead layer 7.5 U of air)",
+    "duckbill check valve; seal against suction not yet shown"
+   ]
+  },
+  "H5": {
+   "title": "Wrong concentration",
+   "reqs": [
+    "spec#1#insulin U100"
+   ],
+   "controls": [
+    [
+     "APP",
+     "ios/OpenPatchKit/OpenPatchKitUI/Views/FillPodView.swift#U100",
+     "impl"
+    ]
+   ],
+   "codes": [],
+   "verifications": [
+    "swift:ios/OpenPatchKit/OpenPatchCore/Tests/OpenPatchCoreTests/UnitConversionTests.swift::test_podSize_fillValidation"
+   ],
+   "notes": [
+    "process control only; the pod cannot detect the concentration"
+   ]
+  },
+  "H6": {
+   "title": "Loss of communication",
+   "reqs": [
+    "spec#7#Communication loss"
+   ],
+   "controls": [
+    [
+     "FW",
+     "firmware-rs/openpatch-core/src/limits.rs#COMM_LOSS_TEMP_MS",
+     "impl"
+    ]
+   ],
+   "codes": [
+    "7-71-002",
+    "7-71-003",
+    "8-80-001",
+    "8-82-001",
+    "9-90-001"
+   ],
+   "verifications": [
+    "bench02:3",
+    "bench:B20",
+    "rust:firmware-rs/openpatch-core/tests/delivery.rs::de_temp_basal_falls_back_30min_after_comm_loss",
+    "rust:firmware-rs/openpatch-core/tests/pump.rs::pump_temp_basal_falls_back_after_comm_loss",
+    "swift:ios/OpenPatchKit/OpenPatchCore/Tests/OpenPatchCoreTests/SimulatedPodTests.swift::test_commLoss_revertsTempBasalAfterThirtyMinutes"
+   ],
+   "notes": []
+  },
+  "H7": {
+   "title": "Unauthorized access",
+   "reqs": [
+    "spec#6#OpenPatch protocol"
+   ],
+   "controls": [
+    [
+     "FW",
+     "docs/04-protocol.md#Goal and threat model",
+     "impl"
+    ],
+    [
+     "APP",
+     "ios/OpenPatchKit/OpenPatchCore/Sources/OpenPatchCore/SessionHandshake.swift#",
+     "impl"
+    ]
+   ],
+   "codes": [
+    "7-75-001",
+    "7-75-004",
+    "8-81-001",
+    "8-81-002",
+    "8-81-003",
+    "8-81-004",
+    "8-83-002"
+   ],
+   "verifications": [
+    "bench:B20",
+    "doc:docs/vectors/session-key-agreement.json",
+    "rust:firmware-rs/openpatch-core/tests/session.rs::plaintext_refused_by_production_session",
+    "rust:firmware-rs/openpatch-proto/tests/handshake.rs::attacker_knowing_ps_id_but_not_ps_cannot_replace_the_session",
+    "rust:firmware-rs/openpatch-proto/tests/handshake.rs::pairing_refused_while_the_window_is_closed",
+    "rust:firmware-rs/openpatch-proto/tests/session.rs::session_tampering_is_rejected_without_advancing_state",
+    "swift:ios/OpenPatchKit/OpenPatchCore/Tests/OpenPatchCoreTests/SessionHandshakeTests.swift::test_aesCCM_rejectsAnyModification",
+    "swift:ios/OpenPatchKit/OpenPatchCore/Tests/OpenPatchCoreTests/SessionHandshakeTests.swift::test_x25519_lowOrderPointsAreRejected"
+   ],
+   "notes": [
+    "formal verification / fuzzing owned by security/ (planned)",
+    "Swift initiator checked against shared vectors"
+   ]
+  },
+  "H8": {
+   "title": "Insulin degradation",
+   "reqs": [
+    "spec#3a#Water only"
+   ],
+   "controls": [
+    [
+     "PROC",
+     "docs/02-safety.md#insulin-contacting parts only from medical-grade",
+     "impl"
+    ]
+   ],
+   "codes": [
+    "A-A0-003",
+    "A-A1-001",
+    "B-B0-001",
+    "B-B0-002",
+    "B-B0-003",
+    "B-B0-004"
+   ],
+   "verifications": [
+    "bench:B19"
+   ],
+   "notes": [
+    "WATER ONLY project decision: insulin degradation (heat"
+   ]
+  },
+  "H9": {
+   "title": "Forgot to remove / pod on the charger",
+   "reqs": [
+    "spec#1b#Dock detection",
+    "spec#1b#Only one pod may ever deliver"
+   ],
+   "controls": [
+    [
+     "HW",
+     "docs/06-diagnostics.md#DOCKED gate",
+     "impl"
+    ],
+    [
+     "FW",
+     "firmware-rs/openpatch-core/src/pod.rs#",
+     "impl"
+    ]
+   ],
+   "codes": [
+    "1-07-003",
+    "1-07-004",
+    "1-07-006",
+    "2-21-001",
+    "2-21-002",
+    "2-21-003",
+    "3-30-004",
+    "4-40-003",
+    "7-70-007"
+   ],
+   "verifications": [
+    "bench:B08",
+    "bench:B14",
+    "bench:B24",
+    "rust:firmware-rs/openpatch-core/tests/interlock.rs::requests_forward_needs_docked_reverse_needs_undocked",
+    "rust:firmware-rs/openpatch-core/tests/twopod.rs::dock_is_sampled_before_every_motor_action_not_once_a_second",
+    "rust:firmware-rs/openpatch-core/tests/twopod.rs::dock_supervisor_is_the_hard_gate",
+    "rust:firmware-rs/openpatch-core/tests/twopod.rs::two_pods_only_the_activated_one_delivers",
+    "swift:ios/OpenPatchKit/OpenPatchCore/Tests/OpenPatchCoreTests/PairSwapTests.swift::test_releaseRequestLost_oldPodStillDelivers_newPodIsNotActivated",
+    "swift:ios/OpenPatchKit/OpenPatchCore/Tests/OpenPatchCoreTests/TwoPodSimulatedPodTests.swift::test_undockedPodNeverDelivers_andReportsPausedUndocked"
+   ],
+   "notes": []
+  },
+  "H10": {
+   "title": "Mechanical backflow / siphon",
+   "reqs": [
+    "spec#4#Leadscrew/carriage/reservoir"
+   ],
+   "controls": [
+    [
+     "PROC",
+     "docs/02-safety.md#self-locking spindle",
+     "impl"
+    ]
+   ],
+   "codes": [
+    "6-60-008"
+   ],
+   "verifications": [
+    "bench:B11",
+    "sim:4.8-OP-100"
+   ],
+   "notes": [
+    "self-locking thread and duckbill; uncommanded-motion detector 6-60-008 is planned"
+   ]
+  },
+  "H11": {
+   "title": "undetected degradation of a protection element (stuck gate, dead watchdog, dead sensor) le (proposed)",
+   "reqs": [
+    "spec#7a#Firmware must"
+   ],
+   "controls": [
+    [
+     "FW",
+     "docs/06-diagnostics.md#POST-A",
+     "plan"
+    ]
+   ],
+   "codes": [
+    "1-01-005",
+    "1-02-002",
+    "1-03-002",
+    "1-04-001",
+    "1-04-002",
+    "1-05-001",
+    "1-05-002",
+    "1-05-003",
+    "1-07-001",
+    "1-07-002",
+    "1-07-003",
+    "1-07-004",
+    "1-07-007",
+    "1-08-003",
+    "1-09-001",
+    "2-20-002",
+    "2-21-001",
+    "4-40-002",
+    "4-41-001",
+    "4-42-002",
+    "5-51-001",
+    "6-60-002",
+    "7-74-005",
+    "7-74-006",
+    "7-78-001",
+    "A-A0-003",
+    "A-A2-002",
+    "B-B0-004"
+   ],
+   "verifications": [
+    "bench:B07",
+    "bench:B08",
+    "bench:B09",
+    "bench:B10",
+    "bench:B12"
+   ],
+   "notes": [
+    "runtime proof of each interlock gate; implementation is work package WP-3 (not built)"
+   ]
+  },
+  "H12": {
+   "title": "diagnostic false positive that stops therapy needlessly (proposed)",
+   "reqs": [
+    "spec#7a#Rule for changes"
+   ],
+   "controls": [
+    [
+     "PROC",
+     "docs/06-diagnostics.md#H12",
+     "plan"
+    ]
+   ],
+   "codes": [],
+   "verifications": [
+    "doc:docs/06-diagnostics.md#Soak / false positives (H12)"
+   ],
+   "notes": [
+    "72 h nominal soak and mutation tests are planned (WP-2)"
+   ]
+  },
+  "H13": {
+   "title": "the diagnostics itself is wrong or lost (log corruption, unknown code) (proposed)",
+   "reqs": [
+    "spec#7a#Propagation"
+   ],
+   "controls": [
+    [
+     "FW",
+     "docs/06-diagnostics.md#UNKNOWN_CODE_RAISED",
+     "plan"
+    ]
+   ],
+   "codes": [
+    "7-70-006",
+    "7-75-002",
+    "7-75-003",
+    "7-7A-001",
+    "7-7C-003",
+    "7-7C-004",
+    "8-80-002",
+    "9-95-001",
+    "9-95-002"
+   ],
+   "verifications": [
+    "bench:B21",
+    "bench:B23"
+   ],
+   "notes": [
+    "catalogue drift check planned (gen_diag.py --check)"
+   ]
+  }
+ }
+}

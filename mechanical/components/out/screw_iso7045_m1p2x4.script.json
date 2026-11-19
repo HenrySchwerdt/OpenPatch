@@ -1,0 +1,161 @@
+[
+{
+"command": "solid.cylinder",
+"params": {
+"diameter": 1.2,
+"height": 4.0,
+"base": [
+0,
+0,
+-4.0
+],
+"axis": "Z",
+"body_name": "screw",
+"name": "screw"
+}
+},
+{
+"command": "solid.thread",
+"params": {
+"faces": [
+{
+"body": "screw",
+"point": [
+0.6,
+0,
+-2.0
+]
+}
+],
+"designation": "M1.2x0.25",
+"modeled": true,
+"name": "M1.2x0.25 thread"
+}
+},
+{
+"command": "solid.cylinder",
+"params": {
+"diameter": 2.4,
+"height": 0.9,
+"base": [
+0,
+0,
+0.0
+],
+"axis": "Z",
+"body_name": "head",
+"name": "head"
+}
+},
+{
+"command": "solid.fillet",
+"params": {
+"edges": [
+[
+1.2,
+0,
+0.9
+]
+],
+"radius": 0.4,
+"body": "head",
+"name": "pan dome"
+}
+},
+{
+"command": "solid.box",
+"params": {
+"length": 1.1,
+"width": 0.2,
+"height": 0.65,
+"corner": [
+-0.55,
+-0.1,
+0.35
+],
+"body_name": "rec1",
+"name": "rec1"
+}
+},
+{
+"command": "solid.box",
+"params": {
+"length": 0.2,
+"width": 1.1,
+"height": 0.65,
+"corner": [
+-0.1,
+-0.55,
+0.35
+],
+"body_name": "rec2",
+"name": "rec2"
+}
+},
+{
+"command": "solid.combine",
+"params": {
+"target": "head",
+"tools": [
+"rec1",
+"rec2"
+],
+"operation": "cut",
+"name": "cut head"
+}
+},
+{
+"command": "solid.combine",
+"params": {
+"target": "screw",
+"tools": [
+"head"
+],
+"operation": "join",
+"name": "join screw"
+}
+},
+{
+"command": "appearance.assign",
+"params": {
+"bodies": [
+"screw"
+],
+"color": "#c5c8cc",
+"pbr": {
+"metallic": 1.0,
+"roughness": 0.28,
+"dielectric_ior": 1.5
+}
+}
+},
+{
+"command": "file.export_step",
+"params": {
+"path": "screw_iso7045_m1p2x4.step",
+"bodies": [
+"screw"
+]
+}
+},
+{
+"command": "file.export_stl",
+"params": {
+"path": "screw_iso7045_m1p2x4.stl",
+"bodies": [
+"screw"
+],
+"quality": "standard"
+}
+},
+{
+"command": "file.export",
+"params": {
+"path": "screw_iso7045_m1p2x4.glb",
+"bodies": [
+"screw"
+],
+"quality": "standard"
+}
+}
+]

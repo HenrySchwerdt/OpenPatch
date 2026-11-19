@@ -1,0 +1,184 @@
+[
+{
+"command": "solid.cylinder",
+"params": {
+"diameter": 3.0,
+"height": 2.0,
+"base": [
+0,
+0,
+0.0
+],
+"axis": "Z",
+"body_name": "sleeve",
+"name": "sleeve"
+}
+},
+{
+"command": "solid.cylinder",
+"params": {
+"diameter": 2.0,
+"height": 2.2,
+"base": [
+0,
+0,
+-0.1
+],
+"axis": "Z",
+"body_name": "t_sleeve_bore",
+"name": "t_sleeve_bore"
+}
+},
+{
+"command": "solid.combine",
+"params": {
+"target": "sleeve",
+"tools": [
+"t_sleeve_bore"
+],
+"operation": "cut",
+"name": "cut sleeve"
+}
+},
+{
+"command": "sketch.create",
+"params": {
+"plane": "XZ",
+"offset": -1.0
+}
+},
+{
+"command": "sketch.line",
+"params": {
+"points": [
+[
+-1.5,
+-2.0
+],
+[
+-1.0,
+-2.0
+],
+[
+-0.04,
+-4.2
+],
+[
+-0.5,
+-4.2
+]
+],
+"closed": true
+}
+},
+{
+"command": "sketch.finish",
+"params": {}
+},
+{
+"command": "solid.extrude",
+"params": {
+"distance": 2.0,
+"body_name": "bill_a",
+"name": "bill_a"
+}
+},
+{
+"command": "sketch.create",
+"params": {
+"plane": "XZ",
+"offset": -1.0
+}
+},
+{
+"command": "sketch.line",
+"params": {
+"points": [
+[
+1.5,
+-2.0
+],
+[
+1.0,
+-2.0
+],
+[
+0.04,
+-4.2
+],
+[
+0.5,
+-4.2
+]
+],
+"closed": true
+}
+},
+{
+"command": "sketch.finish",
+"params": {}
+},
+{
+"command": "solid.extrude",
+"params": {
+"distance": 2.0,
+"body_name": "bill_b",
+"name": "bill_b"
+}
+},
+{
+"command": "solid.combine",
+"params": {
+"target": "sleeve",
+"tools": [
+"bill_a",
+"bill_b"
+],
+"operation": "join",
+"name": "join sleeve"
+}
+},
+{
+"command": "appearance.assign",
+"params": {
+"bodies": [
+"sleeve"
+],
+"color": "#d9ecef",
+"pbr": {
+"metallic": 0.0,
+"roughness": 0.35,
+"dielectric_ior": 1.5
+}
+}
+},
+{
+"command": "file.export_step",
+"params": {
+"path": "duckbill_valve_generic.step",
+"bodies": [
+"sleeve"
+]
+}
+},
+{
+"command": "file.export_stl",
+"params": {
+"path": "duckbill_valve_generic.stl",
+"bodies": [
+"sleeve"
+],
+"quality": "standard"
+}
+},
+{
+"command": "file.export",
+"params": {
+"path": "duckbill_valve_generic.glb",
+"bodies": [
+"sleeve"
+],
+"quality": "standard"
+}
+}
+]

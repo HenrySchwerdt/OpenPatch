@@ -1,0 +1,23 @@
+# DRAFT, not active: copy to .github/workflows/regulatory.yml to enable.
+# OpenPatch regulatory evidence checks (TEST PROJECT, not a medical device).
+name: regulatory
+on:
+  push:
+    paths: ["regulatory/**", "spec/**", "docs/02-safety.md", "docs/06-diagnostics.md", "firmware-rs/**/Cargo.lock", "ios/**/Package.resolved", "mechanical/sim/REPORT.md"]
+  pull_request:
+    paths: ["regulatory/**", "spec/**", "docs/02-safety.md", "docs/06-diagnostics.md", "firmware-rs/**/Cargo.lock", "ios/**/Package.resolved", "mechanical/sim/REPORT.md"]
+jobs:
+  evidence:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - name: traceability (fails on broken links)
+        run: python3 regulatory/tools/trace.py --report regulatory/RISK/TRACE.md --json regulatory/RISK/trace.json
+      - name: SOUP list is current
+        run: python3 regulatory/tools/soup.py --check
+      - name: figure index
+        run: python3 regulatory/tools/collect_figures.py --check && python3 regulatory/tools/collect_figures.py
+      - name: generated files are committed and fresh
+        run: git diff --exit-code regulatory/RISK/TRACE.md regulatory/RISK/trace.json regulatory/figures/INDEX.md
