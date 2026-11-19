@@ -30,11 +30,12 @@
 - The delivery engine must **never** service the watchdog itself. Only the safety supervisor does that, and only when all checks have passed.
 - The encoder evaluation runs in the safety supervisor. If steps and rotation deviate by more than 10 % over 1 U, delivery is stopped.
 
-## 3. Bench verification plan (water only, never on a person)
+## 3. Bench verification plan (water or insulin into containers, never on a person)
 
 1. Gravimetric delivery accuracy with water on a precision balance with 0.1 mg resolution: 0.05 / 0.5 / 5 U, 50 repetitions each. Target: ±5 % from 1 U.
 2. Occlusion test: outlet blocked → alarm before 2 U.
 3. 72 h endurance test with water and a basal profile, including BLE disconnects and reconnects.
 4. Fault injection: firmware hangs → watchdog switches the motor off (verify with an oscilloscope).
 5. Leak tightness: 30 min under water at 1 m depth (IPX7-like).
-6. There is **no** step 6. The project never proceeds to insulin or to use on a person.
+6. Insulin bench tests (into a vial on a balance, never a person): delivery accuracy with real insulin viscosity, bubble behaviour, material compatibility (insulin-contact parts only from PP/COC, medical silicone, stainless steel — never printed resin), insulin stability in the reservoir over 48 h at 37 °C (visual/fibrillation check). Start with a standard 1 ml U100 insulin syringe as the reservoir (syringe bench rig), then the CNC-PP stadium reservoir.
+7. There is **no** step 7. The project never proceeds to use on a person.
