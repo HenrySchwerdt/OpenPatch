@@ -162,7 +162,10 @@ pub async fn safety_task(mut pump: Pump<BenchHal>, mut session: Session<AesCcm>,
     defmt::info!("safety task running, tick {} ms", TICK_PERIOD_MS);
 
     loop {
-        match select4(ticker.next(), FRAME_IN.receive(), UI_CMD.receive(), BENCH_CMD.receive()).await {
+        let event = select4(ticker.next(), FRAME_IN.receive(), UI_CMD.receive(), BENCH_CMD.receive()).await;
+        // A finished key agreement (or a closed link) replaces the session BEFORE the frame that woke us is opened.
+        crate::crypto::apply_session_event(&mut session);
+        match event {
             Either4::First(()) => {
                 pump.tick();
                 let now = pump.hal_mut().time_ms_now();

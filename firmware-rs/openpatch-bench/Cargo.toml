@@ -74,7 +74,9 @@ cortex-m-rt = "=0.7.7"
 static_cell = "=2.1.1"
 
 openpatch-core = { path = "../openpatch-core", features = ["defmt"] }
-openpatch-proto = { path = "../openpatch-proto", features = ["defmt", "aes-ccm"] }
+openpatch-proto = { path = "../openpatch-proto", features = ["defmt", "aes-ccm", "key-agreement"] }
+# Pod side DRBG for the session key agreement (docs/04-protocol.md section 5.2): seeded once per boot from the nRF52840 TRNG.
+rand_chacha = { version = "0.3.1", default-features = false }
 
 [profile.release]
 opt-level = "s"

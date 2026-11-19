@@ -16,6 +16,7 @@
 //!  3 RES   u32 fill mU, u32 consumed steps (stored with a margin, always >= reality)
 //!  4 CAL   24 byte DriveCal image (magic + CRC), never silently overwritten
 //!  5 POD   u32 pair id, u8 role, u8 active, u32 activation id, u32 wear s (upper bound)
+//!  6 PS    32 byte application layer pairing secret (protocol v1.1 section 5.2)
 //!  16/17   BLE bond slots
 use embassy_embedded_hal::flash::partition::Partition;
 use embassy_sync::blocking_mutex::raw::CriticalSectionRawMutex;
@@ -39,6 +40,7 @@ const KEY_EVT: u8 = 2;
 const KEY_RES: u8 = 3;
 const KEY_CAL: u8 = 4;
 const KEY_POD: u8 = 5;
+const KEY_PS: u8 = 6;
 const KEY_BOND0: u8 = 16;
 const REC_VERSION: u8 = 1;
 /// Longest record + item header, rounded up to the flash word size.
@@ -118,6 +120,8 @@ pub enum PersistMsg {
     Reservoir { fill_mu: u32, consumed_steps: u32 },
     Pod(PodRec),
     Bond(BondRec),
+    /// Application layer pairing secret. Must not be lost: producers `send().await`.
+    PairingSecret([u8; 32]),
 }
 
 #[derive(Clone, Copy, defmt::Format)]
@@ -147,6 +151,7 @@ pub struct BootData {
     pub reservoir: Option<(u32, u32)>,
     pub cal: CalState,
     pub pod: Option<PodRec>,
+    pub pairing_secret: Option<[u8; 32]>,
     pub bonds: [Option<BondRec>; MAX_BONDS],
 }
 
@@ -207,6 +212,11 @@ impl Settings {
             activation_id: le32(&b[7..11]),
             wear_s: le32(&b[11..15]),
         });
+        let pairing_secret = self.get(KEY_PS).await.filter(|(_, n)| *n == 33).map(|(b, _)| {
+            let mut ps = [0u8; 32];
+            ps.copy_from_slice(&b[1..33]);
+            ps
+        });
         let cal = match self.get(KEY_CAL).await {
             None => {
                 let img = build.to_bytes();
@@ -248,7 +258,7 @@ impl Settings {
                 *slot = Some(BondRec(r));
             }
         }
-        BootData { seq_ceiling, evt_ceiling, reservoir, cal, pod, bonds }
+        BootData { seq_ceiling, evt_ceiling, reservoir, cal, pod, pairing_secret, bonds }
     }
 
     async fn write_bond(&mut self, rec: BondRec) {
@@ -303,6 +313,12 @@ impl Settings {
                 self.put(KEY_POD, &r).await;
             }
             PersistMsg::Bond(b) => self.write_bond(b).await,
+            PersistMsg::PairingSecret(ps) => {
+                let mut r = [0u8; 33];
+                r[0] = REC_VERSION;
+                r[1..].copy_from_slice(&ps);
+                self.put(KEY_PS, &r).await;
+            }
         }
     }
 }
@@ -314,6 +330,7 @@ struct Pending {
     evt: Option<u32>,
     res: Option<(u32, u32)>,
     pod: Option<PodRec>,
+    ps: Option<[u8; 32]>,
     bonds: heapless_bonds::Bonds,
 }
 
@@ -341,6 +358,7 @@ impl Pending {
             PersistMsg::Reservoir { fill_mu, consumed_steps } => self.res = Some((fill_mu, consumed_steps)),
             PersistMsg::Pod(p) => self.pod = Some(p),
             PersistMsg::Bond(b) => self.bonds.push(b),
+            PersistMsg::PairingSecret(ps) => self.ps = Some(ps),
         }
     }
 }
@@ -367,6 +385,9 @@ pub async fn persist_task(mut settings: Settings) -> ! {
         }
         if let Some(pod) = p.pod {
             settings.write(PersistMsg::Pod(pod)).await;
+        }
+        if let Some(ps) = p.ps {
+            settings.write(PersistMsg::PairingSecret(ps)).await;
         }
         for b in p.bonds.items.into_iter().flatten() {
             settings.write(PersistMsg::Bond(b)).await;

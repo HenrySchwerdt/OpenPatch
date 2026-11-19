@@ -100,6 +100,15 @@ pub static PERSIST: Channel<Raw, PersistMsg, 16> = Channel::new();
 pub static SEQ_ACK: Signal<Raw, u16> = Signal::new();
 /// Safety -> DFU task: the safety task ran N good ticks, confirm the image.
 pub static BOOT_OK: Signal<Raw, ()> = Signal::new();
+/// BLE -> safety: a session key agreement finished (replace the `Session`) or the link that used
+/// one closed (back to the key-less production session). Latest value wins.
+pub static SESSION_EVT: Signal<Raw, SessionEvent> = Signal::new();
+
+/// See [`SESSION_EVT`]. The keys are secret: never log them.
+pub enum SessionEvent {
+    Up(openpatch_proto::handshake::SessionKeys),
+    Reset,
+}
 
 // ---- atomics (single writer each, see comments) ----
 /// Written by the HAL (safety task): alarm buzzer requested.
