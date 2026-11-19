@@ -54,10 +54,10 @@
 ## 4. Drive
 
 - Micro stepper motor **Ø 6 mm** (ref.: Faulhaber ADM0620 / FDM0620, 2-phase, 20 steps/rev, 3 V) transverse next to the reservoir.
-- Rev A motor: **Zhaowei ZWBPD006006** (Ø6 mm, planetary **i = 5:1**, 23.7 mm long, AliExpress ~$10–25; premium preset Faulhaber ADM0620 + 06/1 16:1). Ratio and 20 steps/rev must be confirmed with the seller.
+- Rev A motor (2026-11-19, see `mechanical/motor-selection.md`): primary **NFP-608-26.45-SGM** (Ø6 mm, 20 steps/rev, 2-stage ratio 26.45, 4.8 V / 26.5 Ω, nfpshop.com ~$6.60, in stock) → **0.00494 U/step**; length/shaft/terminals UNVERIFIED (drawing requested). Backup Zhaowei ZWBPD006006-6 (exact ratio **6.43**, not 5:1; also -5 = 4.8) → 0.0203 U/step. The former "5:1" assumption was wrong. Firmware has NO default drive: the preset must be selected explicitly.
 - Threaded spindle **M1.6 × 0.35** (brass/stainless steel) **in a dedicated track NEXT TO the reservoir**; nut carriage with an arm that pushes the piston through a slot at the reservoir end (inline would be ~2× stroke length → 48/56/83 mm).
-- Resolution (Rev A, 5:1): 0.35 mm / (20·5) = 3.5 µm/step → **0.261 µl/step = 0.0261 U/step** (Faulhaber 16:1: 0.0082 U/step).
-- Smallest bolus/basal pulse: **0.05 U ≈ 2 steps** (actual value 0.0522 U; firmware accumulates the remainder).
+- Resolution: U/step = 0.35 mm / (20 × ratio) × 74.6 mm² / 10 → NFP 26.45: 0.00494; ZW 6.43: 0.0203; ZW 4.8: 0.0272; Faulhaber 16: 0.0082 U/step.
+- Smallest bolus/basal pulse: **0.05 U** (NFP: ~10 steps; ZW 6.43: ~2.5 steps); firmware accumulates the exact remainder (ratio stored as an exact rational).
 - Spindle encoder: magnet on the spindle + Hall sensor (e.g. TMAG5273 / AS5600L class) for **independent delivery verification**.
 - Occlusion detection: motor current/back-EMF rise + encoder slip (no travel despite steps).
 
