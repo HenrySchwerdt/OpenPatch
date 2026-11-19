@@ -32,7 +32,21 @@ METAL = ["motor", "gearhead", "leadscrew", "magnet", "battery", "qi_coil", "gear
 WALL_EXCEPTIONS = {"carriage_wall_y", "lid_skirt", "bottom_tongue", "button_membrane", "latch_beam_note", "gasket_ring_width"}
 
 
+def _present_bodies(sc: Path) -> set:
+    with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False) as fh:
+        json.dump([{"command": "inspect.measure", "params": {}}], fh)
+        tmp = fh.name
+    res = subprocess.run([CLI, "run", tmp, "--in", str(sc), "--results", "--quiet"], capture_output=True, text=True)
+    Path(tmp).unlink(missing_ok=True)
+    if res.returncode != 0:
+        raise SystemExit(res.stdout + res.stderr)
+    m = next(r for r in json.loads(res.stdout) if "bodies" in r and "body_count" in r)
+    return {b["name"] for b in m["bodies"]}
+
+
 def eval_design(sc: Path, exclude_pairs: list) -> list:
+    present = _present_bodies(sc)           # optional bodies (e.g. the gitignored rod STEP) may be absent: never fail on their exclude pairs
+    exclude_pairs = [pr for pr in exclude_pairs if all(n in present for n in pr)]
     script = [{"command": "inspect.measure", "params": {}},
               {"command": "inspect.interference", "params": {"exclude_pairs": exclude_pairs}}]
     with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False) as fh:

@@ -198,15 +198,20 @@ def check_size(outdir: Path, variant: str, p: dict, ignore_length: bool, with_va
         elif t + C.EPS < C.MIN_WALL:
             (warns if exc or name in C.WALL_EXCEPTIONS else problems).append(f"wall {name} = {t:.2f} mm < {C.MIN_WALL} ({'documented exception' if exc else 'NOT allowed'})")
     # v0.1.0 walls: battery ribs, lid membranes, window rim
-    bv, ch = p["v010"]["battery"], p["v010"]["charge"]
-    for name, t in (("battery_retention_rib", bv["rib_t"]), ("button_membrane", p["button"]["memb_t"]), ("charge_gasket_ring", ch["gasket_w"])):
+    stack = L["v010"].get("layout") == "stack"
+    bv = p["v010"]["stack"]["cell"] if stack else p["v010"]["battery"]
+    gw_ = p["v010"]["stack"]["usb"]["gasket_w"] if stack else p["v010"]["charge"]["gasket_w"]
+    for name, t in (("battery_retention_rib", bv["rib_t"]), ("button_membrane", p["button"]["memb_t"]), ("gasket_ring", gw_)):
         if t + C.EPS < C.MIN_FEATURE:
             problems.append(f"wall {name} = {t:.2f} mm < {C.MIN_FEATURE}")
         elif t + C.EPS < C.MIN_WALL:
             warns.append(f"wall {name} = {t:.2f} mm < {C.MIN_WALL} (documented exception, printable floor 0.4)")
-    wall_win = min(L["v010"]["window"]["x"][0] - 0.0 - L["v010"]["gasket"]["outer_x"][0], 99)
     by = {b["name"]: b for b in bodies}
-    pr, wr = check_v010(p, L, by)
+    if L["v010"].get("layout") == "stack":
+        from v010_check_stack import check_stack
+        pr, wr = check_stack(p, L, by)
+    else:
+        pr, wr = check_v010(p, L, by)
     problems += pr
     warns += wr
     if not L["coax"]:
@@ -218,7 +223,7 @@ def check_size(outdir: Path, variant: str, p: dict, ignore_length: bool, with_va
         problems += pv
         warns += wv
     exports = ["bottom", "top", "carriage", "reservoir", "plunger_core", "plunger_seal", "gasket", "mould_lower", "mould_upper", "cannula_adapter", "dock_insert",
-               "plunger_nose", "valve_plug", "thrust_sleeve", "thrust_collar", "charge_gasket"]
+               "plunger_nose", "valve_plug", "thrust_sleeve", "thrust_collar", "usb_gasket" if L["v010"].get("layout") == "stack" else "charge_gasket"]
     for part in exports:
         for ext in ("step", "stl"):
             if not (outdir / f"{variant}_{part}.{ext}").exists():
@@ -231,7 +236,7 @@ def main(args) -> int:
     p = json.loads((out / "params.used.json").read_text()) if (out / "params.used.json").exists() else None
     if p is None:
         raise SystemExit("run generate.py --variant v010 first")
-    sizes = args.sizes or list(p["variants"])
+    sizes = args.sizes or list(p["v010"]["sizes"])
     failed = False
     print(f"{'Size':8} {'L':>7} {'B':>6} {'H':>6}  {'planned L':>9}  status   (v010 integrated pod)")
     for k, v in enumerate(sizes):
@@ -244,6 +249,8 @@ def main(args) -> int:
         for m in r["warns"]:
             print(f"    WARN: {m}")
     try:
+        if p["v010"].get("layout") == "stack":          # spec 2d: cradle dropped
+            raise ImportError
         from op_cradle import check_cradle
         pr, wr = check_cradle(p, out)
         failed |= bool(pr)

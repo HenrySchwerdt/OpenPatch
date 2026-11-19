@@ -79,7 +79,7 @@ def build_cradle_script(p: dict, L: dict, tag: str, out: Path) -> tuple[Script, 
 def build_cradle_files(p: dict, out: Path) -> None:
     fab = out / "cradle"
     fab.mkdir(exist_ok=True)
-    for sz in p["variants"]:
+    for sz in p["v010"]["sizes"]:
         mj = out / f"{sz}.mech.json"
         if not mj.exists():
             continue
@@ -99,7 +99,7 @@ def check_cradle(p: dict, out: Path) -> tuple[list, list]:
     problems, warns = [], []
     fab = out / "cradle"
     cr = p["v010"]["cradle"]
-    for sz in p["variants"]:
+    for sz in p["v010"]["sizes"]:
         sc = fab / f"cradle_{sz}.sc"
         if not sc.exists():
             problems.append(f"cradle for {sz} missing (run generate.py --variant v010)")

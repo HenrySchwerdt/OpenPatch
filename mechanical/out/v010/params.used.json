@@ -430,20 +430,20 @@
   "mount": {
    "pins": [
     [
-     21.0,
-     2.2
+     9.5,
+     2.4
     ],
     [
-     41.0,
-     2.2
+     19.0,
+     2.4
     ]
    ],
    "pin_d": 1.0,
    "pin_h": 0.7,
    "hole_d": 1.2,
    "screw": [
-    27.5,
-    2.2
+    13.0,
+    2.4
    ],
    "screw_hole_d": 1.4,
    "screw_head_keepout": 2.8,
@@ -458,16 +458,20 @@
    "boss_d": 2.2,
    "hd": [
     [
-     21.0,
-     2.2
+     9.5,
+     2.4
     ],
     [
-     41.0,
-     2.2
+     19.0,
+     2.4
     ],
     [
      3.6,
      29.2
+    ],
+    [
+     -1.0,
+     29.8
     ]
    ],
    "hd_d": 1.2,
@@ -490,7 +494,7 @@
   "board_z0": 5.3,
   "revB_motor_contacts_note": "Rev B spring-contact variant: order the NFP motor WITHOUT lead; pins B,A-,B+,A at 1.2 mm pitch, see layout.json motor_pins_revB",
   "width": 27.0,
-  "tail_len": 47.45,
+  "tail_len": 29.5,
   "length_targets": {
    "OP-70": 65.5,
    "OP-100": 69.5,
@@ -516,14 +520,14 @@
    "groove_w": 2.2,
    "groove_floor": 0.4,
    "groove_top": 0.95,
-   "groove_y": 26.8,
+   "groove_y": 28.0,
    "slot_w": 2.2,
    "slot_z_top": 1.7,
-   "posts": 3,
+   "posts": 1,
    "post_d": 0.8,
    "post_dy": 0.65,
    "post_pitch": 2.0,
-   "post_x0": 1.0,
+   "post_x0": 5.6,
    "post_h": 0.9
   },
   "length_targets_by_layout": {
@@ -690,6 +694,10 @@
  },
  "v010": {
   "_comment": "v0.1.0 INTEGRATED pod = bench pod + electronics strip beside the dock tunnel (mechanical/op_v010.py, V010.md). Additive: reservoir_frozen and dock_interface_frozen are NOT touched. u = x - x_r1 (pod frame), y absolute. All positions derive from the computed bench layout; only the numbers below are v0.1.0 choices.",
+  "sizes": [
+   "OP-100",
+   "OP-200"
+  ],
   "height": 8.5,
   "board": {
    "t": 0.8,
@@ -833,24 +841,23 @@
   },
   "extra_screws": [
    [
-    14.0,
-    2.2
+    16.2,
+    2.4
    ],
    [
-    34.0,
-    2.2
+    26.0,
+    2.4
    ]
   ],
   "lead": {
    "end_clear": 1.0
   },
   "vent": {
-   "u": 8.0,
-   "y": 12.0,
+   "u": 3.0,
+   "y": 10.0,
    "hole_d": 0.8,
    "recess_d": 5.0,
-   "recess_depth": 0.2,
-   "part": "ePTFE hydrophobic vent membrane disc d5.0 x ~0.15 with adhesive ring (generic breathable-vent disc), glued into the lid recess; equalises the plunger dry-side / housing volume (review 2026-11-19)"
+   "recess_depth": 0.2
   },
   "cradle": {
    "pin_part": "P75-E2 class spring test probe (tube d1.02, length 16.5, stroke ~2 mm; AliExpress/LCSC), VERIFY with calipers",
@@ -869,23 +876,197 @@
    "post_d": 4.0,
    "screw": "M2 x 8",
    "tip_over_pad": 0.0
+  },
+  "layout": "stack",
+  "stack": {
+   "_comment": "ZERO-TAIL layout (spec 2b): board + low-profile parts over the dock tunnel, cell in the strip beside it, radio <= 1.3 mm and piezo on the lid side, motor via FPC tail on a contact shelf behind the motor + 4 SMD spring contacts. u = x - x_r1, y absolute.",
+   "board": {
+    "y0": 1.5,
+    "y1": 30.5,
+    "corner_r": 3.0,
+    "left_y0": 20.3,
+    "tongue_y0": 25.3,
+    "full_from_u": 4.4,
+    "right_gap": 0.6,
+    "screw_hole_d": 3.0,
+    "t": 0.8
+   },
+   "cell": {
+    "class": "301012",
+    "l": 12.8,
+    "w": 10.2,
+    "t": 3.2,
+    "y0": 19.5,
+    "foam_t": 0.6,
+    "rib_t": 0.5,
+    "rib_h": 1.8,
+    "tmag_clear": 0.4,
+    "pad": [
+     1.6,
+     1.6
+    ],
+    "pad_dy": 5.0,
+    "pad_u": 1.0,
+    "spring": [
+     1.6,
+     1.6
+    ],
+    "spring_free_max": 1.2
+   },
+   "radio": {
+    "u": [
+     5.0,
+     13.0
+    ],
+    "y": [
+     5.0,
+     13.0
+    ],
+    "h": 1.0,
+    "part": "radio module <= 1.3 mm on the lid side (Insight SiP ISP1807 8 x 8 x 1.0 class; electronics agent decides), antenna toward +X"
+   },
+   "piezo": {
+    "u0": 6.4,
+    "y0": 20.0,
+    "l": 9.0,
+    "w": 9.0,
+    "h": 1.0
+   },
+   "button": {
+    "u": 17.6,
+    "y": 24.5,
+    "sw": [
+     3.0,
+     2.6,
+     0.55
+    ]
+   },
+   "usb": {
+    "part": "waterproof USB Type-C receptacle, mid-mount, IPX7 class, 8.94 x 7.35 x 3.26 mm (VERIFY vendor drawing)",
+    "w": 8.94,
+    "d": 7.35,
+    "h": 3.26,
+    "z_c": 2.9,
+    "y_c": 22.35,
+    "open_w": 9.4,
+    "open_h": 3.4,
+    "gasket_t": 0.5,
+    "gasket_w": 0.8,
+    "board_t": 0.6,
+    "board_len": 2.0,
+    "link_h": 2.1,
+    "gap_cell": 0.6,
+    "end_gap": 0.0
+   },
+   "motor": {
+    "shelf_dx": 0.3,
+    "shelf_len": 4.6,
+    "shelf_y": [
+     25.6,
+     30.4
+    ],
+    "shelf_top": 4.4,
+    "fpc_t": 0.1,
+    "fpc_w": 2.0,
+    "pad_w": 4.8,
+    "pitch": 1.2,
+    "spring": [
+     0.9,
+     0.9
+    ],
+    "groove_w": 2.2,
+    "groove_y": 28.0
+   },
+   "mount": {
+    "pins": [
+     [
+      9.5,
+      2.4
+     ],
+     [
+      19.0,
+      2.4
+     ]
+    ],
+    "pin_d": 1.0,
+    "pin_h": 0.7,
+    "hole_d": 1.2,
+    "screw": [
+     13.0,
+     2.4
+    ],
+    "screw_hole_d": 1.4,
+    "screw_head_keepout": 2.8,
+    "screw_len": 4.0,
+    "posts": [
+     [
+      3.6,
+      29.2
+     ]
+    ],
+    "post_d": 1.6,
+    "boss_d": 2.2,
+    "hd": [
+     [
+      9.5,
+      2.4
+     ],
+     [
+      19.0,
+      2.4
+     ],
+     [
+      3.6,
+      29.2
+     ],
+     [
+      -1.0,
+      29.8
+     ]
+    ],
+    "hd_d": 1.2,
+    "pin_post_d": 1.6
+   },
+   "extra_screws": [
+    [
+     16.2,
+     2.4
+    ],
+    [
+     26.0,
+     2.4
+    ]
+   ],
+   "vent": {
+    "u": 3.0,
+    "y": 10.0,
+    "hole_d": 0.8,
+    "recess_d": 5.0,
+    "recess_depth": 0.2
+   },
+   "lead": {
+    "posts": 1,
+    "post_x0": 5.6
+   },
+   "projection": {
+    "rear_stack": 12.8,
+    "stroke_op100": 9.8,
+    "note": "coaxial leadscrew + wider bore (coordinator 2026-11-19): x_r1' = rear_stack + (res_len - stroke) + stroke', stroke' = stroke x 9.8 / 13.4; length' = x_r1' + dock tail (frozen tail_u)"
+   }
   }
  },
  "mode": "bench",
  "v010_active": true,
  "v010_plan": {
+  "layout": "stack",
   "tmag_end_u": 5.85,
-  "conn_u": 10.75,
-  "conn_u1": 13.35,
-  "cell_u0": 14.15,
-  "cell_u1": 27.65,
-  "e73_u0": 28.65,
-  "e73_u1": 46.65,
-  "tail_len": 47.45,
-  "lead_end_u": 5.15,
-  "y_lo_arms": 17.65,
-  "y_lo_dome": 16.7,
-  "arms_end_u": 16.5
+  "cell_u0": 6.25,
+  "cell_u1": 19.05,
+  "tail_len": 29.5,
+  "shelf_x0": 22.0,
+  "lead_end_u": -3.8,
+  "arms_end_u": 16.5,
+  "y_lo_arms": 17.65
  },
  "v010_electronics": null
 }
