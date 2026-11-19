@@ -1,0 +1,38 @@
+{
+ "status": "ALL DOCK VALUES TODO-MEASURE (Insight Flex not measured; head estimated from photos).  Order: laser-cut stainless stencil sheet, flat pattern in the DXF (layer CUT = outline, BEND = bend lines; two clips), then bend over a 0.15 mm radius.  JLCPCB/PCBWay stencil service cuts 0.1 / 0.12 / 0.15 mm sheets; the SMT-stencil steel is usually 304 or 316L (spring temper NOT guaranteed): order the 301 FH foil (or full-hard 1.4310) as a custom cut / or use 304 stencil steel for the first fit test and expect a lower allowable stress (VERIFY).",
+ "material": "AISI 301 full hard (1.4310 C1300) 0.1 mm, laser-cut stencil part, bent to a U",
+ "thickness_mm": 0.1,
+ "dxf": {
+  "flat_length_mm": 24.6,
+  "strip_width_mm": 2.4,
+  "thickness_mm": 0.1,
+  "tooth_tab_mm": [
+   0.7,
+   0.6
+  ],
+  "clips_in_file": 2
+ },
+ "stress": {
+  "arm_len": 7.549999999999997,
+  "need_travel": 0.7,
+  "sigma_need": 349.98464979606183,
+  "sigma_1p8": 899.9605280470162,
+  "travel_allow": 1.3000570175438586,
+  "F_need_N": 0.18542233101778124,
+  "F_1p8_N": 0.47680027976000894,
+  "short_arm_3p5_travel": 0.2793859649122807,
+  "arm_for_1p8": 8.883866102270842,
+  "I": 0.00020000000000000006
+ },
+ "hall": {
+  "B0_mT": 59.6,
+  "bop_mT": 20.0,
+  "assert_radius_mm": 0.74,
+  "slide_mm": 3.5
+ },
+ "latch_force": {
+  "engage_N_per_clip": 0.185,
+  "note": "vertical tooth faces lock the head; release by lifting both teeth with a 0.5 mm pick; retention limited by the notch (placeholder), not by the clip"
+ },
+ "allowable": "650 MPa = 0.65 x Rp0.2 (1000 MPa, 301 FH) for a few hundred snaps (fatigue not analysed)"
+}

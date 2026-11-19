@@ -3,6 +3,9 @@
 > This file is the **entry point for every new session** (another machine, another Claude subscription, another person).
 > It is updated on every push. Last updated: **2026-11-19 (cloud session, milestone 1 merged)**.
 
+## v0.1.0 cup pod, layout A (2026-11-19, mechanical worktree)
+- `generate.py --variant v010 --drive cup` / `check.py --variant v010 --drive cup`: transverse motor at the rear spanning both lanes, miter pair z16:z16 (2 gears), rod ends at gear B, cup plunger, tank (un-frozen for this variant: bore 16.7 x 5.5, fill septum underside + outlet in the front wall), dock at the right end of lane 1 (pocket 11.9 x 9.8, 3.5 mm slide, 301 FH U-clip, spring needle guard), reserved volumes for battery/board/USB-C. OP-100 53.15 x 32.0 x 8.5, OP-200 76.57 x 32.0 x 8.5 (45 / 52 mm targets missed). Details: `mechanical/V010-CUP.md`. Decision needed: re-freeze the CNC tank (`out/v010-cup/reservoir-cnc`), clip material (301 FH foil), Insight Flex measurements (all dock values TODO-MEASURE).
+
 ## MILESTONE 1 (2026-11-19, cloud session) — what changed since the handoff below
 
 Done and verified (merged to `main`):

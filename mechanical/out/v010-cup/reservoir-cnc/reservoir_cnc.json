@@ -1,0 +1,30 @@
+{
+ "_status": "NOT frozen / NOT ordered (user 2026-11-19): cup-pod tank, replaces reservoir_frozen for the cup variant only. Material PP-H, water only.",
+ "bore": {
+  "w": 16.7,
+  "h": 5.5,
+  "corner_r": 2.75,
+  "tol": "+0.05/0",
+  "Ra_um": 0.8,
+  "depth_from_dry_rim": 27.06
+ },
+ "outer": {
+  "w": 17.9,
+  "h": 6.7,
+  "tol": "+-0.1",
+  "length": 29.56,
+  "wall": 0.6,
+  "front_wall": 2.5
+ },
+ "outlet": {
+  "bore": "d0.8 straight along +X through the front wall at y=9.85, z=2.6",
+  "hub_seat": "d1.42 H7 (press 0.08) from x=39.10 to the front face, 30G needle hub d1.5"
+ },
+ "fill_septum": {
+  "pocket": "d1.7 x 1.05 from the underside (z 0.85..1.9) at x=38.70, y=5.85",
+  "channel": "d1.0 along X at z=2.2 into the bore front lower corner",
+  "septum": "silicone disc d1.6 x 1.0",
+  "note": "angled (tilted) fill bore NOT modelled: SolidCraft script cylinders are axis-aligned; vertical pocket + short horizontal channel is the CAD equivalent. VERIFY with the CNC shop (3-axis tilt vs 3+2)."
+ },
+ "dead_volume": "plunger front face reaches the front wall (gap 0.02 mm); remaining dead volume = outlet legs + gap ~0.4 U (about 4 mm3)"
+}
