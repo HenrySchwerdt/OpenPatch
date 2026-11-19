@@ -695,7 +695,7 @@ Compatibility: frame `version` stays **1**; frame layout, CRC, TLV encoding, AAD
 Worked example (TLV level, frame header/CRC omitted; code `1-06-001` = `0x10600100`, little endian `00 01 60 10`):
 
 ```
-DIAG_SUMMARY  27 0E | 00 01 60 10 | 03 08 01 01 01 03 | 06 00 | 01 00
+DIAG_SUMMARY  27 0E | 00 01 60 10 | 03 08 01 01 01 03 | 06 00 | 02 00
                      top_code      sev act fru nL nA post  head   schema
 DIAG_RECORD   29 20 | 05 00 00 00 | 00 01 60 10 | 03 08 01 00 | 2C 01 00 00 | 30 07 00 00 | E8 03 00 00 | 39 30 00 00 | 01 43 00 00
                      rec_id 5      code          sev act fru fru2  t_s=300       ctx_a=1840 mV ctx_b=1000 mV  ctx_c=12345   cnt flags cause
