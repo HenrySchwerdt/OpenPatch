@@ -73,13 +73,10 @@ def compute_layout(p: dict, variant: str) -> dict:
 
     x_end = x_r1 + co["d"] + 2 * co["gap_x"]
     length = x_end + wall
-    tower_x = cn["A_plate_length"] + 2 * cn["N_clearance"] + 2 * 1.5
-    x_p = x_r1 + tower_x / 2
-    y_p = yi0 + 1.1 + (cn["B_plate_width"] + 2 * cn["N_clearance"]) / 2
-    pocket_h = cn["C_plate_thickness"] + cn["N_clearance"]
-    x_n = x_p + cn["I_septum_off_x"]
-    y_n = y_p + cn["J_septum_off_y"]
-    z_tip = pocket_h - cn["M_needle_depth"]
+    from op_dock import dock_geometry
+    D = dock_geometry(p, x_r1, wall)
+    tower_x = x_end - x_r1                       # compat: dock region length
+    x_p, y_p, x_n, y_n, z_tip, pocket_h = D["x_d"], D["y_c"], D["x_h1"], D["y_c"], D["z_n"], cn["B_dome_h"]
     x_s = x_in1 - 0.6
 
     bl = dr["bush_len"]
@@ -133,6 +130,7 @@ def compute_layout(p: dict, variant: str) -> dict:
         "tower_notch": [pcb_x0 - 0.1, x_r1 + pc["notch_x"] + sp["boss_d"] / 2 - 0.6, pcb_y0 - 0.1, wall + pc["notch_y"] + 0.4],
         "screw_c": [c_x - 1.4, c_x + 1.4, sc["c_y"] - 1.4, sc["c_y"] + 1.4],
     }
+    cutouts["dock_channel"] = [pcb_x0 - 0.1, x_end + 0.1, D["y_c"] - 5.9, D["y_c"] + 5.9]
     if cut_mt:
         cutouts["motor_tail"] = cut_mt
 
@@ -155,8 +153,9 @@ def compute_layout(p: dict, variant: str) -> dict:
         hp["on_module"] = on_mod
     btn_pos = {"x": btn_x, "y": bz_y0 + (bz_y1 - bz_y0) / 2}
 
-    return {
-        "variant": variant, "stroke": stroke, "length": length, "width": W,
+    out = {
+        "mode": p.get("mode", "integrated"),
+        "dock": D, "variant": variant, "stroke": stroke, "length": length, "width": W,
         "height": sh["height"], "wall": wall, "xi0": wall, "yi0": yi0, "yi1": yi1,
         "x_end": x_end, "res_len": res_len, "res_h_out": res_h_out, "res_w_out": res_w_out,
         "z_axis": z_axis, "x_r0": x_r0, "x_r1": x_r1, "x_in0": x_in0, "x_in1": x_in1,
@@ -181,6 +180,10 @@ def compute_layout(p: dict, variant: str) -> dict:
                  "z": [co["z0"], co["z0"] + co["t"]]},
         "drive": {"gh_ratio_nominal": dr["gh_ratio"], "u_per_step": u_per_step(p, dr["gh_ratio"])},
     }
+    if out["mode"] == "bench":
+        from op_bench import bench_geometry          # lazy: op_bench needs only the finished layout dict
+        out["bench"] = bench_geometry(p, out)
+    return out
 
 
 def lap_dims(p: dict) -> dict:

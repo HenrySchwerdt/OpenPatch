@@ -1,0 +1,494 @@
+{
+ "_comment": "Einzige Parameterquelle der Mechanik. Ma\u00dfe in mm. Spec: spec/design-parameters.md. Varianten \u00e4ndern NUR den Kolbenhub (stroke).",
+ "spec": {
+  "max_height": 8.5,
+  "width_target": 32.0,
+  "length_targets": {
+   "OP-70": 38.0,
+   "OP-100": 42.0,
+   "OP-200": 56.0
+  }
+ },
+ "variants": {
+  "OP-70": {
+   "stroke": 9.4
+  },
+  "OP-100": {
+   "stroke": 13.4
+  },
+  "OP-200": {
+   "stroke": 26.8
+  }
+ },
+ "shell": {
+  "wall": 0.9,
+  "corner_r": 4.0,
+  "top_fillet": 1.0,
+  "width": 32.0,
+  "height": 8.5,
+  "lap_low": 5.0,
+  "lap_high": 5.5,
+  "lap_gap": 0.1,
+  "rim_inset": 0.5,
+  "lid_ring_inset": 0.45,
+  "gasket_t": 0.6,
+  "gasket_c": 0.45,
+  "closure_z_stop": 5.0
+ },
+ "fit": {
+  "clr": 0.2,
+  "clr_small": 0.1,
+  "bat_gap": 0.15
+ },
+ "velcro": {
+  "depth": 0.35,
+  "margin_x": 0.4,
+  "y0": 4.0,
+  "y1": 29.0,
+  "r": 1.5
+ },
+ "reservoir": {
+  "w_in": 16.0,
+  "h_in": 5.0,
+  "wall": 0.8,
+  "dead": 1.0,
+  "plunger_len": 3.8,
+  "plunger_clr": 0.2,
+  "plunger_gap": 0.2,
+  "fill_fraction": 1.0,
+  "cnc_split": true
+ },
+ "septum": {
+  "d": 4.0,
+  "len": 2.0,
+  "bore_clr": 0.1,
+  "z": 2.9,
+  "boss_d": 5.1,
+  "gap_y": 1.8,
+  "port_d": 1.0,
+  "recess": 0.1
+ },
+ "needle": {
+  "od": 0.31,
+  "bore_d": 0.5,
+  "channel_d": 0.7,
+  "channel_z": 3.0,
+  "tower_top": 4.9,
+  "hub_d": 2.0,
+  "hub_t": 0.7,
+  "hub_z0": 3.2,
+  "hub_clr": 0.0
+ },
+ "drive": {
+  "screw_d": 1.6,
+  "nut_hole_d": 1.7,
+  "nut_len": 1.3,
+  "nut_block": 3.4,
+  "arm_t": 1.4,
+  "slot_clr": 0.1,
+  "lane_clr": 0.1,
+  "screw_lane_w": 4.4,
+  "motor_d": 6.0,
+  "motor_len": 14.0,
+  "gearhead_len": 9.7,
+  "gear_x0": 2.0,
+  "gear_t": 1.2,
+  "gear_d": 5.0,
+  "post_bore_d": 2.0,
+  "_comment": "Faulhaber ADM0620-2R-V3 (\u00d86, 9.5 mm, 20 st/rev, 0.2 mNm) + 06/1 planetary 16:1 (nominal; 2 stages). gearhead_len DERIVED (9.2+2.7/stage), VERIFY on datasheet. Screw M1.6x0.35 stainless rod, DIN 934 M1.6 nut.",
+  "nut_af": 3.2,
+  "nut_hex_clr": 0.1,
+  "carriage_len": 4.0,
+  "carriage_bw": 4.4,
+  "carriage_bh": 6.2,
+  "tongue_x": 0.6,
+  "motor_tail": 1.0,
+  "gh_ratio": 5.0,
+  "steps_per_rev": 20,
+  "screw_pitch": 0.35,
+  "gear_module": 0.3,
+  "gear_z": 18,
+  "gear_center": 5.4,
+  "gear_root_d": 4.65,
+  "bush_od": 3.0,
+  "bush_id": 1.7,
+  "bush_len": 1.0,
+  "bush_bore_clr": 0.05,
+  "mag_d": 2.0,
+  "mag_t": 1.0,
+  "rail_w": 0.9,
+  "rail_top": 1.6,
+  "groove_w": 1.2,
+  "groove_d": 0.5,
+  "cradle_t": 1.2,
+  "cradle_up": 1.2,
+  "active_preset": "zw_pd6_1stage",
+  "_note": "Zhaowei ZWBPD006006 6mm planetary-gear stepper, 1 stage (listed 5/6:1; 5.0 assumed). Gearbox 9.7 mm, total 23.7 mm (vendor page). 20 steps/rev ASSUMED (TODO-VERIFY with seller)."
+ },
+ "battery": {
+  "t": 3.2,
+  "y": 11.2,
+  "x_max": 19.8,
+  "margin": 0.2,
+  "y0": 15.8,
+  "rib_t": 0.6,
+  "rib_h": 1.4
+ },
+ "pcb": {
+  "t": 0.6,
+  "keepout": 1.4,
+  "z0": 4.9,
+  "margin": 0.6,
+  "notch_x": 1.4,
+  "notch_y": 3.3
+ },
+ "coil": {
+  "d": 17.6,
+  "t": 0.6,
+  "z0": 6.9,
+  "gap_x": 0.1
+ },
+ "buzzer": {
+  "x": 9.0,
+  "y": 9.0,
+  "z": 2.0,
+  "y0": 18.9,
+  "edge_gap": 0.6
+ },
+ "cannula": {
+  "_comment": "ALL TODO-MEASURE (no public data; guessed from photos). Insight Flex cannula head = round transparent dome with a side septum; the tubing-side connector slides on sideways. See cannula-measurement.md. Measurement letters A..P.",
+  "A_dome_d": 10.0,
+  "B_dome_h": 5.0,
+  "C_septum_axis_z": 3.0,
+  "D_septum_recess_d": 3.6,
+  "E_septum_recess_depth": 1.0,
+  "F_needle_depth": 1.9,
+  "G_latch_dx": 3.2,
+  "H_latch_depth": 0.7,
+  "I_latch_w": 1.4,
+  "J_base_w": 11.0,
+  "K_base_l": 11.0,
+  "L_base_t": 0.6,
+  "N_hook_h": 3.0,
+  "O_cyl_od": 3.2,
+  "P_cyl_len": 2.4
+ },
+ "rf": {
+  "module_x": 8.0,
+  "module_y": 8.0,
+  "module_z": 1.0,
+  "edge_gap": 0.6,
+  "keepout_r": 4.5
+ },
+ "hall": {
+  "pkg_x": 1.6,
+  "pkg_y": 1.6,
+  "pkg_z": 0.5,
+  "gap_x": 0.9,
+  "drv_dy": 1.6,
+  "drv_x": 1.1,
+  "drv_y": 1.4,
+  "drv_z": 0.5
+ },
+ "screws": {
+  "d": 1.2,
+  "pilot": 1.0,
+  "clear": 1.4,
+  "boss_d": 2.2,
+  "head_d": 2.4,
+  "head_depth": 0.5,
+  "len": 6.0,
+  "dry_y": [
+   4.2,
+   11.7,
+   19.0
+  ],
+  "dry_x": 2.0,
+  "c_dx": 3.0,
+  "c_y": 18.8
+ },
+ "button": {
+  "d_memb": 5.0,
+  "memb_t": 0.5,
+  "post_d": 1.8,
+  "y": 20.1,
+  "dx": 11.0,
+  "sw_x": 3.0,
+  "sw_y": 2.6,
+  "sw_z": 0.55,
+  "post_gap": 0.1
+ },
+ "port": {
+  "hole_d": 1.2,
+  "recess_d": 4.0,
+  "recess_depth": 0.2
+ },
+ "seal": {
+  "ring_w": 0.8,
+  "flange": 0.6,
+  "groove_depth": 0.5,
+  "free_oversize": 0.3,
+  "assembly_gap": 0.02,
+  "socket_clr": 0.1,
+  "ring_a": [
+   0.6,
+   1.4
+  ],
+  "ring_b": [
+   2.3,
+   3.1
+  ],
+  "socket_x": [
+   1.45,
+   2.25
+  ],
+  "tongue_off": [
+   1.55,
+   2.15
+  ],
+  "socket_depth": 1.6
+ },
+ "mould": {
+  "margin": 6.0,
+  "split_h": 6.0,
+  "pin_d": 2.0,
+  "pin_clr": 0.1,
+  "pin_h": 2.5,
+  "sprue_d": 0.7,
+  "vent_d": 0.5,
+  "core_clr": 0.03
+ },
+ "_notes": "Rev A orderable. See parts.md / README.md.",
+ "contacts": {
+  "spring_h_max": 1.2,
+  "tab_dy": [
+   7.3,
+   9.2
+  ],
+  "tab_dx": 0.8,
+  "tab_pad": [
+   1.5,
+   1.2
+  ],
+  "fpc_pitch": 0.5,
+  "fpc_n": 4,
+  "fpc_y": 25.7,
+  "shelf_dx": 0.3,
+  "shelf_len": 3.0,
+  "shelf_y": [
+   25.1,
+   26.3
+  ],
+  "shelf_top": 3.9,
+  "pad_d": 1.2,
+  "pad_gap": 0.05,
+  "fpc_t": 0.1
+ },
+ "drive_presets": {
+  "zw_pd6_1stage": {
+   "_note": "Zhaowei ZWBPD006006 6mm planetary-gear stepper, 1 stage (listed 5/6:1; 5.0 assumed). Gearbox 9.7 mm, total 23.7 mm (vendor page). 20 steps/rev ASSUMED (TODO-VERIFY with seller).",
+   "gearhead_len": 9.7,
+   "motor_len": 14.0,
+   "gh_ratio": 5.0,
+   "steps_per_rev": 20,
+   "motor_tail": 1.0
+  },
+  "zw_pd6_2stage": {
+   "gearhead_len": 12.1,
+   "motor_len": 14.0,
+   "gh_ratio": 23.0,
+   "steps_per_rev": 20,
+   "motor_tail": 1.0
+  },
+  "faulhaber_adm0620_16": {
+   "_note": "Premium: ADM0620-2R-V3 (9.5 mm, 20 st/rev, datasheet) + 06/1 16:1 (length derived 11.9, VERIFY).",
+   "gearhead_len": 11.9,
+   "motor_len": 9.5,
+   "gh_ratio": 16.0,
+   "steps_per_rev": 20,
+   "motor_tail": 1.0
+  }
+ },
+ "bench": {
+  "_comment": "Bench pod (spec 4a). u = x - x_r1. All board features are relative to x_r1 -> one board for all sizes.",
+  "board_t": 0.8,
+  "u_left": 1.7,
+  "lobe_u": 9.0,
+  "right_gap": 0.6,
+  "wing_v": [
+   20.2,
+   24.7
+  ],
+  "body_v": [
+   14.5,
+   30.5
+  ],
+  "leg_u": [
+   11.0,
+   15.8
+  ],
+  "leg_v0": 4.6,
+  "corner_r": 2.5,
+  "tmag": {
+   "u": 3.5,
+   "pkg": [
+    2.9,
+    2.8,
+    1.45
+   ]
+  },
+  "drv_top": {
+   "u": 2.6,
+   "dvs": [
+    -1.5,
+    1.2
+   ],
+   "pkg": [
+    1.4,
+    1.1,
+    0.4
+   ]
+  },
+  "dock": {
+   "dx_from_dome": 5.6,
+   "pkg": [
+    1.1,
+    1.4,
+    0.4
+   ]
+  },
+  "contacts": {
+   "u": [
+    11.2,
+    15.0
+   ],
+   "v": [
+    25.7,
+    28.3
+   ],
+   "body": [
+    3.5,
+    2.0,
+    1.0
+   ],
+   "strip_pad": [
+    2.6,
+    1.8
+   ],
+   "strip_t": 0.1,
+   "shelf_top": 4.65
+  },
+  "shelf_y": [
+   25.0,
+   29.8
+  ],
+  "ffc": {
+   "u": 15.0,
+   "v": 20.5,
+   "conn": [
+    4.0,
+    7.4,
+    1.0
+   ],
+   "cable_w": 6.0,
+   "cable_t": 0.3,
+   "cable_z": 0.25,
+   "cable_out": 12.0,
+   "slot_w": 8.0,
+   "slot_z": [
+    6.0,
+    7.1
+   ]
+  },
+  "mount": {
+   "pins": [
+    [
+     10.6,
+     15.8
+    ],
+    [
+     16.4,
+     22.5
+    ]
+   ],
+   "pin_d": 1.0,
+   "pin_h": 0.7,
+   "hole_d": 1.2,
+   "screw": [
+    10.6,
+    19.4
+   ],
+   "screw_hole_d": 1.4,
+   "screw_head_keepout": 2.8,
+   "screw_len": 4.0,
+   "posts": [
+    [
+     6.2,
+     22.4
+    ],
+    [
+     16.2,
+     15.6
+    ]
+   ],
+   "post_d": 1.6,
+   "boss_d": 2.2,
+   "hd": [
+    [
+     6.2,
+     22.4
+    ],
+    [
+     12.9,
+     27.0
+    ],
+    [
+     16.2,
+     15.6
+    ]
+   ],
+   "hd_d": 1.2,
+   "pin_post_d": 1.6
+  },
+  "adapter": {
+   "magnet_d": 2.0,
+   "magnet_t": 1.0,
+   "magnet_clr": 0.1,
+   "magnet_dx": 5.6,
+   "lug_top": 4.3,
+   "lug_half_x": 1.6,
+   "lug_half_y": 2.0,
+   "septum_bore_d": 0.5,
+   "channel_d": 0.7,
+   "channel_z": 1.5,
+   "barb_d": 1.6,
+   "barb_len": 5.0
+  },
+  "board_z0": 5.3
+ },
+ "dock": {
+  "_comment": "pod side of the slide-on dock. y_c = dock axis in pod Y. arm_in = relaxed inner half spacing of the snap arms.",
+  "y_c": 10.3,
+  "hub_x0": 0.8,
+  "hub_t": 0.7,
+  "hub_d": 2.0,
+  "hub_clr": 0.0,
+  "needle_free": 3.5,
+  "block_len": 1.5,
+  "block_half_y": 3.0,
+  "block_up": 2.2,
+  "arm_t": 0.8,
+  "arm_z": [
+   1.3,
+   4.95
+  ],
+  "root_len": 0.8,
+  "hook_w": 1.2,
+  "hook_clr": 0.15,
+  "dome_clr": 0.1,
+  "mouth_over": 0.6,
+  "arm_gap_clr": 0.2,
+  "hook_ramp": 0.4
+ },
+ "mode": "bench"
+}

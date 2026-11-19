@@ -113,3 +113,14 @@ plunger_seal,gasket}.step/.stl`, `{mould_lower,mould_upper}.step/.stl`, `{reserv
 * Screw thread, gear teeth, spring contacts are not modelled (smooth cylinders).
 * No friction/leak/force analysis; plunger seal interference (0.15 mm per side) is unverified.
 * Piezo/button/coil keep-outs are mechanical envelopes only - electronics must confirm components fit.
+
+
+## Bench pod variant (spec 4a) and the new slide-on dock
+
+* `python3 generate.py --variant bench` / `python3 check.py --variant bench` / `python3 fab.py --variant bench` -> `out/bench/` (CAD for OP-70/100/200, `OP-xx.layout.json` for the
+  pod sensor board, `fab/` upload package). The bench pod has no battery, coil, RF module or main PCB; code: `op_bench.py`, `op_dock.py`, `hall_model.py`.
+* **Dock redesign (both variants):** the Insight Flex head is a dome with a side septum; the connector slides on sideways. The pod now has a slide-on channel open at the +X end,
+  a horizontal 30G needle and two PA12 snap arms (see `cannula-measurement.md`; all `cannula.*` letters A..P are TODO-MEASURE). `python3 generate.py --coupon` builds the
+  needle-free fit-test strip `out/fab/dock-coupon/`.
+* The **integrated variant does not pass `check.py` with the new dock**: the dome channel (12 x 18 mm footprint, 5.0 mm high) takes most of the old battery / PCB / RF area. It is
+  postponed to Rev B together with the SMA drive; `out/OP-xx*` files are the pre-dock state.

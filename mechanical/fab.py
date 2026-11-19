@@ -18,7 +18,11 @@ from pathlib import Path
 
 from op_layout import HERE, load_params
 
-OUT = HERE / "out"
+import argparse
+import sys
+
+BENCH = "--variant" in sys.argv and sys.argv[sys.argv.index("--variant") + 1] == "bench"
+OUT = HERE / "out" / "bench" if BENCH else HERE / "out"
 FAB = OUT / "fab"
 CLI = "/Applications/SolidCraft.app/Contents/MacOS/solidcraft-cli"
 
@@ -49,6 +53,18 @@ PARTS = {
     "gasket": ("DO NOT ORDER - die-cut / laser-cut 0.5 mm silicone sheet, Shore A 40-50, ring 0.4 mm wide, or dispense a 0.5 mm bead", "-", "-", "-", 0,
                "Reference geometry (compressed state 0.45 mm). A 0.4 mm wide ring is fragile: cut it from 0.5 mm sheet with ~0.8 mm webs or use FIPG.", False),
 }
+# bench pod: same parts minus CNC reservoir halves; plus the dummy cannula head (adapter)
+BENCH_PARTS = {k: v for k, v in PARTS.items() if not k.startswith("reservoir_cnc")}
+BENCH_PARTS["bottom"] = (PARTS["bottom"][0], "PA12", "grey (natural)", "bead-blasted standard; NO dye/vapour smoothing", 1,
+                         "+-0.2 mm. Contains the dock: two snap arms 0.8 mm thick x 9.5 mm free length (hook travel 1.8 mm, ~2.4 % strain). "
+                         "ORDER THE DOCK COUPON FIRST. Post-drill by hand: M1.2 pilot dia 1.0 (x5), hub bore dia 2.0 (test-fit), fluid channel dia 0.7. "
+                         "FFC exit slot is in the lid. Porous: NOT watertight.", True)
+BENCH_PARTS["top"] = (PARTS["top"][0], "PA12", "grey (natural)", "bead-blasted standard", 1,
+                      "+-0.2 mm. FFC slot 8.0 x 1.1 mm in the +X wall, dome mouth in the lap. Screw holes dia 1.4 may need a drill.", True)
+BENCH_PARTS["cannula_adapter"] = ("SLA (JLC3DP resin 8001-type; PCBWay SLA)", "tough resin", "clear or white", "support marks off the dome sides and the notches",
+                                  2, "+-0.1 mm. Dummy cannula head (dome d 10, base plate, side septum recess d 3.6, two latch notches, hose barb d 1.6, magnet "
+                                     "pocket d 2.1 x 1.05 in the rear lug). Glue a d2x1 N52 magnet (CA drop) and press a punched d2 silicone plug "
+                                     "into the septum bore. Dimensions follow cannula.* placeholders (TODO-MEASURE).", True)
 MOULD = ("SLA (high detail, e.g. JLC3DP 8001 / PCBWay SLA)", "tough resin", "any", "wash + UV cure; drill sprue dia 0.7 / vent dia 0.5 clear", 1,
          "One set for ALL sizes. +-0.05..0.1 mm. Check the 4 pin/hole fits (pin dia 2.0 / hole 2.2).")
 
@@ -71,17 +87,79 @@ def volumes(sc: Path, names: list[str]) -> dict[str, float]:
 
 
 
+def write_bench_readme(p: dict, vols: dict, sizes: list, PARTS: dict) -> None:
+    def cost(sz: str, part: str, qty: int) -> float:
+        vol = vols[sz].get(part, 0.0)
+        if PARTS[part][0].startswith("MJF"):
+            return qty * max(MJF_MIN_PART, vol * PA12_DENSITY * MJF_BILL_FACTOR * MJF_PER_G)
+        return qty * max(SLA_MIN_PART, vol * SLA_BILL_FACTOR * SLA_PER_CM3 * 4)
+    cols = [("bottom", 1), ("top", 1), ("carriage", 2), ("plunger_core", 2), ("reservoir", 1), ("cannula_adapter", 2)]
+    lines = ["| size | " + " | ".join(f"{c} x{q}" for c, q in cols) + " | subtotal |", "|---|" + "---|" * (len(cols) + 1)]
+    tot = 0.0
+    sub = {}
+    for sz in sizes:
+        c = [cost(sz, k, q) for k, q in cols]
+        sub[sz] = sum(c)
+        tot += sub[sz]
+        lines.append(f"| {sz} | " + " | ".join(f"${x:.1f}" for x in c) + f" | ${sum(c):.1f} |")
+    mould = 2 * max(SLA_MIN_PART, 14.0 * SLA_BILL_FACTOR * SLA_PER_CM3 * 4)
+    coupon = MJF_MIN_PART * 2 + SLA_MIN_PART * 1.5
+    single = min(sub.values())
+    readme = f"""# OpenPatch bench pod - fabrication folder (`out/bench/fab/`)
+
+EXPERIMENTAL bench test sample (Rev A bench split, spec 4a): water only, NEVER on a person. No battery, Qi coil, RF module or
+main PCB: the pod carries only the 2-layer pod sensor board (ordered separately as PCBA, see `electronics/`) and an FFC cable
+to the bench controller. Folders: `OP-70/`, `OP-100/`, `OP-200/` (upload), `mould/` (one set for all sizes), `dock-coupon/`
+(fit test, order FIRST), `MANIFEST.csv`. Units mm; STEP is master, STL (fine) for the quote tool.
+
+## Order sheet (every size)
+
+| file | process | material | colour | finish | qty / size | tolerance, notes |
+|---|---|---|---|---|---|---|
+""" + "\n".join(f"| `<SIZE>/{k}.stl` | {v[0]} | {v[1]} | {v[2]} | {v[3]} | {v[4]} | {v[5]} |" for k, v in PARTS.items() if v[6]) + f"""
+| `mould/mould_lower.stl`, `mould_upper.stl` | {MOULD[0]} | {MOULD[1]} | {MOULD[2]} | {MOULD[3]} | {MOULD[4]} set (all sizes) | {MOULD[5]} |
+| `dock-coupon/dock_coupon.stl` | MJF PA12 **and** SLA tough resin (1 each) | PA12 / tough resin | grey / any | standard | 1 + 1 | no needle; 6 dock variants, fit test on a real cannula head |
+
+Not uploaded (`reference_not_ordered/`): `plunger_seal` (cast in the mould) and `gasket` (cut from 0.5 mm silicone sheet).
+The reservoir is an SLA clear part (water test only), same as the integrated variant. CNC reservoir halves are not part of the bench loop.
+
+## Process recommendation
+* Housing (bottom/top): MJF PA12 grey - the snap arms are designed for PA12 (E about 1.7 GPa, 2.4 % strain at 1.8 mm hook travel).
+  If JLC3DP flags the 0.8 mm arms or 0.4 mm lap tongue, re-order the same files in SLA tough resin (stiffer: arm force rises, retest with the coupon).
+* Carriage, plunger core, cannula adapter, mould: SLA tough resin. Reservoir: SLA clear.
+* Vendor: JLC3DP default (one order, one shipment with the PCBA); PCBWay as fallback. See `../../fab/vendor-notes.md` for notes.
+
+## Estimated cost per iteration (ESTIMATE - confirm with the instant quote)
+
+Price model identical to the integrated variant (MJF {MJF_PER_G:.2f} USD/g x {MJF_BILL_FACTOR}, min {MJF_MIN_PART:.1f} USD/part; SLA min {SLA_MIN_PART:.1f} USD/part). Shipping {SHIP_EST[0]:.0f}-{SHIP_EST[1]:.0f} USD (one order).
+
+{chr(10).join(lines)}
+
+* Printed parts for ONE pod size: about **${single:.0f}** (+ shipping); all three sizes: about **${tot:.0f}**.
+* Dock coupon (MJF + SLA): about ${coupon:.0f} - order it with the first pod batch, it decides the cannula.* values.
+* Mould (once, reusable): about ${mould:.0f}.
+* Per iteration (1 size + coupon + shipping, no mould): about **${single + coupon + SHIP_EST[0]:.0f} - ${single + coupon + SHIP_EST[1]:.0f}**; repeat iterations without coupon about ${single + SHIP_EST[0]:.0f} - ${single + SHIP_EST[1]:.0f}.
+* Not included: pod sensor board PCBA (see electronics), motor (reusable), spring contacts, FFC cable, magnets, needle hubs: see `../ASSEMBLY.md`.
+"""
+    (FAB / "README.md").write_text(readme, encoding="utf-8")
+    (FAB / "vendor-notes.md").write_text("See ../../fab/vendor-notes.md (same vendors and process names).\n", encoding="utf-8")
+    print(f"bench fab folder written: {FAB}; one size about {single:.0f} USD printed parts (estimate)")
+
+
 def main() -> None:
     p = load_params(OUT / "params.used.json") if (OUT / "params.used.json").exists() else load_params()
+    PARTS = BENCH_PARTS if BENCH else globals()["PARTS"]
     if FAB.exists():
-        shutil.rmtree(FAB)
-    FAB.mkdir(parents=True)
+        for child in FAB.iterdir():          # keep dock-coupon/ (built by generate.py --coupon)
+            if child.name != "dock-coupon":
+                shutil.rmtree(child) if child.is_dir() else child.unlink()
+    FAB.mkdir(parents=True, exist_ok=True)
     rows, vols = [], {}
     sizes = list(p["variants"])
     for sz in sizes:
         d = FAB / sz
         d.mkdir()
-        v = volumes(OUT / f"{sz}.sc", ["bottom", "top", "carriage", "plunger_core", "reservoir"])
+        v = volumes(OUT / f"{sz}.sc", ["bottom", "top", "carriage", "plunger_core", "reservoir", "cannula_adapter"])
         vols[sz] = v
         for part, (proc, mat, col, fin, qty, tol, upload) in PARTS.items():
             if not upload:
@@ -104,12 +182,23 @@ def main() -> None:
         for ext in ("stl", "step"):
             shutil.copy(OUT / f"{n}.{ext}", md / f"{n}.{ext}")
         rows.append([f"mould/{n}.stl", *MOULD[:5], MOULD[5], ""])
+    coupon_src = HERE / "out" / "fab" / "dock-coupon"
+    if BENCH and coupon_src.exists():
+        shutil.copytree(coupon_src, FAB / "dock-coupon", dirs_exist_ok=True)
+        note = ("Dock fit-test coupon, NO needle: 6 variants of the slide-on dock (dome d 9.85/10.0/10.15 x hook height 2.85/3.15), "
+                "test-fit to a real cannula head BEFORE ordering pods (see cannula-measurement.md).")
+        rows.append(["dock-coupon/dock_coupon.stl", "MJF PA12 (same process as the pod housing)", "PA12", "grey (natural)", "standard", 1, note, ""])
+        rows.append(["dock-coupon/dock_coupon.stl", "SLA tough resin (stiffer; arms behave differently than MJF)", "tough resin", "any", "support marks off arms", 1, note, ""])
     with open(FAB / "MANIFEST.csv", "w", newline="", encoding="utf-8") as fh:
         w = csv.writer(fh)
         w.writerow(["file", "process", "material", "colour", "finish", "qty", "tolerance_notes", "volume_cm3"])
         w.writerows(rows)
 
     # ---- cost estimate -------------------------------------------------------------------------
+    if BENCH:
+        write_bench_readme(p, vols, sizes, PARTS)
+        return
+
     def part_cost(sz: str, part: str, qty: int) -> float:
         vol = vols[sz].get(part, 0.0)
         proc = PARTS[part][0]

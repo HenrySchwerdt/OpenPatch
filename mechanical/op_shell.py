@@ -19,9 +19,8 @@ def build_bottom(s: Script, p: dict, L: dict) -> None:
     s.cut("bottom", ["t_cav"])
 
     # ---- Kanülenturm, Septum-Boss ---------------------------------------------------
-    tx0 = L["x_r1"]
-    ty1 = L["y_p"] + cn["B_plate_width"] / 2 + cn["N_clearance"] + 0.9
-    joins = [s.box("t_tower", (tx0, tx0 + L["tower_x"]), (wall - 0.1, ty1), (wall - 0.1, nd["tower_top"]))]
+    from op_dock import build_dock_cuts, build_dock_joins, build_mouth_cut
+    joins = build_dock_joins(s, p, L)
     joins.append(s.cyl("t_boss", "Y", (L["x_s"], 0, sp["z"]), sp["boss_d"], wall - 0.1, L["y_r0"]))
 
     # ---- Spindellager-Böcke (trocken: in der Stirnwand, nass: hinter dem Reservoir) ------
@@ -41,42 +40,30 @@ def build_bottom(s: Script, p: dict, L: dict) -> None:
         joins.append(s.box(f"t_sad{i}", (cx - dr["cradle_t"] / 2, cx + dr["cradle_t"] / 2), (ym - 2.2, ym + 2.2),
                            (wall - 0.1, wall + dr["cradle_up"] + 0.2)))
     # Kontakt-Regal für Motor-FPC
-    sf = L["contacts"]["motor_shelf"]
+    bench = L["mode"] == "bench"
+    sf = L["bench"]["shelf"] if bench else L["contacts"]["motor_shelf"]
     joins.append(s.box("t_shelf", tuple(sf["x"]), tuple(sf["y"]), (wall - 0.1, sf["z_top"])))
     # Akku-Taschenrippen (Kabel-/Laschenkanal = Lücke bei y der Schraube C)
     rt = bt["rib_t"]
     rx = (L["bat_x0"] - 0.15 - rt, L["bat_x0"] - 0.15)
-    for i, (y0, y1) in enumerate(((L["bat_y0"] + 0.1, sc["c_y"] - 1.5), (sc["c_y"] + 1.5, L["bat_y1"] - 0.1))):
+    for i, (y0, y1) in enumerate(() if bench else ((L["bat_y0"] + 0.1, sc["c_y"] - 1.5), (sc["c_y"] + 1.5, L["bat_y1"] - 0.1))):
         joins.append(s.box(f"t_rib{i}", rx, (y0, y1), (wall - 0.1, wall + bt["rib_h"])))
     # Schraubdome (Hartanschlag für Dichtung bei z = lap_high + gasket_c) und PCB-Stifte
     z_stop = sh["lap_high"] + sh["gasket_c"]
     for i, sp_ in enumerate(L["screws"]):
         joins.append(s.cyl(f"t_dome{i}", "Z", (sp_["x"], sp_["y"], 0), sc["boss_d"], wall - 0.1, z_stop - 0.01))
-    for i, (dx, dy) in enumerate(((0.8, 4.5), (L["tower_x"] - 1.1, 11.0))):
-        joins.append(s.cyl(f"t_pin{i}", "Z", (L["x_r1"] + dx, dy, 0), 1.0, nd["tower_top"] - 0.1, nd["tower_top"] + 0.7))
+    if bench:
+        bn, mt = p["bench"], p["bench"]["mount"]
+        z_b = L["bench"]["z0"]
+        for i, q in enumerate(mt["pins"]):
+            joins.append(s.cyl(f"t_bpinpost{i}", "Z", (L["x_r1"] + q[0], q[1], 0), mt["pin_post_d"], wall - 0.1, z_b))
+            joins.append(s.cyl(f"t_bpin{i}", "Z", (L["x_r1"] + q[0], q[1], 0), mt["pin_d"], z_b - 0.1, z_b + mt["pin_h"] - 0.1))
+        for i, q in enumerate(mt["posts"] + [mt["screw"]]):
+            d = mt["post_d"] if i < len(mt["posts"]) else mt["boss_d"]
+            joins.append(s.cyl(f"t_bpost{i}", "Z", (L["x_r1"] + q[0], q[1], 0), d, wall - 0.1, z_b))
     s.join("bottom", joins)
 
     cut = []
-    ph = L["pocket_h"]
-    px = cn["A_plate_length"] / 2 + cn["N_clearance"]
-    py = cn["B_plate_width"] / 2 + cn["N_clearance"]
-    cut.append(s.box("t_pocket", (L["x_p"] - px, L["x_p"] + px), (L["y_p"] - py, L["y_p"] + py), (-0.1, ph)))
-    gy = cn["E_wing_len"] / 2
-    gz = (cn["G_wing_z"], cn["G_wing_z"] + cn["F_wing_height"])
-    D = cn["D_wing_groove_depth"]
-    cut.append(s.box("t_gr1", (L["x_p"] + px - 0.01, L["x_p"] + px + D), (L["y_p"] - gy, L["y_p"] + gy), gz))
-    cut.append(s.box("t_gr2", (L["x_p"] - px - D, L["x_p"] - px + 0.01), (L["y_p"] - gy, L["y_p"] + gy), gz))
-    # Schnapp-Rast (TODO-MEASURE: Federweg/Steifigkeit): Schlitze links/rechts der Flügelzone
-    for k, sgn in enumerate((1, -1)):
-        xw = L["x_p"] + sgn * px
-        xa, xb = sorted((xw, xw + sgn * 1.4))
-        for j, sy in enumerate((-1, 1)):
-            yc = L["y_p"] + sy * (gy + 0.5)
-            cut.append(s.box(f"t_slit{k}{j}", (xa, xb), (yc - 0.2, yc + 0.2), (gz[0] - 0.6, nd["tower_top"] + 0.1)))
-    # Nadel-Bohrung, Kanal, Naben-Sitz
-    cut.append(s.cyl("t_nb", "Z", (L["x_n"], L["y_n"], 0), nd["bore_d"], ph - 0.1, nd["channel_z"] + 0.1))
-    cut.append(s.cyl("t_nh", "Z", (L["x_n"], L["y_n"], 0), nd["hub_d"], nd["hub_z0"] - 0.0, nd["hub_z0"] + nd["hub_t"]))
-    cut.append(s.cyl("t_nc", "X", (0, L["y_n"], nd["channel_z"]), nd["channel_d"], L["x_r1"] - 0.5, L["x_n"]))
     cut.append(s.cyl("t_sb", "Y", (L["x_s"], 0, sp["z"]), sp["d"] + 2 * sp["bore_clr"], -0.1, sp["len"] + 0.3))
     cut.append(s.cyl("t_sc", "Y", (L["x_s"], 0, sp["z"]), sp["port_d"], sp["len"] + 0.2, L["y_r0"] + 0.01))
     # Lager-Bohrungen
@@ -90,11 +77,18 @@ def build_bottom(s: Script, p: dict, L: dict) -> None:
     # Schrauben-Pilotlöcher M1.2 (Ø1.0)
     for i, sp_ in enumerate(L["screws"]):
         cut.append(s.cyl(f"t_pil{i}", "Z", (sp_["x"], sp_["y"], 0), sc["pilot"], z_stop - sc["len"] + 2.0, z_stop + 0.1))
+    if bench:
+        mt, bd = p["bench"]["mount"], L["bench"]
+        q = mt["screw"]
+        cut.append(s.cyl("t_bscrew", "Z", (L["x_r1"] + q[0], q[1], 0), sc["pilot"], bd["z0"] - 3.4, bd["z0"] + 0.1))
     cut.append(s.rrect("t_vel", (L["x_r0"] + vc["margin_x"], L["x_r1"] - 1.5), (vc["y0"], vc["y1"]), vc["r"], (-0.1, vc["depth"])))
     s.cut("bottom", cut)
+    dock_cuts = build_dock_cuts(s, p, L) + build_mouth_cut(s, p, L, "t_kmouth")
+    s.cut("bottom", dock_cuts)
 
 
 def build_top(s: Script, p: dict, L: dict) -> None:
+    from op_dock import build_mouth_cut
     sh, sc, bn, pt, co, ct = p["shell"], p["screws"], p["button"], p["port"], p["coil"], p["contacts"]
     w, wd, r, wall = L["length"], L["width"], sh["corner_r"], sh["wall"]
     z_stop = sh["lap_high"] + sh["gasket_c"]
@@ -110,6 +104,22 @@ def build_top(s: Script, p: dict, L: dict) -> None:
     joins = []
     for i, sp_ in enumerate(L["screws"]):
         joins.append(s.cyl(f"t_lb{i}", "Z", (sp_["x"], sp_["y"], 0), sc["boss_d"] + 0.2, z_stop, zi + 0.1))
+    bench = L["mode"] == "bench"
+    if bench:
+        bd, mt = L["bench"], p["bench"]["mount"]
+        for i, q in enumerate(mt["hd"]):
+            joins.append(s.cyl(f"t_hd{i}", "Z", (L["x_r1"] + q[0], q[1], 0), mt["hd_d"], bd["ztop"] + 0.05, zi + 0.1))
+        s.join("top", joins)
+        fl = p["bench"]["ffc"]
+        cuts = []
+        for i, sp_ in enumerate(L["screws"]):
+            cuts.append(s.cyl(f"t_lh{i}", "Z", (sp_["x"], sp_["y"], 0), sc["clear"], z_stop - 0.1, zt + 0.1))
+            cuts.append(s.cyl(f"t_lc{i}", "Z", (sp_["x"], sp_["y"], 0), sc["head_d"], zt - sc["head_depth"], zt + 0.1))
+        cuts.append(s.box("t_ffcslot", (w - wall - 0.2, w + 0.1), (fl["v"] - fl["slot_w"] / 2, fl["v"] + fl["slot_w"] / 2),
+                          tuple(fl["slot_z"])))
+        cuts.extend(build_mouth_cut(s, p, L, "t_kmouth_top", top_part=True))
+        s.cut("top", cuts)
+        return
     # Spulensitz: 4 Pratzen außerhalb der Spule
     cx, cy = L["coil"]["cx"], L["coil"]["cy"]
     rr = L["coil"]["d"] / 2 + 0.7
@@ -133,6 +143,7 @@ def build_top(s: Script, p: dict, L: dict) -> None:
     px, py = (bz["x0"] + bz["x1"]) / 2, (bz["y0"] + bz["y1"]) / 2
     cuts.append(s.cyl("t_port", "Z", (px, py, 0), pt["hole_d"], zi - 0.1, zt + 0.1))
     cuts.append(s.cyl("t_prec", "Z", (px, py, 0), pt["recess_d"], zi - 0.1, zi + pt["recess_depth"]))
+    cuts.extend(build_mouth_cut(s, p, L, "t_kmouth_top", top_part=True))
     s.cut("top", cuts)
 
 
@@ -144,3 +155,5 @@ def build_gasket(s: Script, p: dict, L: dict) -> None:
     s.rrect("gasket", (ri, w - ri), (ri, wd - ri), r - ri, (z0 + 0.005, z0 + sh["gasket_c"] - 0.005))
     s.rrect("t_gin", (wall, w - wall), (wall, wd - wall), r - wall, (z0 - 0.1, z0 + sh["gasket_c"] + 0.1))
     s.cut("gasket", ["t_gin"])
+    from op_dock import build_mouth_cut
+    s.cut("gasket", build_mouth_cut(s, p, L, "t_gmouth", top_part=True))

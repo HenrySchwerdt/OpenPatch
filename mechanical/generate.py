@@ -22,7 +22,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-from op_build import MFG_PARTS, PART_NAMES, build_model
+from op_build import build_model, part_sets
 from op_cmds import Script
 from op_drive import build_reservoir
 from op_layout import HERE, load_params, merge, stadium_area
@@ -45,6 +45,22 @@ COLORS = ["--body", "top:opacity=0.18,color=#9fb3c8", "--body", "bottom:opacity=
           "--body", "seal_a:color=#dd3333", "--body", "seal_b:color=#dd3333", "--body", "carriage:color=#f0c040",
           "--body", "pcb:color=#2e8b57", "--body", "battery:color=#3a5fcd", "--body", "qi_coil:color=#b87333",
           "--body", "pcb_keepout:opacity=0.05", "--body", "rf_module:color=#222222", "--body", "gasket:color=#111111"]
+
+
+BENCH_EXPLODE = {
+    "top": (0, 0, 22), "ffc_cable": (14, 0, 16), "ffc_conn": (0, 0, 14), "hall_drv0": (0, 0, 12), "hall_drv1": (0, 0, 12),
+    "pod_board": (0, 0, 8), "hall_tmag": (0, 0, 6), "hall_dock": (0, 0, 6), "spring0": (0, 0, 5), "spring1": (0, 0, 5),
+    "spring2": (0, 0, 5), "spring3": (0, 0, 5), "motor_strip": (0, 0, 3), "gasket": (0, 0, 12),
+    "carriage": (0, 0, 14), "nut": (0, 0, 14), "plunger_core": (0, 0, 10), "seal_a": (0, 0, 10), "seal_b": (0, 0, 10),
+    "leadscrew": (0, 0, 8), "magnet": (0, 0, 8), "bush_dry": (0, 0, 8), "bush_far": (0, 0, 8), "reservoir": (0, 0, 4),
+    "septum": (0, -8, 4), "needle": (0, 0, -6), "needle_hub": (0, 0, -3), "motor": (0, 0, 4), "gearhead": (0, 0, 4),
+    "gear_a": (0, 0, 8), "gear_b": (0, 0, 12), "dock_magnet": (0, 0, -16), "cannula_adapter": (0, 0, -12), "bottom": (0, 0, -6),
+}
+BENCH_COLORS = ["--body", "top:opacity=0.18,color=#9fb3c8", "--body", "bottom:opacity=0.55,color=#c9d3dd",
+                "--body", "reservoir:opacity=0.5,color=#7fd0e0", "--body", "plunger_core:color=#e0803a",
+                "--body", "carriage:color=#f0c040", "--body", "pod_board:color=#2e8b57", "--body", "cannula_adapter:color=#7a5cc7",
+                "--body", "ffc_cable:color=#e8c36a", "--body", "ffc_conn:color=#222222", "--body", "motor_strip:color=#b87333",
+                "--body", "dock_magnet:color=#cc2222", "--body", "magnet:color=#cc2222", "--body", "gasket:color=#111111"]
 
 
 def run_cli(*args: str) -> subprocess.CompletedProcess:
@@ -100,6 +116,8 @@ def reservoir_cnc_script(p: dict, L: dict, tag: str, outdir: Path) -> Script:
 def generate_size(p: dict, variant: str, outdir: Path, snapshots: bool) -> dict:
     outdir.mkdir(parents=True, exist_ok=True)
     s, L = build_model(p, variant)
+    bench = L["mode"] == "bench"
+    MFG_PARTS, PART_NAMES, _ = part_sets(L["mode"])
     tag = variant
     asm = [b for b in PART_NAMES if b != "pcb_keepout"]
     s.export_step(str(outdir / f"{tag}_assembly.step"), asm)
@@ -111,13 +129,19 @@ def generate_size(p: dict, variant: str, outdir: Path, snapshots: bool) -> dict:
     sc = outdir / f"{tag}.sc"
     run_cli("run", str(script), "--save", str(sc), "--quiet")
     L["envelope"] = envelope_info(p, L)
-    (outdir / f"{tag}.layout.json").write_text(json.dumps(L, indent=1), encoding="utf-8")
+    if bench:
+        from op_bench import layout_json
+        (outdir / f"{tag}.mech.json").write_text(json.dumps(L, indent=1), encoding="utf-8")
+        (outdir / f"{tag}.layout.json").write_text(json.dumps(layout_json(p, L, L["bench"]), indent=1), encoding="utf-8")
+    else:
+        (outdir / f"{tag}.layout.json").write_text(json.dumps(L, indent=1), encoding="utf-8")
     # CNC reservoir halves
-    cs = reservoir_cnc_script(p, L, tag, outdir)
-    cj = outdir / f"{tag}.cnc.script.json"
-    cj.write_text(json.dumps(cs.dumps()), encoding="utf-8")
-    run_cli("run", str(cj), "--quiet")
-    cj.unlink()
+    if not bench:
+        cs = reservoir_cnc_script(p, L, tag, outdir)
+        cj = outdir / f"{tag}.cnc.script.json"
+        cj.write_text(json.dumps(cs.dumps()), encoding="utf-8")
+        run_cli("run", str(cj), "--quiet")
+        cj.unlink()
     # mould files (size independent) copied per size
     for f in ("mould_lower.step", "mould_upper.step", "mould_lower.stl", "mould_upper.stl"):
         shutil.copy(outdir / f, outdir / f"{tag}_{f}")
@@ -127,6 +151,9 @@ def generate_size(p: dict, variant: str, outdir: Path, snapshots: bool) -> dict:
 
 
 def shots(sc: Path, outdir: Path, tag: str, L: dict) -> None:
+    bench = L["mode"] == "bench"
+    COLORS = BENCH_COLORS if bench else globals()["COLORS"]
+    EXPLODE = BENCH_EXPLODE if bench else globals()["EXPLODE"]
     run_cli("snapshot", str(sc), "--out", str(outdir / f"{tag}_iso.png"), "--view", "iso",
             "--width", "1400", "--height", "900", *COLORS)
     ex = Script()
@@ -149,20 +176,50 @@ def shots(sc: Path, outdir: Path, tag: str, L: dict) -> None:
             "--section", f"z={L['z_axis']:.2f}", "--width", "1800", "--height", "800", "--no-grid", "--no-axes", *COLORS)
 
 
+def generate_coupon(p: dict) -> None:
+    """Dock fit-test coupon (6 variants, no needle) -> out/fab/dock-coupon/."""
+    from op_coupon import build_coupon
+    d = HERE / "out" / "fab" / "dock-coupon"
+    d.mkdir(parents=True, exist_ok=True)
+    s, vs = build_coupon(p)
+    s.export_step(str(d / "dock_coupon.step"), ["coupon"])
+    s.export_stl(str(d / "dock_coupon.stl"), ["coupon"])
+    sj = d / "_coupon.script.json"
+    sj.write_text(json.dumps(s.dumps()), encoding="utf-8")
+    run_cli("run", str(sj), "--save", str(d / "dock_coupon.sc"), "--quiet")
+    sj.unlink()
+    run_cli("snapshot", str(d / "dock_coupon.sc"), "--out", str(d / "dock_coupon_top.png"), "--view", "top", "--width", "900",
+            "--height", "1100", "--no-grid", "--no-axes")
+    run_cli("snapshot", str(d / "dock_coupon.sc"), "--out", str(d / "dock_coupon_iso.png"), "--view", "iso", "--width", "1200",
+            "--height", "900")
+    with open(d / "variants.csv", "w", encoding="utf-8") as fh:
+        fh.write("id,cannula.A_dome_d,cannula.N_hook_h\n")
+        for v in vs:
+            fh.write(f"{v['id']},{v['A_dome_d']},{v['N_hook_h']}\n")
+    print(f"coupon written: {d}")
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--sizes", nargs="*")
-    ap.add_argument("--outdir", default=str(HERE / "out"))
+    ap.add_argument("--variant", choices=["integrated", "bench"], default="integrated",
+                    help="bench = bench pod (sensor board + FFC, no battery/coil/RF), writes to out/bench/")
+    ap.add_argument("--outdir")
     ap.add_argument("--params")
     ap.add_argument("--preset", help="drive preset from params.json drive_presets")
     ap.add_argument("--coil-d", type=float)
     ap.add_argument("--set", action="append", default=[], metavar="group.key=value")
     ap.add_argument("--no-snapshots", action="store_true")
+    ap.add_argument("--coupon", action="store_true", help="only build the dock fit-test coupon (out/fab/dock-coupon/)")
     args = ap.parse_args()
 
     p = apply_overrides(load_params(Path(args.params) if args.params else None), args.set, args.coil_d, args.preset)
+    p["mode"] = args.variant
+    if args.coupon:
+        generate_coupon(p)
+        return
     sizes = args.sizes or list(p["variants"])
-    out = Path(args.outdir)
+    out = Path(args.outdir or (HERE / "out" / "bench" if args.variant == "bench" else HERE / "out"))
     out.mkdir(parents=True, exist_ok=True)
     (out / "params.used.json").write_text(json.dumps(p, indent=1), encoding="utf-8")
     ms, _ = build_mould(p)
@@ -171,7 +228,8 @@ def main() -> None:
     run_cli("run", str(mj), "--save", str(out / "mould.sc"), "--quiet")
     for v in sizes:
         L = generate_size(copy.deepcopy(p), v, out, not args.no_snapshots)
-        print(f"{v}: L={L['length']:.2f} W={L['width']:.1f} H={L['height']:.1f} battery={L['bat_x']:.1f}x{p['battery']['y']}x{p['battery']['t']} "
+        extra = "" if args.variant == "bench" else f" battery={L['bat_x']:.1f}x{p['battery']['y']}x{p['battery']['t']}"
+        print(f"{v}: L={L['length']:.2f} W={L['width']:.1f} H={L['height']:.1f}{extra} "
               f"U/step={L['drive']['u_per_step']:.5f} env={L['envelope']['bbox_volume_ml']} ml -> {out}")
 
 

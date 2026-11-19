@@ -43,6 +43,14 @@ class Script:
         self.add("solid.extrude", distance=z[1] - z[0], body_name=name, name=name)
         return name
 
+    def polyprism(self, name: str, pts: list[tuple[float, float]], z: tuple[float, float]) -> str:
+        """Closed polygon in XY (absolute mm) extruded from z[0] to z[1]."""
+        self.add("sketch.create", plane="XY", offset=z[0])
+        self.add("sketch.line", points=[list(q) for q in pts], closed=True)
+        self.add("sketch.finish")
+        self.add("solid.extrude", distance=z[1] - z[0], body_name=name, name=name)
+        return name
+
     def stadium(self, name: str, x: tuple[float, float], yc: float, zc: float,
                 w: float, h: float) -> str:
         """Langloch-Querschnitt (w in Y, h in Z), extrudiert entlang +X."""

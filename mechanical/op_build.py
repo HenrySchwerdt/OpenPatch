@@ -14,8 +14,27 @@ MFG_PARTS = {
 }
 PURCHASED = ["leadscrew", "nut", "motor", "gearhead", "gear_a", "gear_b", "bush_dry", "bush_far", "magnet",
              "battery", "pcb", "qi_coil", "rf_module", "buzzer", "switch", "hall_tmag", "hall_drv0", "hall_drv1",
-             "septum", "needle", "needle_hub"]
+             "septum", "needle", "needle_hub", "cannula_head"]
 PART_NAMES = [b for v in MFG_PARTS.values() for b in v] + PURCHASED + ["pcb_keepout"]
+
+# ---- bench pod (spec 4a): no battery / coil / RF / main PCB; sensor board + FFC + cannula adapter -------------
+BENCH_MFG_PARTS = {
+    "bottom": ["bottom"], "top": ["top"], "carriage": ["carriage"], "reservoir": ["reservoir"],
+    "cannula_adapter": ["cannula_adapter"], "plunger_core": ["plunger_core"],
+    "plunger_seal": ["seal_a", "seal_b"], "gasket": ["gasket"],
+}
+BENCH_PURCHASED = ["leadscrew", "nut", "motor", "gearhead", "gear_a", "gear_b", "bush_dry", "bush_far", "magnet",
+                   "septum", "needle", "needle_hub", "pod_board", "hall_tmag", "hall_drv0", "hall_drv1", "hall_dock",
+                   "spring0", "spring1", "spring2", "spring3", "motor_strip", "ffc_conn", "ffc_cable", "dock_magnet"]
+BENCH_PART_NAMES = [b for v in BENCH_MFG_PARTS.values() for b in v] + BENCH_PURCHASED
+BENCH_EXCLUDE_PAIRS = [["needle_hub", "bottom"], ["needle", "bottom"]]
+
+
+def part_sets(mode: str) -> tuple[dict, list, list]:
+    """(manufactured parts, all part names, interference exclude pairs) for 'integrated' or 'bench'."""
+    if mode == "bench":
+        return BENCH_MFG_PARTS, BENCH_PART_NAMES, BENCH_EXCLUDE_PAIRS
+    return MFG_PARTS, PART_NAMES, EXCLUDE_PAIRS
 
 # Paare, die sich konstruktiv berühren/überlappen dürfen
 EXCLUDE_PAIRS = [
@@ -47,6 +66,14 @@ def add_parameter_table(s: Script, p: dict, lay: dict) -> None:
         s.parameter(name, val, "Generator-Wert (Info). Änderungen: params.json + generate.py")
 
 
+def build_septum_needle(s: Script, p: dict, L: dict) -> None:
+    """Fill septum, horizontal needle and hub (bench variant; the rest of op_elec is the integrated electronics)."""
+    from op_dock import build_needle
+    sp = p["septum"]
+    s.cyl("septum", "Y", (L["x_s"], 0, sp["z"]), sp["d"], sp["recess"], sp["recess"] + sp["len"])
+    build_needle(s, p, L)
+
+
 def build_model(p: dict, variant: str) -> tuple[Script, dict]:
     L = compute_layout(p, variant)
     s = Script()
@@ -58,5 +85,10 @@ def build_model(p: dict, variant: str) -> tuple[Script, dict]:
     build_plunger(s, p, L)
     build_carriage(s, p, L)
     build_drive(s, p, L)
-    build_electronics(s, p, L)
+    if L["mode"] == "bench":
+        from op_bench import build_bench_electronics
+        build_bench_electronics(s, p, L)
+        build_septum_needle(s, p, L)
+    else:
+        build_electronics(s, p, L)
     return s, L

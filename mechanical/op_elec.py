@@ -7,9 +7,6 @@ from op_cmds import Script
 def pcb_cut_rects(p: dict, L: dict) -> dict:
     rects = dict(L["pcb"]["cutouts"])
     nd = p["needle"]
-    for i, (dx, dy) in enumerate(((0.8, 4.5), (L["tower_x"] - 1.1, 11.0))):
-        x, y = L["x_r1"] + dx, dy
-        rects[f"pin{i}"] = [x - 0.7, x + 0.7, y - 0.7, y + 0.7]
     return rects
 
 
@@ -43,7 +40,8 @@ def build_electronics(s: Script, p: dict, L: dict) -> None:
     for i, d in enumerate(L["drv5032"]):
         s.box(f"hall_drv{i}", (d["x"] - hl["drv_x"] / 2, d["x"] + hl["drv_x"] / 2), (d["y"] - hl["drv_y"] / 2, d["y"] + hl["drv_y"] / 2),
               (pc["z0"] - hl["drv_z"], pc["z0"]))
-    # Septum + Nadel + Nadelhülse
+    # Septum + Nadel + Nadelhülse (horizontal needle of the slide-on dock)
     s.cyl("septum", "Y", (L["x_s"], 0, sp["z"]), sp["d"], sp["recess"], sp["recess"] + sp["len"])
-    s.cyl("needle", "Z", (L["x_n"], L["y_n"], 0), nd["od"], L["z_tip"], nd["channel_z"])
-    s.tube("needle_hub", "Z", (L["x_n"], L["y_n"], 0), nd["hub_d"], nd["od"] + 0.0, nd["hub_z0"], nd["hub_z0"] + nd["hub_t"])
+    from op_dock import build_adapter, build_needle
+    build_needle(s, p, L)
+    build_adapter(s, p, L, name="cannula_head", lug=False)
