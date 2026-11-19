@@ -692,6 +692,189 @@
   "slot_z_clr": 0.1,
   "datums": "A = open dry-end face (x = 0); B = bottom flat (z = 0 at the lower outer flat); C = bore centre plane (y = 0)"
  },
+ "v010": {
+  "_comment": "v0.1.0 INTEGRATED pod = bench pod + electronics strip beside the dock tunnel (mechanical/op_v010.py, V010.md). Additive: reservoir_frozen and dock_interface_frozen are NOT touched. u = x - x_r1 (pod frame), y absolute. All positions derive from the computed bench layout; only the numbers below are v0.1.0 choices.",
+  "height": 8.5,
+  "board": {
+   "t": 0.8,
+   "layers": 4,
+   "y0": 1.5,
+   "y1": 30.5,
+   "corner_r": 3.0,
+   "left_y0": 20.3,
+   "left_to_u": 12.0,
+   "right_gap": 0.6,
+   "screw_hole_d": 3.0
+  },
+  "strip": {
+   "arm_clear": 0.5,
+   "e73_end_gap": 0.8,
+   "gap": 0.8,
+   "y_hi": 30.5
+  },
+  "e73": {
+   "w": 13.0,
+   "l": 18.0,
+   "h": 2.25,
+   "part": "Ebyte E73-2G4M08S1C (nRF52840, ceramic antenna), LCSC C356849",
+   "antenna_keepout_l": 5.5
+  },
+  "connector": {
+   "part": "Molex PicoBlade 53261-0471 (right angle, SMD) + 4-pin plug on the NFP lead",
+   "housing_x": [
+    -2.6,
+    2.6
+   ],
+   "plug_x": [
+    -4.6,
+    -1.0
+   ],
+   "tab_half_y": 5.08,
+   "plug_half_y": 2.8,
+   "h": 3.4,
+   "tmag_clear": 0.3,
+   "y": 25.4,
+   "lead_max_mm": 40.0,
+   "lead_nominal_mm": 25.0,
+   "lead_rise_allow": 4.0
+  },
+  "battery": {
+   "class": "301012",
+   "t": 3.2,
+   "w": 10.2,
+   "l": 13.5,
+   "foam_t": 0.6,
+   "y0": 19.5,
+   "rib_t": 0.5,
+   "rib_h": 1.8,
+   "end_rib_h": 0.8,
+   "pad": [
+    1.6,
+    1.6
+   ],
+   "pad_dy": 5.0,
+   "pad_u": 1.0,
+   "spring": [
+    1.6,
+    1.6
+   ],
+   "spring_free_max": 1.2,
+   "note": "envelope = max of a 3.0 x 10 x 12 mm class cell incl. PCM (nominal 3.0 thick, +0.2 swell/tolerance)"
+  },
+  "piezo": {
+   "w": 9.0,
+   "l": 9.0,
+   "h": 1.0,
+   "u0_off": 0.5,
+   "y": 20.5,
+   "part": "SMD piezo transducer 9 x 9 x 1.0 (Murata PKMCS0909E4000-R1 class, VERIFY)"
+  },
+  "button": {
+   "gap_u": 1.8,
+   "y": 24.5,
+   "sw": [
+    3.0,
+    2.6,
+    0.55
+   ]
+  },
+  "charge": {
+   "u_off": 4.0,
+   "y_c": 24.0,
+   "pitch": 6.0,
+   "pad": 3.0,
+   "pad_t": 0.05,
+   "win_margin": 0.7,
+   "win_x": 4.4,
+   "gasket_w": 1.2,
+   "gasket_gap": 0.05
+  },
+  "mount": {
+   "pins": [
+    [
+     21.0,
+     2.2
+    ],
+    [
+     41.0,
+     2.2
+    ]
+   ],
+   "pin_d": 1.0,
+   "pin_h": 0.7,
+   "hole_d": 1.2,
+   "screw": [
+    27.5,
+    2.2
+   ],
+   "screw_hole_d": 1.4,
+   "screw_head_keepout": 2.8,
+   "screw_len": 4.0,
+   "posts": [
+    [
+     3.6,
+     29.2
+    ]
+   ],
+   "post_d": 1.6,
+   "boss_d": 2.2,
+   "hd": [
+    [
+     21.0,
+     2.2
+    ],
+    [
+     41.0,
+     2.2
+    ],
+    [
+     3.6,
+     29.2
+    ]
+   ],
+   "hd_d": 1.2,
+   "pin_post_d": 1.6
+  },
+  "extra_screws": [
+   [
+    14.0,
+    2.2
+   ],
+   [
+    34.0,
+    2.2
+   ]
+  ],
+  "lead": {
+   "end_clear": 1.0
+  },
+  "vent": {
+   "u": 8.0,
+   "y": 12.0,
+   "hole_d": 0.8,
+   "recess_d": 5.0,
+   "recess_depth": 0.2,
+   "part": "ePTFE hydrophobic vent membrane disc d5.0 x ~0.15 with adhesive ring (generic breathable-vent disc), glued into the lid recess; equalises the plunger dry-side / housing volume (review 2026-11-19)"
+  },
+  "cradle": {
+   "pin_part": "P75-E2 class spring test probe (tube d1.02, length 16.5, stroke ~2 mm; AliExpress/LCSC), VERIFY with calipers",
+   "pin_tube_d": 1.02,
+   "pin_len": 16.5,
+   "pin_barrel": 13.0,
+   "bore_d": 1.08,
+   "plate_t": 3.0,
+   "boss_d": 3.2,
+   "rim_h": 4.0,
+   "rim_t": 1.6,
+   "pocket_clr": 0.3,
+   "bar_x_u": 2.0,
+   "bar_w": 5.0,
+   "bar_t": 2.0,
+   "post_d": 4.0,
+   "screw": "M2 x 8",
+   "tip_over_pad": 0.0
+  }
+ },
  "mode": "bench",
  "drive_mode": "coaxial"
 }

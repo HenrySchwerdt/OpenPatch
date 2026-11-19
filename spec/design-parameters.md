@@ -58,7 +58,7 @@
 
 ## 2b. Size targets for the integrated pod v0.1.0 (decision 2026-11-19, user: "nobody wants a 7 cm pump")
 
-- Hard targets incl. battery and electronics: **OP-100 ≤ 45 mm**, **OP-200 ≤ 52 mm** (Omnipod DASH: 52 × 39 × 14.5 mm, 200 U), width ≤ 32 mm, height ≤ 8.5 mm. A design that misses them is not accepted silently; the gap and the next lever are reported.
+- Hard targets incl. battery and electronics: **OP-100 ≤ 45 mm**, **OP-200 ≤ 54 mm with the full 200 U** (user decision 2026-11-19 after the drive study showed ≤ 52 mm would cap OP-200 at ~180 U) (Omnipod DASH: 52 × 39 × 14.5 mm, 200 U), width ≤ 32 mm, height ≤ 8.5 mm. A design that misses them is not accepted silently; the gap and the next lever are reported.
 - Levers, in order: (1) stack battery + board above the dock tunnel (≈ 3 mm free above the cannula head) instead of a tail; (2) low-profile radio (≤ 1.3 mm) on the lid side + spring contacts instead of connectors; (3) coaxial leadscrew in the reservoir axis (Omnipod-style) + wider bore → shorter stroke; (4) minimal fluid path without valve (§3c).
 
 ## 2c. Sizes for v0.1.0 (decision 2026-11-19, user)
@@ -110,6 +110,11 @@
 - **Refill = pressure fill:** pod undocked + suspended; the user pushes water with a syringe through the fill septum while the motor **retracts the plunger at a fixed rate** (firmware "assisted fill"); the reservoir stays at positive pressure so no air can enter through the outlet needle; excess exits as drops at the needle tip, which also primes it. Suction draw (motor pulling a vacuum) is **not used** any more. Replaces the earlier automatic draw-mode decision.
 - **Fluid module = minimal:** reservoir port → small septum chamber (fill) → outlet needle, held by a printed clamp ring with defined septum squeeze and an O-ring/face seal to the reservoir; no valve, no branching channels.
 - Firmware: the reverse motion during fill is rate-limited and stall-monitored; the fill volume is booked from the plunger travel; a prime follows before docking.
+
+## 3d. Drive for v0.1.0 = coaxial translating leadscrew (decision 2026-11-19)
+
+- From `mechanical/studies/drive/SEALED-DRIVE-STUDY.md`: the M1.6 leadscrew lies on the bore axis and pushes a socket in the plunger centre (push only; pressure fill §3c pushes the plunger back); a nut glued to the front face of the driven gear turns it; anti-rotation = slot in the screw tip engaging a tab in the plunger socket. Closed reservoir, no yaw lever, lost motion ≈ thread backlash only. CAD: `generate.py --variant bench --drive coaxial` (16 × 5 bore: OP-100 58.5 mm, OP-200 85.3 mm, PASS incl. fluid-boundary check).
+- To reach §2b: wider bore (≈ 22.4 × 5 with the NFP-608, ≈ 25 × 5 with a Zhaowei Ø3.4 motor beside the reservoir; analytic OP-100 41.6–43.7 mm, OP-200 ≈ 54 mm) + compact front (§3c) + internal squeezes; requires re-freezing the CNC reservoir (wider bore, port offset) and moving the angle sensor/magnet to the motor axis.
 
 ## 4. Drive — geared micro stepper + direct leadscrew, automatic refill (decision 2026-11-19)
 
