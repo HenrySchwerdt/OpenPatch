@@ -195,7 +195,7 @@
   "command": "parameters.add",
   "params": {
    "name": "p_reservoir_dead",
-   "expression": "1.0",
+   "expression": "0.04",
    "comment": "Generator-Wert (Info). \u00c4nderungen: params.json + generate.py"
   }
  },
@@ -203,7 +203,7 @@
   "command": "parameters.add",
   "params": {
    "name": "p_reservoir_plunger_len",
-   "expression": "3.8",
+   "expression": "4.76",
    "comment": "Generator-Wert (Info). \u00c4nderungen: params.json + generate.py"
   }
  },
@@ -211,7 +211,7 @@
   "command": "parameters.add",
   "params": {
    "name": "p_reservoir_plunger_clr",
-   "expression": "0.2",
+   "expression": "0.1",
    "comment": "Generator-Wert (Info). \u00c4nderungen: params.json + generate.py"
   }
  },
@@ -235,7 +235,7 @@
   "command": "parameters.add",
   "params": {
    "name": "p_reservoir_nose_len",
-   "expression": "0.7",
+   "expression": "0.0",
    "comment": "Generator-Wert (Info). \u00c4nderungen: params.json + generate.py"
   }
  },
@@ -1395,14 +1395,6 @@
   "command": "parameters.add",
   "params": {
    "name": "p_seal_ring_w",
-   "expression": "0.8",
-   "comment": "Generator-Wert (Info). \u00c4nderungen: params.json + generate.py"
-  }
- },
- {
-  "command": "parameters.add",
-  "params": {
-   "name": "p_seal_flange",
    "expression": "0.6",
    "comment": "Generator-Wert (Info). \u00c4nderungen: params.json + generate.py"
   }
@@ -1410,8 +1402,16 @@
  {
   "command": "parameters.add",
   "params": {
+   "name": "p_seal_flange",
+   "expression": "0.4",
+   "comment": "Generator-Wert (Info). \u00c4nderungen: params.json + generate.py"
+  }
+ },
+ {
+  "command": "parameters.add",
+  "params": {
    "name": "p_seal_groove_depth",
-   "expression": "0.5",
+   "expression": "0.55",
    "comment": "Generator-Wert (Info). \u00c4nderungen: params.json + generate.py"
   }
  },
@@ -1419,7 +1419,7 @@
   "command": "parameters.add",
   "params": {
    "name": "p_seal_free_oversize",
-   "expression": "0.3",
+   "expression": "0.15",
    "comment": "Generator-Wert (Info). \u00c4nderungen: params.json + generate.py"
   }
  },
@@ -1444,6 +1444,126 @@
   "params": {
    "name": "p_seal_socket_depth",
    "expression": "1.6",
+   "comment": "Generator-Wert (Info). \u00c4nderungen: params.json + generate.py"
+  }
+ },
+ {
+  "command": "parameters.add",
+  "params": {
+   "name": "p_seal_land",
+   "expression": "0.2",
+   "comment": "Generator-Wert (Info). \u00c4nderungen: params.json + generate.py"
+  }
+ },
+ {
+  "command": "parameters.add",
+  "params": {
+   "name": "p_seal_variants_S1_free_oversize",
+   "expression": "0.15",
+   "comment": "Generator-Wert (Info). \u00c4nderungen: params.json + generate.py"
+  }
+ },
+ {
+  "command": "parameters.add",
+  "params": {
+   "name": "p_seal_variants_S1_land",
+   "expression": "0.2",
+   "comment": "Generator-Wert (Info). \u00c4nderungen: params.json + generate.py"
+  }
+ },
+ {
+  "command": "parameters.add",
+  "params": {
+   "name": "p_seal_variants_S1_shore_target",
+   "expression": "30.0",
+   "comment": "Generator-Wert (Info). \u00c4nderungen: params.json + generate.py"
+  }
+ },
+ {
+  "command": "parameters.add",
+  "params": {
+   "name": "p_seal_variants_S2_free_oversize",
+   "expression": "0.12",
+   "comment": "Generator-Wert (Info). \u00c4nderungen: params.json + generate.py"
+  }
+ },
+ {
+  "command": "parameters.add",
+  "params": {
+   "name": "p_seal_variants_S2_land",
+   "expression": "0.15",
+   "comment": "Generator-Wert (Info). \u00c4nderungen: params.json + generate.py"
+  }
+ },
+ {
+  "command": "parameters.add",
+  "params": {
+   "name": "p_seal_variants_S2_shore_target",
+   "expression": "30.0",
+   "comment": "Generator-Wert (Info). \u00c4nderungen: params.json + generate.py"
+  }
+ },
+ {
+  "command": "parameters.add",
+  "params": {
+   "name": "p_seal_variants_T_free_oversize",
+   "expression": "0.14",
+   "comment": "Generator-Wert (Info). \u00c4nderungen: params.json + generate.py"
+  }
+ },
+ {
+  "command": "parameters.add",
+  "params": {
+   "name": "p_seal_variants_T_land",
+   "expression": "0.2",
+   "comment": "Generator-Wert (Info). \u00c4nderungen: params.json + generate.py"
+  }
+ },
+ {
+  "command": "parameters.add",
+  "params": {
+   "name": "p_seal_variants_T_shore_target",
+   "expression": "30.0",
+   "comment": "Generator-Wert (Info). \u00c4nderungen: params.json + generate.py"
+  }
+ },
+ {
+  "command": "parameters.add",
+  "params": {
+   "name": "p_seal_purge_groove_w",
+   "expression": "0.4",
+   "comment": "Generator-Wert (Info). \u00c4nderungen: params.json + generate.py"
+  }
+ },
+ {
+  "command": "parameters.add",
+  "params": {
+   "name": "p_seal_purge_groove_d",
+   "expression": "0.1",
+   "comment": "Generator-Wert (Info). \u00c4nderungen: params.json + generate.py"
+  }
+ },
+ {
+  "command": "parameters.add",
+  "params": {
+   "name": "p_seal_purge_centre_d",
+   "expression": "1.8",
+   "comment": "Generator-Wert (Info). \u00c4nderungen: params.json + generate.py"
+  }
+ },
+ {
+  "command": "parameters.add",
+  "params": {
+   "name": "p_seal_guide_mu_g",
+   "expression": "0.15",
+   "comment": "Generator-Wert (Info). \u00c4nderungen: params.json + generate.py"
+  }
+ },
+ {
+  "command": "parameters.add",
+  "params": {
+   "name": "p_seal_guide_tape_recess",
+   "expression": "0.1",
    "comment": "Generator-Wert (Info). \u00c4nderungen: params.json + generate.py"
   }
  },
@@ -3294,7 +3414,7 @@
     16.700000000000003,
     4.2
    ],
-   "width": 4.6
+   "width": 4.8
   }
  },
  {
@@ -3304,7 +3424,7 @@
  {
   "command": "solid.extrude",
   "params": {
-   "distance": 3.799999999999999,
+   "distance": 4.76,
    "body_name": "plunger_core",
    "name": "plunger_core"
   }
@@ -3313,21 +3433,21 @@
   "command": "sketch.create",
   "params": {
    "plane": "YZ",
-   "offset": 5.699999999999999
+   "offset": 5.5
   }
  },
  {
   "command": "sketch.slot.center_to_center",
   "params": {
    "p0": [
-    5.700000000000001,
+    5.7,
     4.2
    ],
    "p1": [
     16.700000000000003,
     4.2
    ],
-   "width": 5.3999999999999995
+   "width": 5.6
   }
  },
  {
@@ -3337,7 +3457,7 @@
  {
   "command": "solid.extrude",
   "params": {
-   "distance": 0.8000000000000007,
+   "distance": 0.5999999999999996,
    "body_name": "t_gr0",
    "name": "t_gr0"
   }
@@ -3346,21 +3466,21 @@
   "command": "sketch.create",
   "params": {
    "plane": "YZ",
-   "offset": 5.6
+   "offset": 5.4
   }
  },
  {
   "command": "sketch.slot.center_to_center",
   "params": {
    "p0": [
-    5.700000000000001,
+    5.7,
     4.2
    ],
    "p1": [
     16.700000000000003,
     4.2
    ],
-   "width": 3.5999999999999996
+   "width": 3.6999999999999997
   }
  },
  {
@@ -3370,7 +3490,7 @@
  {
   "command": "solid.extrude",
   "params": {
-   "distance": 1.0,
+   "distance": 0.7999999999999989,
    "body_name": "t_t_gr0_in",
    "name": "t_t_gr0_in"
   }
@@ -3390,21 +3510,21 @@
   "command": "sketch.create",
   "params": {
    "plane": "YZ",
-   "offset": 7.3999999999999995
+   "offset": 8.75
   }
  },
  {
   "command": "sketch.slot.center_to_center",
   "params": {
    "p0": [
-    5.700000000000001,
+    5.7,
     4.2
    ],
    "p1": [
     16.700000000000003,
     4.2
    ],
-   "width": 5.3999999999999995
+   "width": 5.6
   }
  },
  {
@@ -3414,7 +3534,7 @@
  {
   "command": "solid.extrude",
   "params": {
-   "distance": 0.7999999999999998,
+   "distance": 0.5999999999999996,
    "body_name": "t_gr1",
    "name": "t_gr1"
   }
@@ -3423,21 +3543,21 @@
   "command": "sketch.create",
   "params": {
    "plane": "YZ",
-   "offset": 7.3
+   "offset": 8.65
   }
  },
  {
   "command": "sketch.slot.center_to_center",
   "params": {
    "p0": [
-    5.700000000000001,
+    5.7,
     4.2
    ],
    "p1": [
     16.700000000000003,
     4.2
    ],
-   "width": 3.5999999999999996
+   "width": 3.6999999999999997
   }
  },
  {
@@ -3447,7 +3567,7 @@
  {
   "command": "solid.extrude",
   "params": {
-   "distance": 0.9999999999999991,
+   "distance": 0.7999999999999989,
    "body_name": "t_t_gr1_in",
    "name": "t_t_gr1_in"
   }
@@ -3471,7 +3591,7 @@
    "height": 1.5,
    "corner": [
     6.55,
-    17.4,
+    17.5,
     3.45
    ],
    "body_name": "t_sock",
@@ -3479,30 +3599,95 @@
   }
  },
  {
-  "command": "solid.combine",
+  "command": "solid.box",
   "params": {
-   "target": "plunger_core",
-   "tools": [
-    "t_gr0",
-    "t_gr1",
-    "t_sock"
+   "length": 0.1999999999999993,
+   "width": 16.000000000000004,
+   "height": 0.40000000000000036,
+   "corner": [
+    9.76,
+    3.2000000000000006,
+    4.0
    ],
-   "operation": "cut",
-   "name": "cut plunger_core"
+   "body_name": "t_pg_y",
+   "name": "t_pg_y"
+  }
+ },
+ {
+  "command": "solid.box",
+  "params": {
+   "length": 0.1999999999999993,
+   "width": 0.3999999999999986,
+   "height": 4.999999999999999,
+   "corner": [
+    9.76,
+    11.000000000000002,
+    1.7000000000000002
+   ],
+   "body_name": "t_pg_z",
+   "name": "t_pg_z"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 1.8,
+   "height": 0.1999999999999993,
+   "base": [
+    9.76,
+    11.200000000000001,
+    4.2
+   ],
+   "axis": "X",
+   "body_name": "t_pg_c",
+   "name": "t_pg_c"
   }
  },
  {
   "command": "sketch.create",
   "params": {
    "plane": "YZ",
-   "offset": 8.899999999999999
+   "offset": 5.0
   }
  },
  {
   "command": "sketch.slot.center_to_center",
   "params": {
    "p0": [
-    5.700000000000001,
+    5.7,
+    4.2
+   ],
+   "p1": [
+    16.700000000000003,
+    4.2
+   ],
+   "width": 5.6
+  }
+ },
+ {
+  "command": "sketch.finish",
+  "params": {}
+ },
+ {
+  "command": "solid.extrude",
+  "params": {
+   "distance": 0.5,
+   "body_name": "t_gt0",
+   "name": "t_gt0"
+  }
+ },
+ {
+  "command": "sketch.create",
+  "params": {
+   "plane": "YZ",
+   "offset": 4.9
+  }
+ },
+ {
+  "command": "sketch.slot.center_to_center",
+  "params": {
+   "p0": [
+    5.7,
     4.2
    ],
    "p1": [
@@ -3520,92 +3705,121 @@
   "command": "solid.extrude",
   "params": {
    "distance": 0.6999999999999993,
-   "body_name": "plunger_nose",
-   "name": "plunger_nose"
-  }
- },
- {
-  "command": "sketch.create",
-  "params": {
-   "plane": "YZ",
-   "offset": 5.699999999999999
-  }
- },
- {
-  "command": "sketch.slot.center_to_center",
-  "params": {
-   "p0": [
-    5.700000000000001,
-    4.2
-   ],
-   "p1": [
-    16.700000000000003,
-    4.2
-   ],
-   "width": 4.98
-  }
- },
- {
-  "command": "sketch.finish",
-  "params": {}
- },
- {
-  "command": "solid.extrude",
-  "params": {
-   "distance": 0.8000000000000007,
-   "body_name": "seal_a",
-   "name": "seal_a"
-  }
- },
- {
-  "command": "sketch.create",
-  "params": {
-   "plane": "YZ",
-   "offset": 5.6
-  }
- },
- {
-  "command": "sketch.slot.center_to_center",
-  "params": {
-   "p0": [
-    5.700000000000001,
-    4.2
-   ],
-   "p1": [
-    16.700000000000003,
-    4.2
-   ],
-   "width": 3.5999999999999996
-  }
- },
- {
-  "command": "sketch.finish",
-  "params": {}
- },
- {
-  "command": "solid.extrude",
-  "params": {
-   "distance": 1.0,
-   "body_name": "t_seal_a_in",
-   "name": "t_seal_a_in"
+   "body_name": "t_t_gt0_in",
+   "name": "t_t_gt0_in"
   }
  },
  {
   "command": "solid.combine",
   "params": {
-   "target": "seal_a",
+   "target": "t_gt0",
    "tools": [
-    "t_seal_a_in"
+    "t_t_gt0_in"
    ],
    "operation": "cut",
-   "name": "cut seal_a"
+   "name": "cut t_gt0"
   }
  },
  {
   "command": "sketch.create",
   "params": {
    "plane": "YZ",
-   "offset": 7.3999999999999995
+   "offset": 9.35
+  }
+ },
+ {
+  "command": "sketch.slot.center_to_center",
+  "params": {
+   "p0": [
+    5.7,
+    4.2
+   ],
+   "p1": [
+    16.700000000000003,
+    4.2
+   ],
+   "width": 5.6
+  }
+ },
+ {
+  "command": "sketch.finish",
+  "params": {}
+ },
+ {
+  "command": "solid.extrude",
+  "params": {
+   "distance": 0.6099999999999994,
+   "body_name": "t_gt1",
+   "name": "t_gt1"
+  }
+ },
+ {
+  "command": "sketch.create",
+  "params": {
+   "plane": "YZ",
+   "offset": 9.25
+  }
+ },
+ {
+  "command": "sketch.slot.center_to_center",
+  "params": {
+   "p0": [
+    5.7,
+    4.2
+   ],
+   "p1": [
+    16.700000000000003,
+    4.2
+   ],
+   "width": 4.6
+  }
+ },
+ {
+  "command": "sketch.finish",
+  "params": {}
+ },
+ {
+  "command": "solid.extrude",
+  "params": {
+   "distance": 0.8099999999999987,
+   "body_name": "t_t_gt1_in",
+   "name": "t_t_gt1_in"
+  }
+ },
+ {
+  "command": "solid.combine",
+  "params": {
+   "target": "t_gt1",
+   "tools": [
+    "t_t_gt1_in"
+   ],
+   "operation": "cut",
+   "name": "cut t_gt1"
+  }
+ },
+ {
+  "command": "solid.combine",
+  "params": {
+   "target": "plunger_core",
+   "tools": [
+    "t_gr0",
+    "t_gr1",
+    "t_sock",
+    "t_pg_y",
+    "t_pg_z",
+    "t_pg_c",
+    "t_gt0",
+    "t_gt1"
+   ],
+   "operation": "cut",
+   "name": "cut plunger_core"
+  }
+ },
+ {
+  "command": "sketch.create",
+  "params": {
+   "plane": "YZ",
+   "offset": 8.75
   }
  },
  {
@@ -3619,7 +3833,7 @@
     16.700000000000003,
     4.2
    ],
-   "width": 4.98
+   "width": 4.8
   }
  },
  {
@@ -3629,7 +3843,8 @@
  {
   "command": "solid.extrude",
   "params": {
-   "distance": 0.7999999999999998,
+   "distance": 0.22499999999999964,
+   "taper": "21.8014 deg",
    "body_name": "seal_b",
    "name": "seal_b"
   }
@@ -3638,7 +3853,7 @@
   "command": "sketch.create",
   "params": {
    "plane": "YZ",
-   "offset": 7.3
+   "offset": 8.975
   }
  },
  {
@@ -3652,7 +3867,7 @@
     16.700000000000003,
     4.2
    ],
-   "width": 3.5999999999999996
+   "width": 4.98
   }
  },
  {
@@ -3662,9 +3877,43 @@
  {
   "command": "solid.extrude",
   "params": {
-   "distance": 0.9999999999999991,
-   "body_name": "t_seal_b_in",
-   "name": "t_seal_b_in"
+   "distance": 0.15000000000000036,
+   "body_name": "seal_b_l",
+   "name": "seal_b_l"
+  }
+ },
+ {
+  "command": "sketch.create",
+  "params": {
+   "plane": "YZ",
+   "offset": 9.125
+  }
+ },
+ {
+  "command": "sketch.slot.center_to_center",
+  "params": {
+   "p0": [
+    5.700000000000001,
+    4.2
+   ],
+   "p1": [
+    16.700000000000003,
+    4.2
+   ],
+   "width": 4.98
+  }
+ },
+ {
+  "command": "sketch.finish",
+  "params": {}
+ },
+ {
+  "command": "solid.extrude",
+  "params": {
+   "distance": 0.22499999999999964,
+   "taper": "-21.8014 deg",
+   "body_name": "seal_b_f",
+   "name": "seal_b_f"
   }
  },
  {
@@ -3672,7 +3921,52 @@
   "params": {
    "target": "seal_b",
    "tools": [
-    "t_seal_b_in"
+    "seal_b_l",
+    "seal_b_f"
+   ],
+   "operation": "join",
+   "name": "join seal_b"
+  }
+ },
+ {
+  "command": "sketch.create",
+  "params": {
+   "plane": "YZ",
+   "offset": 8.65
+  }
+ },
+ {
+  "command": "sketch.slot.center_to_center",
+  "params": {
+   "p0": [
+    5.7,
+    4.2
+   ],
+   "p1": [
+    16.700000000000003,
+    4.2
+   ],
+   "width": 3.6999999999999997
+  }
+ },
+ {
+  "command": "sketch.finish",
+  "params": {}
+ },
+ {
+  "command": "solid.extrude",
+  "params": {
+   "distance": 0.7999999999999989,
+   "body_name": "t_seal_b_floor",
+   "name": "t_seal_b_floor"
+  }
+ },
+ {
+  "command": "solid.combine",
+  "params": {
+   "target": "seal_b",
+   "tools": [
+    "t_seal_b_floor"
    ],
    "operation": "cut",
    "name": "cut seal_b"
@@ -3803,11 +4097,11 @@
   "command": "solid.box",
   "params": {
    "length": 0.5,
-   "width": 4.0,
+   "width": 3.8999999999999986,
    "height": 1.4000000000000004,
    "corner": [
     6.699999999999999,
-    17.5,
+    17.6,
     3.5
    ],
    "body_name": "tongue_shim",
@@ -4728,9 +5022,9 @@
   "command": "solid.cylinder",
   "params": {
    "diameter": 1.98,
-   "height": 2.0100000000000016,
+   "height": 2.41,
    "base": [
-    23.799999999999997,
+    23.4,
     11.2,
     4.2
    ],
@@ -4769,10 +5063,10 @@
  {
   "command": "solid.cylinder",
   "params": {
-   "diameter": 0.7,
-   "height": 2.6000000000000014,
+   "diameter": 0.6,
+   "height": 3.1499999999999986,
    "base": [
-    23.699999999999996,
+    23.299999999999997,
     11.2,
     4.2
    ],
@@ -4784,10 +5078,10 @@
  {
   "command": "solid.cylinder",
   "params": {
-   "diameter": 0.7,
+   "diameter": 0.6,
    "height": 1.6000000000000005,
    "base": [
-    26.099999999999998,
+    26.249999999999996,
     11.2,
     2.8
    ],
@@ -4799,10 +5093,10 @@
  {
   "command": "solid.cylinder",
   "params": {
-   "diameter": 0.7,
-   "height": 0.6000000000000014,
+   "diameter": 0.6,
+   "height": 0.45000000000000284,
    "base": [
-    25.9,
+    26.049999999999997,
     11.2,
     3.0
    ],
@@ -4817,7 +5111,7 @@
    "diameter": 0.7,
    "height": 2.3999999999999986,
    "base": [
-    26.099999999999998,
+    26.249999999999996,
     9.0,
     3.0
    ],
@@ -4830,9 +5124,9 @@
   "command": "solid.cylinder",
   "params": {
    "diameter": 0.7,
-   "height": 2.299999999999997,
+   "height": 2.1499999999999986,
    "base": [
-    25.9,
+    26.049999999999997,
     9.2,
     3.0
    ],
@@ -4889,7 +5183,7 @@
  {
   "command": "solid.cylinder",
   "params": {
-   "diameter": 0.7,
+   "diameter": 0.6,
    "height": 1.0000000000000036,
    "base": [
     29.699999999999996,
@@ -5374,12 +5668,10 @@
     "cannula_adapter",
     "dock_insert",
     "plunger_core",
-    "plunger_nose",
     "thrust_sleeve",
     "thrust_collar",
     "valve_plug",
     "end_cap",
-    "seal_a",
     "seal_b",
     "gasket",
     "tongue_shim",
@@ -5548,25 +5840,6 @@
  {
   "command": "file.export_step",
   "params": {
-   "path": "out/bench/OP-100_plunger_nose.step",
-   "bodies": [
-    "plunger_nose"
-   ]
-  }
- },
- {
-  "command": "file.export_stl",
-  "params": {
-   "path": "out/bench/OP-100_plunger_nose.stl",
-   "bodies": [
-    "plunger_nose"
-   ],
-   "quality": "fine"
-  }
- },
- {
-  "command": "file.export_step",
-  "params": {
    "path": "out/bench/OP-100_thrust_sleeve.step",
    "bodies": [
     "thrust_sleeve"
@@ -5645,7 +5918,6 @@
   "params": {
    "path": "out/bench/OP-100_plunger_seal.step",
    "bodies": [
-    "seal_a",
     "seal_b"
    ]
   }
@@ -5655,7 +5927,6 @@
   "params": {
    "path": "out/bench/OP-100_plunger_seal.stl",
    "bodies": [
-    "seal_a",
     "seal_b"
    ],
    "quality": "fine"
