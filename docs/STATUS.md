@@ -1,7 +1,7 @@
 # Project status & handover
 
 > This file is the **entry point for every new session** (another machine, another Claude subscription, another person).
-> It is updated on every push. Last updated: **2026-11-19 (cloud session, milestone 1 merged)**.
+> It is updated on every push. Last updated: **2026-11-19 (cloud session, v0.1.0 integrated model merged)**.
 
 ## MILESTONE 1 (2026-11-19, cloud session) — what changed since the handoff below
 
@@ -83,6 +83,10 @@ All dimensions and components are in [spec/design-parameters.md](../spec/design-
 
 ## Decision log (user)
 
+- 2026-11-19: **Integrated v0.1.0 pod model merged** (`mechanical/V010.md`). It has one coaxial rod, a closed wide bore of 25.7 × 4.7 mm with a 1.0 mm wall, the motor in the rear zone, no idler, a ring magnet with TMAG, USB-C in the rear wall, a clear lid on a flat gasket joint with 6 screws, and the fill septum on the underside (d3.2).
+  - **Verified from a clean checkout:** `check.py --variant v010` PASS for both sizes. That covers fluid boundary, H14, one-rod, 54 bodies with no interference and 12 dock inserts. `--assembly` reports 0 blocking findings.
+  - **Length targets missed:** OP-100 is **58.2 mm** against 45, OP-200 is **66.9 mm** against 54. The cause is the dry tail of the translating screw. All levers together reach about 49 / 58 mm. A length-closure study is running: rotating screw inside the reservoir (Omnipod-style), telescoping screw, side motor.
+  - **Other open findings:** thrust margin 1.14 (target ≥ 2); the U/step firmware constant must be rescaled for the 116 mm² bore; the POWER board (572 mm²) does not fit the ~190 mm² pocket; the ring magnet is a custom part; the TMAG needs the A2 range plus a lookup calibration; the v010 dock inserts are not interchangeable with the bench inserts (z interface changed); cannula dome height still unmeasured.
 - 2026-11-19: **v0.1.0 radio = Insight SiP ISP1807** (8 × 8 × 1, integrated certified antenna, consigned to JLC) on a MAIN board ≤ 400 mm²; button = small side-actuated tact switch on the POWER board edge (coordinator choice; a magnet tap near the TMAG would disturb the angle sensor). Partition per electronics/v010/MINIATURIZATION.md §11.
 - 2026-11-19: **New hazards H14/H15** (docs/02-safety.md): manual septum injection while docked would bypass all limits → septum must be unreachable when docked (spec §3e); reverse while docked → interlock becomes `DOCKED XOR DIR_REVERSE`.
 - 2026-11-19: **Only the integrated v0.1.0 pod is built** (spec §4c); the bench controller board is parked as a fallback/debug fixture (not ordered).
