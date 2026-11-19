@@ -85,3 +85,22 @@ Not connected to the MCU: `DOCK_NB` (hall B, visible through `DOCKED_H`), `DONE_
 * Cutting: `STBY` low, `STCK` low, `MCU_EN` low. VMOT is below 0.5 V 5.4 ms after `MCU_EN` falls (sim); `VMOT_FALL_TIMEOUT_MS` = 20 ms still holds.
 * Battery policy (see README power budget): no motor start below 3.4 V open circuit; the sim shows only 2.4 V at the motor for a 3.1 V cell with 4 ohm internal resistance.
 * Charger: `CHG_STAT`/charge pads active means the pod is off the cannula; delivery paused (H8) is firmware policy, the dock gate already blocks forward motion when undocked.
+
+## v2 (split design, `design/netlist_v2.py`): changes to the table above
+
+The discrete HW-A, TPL5010, latch and DONE qualifier are gone; the supervisor MCU (`INTERLOCK.md` section H) replaces them. USB-C replaces the charge pads. Pads of the E73 that change:
+
+| Pad | Pin | v1 net | **v2 net** | Function |
+|---|---|---|---|---|
+| 4 | P0.28 | `WDT_DONE` | **`SUP_RXD`** | UART TX of the main MCU to the supervisor (115200 8N1): challenge response |
+| 30 | P0.17 | `WDT_WAKE` | **`SUP_TXD`** | UART RX from the supervisor: challenge + status frames |
+| 33 | P0.13 | `LATCH_Q` | **`SUP_OK`** | in: supervisor healthy/armed |
+| 6 | P1.13 | `WIN` | unused | spare |
+| 9 | P0.31 / AIN7 | `HWA_FULL` | **`VBUS_SENSE`** | analog, VBUS_P through 100 k / 100 k (x 2); high = on a cable (H8: pause delivery) |
+| 34 | P0.22 | `LATCH_CLR_N` | unused | spare (no latch to clear) |
+| 27 / 29 / 31 | VBUS / D- / D+ | n.c. | **`VBUS_P`, `USB_DM`, `USB_DP`** | native USB (CDC log, signed DFU) through the USB board FFC |
+| 20 | P0.12 | `STCK_MCU` | `STCK_MCU` | now gated by U31 (`SUP_STCK_EN`); the supervisor counts the same edges |
+| 32 | P0.20 | `ARM_CLK` | `ARM_CLK` | goes to the supervisor PA0 (no hardware latch any more) |
+| 26 | P0.18 | `NRST` | `NRST` | also pulled low by the supervisor (open drain) |
+
+Firmware changes for v2: arm once per tick (>= 1.0 s apart), answer the supervisor challenge within 20 ms, treat `SUP_OK` low or a supervisor status of `FAULT/LOCKED` as no delivery, keep forward steps <= 32 per arm, **USB CDC and DFU only through the authenticated session layer** (no unauthenticated command, no dosing or limit change over USB without the BLE-equivalent authorisation and the physical button where proposal 07 requires it), pause delivery while `VBUS_SENSE` is high. Test pads for debugging (all >= 1.0 mm, silk-labelled): GND, 3V3, VBAT, VMOT, VMOT_RAW, PGATE, PGATE2, INA_OUT (motor current, 4.4 mV/mA), ARM_CLK, SUP_PERMIT, SUP_STCK_EN, SUP_OK, SUP_TXD/SUP_RXD (watchdog link), OC_OK, OC_CMP, VBUS_P, NRST, STCK_DRV, MCU_EN, DOCKED_H, SWDIO, SWDCLK, I2C_SDA, I2C_SCL, PGATE_MON; supervisor SWD pads J4 (SWDIO), J5 (SWCLK), J6 (NRST) + GND pad.

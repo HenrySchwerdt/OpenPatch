@@ -23,8 +23,13 @@ R11 pgate chtop 10k
 M5 chtop latch mid1 mid1 NM
 M8 mid1 mcuen mid2 mid2 NM
 M13 mid2 ocok mid2a mid2a NM
-M6 mid2a dockedh 0 0 NM
-M10 mid2a dirrev 0 0 NM
+* H15: interlock leg = DOCKED XOR DIR_REV (branch 1: docked AND forward, branch 2: undocked AND reverse)
+Bnot docknot 0 V=3.3-v(dockedh)
+Bfwd fwd 0 V=3.3-v(dirrev)
+M6 mid2a dockedh xa xa NM
+M21 xa fwd 0 0 NM
+M10 mid2a docknot xb xb NM
+M22 xb dirrev 0 0 NM
 * bleeder (turns on when PGATE is high)
 M17 bldn pgate 0 0 NM
 Rb1 vmot bldn 100

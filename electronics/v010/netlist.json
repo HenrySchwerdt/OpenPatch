@@ -833,8 +833,28 @@
   ],
   "pins": {
    "1": "DOCKED_H",
-   "2": "GND",
+   "2": "XA",
    "3": "PG_MID2A"
+  },
+  "lcsc": "C8545",
+  "mpn": "2N7002",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "H15 branch 1: docked AND forward",
+  "group": "sw"
+ },
+ {
+  "ref": "Q21",
+  "value": "2N7002",
+  "fp": [
+   "Package_TO_SOT_SMD",
+   "SOT-23"
+  ],
+  "pins": {
+   "1": "FWD",
+   "2": "GND",
+   "3": "XA"
   },
   "lcsc": "C8545",
   "mpn": "2N7002",
@@ -852,8 +872,8 @@
    "SOT-23"
   ],
   "pins": {
-   "1": "DIR_REV",
-   "2": "GND",
+   "1": "DOCK_NOT",
+   "2": "XB",
    "3": "PG_MID2A"
   },
   "lcsc": "C8545",
@@ -861,7 +881,66 @@
   "side": "F",
   "bom": true,
   "dnp": false,
-  "note": "parallel to Q6: path closed if DOCKED OR DIR_REV",
+  "note": "H15 branch 2: undocked AND reverse (interlock = DOCKED XOR DIR_REV)",
+  "group": "sw"
+ },
+ {
+  "ref": "Q22",
+  "value": "2N7002",
+  "fp": [
+   "Package_TO_SOT_SMD",
+   "SOT-23"
+  ],
+  "pins": {
+   "1": "DIR_REV",
+   "2": "GND",
+   "3": "XB"
+  },
+  "lcsc": "C8545",
+  "mpn": "2N7002",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "sw"
+ },
+ {
+  "ref": "Q20",
+  "value": "2N7002",
+  "fp": [
+   "Package_TO_SOT_SMD",
+   "SOT-23"
+  ],
+  "pins": {
+   "1": "DOCKED_H",
+   "2": "GND",
+   "3": "DOCK_NOT"
+  },
+  "lcsc": "C8545",
+  "mpn": "2N7002",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "inverter: DOCK_NOT high = not both halls asserted",
+  "group": "sw"
+ },
+ {
+  "ref": "R87",
+  "value": "100k",
+  "fp": [
+   "Resistor_SMD",
+   "R_0402_1005Metric"
+  ],
+  "pins": {
+   "1": "3V3",
+   "2": "DOCK_NOT"
+  },
+  "lcsc": "C25741",
+  "mpn": "0402WGF1003TCE",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
   "group": "sw"
  },
  {
