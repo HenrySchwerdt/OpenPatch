@@ -20,12 +20,33 @@ Group buy (50–100 pods): setup and HDI premiums amortise → **≈ 30–50 USD
 
 ## One bench iteration (Rev A)
 
+Itemised with links and quantities in [`SHOPPING.md`](SHOPPING.md) (research 2026-11). Basis: 2 pods + 1 controller, one size. **[E]** = estimate, no JLCPCB/JLC3DP/PCBWay quote yet; replace after the first order. Conversion 1 EUR = 1.10 USD.
+
 | Item | USD |
 |---|---|
-| Controller board (5 PCBs, 2 assembled) + pod sensor boards | ~80 (target, see `electronics/bench/COST.md`) |
-| Printed parts incl. dock fit-test coupon | 30–40 (`mechanical/out/bench/fab/`) |
-| Motor (NFP-608-26.45), gears, SMA test parts | 20–30 |
-| **Total per monthly iteration** | **≈ 130–150** |
+| Controller board (4-layer, 5 bare / 2 assembled) | 45-60 [E] |
+| Pod sensor boards (2-layer, 5 bare / 2 assembled) | 20-30 [E] |
+| **Controller + pod PCBA** (target <= 80) | **65-90 [E]** (low end meets the target; levers: drop optional DRV5032 U1/U2, fewest JLC extended parts, economic assembly) |
+| Printed parts, 2 pod sets + dock coupon (JLC3DP) | 31-41 [E] |
+| Motors NFP-608-26.45 x2 ($6.60 each [V]) + GHW gears 2 x (3.00 + 2.95 EUR) [V] | 26 (reusable, bought once in the sample order) |
+| Consumables (needles, silicone, rod/nuts, screws, magnets, FFC) | stock items, bought in packs (SHOPPING section 2) |
+| Shipping (JLCPCB, JLC3DP, EU shops) | 25-50 [E] |
+| **Per monthly iteration, motors/gears reused, incl. shipping** | **about 120-180** |
+| Per iteration with motors/gears rebought, incl. shipping | about 147-207 |
+
+Once per size (frozen): PCBWay CNC PP reservoir x2, **30-60 [E]** per size (90-180 for 70/100/200 U).
+
+**Affordability:** one iteration per month (the project goal) costs **about $120-180** per month, i.e. roughly a third of the earlier ~$420 integrated-board estimate. The PCBA target of <= $80 is **met only at the low end** of the estimate: the controller alone is dominated by JLC extended-part fees and the E73 module ($6.47 [V]); a real quote from the final Gerber/BOM decides.
+
+### Start-up costs (once)
+
+| Item | USD |
+|---|---|
+| Sample order (5 motors, gears, magnets, valves, needles, silicone, FFC, rod/nuts/screws) | about 102-188 [E/V] (+ up to 68 optional gears, + 30-60 shipping) |
+| One-time tools (nRF52840-DK 41.37 EUR [V], calipers, 0.001 g scale, punches, microscope, ...) | about 250-520 [E] |
+| **First month all-in** (samples + tools + CNC OP-100 + one iteration) | **about 540-1,080 [E]** |
+
+Open price risks: no verified source for a diametric Ø2 x 1 magnet, a duckbill valve <= 3 mm OD and EU-stocked medical silicone (see `PARTS-LOCK.md`); nfpshop shipping/VAT to Germany not stated.
 
 ## Price log (fill in after each order)
 
