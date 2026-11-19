@@ -220,8 +220,10 @@ fn the_current_sense_reads_higher_under_load_and_can_be_absent() {
         hi = hi.max(pl.step(1, 200.0, 3.8, &mut rng).current_ma);
         pl.relax(0.005);
     }
-    assert!(free < 110.0, "{free}");
-    assert!(hi > 150.0, "{hi}");
+    use openpatch_core::limits::{MOTOR_FREE_CURRENT_MA, OCCLUSION_CURRENT_MA};
+    assert!(free < MOTOR_FREE_CURRENT_MA as f64 + 15.0, "{free}");
+    assert!(free < OCCLUSION_CURRENT_MA as f64 - 50.0, "a free-running stage must be far below the occlusion threshold: {free}");
+    assert!(hi > OCCLUSION_CURRENT_MA as f64, "a stalled rotor must exceed the occlusion threshold: {hi}");
     // absent sensor -> None for the core
     p.motor.current_sense = false;
     let w = Rc::new(RefCell::new(World::new(p, 1)));
@@ -250,7 +252,7 @@ fn angle_noise_is_about_the_configured_value_and_the_unwrap_tracks_a_burst() {
         h.motor_step(Pulses(100));
     }
     let after = h.angle_read().unwrap().0;
-    let want = 800.0 / 423.2 * 4096.0;
+    let want = 800.0 / w.borrow().params.steps_per_screw_turn() * 4096.0; // 661.25 steps per turn (16:20)
     assert!(((after - before) as f64 - want).abs() < 30.0, "moved {} want {want}", after - before);
     // reverse with the fill needle in the septum (without it the closed reservoir would pull a vacuum)
     w.borrow_mut().plant.fill_needle = true;

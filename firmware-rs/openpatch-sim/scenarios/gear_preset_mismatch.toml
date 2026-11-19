@@ -1,5 +1,5 @@
 name = "gear_preset_mismatch"
-description = "The firmware preset says 15:12 (0.00617 U/step) but an 18:18 pair is fitted (0.00494 U/step): a 25 % dosing error unless the encoder catches it (see STATUS.md gear-ratio warning)."
+description = "The firmware preset says 16:20 (0.003949 U/step, the pair of the current CAD) but the older 18:18 pair is fitted (0.00494 U/step): the pod OVER-delivers by 25 % unless the encoder catches it."
 seed = 111
 duration_s = 7200.0
 events = [

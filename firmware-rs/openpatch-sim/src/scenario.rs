@@ -101,7 +101,7 @@ pub struct Event {
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(default)]
 pub struct DeviceSpec {
-    /// `DriveId` variant name, e.g. "Nfp608_26_45G15_12".
+    /// `DriveId` variant name, e.g. "Nfp608_26_45G16_20" (the pair of the current CAD).
     pub preset: String,
     pub capacity_u: f64,
     pub strict_prime: bool,
@@ -111,7 +111,7 @@ pub struct DeviceSpec {
 
 impl Default for DeviceSpec {
     fn default() -> Self {
-        DeviceSpec { preset: "Nfp608_26_45G15_12".into(), capacity_u: 100.0, strict_prime: true, start_hour: 8.0, heartbeat_s: 60 }
+        DeviceSpec { preset: "Nfp608_26_45G16_20".into(), capacity_u: 100.0, strict_prime: true, start_hour: 8.0, heartbeat_s: 60 }
     }
 }
 

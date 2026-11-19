@@ -54,6 +54,8 @@ pub struct MockState {
     pub ex_drv_fault: bool,
     pub ex_vmot_missing: bool,
     pub ex_peak: Option<u16>,
+    /// Last rate passed to `set_draw_rate_pps`.
+    pub draw_rate_pps: Option<u32>,
 }
 
 impl Default for MockState {
@@ -89,6 +91,7 @@ impl Default for MockState {
             ex_drv_fault: false,
             ex_vmot_missing: false,
             ex_peak: None,
+            draw_rate_pps: None,
         }
     }
 }
@@ -127,6 +130,9 @@ impl Hal for MockHal {
         m.angle_x100 += d;
         m.step_calls.push(n);
         Pulses(n)
+    }
+    fn set_draw_rate_pps(&mut self, pps: u32) {
+        self.0.borrow_mut().draw_rate_pps = Some(pps);
     }
     fn motor_step_reverse(&mut self, steps: Pulses) -> Pulses {
         let mut m = self.0.borrow_mut();

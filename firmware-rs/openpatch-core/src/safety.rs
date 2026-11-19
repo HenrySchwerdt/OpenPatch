@@ -4,7 +4,8 @@
 //!
 //! Monitored:
 //! * max bolus / max basal (configurable, clamped to the hard caps)
-//! * 15 U rolling 60 min window over ALL approved steps (+ per-minute backstop)
+//! * 15 U rolling 60 min window over ALL approved steps (10 s buckets: true rolling bound, reduced by the
+//!   calibration tolerance margin so the physical volume is <= 15 U/h; + per-minute backstop)
 //! * occlusion: (commanded - angle-confirmed) > 2 U; total stall ("no travel despite steps");
 //!   **motor-current rise** (consecutive high-current bursts, new in the Rust port)
 //! * encoder deviation > 10 % over each >= 1 U window, and **per leadscrew revolution** (TMAG5273:
@@ -20,7 +21,11 @@ use crate::units::*;
 use openpatch_proto::Error;
 
 const MINUTE_MS: u64 = 60_000;
-const WINDOW_MIN: usize = 60;
+/// Rolling-hour accounting: 10 s buckets, `HOUR_BUCKETS` = 360 + 1 of them. Any real 60 minute window touches at
+/// most 361 consecutive bucket indexes, so "the sum of the 361 newest buckets <= cap" bounds the approved steps
+/// in EVERY 60 minute window (FINDING-003: the old 60 wall-clock minute buckets allowed 15 U + 1.7 U in 59 min).
+const BUCKET_MS: u64 = 10_000;
+const HOUR_BUCKETS: usize = 361;
 
 /// Inputs of the periodic monitor.
 #[derive(Clone, Copy, Debug)]
@@ -41,8 +46,15 @@ pub struct SafetySupervisor {
     docked: bool,
     active: bool,
     wear_expired: bool,
-    minute_steps: [u16; WINDOW_MIN],
-    last_minute: u64,
+    hour_buckets: [u16; HOUR_BUCKETS],
+    last_bucket: u64,
+    /// Steps approved in the current wall-clock minute (per-minute backstop).
+    minute_used: u32,
+    cur_minute: u64,
+    /// Rolling-hour cap in steps: `MAX_HOURLY` reduced by the calibration tolerance margin.
+    hourly_cap_steps: u32,
+    /// C reference parity (host differential tests only): 15 U over 60 wall-clock minute buckets, no margin.
+    c_compat: bool,
     /// Derived projection of `diag` (the active F/L records), recomputed after every change.
     faults: Faults,
     last_new_faults: Faults,
@@ -61,6 +73,18 @@ pub struct SafetySupervisor {
     battery_low: bool,
     high_current_bursts: u8,
     occlusion_ma: u16,
+    /// Last forward-burst peak currents (ring), the lowest window minimum since the last re-baseline (0 = none yet) and
+    /// the bursts since the last creep step.
+    win: [u16; OCC_WINDOW_BURSTS],
+    win_n: usize,
+    base_ma: u16,
+    base_bursts: u16,
+}
+
+/// `MAX_HOURLY` reduced so that the volume that PHYSICALLY leaves the needle stays <= 15 U/h even at the
+/// worst-case tolerance of the stadium area and the leadscrew lead (F6, `limits::HOURLY_CAL_MARGIN_PCT`).
+pub(crate) fn hourly_cap_mu() -> MilliUnits {
+    MilliUnits((MAX_HOURLY.0 as u64 * 100 / (100 + HOURLY_CAL_MARGIN_PCT as u64)) as u32)
 }
 
 fn u16_sat(v: u32) -> u16 {
@@ -80,8 +104,12 @@ impl SafetySupervisor {
             docked: false,
             active: false,
             wear_expired: false,
-            minute_steps: [0; WINDOW_MIN],
-            last_minute: now.0 / MINUTE_MS,
+            hour_buckets: [0; HOUR_BUCKETS],
+            last_bucket: now.0 / BUCKET_MS,
+            minute_used: 0,
+            cur_minute: now.0 / MINUTE_MS,
+            hourly_cap_steps: 0,
+            c_compat: false,
             faults: Faults::NONE,
             last_new_faults: Faults::NONE,
             diag: DiagState::new(),
@@ -98,11 +126,16 @@ impl SafetySupervisor {
             battery_low: false,
             high_current_bursts: 0,
             occlusion_ma: OCCLUSION_CURRENT_MA,
+            win: [0; OCC_WINDOW_BURSTS],
+            win_n: 0,
+            base_ma: 0,
+            base_bursts: 0,
         };
         if cal_in_range(cal) {
             sv.cal = cal;
             sv.calibrated = true;
             sv.max_steps_per_min = cal.mu_to_pulses(MAX_PER_MIN).0;
+            sv.hourly_cap_steps = cal.mu_to_pulses(hourly_cap_mu()).0;
         } else {
             sv.diag.set_time_s((now.0 / 1000) as u32);
             // inst 1 = no calibration at all, 3 = outside the plausible range
@@ -128,25 +161,63 @@ impl SafetySupervisor {
 
     // ---- rolling window ------------------------------------------------------------
     fn roll(&mut self, now: Millis) {
-        self.set_time(now);
-        let m = now.0 / MINUTE_MS;
-        if m <= self.last_minute {
-            return; // time never goes backwards
-        }
-        if m - self.last_minute >= WINDOW_MIN as u64 {
-            self.minute_steps = [0; WINDOW_MIN];
-        } else {
-            for k in self.last_minute + 1..=m {
-                self.minute_steps[(k % WINDOW_MIN as u64) as usize] = 0;
+        let b = now.0 / BUCKET_MS;
+        if b > self.last_bucket {
+            if b - self.last_bucket >= HOUR_BUCKETS as u64 {
+                self.hour_buckets = [0; HOUR_BUCKETS];
+            } else {
+                for k in self.last_bucket + 1..=b {
+                    self.hour_buckets[(k % HOUR_BUCKETS as u64) as usize] = 0;
+                }
             }
+            self.last_bucket = b; // time never goes backwards
         }
-        self.last_minute = m;
+        let m = now.0 / MINUTE_MS;
+        if m > self.cur_minute {
+            self.cur_minute = m;
+            self.minute_used = 0;
+        }
     }
 
-    /// Steps approved in the current rolling 60-minute window (60 wall-minute buckets).
+    /// Steps approved in the rolling 60 minute window (the 361 newest 10 s buckets: at least 60 minutes).
+    /// In C-compat mode: the 60 wall-clock minute buckets of the frozen C reference (the same 10 s buckets,
+    /// summed over the last 59 minutes plus the current one).
     pub fn hourly_steps(&mut self, now: Millis) -> Pulses {
         self.roll(now);
-        Pulses(self.minute_steps.iter().map(|&v| v as u32).sum())
+        if self.c_compat {
+            let from = (now.0 / MINUTE_MS).saturating_sub(59) * (MINUTE_MS / BUCKET_MS);
+            let mut sum = 0u32;
+            let mut k = from.max(self.last_bucket.saturating_sub(HOUR_BUCKETS as u64 - 1));
+            while k <= self.last_bucket {
+                sum += self.hour_buckets[(k % HOUR_BUCKETS as u64) as usize] as u32;
+                k += 1;
+            }
+            return Pulses(sum);
+        }
+        Pulses(self.hour_buckets.iter().map(|&v| v as u32).sum())
+    }
+
+    /// Switch to the legacy hourly accounting of the C reference (no tolerance margin, 60 wall-clock minute
+    /// buckets). ONLY for the differential tests (`PumpConfig::RELAXED`); production keeps the default.
+    pub fn set_c_compat(&mut self, on: bool) {
+        self.c_compat = on;
+        if self.calibrated {
+            let cap = if on { MAX_HOURLY } else { hourly_cap_mu() };
+            self.hourly_cap_steps = self.cal.mu_to_pulses(cap).0;
+        }
+    }
+
+    /// How many steps `approve_steps` would approve right now (hourly cap, per-minute backstop, reservoir) without trimming.
+    pub fn step_room(&mut self, now: Millis, reservoir: MilliUnits) -> Pulses {
+        let used = self.hourly_steps(now).0;
+        let room = self.hourly_cap_steps.saturating_sub(used);
+        let minute_room = self.max_steps_per_min.saturating_sub(self.minute_used);
+        Pulses(room.min(minute_room).min(self.cal.mu_to_pulses(reservoir).0))
+    }
+
+    /// The rolling-hour cap in steps (`MAX_HOURLY` less the calibration tolerance margin).
+    pub fn hourly_cap_steps(&self) -> Pulses {
+        Pulses(self.hourly_cap_steps)
     }
 
     // ---- preconditions -----------------------------------------------------------------
@@ -193,7 +264,7 @@ impl SafetySupervisor {
         if amount > reservoir {
             return Err(Error::Reservoir);
         }
-        let cap = self.cal.mu_to_pulses(MAX_HOURLY).0;
+        let cap = self.hourly_cap_steps;
         if self.hourly_steps(now).0 + self.cal.mu_to_pulses(amount).0 > cap {
             return Err(Error::Hourly);
         }
@@ -304,20 +375,21 @@ impl SafetySupervisor {
             self.raise(Raise::new(codes::RESERVOIR_EMPTY).a(reservoir.0 as i32));
         }
         let used = self.hourly_steps(now).0;
-        let cap = self.cal.mu_to_pulses(MAX_HOURLY).0;
+        let cap = self.hourly_cap_steps;
         let room = cap.saturating_sub(used);
         if room < allowed {
             allowed = room;
             self.raise(Raise::new(codes::HOURLY_LIMIT_VETO).a(used as i32).b(cap as i32).c(requested.0));
         }
-        let bucket = (self.last_minute % WINDOW_MIN as u64) as usize;
-        let minute_used = (self.minute_steps[bucket] as u32).min(self.max_steps_per_min);
+        let minute_used = self.minute_used.min(self.max_steps_per_min);
         let minute_room = self.max_steps_per_min - minute_used;
         if minute_room < allowed {
             allowed = minute_room;
             self.raise(Raise::new(codes::PER_MINUTE_LIMIT_VETO).a(minute_used as i32).b(self.max_steps_per_min as i32).c(requested.0));
         }
-        self.minute_steps[bucket] = u16_sat(self.minute_steps[bucket] as u32 + allowed);
+        let b = (self.last_bucket % HOUR_BUCKETS as u64) as usize;
+        self.hour_buckets[b] = u16_sat(self.hour_buckets[b] as u32 + allowed);
+        self.minute_used = self.minute_used.saturating_add(allowed);
         self.cmd_steps += allowed as u64;
         self.cmd_counts = self.cal.expected_angle(Pulses(self.cmd_steps.min(u32::MAX as u64) as u32)).0;
         Pulses(allowed)
@@ -335,6 +407,9 @@ impl SafetySupervisor {
         self.rev_steps0 = 0;
         self.rev_enc0 = angle.0;
         self.high_current_bursts = 0;
+        self.win_n = 0; // the running level of the pod is measured again after a fill / prime / draw / acknowledge
+        self.base_ma = 0;
+        self.base_bursts = 0;
     }
 
     fn check_encoder(&mut self, enc: i64) {
@@ -421,13 +496,36 @@ impl SafetySupervisor {
         if steps.0 == 0 {
             return false;
         }
-        if ma <= self.occlusion_ma {
+        // stored-volume accounting: the floor of the burst current (window minimum) rising above the pod's baseline
+        let slot = self.win_n % OCC_WINDOW_BURSTS;
+        self.win[slot] = ma;
+        self.win_n = self.win_n.saturating_add(1);
+        if self.win_n >= OCC_WINDOW_BURSTS {
+            let floor = self.win.iter().copied().min().unwrap_or(ma);
+            if self.base_ma == 0 || floor < self.base_ma {
+                self.base_ma = floor;
+                self.base_bursts = 0;
+            } else {
+                self.base_bursts += 1;
+                if self.base_bursts >= OCC_BASELINE_CREEP_BURSTS {
+                    self.base_bursts = 0;
+                    self.base_ma = self.base_ma.saturating_add(OCC_BASELINE_CREEP_MA).min(floor);
+                }
+            }
+            if floor > self.base_ma.saturating_add(OCCLUSION_RISE_MA) && !self.faults.contains(Faults::OCCLUSION) {
+                self.raise(Raise::new(codes::OCCLUSION_CURRENT_RISE).a(floor as i32).b(self.base_ma.saturating_add(OCCLUSION_RISE_MA) as i32).c(self.cmd_steps.min(u32::MAX as u64) as u32));
+                return true;
+            }
+        }
+        // absolute threshold: consecutive bursts above it
+        let thr = self.occlusion_ma;
+        if ma <= thr {
             self.high_current_bursts = 0;
             return false;
         }
         self.high_current_bursts = self.high_current_bursts.saturating_add(1);
         if self.high_current_bursts >= OCCLUSION_CURRENT_BURSTS && !self.faults.contains(Faults::OCCLUSION) {
-            self.raise(Raise::new(codes::OCCLUSION_CURRENT_RISE).a(ma as i32).b(self.occlusion_ma as i32).c(self.cmd_steps.min(u32::MAX as u64) as u32));
+            self.raise(Raise::new(codes::OCCLUSION_CURRENT_RISE).a(ma as i32).b(thr as i32).c(self.cmd_steps.min(u32::MAX as u64) as u32));
             return true;
         }
         false

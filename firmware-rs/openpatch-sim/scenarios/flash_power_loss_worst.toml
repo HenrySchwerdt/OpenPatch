@@ -4,8 +4,9 @@ seed = 92
 duration_s = 3600.0
 events = [
   { at_s = 1500.0, action = "flash_power_loss", frac = 0.5, off_ms = 400.0 },
-  { at_s = 1700.0, action = "set_basal", profile = [[0.0, 2.0]] },
-  { at_s = 1800.0, action = "resume" },
+  { at_s = 1950.0, action = "set_basal", profile = [[0.0, 2.0]] },
+  { at_s = 2000.0, action = "acknowledge" },
+  { at_s = 2100.0, action = "resume" },
 ]
 
 [params.flash]

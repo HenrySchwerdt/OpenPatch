@@ -7,14 +7,14 @@
 ## Building and flashing
 
 ```sh
-scripts/build.sh --dev                     # bootloader + both apps (drive nfp-608-26-45-g15-12, angle-tmag; dev = dev-plaintext)
+scripts/build.sh --dev                     # bootloader + both apps (drive nfp-608-26-45-g16-20, the GHW 16:20 pair of the current CAD, angle-tmag; dev = dev-plaintext)
 cd openpatch-bootloader && cargo run --release        # flash the bootloader first (probe-rs, SWD)
-cd ../openpatch-bench && cargo run --release --features drive-nfp-608-26-45-g15-12,dev-plaintext   # bench board, RTT log
+cd ../openpatch-bench && cargo run --release --features drive-nfp-608-26-45-g16-20,dev-plaintext   # bench board, RTT log
 ```
 
 The application is linked at `0x9000` behind the bootloader: always flash the bootloader first. `cargo run` uses
 `probe-rs run --chip nRF52840_xxAA` (`.cargo/config.toml`) and prints the defmt log (RTT). On a fresh E73 module the first boot writes
-UICR PSELRESET and resets once (docs/boards.md). There is **no default drive**: always pass one `drive-*` feature (nfp-608-26-45-g15-12 (build.sh default), nfp-608-26-45-g1-1, syringe-rig-1ml, zwbpd006006-6-43, zwbpd006006-4-8, faulhaber-adm0620-16). DK: `--no-default-features --features board-nrf52840-dk,angle-tmag,drive-nfp-608-26-45-g15-12,dev-plaintext` (angle simulated). Without the pod's TMAG5273 use `angle-qdec-fallback` (docs/stubs.md: expect deviation faults).
+UICR PSELRESET and resets once (docs/boards.md). There is **no default drive**: always pass one `drive-*` feature (nfp-608-26-45-g16-20 (build.sh default, the pair in the current CAD), nfp-608-26-45-g15-12 and nfp-608-26-45-g1-1 (NOT the current CAD: 25 to 56 % dose error if fitted to a 16:20 pod), syringe-rig-1ml, zwbpd006006-6-43, zwbpd006006-4-8, faulhaber-adm0620-16). DK: `--no-default-features --features board-nrf52840-dk,angle-tmag,drive-nfp-608-26-45-g16-20,dev-plaintext` (angle simulated). Without the pod's TMAG5273 use `angle-qdec-fallback` (docs/stubs.md: expect deviation faults).
 
 `dev-plaintext` accepts plaintext frames and uses the public development session key. Without it a connection refuses every frame until the phone has
 run the application layer key agreement (`docs/04-protocol.md`: pairing inside the button window once, then a session handshake per connection); the bench service (below) works in both builds because it is not an OpenPatch frame, but it needs an
@@ -23,7 +23,7 @@ run the application layer key agreement (`docs/04-protocol.md`: pairing inside t
 ## Starting a sequence
 
 1. **Headless (compile-time defaults):** `OPENPATCH_BENCH_PULSES=10 OPENPATCH_BENCH_AMOUNT_MU=1000 OPENPATCH_BENCH_PAUSE_MS=30000
-   OPENPATCH_BENCH_FILL_MU=50000 cargo run --release --features drive-nfp-608-26-45-g15-12,dev-plaintext,bench-autostart`. The sequence starts at boot as soon as
+   OPENPATCH_BENCH_FILL_MU=50000 cargo run --release --features drive-nfp-608-26-45-g16-20,dev-plaintext,bench-autostart`. The sequence starts at boot as soon as
    DOCKED is asserted (`# waiting for DOCKED` until then). Amount: mU, multiple of 50 (0.05 U). Defaults 10 x 1.000 U, 30 s pause.
 2. **BLE bench service** (all characteristics need an encrypted link: press the pod button, pair within 60 s):
 
@@ -48,7 +48,7 @@ t_ms,pulse,cmd_mu,delivered_pulses,delivered_mu,angle_counts,faults,peak_ma
 Extract the CSV from the probe-rs terminal log (timestamps and level are added by defmt):
 
 ```sh
-cargo run --release --features drive-nfp-608-26-45-g15-12,dev-plaintext 2>&1 | tee run.log
+cargo run --release --features drive-nfp-608-26-45-g16-20,dev-plaintext 2>&1 | tee run.log
 grep ' CSV ' run.log | sed 's/.* CSV //' > bench.csv
 ```
 
@@ -62,19 +62,29 @@ With the default `DEFMT_LOG` (`.cargo/config.toml`) the HAL also logs one `DEBUG
 2. Tare. Start `N` pulses of `X` U (e.g. N = 10, X = 1 U, pause long enough to read the balance, or weigh once at the end).
 3. After the last pulse wait for the drop to settle, weigh `m` (mg).
 4. Per step volume: `ul_per_step = m / (0.998 x delivered_pulses)` with `delivered_pulses` of the last CSV row, `U_per_step = ul_per_step / 10`.
-   **Nominal 0.006170 U/pulse (6169.7 uU = 0.617 ul) for the primary NFP G15/12 drive** (3 263 750 / 529 uU, 423.2 steps per screw turn); NFP coaxial G1/1: 0.004936 (2 611 000 / 529, 529 steps/turn); syringe rig: 0.001187 U (1.19 mU, 627 900 / 529); Zhaowei 6.43: 0.02030; Zhaowei 4.8: 0.02720; Faulhaber 16:1: 0.00816 U/pulse. The calibration is an exact rational in the core (`DriveCal`). Error = `U_per_step / nominal - 1`;
+   **Nominal 0.003949 U/pulse (3948.6 uU = 0.395 ul) for the primary NFP + GHW 16:20 drive** (2 088 800 / 529 uU, 661.25 steps per screw turn, total ratio 26.45 / 0.8 = 33.0625; the mechanical report quotes 0.00395 with a 74.63 mm^2 area); NFP G15/12 (not the current CAD): 0.006170 (3 263 750 / 529, 423.2 steps/turn); NFP coaxial G1/1 (not the current CAD): 0.004936 (2 611 000 / 529, 529 steps/turn); syringe rig: 0.001187 U (1.19 mU, 627 900 / 529); Zhaowei 6.43: 0.02030; Zhaowei 4.8: 0.02720; Faulhaber 16:1: 0.00816 U/pulse. The calibration is an exact rational in the core (`DriveCal`). Error = `U_per_step / nominal - 1`;
    target +/-5 % from 1 U. Also check `delivered_mu` against the commanded `cmd_mu` (exact remainder accumulation). `bench::prepare` now fills and PRIMES automatically (0.2 U of water through the connector); with the STRICT config `Resume` is refused (PrimeRequired 26) until a prime completed.
 5. Repeat 50 times per amount for 0.05 / 0.5 / 5 U (docs/02-safety.md section 3). A systematic deviation is a mechanical finding
    (backlash, air, compliance): the calibration is a build-time preset with CRC and is not edited to hide it.
 
-## Calibrating the occlusion current threshold (`limits::OCCLUSION_CURRENT_MA`)
+## Calibrating the occlusion current thresholds (`limits::OCCLUSION_CURRENT_MA`, `DRAW_STALL_CURRENT_MA`, `OCCLUSION_RISE_MA`)
+
+All current constants derive from ONE number, the STSPIN220 run current `MOTOR_RUN_CURRENT_MA` = 160 mA (VREF 0.160 V / 1.0 ohm sense,
+`electronics/bench/pin-assignment.md`; motor rating 181 mA): free-running `I_SENSE` 67 % of it (107 mA), stalled 167 % (267 mA); forward
+occlusion threshold = free + 2/3 of the span = **213 mA**; draw stall threshold = 95 % of the stalled current = **253 mA** (the reverse stroke at
+600 pps loads the motor more, so draw has its own threshold); stored-volume rise **40 mA** above the pod's own running level (below). The
+ratios are placeholders from the simulator model, replace them with the measurements of this section; if the run current changes, change only
+`MOTOR_RUN_CURRENT_MA` and re-measure.
 
 The core input is `observe_motor_burst(steps, peak_ma)`: `OCCLUSION_CURRENT_BURSTS` (3) consecutive bursts above `OCCLUSION_CURRENT_MA`
-(placeholder 140 mA) latch OCCLUSION. `peak_ma` is the peak of the SAADC scans of I_SENSE during the burst (RC filter 1.6 ms).
+latch OCCLUSION, and so does the MINIMUM of the last `OCC_WINDOW_BURSTS` bursts exceeding the lowest such minimum seen since the last fill /
+prime / draw / acknowledge by `OCCLUSION_RISE_MA` (stored-volume accounting: 2 U budget / 50 mU per mA, `limits.rs`). `peak_ma` is the peak of the
+SAADC scans of I_SENSE during the burst (RC filter 1.6 ms).
 
 1. Run 10 free pulses (outlet open, water, no restriction): note the `peak_ma` values of the `burst` log lines (free running level).
-2. Run pulses against a blocked outlet (clamped tube, water only): note the `peak_ma` values (stalled rotor, limited by the 105 mA phase current
-   setting `MOT_REF` and the supply).
+2. Run pulses against a blocked outlet (clamped tube, water only): note the `peak_ma` values (stalled rotor, limited by the 160 mA phase current
+   setting and the supply). Also record the volume that left the needle when OCCLUSION latches: the alarm must come at <= 2 U undelivered
+   (that includes the water the compliance and the thrust train soak up first).
 3. Choose a threshold between the maxima of (1) and the minima of (2) with margin; the threshold lives in `openpatch-core/src/limits.rs`
    (a core change, outside this crate; a runtime setter would be better, docs/architecture.md). Also check that the ripple of the
    chopper does not exceed it in (1).
@@ -82,7 +92,7 @@ The core input is `observe_motor_burst(steps, peak_ma)`: `OCCLUSION_CURRENT_BURS
 
 ## Angle channel check (replaces the old encoder calibration)
 
-1. `angle_counts` in the CSV must advance by `4096 x pulses / (steps per turn)` (NFP G15/12: 423.2 steps per screw turn = 9.68 counts per pulse; coaxial G1/1: 529 steps, 7.74 counts). The core checks
+1. `angle_counts` in the CSV must advance by `4096 x pulses / (steps per turn)` (NFP + 16:20: 661.25 steps per screw turn = 6.19 counts per pulse; for reference G15/12: 423.2 steps, 9.68 counts; coaxial G1/1: 529 steps, 7.74 counts). The core checks
    +-3 % per commanded leadscrew revolution and the 10 % window per >= 1 U: a deviation latches ENCODER_DEVIATION (fault bit in the `faults` column).
 2. `# prepare failed code=...` or INTERNAL at the first tick with `TMAG5273 not found` in the log: the sensor does not answer (wiring, pod FFC without I2C, wrong address).
    `angle-qdec-fallback` makes the build runnable but is NOT sufficient for the 3 % check (docs/stubs.md).
@@ -100,9 +110,23 @@ Draw pulls water INTO the reservoir by driving the leadscrew in reverse. Procedu
 4. **Stall / end stop:** a chunk that executed short, < 50 % angle-confirmed reverse travel, or 3 chunks above the current threshold end the draw as STALLED
    (double beep); `DRAW_DONE_MU` is what the angle sensor confirmed (rear end stop reached or jam), the reservoir level is raised by exactly that.
 5. A draw or fill sets `PRIME_REQUIRED` (flag bit 12): `Resume` is refused with `PrimeRequired` (26) until a prime completed (`FillPrime` prime sub-op, docked).
+   After a DRAW the first prime runs a backlash / lost-motion TAKE-UP first (`TAKEUP_MU_AFTER_DRAW` = 632 mU = 160 steps on the 16:20 drive, in 64 step
+   chunks, watchdog serviced between them): it goes through the supervisor and counts against the 1.7 U/min backstop (so wait for the next minute before
+   the first bolus) but is NOT booked as delivery. One prime command is at most 0.524 U (`MAX_PRIME`); the connector path is 2.21 U
+   (`PRIME_PATH_MU`), so purge it with 5 prime commands.
+   The draw rate is set by the core from the fill needle gauge (default 29G: 600 pps, cap 841 pps; 30G 469 pps, 31G 230 pps; `FillNeedle`,
+   `PumpConfig::fill_needle`) and draw has its own stall threshold (253 mA).
 6. On the bench board the hardware interlock needs DOCKED for VMOT, so the draw cannot run there (docs/stubs.md, conflict 2): test draw on the DK or with a bench jumper on the DOCKED gate.
 
 Weigh the water drawn from a tared source: drawn mass / 0.998 = ul, compare with `DRAW_DONE_MU / 10`.
+
+## After a reset (H3) and the basal schedule
+
+An ACTIVE pod that restarts for any reason other than a commanded reset (watchdog / TPL5010, brown-out, lock-up, power-on of a pod that was active)
+comes up SUSPENDED **with an alarm**: ALARM flag, buzzer, `Fault` notification, diagnostic record `7-74-002` at FAULT severity, `Resume` refused (`Fault` 4)
+until `Acknowledge`. The basal schedule and a running temp basal are persisted (flash records 7 and 8) and restored; the temp basal comes back with its
+remaining time rounded DOWN to 30 minutes and starts with the next `Resume`. If no valid schedule is held, `Resume` is refused with `NoSchedule` (31):
+send `SetBasalSchedule` first. The reservoir model keeps the 64 step safety margin once per run, it is not added again on every boot.
 
 ## Syringe-rig procedure (NFP direct on a 1 ml U100 syringe plunger, WATER ONLY)
 

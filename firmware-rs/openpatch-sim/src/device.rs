@@ -6,6 +6,7 @@
 //! changes them, change them here too (REPORT.md lists this as a model assumption).
 
 use crate::flash::{Key, PodRec, Stored};
+use openpatch_core::persist::{ReservoirPolicy, SchedRec, TempRec};
 use crate::params::Params;
 use crate::world::{ResetCause, SimHal, World};
 use openpatch_core::drive_cal::{DriveCal, DriveId};
@@ -37,7 +38,7 @@ pub struct DeviceConfig {
 impl Default for DeviceConfig {
     fn default() -> Self {
         DeviceConfig {
-            preset: DriveId::Nfp608_26_45G15_12,
+            preset: DriveId::Nfp608_26_45G16_20,
             capacity_mu: 100_000,
             strict_prime: true,
             start_tod_ms: 8 * 3_600_000,
@@ -46,13 +47,15 @@ impl Default for DeviceConfig {
     }
 }
 
-#[derive(Default)]
 struct Policy {
     evt_ceiling: u32,
-    res_fill: u32,
-    res_persisted_consumed: u32,
+    /// Reservoir snapshot policy (F3), the SAME logic as the bench firmware (`openpatch_core::persist`).
+    res: ReservoirPolicy,
     pod: Option<PodRec>,
     ticks_since_pod_write: u32,
+    /// Last schedule / temp basal records handed to the flash (F2).
+    sched: SchedRec,
+    temp: TempRec,
 }
 
 /// What the boot code found in flash (for verdicts).
@@ -63,6 +66,9 @@ pub struct BootReport {
     pub reservoir_restored: Option<(u32, u32)>,
     pub pod_restored: Option<PodRec>,
     pub evt_start: u32,
+    /// What the boot restored: schedule held / temp basal pending (F2).
+    pub schedule_restored: bool,
+    pub temp_restored: bool,
     /// reservoir model after boot minus the physically present water (mU): lower is safer
     pub model_minus_actual_mu_before: Option<f64>,
     pub model_minus_actual_mu_after: Option<f64>,
@@ -108,7 +114,7 @@ impl Device {
             pump: None,
             session: new_session(),
             phone: new_session(),
-            policy: Policy::default(),
+            policy: Policy { evt_ceiling: 0, res: ReservoirPolicy::at_boot(RES_MARGIN_STEPS, RES_TRIGGER_STEPS, None), pod: None, ticks_since_pod_write: 0, sched: SchedRec::NONE, temp: TempRec::NONE },
             next_tick_us: 0,
             seq: 0,
             phone_connected: true,
@@ -160,8 +166,26 @@ impl Device {
             };
             (res, pod, evt)
         };
+        let (sched, temp) = {
+            let w = self.world.borrow();
+            let sched = match w.flash.read(Key::Sched) {
+                Some(Stored::Sched(s)) => Some(s),
+                _ => None,
+            };
+            let temp = match w.flash.read(Key::Temp) {
+                Some(Stored::Temp(t)) => Some(t),
+                _ => None,
+            };
+            (sched, temp)
+        };
         let cal = self.cal();
         let evt_start = evt_c.max(1);
+        // why the MCU started: a watchdog reset or a power loss (brown-out below the PCM cut-off) is unplanned
+        self.world.borrow_mut().boot_cause = match cause {
+            "watchdog" => openpatch_core::hal::ResetCause::Watchdog,
+            "power loss" => openpatch_core::hal::ResetCause::Brownout,
+            _ => openpatch_core::hal::ResetCause::PowerOn,
+        };
         let hal = SimHal(self.world.clone());
         let mut pump = Pump::new(hal, Some(&cal), MilliUnits(self.cfg.capacity_mu), evt_start);
         if !self.cfg.strict_prime {
@@ -175,6 +199,17 @@ impl Device {
                 pump.restore_pod(p.pair_id, p.role, p.active, p.activation_id, Millis(p.wear_s as u64 * 1000));
             }
         }
+        // F2: the basal schedule and a running temp basal come back too; a record that is missing, torn or not within
+        // the limits leaves the pod without a schedule and `Resume` is refused with `NoSchedule`
+        let mut schedule_restored = false;
+        if let Some(s) = sched.and_then(|r| SchedRec::decode(r.as_bytes())) {
+            schedule_restored = pump.restore_schedule(&s).is_ok();
+        }
+        let mut temp_restored = false;
+        if let Some(t) = temp {
+            pump.restore_temp(t);
+            temp_restored = !t.is_none();
+        }
         let st = pump.get_status();
         let after = {
             let model = pump.reservoir().remaining().0 as f64;
@@ -186,6 +221,8 @@ impl Device {
             cause: Some(cause.to_string()),
             reservoir_restored: reservoir,
             pod_restored: pod,
+            schedule_restored,
+            temp_restored,
             evt_start,
             model_minus_actual_mu_before: self.last_discrepancy_mu,
             model_minus_actual_mu_after: Some(after),
@@ -196,10 +233,11 @@ impl Device {
         });
         self.policy = Policy {
             evt_ceiling: evt_start + EVT_CEILING_STEP,
-            res_fill: reservoir.map_or(0, |r| r.0),
-            res_persisted_consumed: reservoir.map_or(0, |r| r.1),
+            res: ReservoirPolicy::at_boot(RES_MARGIN_STEPS, RES_TRIGGER_STEPS, reservoir),
             pod,
             ticks_since_pod_write: 0,
+            sched: sched.unwrap_or(SchedRec::NONE),
+            temp: temp.unwrap_or(TempRec::NONE),
         };
         self.world.borrow_mut().flash.queue(Stored::EvtCeiling(self.policy.evt_ceiling));
         self.pump = Some(pump);
@@ -304,16 +342,20 @@ impl Device {
             pol.evt_ceiling += EVT_CEILING_STEP;
             w.flash.queue(Stored::EvtCeiling(pol.evt_ceiling));
         }
-        let res = pump.reservoir();
-        if res.is_filled() {
-            let fill = res.fill_level().0;
-            let consumed = res.consumed().0;
-            if fill != pol.res_fill || consumed + RES_TRIGGER_STEPS >= pol.res_persisted_consumed {
-                let stored = consumed.saturating_add(RES_MARGIN_STEPS);
-                w.flash.queue(Stored::Reservoir(fill, stored));
-                pol.res_fill = fill;
-                pol.res_persisted_consumed = stored;
-            }
+        if let Some((fill, stored)) = pol.res.next_write(pump.reservoir()) {
+            w.flash.queue(Stored::Reservoir(fill, stored));
+            pol.res.written(fill, stored);
+        }
+        // F2: schedule and temp basal are rewritten only when they change
+        let sr = pump.schedule_record();
+        if sr != pol.sched {
+            w.flash.queue(Stored::Sched(sr));
+            pol.sched = sr;
+        }
+        let tr = pump.temp_record();
+        if tr != pol.temp {
+            w.flash.queue(Stored::Temp(tr));
+            pol.temp = tr;
         }
         let p = pump.pod();
         let cur = PodRec {
