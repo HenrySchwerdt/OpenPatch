@@ -1,0 +1,5 @@
+# regenerable intermediates (python3 generate.py --variant bench --drive coaxial); tracked files stay tracked
+*.sc
+*.script.json
+*.stl
+*.step
