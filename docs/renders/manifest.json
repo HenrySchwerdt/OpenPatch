@@ -1,0 +1,57 @@
+{
+ "note": "Rendered by tools/render (SolidCraft path tracer) from mechanical/out/bench/OP-*_real.sc. TEST PROJECT: bench pod, water only, never worn.",
+ "images": [
+  {
+   "id": "hero_34",
+   "file": "renders/hero_34.webp",
+   "kind": "hero",
+   "title": "OP-100 bench pod with clear lid",
+   "caption": "The OP-100 bench pod with its clear resin lid: water-filled reservoir, plunger and seals, drive, sensor board and FFC cable. Test hardware, water only.",
+   "size": [
+    1500,
+    940
+   ],
+   "variant": "light",
+   "bytes": 24822
+  },
+  {
+   "id": "hero_34",
+   "file": "renders/hero_34-dark.webp",
+   "kind": "hero",
+   "title": "OP-100 bench pod with clear lid",
+   "caption": "The OP-100 bench pod with its clear resin lid: water-filled reservoir, plunger and seals, drive, sensor board and FFC cable. Test hardware, water only.",
+   "size": [
+    1500,
+    940
+   ],
+   "variant": "dark",
+   "bytes": 27242
+  },
+  {
+   "id": "top_clear",
+   "file": "renders/top_clear.webp",
+   "kind": "hero",
+   "title": "OP-100 clear lid, top view",
+   "caption": "Top view through the clear resin lid: reservoir with water, plunger, drive and sensor board.",
+   "size": [
+    1500,
+    1000
+   ],
+   "variant": "light",
+   "bytes": 32358
+  },
+  {
+   "id": "top_clear",
+   "file": "renders/top_clear-dark.webp",
+   "kind": "hero",
+   "title": "OP-100 clear lid, top view",
+   "caption": "Top view through the clear resin lid: reservoir with water, plunger, drive and sensor board.",
+   "size": [
+    1500,
+    1000
+   ],
+   "variant": "dark",
+   "bytes": 32160
+  }
+ ]
+}

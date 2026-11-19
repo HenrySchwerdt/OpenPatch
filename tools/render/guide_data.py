@@ -252,3 +252,8 @@ STEPS = [
     dict(id="G02", ch="G", title="Connect pod and controller (chapter 10)", lines=["FFC to the controller, motor lead to its connector.", "USB-C power only. Firmware: drive-nfp-608-26-45-g16-20."], parts=[("B17", 1), ("B1", 1)], tools=[],
          new=[], acc=True, icon="controller", cam=OV, warn=WARN_WATER),
 ]
+
+# Drive steps whose geometry changes with the next CAD revision (spec 3b: central push rod from the dry end, closed reservoir, longer pod).
+PENDING = ['A07', 'A16', 'B05', 'B06', 'B07', 'B08', 'B13', 'C03', 'C05', 'C06', 'C07', 'C08', 'C09', 'C10', 'C11', 'C12', 'C13', 'C14', 'C15']
+for _s in STEPS:
+    _s['pending'] = _s['id'] in PENDING

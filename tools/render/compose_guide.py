@@ -29,6 +29,7 @@ IMG = OUT / "steps"
 RAW = rg.RAW
 W, H = 1400, 1000
 MAIN_BOX = (320, 20, 1380, 830)
+SHORT = {"A": "PREPARE", "B": "SUB-ASSY", "C": "DRIVE", "D": "BOARD", "E": "CLOSE", "F": "DOCK", "G": "FINISH"}
 CHAPTERS = {"A": "Prepare the parts", "B": "Build the sub-assemblies", "C": "Shell, drive and needle", "D": "Sensor board and cable",
             "E": "Close the pod", "F": "Dock and dummy head", "G": "Finish"}
 
@@ -58,9 +59,9 @@ def inset(canvas, path, box, color, kind, caption, variant="light"):
     canvas.alpha_composite(bg, (x0, y0))
     d = ImageDraw.Draw(canvas)
     symbol(d, (x0 + 6, y0 + 6), 28, kind, color)
-    f = st_.font(21, "Medium")
+    f = st_.font(19, "Medium")
     y = y1 + 10
-    for ln in st_.wrap(caption, f, w, d)[:2]:
+    for ln in st_.wrap(caption, f, w - 8, d)[:2]:
         d.text((x0 + 4, y), ln, font=f, fill=t["ink"])
         y += 26
 
@@ -91,6 +92,13 @@ def build_page(step, meta, variant="light"):
     if step.get("turn"):
         c = P(step["turn"][0])
         st_.curved_arrow(canvas, c, 46, 210, 520, color=t["ink"])
+        if step.get("tools"):       # draw the tool that turns the part, next to the rotation arrow
+            ic_t = icons.tool(step["tools"][0], 104)
+            bx, by = int(c[0] + 52), int(c[1] - 118)
+            dd = ImageDraw.Draw(canvas)
+            dd.line([(c[0] + 20, c[1] - 14), (bx + 30, by + 100)], fill=t["ink"], width=3)
+            st_.rounded(dd, (bx - 10, by - 10, bx + 114, by + 114), 20, fill=(255, 255, 255), outline=t["line"], width=3)
+            canvas.alpha_composite(ic_t, (bx, by))
     d = ImageDraw.Draw(canvas)
     for label, pt in step.get("mark") or []:
         c = P(pt)
@@ -103,9 +111,9 @@ def build_page(step, meta, variant="light"):
     # step number
     d = ImageDraw.Draw(canvas)
     st_.rounded(d, (28, 24, 300, 150), 22, fill=(24, 26, 30) if variant == "light" else (240, 242, 245))
-    d.text((52, 30), str(step["n"]), font=st_.font(96, "ExtraBold"), fill=(255, 255, 255) if variant == "light" else (20, 20, 24))
-    d.text((180, 44), step["id"], font=st_.font(30, "SemiBold"), fill=(170, 176, 184))
-    d.text((180, 84), CHAPTERS[step["ch"]].split()[0].upper(), font=st_.font(17, "SemiBold"), fill=(170, 176, 184))
+    d.text((46, 36), str(step["n"]), font=st_.font(84, "ExtraBold"), fill=(255, 255, 255) if variant == "light" else (20, 20, 24))
+    d.text((212, 44), step["id"], font=st_.font(28, "SemiBold"), fill=(170, 176, 184))
+    d.text((212, 82), SHORT[step["ch"]], font=st_.font(16, "SemiBold"), fill=(170, 176, 184))
     # parts panel
     y = 176
     if step.get("parts"):
@@ -143,6 +151,12 @@ def build_page(step, meta, variant="light"):
     if wr and wp.exists():
         box = (cx - iw, 540, cx, 540 + ih) if both else (cx - iw, 560, cx, 560 + ih)
         inset(canvas, wp, box, st_.RED, "no", wr[0], variant)
+    if step.get("pending"):
+        d = ImageDraw.Draw(canvas)
+        st_.rounded(d, (28, 590, 300, 676), 14, fill=(255, 244, 214), outline=st_.AMBER, width=3)
+        d.text((42, 598), "PENDING GEOMETRY", font=st_.font(18, "Bold"), fill=(110, 70, 0))
+        d.text((42, 624), "Drive layout changes with", font=st_.font(15), fill=(110, 70, 0))
+        d.text((42, 644), "the next CAD revision.", font=st_.font(15), fill=(110, 70, 0))
     # text band
     d = ImageDraw.Draw(canvas)
     d.text((30, 836), step["title"], font=st_.font(36, "Bold"), fill=t["ink"])
@@ -262,7 +276,8 @@ def main():
         rec = dict(id=sid, n=n, chapter=st["ch"], chapter_title=CHAPTERS[st["ch"]], title=st["title"], lines=st["lines"], image=f"steps/{sid}.webp",
                    parts=[dict(id=p, qty=q, name=gd.BOM[p][0], spec=gd.BOM[p][1]) for p, q in st.get("parts", [])], tools=[dict(id=t, name=gd.TOOLS[t]) for t in st.get("tools", [])],
                    check=(st["check"][0] if st.get("check") else None), wrong=(st["wrong"][0] if st.get("wrong") else None),
-                   warnings=([st["warn"]] if st.get("warn") else []) + [gd.WARN_WATER])
+                   warnings=([st["warn"]] if st.get("warn") else []) + [gd.WARN_WATER],
+                   status="pending_geometry" if st.get("pending") else "current")
         steps_json.append(rec)
     (OUT / "steps.json").write_text(json.dumps(dict(
         title="OpenPatch OP-100 bench pod build guide", note="BENCH TEST ONLY. Water only. Never worn on a person or animal.",

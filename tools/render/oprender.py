@@ -28,7 +28,7 @@ sys.path.insert(0, str(HERE))
 import components as comp  # noqa: E402
 import parts_model as pm  # noqa: E402
 
-BASE_VERSION = "2"   # bump when build_base() changes what the base scene contains
+BASE_VERSION = "3"   # bump when build_base() changes what the base scene contains
 CLI = os.environ.get("SOLIDCRAFT_CLI") or shutil.which("solidcraft-cli") or "/usr/local/bin/solidcraft-cli"
 CAD = Path(os.environ.get("OP_CAD_DIR", ROOT / "mechanical" / "out" / "bench"))
 WORK = Path(os.environ.get("OP_RENDER_WORK", HERE / "work"))
@@ -50,14 +50,16 @@ def metal(color, rough=0.3):
 
 
 LOOKS = {
-    "housing": dielectric("#efece6", 0.66),                 # matte MJF PA12 / SLA white, slightly warm
-    "lid": dielectric("#f1eee8", 0.62),
-    "sla": dielectric("#d9dee3", 0.42),                      # SLA tough resin, pale grey
-    "sla_warm": dielectric("#e8dfcc", 0.40),
-    "pp_clear": dielectric("#d3e3ec", 0.22, 0.34),           # clear PP / SLA reservoir
-    "water": dielectric("#8fc8ee", 0.05, 0.55),              # water, slightly blue
-    "silicone": dielectric("#e9f1f3", 0.38, 0.72),           # translucent platinum silicone
-    "gasket": dielectric("#d6dbde", 0.45, 0.85),
+    "housing": dielectric("#d3cec5", 0.72),                 # matte MJF PA12 / SLA white, slightly warm
+    "lid": dielectric("#d9d4cb", 0.68),
+    "sla": dielectric("#98a3ae", 0.40),                      # SLA tough resin, pale grey
+    "sla_dark": dielectric("#6f7f90", 0.4),
+    "sla_blue": dielectric("#7fa0c4", 0.4),
+    "sla_warm": dielectric("#e3d2a8", 0.40),
+    "pp_clear": dielectric("#b3d3e8", 0.22, 0.34),           # clear PP / SLA reservoir
+    "water": dielectric("#5fa9e3", 0.05, 0.55),              # water, slightly blue
+    "silicone": dielectric("#eef3f4", 0.38, 0.72),           # translucent platinum silicone
+    "gasket": dielectric("#2b2d31", 0.5, 0.85),
     "steel": metal("#c9ccd0", 0.28),
     "ndfeb": metal("#aeb2b8", 0.33),
     "brass": metal("#cfa653", 0.30),
@@ -85,8 +87,8 @@ ENV_LOOK = {
     "bottom": "housing", "top": "lid", "gasket": "gasket", "reservoir": "pp_clear",
     "plunger_core": "sla_warm", "plunger_nose": "sla_warm", "seal_a": "silicone", "seal_b": "silicone",
     "carriage": "sla", "tongue_shim": "steel", "pod_board": "mask", "hall_tmag": "black_ic", "hall_drv0": "black_ic",
-    "hall_drv1": "black_ic", "hall_dock": "black_ic", "cannula_adapter": "white_pa", "end_cap": "sla",
-    "needle_hub": "ptfe", "dock_insert": "sla", "bush_dry": "ptfe", "bush_far": "ptfe",
+    "hall_drv1": "black_ic", "hall_dock": "black_ic", "cannula_adapter": "white_pa", "end_cap": "sla_dark",
+    "needle_hub": "ptfe", "dock_insert": "sla_blue", "bush_dry": "ptfe", "bush_far": "ptfe",
     "gear": "brass", "gear (2)": "brass", "thrust_sleeve": "brass_dark", "thrust_collar": "brass_dark",
     "rod": "steel", "nut": "brass", "S_half": "ndfeb", "N_half": "ndfeb", "needle": "steel",
     "sleeve": "silicone", "valve_plug": "silicone", "septum": "silicone", "dock_magnet": "ndfeb",
@@ -348,6 +350,16 @@ def _extras_cmds(info, extras):
     return cmds, bodies, expect
 
 
+def ctx_look(info, b, k=0.62):
+    """Context (already built) parts: their real colour washed out toward light grey, matte."""
+    lk = LOOKS.get(info["looks"].get(b, "sla"), GREY)
+    c = lk["color"].lstrip("#")
+    r, g, bl = (int(c[i:i + 2], 16) for i in (0, 2, 4))
+    tgt = (226, 229, 233)
+    mix = "#%02x%02x%02x" % tuple(int(v * (1 - k) + t * k) for v, t in zip((r, g, bl), tgt))
+    return {"color": mix, "pbr": {"metallic": 0.0, "roughness": 0.8, "dielectric_ior": 1.45}}
+
+
 def shot_commands(info, spec):
     """Commands that turn the base scene into one shot.
 
@@ -364,7 +376,7 @@ def shot_commands(info, spec):
     for b in allb:
         cmds.append({"command": "browser.visibility", "params": {"visible": b in keep, "items": [b]}})
     for b in ctx:
-        cmds.append({"command": "appearance.assign", "params": {"bodies": [b], **GREY}})
+        cmds.append({"command": "appearance.assign", "params": {"bodies": [b], **ctx_look(info, b)}})
     for b, k in (spec.get("look") or {}).items():
         cmds.append({"command": "appearance.assign", "params": {"bodies": [b], **(LOOKS[k] if isinstance(k, str) else k)}})
     sec = spec.get("section")
@@ -373,6 +385,8 @@ def shot_commands(info, spec):
         for i, b in enumerate(sorted(keep)):
             bb = info["bbox"].get(b)
             if not bb or not (bb[0][ax] < sec["value"] < bb[1][ax]):
+                continue
+            if sec.get("bodies") and b not in sec["bodies"]:
                 continue
             corner = [-30.0, -30.0, -30.0]
             dims = [160.0, 160.0, 160.0]

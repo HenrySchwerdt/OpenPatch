@@ -119,19 +119,27 @@ def step_specs(info, size_main=(900, 675), size_check=(560, 420), quality="step"
             diag = math.sqrt(sum((pts_hi[i] - pts_lo[i]) ** 2 for i in range(3)))
             cam_v = (tuple(ctr), max(14.0, diag * 0.82 + 3), st["cam"][2], st["cam"][3])
         spec["camera"] = view(cam_v)
+        if "reservoir" in shown:     # cut the reservoir open (top half off) so plunger and seals inside are visible
+            spec["section"] = dict(axis="z", value=4.2, remove="above", bodies=["reservoir"])
         spec["size"] = size_main
         out.append((st, "main", spec, arrows))
         chk = st.get("check")
         if chk:
-            cv = chk[1] or st["cam"]
-            if chk[1] is None:
-                cv = (st["cam"][0], st["cam"][1] * 0.8, st["cam"][2], st["cam"][3])
+            cv = chk[1]
+            if cv is None and new:      # zoom onto the part the step is about
+                c, lo, hi = center(new)
+                dg = math.sqrt(sum((hi[i] - lo[i]) ** 2 for i in range(3)))
+                cv = (tuple(c), max(10.0, dg * 1.9), st["cam"][2], st["cam"][3])
+            elif cv is None:
+                cv = (st["cam"][0], st["cam"][1] * 0.6, st["cam"][2], st["cam"][3])
             s2 = dict(base)
             # check image: parts in their final place
             s2["extras"] = []
             if st.get("loose_gear"):
                 s2["show"] = new
             s2["explode"] = dict(shift)
+            if "reservoir" in [b for b in ctx] + new:
+                s2["section"] = dict(axis="z", value=4.2, remove="above", bodies=["reservoir"])
             s2["camera"] = view(cv)
             s2["size"] = size_check
             out.append((st, "check", s2, []))

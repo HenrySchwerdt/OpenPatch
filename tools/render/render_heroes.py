@@ -76,7 +76,17 @@ def shots(info):
             ex[b] = vec
     hero_q = "hero"
     S_ = {}
-    S_["hero_34"] = dict(show=allb, camera=cam((23.5, 16, 3.5), 62, -0.62, 0.42), size=(1500, 940), quality=hero_q)
+    S_["hero_opaque"] = dict(show=allb, camera=cam((23.5, 16, 3.0), 52, -0.62, 0.30), size=(1500, 940), quality=hero_q)
+    # default hero: clear resin lid (spec 2a).  The CPU tracer is opaque-only, so the clear lid is built from two passes with the
+    # same camera: the pod with the lid off and the reservoir shell left out (water, plunger, seals, drive, board visible), and
+    # the lid alone; compose() blends the lid pass over the open pass at low opacity (tint, edges, reflections).
+    cc_ = cam((23.5, 16, 3.0), 52, -0.62, 0.36)
+    clear_show = [b for b in allb if b not in g["lid"] + g["lidscrews"] + g["reservoir"]] + g["water"]
+    S_["hero_clear_open"] = dict(show=clear_show, camera=cc_, size=(1500, 940), quality=hero_q)
+    ct_ = cam((23.5, 16, 3.0), 44, 0.0, 1.45)
+    S_["top_clear_open"] = dict(show=clear_show, camera=ct_, size=(1500, 1000), quality=hero_q)
+    S_["top_clear_lid"] = dict(show=g["lid"] + g["lidscrews"], camera=ct_, size=(1500, 1000), quality=hero_q)
+    S_["hero_clear_lid"] = dict(show=g["lid"] + g["lidscrews"], camera=cc_, size=(1500, 940), quality=hero_q)
     S_["hero_34_b"] = dict(show=allb, camera=cam((23.5, 16, 3.5), 56, 0.7, 0.5), size=(1500, 940), quality=hero_q)
     S_["top"] = dict(show=allb, camera=cam((23.5, 16, 3.5), 46, 0.0, 1.45), size=(1500, 1000), quality=hero_q)
     S_["exploded"] = dict(show=allb, explode=ex, camera=cam((26, 14, 26), 132, -0.62, 0.45), size=(1500, 1500), quality=hero_q)
@@ -86,8 +96,15 @@ def shots(info):
                               size=(1500, 1000), quality=hero_q)
     S_["section_34"] = dict(show=sec_show, section=dict(axis="z", value=4.2, remove="above"), camera=cam((20, 16, 3), 42, -0.55, 0.75),
                             size=(1500, 1000), quality=hero_q)
-    S_["open_34"] = dict(show=[b for b in allb if b not in g["lid"] + g["lidscrews"] + g["gasket"]], camera=cam((23.5, 16, 3.5), 58, -0.62, 0.62),
-                         size=(1500, 940), quality=hero_q)
+    # cutaway / x-ray heroes: lid, gasket and screws off, reservoir and water cut open at z = 4.2 so the plunger, seals,
+    # blue water, end cap, needle and dock insert are visible next to motor, gears, leadscrew and carriage
+    open_show = [b for b in allb if b not in g["lid"] + g["lidscrews"] + g["gasket"]] + g["water"]
+    S_["open_34"] = dict(show=open_show, section=dict(axis="z", value=4.2, remove="above", bodies=["reservoir", "water"]),
+                         camera=cam((23.5, 16, 3.0), 50, -0.62, 0.55), size=(1500, 940), quality=hero_q)
+    S_["xray_34"] = dict(show=open_show, section=dict(axis="z", value=4.2, remove="above", bodies=["reservoir", "water"]),
+                         camera=cam((23.5, 16, 3.0), 46, 0.55, 0.6), size=(1500, 940), quality=hero_q)
+    # docked on the dummy cannula head on the dock insert, close to the mouth
+    S_["docked_34"] = dict(show=allb, camera=cam((42, 12, 3.0), 34, -0.8, 0.28), size=(1500, 940), quality=hero_q)
     # macro details
     S_["detail_gears"] = dict(show=g["geara"] + g["gearb"] + g["sleeve"] + g["bush_dry"] + g["rod"] + g["motor"] + ["bottom"],
                               section=dict(axis="z", value=4.2, remove="above"), camera=cam((3.3, 25.2, 4.2), 13, 0.0, 1.3), size=(1400, 1000), quality=hero_q)
@@ -154,7 +171,7 @@ def save(im, name, q=84):
     return p.stat().st_size
 
 
-def studio_image(path, variant, size=None, pad=0.06, caption=None, floor=True):
+def studio_image(path, variant, size=None, pad=0.035, caption=None, floor=True):
     raw_im = Image.open(path).convert("RGBA")
     w, h = size or raw_im.size
     canvas = S.backdrop(w, h, variant)
@@ -166,7 +183,32 @@ def studio_image(path, variant, size=None, pad=0.06, caption=None, floor=True):
     return canvas, sp, pos, k
 
 
+def clear_composite():
+    for pre, out in (("hero_clear", "hero_34"), ("top_clear", "top_clear")):
+        _clear_one(pre, out)
+
+
+def _clear_one(pre, outname):
+    """Blend the lid-only pass over the open pass: a clear lid with tint, screws and edge reflections."""
+    a, b = RAW / f"{pre}_open.png", RAW / f"{pre}_lid.png"
+    if not (a.exists() and b.exists()):
+        return
+    op = Image.open(a).convert("RGBA")
+    lid = Image.open(b).convert("RGBA")
+    la = lid.getchannel("A")
+    tint = lid.copy()
+    tint.putalpha(la.point(lambda v: int(v * 0.20)))       # body of the lid: 20 % over what is under it
+    edge = lid.convert("L").point(lambda v: 255 if v > 205 else 0)
+    hl = Image.new("RGBA", lid.size, (255, 255, 255, 0))
+    hl.putalpha(Image.composite(edge, Image.new("L", lid.size, 0), la).point(lambda v: int(v * 0.35)))
+    out = Image.alpha_composite(Image.alpha_composite(op, tint), hl)
+    # silhouette = union of both passes
+    out.putalpha(Image.composite(Image.new("L", lid.size, 255), op.getchannel("A"), la.point(lambda v: 255 if v > 8 else 0)))
+    out.save(RAW / f"{outname}.png")
+
+
 def compose(ids=None):
+    clear_composite()
     base, info = o.build_base("OP-100")
     S_ = shots(info)
     g = rg_groups(info)
@@ -177,10 +219,14 @@ def compose(ids=None):
         manifest.append(dict(id=id_, file=f"renders/{name}", kind=kind, title=title, caption=caption, size=list(im.size), variant=variant, bytes=sz))
 
     for k, kind, title, cap in [
-        ("hero_34", "hero", "OP-100 bench pod, three-quarter view", "The OP-100 bench pod, closed: lid, four screws, FFC cable and dock mouth. Test hardware, water only."),
+        ("hero_34", "hero", "OP-100 bench pod with clear lid", "The OP-100 bench pod with its clear resin lid: water-filled reservoir, plunger and seals, drive, sensor board and FFC cable. Test hardware, water only."),
+        ("top_clear", "hero", "OP-100 clear lid, top view", "Top view through the clear resin lid: reservoir with water, plunger, drive and sensor board."),
+        ("hero_opaque", "hero", "OP-100, opaque lid variant", "Alternate view with an opaque lid."),
         ("hero_34_b", "hero", "OP-100, from the dry end", "Same pod seen from the dry end."),
         ("top", "hero", "OP-100, top view", "Top view with the fill window and the 10 U scale."),
-        ("open_34", "detail", "OP-100 with the lid removed", "Lid, gasket and screws removed: board, drive and reservoir."),
+        ("open_34", "section", "OP-100 cutaway", "Lid removed, reservoir cut open: water, plunger and seals, drive, end cap, needle and dock insert."),
+        ("xray_34", "section", "OP-100 cutaway from the dry end", "Same cutaway seen from the dry end."),
+        ("docked_34", "hero", "Docked on the dummy cannula head", "The pod latched on the dummy cannula head on its dock insert."),
         ("section_34", "section", "Cutaway through drive and reservoir", "Section at z = 4.2 mm: gear pair, leadscrew and carriage, plunger and water-filled reservoir."),
         ("section_plan", "section", "Plan section at z = 4.2 mm", "Plan section through the drive axis plane."),
         ("detail_gears", "detail", "Gear mesh 16:20", "GHW module 0.3 brass gears: 16 T on the motor shaft, 20 T on the thrust sleeve, centre 5.51 mm."),

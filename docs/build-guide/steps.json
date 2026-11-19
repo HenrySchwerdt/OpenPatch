@@ -340,6 +340,1545 @@
    "warnings": [
     "WATER ONLY. Never insulin or any drug. Bench only: never on a person or animal."
    ]
+  },
+  {
+   "id": "A03",
+   "n": 3,
+   "chapter": "A",
+   "chapter_title": "Prepare the parts",
+   "title": "Cut off support remnants",
+   "lines": [
+    "Outside faces only.",
+    "Never touch bores, hex pocket or grooves."
+   ],
+   "image": "steps/A03.webp",
+   "parts": [
+    {
+     "id": "P3",
+     "qty": 1,
+     "name": "Carriage",
+     "spec": "SLA tough resin"
+    }
+   ],
+   "tools": [
+    {
+     "id": "cutters",
+     "name": "Flush cutters"
+    }
+   ],
+   "check": null,
+   "wrong": null,
+   "warnings": [
+    "WATER ONLY. Never insulin or any drug. Bench only: never on a person or animal."
+   ]
+  },
+  {
+   "id": "A04",
+   "n": 4,
+   "chapter": "A",
+   "chapter_title": "Prepare the parts",
+   "title": "Drill the lid pilot holes in the bottom shell",
+   "lines": [
+    "Drill d1.0, turn the drill, never push.",
+    "4 lid pilots + 1 board pilot."
+   ],
+   "image": "steps/A04.webp",
+   "parts": [
+    {
+     "id": "P1",
+     "qty": 1,
+     "name": "Bottom shell",
+     "spec": "MJF PA12"
+    }
+   ],
+   "tools": [
+    {
+     "id": "pinvise",
+     "name": "Pin vise + drills"
+    }
+   ],
+   "check": "An M1.2 screw starts by hand for two turns.",
+   "wrong": null,
+   "warnings": [
+    "WATER ONLY. Never insulin or any drug. Bench only: never on a person or animal."
+   ]
+  },
+  {
+   "id": "A05",
+   "n": 5,
+   "chapter": "A",
+   "chapter_title": "Prepare the parts",
+   "title": "Drill the lid clearance holes",
+   "lines": [
+    "Drill d1.4 through the four lid screw holes.",
+    "The screw head must sit in its counterbore."
+   ],
+   "image": "steps/A05.webp",
+   "parts": [
+    {
+     "id": "P2",
+     "qty": 1,
+     "name": "Lid",
+     "spec": "MJF PA12"
+    }
+   ],
+   "tools": [
+    {
+     "id": "pinvise",
+     "name": "Pin vise + drills"
+    }
+   ],
+   "check": null,
+   "wrong": null,
+   "warnings": [
+    "WATER ONLY. Never insulin or any drug. Bench only: never on a person or animal."
+   ]
+  },
+  {
+   "id": "A06",
+   "n": 6,
+   "chapter": "A",
+   "chapter_title": "Prepare the parts",
+   "title": "Measure the reservoir bore",
+   "lines": [
+    "Width 16.00 to 16.10 mm.",
+    "Below 16.00: hone lightly. Above 16.15: reprint."
+   ],
+   "image": "steps/A06.webp",
+   "parts": [
+    {
+     "id": "P6",
+     "qty": 1,
+     "name": "Reservoir",
+     "spec": "SLA clear, water only"
+    }
+   ],
+   "tools": [
+    {
+     "id": "calipers",
+     "name": "Digital calipers 0.01 mm"
+    }
+   ],
+   "check": "Reading 16.00 to 16.10 mm.",
+   "wrong": null,
+   "warnings": [
+    "WATER ONLY. Never insulin or any drug. Bench only: never on a person or animal."
+   ]
+  },
+  {
+   "id": "A07",
+   "n": 7,
+   "chapter": "A",
+   "chapter_title": "Prepare the parts",
+   "title": "Check the carriage nut pocket",
+   "lines": [
+    "The nut (AF 3.2) must fit the pocket without tilting.",
+    "New closed pocket: the nut enters through the top slot."
+   ],
+   "image": "steps/A07.webp",
+   "parts": [
+    {
+     "id": "P3",
+     "qty": 1,
+     "name": "Carriage",
+     "spec": "SLA tough resin"
+    },
+    {
+     "id": "B6",
+     "qty": 1,
+     "name": "Nut DIN 934 M1.6",
+     "spec": "brass"
+    }
+   ],
+   "tools": [
+    {
+     "id": "calipers",
+     "name": "Digital calipers 0.01 mm"
+    }
+   ],
+   "check": null,
+   "wrong": null,
+   "warnings": [
+    "WATER ONLY. Never insulin or any drug. Bench only: never on a person or animal."
+   ]
+  },
+  {
+   "id": "A08",
+   "n": 8,
+   "chapter": "A",
+   "chapter_title": "Prepare the parts",
+   "title": "Mark the rod length",
+   "lines": [
+    "Cut length 25.0 mm (+0 / -0.2).",
+    "Mark 25.5 mm from the end."
+   ],
+   "image": "steps/A08.webp",
+   "parts": [
+    {
+     "id": "B5",
+     "qty": 1,
+     "name": "Leadscrew M1.6 x 0.35",
+     "spec": "stainless, cut 25.0 mm"
+    }
+   ],
+   "tools": [
+    {
+     "id": "marker",
+     "name": "Fine marker"
+    },
+    {
+     "id": "calipers",
+     "name": "Digital calipers 0.01 mm"
+    },
+    {
+     "id": "jig",
+     "name": "Rod cutting jig (printed or drilled block)"
+    }
+   ],
+   "check": null,
+   "wrong": null,
+   "warnings": [
+    "WATER ONLY. Never insulin or any drug. Bench only: never on a person or animal."
+   ]
+  },
+  {
+   "id": "A09",
+   "n": 9,
+   "chapter": "A",
+   "chapter_title": "Prepare the parts",
+   "title": "Clamp the rod in the pin vise",
+   "lines": [
+    "3 mm free beyond the jaw.",
+    "Eye protection on."
+   ],
+   "image": "steps/A09.webp",
+   "parts": [
+    {
+     "id": "B5",
+     "qty": 1,
+     "name": "Leadscrew M1.6 x 0.35",
+     "spec": "stainless, cut 25.0 mm"
+    }
+   ],
+   "tools": [
+    {
+     "id": "pinvise",
+     "name": "Pin vise + drills"
+    },
+    {
+     "id": "jig",
+     "name": "Rod cutting jig (printed or drilled block)"
+    }
+   ],
+   "check": null,
+   "wrong": null,
+   "warnings": [
+    "Wear eye protection. Clamp the rod in the pin vise, never in your fingers.",
+    "WATER ONLY. Never insulin or any drug. Bench only: never on a person or animal."
+   ]
+  },
+  {
+   "id": "A10",
+   "n": 10,
+   "chapter": "A",
+   "chapter_title": "Prepare the parts",
+   "title": "Cut the rod with the cut-off wheel",
+   "lines": [
+    "Low speed, let the wheel cut.",
+    "Cut a second rod as a spare."
+   ],
+   "image": "steps/A10.webp",
+   "parts": [
+    {
+     "id": "B5",
+     "qty": 1,
+     "name": "Leadscrew M1.6 x 0.35",
+     "spec": "stainless, cut 25.0 mm"
+    }
+   ],
+   "tools": [
+    {
+     "id": "wheel",
+     "name": "Cut-off wheel (rotary tool)"
+    }
+   ],
+   "check": null,
+   "wrong": null,
+   "warnings": [
+    "Eye protection. Do not lever the wheel.",
+    "WATER ONLY. Never insulin or any drug. Bench only: never on a person or animal."
+   ]
+  },
+  {
+   "id": "A11",
+   "n": 11,
+   "chapter": "A",
+   "chapter_title": "Prepare the parts",
+   "title": "Dress and chamfer both rod ends",
+   "lines": [
+    "File square, chamfer 0.2 x 45 degrees.",
+    "Thread a nut over each end and back off."
+   ],
+   "image": "steps/A11.webp",
+   "parts": [
+    {
+     "id": "B5",
+     "qty": 1,
+     "name": "Leadscrew M1.6 x 0.35",
+     "spec": "stainless, cut 25.0 mm"
+    },
+    {
+     "id": "B6",
+     "qty": 1,
+     "name": "Nut DIN 934 M1.6",
+     "spec": "brass"
+    }
+   ],
+   "tools": [
+    {
+     "id": "file",
+     "name": "Fine file / stone"
+    },
+    {
+     "id": "loupe",
+     "name": "Loupe or USB microscope"
+    }
+   ],
+   "check": "Nut runs the whole rod by finger. Length 25.0.",
+   "wrong": null,
+   "warnings": [
+    "WATER ONLY. Never insulin or any drug. Bench only: never on a person or animal."
+   ]
+  },
+  {
+   "id": "A12",
+   "n": 12,
+   "chapter": "A",
+   "chapter_title": "Prepare the parts",
+   "title": "Roll the rod on glass",
+   "lines": [
+    "No visible wobble.",
+    "Bent rod: discard it, never straighten."
+   ],
+   "image": "steps/A12.webp",
+   "parts": [
+    {
+     "id": "B5",
+     "qty": 1,
+     "name": "Leadscrew M1.6 x 0.35",
+     "spec": "stainless, cut 25.0 mm"
+    }
+   ],
+   "tools": [
+    {
+     "id": "loupe",
+     "name": "Loupe or USB microscope"
+    }
+   ],
+   "check": null,
+   "wrong": null,
+   "warnings": [
+    "WATER ONLY. Never insulin or any drug. Bench only: never on a person or animal."
+   ]
+  },
+  {
+   "id": "A13",
+   "n": 13,
+   "chapter": "A",
+   "chapter_title": "Prepare the parts",
+   "title": "Skim gear A to 1.4 mm",
+   "lines": [
+    "Lathe: face off 3.6 mm in 0.2 mm passes.",
+    "Keep the bore d2.0 clean, deburr."
+   ],
+   "image": "steps/A13.webp",
+   "parts": [
+    {
+     "id": "B2",
+     "qty": 1,
+     "name": "Motor gear A, z16",
+     "spec": "GHW 390754, brass"
+    }
+   ],
+   "tools": [
+    {
+     "id": "lathe",
+     "name": "Small lathe (or a machinist)"
+    }
+   ],
+   "check": null,
+   "wrong": null,
+   "warnings": [
+    "WATER ONLY. Never insulin or any drug. Bench only: never on a person or animal."
+   ]
+  },
+  {
+   "id": "A14",
+   "n": 14,
+   "chapter": "A",
+   "chapter_title": "Prepare the parts",
+   "title": "Turn the hub off gear B",
+   "lines": [
+    "Part off at the hub face, keep the 1.4 mm web.",
+    "Deburr the bore."
+   ],
+   "image": "steps/A14.webp",
+   "parts": [
+    {
+     "id": "B3",
+     "qty": 1,
+     "name": "Screw gear B, z20",
+     "spec": "GHW 753020, brass"
+    }
+   ],
+   "tools": [
+    {
+     "id": "lathe",
+     "name": "Small lathe (or a machinist)"
+    }
+   ],
+   "check": "Both gears 1.40 +/- 0.05 mm wide.",
+   "wrong": null,
+   "warnings": [
+    "WATER ONLY. Never insulin or any drug. Bench only: never on a person or animal."
+   ]
+  },
+  {
+   "id": "A15",
+   "n": 15,
+   "chapter": "A",
+   "chapter_title": "Prepare the parts",
+   "title": "Check the thrust sleeve and collar",
+   "lines": [
+    "Sleeve d2.0 x d1.6, 2.05 mm long.",
+    "Collar fits the rod end."
+   ],
+   "image": "steps/A15.webp",
+   "parts": [
+    {
+     "id": "B4",
+     "qty": 1,
+     "name": "Thrust sleeve d2.0 x d1.6",
+     "spec": "brass tube, 2.05 mm"
+    },
+    {
+     "id": "B4c",
+     "qty": 1,
+     "name": "Front collar",
+     "spec": "brass"
+    }
+   ],
+   "tools": [
+    {
+     "id": "calipers",
+     "name": "Digital calipers 0.01 mm"
+    }
+   ],
+   "check": null,
+   "wrong": null,
+   "warnings": [
+    "WATER ONLY. Never insulin or any drug. Bench only: never on a person or animal."
+   ]
+  },
+  {
+   "id": "A16",
+   "n": 16,
+   "chapter": "A",
+   "chapter_title": "Prepare the parts",
+   "title": "Check the tongue shim",
+   "lines": [
+    "0.5 x 1.4 x about 4 mm, flat, deburred.",
+    "Do not bend it."
+   ],
+   "image": "steps/A16.webp",
+   "parts": [
+    {
+     "id": "B10",
+     "qty": 1,
+     "name": "Tongue shim 0.5 x 1.4 x 4",
+     "spec": "stainless"
+    }
+   ],
+   "tools": [
+    {
+     "id": "calipers",
+     "name": "Digital calipers 0.01 mm"
+    },
+    {
+     "id": "file",
+     "name": "Fine file / stone"
+    }
+   ],
+   "check": null,
+   "wrong": null,
+   "warnings": [
+    "WATER ONLY. Never insulin or any drug. Bench only: never on a person or animal."
+   ]
+  },
+  {
+   "id": "A17",
+   "n": 17,
+   "chapter": "A",
+   "chapter_title": "Prepare the parts",
+   "title": "Check the magnets with a compass",
+   "lines": [
+    "Spindle magnet: needle must follow the turning disc.",
+    "Mark the S rim with a dot. Keep away from phone."
+   ],
+   "image": "steps/A17.webp",
+   "parts": [
+    {
+     "id": "B8",
+     "qty": 1,
+     "name": "Spindle magnet d3 x 1.5",
+     "spec": "NdFeB, diametric"
+    },
+    {
+     "id": "B9",
+     "qty": 1,
+     "name": "Dock magnet d2 x 1",
+     "spec": "NdFeB, axial"
+    }
+   ],
+   "tools": [
+    {
+     "id": "compass",
+     "name": "Compass"
+    }
+   ],
+   "check": "Compass follows a full turn of the disc.",
+   "wrong": null,
+   "warnings": [
+    "Strong magnets. Keep away from implants, electronics, phone and watch.",
+    "WATER ONLY. Never insulin or any drug. Bench only: never on a person or animal."
+   ]
+  },
+  {
+   "id": "A18",
+   "n": 18,
+   "chapter": "A",
+   "chapter_title": "Prepare the parts",
+   "title": "Punch the fill septum",
+   "lines": [
+    "4 mm punch through 2 mm silicone.",
+    "Twist, do not rock."
+   ],
+   "image": "steps/A18.webp",
+   "parts": [
+    {
+     "id": "B14",
+     "qty": 1,
+     "name": "Fill septum plug d4 x 2",
+     "spec": "punched silicone"
+    },
+    {
+     "id": "B15",
+     "qty": 1,
+     "name": "Silicone sheet / seal material",
+     "spec": "Pt-cure, Shore A 40"
+    }
+   ],
+   "tools": [
+    {
+     "id": "punch",
+     "name": "Biopsy punch 4 mm / 2 mm"
+    }
+   ],
+   "check": "Plug d4.0 x 2.0 mm, flat faces.",
+   "wrong": null,
+   "warnings": [
+    "WATER ONLY. Never insulin or any drug. Bench only: never on a person or animal."
+   ]
+  },
+  {
+   "id": "A19",
+   "n": 19,
+   "chapter": "A",
+   "chapter_title": "Prepare the parts",
+   "title": "Test the duckbill valve",
+   "lines": [
+    "Water passes toward the bills.",
+    "Reverse: it must block."
+   ],
+   "image": "steps/A19.webp",
+   "parts": [
+    {
+     "id": "B13",
+     "qty": 1,
+     "name": "Duckbill valve OD 3.0",
+     "spec": "silicone"
+    },
+    {
+     "id": "C5",
+     "qty": 1,
+     "name": "Distilled water",
+     "spec": "labelled WATER ONLY"
+    }
+   ],
+   "tools": [
+    {
+     "id": "syringe",
+     "name": "Syringe 1 ml"
+    }
+   ],
+   "check": null,
+   "wrong": null,
+   "warnings": [
+    "WATER ONLY. Never insulin or any drug. Bench only: never on a person or animal."
+   ]
+  },
+  {
+   "id": "A20",
+   "n": 20,
+   "chapter": "A",
+   "chapter_title": "Prepare the parts",
+   "title": "Slice the bushes",
+   "lines": [
+    "Cut 1.0 mm pieces from the tube.",
+    "New razor blade, flat plate."
+   ],
+   "image": "steps/A20.webp",
+   "parts": [
+    {
+     "id": "B7",
+     "qty": 2,
+     "name": "Bush d3.0 x d1.7 x 1.0",
+     "spec": "PTFE"
+    }
+   ],
+   "tools": [
+    {
+     "id": "razor",
+     "name": "Razor blade + mat"
+    }
+   ],
+   "check": null,
+   "wrong": null,
+   "warnings": [
+    "WATER ONLY. Never insulin or any drug. Bench only: never on a person or animal."
+   ]
+  },
+  {
+   "id": "A21",
+   "n": 21,
+   "chapter": "A",
+   "chapter_title": "Prepare the parts",
+   "title": "Make the needle hub",
+   "lines": [
+    "Drill 0.3 mm through a 0.7 mm slice of 2 mm rod.",
+    "Turn the drill, do not push."
+   ],
+   "image": "steps/A21.webp",
+   "parts": [
+    {
+     "id": "B12",
+     "qty": 1,
+     "name": "Needle hub d2.0 x 0.7",
+     "spec": "PTFE"
+    }
+   ],
+   "tools": [
+    {
+     "id": "pinvise",
+     "name": "Pin vise + drills"
+    }
+   ],
+   "check": null,
+   "wrong": null,
+   "warnings": [
+    "WATER ONLY. Never insulin or any drug. Bench only: never on a person or animal."
+   ]
+  },
+  {
+   "id": "A22",
+   "n": 22,
+   "chapter": "A",
+   "chapter_title": "Prepare the parts",
+   "title": "Make the seal rings",
+   "lines": [
+    "Route B: cut two rings from 0.8 mm sheet.",
+    "Outer 16.3 x 5.3, inner 14.4 x 3.4 mm."
+   ],
+   "image": "steps/A22.webp",
+   "parts": [
+    {
+     "id": "M1",
+     "qty": 2,
+     "name": "Seal ring",
+     "spec": "cast or cut silicone"
+    },
+    {
+     "id": "B15",
+     "qty": 1,
+     "name": "Silicone sheet / seal material",
+     "spec": "Pt-cure, Shore A 40"
+    },
+    {
+     "id": "P11",
+     "qty": 1,
+     "name": "Seal mould (route A only)",
+     "spec": "SLA"
+    }
+   ],
+   "tools": [
+    {
+     "id": "razor",
+     "name": "Razor blade + mat"
+    },
+    {
+     "id": "punch",
+     "name": "Biopsy punch 4 mm / 2 mm"
+    }
+   ],
+   "check": null,
+   "wrong": null,
+   "warnings": [
+    "Route A (cast in the mould P11) is optional: see chapter 03.",
+    "WATER ONLY. Never insulin or any drug. Bench only: never on a person or animal."
+   ]
+  },
+  {
+   "id": "B01",
+   "n": 23,
+   "chapter": "B",
+   "chapter_title": "Build the sub-assemblies",
+   "title": "Seal ring into the front groove",
+   "lines": [
+    "Stretch it with tweezers, no twist."
+   ],
+   "image": "steps/B01.webp",
+   "parts": [
+    {
+     "id": "M1",
+     "qty": 1,
+     "name": "Seal ring",
+     "spec": "cast or cut silicone"
+    },
+    {
+     "id": "P4",
+     "qty": 1,
+     "name": "Plunger core",
+     "spec": "SLA"
+    }
+   ],
+   "tools": [
+    {
+     "id": "tweezers",
+     "name": "Non-magnetic tweezers"
+    }
+   ],
+   "check": "Ring lies flat, lip stands about 0.3 mm proud.",
+   "wrong": null,
+   "warnings": [
+    "WATER ONLY. Never insulin or any drug. Bench only: never on a person or animal."
+   ]
+  },
+  {
+   "id": "B02",
+   "n": 24,
+   "chapter": "B",
+   "chapter_title": "Build the sub-assemblies",
+   "title": "Seal ring into the rear groove",
+   "lines": [
+    "Same way. No gap, no fold."
+   ],
+   "image": "steps/B02.webp",
+   "parts": [
+    {
+     "id": "M1",
+     "qty": 1,
+     "name": "Seal ring",
+     "spec": "cast or cut silicone"
+    }
+   ],
+   "tools": [
+    {
+     "id": "tweezers",
+     "name": "Non-magnetic tweezers"
+    }
+   ],
+   "check": null,
+   "wrong": null,
+   "warnings": [
+    "WATER ONLY. Never insulin or any drug. Bench only: never on a person or animal."
+   ]
+  },
+  {
+   "id": "B03",
+   "n": 25,
+   "chapter": "B",
+   "chapter_title": "Build the sub-assemblies",
+   "title": "Glue the nose on the front face",
+   "lines": [
+    "One thin drop of cyanoacrylate.",
+    "Centre it, hold 10 seconds."
+   ],
+   "image": "steps/B03.webp",
+   "parts": [
+    {
+     "id": "P5",
+     "qty": 1,
+     "name": "Plunger nose",
+     "spec": "SLA, 0.7 mm"
+    },
+    {
+     "id": "C2",
+     "qty": 1,
+     "name": "Cyanoacrylate",
+     "spec": "thin and gel"
+    }
+   ],
+   "tools": [
+    {
+     "id": "tweezers",
+     "name": "Non-magnetic tweezers"
+    }
+   ],
+   "check": "Nose flat and centred, no glue in the grooves.",
+   "wrong": null,
+   "warnings": [
+    "WATER ONLY. Never insulin or any drug. Bench only: never on a person or animal."
+   ]
+  },
+  {
+   "id": "B04",
+   "n": 26,
+   "chapter": "B",
+   "chapter_title": "Build the sub-assemblies",
+   "title": "Oil the seal lips",
+   "lines": [
+    "A few drops of silicone oil.",
+    "A dry silicone seal sticks."
+   ],
+   "image": "steps/B04.webp",
+   "parts": [
+    {
+     "id": "C3",
+     "qty": 1,
+     "name": "Silicone oil 350 cSt",
+     "spec": "few drops"
+    }
+   ],
+   "tools": [
+    {
+     "id": "tweezers",
+     "name": "Non-magnetic tweezers"
+    }
+   ],
+   "check": null,
+   "wrong": null,
+   "warnings": [
+    "WATER ONLY. Never insulin or any drug. Bench only: never on a person or animal."
+   ]
+  },
+  {
+   "id": "B05",
+   "n": 27,
+   "chapter": "B",
+   "chapter_title": "Build the sub-assemblies",
+   "title": "Fit the nut through the top slot",
+   "lines": [
+    "Flats aligned to the pocket.",
+    "It must seat on the pocket floor."
+   ],
+   "image": "steps/B05.webp",
+   "parts": [
+    {
+     "id": "B6",
+     "qty": 1,
+     "name": "Nut DIN 934 M1.6",
+     "spec": "brass"
+    }
+   ],
+   "tools": [
+    {
+     "id": "tweezers",
+     "name": "Non-magnetic tweezers"
+    }
+   ],
+   "check": "Nut captive in both directions.",
+   "wrong": "Nut tilted or proud of the pocket.",
+   "warnings": [
+    "WATER ONLY. Never insulin or any drug. Bench only: never on a person or animal."
+   ]
+  },
+  {
+   "id": "B06",
+   "n": 28,
+   "chapter": "B",
+   "chapter_title": "Build the sub-assemblies",
+   "title": "Align the nut with a spare rod piece",
+   "lines": [
+    "Rod through bore and nut.",
+    "One tiny CA drop on two nut flats, not on the thread."
+   ],
+   "image": "steps/B06.webp",
+   "parts": [
+    {
+     "id": "B5",
+     "qty": 1,
+     "name": "Leadscrew M1.6 x 0.35",
+     "spec": "stainless, cut 25.0 mm"
+    },
+    {
+     "id": "C2",
+     "qty": 1,
+     "name": "Cyanoacrylate",
+     "spec": "thin and gel"
+    }
+   ],
+   "tools": [
+    {
+     "id": "tweezers",
+     "name": "Non-magnetic tweezers"
+    }
+   ],
+   "check": null,
+   "wrong": null,
+   "warnings": [
+    "WATER ONLY. Never insulin or any drug. Bench only: never on a person or animal."
+   ]
+  },
+  {
+   "id": "B07",
+   "n": 29,
+   "chapter": "B",
+   "chapter_title": "Build the sub-assemblies",
+   "title": "Unscrew the rod piece",
+   "lines": [
+    "It must turn free.",
+    "Stuck: bin rod and nut, start again."
+   ],
+   "image": "steps/B07.webp",
+   "parts": [
+    {
+     "id": "B5",
+     "qty": 1,
+     "name": "Leadscrew M1.6 x 0.35",
+     "spec": "stainless, cut 25.0 mm"
+    }
+   ],
+   "tools": [
+    {
+     "id": "tweezers",
+     "name": "Non-magnetic tweezers"
+    }
+   ],
+   "check": null,
+   "wrong": null,
+   "warnings": [
+    "WATER ONLY. Never insulin or any drug. Bench only: never on a person or animal."
+   ]
+  },
+  {
+   "id": "B08",
+   "n": 30,
+   "chapter": "B",
+   "chapter_title": "Build the sub-assemblies",
+   "title": "Press the shim into the carriage pocket",
+   "lines": [
+    "One drop of CA in the pocket.",
+    "About 2.5 mm stays free."
+   ],
+   "image": "steps/B08.webp",
+   "parts": [
+    {
+     "id": "B10",
+     "qty": 1,
+     "name": "Tongue shim 0.5 x 1.4 x 4",
+     "spec": "stainless"
+    },
+    {
+     "id": "C2",
+     "qty": 1,
+     "name": "Cyanoacrylate",
+     "spec": "thin and gel"
+    }
+   ],
+   "tools": [
+    {
+     "id": "tweezers",
+     "name": "Non-magnetic tweezers"
+    }
+   ],
+   "check": "Shim parallel to the carriage axis, centred.",
+   "wrong": "Shim skewed or bent.",
+   "warnings": [
+    "WATER ONLY. Never insulin or any drug. Bench only: never on a person or animal."
+   ]
+  },
+  {
+   "id": "B09",
+   "n": 31,
+   "chapter": "B",
+   "chapter_title": "Build the sub-assemblies",
+   "title": "Press the fill septum into the end cap",
+   "lines": [
+    "Side bore d4.2, from the -Y side.",
+    "Flush, stays when shaken."
+   ],
+   "image": "steps/B09.webp",
+   "parts": [
+    {
+     "id": "B14",
+     "qty": 1,
+     "name": "Fill septum plug d4 x 2",
+     "spec": "punched silicone"
+    }
+   ],
+   "tools": [
+    {
+     "id": "tweezers",
+     "name": "Non-magnetic tweezers"
+    }
+   ],
+   "check": "Plug flush with the cap wall.",
+   "wrong": null,
+   "warnings": [
+    "WATER ONLY. Never insulin or any drug. Bench only: never on a person or animal."
+   ]
+  },
+  {
+   "id": "B10",
+   "n": 32,
+   "chapter": "B",
+   "chapter_title": "Build the sub-assemblies",
+   "title": "Drop the duckbill valve into the slot",
+   "lines": [
+    "Bills point toward the needle (+X).",
+    "Push to the stop with tweezers."
+   ],
+   "image": "steps/B10.webp",
+   "parts": [
+    {
+     "id": "B13",
+     "qty": 1,
+     "name": "Duckbill valve OD 3.0",
+     "spec": "silicone"
+    }
+   ],
+   "tools": [
+    {
+     "id": "tweezers",
+     "name": "Non-magnetic tweezers"
+    }
+   ],
+   "check": "Valve fully seated, bills toward +X.",
+   "wrong": "Valve backwards or twisted.",
+   "warnings": [
+    "WATER ONLY. Never insulin or any drug. Bench only: never on a person or animal."
+   ]
+  },
+  {
+   "id": "B11",
+   "n": 33,
+   "chapter": "B",
+   "chapter_title": "Build the sub-assemblies",
+   "title": "Press the valve plug into the slot",
+   "lines": [
+    "Flush with the cap top.",
+    "It closes the slot to the pod."
+   ],
+   "image": "steps/B11.webp",
+   "parts": [
+    {
+     "id": "M3",
+     "qty": 1,
+     "name": "Valve plug",
+     "spec": "SLA"
+    }
+   ],
+   "tools": [
+    {
+     "id": "tweezers",
+     "name": "Non-magnetic tweezers"
+    }
+   ],
+   "check": null,
+   "wrong": null,
+   "warnings": [
+    "WATER ONLY. Never insulin or any drug. Bench only: never on a person or animal."
+   ]
+  },
+  {
+   "id": "B12",
+   "n": 34,
+   "chapter": "B",
+   "chapter_title": "Build the sub-assemblies",
+   "title": "Press the end cap onto the reservoir port",
+   "lines": [
+    "Spigot d1.98 into port d2.0, by hand.",
+    "No glue. Cap block touches the end face."
+   ],
+   "image": "steps/B12.webp",
+   "parts": [
+    {
+     "id": "P7",
+     "qty": 1,
+     "name": "End cap",
+     "spec": "SLA tough resin"
+    },
+    {
+     "id": "P6",
+     "qty": 1,
+     "name": "Reservoir",
+     "spec": "SLA clear, water only"
+    }
+   ],
+   "tools": [
+    {
+     "id": "tweezers",
+     "name": "Non-magnetic tweezers"
+    }
+   ],
+   "check": "Cap flush with the reservoir end, no wobble.",
+   "wrong": "Gap between cap and reservoir.",
+   "warnings": [
+    "WATER ONLY. Never insulin or any drug. Bench only: never on a person or animal."
+   ]
+  },
+  {
+   "id": "B13",
+   "n": 35,
+   "chapter": "B",
+   "chapter_title": "Build the sub-assemblies",
+   "title": "Push the plunger into the reservoir",
+   "lines": [
+    "Nose first, socket toward the +Y arm slot.",
+    "Stop 0.3 mm short of the closed end."
+   ],
+   "image": "steps/B13.webp",
+   "parts": [
+    {
+     "id": "P4",
+     "qty": 1,
+     "name": "Plunger core",
+     "spec": "SLA"
+    },
+    {
+     "id": "P6",
+     "qty": 1,
+     "name": "Reservoir",
+     "spec": "SLA clear, water only"
+    }
+   ],
+   "tools": [
+    {
+     "id": "tweezers",
+     "name": "Non-magnetic tweezers"
+    }
+   ],
+   "check": "Socket visible through the arm slot.",
+   "wrong": null,
+   "warnings": [
+    "WATER ONLY. Never insulin or any drug. Bench only: never on a person or animal."
+   ]
+  },
+  {
+   "id": "C01",
+   "n": 36,
+   "chapter": "C",
+   "chapter_title": "Shell, drive and needle",
+   "title": "Press the dry bush into the shell",
+   "lines": [
+    "Flush, by finger."
+   ],
+   "image": "steps/C01.webp",
+   "parts": [
+    {
+     "id": "B7",
+     "qty": 1,
+     "name": "Bush d3.0 x d1.7 x 1.0",
+     "spec": "PTFE"
+    }
+   ],
+   "tools": [
+    {
+     "id": "tweezers",
+     "name": "Non-magnetic tweezers"
+    }
+   ],
+   "check": null,
+   "wrong": null,
+   "warnings": [
+    "WATER ONLY. Never insulin or any drug. Bench only: never on a person or animal."
+   ]
+  },
+  {
+   "id": "C02",
+   "n": 37,
+   "chapter": "C",
+   "chapter_title": "Shell, drive and needle",
+   "title": "Press the far bush into the shell",
+   "lines": [
+    "Flush, by finger."
+   ],
+   "image": "steps/C02.webp",
+   "parts": [
+    {
+     "id": "B7",
+     "qty": 1,
+     "name": "Bush d3.0 x d1.7 x 1.0",
+     "spec": "PTFE"
+    }
+   ],
+   "tools": [
+    {
+     "id": "tweezers",
+     "name": "Non-magnetic tweezers"
+    }
+   ],
+   "check": null,
+   "wrong": null,
+   "warnings": [
+    "WATER ONLY. Never insulin or any drug. Bench only: never on a person or animal."
+   ]
+  },
+  {
+   "id": "C03",
+   "n": 38,
+   "chapter": "C",
+   "chapter_title": "Shell, drive and needle",
+   "title": "Lower the reservoir into the shell",
+   "lines": [
+    "Open end toward the dry wall.",
+    "Seat flat on the floor trough."
+   ],
+   "image": "steps/C03.webp",
+   "parts": [
+    {
+     "id": "P6",
+     "qty": 1,
+     "name": "Reservoir",
+     "spec": "SLA clear, water only"
+    }
+   ],
+   "tools": [],
+   "check": "Reservoir flat, fill septum visible in the -Y wall hole.",
+   "wrong": "Reservoir rocking on the floor.",
+   "warnings": [
+    "WATER ONLY. Never insulin or any drug. Bench only: never on a person or animal."
+   ]
+  },
+  {
+   "id": "C04",
+   "n": 39,
+   "chapter": "C",
+   "chapter_title": "Shell, drive and needle",
+   "title": "Slide the sleeve into gear B",
+   "lines": [
+    "Sleeve ends flush on the carriage side.",
+    "One drop of compound between sleeve and gear."
+   ],
+   "image": "steps/C04.webp",
+   "parts": [
+    {
+     "id": "B4",
+     "qty": 1,
+     "name": "Thrust sleeve d2.0 x d1.6",
+     "spec": "brass tube, 2.05 mm"
+    },
+    {
+     "id": "B3",
+     "qty": 1,
+     "name": "Screw gear B, z20",
+     "spec": "GHW 753020, brass"
+    },
+    {
+     "id": "C1",
+     "qty": 1,
+     "name": "Retaining compound",
+     "spec": "Loctite 638 class"
+    }
+   ],
+   "tools": [
+    {
+     "id": "tweezers",
+     "name": "Non-magnetic tweezers"
+    }
+   ],
+   "check": null,
+   "wrong": null,
+   "warnings": [
+    "WATER ONLY. Never insulin or any drug. Bench only: never on a person or animal."
+   ]
+  },
+  {
+   "id": "C05",
+   "n": 40,
+   "chapter": "C",
+   "chapter_title": "Shell, drive and needle",
+   "title": "Lay the carriage on the floor rail",
+   "lines": [
+    "Forward end. Shim into the plunger socket."
+   ],
+   "image": "steps/C05.webp",
+   "parts": [
+    {
+     "id": "P3",
+     "qty": 1,
+     "name": "Carriage",
+     "spec": "SLA tough resin"
+    }
+   ],
+   "tools": [
+    {
+     "id": "tweezers",
+     "name": "Non-magnetic tweezers"
+    }
+   ],
+   "check": "Shim enters the plunger socket, carriage on the rail.",
+   "wrong": null,
+   "warnings": [
+    "WATER ONLY. Never insulin or any drug. Bench only: never on a person or animal."
+   ]
+  },
+  {
+   "id": "C06",
+   "n": 41,
+   "chapter": "C",
+   "chapter_title": "Shell, drive and needle",
+   "title": "Lay gear B with its sleeve in the gear plane",
+   "lines": [
+    "Over the screw lane, between bush and carriage."
+   ],
+   "image": "steps/C06.webp",
+   "parts": [
+    {
+     "id": "B3",
+     "qty": 1,
+     "name": "Screw gear B, z20",
+     "spec": "GHW 753020, brass"
+    }
+   ],
+   "tools": [
+    {
+     "id": "tweezers",
+     "name": "Non-magnetic tweezers"
+    }
+   ],
+   "check": null,
+   "wrong": null,
+   "warnings": [
+    "WATER ONLY. Never insulin or any drug. Bench only: never on a person or animal."
+   ]
+  },
+  {
+   "id": "C07",
+   "n": 42,
+   "chapter": "C",
+   "chapter_title": "Shell, drive and needle",
+   "title": "Insert the rod from the dock end",
+   "lines": [
+    "Through the far bush, the nut, the sleeve, into the dry bush.",
+    "Turn it with the pin vise as it enters the nut."
+   ],
+   "image": "steps/C07.webp",
+   "parts": [
+    {
+     "id": "B5",
+     "qty": 1,
+     "name": "Leadscrew M1.6 x 0.35",
+     "spec": "stainless, cut 25.0 mm"
+    }
+   ],
+   "tools": [
+    {
+     "id": "pinvise",
+     "name": "Pin vise + drills"
+    }
+   ],
+   "check": "Rod end flush with the outer face of the dry bush.",
+   "wrong": null,
+   "warnings": [
+    "WATER ONLY. Never insulin or any drug. Bench only: never on a person or animal."
+   ]
+  },
+  {
+   "id": "C08",
+   "n": 43,
+   "chapter": "C",
+   "chapter_title": "Shell, drive and needle",
+   "title": "Turn the rod: carriage runs to the rear stop",
+   "lines": [
+    "Smooth, the plunger follows both ways.",
+    "Two fingertips on the pin vise."
+   ],
+   "image": "steps/C08.webp",
+   "parts": [],
+   "tools": [
+    {
+     "id": "pinvise",
+     "name": "Pin vise + drills"
+    }
+   ],
+   "check": "Carriage bears on both rear blocks.",
+   "wrong": null,
+   "warnings": [
+    "WATER ONLY. Never insulin or any drug. Bench only: never on a person or animal."
+   ]
+  },
+  {
+   "id": "C09",
+   "n": 44,
+   "chapter": "C",
+   "chapter_title": "Shell, drive and needle",
+   "title": "Press the collar onto the rod end",
+   "lines": [
+    "Against the far bush face.",
+    "End float 0.1 mm or less."
+   ],
+   "image": "steps/C09.webp",
+   "parts": [
+    {
+     "id": "B4c",
+     "qty": 1,
+     "name": "Front collar",
+     "spec": "brass"
+    },
+    {
+     "id": "C1",
+     "qty": 1,
+     "name": "Retaining compound",
+     "spec": "Loctite 638 class"
+    }
+   ],
+   "tools": [
+    {
+     "id": "tweezers",
+     "name": "Non-magnetic tweezers"
+    },
+    {
+     "id": "feeler",
+     "name": "Feeler gauges"
+    }
+   ],
+   "check": null,
+   "wrong": null,
+   "warnings": [
+    "WATER ONLY. Never insulin or any drug. Bench only: never on a person or animal."
+   ]
+  },
+  {
+   "id": "C10",
+   "n": 45,
+   "chapter": "C",
+   "chapter_title": "Shell, drive and needle",
+   "title": "Glue the spindle magnet on the rod end",
+   "lines": [
+    "Tiny drop of gel CA, non-magnetic tweezers.",
+    "Hold 30 seconds."
+   ],
+   "image": "steps/C10.webp",
+   "parts": [
+    {
+     "id": "B8",
+     "qty": 1,
+     "name": "Spindle magnet d3 x 1.5",
+     "spec": "NdFeB, diametric"
+    },
+    {
+     "id": "C2",
+     "qty": 1,
+     "name": "Cyanoacrylate",
+     "spec": "thin and gel"
+    }
+   ],
+   "tools": [
+    {
+     "id": "tweezers",
+     "name": "Non-magnetic tweezers"
+    }
+   ],
+   "check": "Magnet flat and centred on the bush outline.",
+   "wrong": "Magnet tilted.",
+   "warnings": [
+    "WATER ONLY. Never insulin or any drug. Bench only: never on a person or animal."
+   ]
+  },
+  {
+   "id": "C11",
+   "n": 46,
+   "chapter": "C",
+   "chapter_title": "Shell, drive and needle",
+   "title": "Lay the motor into its three cradles",
+   "lines": [
+    "Shaft toward the dry wall. Never pull the lead."
+   ],
+   "image": "steps/C11.webp",
+   "parts": [
+    {
+     "id": "B1",
+     "qty": 1,
+     "name": "Geared stepper NFP-608-26.45-SGM",
+     "spec": "6 mm, with lead"
+    }
+   ],
+   "tools": [
+    {
+     "id": "tweezers",
+     "name": "Non-magnetic tweezers"
+    }
+   ],
+   "check": null,
+   "wrong": null,
+   "warnings": [
+    "WATER ONLY. Never insulin or any drug. Bench only: never on a person or animal."
+   ]
+  },
+  {
+   "id": "C12",
+   "n": 47,
+   "chapter": "C",
+   "chapter_title": "Shell, drive and needle",
+   "title": "Slide gear A onto the D-shaft, dry",
+   "lines": [
+    "No compound yet."
+   ],
+   "image": "steps/C12.webp",
+   "parts": [
+    {
+     "id": "B2",
+     "qty": 1,
+     "name": "Motor gear A, z16",
+     "spec": "GHW 390754, brass"
+    }
+   ],
+   "tools": [
+    {
+     "id": "tweezers",
+     "name": "Non-magnetic tweezers"
+    }
+   ],
+   "check": "Gears A and B in the same plane.",
+   "wrong": null,
+   "warnings": [
+    "WATER ONLY. Never insulin or any drug. Bench only: never on a person or animal."
+   ]
+  },
+  {
+   "id": "C13",
+   "n": 48,
+   "chapter": "C",
+   "chapter_title": "Shell, drive and needle",
+   "title": "Check the mesh by hand",
+   "lines": [
+    "Turn gear A one full turn.",
+    "Small rattle at every angle, no binding."
+   ],
+   "image": "steps/C13.webp",
+   "parts": [],
+   "tools": [
+    {
+     "id": "feeler",
+     "name": "Feeler gauges"
+    }
+   ],
+   "check": "Backlash about 0.1 mm, centre distance 5.51 mm.",
+   "wrong": null,
+   "warnings": [
+    "WATER ONLY. Never insulin or any drug. Bench only: never on a person or animal."
+   ]
   }
  ]
 }
