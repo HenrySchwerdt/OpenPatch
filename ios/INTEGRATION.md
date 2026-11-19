@@ -199,13 +199,38 @@ xcodebuild test -workspace Trio.xcworkspace -scheme OpenPatchKit \
 Then in Trio: *Settings → Pump → OpenPatch*. Setup flow: pod size → pair → fill (syringe, confirm amount) →
 prime → attach to the cannula head → start. For later pod changes: Settings → "Remove pod from body" → "Refill and reuse pod".
 
+### 7a. Application layer security: what the app has to wire up
+
+`V1Transport(link:initialPhase:..., pairingSecret:)` already does the rest. The pieces that live in the Kit/UI layer:
+
+1. **Pairing (once per pod):** the user presses the button on the pod (opens the 60 s window), the app connects and the BLE bond is made
+   (CoreBluetooth shows the system dialog), then the app calls `transport.pair { result in ... }`. On success store the returned 32 bytes
+   in the **Keychain** (`kSecClassGenericPassword`, `kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly`, one item per pod pair id / role), never in
+   `rawState` / UserDefaults. On failure: `.sessionFailed` = window closed or altered exchange, ask the user to press the button again.
+2. **Normal operation:** build the transport with `pairingSecret:` read from the Keychain (`OpenPatchPumpManager.makeV1Transport`). The first
+   `send` of every connection runs the session handshake automatically (two extra round trips); the sequence counter restarts at 1.
+3. **Errors:** `TransportError.notPaired` = the pod has no / another pairing secret (pod replaced, re-paired by someone else): show "pair again".
+   `.sessionFailed` = wrong secret or an attacker in the middle: do not retry blindly, tell the user.
+4. **Two-pod system:** every pod has its own pairing secret (pair A and pair B separately, store both).
+5. **Optional out-of-band code:** `pair(oob:)` mixes a code both sides know into the exchange (makes the first pairing resistant to a
+   man in the middle). The bench pod has no OOB source yet, so pass nothing.
+6. `OpenPatchPumpManagerTests` / the simulator use `SimulatedTransport` and are unaffected.
+
+On Linux (CI container) `swift test` in `OpenPatchCore` works without Xcode: Package.swift pulls in swift-crypto on non-Apple platforms (CryptoKit on iOS/macOS).
+The LoopKit based Kit tests (`xcodebuild test`) need macOS/Xcode and cannot run on Linux. The Xcode project was regenerated (new source files; the
+UUIDs changed because a newer `xcodeproj` gem was used).
+
 ### 8. Known gaps (honestly)
 
 * **Never run against hardware.** `CoreBluetoothLink` compiles, but has only been tested against the protocol document and a fake firmware stub.
-* **Security layer missing:** The spec provides for AES-CCM and replay protection (section 5); the key agreement is still open there.
-  The driver sends plaintext frames (firmware with `allow_plaintext` required). The command `seq` is persisted in `rawState` (`commandSequence`) and, after a
-  restart, resumed with a safety margin of 16 steps (the host saves asynchronously, the pod tolerates gaps). The spec provides no
-  "last accepted seq" in the status, so there is no resynchronization from the pod; after a pod reboot with a reset counter, the pod would silently discard frames.
+* **Security layer: implemented in `OpenPatchCore`, NOT yet wired into the PumpManager / setup UI.** Protocol v1.1 section 5.2
+  (`docs/04-protocol.md`) defines an application layer key agreement; `V1Transport` implements the phone side
+  (`SessionHandshake`, `SecureChannel`, `SessionCrypto`) and is byte-identical with the Rust pod (shared vectors
+  `docs/vectors/session-key-agreement.json`, 24 tests in `swift test`). What the app still has to do (see the next section): create the
+  pairing secret during pod setup, keep it in the Keychain, hand it to `V1Transport`, and show the pairing / "pair again" UI.
+  Until then the driver sends plaintext frames, which only a `dev-plaintext` pod accepts. Replay protection: the command `seq` is
+  per session (restarts at 1 with every handshake); `commandSequence` in `rawState` only matters for plaintext (dev) pods.
+
 * **No push of alerts:** v1 has no alert characteristic. Alerts and bolus end arrive via `GetHistory` polling after each status read.
   The history cursor is persisted in `rawState` (`historyCursor`); events below the cursor are never delivered again (deduplication via the
   event ID), missed ones arrive exactly once after the restart. Delivery is at-least-once: if the app crashes between delivery and saving, an alert may arrive twice.
