@@ -1,0 +1,21 @@
+# security/supply-chain/repro-build.sh, 2026-11-19, rustc 1.97.0, features board-bench-e73,drive-nfp-608-26-45-g15-12,angle-tmag
+# (no signing key compiled in: fail-closed build; the hash depends on the absolute build path, see below)
+
+## final script, default mode: same source path for both builds, two fresh target dirs
+REPRODUCIBLE  app.elf  6a030b1db0ffc0eb69c02c23c60ac20a2d690d5deeb65db30e934afa70f4ab20
+REPRODUCIBLE  app.bin  a3c98becba33b65ba4c35a5328e5a743a9846fd70422143a52fd97a85e780cc6
+REPRODUCIBLE  boot.elf 699c70967b2308e1d0e8e9f753238ebae58e6ce04432dc960b5ef2f90f0b54f2
+REPRODUCIBLE  boot.bin 1652152f5468707d38453dfbedee31a1cd01488b35c0ba39009e5927805bae8b
+
+## first attempt, two DIFFERENT source paths (equivalent to DIFFERENT_PATHS=1)
+DIFFERENT     app.elf  run1=b39c8aae... run2=858640d3...
+DIFFERENT     app.bin  run1=3a0d9452... (294768 bytes)  run2=b45ba3d9... (294784 bytes)
+REPRODUCIBLE  boot.elf 699c70967b2308e1d0e8e9f753238ebae58e6ce04432dc960b5ef2f90f0b54f2
+REPRODUCIBLE  boot.bin 1652152f5468707d38453dfbedee31a1cd01488b35c0ba39009e5927805bae8b
+
+## cause isolation
+Two further builds from the SAME source path with CARGO_TARGET_DIR names tA / tB: app.bin identical to run1 (3a0d9452...).
+Differences between paths are in anonymous symbol numbering (.Lanon.<hash>.N): cargo hashes the absolute path of path
+dependencies outside the workspace root (../openpatch-core, ../openpatch-proto) into -C metadata; --remap-path-prefix does not cover it.
+Remedy: release builds in a fixed directory (container /build/firmware-rs). The app.bin hash above therefore only reproduces
+from the same absolute path (/tmp/.../repro3/src/firmware-rs in this sandbox).

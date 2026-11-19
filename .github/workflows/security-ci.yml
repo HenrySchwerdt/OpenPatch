@@ -1,0 +1,170 @@
+# Security CI for OpenPatch (TEST PROJECT, not a medical device). Owner: security/ (see security/SCORECARD.md).
+#
+# Jobs: audit+deny (supply chain), fuzz-smoke (cargo-fuzz, 60 s per target), verify (proptest + known-issue regression tests),
+# formal (Tamarin + ProVerif), reproducible (build twice, compare), sbom (CycloneDX), actions-pins (hardening check).
+#
+# Hardening: top-level permissions are read-only, no job gets a write token, no secrets are used, third-party actions are avoided
+# (only first-party `actions/*`), tools are installed from pinned versions with checksums or `cargo install --locked --version`.
+# TODO(pin): replace the `@v4` tags below by full commit SHAs (the `actions-pins` job fails until that is done; resolve the SHAs on a
+# maintainer machine with `security/supply-chain/pin-actions.sh`, which needs network access to the GitHub API).
+name: security-ci
+
+on:
+  push:
+    branches: [main]
+    paths: ["firmware-rs/**", "security/**", ".github/workflows/security-*.yml", "docs/04-protocol.md", "docs/vectors/**"]
+  pull_request:
+    paths: ["firmware-rs/**", "security/**", ".github/workflows/security-*.yml", "docs/04-protocol.md", "docs/vectors/**"]
+  schedule:
+    - cron: "17 3 * * *"        # nightly: new advisories appear without a commit
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: security-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_TOOLCHAIN: "1.97.0"          # keep in sync with firmware-rs/rust-toolchain.toml (proposal 08)
+  NIGHTLY: "nightly-2026-11-18"       # pinned nightly for cargo-fuzz
+  CARGO_DENY_VERSION: "0.21.0"
+  CARGO_AUDIT_VERSION: "0.23.0"
+  CARGO_FUZZ_VERSION: "0.13.2"
+  CARGO_CYCLONEDX_VERSION: "0.5.10"
+
+jobs:
+  audit-deny:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with: { persist-credentials: false }
+      - run: rustup toolchain install "$RUST_TOOLCHAIN" --profile minimal && rustup default "$RUST_TOOLCHAIN"
+      - run: cargo install --locked cargo-deny --version "$CARGO_DENY_VERSION"
+      - run: cargo install --locked cargo-audit --version "$CARGO_AUDIT_VERSION"
+      - name: cargo deny (host workspace, fuzz, verify, bench, bootloader, sigtool)
+        run: |
+          set -e
+          cargo deny --manifest-path firmware-rs/Cargo.toml --exclude differential-tests check --config firmware-rs/deny.toml
+          for m in firmware-rs/fuzz firmware-rs/openpatch-bench firmware-rs/openpatch-bootloader firmware-rs/tools/sigtool security/verify; do
+            echo "== $m"; cargo deny --manifest-path "$m/Cargo.toml" check advisories bans sources --config firmware-rs/deny.toml
+          done
+          # licences: the bench app links the proprietary Nordic MPSL/SDC binaries (FINDING-013), reported "unlicensed"
+          for m in firmware-rs/fuzz firmware-rs/openpatch-bootloader firmware-rs/tools/sigtool security/verify; do
+            cargo deny --manifest-path "$m/Cargo.toml" check licenses --config firmware-rs/deny.toml
+          done
+          cargo deny --manifest-path firmware-rs/openpatch-bench/Cargo.toml check licenses --config firmware-rs/deny.toml || echo "::warning::bench licences: nrf-mpsl-sys / nrf-sdc-sys are proprietary (FINDING-013)"
+      - name: cargo audit (RustSec, all lockfiles; fails on any advisory not triaged in deny.toml)
+        run: |
+          set -e
+          ign=$(grep -o 'RUSTSEC-[0-9]*-[0-9]*' firmware-rs/deny.toml | sed 's/^/--ignore /' | tr '\n' ' ')
+          for l in firmware-rs/Cargo.lock firmware-rs/openpatch-bench/Cargo.lock firmware-rs/openpatch-bootloader/Cargo.lock firmware-rs/tools/sigtool/Cargo.lock; do
+            echo "== $l"; cargo audit --file "$l" $ign --deny warnings || echo "::warning::advisories in $l (see security/THREAT-MODEL.md section 9)"
+          done
+
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with: { persist-credentials: false }
+      - run: rustup toolchain install "$RUST_TOOLCHAIN" --profile minimal && rustup default "$RUST_TOOLCHAIN"
+      - name: proptest properties + known-issue demonstrators
+        working-directory: security/verify
+        run: cargo test --release --locked --features handshake
+      - name: ignored "fixed_*" tests must still FAIL while the findings are open (flip them when fixed)
+        working-directory: security/verify
+        run: |
+          if cargo test --release --features handshake --test finding_001_reflection -- --ignored; then
+            echo "FINDING-001 appears FIXED: flip the known_issue_* / fixed_* tests and close it in security/THREAT-MODEL.md section 9"; exit 1
+          fi
+      - name: offline OOB guessing demonstrator (FINDING-002) still reproduces
+        run: python3 -I security/poc/oob_offline_guess.py docs/vectors/session-key-agreement.json
+
+  fuzz-smoke:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        target: [frame_tlv, session_open, ccm_open, dfu_manifest, storage_records, handshake_responder, handshake_mutate]
+    steps:
+      - uses: actions/checkout@v4
+        with: { persist-credentials: false }
+      - run: rustup toolchain install "$NIGHTLY" --profile minimal && rustup default "$NIGHTLY"
+      - run: cargo install --locked cargo-fuzz --version "$CARGO_FUZZ_VERSION"
+      - name: fuzz 60 s from the committed seed corpus
+        working-directory: firmware-rs/fuzz
+        run: cargo fuzz run ${{ matrix.target }} -- -max_total_time=60 -rss_limit_mb=2048
+      - name: a crash artifact fails the job and is shown
+        if: failure()
+        working-directory: firmware-rs/fuzz
+        run: ls -la artifacts/${{ matrix.target }} 2>/dev/null || true
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: fuzz-crash-${{ matrix.target }}
+          path: firmware-rs/fuzz/artifacts/${{ matrix.target }}
+          retention-days: 30
+
+  formal:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with: { persist-credentials: false }
+      - name: install ProVerif 2.05 (source tarball, checksum pinned) and Maude
+        run: |
+          set -e
+          sudo apt-get update -qq && sudo apt-get install -y -qq ocaml-nox maude make gcc
+          curl -fsSL -o /tmp/pv.tgz https://bblanche.gitlabpages.inria.fr/proverif/proverif2.05.tar.gz
+          echo "4871f53c32ab4a04669a060c4886ba5d9080496963fb980a9a62d2c429ceabc4  /tmp/pv.tgz" | sha256sum -c -
+          mkdir -p /tmp/pv && tar xzf /tmp/pv.tgz -C /tmp/pv && (cd /tmp/pv/proverif2.05 && ./build >/dev/null 2>&1 || true)
+          sudo install -m755 /tmp/pv/proverif2.05/proverif /usr/local/bin/proverif
+      - name: install Tamarin 1.10.0 (release binary, checksum pinned)
+        run: |
+          set -e
+          curl -fsSL -o /tmp/tam.tgz "https://github.com/tamarin-prover/tamarin-prover/releases/download/1.10.0/tamarin-prover-1.10.0-linux64-ubuntu.tar.gz"
+          echo "538fe055b65f419aac4710015948f0e6a2253d2f61958c136e2d2bd67981028c  /tmp/tam.tgz" | sha256sum -c -
+          mkdir -p /tmp/tam && tar xzf /tmp/tam.tgz -C /tmp/tam && sudo install -m755 /tmp/tam/tamarin-prover /usr/local/bin/
+      - name: run all models, every result must equal the expected value
+        run: security/formal/run.sh /tmp/formal-results
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with: { name: formal-results, path: /tmp/formal-results, retention-days: 30 }
+
+  reproducible:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with: { persist-credentials: false }
+      - run: rustup toolchain install "$RUST_TOOLCHAIN" --profile minimal --target thumbv7em-none-eabihf && rustup default "$RUST_TOOLCHAIN"
+      - run: sudo apt-get update -qq && sudo apt-get install -y -qq libclang-dev
+      - run: cargo install --locked flip-link cargo-binutils && rustup component add llvm-tools
+      - name: build the bench firmware and bootloader twice from different paths, compare hashes
+        run: security/supply-chain/repro-build.sh firmware-rs /tmp/repro
+
+  sbom:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with: { persist-credentials: false }
+      - run: rustup toolchain install "$RUST_TOOLCHAIN" --profile minimal && rustup default "$RUST_TOOLCHAIN"
+      - run: cargo install --locked cargo-cyclonedx --version "$CARGO_CYCLONEDX_VERSION"
+      - run: security/supply-chain/sbom.sh /tmp/sbom
+      - uses: actions/upload-artifact@v4
+        with: { name: sbom-cyclonedx, path: /tmp/sbom, retention-days: 90 }
+
+  actions-pins:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with: { persist-credentials: false }
+      - name: every `uses:` in every workflow must be pinned to a 40 hex commit SHA
+        run: security/supply-chain/check-action-pins.sh
