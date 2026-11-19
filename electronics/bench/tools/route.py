@@ -116,7 +116,8 @@ elif step == "fix":
     # pads whose thermal relief is starved get a solid connection to the pour, then refill
     import json, re, subprocess, shutil
     K = os.environ.get("KICAD_CLI") or shutil.which("kicad-cli") or "/Applications/KiCad/KiCad.app/Contents/MacOS/kicad-cli"
-    out = "/tmp/_fix_drc.json"
+    import tempfile
+    out = os.path.join(tempfile.mkdtemp(), "fix_drc.json")
     subprocess.run([K, "pcb", "drc", "--format", "json", "--severity-all", "--units", "mm", "-o", out, pcb], capture_output=True)
     d = json.load(open(out))
     b = pcbnew.LoadBoard(pcb)

@@ -1206,7 +1206,7 @@
   "lcsc": null,
   "mpn": null,
   "bom": false,
-  "note": "DNP alternative footprint for a JST GH plug, parallel to J5",
+  "note": "DNP alternative footprint for a JST GH plug, superimposed on J5 (same 1.25 mm pitch and nets, shield tabs on GND)",
   "side": "F"
  },
  "R50": {

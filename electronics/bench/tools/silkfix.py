@@ -44,7 +44,7 @@ for f in b.GetFootprints():
             if g.GetLayer() == pcbnew.F_SilkS and not isinstance(g, pcbnew.PCB_TEXT):
                 g.SetLayer(pcbnew.Cmts_User)
 for f in b.GetFootprints():
-    if f.GetReference() in ("BZ1", "J4", "J1"):
+    if f.GetReference() in ("BZ1", "J4", "J1", "J5", "J6"):
         for g in list(f.GraphicalItems()):
             if g.GetLayer() == pcbnew.F_SilkS:
                 g.SetLayer(pcbnew.Cmts_User)

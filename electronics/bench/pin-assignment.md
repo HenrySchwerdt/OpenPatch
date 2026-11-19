@@ -106,7 +106,7 @@ Check pin 1 against the silkscreen and do a continuity test before powering the 
 
 ## Motor (NFP-608-26.45-SGM, 4.8 V, 26.5 ohm/phase, 0.18 A max) and current limit
 
-Factory lead plugs into `J5` (Molex PicoBlade 53261-0471 compatible, CJT A1251WR-S-4P-LCP, LCSC C225113). `J6` is a **DNP** JST GH SM04B-GHS-TB footprint in parallel. Pin order 1..4 = `MOT_B2`, `MOT_A2`, `MOT_B1`, `MOT_A1` (silk "B- A- B+ A+"; confirm on the first motor).
+Factory lead plugs into `J5` (Molex PicoBlade 53261-0471 compatible, CJT A1251WR-S-4P-LCP, LCSC C225113). `J6` is a **DNP** JST GH SM04B-GHS-TB footprint **superimposed on J5** (same 1.25 mm pitch and nets, shield tabs on GND, so it needs no extra routing; fit one or the other, the DRC shows one intentional courtyard-overlap warning). Pin order 1..4 = `MOT_B2`, `MOT_A2`, `MOT_B1`, `MOT_A1` (silk "B- A- B+ A+"; confirm on the first motor).
 
 STSPIN220 peak phase current (DS11633 Equation 1, full step = 100 % of VREF on each phase): **I_peak = VREF / R_SNS**.
 * `R_SNS` = 1.0 ohm (R20 / R21, 0603, 1 %).

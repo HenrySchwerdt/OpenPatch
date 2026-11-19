@@ -9,7 +9,7 @@ after any layout change. The pod sensor board is a separate package (not built y
 
 | Option | Value |
 |---|---|
-| Layers / size | 4 layers, 44 x 62 mm (see `fab/jlcpcb/controller/README`-less listing: the zip contains the exact outline) |
+| Layers / size | 4 layers, 44 x 62 mm, 4 x M3 holes, corner radius 1.5 mm |
 | Thickness | 1.6 mm (1.0 mm is possible if panelised with the pod board, see COST.md) |
 | Surface finish | HASL lead-free (no gold fingers, no special finish) |
 | Quantity | 5 PCBs, **2 assembled** (economic assembly, top side only) |

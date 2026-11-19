@@ -44,7 +44,7 @@ POS = {
     "LD2": (31.5, 16.0, 0), "R6": (34.4, 16.0, 0), "R7": (29.9, 17.6, 0), "LD3": (31.5, 17.6, 0), "R8": (34.4, 17.6, 0), "R9": (29.9, 16.0, 0),
     "Q5": (23.0, 27.5, 0), "Q8": (26.5, 27.5, 0), "Q6": (30.0, 27.5, 0), "Q7": (30.0, 32.5, 0), "R40": (33.0, 33.2, 0), "R41": (33.0, 31.6, 0),
     "R42": (23.0, 30.5, 0), "R43": (26.5, 30.5, 0), "D2": (30.5, 44.0, 0), "R46": (26.5, 41.5, 0), "C29": (28.4, 41.5, 0),
-    "J4": (39.6, 41.0, 90), "BZ1": (10.0, 12.0, 0), "J5": (4.2, 32.5, -90), "J6": (4.2, 44.0, -90), "R50": (27.0, 21.8, 0), "R51": (27.0, 23.4, 0), "R52": (33.0, 36.6, 0), "R53": (33.0, 38.2, 0),
+    "J4": (39.6, 41.0, 90), "BZ1": (10.0, 12.0, 0), "J5": (4.2, 32.5, -90), "J6": (4.2, 32.5, -90), "R50": (27.0, 21.8, 0), "R51": (27.0, 23.4, 0), "R52": (33.0, 36.6, 0), "R53": (33.0, 38.2, 0),
     "R35": (29.0, 50.2, 0), "R36": (31.0, 50.2, 0),
 }
 def build():
@@ -252,10 +252,10 @@ def build():
           lcsc="C506791", mpn="FH12-10S-0.5SH(55)")
     # motor: factory lead of NFP-608-26.45-SGM, 4-pin 1.25 mm plug; pin order B-, A-, B+, A+ (UNVERIFIED connector family: PicoBlade/GH)
     mot = {"1": "MOT_B2", "2": "MOT_A2", "3": "MOT_B1", "4": "MOT_A1"}
-    b.add("J5", "PicoBlade 4P (A1251WR-S-4P)", ("Connector_Molex", "Molex_PicoBlade_53261-0471_1x04-1MP_P1.25mm_Horizontal"), 4.2, 41.0, -90, pins=mot,
+    b.add("J5", "PicoBlade 4P (A1251WR-S-4P)", ("Connector_Molex", "Molex_PicoBlade_53261-0471_1x04-1MP_P1.25mm_Horizontal"), 4.2, 41.0, -90, pins=dict(mot, MP="GND"),
           lcsc="C225113", mpn="A1251WR-S-4P-LCP", note="Molex 53261-0471 compatible; confirm the plug on the first motor")
-    b.add("J6", "JST GH SM04B-GHS-TB (DNP alt.)", ("Connector_JST", "JST_GH_SM04B-GHS-TB_1x04-1MP_P1.25mm_Horizontal"), 4.2, 49.0, -90, pins=mot,
-          bom=False, note="DNP alternative footprint for a JST GH plug, parallel to J5")
+    b.add("J6", "JST GH SM04B-GHS-TB (DNP alt.)", ("Connector_JST", "JST_GH_SM04B-GHS-TB_1x04-1MP_P1.25mm_Horizontal"), 4.2, 49.0, -90, pins=dict(mot, MP="GND"),
+          bom=False, note="DNP alternative footprint for a JST GH plug, superimposed on J5 (same 1.25 mm pitch and nets, shield tabs on GND)")
     b.text("MOTOR  B- A- B+ A+", 2.0, 36.5, 0.8, thick=0.12, rot=0)
     R("R50", "4.7k", "3V3", "I2C_SDA", 27.5, 17.0)
     R("R51", "4.7k", "3V3", "I2C_SCL", 27.5, 18.6)

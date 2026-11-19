@@ -19,7 +19,7 @@ Dropped for cost: USBLC6 TVS (extended). There is **no Basic equivalent** for th
 
 | Line | USD | Note |
 |---|---|---|
-| PCB 4-layer 1.6 mm, 44 x 60 mm, 5 pcs, ENIG not needed (HASL lead-free) | 10 | 2-layer was attempted first (about $2) but did not route completely (9 nets open, see below) |
+| PCB 4-layer 1.6 mm, 44 x 60 mm, 5 pcs, ENIG not needed (HASL lead-free) | 10 | 2-layer (about $2) was tried first and did not route completely |
 | SMT setup fee (economic, top side only) | 8 | |
 | Stencil | 1.5 | |
 | Extended parts fee, 9 x $3 | 27 | the largest single item |
