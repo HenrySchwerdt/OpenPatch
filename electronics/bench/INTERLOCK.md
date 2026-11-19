@@ -203,3 +203,8 @@ Reference designators are `CTRL.<ref>` (controller), `POD.<ref>` (pod board, res
 | T8 | MCU_EN low with everything else true | VMOT 0 V |
 | T9 | 10 ohm across the motor header phase (about 500 mA), driver enabled | over-current latch trips, VMOT cut, `OC_OK` low |
 | T10 | Drive `WDT_DONE` high permanently, then pulse it once 100 ms after WAKE (late), then once 5 ms after WAKE (in the window) | stuck and late: TPL5010 resets; in-window: accepted |
+
+
+## I. Documented difference to v0.1.0 (hazard H15, 2026-11-19)
+
+The v0.1.0 pod board (`../v010/INTERLOCK.md`) uses `DOCKED XOR DIR_REVERSE` (forward only when docked, reverse only when undocked; reverse while docked would aspirate through the cannula). This parked bench controller keeps the older `DOCKED OR DIR_REVERSE` (Q6 / Q10 in parallel): **docked + reverse is not blocked here**. If the bench controller is ever used again, replace the parallel pair by two series branches (Q6 + FWD leg, Q10 on an inverted DOCKED + DIR_REV leg) as in v010.

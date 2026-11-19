@@ -1,0 +1,80 @@
+{
+ "U4A": {
+  "ref": "U4A",
+  "value": "DRV5032AJDMRR",
+  "fp": "DRV5032_X2SON-4_DMR0004B",
+  "lcsc": "C2152498",
+  "mpn": "DRV5032AJDMRR",
+  "bom": true,
+  "note": "AJ: BOP 4/7/9.5 mT open drain, asserts only when latched; JLC stock 0 on 2026-11-19 (C2152456/C2152498): order via LCSC or use FA C2152496 + weaker insert magnet geometry",
+  "side": "B",
+  "dnp": false,
+  "group": "sensor",
+  "board": "SENSOR"
+ },
+ "U4B": {
+  "ref": "U4B",
+  "value": "DRV5032AJDMRR",
+  "fp": "DRV5032_X2SON-4_DMR0004B",
+  "lcsc": "C2152498",
+  "mpn": "DRV5032AJDMRR",
+  "bom": true,
+  "note": "redundant second dock hall (2oo2)",
+  "side": "B",
+  "dnp": false,
+  "group": "sensor",
+  "board": "SENSOR"
+ },
+ "U10T": {
+  "ref": "U10T",
+  "value": "TMAG5273A1QDBVR",
+  "fp": "SOT-23-6",
+  "lcsc": "C3716049",
+  "mpn": "TMAG5273A1QDBVR",
+  "bom": true,
+  "note": "directly under the spindle magnet (mechanical/out/bench/OP-100.layout.json HALL_3D); I2C 0x35",
+  "side": "B",
+  "dnp": false,
+  "group": "sensor",
+  "board": "SENSOR"
+ },
+ "C41": {
+  "ref": "C41",
+  "value": "100nF",
+  "fp": "C_0402_1005Metric",
+  "lcsc": "C1525",
+  "mpn": "CL05B104KO5NNNC",
+  "bom": true,
+  "note": "",
+  "side": "F",
+  "dnp": false,
+  "group": "sensor",
+  "board": "SENSOR"
+ },
+ "R69": {
+  "ref": "R69",
+  "value": "100k",
+  "fp": "R_0402_1005Metric",
+  "lcsc": "C25741",
+  "mpn": "0402WGF1003TCE",
+  "bom": true,
+  "note": "",
+  "side": "F",
+  "dnp": false,
+  "group": "sensor",
+  "board": "SENSOR"
+ },
+ "J3S": {
+  "ref": "J3S",
+  "value": "FH12-10S-0.5SH(55)",
+  "fp": "Hirose_FH12-10S-0.5SH_1x10-1MP_P0.50mm_Horizontal",
+  "lcsc": "C506791",
+  "mpn": "FH12-10S-0.5SH(55)",
+  "bom": true,
+  "note": "FFC to MAIN",
+  "side": "F",
+  "dnp": false,
+  "group": "sensor",
+  "board": "SENSOR"
+ }
+}

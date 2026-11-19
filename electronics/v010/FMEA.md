@@ -15,15 +15,17 @@ Codes with **NEW** do not exist in the catalogue yet: they are requests (rule 2.
 | FM-R11-1 | R11 | open | gate never pulled low: no motor supply | yes (fail-safe) | PGATE_MON low? | A01 | 1-06-002 | CTRL |
 | FM-Q5-1 | Q5 | D-S short | latch leg lost; MCU_EN, OC, dock legs remain | yes | RB6, VMOT after LATCH_CLR_N | A01 | 1-07-002 | CTRL |
 | FM-Q8-1 | Q8 | D-S short | MCU_EN leg lost | yes | RB7 after MCU_EN low | A01 | 1-07-001 | CTRL |
-| FM-Q13-1 | Q13 | D-S short | OC leg lost (comparator still clears... no: supply stays on after a trip) | yes (chopper limit remains) | OC_OK vs VMOT | A01, OC_TEST | 1-0D-001 NEW | CTRL |
+| FM-Q13-1 | Q13 | D-S short | OC leg lost: the supply stays on after a trip | yes (chopper limit remains) | OC_OK vs VMOT | A01, OC_TEST | 1-0D-001 NEW | CTRL |
 | FM-Q6-1 | Q6, Q7, Q7B | Q6 shorted or Q7/Q7B stuck off | DOCKED leg lost: undocked forward not blocked | NO if firmware also commands it | RB4 DOCKED_H, DOCK_TEST | A02 | 1-07-003 | CTRL |
+| FM-Q22-1 | Q10, Q22, Q20, R87 (H15 branch 2) | branch stuck conducting (Q10 or Q22 shorted, Q20 stuck off) | docked + reverse passes (aspiration) if the other legs and firmware also permit | NO if firmware also commands it | A02a | A02a | 1-07-008 NEW | CTRL |
+| FM-Q21-1 | Q6, Q21 (H15 branch 1) | branch stuck conducting (Q6 or Q21 shorted, Q7/Q7B stuck off) | undocked + forward passes | NO if firmware also commands it | A02b, DOCK_TEST | A02b | 1-07-003 | CTRL |
 | FM-Q10-1 | Q10, Q11, R13 | Q10 shorted / DIR polarity wrong | undocked forward not blocked | NO if firmware also commands it | RB5 (MOT_DIR readback), VMOT | A02 | 1-07-004, 4-40-003 | CTRL |
 | FM-Q5-2 | Q5, Q8, Q13, Q6 and Q10 | open | motor never runs | yes (fail-safe) | PGATE_MON | A01 | 1-07-005, 1-07-006 | CTRL |
 | FM-U4A-1 | U4A or U4B | one hall stuck asserted (low) | other hall still reads not docked: **blocked (2oo2)** | yes (new in v0.1.0) | DOCK_N vs DOCKED_H mismatch | S08, A10 | 2-21-001 | DOCK (magnet/hall) |
 | FM-U4A-2 | U4A or U4B | stuck not asserted / no supply | forward blocked, pod never docks | yes (fail-safe) | DOCK_N, DOCKED_H | A10 | 2-21-002, 1-07-006 | DOCK |
 | FM-U4A-3 | U4A and U4B | both stuck asserted (double fault) | undocked forward not blocked by the dock leg; DIR leg, latch, MCU_EN remain | n/a (2 faults) | TMAG field, DOCK_TEST | A02 | 1-07-003 | DOCK |
 | FM-R19-1 | R19/R20 | open | DOCK_N floats (high-Z, pick-up) | yes (floating high = not docked; noise can read docked, other hall/legs remain) | DOCK_N chatter | S08 | 2-21-003 | CTRL |
-| FM-U6-1 | U6 | Q stuck 1 | latch cannot cut; watchdog reset still clears... no | yes (MCU_EN, OC, dock legs) | RB6 after LATCH_CLR_N | S05, A01 | 1-05-003, 1-05-001 | CTRL |
+| FM-U6-1 | U6 | Q stuck 1 | latch and watchdog cannot cut | yes (MCU_EN, OC, dock legs) | RB6 after LATCH_CLR_N | S05, A01 | 1-05-003, 1-05-001 | CTRL |
 | FM-U6-2 | U6 | Q stuck 0 | no motion | yes (fail-safe) | RB6 | A01 | 1-05-002 | CTRL |
 | FM-U5-1 | U5 | no WAKE | watchdog dead | yes (other legs); protection reduced | RB11 | continuous | 1-04-001 | CTRL |
 | FM-U5-2 | U5, D2 | RSTn not reaching MCU / latch | watchdog ineffective | yes (protection reduced) | RB11 | A08 | 1-04-002 | CTRL |
@@ -44,6 +46,15 @@ Codes with **NEW** do not exist in the catalogue yet: they are requests (rule 2.
 | FM-U16-1 | U16-U19 | AND/OR output stuck high (U18) | STCK passes ungated | **NO (HW-A lost)** | TMAG vs steps in A12 | A12 | 1-0F-002 NEW | CTRL |
 | FM-U17-1 | U17 / U19 | stuck low | no forward pulses / reverse blocked | yes (fail-safe) | TMAG motion | A04, A12 | 1-0F-003 NEW | CTRL |
 | FM-R43-1 | R43 | STCK_MCU pull-down open | STCK floats at reset (gate AND still needs window) | yes | none | S05 | 1-07-007 | CTRL |
+| FM2-U30-1 | U30 (supervisor, v2) | outputs stuck permitting (PERMIT/STCK_EN high) or firmware runs away | Q15 on, STCK gate open; Q4 legs (MCU_EN, OC, dock/DIR) still cut; main-side count (TIMER1) vs supervisor status differ | yes (the discrete legs are independent of the supervisor) | SUP_OK, status frame, A01 with PERMIT forced | A01 (cut with Q4 legs only), A12 | 1-0F-002 NEW | CTRL |
+| FM2-U30-2 | U30 | hung / dead / no link | IWDG reset, outputs pulled low: no permission, main reset, LOCKED after 5 retries | yes (fail-safe) | SUP_OK low, UART silence | S05 | 1-04-001, 1-04-002 (reused for the supervisor link) | CTRL |
+| FM2-U30-3 | U30 | counts wrong (EXTI misses pulses) | budget not enforced exactly; the 600 ms window still limits (<= 120 pulses at 200 Hz) and the buckets over-count safely (counts the edges it sees) | partly | SUP_COUNT_MISMATCH vs TIMER1 | A12 | 1-0F-002 NEW | CTRL |
+| FM2-U31-1 | U31 | AND gate output stuck high | STCK_DRV follows STCK_MCU: step budget gate lost, supervisor budget only detects | NO (HW budget lost; other legs, buckets remain) | TIMER1 vs TMAG vs supervisor count | A12 | 1-0F-002 NEW | CTRL |
+| FM2-QS-1 | QS, R84, R83, C60 | QS shorted / R83 open | Q15 permanently on (Q4 legs still cut) / gate floats (R83 open: Q4 still cuts) | yes | A01 (cut with Q4 legs only), VMOT_SENSE | A01 | 1-07-002 / 1-06-001 | CTRL |
+| FM2-QS-2 | QS open, R82 shorted | Q15 never on | no motor supply | yes (fail-safe) | SUP_OK high but VMOT absent | A01 | 1-06-002 | CTRL |
+| FM2-JU1-1 | JU1, DU1, UU1, QU1, RU1-3 | water ingress / short on VBUS or CC | no charge/USB; TVS and 22 ohm limit the charger input; delivery paused by firmware when VBUS present | H8 only (water bench) | VBUS_SENSE, CHG_STAT | charge test | A-A1-001, A-A2-001, A-A2-002 | USB board |
+| FM2-J3-1 | J3 / J3S (sensor FFC) | cable out / contact open | halls read not docked (pull-ups), TMAG no ACK: forward blocked | yes (fail-safe) | I2C ACK, DOCK_N | S08 | 3-30-001, 3-30-003 | SENSOR cable |
+| FM2-U8-1 | U8, L1, D6, R55/R56 | boost fails / over-voltage | VMOT_PRE up to 24 V (MT3608 without OVP) would stress the STSPIN220 (10 V max) and the shunt/INA input; R55/R56 open -> FB floats -> overvoltage | NO (overstress; OVP missing) | VMOT_SENSE, I_SENSE | S06 | 1-06-003 / 1-0D-002 NEW | CTRL: add a 6.2 V zener clamp at VMOT before the first build (VERIFY) |
 | FM-U10T-1 | U10T TMAG5273 | no ACK / stuck / wrong ID | delivery cannot be verified: firmware refuses | yes | I2C | S08 | 2-20-001, 2-20-002, 2-20-003 | BOARD (TMAG) |
 | FM-J1-1 | J1 (PicoBlade) | contact open / intermittent | motor winding open | yes | RB8 | S06 | 3-31-001, 3-31-004 | MOTOR / CONNECTOR |
 | FM-U2-1 | U2 LDO | no output / high | logic off, VMOT off | yes | RB13 VDD | S04 | 1-02-001, 1-02-002 | CTRL |
@@ -87,6 +98,8 @@ Codes with **NEW** do not exist in the catalogue yet: they are requests (rule 2.
 | `2-21-001` | DOCK_STUCK_DOCKED | L | PODB |
 | `2-21-002` | DOCK_STUCK_UNDOCKED | W | MAGD |
 | `2-21-003` | DOCK_CHATTER | W | MAGD |
+| `3-30-001` | FFC_ABSENT | F | FFC |
+| `3-30-003` | I2C_BUS_STUCK | F | FFC |
 | `3-31-001` | MOTOR_LEAD_OPEN | F | MOTOR |
 | `3-31-004` | MOTOR_CONTACT_INTERMITTENT | W | MOTOR |
 | `4-40-003` | DIR_INVERTED | L | MOTOR |
@@ -96,6 +109,8 @@ Codes with **NEW** do not exist in the catalogue yet: they are requests (rule 2.
 | `A-A0-002` | BATTERY_CRITICAL | F | BATT |
 | `A-A0-003` | BATTERY_OVERVOLT | L | BATT |
 | `A-A1-001` | CHARGER_FAULT | F | CHG |
+| `A-A2-001` | USB_SUPPLY_LOW | W | USB |
+| `A-A2-002` | USB_OVERVOLT | L | USB |
 
 ## Requested new codes (not yet in the catalogue)
 

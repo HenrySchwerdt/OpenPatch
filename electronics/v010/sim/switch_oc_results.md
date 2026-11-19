@@ -2,11 +2,12 @@
 
 | Case | Scenario | Result |
 |---|---|---|
-| A | normal start at t=5 ms, docked, forward; stalled motor (2 x 160 mA) from t=150 ms: must NOT trip | VMOT max 3.40 V, battery current max 580 mA, OC_OK final 3.30 V (3.3 = no trip), inrush+run peak 580 mA |
+| A | docked + FORWARD: normal start at t=5 ms; stalled motor (2 x 160 mA) from t=150 ms: must NOT trip | VMOT max 3.40 V, battery current max 578 mA, OC_OK final 3.30 V (3.3 = no trip), inrush+run peak 578 mA |
 | A2 | same at a low cell (3.1 V, R_int 4 ohm) | VMOT max 2.36 V, battery current max 315 mA, OC_OK final 3.30 V (3.3 = no trip), inrush+run peak 315 mA |
-| B | bridge short (4 ohm on VMOT) at t=150 ms: over-current latch trips, supply cut | VMOT max 3.40 V, battery current max 643 mA, OC_OK low at 150.09 ms (trip delay 0.09 ms), VMOT < 0.5 V at 154.29 ms |
-| C | MCU_EN falls at t=150 ms: VMOT must collapse below 0.5 V within 20 ms | VMOT max 3.40 V, battery current max 580 mA, VMOT < 0.5 V 5.4 ms after MCU_EN fell (limit 20 ms) |
-| D | undocked, forward: VMOT stays off | VMOT max 0.00 V, battery current max 0 mA, final VMOT 0.000 V (must be ~0) |
-| E | undocked, reverse (draw): VMOT on | VMOT max 3.40 V, battery current max 580 mA |
-| F | Q4 shorted drain-source; MCU_EN falls at 150 ms: Q15 must still cut | VMOT max 3.42 V, battery current max 646 mA, VMOT < 0.5 V 5.6 ms after MCU_EN fell (limit 20 ms) |
-| G | Q15 shorted drain-source; MCU_EN falls at 150 ms: Q4 must still cut | VMOT max 3.42 V, battery current max 652 mA, VMOT < 0.5 V 5.6 ms after MCU_EN fell (limit 20 ms) |
+| B | bridge short (4 ohm on VMOT) at t=150 ms: over-current latch trips, supply cut | VMOT max 3.40 V, battery current max 643 mA, OC_OK low at 150.09 ms (trip delay 0.09 ms), VMOT < 0.5 V at 154.28 ms |
+| C | MCU_EN falls at t=150 ms: VMOT must collapse below 0.5 V within 20 ms | VMOT max 3.40 V, battery current max 578 mA, VMOT < 0.5 V 5.4 ms after MCU_EN fell (limit 20 ms) |
+| D | H15: undocked + FORWARD: VMOT stays off | VMOT max 0.00 V, battery current max 0 mA, final VMOT 0.000 V (must be ~0) |
+| E | undocked + REVERSE (draw): VMOT on | VMOT max 3.40 V, battery current max 578 mA |
+| H | H15: docked + REVERSE: VMOT stays off | VMOT max 0.00 V, battery current max 0 mA, final VMOT 0.000 V (must be ~0) |
+| F | Q4 shorted drain-source; MCU_EN falls at 150 ms: Q15 must still cut | VMOT max 3.42 V, battery current max 648 mA, VMOT < 0.5 V 5.6 ms after MCU_EN fell (limit 20 ms) |
+| G | Q15 shorted drain-source; MCU_EN falls at 150 ms: Q4 must still cut | VMOT max 3.42 V, battery current max 649 mA, VMOT < 0.5 V 5.6 ms after MCU_EN fell (limit 20 ms) |

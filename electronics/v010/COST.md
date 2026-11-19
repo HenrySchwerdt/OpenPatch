@@ -37,3 +37,14 @@ Per assembled board **about 89 EUR averaged over 3**, about 40 EUR marginal (par
 4. Hand-fit the buzzer and PicoBlade only if JLC refuses bottom-side tall parts (not recommended, rule 1a).
 
 Update this file with the real quote after the first order and log it in `docs/05-cost-model.md`.
+
+## v2 split design (MAIN + USB + SENSOR; `fab/cost_v2.json`, `tools/cost_v2.py`), list prices 2026-11-19
+
+| Board | BOM lines / placements | Parts USD | Extended lines | Stock warnings |
+|---|---|---|---|---|
+| MAIN | 47 / 134 | 16.6 (E73 7.70, STM32C011 1.47, STSPIN220 1.96, MT3608 0.10, inductor 0.04, charger 0.96, comparator 0.56, INA 0.29, FF 0.67 x 1, ...) | 21 | E73 `C356849` stock 1 |
+| SENSOR | 5 / 6 | 4.8 (TMAG5273 3.57, 2 x DRV5032AJ 0.75, FFC 0.51) | 3 | DRV5032AJ `C2152498` stock 0 |
+| USB | 9 / 10 | 1.0 (USB-C placeholder 0.19, TVS, ESD, FFC 0.51) | 4 | receptacle is a **placeholder** (IPX7 part to be confirmed) |
+| **Per pod** | | **about 22.5** | **26 unique extended lines over the three boards** | |
+
+JLC setup fee per extended line ($3, estimate): **26 x 3 = USD 78 per order**, three PCB types (MAIN 4L 0.8 mm about 42 x 32, SENSOR and USB 2L 0.8 mm) and three PCBA projects (or one PCBA project if JLC accepts the three designs panelised in one order: the quote decides), two FFC cables and PCB fees about USD 15 + 8 + 8 for 5 pieces each. Order of 5 pods, 3 assembled: parts 3 x 22.5 = 68 + minimum-quantity overage 25 + fees 78 + PCBs 31 + SMT setup 3 x 20 + assembly 8 + shipping 25 = **about 295 USD before VAT (about 350 USD incl. 19 % VAT, about 320 EUR)**, i.e. about 105 EUR per assembled pod averaged over 3, parts and assembly marginal about 45 EUR for pods 4 and 5. **All numbers are estimates.**

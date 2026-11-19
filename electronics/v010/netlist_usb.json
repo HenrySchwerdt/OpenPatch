@@ -1,0 +1,224 @@
+[
+ {
+  "ref": "JU1",
+  "value": "USB-C receptacle (proxy: TYPE-C-31-M-12; IPX7 part to be confirmed)",
+  "fp": [
+   "Connector_USB",
+   "USB_C_Receptacle_HRO_TYPE-C-31-M-12"
+  ],
+  "pins": {
+   "A1": "GND",
+   "A12": "GND",
+   "B1": "GND",
+   "B12": "GND",
+   "SH": "GND",
+   "A4": "VBUS_R",
+   "A9": "VBUS_R",
+   "B4": "VBUS_R",
+   "B9": "VBUS_R",
+   "A5": "CC1",
+   "B5": "CC2",
+   "A6": "UDP_C",
+   "B6": "UDP_C",
+   "A7": "UDM_C",
+   "B7": "UDM_C"
+  },
+  "lcsc": "C165948",
+  "mpn": "TYPE-C-31-M-12",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "placeholder for the IPX7 gasketed receptacle (vendor confirmation needed); XKB U262-161N-4BVC11 C319148 / G-Switch GT-USB-7010 candidates",
+  "group": "usb",
+  "board": "USB"
+ },
+ {
+  "ref": "DU1",
+  "value": "SMF5.0A TVS",
+  "fp": [
+   "Diode_SMD",
+   "D_SOD-123F"
+  ],
+  "pins": {
+   "1": "VBUS_R",
+   "2": "GND"
+  },
+  "lcsc": "C193402",
+  "mpn": "SMF5.0A",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "usb",
+  "board": "USB"
+ },
+ {
+  "ref": "RU1",
+  "value": "5.1k",
+  "fp": [
+   "Resistor_SMD",
+   "R_0402_1005Metric"
+  ],
+  "pins": {
+   "1": "CC1",
+   "2": "GND"
+  },
+  "lcsc": "C25905",
+  "mpn": "0402WGF5101TCE",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "usb",
+  "board": "USB"
+ },
+ {
+  "ref": "RU2",
+  "value": "5.1k",
+  "fp": [
+   "Resistor_SMD",
+   "R_0402_1005Metric"
+  ],
+  "pins": {
+   "1": "CC2",
+   "2": "GND"
+  },
+  "lcsc": "C25905",
+  "mpn": "0402WGF5101TCE",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "usb",
+  "board": "USB"
+ },
+ {
+  "ref": "UU1",
+  "value": "USBLC6-2SC6",
+  "fp": [
+   "Package_TO_SOT_SMD",
+   "SOT-23-6"
+  ],
+  "pins": {
+   "1": "UDP_C",
+   "2": "GND",
+   "3": "UDM_C",
+   "4": "UDM_C",
+   "5": "VBUS_R",
+   "6": "UDP_C"
+  },
+  "lcsc": "C7519",
+  "mpn": "USBLC6-2SC6",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "ESD on D+/D-",
+  "group": "usb",
+  "board": "USB"
+ },
+ {
+  "ref": "QU1",
+  "value": "AO3401A (ideal diode / reverse protect)",
+  "fp": [
+   "Package_TO_SOT_SMD",
+   "SOT-23"
+  ],
+  "pins": {
+   "1": "VBUS_G",
+   "2": "VBUS_P",
+   "3": "VBUS_R"
+  },
+  "lcsc": "C15127",
+  "mpn": "AO3401A",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "P-FET, body diode orientation: source = output side VBUS_P; gate low through RU3",
+  "group": "usb",
+  "board": "USB"
+ },
+ {
+  "ref": "RU3",
+  "value": "100k",
+  "fp": [
+   "Resistor_SMD",
+   "R_0402_1005Metric"
+  ],
+  "pins": {
+   "1": "VBUS_G",
+   "2": "GND"
+  },
+  "lcsc": "C25741",
+  "mpn": "0402WGF1003TCE",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "usb",
+  "board": "USB"
+ },
+ {
+  "ref": "CU1",
+  "value": "10uF",
+  "fp": [
+   "Capacitor_SMD",
+   "C_0603_1608Metric"
+  ],
+  "pins": {
+   "1": "VBUS_P",
+   "2": "GND"
+  },
+  "lcsc": "C19702",
+  "mpn": "CL10A106KP8NNNC",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "usb",
+  "board": "USB"
+ },
+ {
+  "ref": "CU2",
+  "value": "1uF",
+  "fp": [
+   "Capacitor_SMD",
+   "C_0402_1005Metric"
+  ],
+  "pins": {
+   "1": "VBUS_R",
+   "2": "GND"
+  },
+  "lcsc": "C52923",
+  "mpn": "CL05A105KA5NQNC",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "usb",
+  "board": "USB"
+ },
+ {
+  "ref": "J3U",
+  "value": "FH12-10S-0.5SH(55)",
+  "fp": [
+   "Connector_FFC-FPC",
+   "Hirose_FH12-10S-0.5SH_1x10-1MP_P0.50mm_Horizontal"
+  ],
+  "pins": {
+   "1": "VBUS_P",
+   "2": "GND",
+   "3": "UDP_C",
+   "4": "UDM_C",
+   "5": "GND",
+   "6": "VBUS_P"
+  },
+  "lcsc": "C506791",
+  "mpn": "FH12-10S-0.5SH(55)",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "FFC to MAIN",
+  "group": "usb",
+  "board": "USB"
+ }
+]

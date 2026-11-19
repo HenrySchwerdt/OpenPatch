@@ -38,8 +38,13 @@ R11 pgate chtop 10k
 M5 chtop latch mid1 mid1 NM
 M8 mid1 mcuen mid2 mid2 NM
 M13 mid2 ocok mid2a mid2a NM
-M6 mid2a dockedh 0 0 NM
-M10 mid2a dirrev 0 0 NM
+* H15: interlock leg = DOCKED XOR DIR_REV (branch 1: docked AND forward, branch 2: undocked AND reverse)
+Bnot docknot 0 V=3.3-v(dockedh)
+Bfwd fwd 0 V=3.3-v(dirrev)
+M6 mid2a dockedh xa xa NM
+M21 xa fwd 0 0 NM
+M10 mid2a docknot xb xb NM
+M22 xb dirrev 0 0 NM
 * bleeder (turns on when PGATE is high)
 M17 bldn pgate 0 0 NM
 Rb1 vmot bldn 100
@@ -88,7 +93,7 @@ wrdata {out} v(vbat) v(vmot) v(vraw) v(pgate) v(ocok) v(inaout) v(ocmp) i(Vcell)
 """
 
 CASES = {
-    "A": dict(desc="normal start at t=5 ms, docked, forward; stalled motor (2 x 160 mA) from t=150 ms: must NOT trip", vcell=4.2, rint=3.0, mcuen="PWL(0 0 5m 0 5.001m 3.3)", docked="3.3", dirrev="0",
+    "A": dict(desc="docked + FORWARD: normal start at t=5 ms; stalled motor (2 x 160 mA) from t=150 ms: must NOT trip", vcell=4.2, rint=3.0, mcuen="PWL(0 0 5m 0 5.001m 3.3)", docked="3.3", dirrev="0",
               q4="M4 vmota pgate vbat vbat PM", q15="M15 vraw pgate vmota vmota PM", shortI="0"),
     "A2": dict(desc="same at a low cell (3.1 V, R_int 4 ohm)", vcell=3.1, rint=4.0, mcuen="PWL(0 0 5m 0 5.001m 3.3)", docked="3.3", dirrev="0",
                q4="M4 vmota pgate vbat vbat PM", q15="M15 vraw pgate vmota vmota PM", shortI="0"),
@@ -96,9 +101,11 @@ CASES = {
               q4="M4 vmota pgate vbat vbat PM", q15="M15 vraw pgate vmota vmota PM", shortI="(time>150m ? v(vmot)/4 : 0)"),
     "C": dict(desc="MCU_EN falls at t=150 ms: VMOT must collapse below 0.5 V within 20 ms", vcell=4.2, rint=3.0, mcuen="PWL(0 0 5m 0 5.001m 3.3 150m 3.3 150.001m 0)", docked="3.3", dirrev="0",
               q4="M4 vmota pgate vbat vbat PM", q15="M15 vraw pgate vmota vmota PM", shortI="0"),
-    "D": dict(desc="undocked, forward: VMOT stays off", vcell=4.2, rint=3.0, mcuen="PWL(0 0 5m 0 5.001m 3.3)", docked="0", dirrev="0",
+    "D": dict(desc="H15: undocked + FORWARD: VMOT stays off", vcell=4.2, rint=3.0, mcuen="PWL(0 0 5m 0 5.001m 3.3)", docked="0", dirrev="0",
               q4="M4 vmota pgate vbat vbat PM", q15="M15 vraw pgate vmota vmota PM", shortI="0"),
-    "E": dict(desc="undocked, reverse (draw): VMOT on", vcell=4.2, rint=3.0, mcuen="PWL(0 0 5m 0 5.001m 3.3)", docked="0", dirrev="3.3",
+    "E": dict(desc="undocked + REVERSE (draw): VMOT on", vcell=4.2, rint=3.0, mcuen="PWL(0 0 5m 0 5.001m 3.3)", docked="0", dirrev="3.3",
+              q4="M4 vmota pgate vbat vbat PM", q15="M15 vraw pgate vmota vmota PM", shortI="0"),
+    "H": dict(desc="H15: docked + REVERSE: VMOT stays off", vcell=4.2, rint=3.0, mcuen="PWL(0 0 5m 0 5.001m 3.3)", docked="3.3", dirrev="3.3",
               q4="M4 vmota pgate vbat vbat PM", q15="M15 vraw pgate vmota vmota PM", shortI="0"),
     "F": dict(desc="Q4 shorted drain-source; MCU_EN falls at 150 ms: Q15 must still cut", vcell=4.2, rint=3.0, mcuen="PWL(0 0 5m 0 5.001m 3.3 150m 3.3 150.001m 0)", docked="3.3", dirrev="0",
               q4="Rq4 vbat vmota 0.01", q15="M15 vraw pgate vmota vmota PM", shortI="0"),
@@ -166,7 +173,7 @@ def main():
         if case in ("C", "F", "G"):
             tc = first_after(t, vmot, 0.1501, lambda v: v < 0.5)
             info += ", VMOT < 0.5 V %s ms after MCU_EN fell (limit 20 ms)" % ("%.1f" % ((tc - 0.15) * 1e3) if tc else "NEVER")
-        if case == "D":
+        if case in ("D", "H"):
             info += ", final VMOT %.3f V (must be ~0)" % vmot[-1]
         rows.append((case, c["desc"], info))
         ax.plot([x * 1e3 for x in t], vmot, label="VMOT"); ax.plot([x * 1e3 for x in t], pg, label="PGATE", lw=0.8)
