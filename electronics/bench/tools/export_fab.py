@@ -14,14 +14,14 @@ import zipfile
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.abspath(os.path.join(HERE, ".."))
-K = "/Applications/KiCad/KiCad.app/Contents/MacOS/kicad-cli"
+K = os.environ.get("KICAD_CLI") or shutil.which("kicad-cli") or "/Applications/KiCad/KiCad.app/Contents/MacOS/kicad-cli"
 name = sys.argv[1]
 PCB = os.path.join(ROOT, name, f"{name}.kicad_pcb")
 PARTS = json.load(open(os.path.join(ROOT, name, "parts.json")))
 OUT = os.path.join(ROOT, "fab", "jlcpcb", name)
 LAYERS4 = "F.Cu,In1.Cu,In2.Cu,B.Cu,F.Paste,B.Paste,F.Silkscreen,B.Silkscreen,F.Mask,B.Mask,Edge.Cuts"
 LAYERS2 = "F.Cu,B.Cu,F.Paste,B.Paste,F.Silkscreen,B.Silkscreen,F.Mask,B.Mask,Edge.Cuts"
-LAYERS = LAYERS4 if name == "controller" else LAYERS2
+LAYERS = LAYERS4 if "In1.Cu" in open(PCB).read() else LAYERS2
 
 # JLC pick-and-place rotation offsets by KiCad footprint name (JLC pin-1 convention differs from KiCad for these families).
 # Verify every polarised part in the JLC 3D preview before paying (ORDER.md).
@@ -54,8 +54,12 @@ rows = {r["Ref"]: r for r in csv.DictReader(open(pos))}
 os.remove(pos)
 bom, cpl, notasm = {}, [], []
 for ref, p in PARTS.items():
-    if not p["bom"] or not p.get("lcsc"):
-        if ref not in rows or p["bom"] is False:
+    if p["bom"] is False:
+        if p.get("note") and ref in rows:
+            notasm.append((ref, p["value"], p["note"]))      # deliberately not assembled (DNP)
+        continue
+    if not p.get("lcsc"):
+        if ref not in rows:
             continue
     if ref not in rows:
         continue

@@ -11,9 +11,12 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(HERE, "..", "tools"))
 import pcbnew
 from benchlib import OX as bl_OX, OY as bl_OY
-from benchlib import Board, write_project, legalize, place_labels, tidy_refs
+from benchlib import Board, write_project, legalize, place_labels, tidy_refs, snap
 
-W, H = 44.0, 56.0
+W = float(os.environ.get("OP_W", "44.0"))
+H = float(os.environ.get("OP_H", "62.0"))
+SHIFT = H - 56.0
+LAYERS = int(os.environ.get("OP_LAYERS", "4"))   # 4 layers: the 2-layer attempt left 9 nets unrouted
 PCB = os.path.join(HERE, "controller.kicad_pcb")
 
 R0402, R0603 = ("Resistor_SMD", "R_0402_1005Metric"), ("Resistor_SMD", "R_0603_1608Metric")
@@ -41,12 +44,13 @@ POS = {
     "LD2": (31.5, 16.0, 0), "R6": (34.4, 16.0, 0), "R7": (29.9, 17.6, 0), "LD3": (31.5, 17.6, 0), "R8": (34.4, 17.6, 0), "R9": (29.9, 16.0, 0),
     "Q5": (23.0, 27.5, 0), "Q8": (26.5, 27.5, 0), "Q6": (30.0, 27.5, 0), "Q7": (30.0, 32.5, 0), "R40": (33.0, 33.2, 0), "R41": (33.0, 31.6, 0),
     "R42": (23.0, 30.5, 0), "R43": (26.5, 30.5, 0), "D2": (30.5, 44.0, 0), "R46": (26.5, 41.5, 0), "C29": (28.4, 41.5, 0),
-    "J4": (39.6, 41.0, 90), "BZ1": (10.0, 12.0, 0), "J5": (4.2, 36.5, -90), "J6": (4.2, 44.5, -90), "R50": (27.0, 21.8, 0), "R51": (27.0, 23.4, 0), "R52": (33.0, 36.6, 0), "R53": (33.0, 38.2, 0),
+    "J4": (39.6, 41.0, 90), "BZ1": (10.0, 12.0, 0), "J5": (4.2, 32.5, -90), "J6": (4.2, 44.0, -90), "R50": (27.0, 21.8, 0), "R51": (27.0, 23.4, 0), "R52": (33.0, 36.6, 0), "R53": (33.0, 38.2, 0),
     "R35": (29.0, 50.2, 0), "R36": (31.0, 50.2, 0),
 }
 def build():
-    b = Board("controller", W, H, corner=1.5)
+    b = Board("controller", W, H, layers=LAYERS, corner=1.5)
     b.pos = POS
+    b.yshift = (30.0, SHIFT)      # spread the lower half of the board (H grew by 4 mm)
     b.rounded_outline()
     tps_labels = []
 
@@ -66,10 +70,10 @@ def build():
     # ------------------------------------------------------------------ MCU module (antenna end at the top edge)
     MX, MY = 22.0, 9.3
     u1 = {"19": "3V3", "5": "GND", "21": "GND", "24": "GND", "26": "NRST", "37": "SWDIO", "39": "SWDCLK",
-          "11": "XL1", "13": "XL2", "1": "MOT_STBY", "2": "MOT_MODE2", "3": "DOCK_N", "4": "WDT_DONE", "6": "MOT_MODE1",
-          "7": "I_SENSE", "8": "BUZ_PWM", "9": "UART_TX", "10": "UART_RX", "12": "I2C_SDA", "14": "I2C_SCL",
-          "15": "VBUS_SENSE", "16": "TMAG_INT",  "17": "MOT_EN_FAULT", "18": "VMOT_SENSE", "20": "MOT_STCK", "22": "MOT_DIR",
-          "28": "BTN_N", "30": "WDT_WAKE", "32": "ARM_CLK", "33": "MOT_ALLOW", "34": "LATCH_CLR_N", "35": "MCU_EN",
+          "11": "XL1", "13": "XL2", "1": "MOT_STBY", "2": "DOCK_TEST", "3": "DOCK_N", "4": "WDT_DONE", "6": "POD_ID_N",
+          "7": "I_SENSE", "8": "BUZ_PWM", "9": "DIR_REV", "10": "DOCKED_H", "12": "I2C_SDA", "14": "I2C_SCL",
+          "15": "VBUS_SENSE", "16": "OC_TEST",  "17": "MOT_EN_FAULT", "18": "VMOT_SENSE", "20": "MOT_STCK", "22": "MOT_DIR",
+          "28": "BTN_N", "30": "WDT_WAKE", "32": "ARM_CLK", "33": "LATCH_Q", "41": "OC_OK", "43": "PGATE_MON", "34": "LATCH_CLR_N", "35": "MCU_EN",
           "36": "LED_ST_G", "38": "HALL_A", "40": "HALL_B", "42": "LED_ALM_G"}
     b.add("U1", "E73-2G4M08S1CX", ("Bench", "Ebyte_E73-2G4M08S1C_13x18"), MX, MY, 180, pins=u1, lcsc="C2764963", mpn="E73-2G4M08S1CX",
           note="nRF52840 module, IPEX antenna connector (C variant C356849 has ceramic antenna, same footprint)")
@@ -85,8 +89,6 @@ def build():
     b.add("J1", "TYPE-C-31-M-12 (power only)", ("Connector_USB", "USB_C_Receptacle_HRO_TYPE-C-31-M-12"), 22.0, 54.4, 0,
           pins={"A1": "GND", "A12": "GND", "B1": "GND", "B12": "GND", "SH": "GND", "A4": "VBUS", "A9": "VBUS", "B4": "VBUS",
                 "B9": "VBUS", "A5": "CC1", "B5": "CC2"}, lcsc="C165948", mpn="TYPE-C-31-M-12")
-    b.add("U3", "USBLC6-2SC6", SOT236, 29.0, 46.5, 0, pins={"1": "CC1", "6": "CC1", "3": "CC2", "4": "CC2", "2": "GND", "5": "VBUS"},
-          lcsc="C7519", mpn="USBLC6-2SC6")
     R("R1", "5.1k", "CC1", "GND", 33.0, 46.5)
     R("R2", "5.1k", "CC2", "GND", 33.0, 48.0)
     b.add("U2", "XC6206P332MR-G", SOT23, 35.0, 52.0, 0, pins={"1": "GND", "2": "3V3", "3": "VBUS"}, lcsc="C5446", mpn="XC6206P332MR-G",
@@ -101,7 +103,7 @@ def build():
           pins={"1": "3V3", "2": "SWDIO", "3": "NRST", "4": "SWDCLK", "5": "GND"}, bom=False)
     b.add("J3", "SWD 2x5 1.27 mm", ("Connector_PinHeader_1.27mm", "PinHeader_2x05_P1.27mm_Vertical_SMD"), 39.5, 31.0, 0,
           pins={"1": "3V3", "2": "SWDIO", "3": "GND", "4": "SWDCLK", "5": "GND", "9": "GND", "10": "NRST"},
-          lcsc="C41376037", mpn="PZ1.27-2x5P TP")
+          lcsc="C41376037", mpn="PZ1.27-2x5P TP", bom=False, note="DNP (extended part, saves a setup fee): footprint for a 2x5 1.27 mm SWD header; use the Tag-Connect pads J2")
     R("R4", "100k", "NRST", "3V3", 33.0, 19.6)
     b.add("SW1", "TS-1187A-B-A-B", ("Button_Switch_SMD", "SW_Push_1P1T_XKB_TS-1187A"), 38.0, 8.0, 0, pins={"1": "BTN_N", "2": "GND"},
           lcsc="C318884", mpn="TS-1187A-B-A-B")
@@ -114,7 +116,7 @@ def build():
     R("R9", "100R", "LD3_K", "GND", 29.4, 17.0)
 
     # ------------------------------------------------------------------ buzzer
-    b.add("BZ1", "MLT-8530", ("Bench", "Buzzer_MLT-8530_8.5x8.5"), 9.5, 11.0, 0, pins={"1": "3V3", "2": "BZ_N"}, lcsc="C94599", mpn="MLT-8530")
+    b.add("BZ1", "MLT-8530", ("Bench", "Buzzer_MLT-8530_8.5x8.5"), 9.5, 11.0, 0, pins={"1": "3V3", "2": "BZ_N"}, lcsc="C94599", mpn="MLT-8530", bom=False, note="DNP in Rev A (extended part); alarms via LEDs / BLE")
     b.add("D1", "1N4148W", ("Diode_SMD", "D_SOD-123"), 5.0, 17.5, 0, pins={"1": "3V3", "2": "BZ_N"}, lcsc="C81598", mpn="1N4148W")
     R("R10", "22R", "BZ_N", "BZ_D", 5.0, 19.3)
     b.add("Q9", "2N7002", SOT23, 8.0, 19.0, 0, pins={"1": "BZ_G", "2": "GND", "3": "BZ_D"}, lcsc="C8545", mpn="2N7002")
@@ -129,6 +131,8 @@ def build():
     b.add("R20", "1.0R", R0603, 5.0, 33.0, 0, pins={"1": "SNSA", "2": "GND"}, lcsc="C174300", mpn="RS-03L1R00FT")
     b.add("R21", "1.0R", R0603, 12.0, 33.0, 0, pins={"1": "SNSB", "2": "GND"}, lcsc="C174300", mpn="RS-03L1R00FT")
     R("R22", "47k", "TOFF", "GND", 11.8, 26.2)
+    R("R102", "1k", "TOFF", "TOFF_RC", 11.8, 24.6)
+    C("C30", "10nF", "TOFF_RC", "GND", 13.6, 24.6)
     R("R23", "100k", "3V3", "MOT_REF", 12.8, 28.0)
     R("R24", "5.1k", "MOT_REF", "GND", 12.8, 29.6)
     C("C20", "100nF", "MOT_REF", "GND", 14.2, 28.8)
@@ -141,9 +145,10 @@ def build():
 
     # ------------------------------------------------------------------ motor supply switch (interlock) + shunt
     b.add("Q4", "AO3401A", SOT23, 8.0, 46.0, 0, pins={"1": "PGATE", "2": "VBUS", "3": "VMOT_RAW"}, lcsc="C15127", mpn="AO3401A")
-    R("R30", "100k", "VBUS", "PGATE", 11.5, 46.0)
+    R("R30", "47k", "VBUS", "PGATE", 11.5, 46.0)
     b.add("R31", "1.0R", R0603, 8.0, 41.5, 0, pins={"1": "VMOT_RAW", "2": "VMOT"}, lcsc="C174300", mpn="RS-03L1R00FT")
-    b.add("R39", "1.0R", R0603, 8.0, 43.4, 0, pins={"1": "VMOT_RAW", "2": "VMOT"}, lcsc="C174300", mpn="RS-03L1R00FT", note="parallel with R31: 0.5 ohm shunt")
+    b.add("R39", "1.0R", R0603, 8.0, 43.4, 0, pins={"1": "VMOT_RAW", "2": "VMOT"}, lcsc="C174300", mpn="RS-03L1R00FT", note="parallel with R31/R47: 0.333 ohm shunt")
+    b.add("R47", "1.0R", R0603, 8.0, 45.3, 0, pins={"1": "VMOT_RAW", "2": "VMOT"}, lcsc="C174300", mpn="RS-03L1R00FT", note="parallel with R31/R39: 0.333 ohm shunt")
     b.add("U7", "INA180A1IDBVR", SOT235, 17.0, 40.0, 0, pins={"1": "INA_OUT", "2": "GND", "3": "VMOT_RAW", "4": "VMOT", "5": "3V3"},
           lcsc="C122228", mpn="INA180A1IDBVR", note="Pinout A: 1 OUT, 2 GND, 3 IN+, 4 IN-, 5 VS")
     C("C25", "100nF", "3V3", "GND", 17.0, 37.6)
@@ -156,42 +161,93 @@ def build():
     b.add("LD4", "red VMOT on", ("LED_SMD", "LED_0603_1608Metric"), 15.0, 52.0, 0, pins={"1": "LD4_K", "2": "LD4_A"}, lcsc="C2286", mpn="KT-0603R")
     R("R37", "1k", "VMOT", "LD4_A", 15.0, 50.4)
     R("R38", "100R", "LD4_K", "GND", 15.0, 53.6)
+    b.add("R101", "470R", R0603, 13.0, 44.0, 0, pins={"1": "VMOT", "2": "GND"}, lcsc="C23179", mpn="0603WAF4700T5E",
+          note="VMOT bleeder: VMOT falls below 1.8 V within about 10 ms after the supply switch opens")
 
-    # chain of three series pull-down FETs: PGATE - Q5 - Q8 - Q6 - GND
-    b.add("Q5", "2N7002", SOT23, 24.0, 28.0, 0, pins={"1": "MOT_ALLOW", "2": "PG_MID1", "3": "PGATE"}, lcsc="C8545", mpn="2N7002")
-    b.add("Q8", "2N7002", SOT23, 27.5, 28.0, 0, pins={"1": "MCU_EN", "2": "PG_MID2", "3": "PG_MID1"}, lcsc="C8545", mpn="2N7002")
+    # INTERLOCK (see ../INTERLOCK.md):  VMOT on = LATCH_Q AND MCU_EN AND (DOCKED OR DIR_REV)
+    # P-FET Q4 closes only when PGATE is pulled low through Q5 (watchdog latch) - Q8 (MCU enable) - [Q6 docked || Q10 DIR reverse] - GND
+    b.add("Q5", "2N7002", SOT23, 24.0, 28.0, 0, pins={"1": "LATCH_Q", "2": "PG_MID1", "3": "PGATE"}, lcsc="C8545", mpn="2N7002")
+    b.add("Q8", "2N7002", SOT23, 27.5, 28.0, 0, pins={"1": "MCU_EN", "2": "PG_MID2a", "3": "PG_MID1"}, lcsc="C8545", mpn="2N7002")
+    b.add("Q13", "2N7002", SOT23, 27.5, 34.0, 0, pins={"1": "OC_OK", "2": "PG_MID2", "3": "PG_MID2a"}, lcsc="C8545", mpn="2N7002",
+          note="4th series leg: hardware over-current latch (U9) must be OK")
     b.add("Q6", "2N7002", SOT23, 31.0, 28.0, 0, pins={"1": "DOCKED_H", "2": "GND", "3": "PG_MID2"}, lcsc="C8545", mpn="2N7002")
-    # refill/draw: motion in the REVERSE direction is allowed undocked. DIR_REV = MOT_DIR (default) or its inverse (swap R96/R97 by BOM)
+    # refill/draw: motion in the REVERSE direction (plunger retracts, nothing is delivered) is allowed undocked.
+    # DIR_REV = MOT_DIR (R96 fitted: DIR high = reverse, the restrictive default because a stuck-low / unpowered DIR = forward = blocked)
+    # or its inverse (R97 fitted instead: DIR low = reverse). The polarity must be confirmed on the first motor (INTERLOCK.md, test T5).
     b.add("Q10", "2N7002", SOT23, 30.0, 24.0, 0, pins={"1": "DIR_REV", "2": "GND", "3": "PG_MID2"}, lcsc="C8545", mpn="2N7002",
           note="parallel to Q6: pull-down path is closed if DOCKED OR DIR_REV")
     b.add("Q11", "2N7002", SOT23, 33.0, 24.0, 0, pins={"1": "MOT_DIR", "2": "GND", "3": "DIR_INV"}, lcsc="C8545", mpn="2N7002", note="inverter for the optional inverted DIR_REV polarity")
     R("R98", "100k", "3V3", "DIR_INV", 33.0, 26.0)
     R("R99", "100k", "DIR_REV", "GND", 28.0, 24.0)
     R("R100", "100k", "MOT_DIR", "GND", 26.0, 24.0)
-    b.add("R96", "0R", R0603, 35.0, 24.0, 0, pins={"1": "MOT_DIR", "2": "DIR_REV"}, lcsc="C21189", mpn="0603WAF0000T5E", note="DIR_REV = DIR (fitted by default: DIR high = reverse/retract, ASSUMPTION, verify on the motor)")
+    b.add("R96", "0R", R0603, 35.0, 24.0, 0, pins={"1": "MOT_DIR", "2": "DIR_REV"}, lcsc="C21189", mpn="0603WAF0000T5E", note="DIR_REV = DIR (fitted by default: DIR high = reverse/retract; firmware DIR_FORWARD_HIGH must be false; verify on the motor)")
     b.add("R97", "0R", R0603, 37.0, 24.0, 0, pins={"1": "DIR_INV", "2": "DIR_REV"}, bom=False, note="DNP: fit instead of R96 if DIR low retracts the plunger")
     b.add("Q7", "2N7002", SOT23, 31.0, 33.0, 0, pins={"1": "DOCK_N", "2": "GND", "3": "DOCKED_H"}, lcsc="C8545", mpn="2N7002")
     R("R40", "100k", "3V3", "DOCKED_H", 34.2, 33.0)
     R("R41", "100k", "3V3", "DOCK_N", 34.2, 31.2)
-    R("R42", "100k", "MOT_ALLOW", "GND", 24.0, 31.0)
+    R("R42", "100k", "LATCH_Q", "GND", 24.0, 31.0)
     R("R43", "100k", "MCU_EN", "GND", 27.5, 31.0)
 
     # ------------------------------------------------------------------ watchdog + latch
-    b.add("U5", "TPL5010DDCR", SOT236, 22.0, 35.0, 0, pins={"1": "3V3", "2": "GND", "3": "WDT_DELAY", "4": "WDT_DONE", "5": "WDT_WAKE", "6": "NRST"},
+    b.add("U5", "TPL5010DDCR", SOT236, 22.0, 35.0, 0, pins={"1": "3V3", "2": "GND", "3": "WDT_DELAY", "4": "DONE_TPL", "5": "WDT_WAKE", "6": "NRST"},
           lcsc="C473912", mpn="TPL5010DDCR")
     R("R44", "10k", "WDT_DELAY", "GND", 19.0, 33.0)
     R("R45", "22k", "WDT_DELAY", "GND", 19.0, 34.6)
     C("C27", "100nF", "3V3", "GND", 22.0, 32.6)
     b.add("U6", "SN74AUP1G74DCUR", ("Package_SO", "VSSOP-8_2.3x2mm_P0.5mm"), 28.0, 38.5, 0,
-          pins={"1": "ARM_CLK", "2": "3V3", "3": None, "4": "GND", "5": "MOT_ALLOW", "6": "LATCH_CLR_N", "7": "3V3", "8": "3V3"},
+          pins={"1": "ARM_CLK", "2": "3V3", "3": None, "4": "GND", "5": "LATCH_Q", "6": "LATCH_CLR_N", "7": "3V3", "8": "3V3"},
           lcsc="C140267", mpn="SN74AUP1G74DCUR")
     C("C28", "100nF", "3V3", "GND", 31.0, 38.0)
     R("R46", "100k", "LATCH_CLR_N", "3V3", 28.0, 41.5)
+    R("R103", "100k", "ARM_CLK", "GND", 31.0, 35.4)
     C("C29", "100nF", "LATCH_CLR_N", "GND", 30.0, 41.5)
     b.add("D2", "SS14", ("Diode_SMD", "D_SMA"), 36.5, 38.5, 90, pins={"1": "NRST", "2": "LATCH_CLR_N"}, lcsc="C2480", mpn="SS14")
 
+
+    # ------------------------------------------------------------------ discrete safety additions (no MCU-programmable element in the cut path)
+    # force-"undocked" for the power-on self test: can only pull DOCKED_H LOW, never force it on
+    b.add("Q12", "2N7002", SOT23, 33.0, 29.0, 0, pins={"1": "DOCK_TEST", "2": "GND", "3": "DOCKED_H"}, lcsc="C8545", mpn="2N7002")
+    R("R117", "100k", "DOCK_TEST", "GND", 35.5, 29.0)
+    # MODE1/MODE2 hard-wired low = full-step regardless of firmware
+    R("R114", "10k", "MOT_MODE1", "GND", 14.0, 33.0)
+    R("R115", "10k", "MOT_MODE2", "GND", 14.0, 34.6)
+    # pod presence / FFC loopback: pod ties POD_ID to GND through 10 k
+    R("R116", "100k", "3V3", "POD_ID_N", 36.0, 40.0)
+    # PGATE readback (composite MOT_ALLOW), divided to MCU levels
+    R("R112", "100k", "PGATE", "PGATE_MON", 14.0, 46.0)
+    R("R113", "100k", "PGATE_MON", "GND", 14.0, 47.6)
+    # watchdog DONE qualifier: DONE is only valid as an EDGE that arrives while WAKE is high (stuck-high / stuck-low / early DONE rejected)
+    b.add("U10", "SN74AUP1G74DCUR (DONE qualifier)", ("Package_SO", "VSSOP-8_2.3x2mm_P0.5mm"), 17.0, 33.0, 0,
+          pins={"1": "DONE_PULSE", "2": "WDT_WAKE", "4": "GND", "5": "DONE_TPL", "6": "WAKE_CLR", "7": "3V3", "8": "3V3"}, lcsc="C140267", mpn="SN74AUP1G74DCUR")
+    C("C31", "10nF", "WDT_DONE", "DONE_PULSE", 17.0, 30.0)
+    R("R104", "1k", "DONE_PULSE", "GND", 19.0, 30.0)
+    R("R105", "4.7k", "WAKE_CLR", "WDT_WAKE", 20.5, 35.5)
+    C("C32", "10nF", "WAKE_CLR", "GND", 20.5, 37.0)
+    b.add("D4", "1N4148W", ("Diode_SMD", "D_SOD-123"), 17.0, 36.5, 0, pins={"1": "WAKE_CLR", "2": "WDT_WAKE"}, lcsc="C81598", mpn="1N4148W")
+    R("R118", "100k", "DONE_TPL", "GND", 15.0, 36.0)
+    b.add("R119", "0R", R0603, 13.0, 38.5, 0, pins={"1": "WDT_DONE", "2": "DONE_TPL"}, bom=False, note="DNP bring-up bypass of the DONE qualifier")
+    C("C33", "100nF", "3V3", "GND", 14.5, 40.5)
+    # hardware over-current latch: LM393 (supplied from VBUS) trips at about 450 mA total motor supply current, U9 latches
+    # until MCU_EN is cycled low; U9 Q_N (OC_OK) is the 4th series leg of the supply switch
+    b.add("U8", "LM393DR2G", ("Package_SO", "SOIC-8_3.9x4.9mm_P1.27mm"), 20.0, 46.0, 0,
+          pins={"1": "OC_CMP", "2": "OC_REF", "3": "I_SENSE", "4": "GND", "5": "GND", "6": "3V3", "7": None, "8": "VBUS"}, lcsc="C7955", mpn="LM393DR2G",
+          note="ch2 inputs parked (IN+ GND, IN- 3V3)")
+    C("C34", "100nF", "VBUS", "GND", 17.5, 43.0)
+    R("R107", "10k", "3V3", "OC_CMP", 23.5, 44.0)
+    R("R108", "10k", "3V3", "OC_REF", 14.0, 42.5)
+    R("R109", "100k", "OC_REF", "GND", 14.0, 44.0)
+    b.add("Q14", "2N7002", SOT23, 19.5, 50.0, 0, pins={"1": "OC_TEST", "2": "GND", "3": "OC_TEST_D"}, lcsc="C8545", mpn="2N7002")
+    R("R110", "1k", "OC_TEST_D", "OC_REF", 22.5, 50.0)
+    R("R111", "100k", "OC_TEST", "GND", 22.5, 51.6)
+    b.add("U9", "SN74AUP1G74DCUR (OC latch)", ("Package_SO", "VSSOP-8_2.3x2mm_P0.5mm"), 27.0, 36.5, 0,
+          pins={"1": "OC_CMP", "2": "3V3", "3": "OC_OK", "4": "GND", "5": "OC_TRIP", "6": "OC_CLR_N", "7": "3V3", "8": "3V3"}, lcsc="C140267", mpn="SN74AUP1G74DCUR")
+    R("R106", "100k", "MCU_EN", "OC_CLR_N", 31.0, 40.5)
+    C("C35", "100nF", "OC_CLR_N", "GND", 33.0, 41.5)
+    b.add("D5", "1N4148W", ("Diode_SMD", "D_SOD-123"), 34.0, 43.5, 0, pins={"1": "MCU_EN", "2": "OC_CLR_N"}, lcsc="C81598", mpn="1N4148W")
+    C("C36", "100nF", "3V3", "GND", 25.0, 39.5)
+
     # ------------------------------------------------------------------ FFC to the pod
-    ffc = {"1": "GND", "2": "3V3", "3": "HALL_A", "4": "HALL_B", "5": "DOCK_N", "6": "I2C_SDA", "7": "I2C_SCL", "8": "TMAG_INT", "10": "GND"}
+    ffc = {"1": "GND", "2": "3V3", "3": "I2C_SDA", "4": "I2C_SCL", "5": "GND", "6": "DOCK_N", "7": "HALL_A", "8": "HALL_B", "9": "POD_ID_N", "10": "GND"}
     b.add("J4", "FH12-10S-0.5SH(55)", ("Connector_FFC-FPC", "Hirose_FH12-10S-0.5SH_1x10-1MP_P0.50mm_Horizontal"), 39.6, 41.0, 90, pins=ffc,
           lcsc="C506791", mpn="FH12-10S-0.5SH(55)")
     # motor: factory lead of NFP-608-26.45-SGM, 4-pin 1.25 mm plug; pin order B-, A-, B+, A+ (UNVERIFIED connector family: PicoBlade/GH)
@@ -208,12 +264,12 @@ def build():
 
     # ------------------------------------------------------------------ test points
     tps = [("TP1", "GND", 2.0, 22.0), ("TP2", "3V3", 17.0, 24.0), ("TP3", "VBUS", 17.5, 50.0), ("TP4", "VMOT", 3.0, 44.0),
-           ("TP5", "PGATE", 12.0, 49.5), ("TP6", "MOT_ALLOW", 23.0, 25.0), ("TP7", "MCU_EN", 27.0, 25.0), ("TP8", "DOCKED_H", 34.5, 26.0),
-           ("TP9", "DOCK_N", 30.0, 25.0), ("TP41", "DIR_REV", 24.0, 26.0), ("TP10", "LATCH_CLR_N", 35.5, 41.5), ("TP11", "ARM_CLK", 25.0, 43.5), ("TP12", "WDT_WAKE", 19.0, 37.5),
+           ("TP5", "PGATE", 12.0, 49.5), ("TP6", "LATCH_Q", 23.0, 25.0), ("TP7", "MCU_EN", 27.0, 25.0), ("TP8", "DOCKED_H", 34.5, 26.0),
+           ("TP9", "DOCK_N", 30.0, 25.0), ("TP41", "DIR_REV", 24.0, 26.0), ("TP32", "OC_REF", 12.0, 41.0), ("TP10", "LATCH_CLR_N", 35.5, 41.5), ("TP11", "ARM_CLK", 25.0, 43.5), ("TP12", "WDT_WAKE", 19.0, 37.5),
            ("TP13", "WDT_DONE", 16.0, 36.0), ("TP14", "NRST", 33.5, 23.5), ("TP15", "MOT_A1", 3.0, 28.0), ("TP16", "MOT_A2", 3.0, 31.0),
            ("TP17", "MOT_B1", 14.0, 24.0), ("TP18", "MOT_B2", 3.0, 34.0), ("TP19", "MOT_STCK", 2.0, 15.0), ("TP20", "MOT_DIR", 2.0, 18.0),
            ("TP21", "MOT_STBY", 2.0, 25.0), ("TP22", "I_SENSE", 23.5, 43.0), ("TP23", "HALL_A", 41.5, 36.0), ("TP24", "HALL_B", 41.5, 38.5),
-           ("TP28", "I2C_SDA", 12.0, 21.5), ("TP29", "I2C_SCL", 14.0, 22.5), ("TP25", "UART_TX", 14.0, 20.5), ("TP26", "UART_RX", 16.5, 22.5), ("TP27", "GND", 41.0, 14.0)]
+           ("TP28", "I2C_SDA", 12.0, 21.5), ("TP29", "I2C_SCL", 14.0, 22.5), ("TP30", "DONE_TPL", 12.0, 38.5), ("TP31", "OC_OK", 27.0, 33.0), ("TP27", "GND", 41.0, 14.0)]
     for ref, net, x, y in tps:
         tp(ref, net, x, y)
 
@@ -226,7 +282,14 @@ def build():
     b.text("OpenPatch bench controller rev A (DISCLAIMER.md)", 22.0, 22.5, 0.9, layer=pcbnew.B_SilkS, mirror=True, thick=0.14)
 
     fixed = ["U1", "J1", "J2", "J3", "J4", "J5", "J6", "SW1", "BZ1", "U4"]
-    print("legalize moved", legalize(b, fixed, extra_boxes=[[15.0, 0.0, 29.0, 3.7]]))
+    print("legalize moved", legalize(b, fixed, extra_boxes=[[15.0, 0.0, 29.0, 3.7]], rmax=26.0))
+    # decoupling / filter parts and the shunt block go next to the pin they serve (distance from the anchor pad, mm, printed)
+    snap_pairs = [("R31", "Q4", "3"), ("R39", "R31", "1"), ("R47", "R39", "1"), ("U7", "R39", "2"), ("R30", "Q4", "2"),
+                  ("R32", "U7", "1"), ("C26", "R32", "2"), ("C25", "U7", "5"), ("C22", "U4", "6"), ("C24", "U4", "6"), ("C23", "U4", "6"),
+                  ("C20", "U4", "11"), ("C21", "U4", "13"), ("R22", "U4", "12"), ("R102", "U4", "12"), ("C30", "U4", "12"),
+                  ("C4", "U1", "19"), ("C5", "U1", "19"), ("C27", "U5", "1"), ("C28", "U6", "8"), ("C36", "U9", "8"),
+                  ("C33", "U10", "8"), ("C34", "U8", "8"), ("C1", "U2", "3"), ("C2", "U2", "2"), ("R101", "C22", "1")]
+    print("snap moved", snap(b, snap_pairs, keepout=[[15.0, 0.0, 29.0, 3.7]]))
     tidy_refs(b)
     fps = {f.GetReference(): f for f in b.b.GetFootprints()}
     import pcbnew as _p

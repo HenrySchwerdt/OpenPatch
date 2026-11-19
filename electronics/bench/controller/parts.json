@@ -69,16 +69,6 @@
   "note": "",
   "side": "F"
  },
- "U3": {
-  "ref": "U3",
-  "value": "USBLC6-2SC6",
-  "fp": "SOT-23-6",
-  "lcsc": "C7519",
-  "mpn": "USBLC6-2SC6",
-  "bom": true,
-  "note": "",
-  "side": "F"
- },
  "R1": {
   "ref": "R1",
   "value": "5.1k",
@@ -165,8 +155,8 @@
   "fp": "PinHeader_2x05_P1.27mm_Vertical_SMD",
   "lcsc": "C41376037",
   "mpn": "PZ1.27-2x5P TP",
-  "bom": true,
-  "note": "",
+  "bom": false,
+  "note": "DNP (extended part, saves a setup fee): footprint for a 2x5 1.27 mm SWD header; use the Tag-Connect pads J2",
   "side": "F"
  },
  "R4": {
@@ -265,8 +255,8 @@
   "fp": "Buzzer_MLT-8530_8.5x8.5",
   "lcsc": "C94599",
   "mpn": "MLT-8530",
-  "bom": true,
-  "note": "",
+  "bom": false,
+  "note": "DNP in Rev A (extended part); alarms via LEDs / BLE",
   "side": "F"
  },
  "D1": {
@@ -355,6 +345,26 @@
   "fp": "R_0402_1005Metric",
   "lcsc": "C25792",
   "mpn": "0402WGF4702TCE",
+  "bom": true,
+  "note": "",
+  "side": "F"
+ },
+ "R102": {
+  "ref": "R102",
+  "value": "1k",
+  "fp": "R_0402_1005Metric",
+  "lcsc": "C11702",
+  "mpn": "0402WGF1001TCE",
+  "bom": true,
+  "note": "",
+  "side": "F"
+ },
+ "C30": {
+  "ref": "C30",
+  "value": "10nF",
+  "fp": "C_0402_1005Metric",
+  "lcsc": "C15195",
+  "mpn": "CL05B103KB5NNNC",
   "bom": true,
   "note": "",
   "side": "F"
@@ -461,10 +471,10 @@
  },
  "R30": {
   "ref": "R30",
-  "value": "100k",
+  "value": "47k",
   "fp": "R_0402_1005Metric",
-  "lcsc": "C25741",
-  "mpn": "0402WGF1003TCE",
+  "lcsc": "C25792",
+  "mpn": "0402WGF4702TCE",
   "bom": true,
   "note": "",
   "side": "F"
@@ -486,7 +496,17 @@
   "lcsc": "C174300",
   "mpn": "RS-03L1R00FT",
   "bom": true,
-  "note": "parallel with R31: 0.5 ohm shunt",
+  "note": "parallel with R31/R47: 0.333 ohm shunt",
+  "side": "F"
+ },
+ "R47": {
+  "ref": "R47",
+  "value": "1.0R",
+  "fp": "R_0603_1608Metric",
+  "lcsc": "C174300",
+  "mpn": "RS-03L1R00FT",
+  "bom": true,
+  "note": "parallel with R31/R39: 0.333 ohm shunt",
   "side": "F"
  },
  "U7": {
@@ -599,6 +619,16 @@
   "note": "",
   "side": "F"
  },
+ "R101": {
+  "ref": "R101",
+  "value": "470R",
+  "fp": "R_0603_1608Metric",
+  "lcsc": "C23179",
+  "mpn": "0603WAF4700T5E",
+  "bom": true,
+  "note": "VMOT bleeder: VMOT falls below 1.8 V within about 10 ms after the supply switch opens",
+  "side": "F"
+ },
  "Q5": {
   "ref": "Q5",
   "value": "2N7002",
@@ -617,6 +647,16 @@
   "mpn": "2N7002",
   "bom": true,
   "note": "",
+  "side": "F"
+ },
+ "Q13": {
+  "ref": "Q13",
+  "value": "2N7002",
+  "fp": "SOT-23",
+  "lcsc": "C8545",
+  "mpn": "2N7002",
+  "bom": true,
+  "note": "4th series leg: hardware over-current latch (U9) must be OK",
   "side": "F"
  },
  "Q6": {
@@ -686,7 +726,7 @@
   "lcsc": "C21189",
   "mpn": "0603WAF0000T5E",
   "bom": true,
-  "note": "DIR_REV = DIR (fitted by default: DIR high = reverse/retract, ASSUMPTION, verify on the motor)",
+  "note": "DIR_REV = DIR (fitted by default: DIR high = reverse/retract; firmware DIR_FORWARD_HIGH must be false; verify on the motor)",
   "side": "F"
  },
  "R97": {
@@ -819,6 +859,16 @@
   "note": "",
   "side": "F"
  },
+ "R103": {
+  "ref": "R103",
+  "value": "100k",
+  "fp": "R_0402_1005Metric",
+  "lcsc": "C25741",
+  "mpn": "0402WGF1003TCE",
+  "bom": true,
+  "note": "",
+  "side": "F"
+ },
  "C29": {
   "ref": "C29",
   "value": "100nF",
@@ -835,6 +885,296 @@
   "fp": "D_SMA",
   "lcsc": "C2480",
   "mpn": "SS14",
+  "bom": true,
+  "note": "",
+  "side": "F"
+ },
+ "Q12": {
+  "ref": "Q12",
+  "value": "2N7002",
+  "fp": "SOT-23",
+  "lcsc": "C8545",
+  "mpn": "2N7002",
+  "bom": true,
+  "note": "",
+  "side": "F"
+ },
+ "R117": {
+  "ref": "R117",
+  "value": "100k",
+  "fp": "R_0402_1005Metric",
+  "lcsc": "C25741",
+  "mpn": "0402WGF1003TCE",
+  "bom": true,
+  "note": "",
+  "side": "F"
+ },
+ "R114": {
+  "ref": "R114",
+  "value": "10k",
+  "fp": "R_0402_1005Metric",
+  "lcsc": "C25744",
+  "mpn": "0402WGF1002TCE",
+  "bom": true,
+  "note": "",
+  "side": "F"
+ },
+ "R115": {
+  "ref": "R115",
+  "value": "10k",
+  "fp": "R_0402_1005Metric",
+  "lcsc": "C25744",
+  "mpn": "0402WGF1002TCE",
+  "bom": true,
+  "note": "",
+  "side": "F"
+ },
+ "R116": {
+  "ref": "R116",
+  "value": "100k",
+  "fp": "R_0402_1005Metric",
+  "lcsc": "C25741",
+  "mpn": "0402WGF1003TCE",
+  "bom": true,
+  "note": "",
+  "side": "F"
+ },
+ "R112": {
+  "ref": "R112",
+  "value": "100k",
+  "fp": "R_0402_1005Metric",
+  "lcsc": "C25741",
+  "mpn": "0402WGF1003TCE",
+  "bom": true,
+  "note": "",
+  "side": "F"
+ },
+ "R113": {
+  "ref": "R113",
+  "value": "100k",
+  "fp": "R_0402_1005Metric",
+  "lcsc": "C25741",
+  "mpn": "0402WGF1003TCE",
+  "bom": true,
+  "note": "",
+  "side": "F"
+ },
+ "U10": {
+  "ref": "U10",
+  "value": "SN74AUP1G74DCUR (DONE qualifier)",
+  "fp": "VSSOP-8_2.3x2mm_P0.5mm",
+  "lcsc": "C140267",
+  "mpn": "SN74AUP1G74DCUR",
+  "bom": true,
+  "note": "",
+  "side": "F"
+ },
+ "C31": {
+  "ref": "C31",
+  "value": "10nF",
+  "fp": "C_0402_1005Metric",
+  "lcsc": "C15195",
+  "mpn": "CL05B103KB5NNNC",
+  "bom": true,
+  "note": "",
+  "side": "F"
+ },
+ "R104": {
+  "ref": "R104",
+  "value": "1k",
+  "fp": "R_0402_1005Metric",
+  "lcsc": "C11702",
+  "mpn": "0402WGF1001TCE",
+  "bom": true,
+  "note": "",
+  "side": "F"
+ },
+ "R105": {
+  "ref": "R105",
+  "value": "4.7k",
+  "fp": "R_0402_1005Metric",
+  "lcsc": "C25900",
+  "mpn": "0402WGF4701TCE",
+  "bom": true,
+  "note": "",
+  "side": "F"
+ },
+ "C32": {
+  "ref": "C32",
+  "value": "10nF",
+  "fp": "C_0402_1005Metric",
+  "lcsc": "C15195",
+  "mpn": "CL05B103KB5NNNC",
+  "bom": true,
+  "note": "",
+  "side": "F"
+ },
+ "D4": {
+  "ref": "D4",
+  "value": "1N4148W",
+  "fp": "D_SOD-123",
+  "lcsc": "C81598",
+  "mpn": "1N4148W",
+  "bom": true,
+  "note": "",
+  "side": "F"
+ },
+ "R118": {
+  "ref": "R118",
+  "value": "100k",
+  "fp": "R_0402_1005Metric",
+  "lcsc": "C25741",
+  "mpn": "0402WGF1003TCE",
+  "bom": true,
+  "note": "",
+  "side": "F"
+ },
+ "R119": {
+  "ref": "R119",
+  "value": "0R",
+  "fp": "R_0603_1608Metric",
+  "lcsc": null,
+  "mpn": null,
+  "bom": false,
+  "note": "DNP bring-up bypass of the DONE qualifier",
+  "side": "F"
+ },
+ "C33": {
+  "ref": "C33",
+  "value": "100nF",
+  "fp": "C_0402_1005Metric",
+  "lcsc": "C1525",
+  "mpn": "CL05B104KO5NNNC",
+  "bom": true,
+  "note": "",
+  "side": "F"
+ },
+ "U8": {
+  "ref": "U8",
+  "value": "LM393DR2G",
+  "fp": "SOIC-8_3.9x4.9mm_P1.27mm",
+  "lcsc": "C7955",
+  "mpn": "LM393DR2G",
+  "bom": true,
+  "note": "ch2 inputs parked (IN+ GND, IN- 3V3)",
+  "side": "F"
+ },
+ "C34": {
+  "ref": "C34",
+  "value": "100nF",
+  "fp": "C_0402_1005Metric",
+  "lcsc": "C1525",
+  "mpn": "CL05B104KO5NNNC",
+  "bom": true,
+  "note": "",
+  "side": "F"
+ },
+ "R107": {
+  "ref": "R107",
+  "value": "10k",
+  "fp": "R_0402_1005Metric",
+  "lcsc": "C25744",
+  "mpn": "0402WGF1002TCE",
+  "bom": true,
+  "note": "",
+  "side": "F"
+ },
+ "R108": {
+  "ref": "R108",
+  "value": "10k",
+  "fp": "R_0402_1005Metric",
+  "lcsc": "C25744",
+  "mpn": "0402WGF1002TCE",
+  "bom": true,
+  "note": "",
+  "side": "F"
+ },
+ "R109": {
+  "ref": "R109",
+  "value": "100k",
+  "fp": "R_0402_1005Metric",
+  "lcsc": "C25741",
+  "mpn": "0402WGF1003TCE",
+  "bom": true,
+  "note": "",
+  "side": "F"
+ },
+ "Q14": {
+  "ref": "Q14",
+  "value": "2N7002",
+  "fp": "SOT-23",
+  "lcsc": "C8545",
+  "mpn": "2N7002",
+  "bom": true,
+  "note": "",
+  "side": "F"
+ },
+ "R110": {
+  "ref": "R110",
+  "value": "1k",
+  "fp": "R_0402_1005Metric",
+  "lcsc": "C11702",
+  "mpn": "0402WGF1001TCE",
+  "bom": true,
+  "note": "",
+  "side": "F"
+ },
+ "R111": {
+  "ref": "R111",
+  "value": "100k",
+  "fp": "R_0402_1005Metric",
+  "lcsc": "C25741",
+  "mpn": "0402WGF1003TCE",
+  "bom": true,
+  "note": "",
+  "side": "F"
+ },
+ "U9": {
+  "ref": "U9",
+  "value": "SN74AUP1G74DCUR (OC latch)",
+  "fp": "VSSOP-8_2.3x2mm_P0.5mm",
+  "lcsc": "C140267",
+  "mpn": "SN74AUP1G74DCUR",
+  "bom": true,
+  "note": "",
+  "side": "F"
+ },
+ "R106": {
+  "ref": "R106",
+  "value": "100k",
+  "fp": "R_0402_1005Metric",
+  "lcsc": "C25741",
+  "mpn": "0402WGF1003TCE",
+  "bom": true,
+  "note": "",
+  "side": "F"
+ },
+ "C35": {
+  "ref": "C35",
+  "value": "100nF",
+  "fp": "C_0402_1005Metric",
+  "lcsc": "C1525",
+  "mpn": "CL05B104KO5NNNC",
+  "bom": true,
+  "note": "",
+  "side": "F"
+ },
+ "D5": {
+  "ref": "D5",
+  "value": "1N4148W",
+  "fp": "D_SOD-123",
+  "lcsc": "C81598",
+  "mpn": "1N4148W",
+  "bom": true,
+  "note": "",
+  "side": "F"
+ },
+ "C36": {
+  "ref": "C36",
+  "value": "100nF",
+  "fp": "C_0402_1005Metric",
+  "lcsc": "C1525",
+  "mpn": "CL05B104KO5NNNC",
   "bom": true,
   "note": "",
   "side": "F"
@@ -961,7 +1301,7 @@
  },
  "TP6": {
   "ref": "TP6",
-  "value": "MOT_ALLOW",
+  "value": "LATCH_Q",
   "fp": "TestPoint_Pad_D1.0mm",
   "lcsc": null,
   "mpn": null,
@@ -1002,6 +1342,16 @@
  "TP41": {
   "ref": "TP41",
   "value": "DIR_REV",
+  "fp": "TestPoint_Pad_D1.0mm",
+  "lcsc": null,
+  "mpn": null,
+  "bom": false,
+  "note": "",
+  "side": "F"
+ },
+ "TP32": {
+  "ref": "TP32",
+  "value": "OC_REF",
   "fp": "TestPoint_Pad_D1.0mm",
   "lcsc": null,
   "mpn": null,
@@ -1179,9 +1529,9 @@
   "note": "",
   "side": "F"
  },
- "TP25": {
-  "ref": "TP25",
-  "value": "UART_TX",
+ "TP30": {
+  "ref": "TP30",
+  "value": "DONE_TPL",
   "fp": "TestPoint_Pad_D1.0mm",
   "lcsc": null,
   "mpn": null,
@@ -1189,9 +1539,9 @@
   "note": "",
   "side": "F"
  },
- "TP26": {
-  "ref": "TP26",
-  "value": "UART_RX",
+ "TP31": {
+  "ref": "TP31",
+  "value": "OC_OK",
   "fp": "TestPoint_Pad_D1.0mm",
   "lcsc": null,
   "mpn": null,

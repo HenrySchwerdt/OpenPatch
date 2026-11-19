@@ -1,1 +1,6 @@
 Designator,Value,Reason
+J3,SWD 2x5 1.27 mm,"DNP (extended part, saves a setup fee): footprint for a 2x5 1.27 mm SWD header; use the Tag-Connect pads J2"
+BZ1,MLT-8530,DNP in Rev A (extended part); alarms via LEDs / BLE
+R97,0R,DNP: fit instead of R96 if DIR low retracts the plunger
+R119,0R,DNP bring-up bypass of the DONE qualifier
+J6,JST GH SM04B-GHS-TB (DNP alt.),"DNP alternative footprint for a JST GH plug, parallel to J5"
