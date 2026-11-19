@@ -136,6 +136,11 @@ Rationale: buildability beats minimal size (builders are not watchmakers). No of
 - On a 1-cell Li-Po without boost the NFP-608-26.45 (26.5 Ω, rated 4.8 V) loses up to ~30 % torque at 3.0 V; v0.1.0 therefore needs either a **5 V boost / current-regulated drive** or a low-voltage motor.
 - Size candidate: **Zhaowei Ø3.4 mm stepper + planetary gearbox (ZWBMD004004-36 / -216)**, 3.0 V / 50 mA rated, 13.3–14.8 mm long, driving the screw directly (coaxial). Pull-out torque/resistance/price unverified → order samples and measure thrust on the real screw (water only) before adopting. Fallbacks: Faulhaber FDM0620, or NFP-608 + boost.
 
+## 4c. Only the integrated pod is built (decision 2026-11-19, user)
+
+- With USB-C (§2d) the integrated v0.1.0 pod covers power, charging, flashing and data logging, so the **bench split (pod + external controller board, §4a) is no longer built or ordered**. The bench controller design (`electronics/bench/`, DRC 0) is **parked** as a fallback and debug fixture; the bench mechanical variant remains the development base for the drive/fluid geometry.
+- v0.1.0 must therefore keep bench-level observability: test pads for motor current, motor supply, every interlock/supervisor signal, the battery and USB rails; SWD pads; a USB CDC log of all bench data.
+
 ## 4a. Rev A = bench split (decision 2026-11-19)
 
 The fully integrated pod board does not route on 17.1 × 29 mm (see `electronics/fab/STATUS.md`). Rev A is a bench test sample anyway, so it is split in two:
