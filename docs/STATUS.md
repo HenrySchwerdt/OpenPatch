@@ -83,6 +83,7 @@ All dimensions and components are in [spec/design-parameters.md](../spec/design-
 
 ## Decision log (user)
 
+- 2026-11-19: **v0.1.0 safety chain uses a tiny independent supervisor MCU** (+ hardware over-current cut + two series switches; spec §7a) to reach ~300 mm² board area. Motor candidates for v0.1.0 in spec §4b (Zhaowei Ø3.4 geared stepper, samples first). The first v0.1.0 board (185 parts, 54 × 29 mm) did not route.
 - 2026-11-19: **USB-C (waterproof) for charging + flashing; split boards allowed** (spec §2d); charge pads and cradle dropped.
 - 2026-11-19: **v0.1.0 sizes: OP-100 and OP-200 only** (OP-70 dropped; spec §2c).
 - 2026-11-19: **Size targets v0.1.0: OP-100 ≤ 45 mm, OP-200 ≤ 52 mm** incl. battery + electronics (spec §2b); first v0.1.0 CAD was 74 mm (OP-100) — rejected.

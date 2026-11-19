@@ -126,6 +126,11 @@ Rationale: buildability beats minimal size (builders are not watchmakers). No of
 - **Connection:** Rev A bench: factory lead + JST 1.25 into the controller board; Rev B: motor with FPC tail into a ZIF connector (group buy) — no soldering, no cable in the pod (§1c).
 - Superseded concepts: SMA ratchet (`mechanical/gear-selection.md`), half-nut pressure refill, hex rewind.
 
+## 4b. Motor candidates for v0.1.0 (2026-11-19, `docs/MOTOR-RESEARCH-2026-11-19.md`)
+
+- On a 1-cell Li-Po without boost the NFP-608-26.45 (26.5 Ω, rated 4.8 V) loses up to ~30 % torque at 3.0 V; v0.1.0 therefore needs either a **5 V boost / current-regulated drive** or a low-voltage motor.
+- Size candidate: **Zhaowei Ø3.4 mm stepper + planetary gearbox (ZWBMD004004-36 / -216)**, 3.0 V / 50 mA rated, 13.3–14.8 mm long, driving the screw directly (coaxial). Pull-out torque/resistance/price unverified → order samples and measure thrust on the real screw (water only) before adopting. Fallbacks: Faulhaber FDM0620, or NFP-608 + boost.
+
 ## 4a. Rev A = bench split (decision 2026-11-19)
 
 The fully integrated pod board does not route on 17.1 × 29 mm (see `electronics/fab/STATUS.md`). Rev A is a bench test sample anyway, so it is split in two:
@@ -168,6 +173,7 @@ Note: In DASH mode Trio "sees" a 200 U pod with 80 h lifetime; reservoir display
 ## 7a. Diagnostics and hardware independence (requirement, 2026-11-19)
 
 - **Hardware independence:** the motor supply is gated in hardware (`MCU_EN AND watchdog latch AND (DOCKED OR DIR_REV)`, TPL5010, hardware over-current cut that clears the latch) so that a firmware fault cannot hold the motor on beyond one watchdog interval, and an undocked pod cannot deliver forward. **Hardware step budget (HW-A, decided 2026-11-19, mandatory for v0.1.0; the bench controller Rev A does not have it — documented residual risk in `electronics/bench/INTERLOCK.md`):** an arm window + pulse budget in discrete logic bounds a runaway inside the watchdog window to ≈ 1.6 U; Rev B adds an independent monitor for the hourly limit. Firmware must **prove at runtime** that each gate can still cut the supply (rotating single-gate disarm, POST-A). A proven-stuck gate or a dead watchdog latches the pod; no delivery with a degraded protection layer. The dose limits of §7 are additionally enforced by the firmware supervisor.
+- **v0.1.0 safety architecture (decision 2026-11-19, user):** a **tiny independent supervisor MCU** (≈ 2 × 2 mm, e.g. MSP430FR2000 or STM32C011; own firmware, own clock, own supply rail) implements the watchdog window and the HW-A step budget (counts STCK itself) and can cut the motor supply on its own; the **over-current cut and the two series supply switches stay pure hardware**; dock = 2-of-2 hall sensors. The main MCU can never switch the motor on without the supervisor's consent. The supervisor firmware is separate, minimal, test-first and fully specified (state machine in `electronics/v010/INTERLOCK.md`).
 - **Diagnostic codes:** every anomaly gets a 32-bit code (layer, component, fault, instance) with severity (info, warning, fault, latched), field-replaceable unit (FRU) and recommended action; the catalogue (`docs/06-diagnostics.md`, generated source `spec/diag-codes.csv`) is the single source for firmware, protocol and app. Codes are never reused. Unknown codes are treated as faults. Latched codes have **no service override**; they clear only when their verification test passes.
 - **Propagation:** no layer may swallow a code. A layer that acts on a lower-layer fault raises its own record with a cause pointer. Records persist in a pod fault log, are readable with `GetFaultLog`, and are pushed as alerts. The 8 legacy fault bits remain as a derived projection.
 - **Presentation:** Trio shows the pod (A/B), the faulty part and the action ("Replace the controller board"), and a component health view (green/yellow/red per FRU). A part is green only after a passing proof; unproven is grey.
