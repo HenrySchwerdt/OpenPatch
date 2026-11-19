@@ -1,0 +1,14 @@
+[package]
+name = "openpatch-diag"
+description = "OpenPatch diagnostic codes: 32-bit code, severity, FRU, action, 32-byte record, generated catalogue (spec/diag-codes.csv). no_std, no alloc, no unsafe."
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[features]
+default = []
+defmt = ["dep:defmt"]
+
+[dependencies]
+defmt = { version = "0.3.8", optional = true }
