@@ -55,6 +55,6 @@ Adac5 [stck] [stck_ma] dac
 .control
 set noaskquit
 run
-wrdata /home/user/ai-insulin-pump/.claude/worktrees/agent-a67e2538bfadd5ced/electronics/v010/sim/results/hwa_S1.csv v(stck_ma) v(stckg_a) v(win_a) v(full_a) v(tn)
+wrdata electronics/v010/sim/results/hwa_S1.csv v(stck_ma) v(stckg_a) v(win_a) v(full_a) v(tn)
 .endc
 .end

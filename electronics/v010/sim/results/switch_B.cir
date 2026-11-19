@@ -67,6 +67,6 @@ Bmot vmot 0 I=2*min(0.16, max(v(vmot),0)/28.8) + (time>150m ? v(vmot)/4 : 0)
 .control
 set noaskquit
 run
-wrdata /home/user/ai-insulin-pump/.claude/worktrees/agent-a67e2538bfadd5ced/electronics/v010/sim/results/switch_B.csv v(vbat) v(vmot) v(vraw) v(pgate) v(ocok) v(inaout) v(ocmp) i(Vcell)
+wrdata electronics/v010/sim/results/switch_B.csv v(vbat) v(vmot) v(vraw) v(pgate) v(ocok) v(inaout) v(ocmp) i(Vcell)
 .endc
 .end
