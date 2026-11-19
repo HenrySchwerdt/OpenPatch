@@ -74,12 +74,12 @@
 - Before ordering: independent DFM review of the drawing + PCBWay's quote DFM feedback.
 - **Water only (decision 2026-11-19): the pump is never filled with insulin or any drug, not even into containers.** The wetted-path material choice (PP reservoir, medical platinum-cure silicone seals/septum/duckbill, stainless needle; never printed resin) is kept only as design preparation for a future legal manufacturer; the CNC PP reservoir is optional for this project.
 
-## 3b. Plunger coupling = magnetic coupling through a closed reservoir wall (decision 2026-11-19, user)
+## 3b. Plunger coupling = central push rod, closed reservoir (decision 2026-11-19)
 
 - Finding: the previous side-slot coupling (carriage tongue through a slot in the +Y reservoir wall) leaks: the slot must span the whole stroke, so at a full reservoir about 12 mm of slot lie in front of the seal, in the water. It also pushed the plunger 7.2 mm off-axis (cocking).
-- Decision: keep the dimensions and the drive layout (motor + leadscrew + carriage beside the reservoir). The reservoir becomes a **closed tube without any wall opening** (only the port at the closed end; re-freeze `reservoir_frozen` before ordering). The carriage drives the plunger through the wall by a **magnetic coupling** (NdFeB magnets in the plunger and in the carriage).
-- Requirements: coupling shear force ≥ 2 × (seal breakaway + occlusion-alarm back-pressure × bore area), verified by magnetic simulation and a bench pull test; the coupling's break-away force acts as a hard mechanical pressure limit and must lie below the pressure the fluid path withstands; a **direct plunger-position sensor** (hall on the board, reading the plunger magnet) detects coupling slip and verifies delivered volume; stray fields must not disturb the spindle angle sensor or the dock hall (simulated + shielding/orientation if needed).
-- Fallback if the force budget cannot be met: central push rod from the open dry end (pod about one stroke longer).
+- Magnetic coupling through a closed wall (keeps the dimensions) was **rejected by simulation** (`mechanical/sim/studies/magnetic_coupling.py`, magpylib, N52): about 1.2 N maximum shear for magnets that fit the plunger (1.2 mm gap), about 3 N with a doubled plunger length, versus about 1.6 N needed just to move (seal breakaway + duckbill) and about 7 N with occlusion back-pressure (30 kPa × 74.6 mm²) and a safety factor of 2.
+- Decision for v0.1.0: the carriage (beside the reservoir) carries a rigid yoke behind the open dry end and a **push rod on the bore axis** that engages the plunger centre (push and pull, for draw mode). The reservoir is a **closed tube without any wall opening** (only the port at the closed end; re-freeze `reservoir_frozen` before ordering). Width and height stay; length grows by about one stroke (OP-100 about 47 → 60 mm).
+- Study for a later, shorter revision: a flexible push element (spring-steel band or beaded chain in a U-shaped guide) turning around the open end (about +5 mm instead of +stroke).
 
 ## 4. Drive — geared micro stepper + direct leadscrew, automatic refill (decision 2026-11-19)
 
