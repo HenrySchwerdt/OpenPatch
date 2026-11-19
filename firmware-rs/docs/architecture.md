@@ -133,9 +133,10 @@ and the data set is a few small keyed records; `ekv` (LSM tree) pays off for man
 ## Security layers
 
 1. BLE LE Secure Connections, Just Works, bonding only inside the 60 s button window; every characteristic `encrypted`.
-2. Application layer AES-128-CCM (also for 0x90 notifications, nonce direction 2) (`openpatch_proto` feature `aes-ccm`), `allow_plaintext = false`. The session key agreement is an open
-   point of protocol v1: `crypto.rs` isolates it behind `SessionKeySource`; production = stub without key (all frames refused with
-   AUTH), feature `dev-plaintext` = fixed public development key + plaintext accepted. See docs/stubs.md.
+2. Application layer AES-128-CCM (also for 0x90 notifications, nonce direction 2) (`openpatch_proto` feature `aes-ccm`), `allow_plaintext = false`. Keys come from the per-connection
+   key agreement of protocol v1.1 section 5.2 (`docs/04-protocol.md`, `openpatch_proto::handshake`, run by the BLE task, keys handed to the
+   safety task via `SESSION_EVT`): a production connection has no keys until the handshake completes and refuses everything else with AUTH;
+   `crypto.rs` keeps the `SessionKeySource` seam. Feature `dev-plaintext` = fixed public development key + plaintext accepted. See docs/stubs.md.
 3. Replay protection with persisted seq ceiling (above).
 
 ## Core API additions (formerly wishes)

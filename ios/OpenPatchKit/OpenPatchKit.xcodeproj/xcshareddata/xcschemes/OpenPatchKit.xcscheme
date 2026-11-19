@@ -14,7 +14,7 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "13C861C1CE97E72F19A52E98"
+               BlueprintIdentifier = "8930CE0A2BF51CF058A8D4FD"
                BuildableName = "OpenPatchCore.framework"
                BlueprintName = "OpenPatchCore"
                ReferencedContainer = "container:OpenPatchKit.xcodeproj">
@@ -28,7 +28,7 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "6D0BA047EC86EC85432B8083"
+               BlueprintIdentifier = "12C640E0177566A96944A690"
                BuildableName = "OpenPatchKit.framework"
                BlueprintName = "OpenPatchKit"
                ReferencedContainer = "container:OpenPatchKit.xcodeproj">
@@ -42,7 +42,7 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "5ABEE67D4492708076D99E04"
+               BlueprintIdentifier = "6C167C1C61CE4DD709B56BA1"
                BuildableName = "OpenPatchKitUI.framework"
                BlueprintName = "OpenPatchKitUI"
                ReferencedContainer = "container:OpenPatchKit.xcodeproj">
@@ -56,7 +56,7 @@
             buildForAnalyzing = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "D81E89C1A470E7D08531E5FD"
+               BlueprintIdentifier = "B5A1D0252BB1B273DC2DA658"
                BuildableName = "OpenPatchKitTests.xctest"
                BlueprintName = "OpenPatchKitTests"
                ReferencedContainer = "container:OpenPatchKit.xcodeproj">
@@ -74,7 +74,7 @@
             skipped = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "D81E89C1A470E7D08531E5FD"
+               BlueprintIdentifier = "B5A1D0252BB1B273DC2DA658"
                BuildableName = "OpenPatchKitTests.xctest"
                BlueprintName = "OpenPatchKitTests"
                ReferencedContainer = "container:OpenPatchKit.xcodeproj">

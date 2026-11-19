@@ -16,8 +16,8 @@ The application is linked at `0x9000` behind the bootloader: always flash the bo
 `probe-rs run --chip nRF52840_xxAA` (`.cargo/config.toml`) and prints the defmt log (RTT). On a fresh E73 module the first boot writes
 UICR PSELRESET and resets once (docs/boards.md). There is **no default drive**: always pass one `drive-*` feature (nfp-608-26-45-g15-12 (build.sh default), nfp-608-26-45-g1-1, syringe-rig-1ml, zwbpd006006-6-43, zwbpd006006-4-8, faulhaber-adm0620-16). DK: `--no-default-features --features board-nrf52840-dk,angle-tmag,drive-nfp-608-26-45-g15-12,dev-plaintext` (angle simulated). Without the pod's TMAG5273 use `angle-qdec-fallback` (docs/stubs.md: expect deviation faults).
 
-`dev-plaintext` accepts plaintext frames and uses the public development session key. Without it the production stub refuses every
-frame (docs/stubs.md); the bench service (below) works in both builds because it is not an OpenPatch frame, but it needs an
+`dev-plaintext` accepts plaintext frames and uses the public development session key. Without it a connection refuses every frame until the phone has
+run the application layer key agreement (`docs/04-protocol.md`: pairing inside the button window once, then a session handshake per connection); the bench service (below) works in both builds because it is not an OpenPatch frame, but it needs an
 **encrypted BLE link** (button press -> bond).
 
 ## Starting a sequence

@@ -39,9 +39,25 @@ public final class V1Transport: OpenPatchTransport {
     /// Drive calibration from the last status. `prime` is refused without a known one (no assumed volume per step).
     private var calibration: DriveCalibration?
     private var lastReleaseDeliveredMU: UInt32?
+    /// Application layer security (docs/04-protocol.md). With a pairing secret every connection first runs the session
+    /// handshake and all commands / responses are AES-CCM protected; without one the transport speaks plaintext
+    /// (simulator, `dev-plaintext` pods only).
+    private var pairingSecret: [UInt8]?
+    private var channel: SecureChannel?
+    private var sessionWaiters: [(Result<Void, TransportError>) -> Void] = []
+    private let random: (Int) -> [UInt8]
 
     public var eventHandler: ((PodEvent) -> Void)?
     public var isConnected: Bool { link.isConnected }
+    /// A session key agreement completed on the current connection.
+    public var hasSession: Bool { lock.lock(); defer { lock.unlock() }; return channel != nil }
+    /// Replaces the pairing secret (for example after `pair`, or once it was read back from the Keychain).
+    public func setPairingSecret(_ secret: [UInt8]?) { lock.lock(); pairingSecret = secret; channel = nil; lock.unlock() }
+
+    public static func systemRandom(_ count: Int) -> [UInt8] {
+        var generator = SystemRandomNumberGenerator()
+        return (0..<count).map { _ in UInt8.random(in: 0...255, using: &generator) }
+    }
 
     /// State that must survive an app restart. Reported whenever it changes, before the exchange it belongs to
     /// (sequence) or before events are delivered (cursor). The owner persists it and passes it back into `init`.
@@ -56,9 +72,15 @@ public final class V1Transport: OpenPatchTransport {
     /// - Parameters:
     ///   - initialSequence: first command `seq`. Must exceed the highest `seq` the pod accepted before
     ///     (replay protection survives reboots only if the platform stores it, spec 5.2).
+    ///   - pairingSecret: the 32 byte secret created by `pair` (keep it in the Keychain). When set, a session handshake runs
+    ///     before the first command of every connection and the sequence counter restarts at 1 with each session.
+    ///   - random: source of the handshake's ephemeral keys and nonces; must be cryptographically secure.
     public init(link: FrameLink, initialPhase: PodPhase, initialSequence: UInt16 = 1, initialHistoryCursor: UInt32? = nil,
+                pairingSecret: [UInt8]? = nil, random: @escaping (Int) -> [UInt8] = V1Transport.systemRandom,
                 clock: @escaping () -> Date = Date.init,
                 timeOfDayMilliseconds: @escaping () -> UInt32 = V1Transport.localTimeOfDay) {
+        self.pairingSecret = pairingSecret
+        self.random = random
         self.link = link
         self.phaseHint = initialPhase
         self.sequence = initialSequence
@@ -73,8 +95,103 @@ public final class V1Transport: OpenPatchTransport {
         return UInt32(max(seconds, 0) * 1000)
     }
 
-    public func connect(completion: @escaping (Result<Void, TransportError>) -> Void) { link.connect(completion: completion) }
-    public func disconnect() { link.disconnect() }
+    public func connect(completion: @escaping (Result<Void, TransportError>) -> Void) {
+        lock.lock(); channel = nil; lock.unlock()    // session keys never outlive a connection
+        link.connect(completion: completion)
+    }
+    public func disconnect() {
+        lock.lock(); channel = nil; lock.unlock()
+        link.disconnect()
+    }
+
+    // MARK: Key agreement (docs/04-protocol.md)
+
+    private static func transportError(_ failure: SessionHandshake.Failure) -> TransportError {
+        switch failure {
+        case .malformed: return .malformedResponse
+        case .rejected(let code): return code == V1.Result.pair.rawValue ? .notPaired : .sessionFailed
+        case .badConfirmation, .lowOrderPoint: return .sessionFailed
+        }
+    }
+
+    private func runHandshake(_ initiator: SessionHandshake.Initiator, completion: @escaping (Result<SessionHandshake.Outcome, TransportError>) -> Void) {
+        let initFrame = initiator.initFrame()
+        link.exchange(frame: initFrame, seq: 0) { [weak self] result in
+            guard let self else { return }
+            switch result {
+            case .failure(let error): completion(.failure(error))
+            case .success(let response):
+                do {
+                    let finish = try initiator.finishFrame(initResponse: response)
+                    self.link.exchange(frame: finish, seq: 1) { result in
+                        switch result {
+                        case .failure(let error): completion(.failure(error))
+                        case .success(let reply):
+                            do { completion(.success(try initiator.complete(finishResponse: reply))) }
+                            catch { completion(.failure(Self.transportError(error as? SessionHandshake.Failure ?? .malformed))) }
+                        }
+                    }
+                } catch {
+                    completion(.failure(Self.transportError(error as? SessionHandshake.Failure ?? .malformed)))
+                }
+            }
+        }
+    }
+
+    /// Creates the long-term pairing secret. Only works while the pod's button window is open (press the button first;
+    /// call after the BLE bond is made). The caller must persist the returned secret (Keychain, this device only). The
+    /// transport keeps it in memory and uses it for the following sessions. `oob` is an optional out-of-band code.
+    public func pair(oob: [UInt8] = [], completion: @escaping (Result<[UInt8], TransportError>) -> Void) {
+        guard link.isConnected else { return completion(.failure(.notConnected)) }
+        guard let initiator = try? SessionHandshake.Initiator(pairingWithOOB: oob, random: random) else { return completion(.failure(.sessionFailed)) }
+        runHandshake(initiator) { [weak self] result in
+            switch result {
+            case .failure(let error): completion(.failure(error))
+            case .success(.paired(let secret)):
+                self?.setPairingSecret(secret)
+                completion(.success(secret))
+            case .success: completion(.failure(.malformedResponse))
+            }
+        }
+    }
+
+    /// Runs the session handshake with the stored pairing secret and installs the session (sequence restarts at 1).
+    public func establishSession(completion: @escaping (Result<Void, TransportError>) -> Void) {
+        guard link.isConnected else { return completion(.failure(.notConnected)) }
+        lock.lock(); let secret = pairingSecret; lock.unlock()
+        guard let secret else { return completion(.failure(.notPaired)) }
+        guard let initiator = try? SessionHandshake.Initiator(sessionWith: secret, random: random) else { return completion(.failure(.sessionFailed)) }
+        runHandshake(initiator) { [weak self] result in
+            guard let self else { return }
+            switch result {
+            case .failure(let error): completion(.failure(error))
+            case .success(.session(let keys)):
+                self.lock.lock()
+                self.channel = SecureChannel(keys: keys)
+                self.sequence = 1                      // the sequence space is per session
+                let checkpoint = Checkpoint(nextSequence: 1, historyCursor: self.historyCursor)
+                self.lock.unlock()
+                self.checkpointHandler?(checkpoint)
+                completion(.success(()))
+            case .success: completion(.failure(.malformedResponse))
+            }
+        }
+    }
+
+    /// With a pairing secret every command needs a session: run the handshake once, however many sends wait for it.
+    private func ensureSession(_ done: @escaping (Result<Void, TransportError>) -> Void) {
+        lock.lock()
+        if pairingSecret == nil || channel != nil { lock.unlock(); return done(.success(())) }
+        sessionWaiters.append(done)
+        let leader = sessionWaiters.count == 1
+        lock.unlock()
+        guard leader else { return }
+        establishSession { [weak self] result in
+            guard let self else { return }
+            self.lock.lock(); let waiters = self.sessionWaiters; self.sessionWaiters = []; self.lock.unlock()
+            waiters.forEach { $0(result) }
+        }
+    }
 
     // MARK: Domain -> wire
 
@@ -176,6 +293,14 @@ public final class V1Transport: OpenPatchTransport {
 
     public func send(_ command: Command, completion: @escaping (Result<Response, TransportError>) -> Void) {
         guard link.isConnected else { return completion(.failure(.notConnected)) }
+        ensureSession { [weak self] result in
+            guard let self else { return }
+            if case .failure(let error) = result { return completion(.failure(error)) }
+            self.sendPlanned(command, completion: completion)
+        }
+    }
+
+    private func sendPlanned(_ command: Command, completion: @escaping (Result<Response, TransportError>) -> Void) {
         switch plan(for: command) {
         case .local:
             refreshStatus(completion: completion)
@@ -206,15 +331,19 @@ public final class V1Transport: OpenPatchTransport {
         let seq = sequence
         sequence = sequence >= 0xFFFE ? 0xFFFE : sequence + 1   // 0xFFFF reserved; at the end a new session is needed
         let checkpoint = Checkpoint(nextSequence: sequence, historyCursor: historyCursor)
+        let secure = channel
         lock.unlock()
         checkpointHandler?(checkpoint)
         let withTime = tlvs + [V1.TLV(.timeOfDayMS, u32: timeOfDayMilliseconds())]
-        let frame = V1.encode(V1.Message(type: id.rawValue, seq: seq, tlvs: withTime))
+        let request = V1.Message(type: id.rawValue, seq: seq, tlvs: withTime)
+        let frame = secure?.seal(request) ?? V1.encode(request)
         link.exchange(frame: frame, seq: seq) { result in
             switch result {
             case .failure(let error): completion(.failure(error))
             case .success(let data):
-                guard let message = try? V1.decode(data), message.isResponse, message.seq == seq,
+                // With a session only authenticated, decrypted responses count: a plaintext reply is refused.
+                let decoded: V1.Message? = secure != nil ? try? secure?.open(data) : try? V1.decode(data)
+                guard let message = decoded, message.isResponse, message.seq == seq,
                       message.type == (id.rawValue | V1.responseFlag) else { return completion(.failure(.malformedResponse)) }
                 completion(.success(message))
             }

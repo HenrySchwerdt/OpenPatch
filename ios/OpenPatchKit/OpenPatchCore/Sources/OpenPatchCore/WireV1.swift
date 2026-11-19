@@ -140,6 +140,20 @@ public enum V1 {
         return Data(bytes)
     }
 
+    /// Splits a TLV payload (`tag | length | value` ...). A truncated TLV is invalid; unknown tags are kept.
+    static func parseTLVs(_ payload: [UInt8]) throws -> [TLV] {
+        var tlvs: [TLV] = []
+        var index = 0
+        while index < payload.count {
+            guard index + 2 <= payload.count else { throw CodecError.invalidPayload }
+            let tag = payload[index], count = Int(payload[index + 1])
+            guard index + 2 + count <= payload.count else { throw CodecError.invalidPayload }
+            tlvs.append(TLV(tag: tag, value: Array(payload[(index + 2)..<(index + 2 + count)])))
+            index += 2 + count
+        }
+        return tlvs
+    }
+
     /// Checks in the order the firmware does: length consistency, CRC, version. Unknown tags are kept and skipped by readers.
     public static func decode(_ data: Data) throws -> Message {
         let bytes = [UInt8](data)
@@ -153,16 +167,7 @@ public enum V1 {
         let flags = bytes[2]
         guard flags & flagEncrypted == 0 else { throw CodecError.encrypted }
 
-        var tlvs: [TLV] = []
-        var index = headerSize
-        let end = headerSize + length
-        while index < end {
-            guard index + 2 <= end else { throw CodecError.invalidPayload }
-            let tag = bytes[index], count = Int(bytes[index + 1])
-            guard index + 2 + count <= end else { throw CodecError.invalidPayload }
-            tlvs.append(TLV(tag: tag, value: Array(bytes[(index + 2)..<(index + 2 + count)])))
-            index += 2 + count
-        }
+        let tlvs = try parseTLVs(Array(bytes[headerSize..<(headerSize + length)]))
         return Message(type: bytes[1], flags: flags, seq: UInt16(bytes[3]) | UInt16(bytes[4]) << 8, tlvs: tlvs)
     }
 }
