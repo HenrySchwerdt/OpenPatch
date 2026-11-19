@@ -65,7 +65,7 @@ BENCH_COLORS = ["--body", "top:opacity=0.18,color=#9fb3c8", "--body", "bottom:op
 
 
 def run_cli(*args: str) -> subprocess.CompletedProcess:
-    res = subprocess.run([CLI, *args], capture_output=True, text=True)
+    res = subprocess.run([CLI, *args], capture_output=True, text=True, cwd=HERE)   # cwd = mechanical/: scripts hold relative paths
     if res.returncode != 0:
         sys.stderr.write(res.stdout[-2000:] + res.stderr[-3000:])
         raise SystemExit(f"solidcraft-cli {' '.join(args[:2])} failed")
@@ -252,7 +252,7 @@ def main() -> None:
     (out / "params.used.json").write_text(json.dumps(p, indent=1), encoding="utf-8")
     ms, _ = build_mould(p)
     mj = out / "mould.script.json"
-    mj.write_text(json.dumps(ms.dumps()).replace("__OUT__", str(out)), encoding="utf-8")
+    mj.write_text(json.dumps(ms.dumps()).replace("__OUT__", os.path.relpath(out, HERE)), encoding="utf-8")
     run_cli("run", str(mj), "--save", str(out / "mould.sc"), "--quiet")
     for v in sizes:
         L = generate_size(copy.deepcopy(p), v, out, not args.no_snapshots)
