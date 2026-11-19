@@ -108,7 +108,8 @@ def build_bottom(s: Script, p: dict, L: dict) -> None:
         if L["coax"]:
             from op_coax import build_coax_cuts
             cut.extend(build_coax_cuts(s, p, L))
-    cut.append(s.rrect("t_vel", (L["x_r0"] + vc["margin_x"], L["x_r1"] - 1.5), (vc["y0"], vc["y1"]), vc["r"], (-0.1, vc["depth"])))
+    _vx1 = L["x_r1"] + p["dock"]["cover"]["x_end_u"] if (bench and p["dock"].get("cover")) else L["x_r1"] - 1.5     # bench: the Velcro patch also covers the fill hole (H14)
+    cut.append(s.rrect("t_vel", (L["x_r0"] + vc["margin_x"], _vx1), (vc["y0"], vc["y1"]), vc["r"], (-0.1, vc["depth"])))
     n = L["nfp_term"]
     if bench and n and not L["coax"]:       # side-by-side motor: terminal block pocket (pins point down), lead channel to the +X wall slot
         ld = p["bench"]["lead"]

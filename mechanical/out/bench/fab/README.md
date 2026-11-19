@@ -39,14 +39,14 @@ The reservoir is an SLA clear part (water test only), same as the integrated var
 
 Price model identical to the integrated variant (MJF 0.28 USD/g x 1.6, min 1.5 USD/part; SLA min 2.0 USD/part). Shipping 8-18 USD (one order).
 
-| size | bottom x1 | top x1 | carriage x2 | plunger_core x2 | plunger_nose x2 | reservoir x1 | cannula_adapter x2 | end_cap x2 | end_cap_lid x2 | thrust_sleeve x2 | thrust_collar x2 | subtotal |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| OP-70 | $1.5 | $2.0 | $4.0 | $4.0 | $4.0 | $2.0 | $4.0 | $4.0 | $4.0 | $4.0 | $4.0 | $37.5 |
-| OP-100 | $1.5 | $2.2 | $4.0 | $4.0 | $4.0 | $2.0 | $4.0 | $4.0 | $4.0 | $4.0 | $4.0 | $37.7 |
-| OP-200 | $1.5 | $2.7 | $4.0 | $4.0 | $4.0 | $2.0 | $4.0 | $4.0 | $4.0 | $4.0 | $4.0 | $38.2 |
+| size | bottom x1 | top x1 | carriage x2 | plunger_core x2 | reservoir x1 | cannula_adapter x2 | end_cap x2 | end_cap_lid x2 | thrust_sleeve x2 | thrust_collar x2 | subtotal |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| OP-70 | $1.5 | $2.0 | $4.0 | $4.0 | $2.0 | $4.0 | $4.0 | $4.0 | $4.0 | $4.0 | $33.5 |
+| OP-100 | $1.5 | $2.2 | $4.0 | $4.0 | $2.0 | $4.0 | $4.0 | $4.0 | $4.0 | $4.0 | $33.7 |
+| OP-200 | $1.5 | $2.7 | $4.0 | $4.0 | $2.0 | $4.0 | $4.0 | $4.0 | $4.0 | $4.0 | $34.2 |
 
-* Printed parts for ONE pod size: about **$38** (+ shipping); all three sizes: about **$113**.
+* Printed parts for ONE pod size: about **$34** (+ shipping); all three sizes: about **$101**.
 * Dock insert set (12 SLA inserts + 1 fixture): about $26 - order it with the first pod batch, it decides the cannula.* values; later iterations only need the inserts that changed.
 * Mould (once, reusable): about $126.
-* Per iteration (1 size + coupon + shipping, no mould): about **$71 - $81**; repeat iterations without coupon about $46 - $56.
+* Per iteration (1 size + coupon + shipping, no mould): about **$67 - $77**; repeat iterations without coupon about $42 - $52.
 * Not included: pod sensor board PCBA (see electronics), motor (reusable), spring contacts, FFC cable, magnets, needle hubs: see `../ASSEMBLY.md`.

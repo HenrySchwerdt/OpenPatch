@@ -743,7 +743,12 @@
    "fill_hole_d": 2.0,
    "_note_3c": "2026-11-19 spec 3c: NO check valve, pressure fill. Minimal module: reservoir port -> septum chamber -> outlet needle. Septum on the UNDERSIDE (axis Z) at (x_r1 + septum_x, y_c - septum_dy), fill needle through cap.fill_hole_d and a hole in the pod floor; one gasket slot, no branches."
   },
-  "guard_lead_in": 0.4
+  "guard_lead_in": 0.4,
+  "cover": {
+   "_comment": "Hazard H14 (spec 3e): no check valve, so the fill septum must be physically unreachable while docked. Omnipod-style: the septum is on the pod UNDERSIDE inside the Velcro patch footprint (the floor recess `velcro`, extended forward to x_r1 + x_end_u), so the patch covers the underside, and therefore the fill-needle hole, whenever the pod sits on it (docked); the pod must be removed and turned over to fill. check.py: the hole footprint (septum x, y, hole d + needle radius) must lie inside the patch footprint; a plate directly under the floor blocks every ray (any angle) through the hole.",
+   "x_end_u": 4.0,
+   "needle_d": 0.4
+  }
  },
  "coax": {
   "_comment": "Coaxial NFP motor + sleeve coupler (see op_coax.py). All lengths VERIFY with the real motor. valve_d/valve_len/dock.valve_x0 are LEGACY (coaxial layout only): the bench pod has no check valve since spec 3c.",

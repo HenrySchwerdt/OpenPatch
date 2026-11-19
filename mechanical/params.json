@@ -726,15 +726,8 @@
   },
   "guard_lead_in": 0.4,
   "cover": {
-   "_comment": "Hazard H14 (spec 3e): with no check valve the fill septum must be physically unreachable while docked. 'cover' = footprint (pod frame: x_u from x_r1, y relative to the dock axis y_c) of the plate that closes the pod underside when docked (cannula base plate J x K = 11 x 11 sliding in the dock window, directly below the floor). check.py: the fill-needle hole footprint (septum x, y, hole d) must lie inside this footprint shrunk by the needle radius; a plate adjacent to the floor blocks every ray (any angle) that passes through the hole.",
-   "x_u": [
-    4.4,
-    15.4
-   ],
-   "y_rel": [
-    -5.5,
-    5.5
-   ],
+   "_comment": "Hazard H14 (spec 3e): no check valve, so the fill septum must be physically unreachable while docked. Omnipod-style: the septum is on the pod UNDERSIDE inside the Velcro patch footprint (the floor recess `velcro`, extended forward to x_r1 + x_end_u), so the patch covers the underside, and therefore the fill-needle hole, whenever the pod sits on it (docked); the pod must be removed and turned over to fill. check.py: the hole footprint (septum x, y, hole d + needle radius) must lie inside the patch footprint; a plate directly under the floor blocks every ray (any angle) through the hole.",
+   "x_end_u": 4.0,
    "needle_d": 0.4
   }
  },

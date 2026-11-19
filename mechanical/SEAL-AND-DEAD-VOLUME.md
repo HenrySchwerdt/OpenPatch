@@ -79,7 +79,7 @@ Occlusion / thrust (sim 1.3-1.6, 5.4-5.5): thrust margin over static friction at
 
 ## 2b. Minimal fluid module (spec 3c: no check valve), clamped sandwich
 
-The fluid module is now the minimum: **reservoir port -> septum chamber -> outlet needle** (`op_cap.py`, params `dock.cap.sandwich`). No valve, no valve pocket / plug, no branching channels. Two printed halves split on the port plane (z = 4.2) close on hard lands with two M1.2 x 6 screws; every soft part is **dropped into an open pocket**; the squeezes are set by the lands, not by print tolerance. Fill septum on the **underside** (axis Z), fill needle through a d2.0 hole in the base and the pod floor (accessible when undocked).
+The fluid module is now the minimum: **reservoir port -> septum chamber -> outlet needle** (`op_cap.py`, params `dock.cap.sandwich`). No valve, no valve pocket / plug, no branching channels. Two printed halves split on the port plane (z = 4.2) close on hard lands with two M1.2 x 6 screws; every soft part is **dropped into an open pocket**; the squeezes are set by the lands, not by print tolerance. Fill septum on the **underside** (axis Z), fill needle through a d2.0 hole in the base and the pod floor, inside the Velcro patch footprint: covered while docked, reachable only with the pod removed and turned over (hazard H14; `check_fill_unreachable`).
 
 | interface | seal element | squeeze (set by) | check |
 |---|---|---|---|

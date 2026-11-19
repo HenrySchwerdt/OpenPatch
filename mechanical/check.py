@@ -156,21 +156,23 @@ def check_fluid_boundary(p: dict, L: dict) -> tuple[list, list]:
 
 
 def check_fill_unreachable(p: dict, L: dict) -> tuple[list, list]:
-    """Hazard H14: with the pod docked no straight needle path (needle d0.4, any direction from outside) may reach the fill septum.
-    The septum is on the underside; its fill-needle hole (cap.fill_hole_d through the pod floor and the base) is the only opening, so a ray reaches the septum only if it passes
-    through that hole.  The docked cover plate (dock.cover footprint, directly under the floor) blocks every such ray iff the hole footprint lies inside the plate footprint
-    shrunk by the needle radius.  Returns (problems, known_failing)."""
-    cp, cv = p["dock"]["cap"], p["dock"].get("cover")
+    """Hazard H14 (spec 3e): with the pod docked no straight needle path (needle d0.4, any direction from outside) may reach the fill septum.
+    The septum is on the UNDERSIDE; its fill-needle hole (cap.fill_hole_d through the pod floor and the base) is the only opening, so a ray reaches the septum only if it passes
+    through that hole.  While docked the pod sits on the Velcro patch, which covers the whole underside footprint (floor recess `velcro`, x to x_r1 + dock.cover.x_end_u); a plate directly
+    under the floor blocks every ray (any angle) through the hole iff the hole footprint (+ needle radius) lies inside the patch footprint.  Returns (problems, known_failing)."""
+    cp, cv, vc = p["dock"]["cap"], p["dock"].get("cover"), p["velcro"]
     if not cv:
         return ["fluid: no docked cover defined (dock.cover): fill septum reachable while docked (H14)"], []
-    r = cp["fill_hole_d"] / 2 + cv["needle_d"] / 2
-    x, y = cp["septum_x"], -cp["septum_dy"]
-    ok = (cv["x_u"][0] + cv["needle_d"] / 2 <= x - r + 1e-9 and x + r <= cv["x_u"][1] - cv["needle_d"] / 2 + 1e-9
-          and cv["y_rel"][0] + cv["needle_d"] / 2 <= y - r + 1e-9 and y + r <= cv["y_rel"][1] - cv["needle_d"] / 2 + 1e-9)
+    nr = cv["needle_d"] / 2
+    r = cp["fill_hole_d"] / 2 + nr
+    hx, hy = L["x_r1"] + cp["septum_x"], L["dock"]["y_c"] - cp["septum_dy"]
+    px0, px1 = L["x_r0"] + vc["margin_x"], L["x_r1"] + cv["x_end_u"]
+    py0, py1 = vc["y0"], vc["y1"]
+    ok = px0 <= hx - r and hx + r <= px1 and py0 <= hy - r and hy + r <= py1
     if ok:
         return [], []
-    return [], [f"H14 fill septum reachable while docked: underside fill hole at x_u {x - r:.1f}..{x + r:.1f}, y {y - r:.1f}..{y + r:.1f} is NOT under the docked cover plate "
-               f"(x_u {cv['x_u'][0]}..{cv['x_u'][1]}, y {cv['y_rel'][0]}..{cv['y_rel'][1]}): a needle can enter the hole while docked and inject through the outlet (no check valve)"]
+    return [f"H14 fill septum reachable while docked: underside fill hole at x {hx - r:.1f}..{hx + r:.1f}, y {hy - r:.1f}..{hy + r:.1f} is NOT inside the Velcro patch footprint "
+            f"(x {px0:.1f}..{px1:.1f}, y {py0}..{py1}): a needle can enter the hole while docked and inject through the outlet (no check valve)"], []
 
 
 def check_bench(p: dict, L: dict, bodies: list) -> tuple[list, list]:

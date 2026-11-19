@@ -156,3 +156,5 @@ front-most bead of the active seal variant) up to the end face, plus the port, t
 line stays inside the bore for the whole stroke; (3) the plunger front stays behind the chamber end; (4) every cap interface (O-ring face seal, gasket, septum, needle) has a defined seal element with its squeeze inside the limits (gap >= 0 without a seal = FAIL). Item (1) currently
 **FAILS on the slotted design and is reported as `KNOWN-FAIL` (known open: reservoir slot) with an explicit message** (exit code 0 unless `python3 check.py --variant bench --strict`); it is removed from the known list only
 when the coupling no longer opens the wetted zone. Do not read an interference PASS as a sealing PASS.
+
+**H14 check (`check_fill_unreachable`):** the fill septum is on the underside inside the Velcro patch footprint (floor recess extended to x_r1 + `dock.cover.x_end_u`); the check fails if the fill-needle hole footprint (+ needle radius) is not inside that footprint, because a patch plate directly under the floor blocks every straight needle path through the hole.
