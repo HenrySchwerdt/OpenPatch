@@ -66,11 +66,11 @@ def screw(length: float) -> Part:
 
 
 def build() -> list[Part]:
-    return [rod(19.0), rod(22.0), rod(37.0), nut(), screw(3.0), screw(4.0)]
+    return [rod(19.0), rod(22.0), rod(37.0), rod(21.0), rod(25.0), rod(38.5), nut(), screw(3.0), screw(4.0)]
 
 
 META = {}
-for L in (19.0, 22.0, 37.0):
+for L in (19.0, 22.0, 37.0, 21.0, 25.0, 38.5):
     META[f"rod_m1p6_{L:g}"] = dict(
         title=f"M1.6x0.35 A2/304 stainless threaded rod cut to {L:g} mm (project cut lengths 19/22/37)",
         material="stainless steel A2 (1.4301)", colour="steel grey",

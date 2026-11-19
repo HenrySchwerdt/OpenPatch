@@ -1315,6 +1315,43 @@
   "notes": "Standard thread, no vendor-specific geometry. Cut ends modelled square (real cut ends are burred).",
   "used_for": "leadscrew, OP-70 cut length"
  },
+ "rod_m1p6_21": {
+  "title": "M1.6x0.35 A2/304 stainless threaded rod cut to 21 mm (project cut lengths 19/22/37)",
+  "files": {
+   "step": "out/rod_m1p6_21.step",
+   "stl": "out/rod_m1p6_21.stl",
+   "glb": "out/rod_m1p6_21.glb",
+   "png": "out/rod_m1p6_21.png"
+  },
+  "size_mm": [
+   1.6,
+   1.6,
+   21.0
+  ],
+  "bbox_mm": {
+   "min": [
+    -0.8,
+    -0.8,
+    0.0
+   ],
+   "max": [
+    0.8,
+    0.8,
+    21.0
+   ]
+  },
+  "mass_g_estimate": 0.2527,
+  "material": "stainless steel A2 (1.4301)",
+  "colour": "steel grey",
+  "bodies": {
+   "rod": "steel"
+  },
+  "frame": "Z axis, z=0 at one end, rod to +Z",
+  "source": "ISO 261/965: M1.6 coarse pitch 0.35, major d 1.6; thread is a true helical modelled thread (SolidCraft solid.thread, 60 deg ISO profile). Stock 1 m rod is DIN 976-1 class",
+  "confidence": "datasheet (standard)",
+  "notes": "Standard thread, no vendor-specific geometry. Cut ends modelled square (real cut ends are burred).",
+  "used_for": ""
+ },
  "rod_m1p6_22": {
   "title": "M1.6x0.35 A2/304 stainless threaded rod cut to 22 mm (project cut lengths 19/22/37)",
   "files": {
@@ -1352,6 +1389,43 @@
   "notes": "Standard thread, no vendor-specific geometry. Cut ends modelled square (real cut ends are burred).",
   "used_for": "leadscrew, OP-100 cut length"
  },
+ "rod_m1p6_25": {
+  "title": "M1.6x0.35 A2/304 stainless threaded rod cut to 25 mm (project cut lengths 19/22/37)",
+  "files": {
+   "step": "out/rod_m1p6_25.step",
+   "stl": "out/rod_m1p6_25.stl",
+   "glb": "out/rod_m1p6_25.glb",
+   "png": "out/rod_m1p6_25.png"
+  },
+  "size_mm": [
+   1.6,
+   1.6,
+   25.0
+  ],
+  "bbox_mm": {
+   "min": [
+    -0.8,
+    -0.8,
+    0.0
+   ],
+   "max": [
+    0.8,
+    0.8,
+    25.0
+   ]
+  },
+  "mass_g_estimate": 0.3009,
+  "material": "stainless steel A2 (1.4301)",
+  "colour": "steel grey",
+  "bodies": {
+   "rod": "steel"
+  },
+  "frame": "Z axis, z=0 at one end, rod to +Z",
+  "source": "ISO 261/965: M1.6 coarse pitch 0.35, major d 1.6; thread is a true helical modelled thread (SolidCraft solid.thread, 60 deg ISO profile). Stock 1 m rod is DIN 976-1 class",
+  "confidence": "datasheet (standard)",
+  "notes": "Standard thread, no vendor-specific geometry. Cut ends modelled square (real cut ends are burred).",
+  "used_for": ""
+ },
  "rod_m1p6_37": {
   "title": "M1.6x0.35 A2/304 stainless threaded rod cut to 37 mm (project cut lengths 19/22/37)",
   "files": {
@@ -1388,6 +1462,43 @@
   "confidence": "datasheet (standard)",
   "notes": "Standard thread, no vendor-specific geometry. Cut ends modelled square (real cut ends are burred).",
   "used_for": "leadscrew, OP-200 cut length"
+ },
+ "rod_m1p6_38.5": {
+  "title": "M1.6x0.35 A2/304 stainless threaded rod cut to 38.5 mm (project cut lengths 19/22/37)",
+  "files": {
+   "step": "out/rod_m1p6_38.5.step",
+   "stl": "out/rod_m1p6_38.5.stl",
+   "glb": "out/rod_m1p6_38.5.glb",
+   "png": "out/rod_m1p6_38.5.png"
+  },
+  "size_mm": [
+   1.6,
+   1.6,
+   38.5
+  ],
+  "bbox_mm": {
+   "min": [
+    -0.8,
+    -0.8,
+    0.0
+   ],
+   "max": [
+    0.8,
+    0.8,
+    38.5
+   ]
+  },
+  "mass_g_estimate": 0.4637,
+  "material": "stainless steel A2 (1.4301)",
+  "colour": "steel grey",
+  "bodies": {
+   "rod": "steel"
+  },
+  "frame": "Z axis, z=0 at one end, rod to +Z",
+  "source": "ISO 261/965: M1.6 coarse pitch 0.35, major d 1.6; thread is a true helical modelled thread (SolidCraft solid.thread, 60 deg ISO profile). Stock 1 m rod is DIN 976-1 class",
+  "confidence": "datasheet (standard)",
+  "notes": "Standard thread, no vendor-specific geometry. Cut ends modelled square (real cut ends are burred).",
+  "used_for": ""
  },
  "screw_iso7045_m1p2x3": {
   "title": "ISO 7045-style M1.2x3 pan head cross-recess screw, A2 stainless",

@@ -35,7 +35,7 @@ Source: nfpshop.com, datasheet `stepper-gear-motor-spec-NFP-608-26.45-SGM.pdf` (
 
 | item | value | status |
 |---|---|---|
-| body | diameter 6.0 +-0.1, total length **15.1** = gearbox **8.1** +-0.1 + motor **8.0** +-0.1 | VERIFIED-DATASHEET |
+| body | diameter 6.0 +-0.1, total length **16.1** = gearbox **8.1** +-0.1 + motor **8.0** +-0.1 (the earlier 15.1 was a sum error; the CAD has always used 8.1 + 8.0) | VERIFIED-DATASHEET |
 | output shaft | diameter **2.0** (+0/-0.05) with D-flat to **1.5** (+0/-0.05), flat length **2.5** +-0.05; 11.7 +-0.1 from the shaft reference line (start of the flat) to the gearbox/motor junction | VERIFIED-DATASHEET |
 | front boss | diameter 3.5 x 0.8 (gearbox face) | VERIFIED-DATASHEET |
 | rear boss | diameter 2.6, short (0.7 mm assumed) | DERIVED, VERIFY |
@@ -181,3 +181,9 @@ The reservoir is ONE CNC PP piece per size (`out/bench/fab/reservoir-cnc/`, READ
 d2.0 H7 port, arm slot in the +Y wall; nothing else. Frozen numbers: `params.json -> reservoir_frozen`. The **end cap** (`end_cap`, SLA for water; PP later) presses onto the port (d1.98 spigot) and carries the fill septum
 (through a d2.0 hole in the -Y wall), the duckbill valve pocket and the needle-hub guard tube; valve/septum/dock changes only touch the cap. Seal: platinum-cure medical silicone lip seals (mould as before) or a bromobutyl stopper
 cut to the stadium shape; see the CNC README. Tests with water only, never a person.
+
+
+## Open point: FFC connector height (2026-11-19)
+The Hirose FH12-10S-0.5SH(55) is **2.0 mm high** (datasheet, `components/catalog.json`), not 1.0 mm. Free height above the 0.6 mm pod board under the 8.4 mm lid is 1.6 mm, so it does not fit. The CAD
+keeps a 1.0 mm envelope (`bench.ffc.conn`) for a **<= 1.2 mm bottom-contact ZIF, 10 pos, 0.5 mm pitch**; candidate class Hirose FH19C/FH19SC (0.9 mm per the series data; 10-pin bottom-contact variant and LCSC number NOT verified).
+Do not order the FH12 for the pod board until a low-profile part is confirmed.

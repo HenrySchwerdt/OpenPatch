@@ -69,13 +69,13 @@
   "z_n": 3.0,
   "R": 5.0,
   "notch_half": 3.1418745424597088,
-  "hook_in": 3.2918745424597087,
-  "travel": 1.808125457540291,
+  "hook_in": 3.1918745424597086,
+  "travel": 1.908125457540291,
   "x_hook": 41.4,
   "flex_len": 10.400000000000002,
-  "arm_strain": 0.015045422631159959,
-  "arm_tip_force_N": 0.5385971966904665,
-  "arm_t": 0.6,
+  "arm_strain": 0.01984690402859492,
+  "arm_tip_force_N": 1.1101265579696344,
+  "arm_t": 0.75,
   "arm_h": 3.6500000000000004,
   "arm_x": [
    30.999999999999996,
@@ -83,7 +83,7 @@
   ],
   "shroud_end": 33.99999999999999,
   "mouth_half": 6.2,
-  "floor_half": 5.8999999999999995,
+  "floor_half": 6.05,
   "arm_in": 5.2,
   "x_arm0": 30.999999999999996,
   "strain_ok": true
@@ -231,13 +231,30 @@
   0.9,
   1.9
  ],
- "screw_tip": 25.949999999999996,
+ "screw_tip": 26.65,
+ "thrust": {
+  "sleeve": [
+   1.95,
+   4.0
+  ],
+  "sleeve_od": 2.0,
+  "collar": [
+   25.65,
+   26.65
+  ],
+  "collar_od": 2.4,
+  "rod_len": 25.0,
+  "rod_x": [
+   1.6499999999999986,
+   26.65
+  ]
+ },
  "mag_x": [
-  25.949999999999996,
-  27.449999999999996
+  26.65,
+  28.15
  ],
  "hall": {
-  "x": 29.149999999999995,
+  "x": 29.849999999999998,
   "y": 22.5,
   "z_top": 4.9,
   "side": "bottom",
@@ -249,13 +266,13 @@
  },
  "drv5032": [
   {
-   "x": 29.149999999999995,
+   "x": 29.849999999999998,
    "y": 20.9,
    "z_top": 4.9,
    "side": "bottom"
   },
   {
-   "x": 29.149999999999995,
+   "x": 29.849999999999998,
    "y": 24.1,
    "z_top": 4.9,
    "side": "bottom"
@@ -296,7 +313,7 @@
   "cutouts": {
    "magnet": [
     25.799999999999997,
-    28.149999999999995,
+    28.849999999999998,
     21.1,
     23.9
    ],
@@ -372,8 +389,8 @@
  },
  "bench": {
   "xr": 25.799999999999997,
-  "X0": 27.699999999999996,
-  "U0": 1.9,
+  "X0": 28.4,
+  "U0": 2.6,
   "V0": 4.6,
   "ztop": 5.8999999999999995,
   "z0": 5.3,
@@ -385,87 +402,87 @@
     15.6
    ],
    [
-    7.1,
+    6.4,
     15.6
    ],
    [
-    7.1,
+    6.4,
     9.9
    ],
    [
-    13.4,
+    12.7,
     9.9
    ],
    [
-    13.4,
+    12.7,
     0.0
    ],
    [
-    17.8,
+    17.1,
     0.0
    ],
    [
-    17.8,
+    17.1,
     9.9
    ],
    [
-    17.8,
+    17.1,
     18.4
    ],
    [
-    17.7786,
+    17.0786,
     18.7263
    ],
    [
-    17.7148,
+    17.0148,
     19.047
    ],
    [
-    17.6097,
+    16.9097,
     19.3567
    ],
    [
-    17.4651,
+    16.7651,
     19.65
    ],
    [
-    17.2834,
+    16.5834,
     19.9219
    ],
    [
-    17.0678,
+    16.3678,
     20.1678
    ],
    [
-    16.8219,
+    16.1219,
     20.3834
    ],
    [
-    16.55,
+    15.85,
     20.5651
    ],
    [
-    16.2567,
+    15.5567,
     20.7097
    ],
    [
-    15.947,
+    15.247,
     20.8148
    ],
    [
-    15.6263,
+    14.9263,
     20.8786
    ],
    [
-    15.3,
+    14.6,
     20.9
    ],
    [
-    7.1,
+    6.4,
     20.9
    ],
    [
-    7.1,
+    6.4,
     20.1
    ],
    [
@@ -473,7 +490,7 @@
     20.1
    ]
   ],
-  "width": 17.799999999999997,
+  "width": 17.099999999999994,
   "height": 20.9,
   "sensors": [
    {
@@ -485,7 +502,7 @@
      17.9
     ],
     "center_pod_mm": [
-     29.5,
+     30.2,
      22.5
     ],
     "body_xyz_mm": [
@@ -516,7 +533,7 @@
      16.4
     ],
     "center_pod_mm": [
-     28.6,
+     29.3,
      21.0
     ],
     "body_xyz_mm": [
@@ -551,7 +568,7 @@
      19.1
     ],
     "center_pod_mm": [
-     28.6,
+     29.3,
      23.7
     ],
     "body_xyz_mm": [
@@ -582,7 +599,7 @@
     "part": "DRV5032FADMR (X2SON-4 1.1x1.4, LCSC C2152496), omnipolar switch",
     "side": "bottom",
     "center_board_mm": [
-     16.1,
+     15.4,
      6.6
     ],
     "center_pod_mm": [
@@ -617,7 +634,7 @@
   "magnets": {
    "spindle": {
     "center_pod_mm": [
-     26.7,
+     27.4,
      22.5,
      4.2
     ],
@@ -625,7 +642,7 @@
     "t_mm": 1.5,
     "axis": "X",
     "magnetisation": "diametric (rotates with the spindle)",
-    "end_face_x_pod": 27.45,
+    "end_face_x_pod": 28.15,
     "spindle_axis_yz_pod": [
      22.5,
      4.2
@@ -691,14 +708,14 @@
    }
   },
   "ffc": {
-   "part": "Hirose FH12-10S-0.5SH(55) (LCSC C506791, 10 pos, 0.5 mm pitch, ~1.0 mm high, ZIF flip-lock)",
-   "alt_part": "generic FPC-05F-10PH20 (XUNPU C2856798) is 2.0 mm high: too tall; keep Hirose",
+   "part": "OPEN POINT: a 10-pos 0.5 mm pitch bottom-contact ZIF FPC connector <= 1.2 mm high (CAD envelope 1.0 mm, bench.ffc.conn). Candidate class: Hirose FH19C/FH19SC (0.9 mm height per Hirose series data; 10-pin bottom-contact variant and LCSC number NOT verified).",
+   "alt_part": "Hirose FH12-10S-0.5SH(55) (LCSC C506791) is 2.0 mm HIGH per its datasheet (components/catalog.json): it does NOT fit under the lid (1.6 mm free above the board). Generic FPC-05F-10PH20 (C2856798) is also 2.0 mm. If no <= 1.2 mm part is found: mount the connector on the board bottom side outside the dock arms (needs a layout change) or recess the lid locally (wall would drop below 0.4 mm: not acceptable).",
    "pins": 10,
    "pitch_mm": 0.5,
    "side": "top",
    "contact_side_note": "bottom-contact vs top-contact: verify on the Hirose drawing; if it is the other type order the cable with the matching contact side (type A same-side / D opposite-side)",
    "center_board_mm": [
-    13.9,
+    13.2,
     13.9
    ],
    "center_pod_mm": [
@@ -716,7 +733,7 @@
     6.9
    ],
    "cable_exit_direction": "+X (cable leaves toward the +X end wall)",
-   "cable_entry_edge_board_x": 15.9,
+   "cable_entry_edge_board_x": 15.2,
    "pin1_end": "free choice (cable is custom length; pick the end that keeps routing short)",
    "cable": {
     "type": "FFC 10 P 0.5 mm, 0.3 mm thick",
@@ -748,7 +765,7 @@
     {
      "id": "PIN1",
      "center_board_mm": [
-      8.7,
+      8.0,
       13.9
      ],
      "center_pod_mm": [
@@ -763,7 +780,7 @@
     {
      "id": "PIN2",
      "center_board_mm": [
-      15.3,
+      14.6,
       17.4
      ],
      "center_pod_mm": [
@@ -779,7 +796,7 @@
    "screw": {
     "type": "M1.2 x 4 self-tapping (pan or cheese head, head d 2.4)",
     "center_board_mm": [
-     8.7,
+     8.0,
      14.8
     ],
     "center_pod_mm": [
@@ -795,7 +812,7 @@
     {
      "id": "POST1",
      "center_board_mm": [
-      5.1,
+      4.4,
       17.8
      ],
      "center_pod_mm": [
@@ -809,7 +826,7 @@
     {
      "id": "POST2",
      "center_board_mm": [
-      15.3,
+      14.6,
       15.8
      ],
      "center_pod_mm": [
@@ -825,7 +842,7 @@
     {
      "id": "HD1",
      "center_board_mm": [
-      4.6,
+      3.9,
       17.8
      ],
      "center_pod_mm": [
@@ -838,7 +855,7 @@
     {
      "id": "HD2",
      "center_board_mm": [
-      11.0,
+      10.3,
       18.2
      ],
      "center_pod_mm": [
@@ -851,7 +868,7 @@
     {
      "id": "HD3",
      "center_board_mm": [
-      14.3,
+      13.6,
       8.7
      ],
      "center_pod_mm": [
@@ -870,7 +887,7 @@
     "rect_board": [
      0.0,
      15.6,
-     7.1,
+     6.4,
      20.1
     ],
     "top_max_mm": 1.4,
@@ -880,9 +897,9 @@
    {
     "region": "body (connector, free area)",
     "rect_board": [
-     7.1,
+     6.4,
      9.9,
-     17.8,
+     17.1,
      20.9
     ],
     "top_max_mm": 1.4,
@@ -892,9 +909,9 @@
    {
     "region": "leg over the dock channel",
     "rect_board": [
-     13.4,
+     12.7,
      0.0,
-     17.8,
+     17.1,
      9.9
     ],
     "top_max_mm": 1.4,
@@ -906,7 +923,7 @@
    {
     "what": "locating pin",
     "center_board_mm": [
-     8.7,
+     8.0,
      13.9
     ],
     "d_mm": 2.0,
@@ -915,7 +932,7 @@
    {
     "what": "locating pin",
     "center_board_mm": [
-     15.3,
+     14.6,
      17.4
     ],
     "d_mm": 2.0,
@@ -924,7 +941,7 @@
    {
     "what": "screw boss (bottom) / head (top)",
     "center_board_mm": [
-     8.7,
+     8.0,
      14.8
     ],
     "d_mm": 2.8,
@@ -933,7 +950,7 @@
    {
     "what": "support post",
     "center_board_mm": [
-     5.1,
+     4.4,
      17.8
     ],
     "d_mm": 2.2,
@@ -942,7 +959,7 @@
    {
     "what": "support post",
     "center_board_mm": [
-     15.3,
+     14.6,
      15.8
     ],
     "d_mm": 2.2,
@@ -951,7 +968,7 @@
    {
     "what": "lid hold-down pad",
     "center_board_mm": [
-     4.6,
+     3.9,
      17.8
     ],
     "d_mm": 1.7999999999999998,
@@ -960,7 +977,7 @@
    {
     "what": "lid hold-down pad",
     "center_board_mm": [
-     11.0,
+     10.3,
      18.2
     ],
     "d_mm": 1.7999999999999998,
@@ -969,7 +986,7 @@
    {
     "what": "lid hold-down pad",
     "center_board_mm": [
-     14.3,
+     13.6,
      8.7
     ],
     "d_mm": 1.7999999999999998,

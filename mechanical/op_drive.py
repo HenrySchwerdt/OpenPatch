@@ -53,20 +53,31 @@ def build_plunger(s: Script, p: dict, L: dict) -> None:
 def build_carriage(s: Script, p: dict, L: dict) -> None:
     dr, sl = p["drive"], p["seal"]
     zc, ys, xr = L["z_axis"], L["y_s"], L["xrear"]
-    bw, bh, cl = dr["carriage_bw"], dr["carriage_bh"], dr["carriage_len"]
-    s.box("carriage", (xr, xr + cl), (ys - bw / 2, ys + bw / 2), (zc - bh / 2, zc + bh / 2))
+    bw, bh, cl = dr["bw"] if "bw" in dr else dr["carriage_bw"], dr["carriage_bh"], dr["carriage_len"]
+    bench = L["mode"] == "bench"
+    cc = p["bench"]["carriage"] if bench else {"rear_wall": 0.0, "nut_rear_wall": 0.0, "nut_axial_clr": 0.2}
+    rw = cc["rear_wall"]
+    xc0 = xr - rw                                   # carriage rear face (closed rear wall holds the nut in draw mode)
+    s.box("carriage", (xc0, xr + cl), (ys - bw / 2, ys + bw / 2), (zc - bh / 2, zc + bh / 2))
     to = sl["tongue_off"]
     y_end = L["y_r"] + (p["reservoir"]["w_in"] - 2 * p["reservoir"]["plunger_clr"]) / 2
-    sh = p["bench"]["shim"] if L["mode"] == "bench" else None
+    sh = p["bench"]["shim"] if bench else None
     if sh is None:      # integrated variant: printed tongue
         tongue = s.box("t_tongue", (xr + to[0], xr + to[1]), (y_end - sl["socket_depth"] + 0.1, ys - bw / 2 + 0.2),
                        (zc - dr["arm_t"] / 2, zc + dr["arm_t"] / 2))
         s.join("carriage", [tongue])
     apo = (dr["nut_af"] + dr["nut_hex_clr"]) / 2
-    cuts = [s.cyl("t_chole", "X", (0, ys, zc), 1.9, xr - 0.1, xr + cl + 0.1),
-            s.hexprism("t_hexp", (xr - 0.1, xr + dr["nut_len"] + 0.1), ys, zc, apo, angle=0.0),
-            s.box("t_groove", (xr - 0.1, xr + cl + 0.1), (ys - dr["groove_w"] / 2, ys + dr["groove_w"] / 2),
+    if bench:
+        px0 = xc0 + cc["nut_rear_wall"]             # nut pocket: closed at the rear (wall) and the front (thrust wall)
+        px1 = px0 + dr["nut_len"] + cc["nut_axial_clr"]
+    else:
+        px0, px1 = xr - 0.1, xr + dr["nut_len"] + 0.1
+    cuts = [s.cyl("t_chole", "X", (0, ys, zc), 1.9, xc0 - 0.1, xr + cl + 0.1),
+            s.hexprism("t_hexp", (px0, px1), ys, zc, apo, angle=0.0),
+            s.box("t_groove", (xc0 - 0.1, xr + cl + 0.1), (ys - dr["groove_w"] / 2, ys + dr["groove_w"] / 2),
                   (zc - bh / 2 - 0.1, zc - bh / 2 + dr["groove_d"]))]
+    if bench:           # drop-in slot from the top (the nut is dropped in, then the rod is threaded through; screw keeps it in)
+        cuts.append(s.box("t_nutslot", (px0, px1), (ys - apo, ys + apo), (zc, zc + bh / 2 + 0.1)))
     if sh is not None:      # pocket for the stainless tongue shim (open towards the reservoir)
         xm = xr + (to[0] + to[1]) / 2
         cuts.append(s.box("t_shimpocket", (xm - sh["t"] / 2 - sh["clr"], xm + sh["t"] / 2 + sh["clr"]), (ys - bw / 2 - 0.1, ys - bw / 2 + sh["pocket_depth"]),
@@ -76,8 +87,9 @@ def build_carriage(s: Script, p: dict, L: dict) -> None:
         s.box("tongue_shim", (xm - sh["t"] / 2, xm + sh["t"] / 2), (y_end - sl["socket_depth"] + 0.1, ys - bw / 2 + sh["pocket_depth"] - 0.1),
               (zc - sh["h"] / 2, zc + sh["h"] / 2))
     # M1.6-Mutter (DIN 934), Kauf
-    s.hexprism("nut", (xr + 0.05, xr + 0.05 + dr["nut_len"]), ys, zc, dr["nut_af"] / 2, angle=0.0)
-    s.cyl("t_nbore", "X", (0, ys, zc), dr["screw_d"] + 0.05, xr - 0.1, xr + 2.0)
+    xn0 = px0 + 0.1
+    s.hexprism("nut", (xn0, xn0 + dr["nut_len"]), ys, zc, dr["nut_af"] / 2, angle=0.0)
+    s.cyl("t_nbore", "X", (0, ys, zc), dr["screw_d"] + 0.05, xn0 - 0.1, xn0 + dr["nut_len"] + 0.1)
     s.cut("nut", ["t_nbore"])
 
 
@@ -96,9 +108,13 @@ def build_drive(s: Script, p: dict, L: dict) -> None:
         s.cyl("t_gab", "X", (0, ym, zc), dr["shaft_d"] + 0.04, gx0 - 0.1, L["gear_x1"] + 0.1)
         s.cut("gear_a", ["t_gab"])
     s.cyl("gear_b", "X", (0, ys, zc), L["gears"]["tip_screw"], gx0, L["gear_x1"])
-    s.cyl("t_gbb", "X", (0, ys, zc), dr["screw_d"] + 0.04, gx0 - 0.1, L["gear_x1"] + 0.1)
+    s.cyl("t_gbb", "X", (0, ys, zc), (L["thrust"]["sleeve_od"] if L.get("thrust") else dr["screw_d"]) + 0.04, gx0 - 0.1, L["gear_x1"] + 0.1)
     s.cut("gear_b", ["t_gbb"])
-    s.cyl("leadscrew", "X", (0, ys, zc), dr["screw_d"], L["dry_bush"][0] + 0.1, L["screw_tip"])
+    T = L.get("thrust")
+    s.cyl("leadscrew", "X", (0, ys, zc), dr["screw_d"], T["rod_x"][0] if T else L["dry_bush"][0] + 0.1, L["screw_tip"])
+    if T:       # thrust sleeve (gear carrier, bears on the dry bush face) and front collar (bears on the far bush face)
+        s.tube("thrust_sleeve", "X", (0, ys, zc), T["sleeve_od"], dr["screw_d"] + 0.04, T["sleeve"][0], T["sleeve"][1])
+        s.tube("thrust_collar", "X", (0, ys, zc), T["collar_od"], dr["screw_d"] + 0.04, T["collar"][0], T["collar"][1])
     s.tube("bush_dry", "X", (0, ys, zc), dr["bush_od"], dr["bush_id"], L["dry_bush"][0], L["dry_bush"][1])
     s.tube("bush_far", "X", (0, ys, zc), dr["bush_od"], dr["bush_id"], L["far_bush"][0], L["far_bush"][1])
     s.cyl("magnet", "X", (0, ys, zc), dr["mag_d"], L["mag_x"][0], L["mag_x"][1])

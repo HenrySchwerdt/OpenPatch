@@ -13,10 +13,10 @@ Everything described as "contact" is defined there under `contacts`.
 ## 0. Preparation / incoming inspection (15 min)
 
 1. Wash printed parts, blow out all bores (needle bore 0.5, bearing bores 3.05, pilot holes 1.0, hub seat 2.0).
-2. Test-fit: carriage hex pocket takes the M1.6 nut with light finger pressure; M1.6 rod runs through both bearing
+2. Test-fit: the carriage nut pocket (hex AF 3.8 = DIN 934 M1.6 AF 3.2 + 0.6 clearance, closed at the rear by a 0.45 mm wall, 0.3 mm radial float) takes the M1.6 nut dropped in from the top slot; M1.6 rod runs through both bearing
    bores and the carriage (dia 1.9) without binding; plunger core slides in the reservoir bore (0.2 mm per side).
-3. Cut the M1.6 rod to length: OP-70 about 19 mm, OP-100 about 23 mm, OP-200 about 37 mm
-   (from x = 1.0 to the screw tip at `screw_tip` in layout.json). Deburr both ends.
+3. Cut the M1.6 rod (DIN 976, stainless) to length: **OP-70 21.0 mm, OP-100 25.0 mm, OP-200 38.5 mm** (rod x range in `mech.json -> thrust.rod_x`: rear end
+   about x 1.65 inside the dry bush, front end = `screw_tip`). Deburr both ends.
 
 ## 1. Plunger and seal (water test)
 
@@ -37,14 +37,13 @@ Everything described as "contact" is defined there under `contacts`.
 
 ## 3. Drive train
 
-1. Press **gear B** onto the M1.6 rod at the dry end (rod end 1.0 mm in front of the gear face), **gear A** onto the
-   gearbox output shaft. Check mesh: centre distance 5.4 mm (fixed by the bottom shell).
+1. **Thrust sleeve (2.05 mm, d2.0/d1.6)** on the rod, **gear B** (z20, GHW 753020, hub turned off) on the sleeve (Loctite 638, sleeve rear face 0.05 mm from the dry bush face), **gear A** (z16, GHW 390754 skimmed to 1.4 mm) onto the gearbox
+   output shaft. Check mesh: centre distance 5.51 mm (floor trough + bush bore). The **front thrust collar** (d2.4 x 1.0) sits on the rod against the far bush face; the magnet goes behind it.
 2. Slide the two PTFE/brass **bushings** into the bearing bores (dry end wall and wet-end block behind the reservoir).
-3. Drop the **carriage** onto the rail (rail groove down), insert the **M1.6 nut** into its hex pocket from the rear
-   with tweezers, engage the carriage tongue in the plunger socket through the reservoir slot.
-4. Thread the rod through bushing, gear, nut (turn it by hand), bushing; press the **diametric magnet** onto the
-   rod end (x = `mag_x`, between the wet-end block and the hall sensor).
-5. Lay the **motor/gearhead** in the saddles of the Y = 28 lane, gear A meshes with gear B; its leads/FPC lie on the
+3. Drop the **M1.6 nut** into the carriage pocket through the top slot (the closed rear and front walls retain it in both directions, no glue), drop the **carriage** onto the rail (rail groove down),
+   engage the **stainless tongue shim** (glued into the carriage pocket) in the plunger socket through the reservoir slot.
+4. Thread the rod through bushing, sleeve/gear, nut (turn it by hand), bushing, collar; glue the **diametric magnet (d3 x 1.5)** to the rod end face (x = `mag_x`, behind the collar, in front of the hall sensor).
+5. Lay the **motor (16.1 mm body = gearbox 8.1 + motor 8.0)** in the floor trough of the Y = 28 lane, gear A meshes with gear B; its leads/FPC lie on the
    motor shelf (see 4).
 6. Turn the rod by hand: the carriage must travel the full stroke without binding and without hitting the rail ends.
 
@@ -71,7 +70,7 @@ Everything described as "contact" is defined there under `contacts`.
 1. Place the **gasket** (0.5 mm silicone ring) on the bottom tongue (z = 5.5).
 2. Lower the lid straight down; the lid tabs surround the coil, the two **hold-down pads** (lid underside, at
    `contacts.hold_down_pads`) push the PCB onto the spring contacts (one pad rests on the RF module top).
-3. Drive the four **M1.2 x 6 screws** (3 at the dry end, 1 near the coil side) until the lid skirt seats on the
+3. Drive the four **M1.2 x 6 screws** (3 at the dry end, 1 beside the board) until the lid skirt seats on the
    bottom (hard stop = gasket compressed to 0.45 mm, 25 %). Do not over-torque (PA12 thread-forming screws strip
    above ~0.1 N*m): stop when the head touches the counterbore.
 
@@ -102,7 +101,7 @@ razor blade. **No soldering iron:** the pod sensor board arrives assembled (JLC 
 
 Parts per pod: printed bottom, top, carriage, plunger core, cannula adapter, sleeve coupler, **end cap** (SLA); **CNC PP reservoir** (`fab/reservoir-cnc`; SLA copy for water); cast lip seals + gasket; NFP-608-26.45-SGM motor with lead; M1.6 leadscrew + M1.6 nut;
 duckbill check valve (OD <= 3 mm); pod sensor board (OP-100, same for all sizes); magnets d2x1: spindle (diametric), dock (axial, goes into the adapter); 10-pin FFC cable; 30G needle with press-fit hub;
-4 mm fill septum; M1.2 screws (6 x 6 mm lid, 2 x 4 mm board).
+4 mm fill septum; M1.2 screws (4 x 6 mm lid, 1 x 4 mm board).
 
 ## B0. Dock fit test (once per cannula head design, before ordering pods)
 Test-fit the printed `dock-coupon` to a spare cannula head as described in `cannula-measurement.md` and enter the winning values in `params.json`.
@@ -124,15 +123,15 @@ Cast the lip seals in `mould/`, assemble plunger core + seals, push into the res
 (Coaxial option, `bench.drive_layout=coaxial`: sleeve coupler on the shaft and screw, lead to the dry-end wall slot, see parts.md.)
 
 ## B4. Duckbill valve and needle
-1. Drop the **duckbill valve** into the open slot of the end cap (flow direction toward the needle, i.e. toward +X), push it into the d3.05 bore with tweezers.
-2. Needle in its hub (tip protruding 3.5 mm), hub into the bore of the guard tube from the dock mouth, until it bottoms. Check the tip position as in section B7 of the coupon notes.
+1. Drop the **duckbill valve** into the open slot of the end cap (flow direction toward the needle, i.e. toward +X), press it into the d2.9 bore (0.1 mm interference, silicone), then press the **valve plug** into the slot (flush with the cap top; closes the slot to the pod interior).
+2. Needle in its hub (tip protruding 4.8 mm), hub into the bore of the guard tube from the dock mouth, until it bottoms. Check the tip position as in section B7 of the coupon notes.
 
 ## B5. Pod sensor board
 1. Seat the board over the 2 locating pins and the support posts; the leg overhangs the dock channel. The TMAG5273 must sit under the spindle magnet end.
 2. One **M1.2 x 4 screw** into the board boss. FFC cable into the ZIF connector (flip-lock), cable leaving toward the +X end wall.
 
 ## B6. Closing
-Gasket on the bottom tongue, lower the lid (the hold-down pads touch the board, the FFC leaves through its slot, the fill window sits over the carriage lane), 6 lid screws (M1.2 x 6).
+Gasket on the bottom tongue, lower the lid (the hold-down pads touch the board, the FFC leaves through its slot, the fill window sits over the carriage lane), 4 lid screws (M1.2 x 6).
 
 ## B7. Cannula adapter and dock
 Magnet d2x1 axial into the rear lug pocket (CA drop), punched d2 silicone plug into the septum bore, 1/16" ID silicone tubing on the d1.6 barb. **Dock:** push the pod flat, mouth first, onto the adapter along
@@ -140,7 +139,7 @@ the table: the dome enters the channel, the arms spread (under 1 N), snap behind
 
 ## B8. Function check (water)
 1. FFC to the bench controller, motor lead (JST 1.25) into the controller board, USB-C power. Dock hall reads DOCKED only when latched; TMAG angle changes when the screw turns.
-2. Draw water (REFILL.md), prime, then deliver steps: 0.00494 U/step, weigh (1 mg = 1 ul = 0.1 U), calibrate steps/U against the weight.
+2. Draw water (REFILL.md), prime, then deliver steps: 0.00395 U/step (16:20 pair), weigh (1 mg = 1 ul = 0.1 U), calibrate steps/U against the weight.
 3. Occlusion: pinch the hose; the current/angle monitor must alarm.
 
 ## B9. Disassembly
