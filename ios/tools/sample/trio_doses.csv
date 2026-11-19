@@ -1,0 +1,6 @@
+timestamp_iso8601,kind,units,duration_min,rate_u_per_h
+2026-11-19T10:00:00Z,temp_basal,,30,2.4
+2026-11-19T10:05:00Z,bolus,1.0,,
+2026-11-19T10:15:00Z,smb,0.5,,
+2026-11-19T10:25:00Z,bolus,2.0,,
+2026-11-19T10:30:00Z,temp_basal,,10,1.2

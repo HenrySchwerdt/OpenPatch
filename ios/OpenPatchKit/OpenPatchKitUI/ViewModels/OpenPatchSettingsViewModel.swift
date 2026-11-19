@@ -43,12 +43,44 @@ final class OpenPatchSettingsViewModel: ObservableObject, PumpManagerStatusObser
         case .paired: return L("Paired, empty")
         case .filled: return L("Filled")
         case .priming: return L("Priming")
-        case .primed: return L("Ready to attach")
-        case .active: return L("Delivering insulin")
-        case .suspended: return L("Insulin delivery suspended")
+        case .primed: return L("Ready to dock")
+        case .active: return L("Delivering water (bench)")
+        case .suspended: return L("Delivery suspended")
         case .faulted: return L("Error")
         case .deactivated: return L("Removed (can be refilled)")
         }
+    }
+
+    /// The drive preset the pod reported (`DRIVE_CAL`) and what the app accepts of it.
+    var driveText: String {
+        guard let cal = state.driveCalibration else { return "-" }
+        return cal.presetName ?? L("Unknown drive (id %d)", Int(cal.driveID))
+    }
+
+    var driveStepText: String {
+        guard let cal = state.driveCalibration else { return "-" }
+        return L("%.5f U per step", cal.unitsPerStep)
+    }
+
+    var driveIDText: String {
+        guard let cal = state.driveCalibration else { return "-" }
+        return String(format: "0x%02X", Int(cal.driveID))
+    }
+
+    var fillMethodText: String {
+        switch state.driveCalibration?.allowedFillModes.first {
+        case .assistedPressure?:
+            return state.driveCalibration?.allowsSuctionDraw == false ? L("Assisted pressure fill (never draws)") : L("Assisted pressure fill")
+        case .manualConfirm?: return L("Manual fill, confirm the amount")
+        default: return L("Not allowed")
+        }
+    }
+
+    /// Link security: pairing secret in the keychain and a running AES-CCM session.
+    var securityText: String {
+        if state.usesSimulatedPod { return L("Simulated pod (no encryption)") }
+        if manager.hasSecureSession { return L("Paired, encrypted session") }
+        return manager.isPodPaired ? L("Paired") : L("Not paired (plain text)")
     }
 
     func refresh() {

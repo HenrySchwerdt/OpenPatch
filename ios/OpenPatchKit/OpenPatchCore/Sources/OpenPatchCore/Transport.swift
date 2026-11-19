@@ -81,8 +81,9 @@ public final class SimulatedTransport: OpenPatchTransport {
         }
 
         let response = pod.handle(command)
-        forwardEvents()
+        // A lost reply loses nothing the pod wrote down: its events (like its history) arrive with the next successful exchange.
         if injected == .dropResponse { return completion(.failure(.timeout)) }
+        forwardEvents()
         completion(.success(response))
     }
 
@@ -124,6 +125,7 @@ public final class SimulatedTransport: OpenPatchTransport {
     }
 
     private func forwardEvents() {
-        for event in pod.drainEvents() where isConnected { eventHandler?(event) }
+        let events = pod.drainStartEvents() + pod.drainEvents()
+        for event in events where isConnected { eventHandler?(event) }
     }
 }

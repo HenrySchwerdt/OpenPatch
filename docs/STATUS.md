@@ -3,6 +3,9 @@
 > This file is the **entry point for every new session** (another machine, another Claude subscription, another person).
 > It is updated on every push. Last updated: **2026-11-19 (cloud session, milestone 1 merged)**.
 
+## iOS / Trio kit drives the cup pod (2026-11-19, ios worktree)
+- `OpenPatchKit` now runs the v0.1.0 cup pod end to end from Trio on the bench (water only): wire parity with `firmware-rs` by golden frames of a real cup pod (`docs/vectors/wire-v1-scenarios.json`) and a source-parsing parity suite, encrypted session wired with keychain-stored pairing secret, `LAST_SEQ` resync, DRIVE_CAL `0x26` accepted / unknown refused / preset shown, assisted pressure fill only (no draw), prime take-up retry, uncertain-delivery recovery from status + history, new alerts; 257 core + 80 kit tests green; loop + balance compare: `ios/BENCH-LOOP.md`, `ios/tools/bench_compare.py`. Not run against a real pod; open: firmware take-up volume uses the 74.6 mm^2 bore area (cup bore 106 mm^2), Trio has no pump-history export.
+
 ## v0.1.0 cup pod, layout A (2026-11-19, mechanical worktree)
 - `generate.py --variant v010 --drive cup` / `check.py --variant v010 --drive cup`: transverse motor at the rear spanning both lanes, miter pair z16:z16 (2 gears), rod ends at gear B, cup plunger, tank (un-frozen for this variant: bore 20.5 x 5.5, fill septum underside + outlet in the front wall), dock at the right end of lane 1 (pocket 11.9 x 9.8, 3.5 mm slide, 301 FH U-clip, spring needle guard), reserved volumes for battery/board/USB-C. OP-100 47.96 x 34.6 x 8.5, OP-200 66.78 x 34.6 x 8.5 (bore 20.5 x 5.5; 45 / 52 mm and 32 mm width targets missed; cell = Ampul 301030, see mechanical/battery-selection.md). Details: `mechanical/V010-CUP.md`. Decision needed: re-freeze the CNC tank (`out/v010-cup/reservoir-cnc`), clip material (301 FH foil), Insight Flex measurements (all dock values TODO-MEASURE).
 

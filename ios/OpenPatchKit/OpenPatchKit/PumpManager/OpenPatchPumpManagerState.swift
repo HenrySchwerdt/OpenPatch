@@ -49,6 +49,8 @@ public struct OpenPatchPumpManagerState: RawRepresentable, Equatable {
     public var resumedAt: Date?
     public var nextBolusID: UInt16 = 1
     public var deliveryUncertainSince: Date?
+    /// The command behind `deliveryUncertainSince` (persisted: a restart must not forget it).
+    public var pendingCommand: PendingCommand?
     /// Wire protocol: next command sequence number (replay protection on the pod requires strictly increasing values).
     public var commandSequence: UInt16 = 1
     /// Wire protocol: ID of the next pod history event to fetch (everything below was delivered).
@@ -57,6 +59,12 @@ public struct OpenPatchPumpManagerState: RawRepresentable, Equatable {
     var unfinalizedTempBasal: OpenPatchDose?
     /// Finished doses not yet confirmed as reported to the host (replayed on next sync).
     var unreportedFinishedDoses: [OpenPatchDose] = []
+
+    // Not persisted: what the setup / refill screens show while it happens.
+    /// The pod's fill job (progress of the assisted pressure fill).
+    public var fill: FillStatus?
+    /// Prime attempt while the pod takes up the lost motion of its drive (1...`PumpConstants.primeTakeupMaxAttempts`).
+    public var primeTakeupAttempt: Int?
 
     public init() {}
 
@@ -107,6 +115,7 @@ public struct OpenPatchPumpManagerState: RawRepresentable, Equatable {
         var resumedAt: Date?
         var nextBolusID: UInt16
         var deliveryUncertainSince: Date?
+        var pendingCommand: PendingCommand?
         var commandSequence: UInt16?
         var historyCursor: UInt32?
         var unfinalizedBolus: OpenPatchDose?
@@ -129,6 +138,7 @@ public struct OpenPatchPumpManagerState: RawRepresentable, Equatable {
         insulinType = s.insulinType; timeZoneIdentifier = s.timeZoneIdentifier
         suspendedAt = s.suspendedAt; resumedAt = s.resumedAt; nextBolusID = s.nextBolusID
         deliveryUncertainSince = s.deliveryUncertainSince
+        pendingCommand = s.pendingCommand
         commandSequence = s.commandSequence ?? 1
         historyCursor = s.historyCursor
         unfinalizedBolus = s.unfinalizedBolus; unfinalizedTempBasal = s.unfinalizedTempBasal
@@ -146,7 +156,7 @@ public struct OpenPatchPumpManagerState: RawRepresentable, Equatable {
                        maxBolus: maxBolus, maxBasalRate: maxBasalRate, insulinType: insulinType,
                        timeZoneIdentifier: timeZoneIdentifier, suspendedAt: suspendedAt, resumedAt: resumedAt,
                        nextBolusID: nextBolusID, deliveryUncertainSince: deliveryUncertainSince,
-                       commandSequence: commandSequence, historyCursor: historyCursor,
+                       pendingCommand: pendingCommand, commandSequence: commandSequence, historyCursor: historyCursor,
                        unfinalizedBolus: unfinalizedBolus, unfinalizedTempBasal: unfinalizedTempBasal,
                        unreportedFinishedDoses: unreportedFinishedDoses)
         let data = (try? JSONEncoder().encode(s)) ?? Data()

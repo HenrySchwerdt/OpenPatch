@@ -43,9 +43,9 @@ struct PodSizeSelectionView: View {
                 }
             }
             .pickerStyle(.segmented)
-            Text(L("Capacity: %.0f U of U100 insulin.", model.podSize.capacityUnits))
+            Text(L("Capacity: %.0f U (%.1f ml).", model.podSize.capacityUnits, model.podSize.capacityUnits / 100))
                 .font(.footnote).foregroundColor(.secondary)
-            Label(L("OpenPatch is an experimental DIY device and not an approved medical device. Use it only if you understand the risks, and always keep a backup way to deliver insulin."),
+            Label(L("OpenPatch is an experimental test device and not a medical device. It is for bench tests only: water into a vial on a balance. Never wear it, never fill it with insulin or any other drug."),
                   systemImage: "exclamationmark.shield.fill")
                 .font(.footnote).foregroundColor(.orange)
         }
@@ -57,7 +57,7 @@ struct PairingView: View {
 
     var body: some View {
         StepContainer(systemImage: "dot.radiowaves.left.and.right", title: L("Pair your pod"), errorMessage: model.errorMessage) {
-            Text(L("Place the pod next to your phone and wake it with the button. Nearby pods appear below."))
+            Text(L("Place the pod next to your phone and press its button: this wakes it and opens its 60 second pairing window. Nearby pods appear below."))
             if model.bluetoothUnavailable {
                 Label(L("Bluetooth is off or not allowed for this app."), systemImage: "bolt.horizontal.circle")
                     .foregroundColor(.red)
@@ -95,9 +95,9 @@ struct SetupCompleteView: View {
     @ObservedObject var model: OpenPatchSetupViewModel
 
     var body: some View {
-        StepContainer(systemImage: "checkmark.circle.fill", title: L("OpenPatch is delivering insulin"),
+        StepContainer(systemImage: "checkmark.circle.fill", title: L("OpenPatch is delivering water"),
                       primaryTitle: L("Done"), primaryAction: model.finish) {
-            Text(L("Basal delivery has started. Check your glucose regularly during the first hours."))
+            Text(L("Basal delivery has started on the bench. Watch the balance and log the delivered mass."))
         }
     }
 }

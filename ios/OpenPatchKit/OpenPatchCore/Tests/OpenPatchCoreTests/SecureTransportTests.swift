@@ -209,7 +209,11 @@ final class SecureTransportTests: XCTestCase {
         // the simulator / dev-plaintext behaviour is unchanged: a plaintext frame goes out, no handshake frame does
         let transport = makeTransport()
         _ = send(transport, .getStatus)
-        XCTAssertEqual(link.wire.count, 1)
-        XCTAssertEqual(link.wire[0][2] & V1.flagEncrypted, 0)
+        // (a production pod stays silent about plaintext frames: the read is repeated with higher seqs, still in plaintext)
+        XCTAssertFalse(link.wire.isEmpty)
+        for frame in link.wire {
+            XCTAssertEqual(frame[2] & V1.flagEncrypted, 0)
+            XCTAssertFalse(SessionHandshake.FrameType.pairInit...SessionHandshake.FrameType.sessionFinish ~= frame[1], "no handshake frame")
+        }
     }
 }

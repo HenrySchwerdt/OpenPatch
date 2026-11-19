@@ -20,6 +20,12 @@ public enum PumpConstants {
     /// Priming placeholder values: tune after first wet test.
     public static let primeUnits = 0.5
     public static let primeDuration: TimeInterval = 40
+    /// Retraction rate of the assisted fill in motor steps per second (firmware `ASSISTED_FILL_PPS`, 200 pps).
+    public static let assistedFillStepsPerSecond = 200
+    /// After an assisted fill the first prime answers `Hourly` while the pod takes up the lost motion of the drive (firmware
+    /// `PumpConfig::takeup_mu`); the phone repeats it after the per-minute cap has recovered. Attempts and spacing.
+    public static let primeTakeupMaxAttempts = 6
+    public static let primeTakeupRetryDelay: TimeInterval = 61
     /// Pod raises a low-reservoir event below this level.
     public static let lowReservoirUnits = 10.0
     /// Domain-level protocol version (the wire frame version is `V1.version`).

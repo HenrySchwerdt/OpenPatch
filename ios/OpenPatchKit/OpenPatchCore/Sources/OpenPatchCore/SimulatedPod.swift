@@ -20,6 +20,9 @@ public final class SimulatedPod {
     private(set) var faultCode: FaultCode?
     private var deliveredStepsTotal = 0
     var events: [PodEvent] = []
+    /// `bolusStarted` / `tempBasalStarted`: what the real pod writes to its history when it executes a command. Kept apart from
+    /// `events` (the transport delivers them first, like the history poll delivers a start before the end of the same dose).
+    private var startEvents: [PodEvent] = []
     /// Diagnostics (`SimulatedPod+Diag.swift`).
     var diag = SimulatedDiagState()
     /// `false` simulates a v1 pod: no `DIAG_SUMMARY`, `FRU_HEALTH`, `POD_UID` in the status.
@@ -28,6 +31,18 @@ public final class SimulatedPod {
     public var uid: PodUID?
     private var lowReservoirAnnounced = false
     private var lastContact: Date
+
+    // Assisted fill (Rust pods): the pod retracts its plunger at a fixed rate while the user pushes the syringe.
+    private struct FillJob { var requestedSteps: Int; var drawnSteps = 0; var state: FillState }
+    private var fillJob: FillJob?
+    /// Test hook: the plunger hits its rear stop after this many units (the fill ends `stalled`).
+    public var fillStallsAfterUnits: Double?
+    /// Test hook: how many times the first prime answers `hourlyLimit` (the take-up of the drive's lost motion that the real
+    /// pod does after an assisted fill, one slice per command).
+    public var primeTakeupRejections = 0
+    /// Fractions of a step carried from one bolus to the next, exactly like the firmware's single delivery accumulator:
+    /// 100 boluses of 0.05 U deliver 5.0 U (+-1 step), not 100 x floor.
+    private var bolusCarry: StepAccumulator
 
     // Two-pod system (spec §1b). `pairID == 0` = not paired: legacy single-pod behaviour (no activation needed).
     public private(set) var pairID: UInt32 = 0
@@ -69,6 +84,7 @@ public final class SimulatedPod {
         self.lastContact = startDate
         self.calibration = calibration
         self.basalAccumulator = StepAccumulator(calibration: calibration)
+        self.bolusCarry = StepAccumulator(calibration: calibration)
     }
 
     // MARK: Observation
@@ -95,7 +111,18 @@ public final class SimulatedPod {
             pairing: isStrict ? pairingInfo : nil,
             diag: reportsDiagnostics ? diagSummary : nil,
             fruHealth: reportsDiagnostics ? fruHealth : nil,
-            uid: reportsDiagnostics ? uid : nil)
+            uid: reportsDiagnostics ? uid : nil,
+            fill: fillStatus)
+    }
+
+    /// Only pods that understand `AssistedFill` report a fill state.
+    private var fillStatus: FillStatus? {
+        guard reportsCalibration, calibration.supportsAssistedFill else { return nil }
+        let job = fillJob
+        return FillStatus(state: job?.state ?? .idle,
+                          requestedUnits: UnitConversion.units(forSteps: job?.requestedSteps ?? 0, calibration: calibration),
+                          drawnUnits: UnitConversion.units(forSteps: job?.drawnSteps ?? 0, calibration: calibration),
+                          primeRequired: phase == .filled || phase == .priming)
     }
 
     private var pairingInfo: PodPairingInfo {
@@ -133,6 +160,11 @@ public final class SimulatedPod {
         isActivated = false
         transition(.deactivated)
         events.append(.released(deliveredUnits: UnitConversion.units(forSteps: lastReleaseDeliveredSteps, calibration: calibration), reason: reason))
+    }
+
+    public func drainStartEvents() -> [PodEvent] {
+        defer { startEvents.removeAll() }
+        return startEvents
     }
 
     public func drainEvents() -> [PodEvent] {
@@ -173,6 +205,7 @@ public final class SimulatedPod {
             lowReservoirAnnounced = false
             transition(.fillConfirmed)
         case .prime:
+            if primeTakeupRejections > 0 { primeTakeupRejections -= 1; return .rejected(.hourlyLimit) }
             transition(.primeStarted)
             primeRemaining = Int(PumpConstants.primeDuration)
         case .confirmAttached:
@@ -181,14 +214,16 @@ public final class SimulatedPod {
             startPendingTemp()
         case .bolus(let id, let pulses):
             if let rejection = checkBolus(pulses: pulses) { return .rejected(rejection) }
-            bolus = ActiveBolus(id: id, requestedPulses: pulses, targetSteps: UnitConversion.steps(forUnits: UnitConversion.units(forPulses: Int(pulses)), calibration: calibration),
+            bolus = ActiveBolus(id: id, requestedPulses: pulses, targetSteps: bolusCarry.steps(forUnits: UnitConversion.units(forPulses: Int(pulses))),
                                 accumulator: StepAccumulator(calibration: calibration))
+            startEvents.append(.bolusStarted(pulses: pulses))
         case .cancelBolus:
             finishBolus(cancelled: true)
         case .setTempBasal(let ticks, let minutes):
             guard minutes > 0, TimeInterval(minutes) * 60 <= PumpConstants.maxTempBasalDuration else { return .rejected(.malformed) }
             guard UnitConversion.units(forPulses: Int(ticks)) <= limits.maxBasalRate + 1e-9 else { return .rejected(.limitExceeded) }
             temp = ActiveTemp(rateTicks: ticks, end: now.addingTimeInterval(TimeInterval(minutes) * 60))
+            startEvents.append(.tempBasalStarted(rateTicks: ticks, durationMinutes: UInt16(min(max(((Int(minutes) + 29) / 30) * 30, 30), 720))))
         case .cancelTempBasal:
             temp = nil
         case .suspend:
@@ -224,6 +259,18 @@ public final class SimulatedPod {
             wearSeconds = 0; wearWarned = false; wearExpired = false
             if faultCode == .wearExpired { faultCode = nil }
             deliveredStepsAtActivation = deliveredStepsTotal
+        case .assistedFill(let pulses):
+            guard calibration.supportsAssistedFill else { return .rejected(.unsupported) }
+            guard fillJob?.state != .drawing else { return .rejected(.busy) }
+            guard !isDocked else { return .rejected(.podDocked) }
+            let wantedUnits = UnitConversion.units(forPulses: Int(pulses))
+            let steps = UnitConversion.steps(forUnits: wantedUnits, calibration: calibration)
+            let capacitySteps = UnitConversion.steps(forUnits: size.capacityUnits, calibration: calibration)
+            guard steps > 0, reservoirSteps + steps <= capacitySteps else { return .rejected(.fillOutOfRange) }
+            fillJob = FillJob(requestedSteps: steps, state: .drawing)
+        case .cancelAssistedFill:
+            guard fillJob?.state == .drawing else { return .rejected(.invalidState) }
+            finishFill(.aborted)
         case .releasePod(let pair):
             guard isStrict, pair == pairID else { return .rejected(.pairMismatch) }
             if isActivated { releaseNow(reason: .command) }
@@ -270,6 +317,7 @@ public final class SimulatedPod {
     private func reset(forRefill: Bool) {
         _ = PodLifecycle.transition(from: phase, event: .refillRequested).map { phase = $0 }
         reservoirSteps = 0
+        fillJob = nil
         faultCode = nil
         program = forRefill ? program : nil
     }
@@ -317,6 +365,7 @@ public final class SimulatedPod {
             }
         }
 
+        tickFill()
         if isActivated, !wearExpired { tickWear() }
         if mayDeliver {
             stepsThisSecond += deliverBolusSecond()
@@ -337,6 +386,27 @@ public final class SimulatedPod {
             events.append(.lowReservoir(pulses: UInt16(clamping: UnitConversion.pulses(forUnits: reservoirUnits))))
         }
         expireTempBasalIfNeeded()
+    }
+
+    private func finishFill(_ state: FillState) {
+        guard var job = fillJob else { return }
+        job.state = state
+        fillJob = job
+        if job.drawnSteps > 0 { transition(.fillConfirmed); lowReservoirAnnounced = false }
+    }
+
+    private func tickFill() {
+        guard var job = fillJob, job.state == .drawing else { return }
+        var n = min(PumpConstants.assistedFillStepsPerSecond, job.requestedSteps - job.drawnSteps)
+        var stalled = false
+        if let limit = fillStallsAfterUnits {
+            let room = max(UnitConversion.steps(forUnits: limit, calibration: calibration) - job.drawnSteps, 0)
+            if room < n { n = room; stalled = true }
+        }
+        job.drawnSteps += n
+        reservoirSteps += n
+        fillJob = job
+        if stalled { finishFill(.stalled) } else if job.drawnSteps >= job.requestedSteps { finishFill(.done) }
     }
 
     private func tickWear() {

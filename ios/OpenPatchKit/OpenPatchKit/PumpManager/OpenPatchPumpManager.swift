@@ -43,10 +43,26 @@ public final class OpenPatchPumpManager: PumpManager {
     /// commands. The pod accepts gaps, so restore with a safety margin instead of risking a replayed `seq`.
     static let sequenceRestoreMargin: UInt16 = 16
 
+    /// Where the pairing secrets live (one keychain item per physical pod). Tests inject `InMemoryPairingSecretStore`.
+    public static var pairingSecretStore: PairingSecretStore = KeychainPairingSecretStore()
+
+    /// Key of a pod in `pairingSecretStore`: its CoreBluetooth peripheral identifier (stable per phone and pod). Simulated pods
+    /// have none and speak plain text.
+    static func podKey(for state: OpenPatchPumpManagerState) -> String? {
+        state.usesSimulatedPod ? nil : state.peripheralIdentifier?.uuidString
+    }
+
+    /// The transport of one real pod. With a pairing secret in the store every connection runs the session key agreement and all
+    /// commands are AES-CCM protected (docs/04-protocol.md); without one (not paired yet) it speaks plain text, which only a
+    /// `dev-plaintext` pod accepts. The persisted `commandSequence` only matters for plain text: a session restarts at 1.
     public static func makeV1Transport(state: OpenPatchPumpManagerState, link: FrameLink) -> V1Transport {
         let restored = state.commandSequence == 1 && state.historyCursor == nil
             ? UInt16(1) : UInt16(min(Int(state.commandSequence) + Int(sequenceRestoreMargin), 0xFFFE))
-        return V1Transport(link: link, initialPhase: state.phase, initialSequence: restored, initialHistoryCursor: state.historyCursor)
+        let secret = podKey(for: state).flatMap { pairingSecretStore.secret(for: $0) }
+        let transport = V1Transport(link: link, initialPhase: state.phase, initialSequence: restored, initialHistoryCursor: state.historyCursor,
+                                    pairingSecret: secret)
+        (link as? NotifyingFrameLink)?.notificationHandler = { [weak transport] frame in transport?.handleNotification(frame) }
+        return transport
     }
 
     /// Hooks transport events and checkpoints (sequence, history cursor) into the persisted state.
@@ -98,6 +114,14 @@ public final class OpenPatchPumpManager: PumpManager {
     /// Most recently finalized bolus (any path), so `cancelBolus` can report it even if the pod event arrived first.
     var lastFinalizedBolus: OpenPatchDose?
     let workQueue = DispatchQueue(label: "org.openpatch.pumpmanager")
+    /// Guarded by `lock`: whether the bolus being sent is an automatic one (needed if its reply is lost), and whether the
+    /// uncertainty recovery reads are already scheduled.
+    var inFlightBolusAutomatic = false
+    var recoveryScheduled = false
+    var commLossIssued = false
+    var resendingBasalProgram = false
+    /// Seconds without a successful status read after which the "no contact" alert is raised.
+    public static var commLossAlertAfter: TimeInterval = 30 * 60
 
     public var state: OpenPatchPumpManagerState {
         lock.lock(); defer { lock.unlock() }
@@ -255,6 +279,9 @@ public final class OpenPatchPumpManager: PumpManager {
             guard let self else { return }
             if case .failure(let failure) = result {
                 self.log("sync failed: \(failure.error)")
+                self.evaluateCommLoss(syncSucceeded: false)
+            } else {
+                self.evaluateCommLoss(syncSucceeded: true)
             }
             self.refreshSparePodIfStale()
             self.evaluatePairAlerts()
@@ -285,9 +312,17 @@ public final class OpenPatchPumpManager: PumpManager {
             return completion(Self.map(.limit(error as? LimitError ?? .notPositive)))
         }
         let pulses = UnitConversion.pulses(forUnits: rounded)
+        // A bolus whose reply was lost and is not resolved yet must never be followed by a second one (double dosing).
+        if case .bolus? = snapshot.pendingCommand?.kind { return completion(Self.map(.deliveryUncertain)) }
+        // The pod quantises to whole motor steps (it carries the fraction over to the next dose, so nothing is lost over time):
+        // a volume that is less than one step cannot be delivered.
+        if let calibration = snapshot.driveCalibration, UnitConversion.steps(forUnits: rounded, calibration: calibration) == 0 {
+            return completion(Self.map(.invalidAmount))
+        }
         let id = snapshot.nextBolusID
         mutateState { $0.nextBolusID = $0.nextBolusID &+ 1 == 0 ? 1 : $0.nextBolusID &+ 1 }
         setTransient(bolus: .some(.initiating))
+        setInFlightBolusAutomatic(activationType.isAutomatic)
 
         send(.bolus(id: id, pulses: UInt16(pulses))) { [weak self] result in
             guard let self else { return }
@@ -477,7 +512,8 @@ public final class OpenPatchPumpManager: PumpManager {
     // MARK: Alerts / debug
 
     public func acknowledgeAlert(alertIdentifier: Alert.AlertIdentifier, completion: @escaping (Error?) -> Void) {
-        guard alertIdentifier == OpenPatchAlert.podFault.rawValue else { return completion(nil) }
+        let silenceable = [OpenPatchAlert.podFault, .occlusion, .podEmpty].map(\.rawValue)
+        guard silenceable.contains(alertIdentifier) else { return completion(nil) }
         send(.silenceAlarm) { result in
             if case .failure(let failure) = result { completion(Self.map(failure)) } else { completion(nil) }
         }

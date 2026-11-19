@@ -17,6 +17,7 @@ final class OpenPatchPumpManagerTests: XCTestCase {
         pod = SimulatedPod(size: .u200, startDate: Date())
         transport = SimulatedTransport(pod: pod)
         savedFactory = OpenPatchPumpManager.transportFactory
+        OpenPatchPumpManager.uncertaintyRecoveryDelays = []     // the tests resolve uncertainty themselves
         OpenPatchPumpManager.transportFactory = { [unowned self] _ in self.transport }
         var state = OpenPatchPumpManagerState()
         state.usesSimulatedPod = true
@@ -350,9 +351,20 @@ final class OpenPatchPumpManagerTests: XCTestCase {
         flush()
         XCTAssertEqual(manager.state.phase, .faulted)
         XCTAssertNil(manager.status.basalDeliveryState)
-        let alert = delegate.alerts.first { $0.identifier.alertIdentifier == "podFault" }
-        XCTAssertEqual(alert?.interruptionLevel, .critical)
+        let alert = delegate.alerts.first { $0.identifier.alertIdentifier == "occlusion" }
+        XCTAssertEqual(alert?.interruptionLevel, .critical, "an occlusion has its own critical alert")
         XCTAssertTrue(delegate.events.contains { $0.type == .alarm && $0.alarmType == .occlusion })
+    }
+
+    func test_otherFaults_keepTheGenericCriticalAlert_andAnEmptyPodHasItsOwn() {
+        activate()
+        pod.injectFault(.internalError)
+        transport.advance(by: 1)
+        flush()
+        XCTAssertEqual(delegate.alerts.first { $0.identifier.alertIdentifier == "podFault" }?.interruptionLevel, .critical)
+        manager.handle(event: .fault(.reservoirEmpty))
+        flush()
+        XCTAssertEqual(delegate.alerts.first { $0.identifier.alertIdentifier == "podEmpty" }?.interruptionLevel, .critical)
     }
 
     func test_tempBasalCommLossEvent_closesDose() {
@@ -461,6 +473,7 @@ final class OpenPatchRestartPersistenceTests: XCTestCase {
     override func setUp() {
         super.setUp()
         link = StubPodLink()
+        OpenPatchPumpManager.uncertaintyRecoveryDelays = []
         savedFactory = OpenPatchPumpManager.transportFactory
         OpenPatchPumpManager.transportFactory = { [unowned self] state in OpenPatchPumpManager.makeV1Transport(state: state, link: self.link) }
     }
@@ -538,7 +551,7 @@ final class OpenPatchRestartPersistenceTests: XCTestCase {
         secondDelegate.reset()
         second.refreshStatus { _ in }
         second.delegateQueue.sync {}
-        XCTAssertEqual(secondDelegate.alerts.map(\.identifier.alertIdentifier).sorted(), ["lowReservoir", "podFault"])
+        XCTAssertEqual(secondDelegate.alerts.map(\.identifier.alertIdentifier).sorted(), ["lowReservoir", "occlusion"])
         XCTAssertEqual(second.state.historyCursor, 102)
 
         let (third, thirdDelegate) = makeManager(from: OpenPatchPumpManagerState(rawValue: second.rawState)!)

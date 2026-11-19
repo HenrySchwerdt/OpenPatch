@@ -8,7 +8,7 @@ import OpenPatchCore
 /// - requires an ATT payload of at least 244 bytes (protocol v1 has no fragmentation)
 /// - one frame per write; the response notification is matched to its request by `seq`
 /// - unanswered requests complete with `.timeout` (the pod drops frames with errors silently)
-public final class CoreBluetoothLink: NSObject, FrameLink, CBCentralManagerDelegate, CBPeripheralDelegate {
+public final class CoreBluetoothLink: NSObject, NotifyingFrameLink, CBCentralManagerDelegate, CBPeripheralDelegate {
     private let queue = DispatchQueue(label: "org.openpatch.link")
     private var central: CBCentralManager!
     private let peripheralIdentifier: UUID?
@@ -20,6 +20,9 @@ public final class CoreBluetoothLink: NSObject, FrameLink, CBCentralManagerDeleg
     private var pending: [UInt16: (completion: (Result<Data, TransportError>) -> Void, timeout: DispatchWorkItem)] = [:]
 
     public var isConnected: Bool { queue.sync { ready } }
+    /// Unsolicited frames of the Alert characteristic (fill progress, faults, diagnostics). Lossy by design: the status read is the
+    /// reliable path.
+    public var notificationHandler: ((Data) -> Void)?
 
     public init(peripheralIdentifier: UUID?) {
         self.peripheralIdentifier = peripheralIdentifier
@@ -156,7 +159,7 @@ public final class CoreBluetoothLink: NSObject, FrameLink, CBCentralManagerDeleg
         guard error == nil, let service = peripheral.services?.first(where: { $0.uuid == OpenPatchGATT.service }) else {
             return failConnect(.disconnected)
         }
-        peripheral.discoverCharacteristics([OpenPatchGATT.commandCharacteristic, OpenPatchGATT.responseCharacteristic], for: service)
+        peripheral.discoverCharacteristics([OpenPatchGATT.commandCharacteristic, OpenPatchGATT.responseCharacteristic, OpenPatchGATT.alertCharacteristic], for: service)
     }
 
     public func peripheral(_ peripheral: CBPeripheral, didDiscoverCharacteristicsFor service: CBService, error: Error?) {
@@ -166,17 +169,20 @@ public final class CoreBluetoothLink: NSObject, FrameLink, CBCentralManagerDeleg
             return failConnect(.disconnected)
         }
         commandCharacteristic = command
+        if let alert = characteristics.first(where: { $0.uuid == OpenPatchGATT.alertCharacteristic }) { peripheral.setNotifyValue(true, for: alert) }
         peripheral.setNotifyValue(true, for: response)
     }
 
     public func peripheral(_ peripheral: CBPeripheral, didUpdateNotificationStateFor characteristic: CBCharacteristic, error: Error?) {
-        guard error == nil else { return failConnect(.disconnected) }
+        // the Alert characteristic is optional: only the response characteristic decides whether the link is usable
+        guard error == nil || characteristic.uuid == OpenPatchGATT.alertCharacteristic else { return failConnect(.disconnected) }
         if characteristic.uuid == OpenPatchGATT.responseCharacteristic, characteristic.isNotifying { finishConnect() }
     }
 
     public func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic, error: Error?) {
-        guard error == nil, characteristic.uuid == OpenPatchGATT.responseCharacteristic,
-              let value = characteristic.value, value.count >= V1.headerSize else { return }
+        guard error == nil, let value = characteristic.value, value.count >= V1.headerSize else { return }
+        if characteristic.uuid == OpenPatchGATT.alertCharacteristic { notificationHandler?(value); return }
+        guard characteristic.uuid == OpenPatchGATT.responseCharacteristic else { return }
         let bytes = [UInt8](value)
         let seq = UInt16(bytes[3]) | UInt16(bytes[4]) << 8
         if let entry = pending.removeValue(forKey: seq) {

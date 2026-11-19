@@ -6,6 +6,7 @@
 "Invalid insulin amount." = "Ungültige Insulinmenge.";
 "Delivery limit exceeded (%@)." = "Abgabegrenze überschritten (%@).";
 "The pod rejected the command (%@)." = "Der Pod hat den Befehl abgelehnt (%@).";
+"The secure connection to the pod could not be set up (wrong key or an altered exchange). Do not retry blindly: press the pod's button and pair it again." = "Die gesicherte Verbindung zum Pod konnte nicht aufgebaut werden (falscher Schlüssel oder veränderter Austausch). Nicht blind wiederholen: Drücke den Taster des Pods und koppele ihn erneut.";
 "Communication with the pod failed (%@)." = "Kommunikation mit dem Pod fehlgeschlagen (%@).";
 "The basal schedule has not been set yet." = "Das Basalprofil wurde noch nicht festgelegt.";
 "Invalid fill amount (%@)." = "Ungültige Füllmenge (%@).";
@@ -13,7 +14,13 @@
 "The pod reports an unknown drive (id %d, %d µU per step). It cannot be used." = "Der Pod meldet einen unbekannten Antrieb (ID %d, %d µE pro Schritt). Er kann nicht verwendet werden.";
 "A pod swap is in progress. Finish or cancel it first." = "Ein Pod-Wechsel läuft. Schließe ihn zuerst ab oder brich ihn ab.";
 "This pod is not the active pod." = "Dieser Pod ist nicht der aktive Pod.";
+"This pod does not know this phone (it was paired with another phone or reset). Press the button on the pod to open its pairing window, then pair it again." = "Dieser Pod kennt dieses Handy nicht (er wurde mit einem anderen Handy gekoppelt oder zurückgesetzt). Drücke den Taster am Pod, um sein Kopplungsfenster zu öffnen, und koppele ihn erneut.";
+"The pod did not confirm the previous bolus. Another bolus is blocked until the pump has found out what happened." = "Der Pod hat den vorherigen Bolus nicht bestätigt. Ein weiterer Bolus ist gesperrt, bis die Pumpe herausgefunden hat, was passiert ist.";
+"The pairing key could not be saved in the keychain. The pod was not paired." = "Der Kopplungsschlüssel konnte nicht im Schlüsselbund gespeichert werden. Der Pod wurde nicht gekoppelt.";
 "The pod reported a fault (%@)." = "Der Pod meldet einen Fehler (%@).";
+"This pod has no check valve and never draws by itself. Fill it with the assisted pressure fill: you push the syringe, the pod retracts." = "Dieser Pod hat kein Rückschlagventil und saugt nie selbst an. Befülle ihn mit der assistierten Druckbefüllung: Du drückst die Spritze, der Pod zieht zurück.";
+"This pod is filled with the assisted pressure fill only: the pod retracts its plunger while you push the syringe." = "Dieser Pod wird nur mit der assistierten Druckbefüllung befüllt: Der Pod zieht seinen Kolben zurück, während du die Spritze drückst.";
+"This pod does not support the assisted pressure fill." = "Dieser Pod unterstützt die assistierte Druckbefüllung nicht.";
 "pod %@" = "Pod %@";
 "Cannot reach %@. Move the phone closer and wake the pod with its button." = "%@ nicht erreichbar. Bringe das Handy näher und wecke den Pod mit dem Taster.";
 "The connection to %@ was lost while sending. The pod may or may not have executed the command." = "Die Verbindung zu %@ brach beim Senden ab. Der Pod hat den Befehl möglicherweise ausgeführt.";
@@ -34,8 +41,13 @@
 "Pod not docked" = "Pod nicht angedockt";
 "Pod stopped" = "Pod gestoppt";
 "Pod cannot be used" = "Pod nicht verwendbar";
+"Pod outlet blocked" = "Pod-Auslass blockiert";
+"Pod is empty" = "Pod ist leer";
+"No contact with the pod" = "Kein Kontakt zum Pod";
 "The pod ended the temporary basal rate after losing contact with the phone." = "Der Pod hat die temporäre Basalrate beendet, nachdem die Verbindung zum Handy abgebrochen war.";
 "About %.0f U of insulin left." = "Noch etwa %.0f IE Insulin.";
+"The pod detected a blockage at its outlet and stopped. Check the outlet, the capillary and the vial, then refill or replace the pod." = "Der Pod hat eine Blockade an seinem Auslass erkannt und gestoppt. Prüfe Auslass, Kapillare und Fläschchen und befülle oder wechsle den Pod.";
+"The pod ran empty and stopped. Refill it." = "Der Pod ist leer gelaufen und hat gestoppt. Befülle ihn neu.";
 "The pod stopped insulin delivery (%@). Replace or refill the pod." = "Der Pod hat die Insulinabgabe gestoppt (%@). Pod wechseln oder neu befüllen.";
 "Pod battery at %d %%. Charge the pod soon." = "Pod-Akku bei %d %%. Lade den Pod bald auf.";
 "The pod lost its dock contact. It delivers no insulin until it sits on the cannula again." = "Der Pod hat den Dock-Kontakt verloren. Er gibt kein Insulin ab, bis er wieder auf der Kanüle sitzt.";
@@ -43,6 +55,7 @@
 "The pod reached its maximum wear time and stopped delivering insulin. Swap pods now." = "Der Pod hat die maximale Tragezeit erreicht und die Insulinabgabe gestoppt. Wechsle jetzt den Pod.";
 "The pod stopped delivering insulin (it was put on a charger or reached its wear limit). Swap pods." = "Der Pod hat die Insulinabgabe gestoppt (Ladegerät oder Tragezeit erreicht). Wechsle den Pod.";
 "OK" = "OK";
+"The phone has not reached the pod for %.0f minutes. Move the phone close to the pod. Delivery continues with the programmed basal rate." = "Das Handy hat den Pod seit %.0f Minuten nicht erreicht. Halte das Handy nah an den Pod. Die Abgabe läuft mit der programmierten Basalrate weiter.";
 "The old pod did not confirm that it stopped. Confirm that it is physically removed or try again. The new pod will not start until then." = "Der alte Pod hat das Stoppen nicht bestätigt. Bestätige, dass er entfernt ist, oder versuche es erneut. Der neue Pod startet erst danach.";
 "Pod %@ reported that it was active although it must not be. It was told to stop." = "Pod %@ meldete sich aktiv, obwohl er es nicht sein darf. Er wurde gestoppt.";
 "Pod %@ has been worn for 44 hours or more. Swap to the other pod within %.0f hours." = "Pod %@ wird seit 44 Stunden oder länger getragen. Wechsle innerhalb von %.0f Stunden auf den anderen Pod.";

@@ -9,6 +9,11 @@ public protocol FrameLink: AnyObject {
     func exchange(frame: Data, seq: UInt16, completion: @escaping (Result<Data, TransportError>) -> Void)
 }
 
+/// A link that also delivers the pod's unsolicited frames (the Alert characteristic).
+public protocol NotifyingFrameLink: FrameLink {
+    var notificationHandler: ((Data) -> Void)? { get set }
+}
+
 /// Adapts the app's domain commands to OpenPatch protocol v1 (firmware/docs/openpatch-protocol.md).
 ///
 /// The pod's wire protocol is deliberately smaller than the domain model, so this class bridges the gaps:
@@ -36,6 +41,8 @@ public final class V1Transport: OpenPatchTransport {
     private var lastBolus: (id: UInt16, pulses: UInt16)?
     private var historyCursor: UInt32?
     private var wasFaulted = false
+    /// An `AssistedFill` was accepted and its result has not been seen yet.
+    private var fillPending = false
     /// Id of the next diagnostic record to fetch (`nil` = never synced) and the pod's `next_rec_id_lo` at that time.
     var diagCursor: UInt32?
     var diagNextLow: UInt16?
@@ -184,6 +191,8 @@ public final class V1Transport: OpenPatchTransport {
     /// With a pairing secret every command needs a session: run the handshake once, however many sends wait for it.
     func ensureSession(_ done: @escaping (Result<Void, TransportError>) -> Void) {
         lock.lock()
+        // A session is also renewed before its sequence space runs out (0xFFFE): the counter is per session.
+        if channel != nil, sequence >= 0xFFFE { channel = nil }
         if pairingSecret == nil || channel != nil { lock.unlock(); return done(.success(())) }
         sessionWaiters.append(done)
         let leader = sessionWaiters.count == 1
@@ -202,7 +211,20 @@ public final class V1Transport: OpenPatchTransport {
         case status
         case local
         case reject(NackReason)
-        case request(V1.CommandID, [V1.TLV], sideEffect: () -> Void)
+        case request(V1.CommandID, [V1.TLV], sideEffect: () -> Void, rollback: (() -> Void)? = nil)
+    }
+
+    /// The wire request a domain command turns into (`nil` for commands answered locally or refused before sending).
+    /// Test hook for the golden-frame parity tests: the frame is `encode(Message(type, seq, [timeOfDay] + tlvs))`.
+    func wireRequest(for command: Command) -> (id: V1.CommandID, tlvs: [V1.TLV])? {
+        if case .request(let id, let tlvs, _, _) = plan(for: command) { return (id, tlvs) }
+        if case .status = plan(for: command) { return (.getStatus, []) }
+        return nil
+    }
+
+    /// Request of one history page. The pod answers at most `V1.historyPageSize` events.
+    static func historyTLVs(from cursor: UInt32) -> [V1.TLV] {
+        [V1.TLV(.fromID, u32: cursor), V1.TLV(.maxEvents, u8: UInt8(V1.historyPageSize))]
     }
 
     private func plan(for command: Command) -> Plan {
@@ -231,9 +253,11 @@ public final class V1Transport: OpenPatchTransport {
         case .cancelTempBasal:
             return .request(.cancelTempBasal, [], sideEffect: {})
         case .bolus(let id, let pulses):
-            return .request(.bolus, [V1.TLV(.amountMU, u32: UInt32(pulses) * 50)], sideEffect: { [unowned self] in
-                lock.lock(); lastBolus = (id, pulses); lock.unlock()
-            })
+            // Remembered BEFORE the frame goes out: if the reply is lost the pod may still have started this bolus, and its
+            // history events (BolusStart / BolusDone) must map back to this id. A refusal restores the previous one.
+            lock.lock(); let previous = lastBolus; lastBolus = (id, pulses); lock.unlock()
+            return .request(.bolus, [V1.TLV(.amountMU, u32: UInt32(pulses) * 50)], sideEffect: {},
+                            rollback: { [unowned self] in lock.lock(); lastBolus = previous; lock.unlock() })
         case .cancelBolus:
             return .request(.cancelBolus, [], sideEffect: {})
         case .suspend:
@@ -256,7 +280,16 @@ public final class V1Transport: OpenPatchTransport {
                 eventHandler?(.primeCompleted)    // wire prime is synchronous: done when the response arrives
             })
         case .silenceAlarm:
-            return .request(.acknowledge, [], sideEffect: {})
+            return .request(.acknowledge, [V1.TLV(.faultMask, u16: 0xFFFF)], sideEffect: {})
+        case .assistedFill(let pulses):
+            lock.lock(); let cal = calibration; lock.unlock()
+            // Only a pod that reports a known drive that understands AssistedFill; anything else is never asked to retract.
+            guard let cal, cal.supportsAssistedFill else { return .reject(cal?.isKnown == true ? .unsupported : .calibration) }
+            return .request(.assistedFill, [V1.TLV(.fillMU, u32: UInt32(pulses) * 50)], sideEffect: { [unowned self] in
+                lock.lock(); fillPending = true; lock.unlock()
+            })
+        case .cancelAssistedFill:
+            return .request(.assistedFill, [V1.TLV(.fillMU, u32: 0)], sideEffect: {})
         case .setPairing(let pairID, let role):
             return .request(.setPairing, [V1.TLV(.pairID, u32: pairID), V1.TLV(.role, u8: role.rawValue)], sideEffect: {})
         case .activatePod(let pairID, let activationID, let program, let temp):
@@ -311,14 +344,14 @@ public final class V1Transport: OpenPatchTransport {
             refreshStatus(completion: completion)
         case .reject(let reason):
             completion(.success(.rejected(reason)))
-        case .request(let id, let tlvs, let sideEffect):
+        case .request(let id, let tlvs, let sideEffect, let rollback):
             perform(id, tlvs) { [weak self] result in
                 guard let self else { return }
                 switch result {
                 case .failure(let error): completion(.failure(error))
                 case .success(let message):
                     let code = message.result ?? .frame
-                    if let reason = Self.nack(for: code, command: command) { return completion(.success(.rejected(reason))) }
+                    if let reason = Self.nack(for: code, command: command) { rollback?(); return completion(.success(.rejected(reason))) }
                     sideEffect()
                     if command.kind == .releasePod { self.captureRelease(message) }
                     self.refreshStatus(completion: completion)
@@ -329,7 +362,40 @@ public final class V1Transport: OpenPatchTransport {
 
     // MARK: Exchange
 
+    /// Commands that change nothing on the pod: safe to repeat after silence.
+    private static func isReadOnly(_ id: V1.CommandID) -> Bool {
+        id == .getStatus || id == .getHistory || id == .getFaultLog
+    }
+
+    /// Sequence jumps tried after a silent pod / a `REPLAY` answer (the pod's persisted `LAST_SEQ` may be ahead of the
+    /// phone's counter after the app lost its state): +16 (the documented margin), then larger.
+    static let resyncJumps: [UInt16] = [16, 256, 4096]
+
     func perform(_ id: V1.CommandID, _ tlvs: [V1.TLV], completion: @escaping (Result<V1.Message, TransportError>) -> Void) {
+        perform(id, tlvs, resyncStep: 0, completion: completion)
+    }
+
+    /// Moves the counter forward (plain-text pods; with a session the counter restarts at 1 and never needs this).
+    private func jumpSequence(by jump: UInt16) {
+        lock.lock()
+        sequence = UInt16(min(Int(sequence) + Int(jump), 0xFFFE))
+        let checkpoint = Checkpoint(nextSequence: sequence, historyCursor: historyCursor)
+        lock.unlock()
+        checkpointHandler?(checkpoint)
+    }
+
+    /// A status carries `LAST_SEQ`, the highest `seq` the pod accepted: never send a `seq` at or below it.
+    private func adoptLastSeq(_ message: V1.Message) {
+        guard let last = message.u16(.lastSeq), last < 0xFFFE else { return }
+        lock.lock()
+        guard Int(last) >= Int(sequence) else { lock.unlock(); return }
+        sequence = last + 1
+        let checkpoint = Checkpoint(nextSequence: sequence, historyCursor: historyCursor)
+        lock.unlock()
+        checkpointHandler?(checkpoint)
+    }
+
+    private func perform(_ id: V1.CommandID, _ tlvs: [V1.TLV], resyncStep: Int, completion: @escaping (Result<V1.Message, TransportError>) -> Void) {
         lock.lock()
         let seq = sequence
         sequence = sequence >= 0xFFFE ? 0xFFFE : sequence + 1   // 0xFFFF reserved; at the end a new session is needed
@@ -337,17 +403,33 @@ public final class V1Transport: OpenPatchTransport {
         let secure = channel
         lock.unlock()
         checkpointHandler?(checkpoint)
-        let withTime = tlvs + [V1.TLV(.timeOfDayMS, u32: timeOfDayMilliseconds())]
+        let withTime = [V1.TLV(.timeOfDayMS, u32: timeOfDayMilliseconds())] + tlvs   // first, like the Rust encoder
         let request = V1.Message(type: id.rawValue, seq: seq, tlvs: withTime)
         let frame = secure?.seal(request) ?? V1.encode(request)
-        link.exchange(frame: frame, seq: seq) { result in
+        let canResync = secure == nil && resyncStep < Self.resyncJumps.count
+        link.exchange(frame: frame, seq: seq) { [weak self] result in
+            guard let self else { return }
             switch result {
-            case .failure(let error): completion(.failure(error))
+            case .failure(let error):
+                // A plain-text pod drops a frame whose seq is not above its persisted LAST_SEQ without any answer. A read is
+                // harmless to repeat, so jump ahead and ask again; a write is never repeated here (its outcome is unknown and
+                // is resolved by the status read that follows).
+                if error == .timeout, canResync, Self.isReadOnly(id) {
+                    self.jumpSequence(by: Self.resyncJumps[resyncStep])
+                    return self.perform(id, tlvs, resyncStep: resyncStep + 1, completion: completion)
+                }
+                completion(.failure(error))
             case .success(let data):
                 // With a session only authenticated, decrypted responses count: a plaintext reply is refused.
                 let decoded: V1.Message? = secure != nil ? try? secure?.open(data, as: .response) : try? V1.decode(data)
                 guard let message = decoded, message.isResponse, message.seq == seq,
                       message.type == (id.rawValue | V1.responseFlag) else { return completion(.failure(.malformedResponse)) }
+                // `REPLAY` was refused before anything ran: jumping ahead and resending cannot double-execute.
+                if message.result == .replay, canResync {
+                    self.jumpSequence(by: Self.resyncJumps[resyncStep])
+                    return self.perform(id, tlvs, resyncStep: resyncStep + 1, completion: completion)
+                }
+                self.adoptLastSeq(message)
                 completion(.success(message))
             }
         }
@@ -377,6 +459,8 @@ public final class V1Transport: OpenPatchTransport {
         case .latched: return .latched
         case .notClearable: return .notClearable
         case .noSchedule: return .noSchedule
+        case .primeRequired: return .primeRequired
+        case .docked: return .podDocked
         }
     }
 
@@ -438,6 +522,13 @@ public final class V1Transport: OpenPatchTransport {
         } else if phase == .active || phase == .suspended {
             phase = flags.contains(.suspended) ? .suspended : .active
         }
+        let fill = Self.parseFill(m, flags: flags)
+        // A fill THIS app started that drew something (done, or stalled / cancelled part way) has put liquid in the reservoir.
+        // The pod keeps the result of its last job in every status, so an old one must not move a refilled pod on.
+        if fillPending, let fill, fill.state != .drawing {
+            fillPending = false
+            if fill.drawnUnits > 0, phase == .paired || phase == .deactivated { phase = .filled }
+        }
         phaseHint = phase
         wasFaulted = faultMask != 0
         let bolusInfo = lastBolus
@@ -459,7 +550,16 @@ public final class V1Transport: OpenPatchTransport {
                          totalDeliveredPulses: (m.u32(.deliveredMU) ?? 0) / 50,
                          bolus: bolus, tempBasal: temp, faultCode: Self.faultCode(mask: faultMask),
                          driveCalibration: cal, pairing: pairing, releaseReport: releaseReport(m),
-                         diag: m.diagSummary, fruHealth: m.fruHealth, uid: m.podUID)
+                         diag: m.diagSummary, fruHealth: m.fruHealth, uid: m.podUID, fill: fill, historyNextEventID: m.u32(.nextEventID))
+    }
+
+    /// `DRAW_STATE` / `DRAW_REQUESTED_MU` / `DRAW_DONE_MU` (Rust pods). `nil` when the pod does not report a draw state.
+    static func parseFill(_ m: V1.Message, flags: V1.StateFlags) -> FillStatus? {
+        guard let raw = m.u8(.drawState) else { return nil }
+        // An unknown state value is read as the safest one for the UI (not running).
+        let state = FillState(rawValue: raw) ?? .idle
+        return FillStatus(state: state, requestedUnits: Double(m.u32(.drawRequestedMU) ?? 0) / 1000,
+                          drawnUnits: Double(m.u32(.drawDoneMU) ?? 0) / 1000, primeRequired: flags.contains(.primeRequired))
     }
 
     /// Crude linear Li-Po estimate: 3.3 V (critical) = 0 %, 4.2 V = 100 %. Replace with the measured discharge curve.
@@ -494,7 +594,7 @@ public final class V1Transport: OpenPatchTransport {
         lock.unlock()
         guard next > cursor, pagesLeft > 0 else { return done() }
 
-        perform(.getHistory, [V1.TLV(.fromID, u32: cursor), V1.TLV(.maxEvents, u8: 10)]) { [weak self] result in
+        perform(.getHistory, Self.historyTLVs(from: cursor)) { [weak self] result in
             guard let self else { return }
             guard case .success(let message) = result, message.result == .ok else { return done() }
             // Dedupe by persistent event ID: never deliver anything below the cursor.
@@ -522,6 +622,10 @@ public final class V1Transport: OpenPatchTransport {
         guard let type = V1.HistoryType(rawValue: event.type) else { return nil }
         lock.lock(); let bolus = lastBolus; lock.unlock()
         switch type {
+        case .bolusStart:
+            return .bolusStarted(pulses: UInt16(clamping: max(Int(event.a), 0) / 50))
+        case .tempStart:
+            return .tempBasalStarted(rateTicks: UInt16(clamping: max(Int(event.a), 0) / 50), durationMinutes: UInt16(clamping: max(Int(event.b), 0)))
         case .bolusDone:
             return bolus.map { .bolusCompleted(id: $0.id, deliveredPulses: $0.pulses) }
         case .bolusCancel:

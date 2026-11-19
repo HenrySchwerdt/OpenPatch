@@ -8,7 +8,8 @@ public enum OpenPatchGATT {
     public static let commandCharacteristic = CBUUID(string: "2E092A48-506C-477E-ADD4-448BF1490002")
     /// Pod -> phone. Notify. Exactly one protocol frame per notification.
     public static let responseCharacteristic = CBUUID(string: "2E092A48-506C-477E-ADD4-448BF1490003")
-    /// Reserved for v1.x (unsolicited alarms), not implemented in v1: alarms arrive via status/history polling.
+    /// Pod -> phone, notify (optional): unsolicited frames of type 0x90 (draw progress, faults, diagnostics). Alarms and doses are
+    /// still read by polling status and history: a notification can be lost.
     public static let alertCharacteristic = CBUUID(string: "2E092A48-506C-477E-ADD4-448BF1490004")
 
     /// Advertised name is `OpenPatch-XXXX` (last 4 hex digits of the address).

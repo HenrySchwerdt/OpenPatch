@@ -15,6 +15,11 @@ final class OpenPatchSetupViewModel: ObservableObject {
     @Published var discovered: [DiscoveredPod] = []
     @Published var bluetoothUnavailable = false
     @Published var primeElapsed: TimeInterval = 0
+    /// Prime attempt while the pod takes up the lost motion of its drive (nil = not happening).
+    @Published var primeTakeupAttempt: Int?
+    /// Assisted fill: the pod's fill job as of the last status read, and whether the user started one.
+    @Published var fillStatus: FillStatus?
+    @Published var fillStarted = false
 
     let manager: OpenPatchPumpManager
     let allowSimulator: Bool
@@ -25,6 +30,8 @@ final class OpenPatchSetupViewModel: ObservableObject {
 
     private let scanner = OpenPatchBluetoothScanner()
     private var primeTimer: Timer?
+    private var fillTimer: Timer?
+    private var fillPolling = false
 
     init(manager: OpenPatchPumpManager, allowSimulator: Bool, isRefill: Bool) {
         self.manager = manager
@@ -36,7 +43,7 @@ final class OpenPatchSetupViewModel: ObservableObject {
         self.step = isRefill ? .fill : .size
     }
 
-    deinit { primeTimer?.invalidate() }
+    deinit { primeTimer?.invalidate(); fillTimer?.invalidate() }
 
     // MARK: Step: size
 
@@ -89,6 +96,16 @@ final class OpenPatchSetupViewModel: ObservableObject {
         }
     }
 
+    /// The drive of the pod behind this setup (known once it answered `hello`).
+    var calibration: DriveCalibration? { manager.state.driveCalibration }
+
+    /// `true` for every pod that has the assisted pressure fill (the cup pod: the ONLY way it is filled).
+    var usesAssistedFill: Bool { calibration.map { $0.allowedFillModes.contains(.assistedPressure) } ?? false }
+
+    /// Retraction rate of the pod during the fill, in U per second (what the user has to match with the syringe).
+    var fillUnitsPerSecond: Double { calibration?.assistedFillUnitsPerSecond ?? 0 }
+
+    /// Legacy pods (C reference): the user injected by hand and confirms the amount.
     func confirmFill() {
         run { done in
             self.manager.confirmFill(units: self.fillUnits) { error in
@@ -97,12 +114,84 @@ final class OpenPatchSetupViewModel: ObservableObject {
         }
     }
 
+    /// Assisted pressure fill: the pod starts retracting; the user pushes the syringe at the same pace.
+    func startAssistedFill() {
+        setSimulatedPodDocked(false)
+        fillStatus = nil
+        run { done in
+            self.manager.startFill(mode: .assistedPressure, units: self.fillUnits) { error in
+                done(error) {
+                    self.fillStarted = true
+                    self.beginFillPolling()
+                }
+            }
+        }
+    }
+
+    func cancelAssistedFill() {
+        run { done in
+            self.manager.cancelFill { error in done(error) { self.pollFillOnce() } }
+        }
+    }
+
+    /// The fill ended (done, stalled or cancelled) with something in the reservoir: go on to the prime.
+    func continueAfterFill() {
+        stopFillPolling()
+        step = .prime
+    }
+
+    /// Starts over after a stall or a cancel (the remaining volume is asked for again).
+    func fillMore() {
+        fillStarted = false
+        fillStatus = nil
+        let drawn = manager.state.fill?.drawnUnits ?? 0
+        fillUnits = max(min(fillUnits - drawn, podSize.capacityUnits - drawn), PodSize.minimumFillUnits)
+    }
+
+    private func beginFillPolling() {
+        fillTimer?.invalidate()
+        fillTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] timer in
+            guard let self else { return timer.invalidate() }
+            self.pollFillOnce()
+        }
+    }
+
+    private func stopFillPolling() { fillTimer?.invalidate(); fillTimer = nil }
+
+    private func pollFillOnce() {
+        guard !fillPolling else { return }
+        fillPolling = true
+        manager.refreshStatus { [weak self] error in
+            DispatchQueue.main.async {
+                guard let self else { return }
+                self.fillPolling = false
+                self.fillStatus = self.manager.state.fill
+                if let status = self.fillStatus, !status.isRunning, status.state != .idle { self.stopFillPolling() }
+                if let error, self.fillStatus?.isRunning != true { self.errorMessage = error.localizedDescription }
+            }
+        }
+    }
+
+    /// The in-app simulated pod has a dock input: the assisted fill needs it OFF, the prime needs it ON (a real pod is moved by hand).
+    private func setSimulatedPodDocked(_ docked: Bool) {
+        guard manager.state.usesSimulatedPod else { return }
+        let role = manager.state.podRole
+        (role.flatMap { OpenPatchSimulator.shared.pod(for: $0) } ?? OpenPatchSimulator.shared.pod)?.setDocked(docked)
+    }
+
     // MARK: Step: prime
 
     func startPrime() {
+        setSimulatedPodDocked(true)
+        // The progress runs from the tap on: after an assisted fill the pod first takes up the slack of its drive over several
+        // prime commands (minutes), and the screen has to say so.
+        beginPrimeProgress()
         run { done in
             self.manager.startPrime { error in
-                done(error) { self.beginPrimeProgress() }
+                if error != nil {
+                    DispatchQueue.main.async { self.primeTimer?.invalidate(); self.primeElapsed = 0; self.primeTakeupAttempt = nil }
+                }
+                done(error) {}
             }
         }
     }
@@ -113,6 +202,7 @@ final class OpenPatchSetupViewModel: ObservableObject {
         primeTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] timer in
             guard let self else { return timer.invalidate() }
             self.primeElapsed += 1
+            self.primeTakeupAttempt = self.manager.state.primeTakeupAttempt
             if self.manager.state.phase == .primed {
                 timer.invalidate()
                 self.step = .attach
@@ -139,6 +229,7 @@ final class OpenPatchSetupViewModel: ObservableObject {
     func cancel() {
         scanner.stop()
         primeTimer?.invalidate()
+        stopFillPolling()
         onCancel()
     }
 
