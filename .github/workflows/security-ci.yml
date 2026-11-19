@@ -119,13 +119,17 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with: { persist-credentials: false }
       - name: install ProVerif 2.05 (source tarball, checksum pinned) and Maude
-        timeout-minutes: 12   # a stalled mirror once hung this step for 30 min
+        timeout-minutes: 12   # stalled mirrors hung this step before; every command below has its own timeout
         run: |
-          set -e
-          sudo apt-get update -qq && sudo apt-get install -y -qq ocaml-nox maude make gcc
-          curl -fsSL --retry 3 --retry-all-errors --connect-timeout 20 --max-time 180 -o /tmp/pv.tgz https://bblanche.gitlabpages.inria.fr/proverif/proverif2.05.tar.gz
+          set -euxo pipefail
+          retry() { for i in 1 2 3; do timeout "$1" "${@:2}" && return 0; echo "retry $i: ${*:2}"; sleep 5; done; return 1; }
+          retry 180 sudo apt-get -o Acquire::Retries=3 -o Acquire::http::Timeout=30 update -qq
+          retry 300 sudo DEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=3 -o Acquire::http::Timeout=30 install -y -qq --no-install-recommends ocaml-nox maude make gcc
+          retry 200 curl -fsSL --connect-timeout 20 --max-time 180 -o /tmp/pv.tgz https://bblanche.gitlabpages.inria.fr/proverif/proverif2.05.tar.gz
           echo "4871f53c32ab4a04669a060c4886ba5d9080496963fb980a9a62d2c429ceabc4  /tmp/pv.tgz" | sha256sum -c -
-          mkdir -p /tmp/pv && tar xzf /tmp/pv.tgz -C /tmp/pv && (cd /tmp/pv/proverif2.05 && ./build >/dev/null 2>&1 || true)
+          mkdir -p /tmp/pv && tar xzf /tmp/pv.tgz -C /tmp/pv
+          (cd /tmp/pv/proverif2.05 && timeout 300 ./build </dev/null >/tmp/pv-build.log 2>&1 || (tail -20 /tmp/pv-build.log; true))
+          test -x /tmp/pv/proverif2.05/proverif
           sudo install -m755 /tmp/pv/proverif2.05/proverif /usr/local/bin/proverif
       - name: install Tamarin 1.10.0 (release binary, checksum pinned)
         timeout-minutes: 8
