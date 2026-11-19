@@ -1,0 +1,26 @@
+Kani Rust Verifier 0.68.0 (cargo plugin)
+Checking harness kani_proofs::proof_configure_hard_caps...
+VERIFICATION:- SUCCESSFUL
+Verification Time: 0.28522792s
+Checking harness kani_proofs::proof_check_bolus_hard_limit...
+VERIFICATION:- SUCCESSFUL
+Verification Time: 6.4422684s
+Checking harness kani_proofs::proof_approve_steps_two_calls_same_minute...
+VERIFICATION:- SUCCESSFUL
+Verification Time: 76.305466s
+Checking harness kani_proofs::proof_approve_steps_bounds...
+VERIFICATION:- SUCCESSFUL
+Verification Time: 23.808607s
+Checking harness kani_proofs::proof_session_replay_monotonic...
+VERIFICATION:- SUCCESSFUL
+Verification Time: 26.941763s
+Checking harness kani_proofs::proof_decode_command_total...
+VERIFICATION:- SUCCESSFUL
+Verification Time: 135.59904s
+Checking harness kani_proofs::proof_decode_frame_total...
+VERIFICATION:- SUCCESSFUL
+Verification Time: 17.901253s
+Checking harness kani_proofs::proof_tlv_reader_total...
+VERIFICATION:- SUCCESSFUL
+Verification Time: 12.070007s
+Complete - 8 successfully verified harnesses, 0 failures, 8 total.
