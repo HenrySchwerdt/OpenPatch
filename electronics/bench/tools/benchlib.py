@@ -16,9 +16,18 @@ import zipfile
 
 import pcbnew
 
-KL = "/Applications/KiCad/KiCad.app/Contents/SharedSupport/footprints"
-KCLI = "/Applications/KiCad/KiCad.app/Contents/MacOS/kicad-cli"
-JAVA = "/opt/homebrew/opt/openjdk/bin/java"
+def _first(*cands):
+    for c in cands:
+        if c and os.path.exists(c):
+            return c
+    return None
+
+
+# macOS (KiCad.app + Homebrew) and Linux (apt / PPA) are both supported; override with KICAD_CLI / KICAD_FOOTPRINTS / JAVA_BIN
+KCLI = os.environ.get("KICAD_CLI") or shutil.which("kicad-cli") or "/Applications/KiCad/KiCad.app/Contents/MacOS/kicad-cli"
+KL = os.environ.get("KICAD_FOOTPRINTS") or _first("/Applications/KiCad/KiCad.app/Contents/SharedSupport/footprints",
+                                                   "/usr/share/kicad/footprints", "/usr/local/share/kicad/footprints") or "/usr/share/kicad/footprints"
+JAVA = os.environ.get("JAVA_BIN") or shutil.which("java") or "/opt/homebrew/opt/openjdk/bin/java"
 FREEROUTING = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "tools", "freerouting-2.2.4.jar")
 BENCHFP = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "footprints", "Bench.pretty")
 MM = pcbnew.FromMM
@@ -205,10 +214,10 @@ def write_project(path, power_nets=(), power_w=0.3, track=TRACK, edge=0.3, clear
            "board": {"design_settings": {
                "rules": {"min_clearance": clear, "min_copper_edge_clearance": edge, "min_hole_clearance": 0.25,
                          "min_hole_to_hole": 0.25, "min_through_hole_diameter": 0.3, "min_track_width": 0.127,
-                         "min_via_annular_width": 0.1, "min_via_diameter": 0.5, "min_silk_clearance": 0.0,
+                         "min_via_annular_width": 0.1, "min_via_diameter": 0.5, "min_silk_clearance": 0.15,
                          "min_text_height": 0.55, "min_text_thickness": 0.08, "min_connection_width": 0.2,
                          "solder_mask_min_width": 0.1, "solder_mask_to_copper_clearance": 0.0},
-               "rule_severities": {"silk_over_copper": "ignore", "silk_overlap": "ignore", "silk_edge_clearance": "ignore",
+               "rule_severities": {"silk_over_copper": "warning", "silk_overlap": "warning", "silk_edge_clearance": "warning",
                                    "lib_footprint_issues": "ignore", "lib_footprint_mismatch": "ignore",
                                    "footprint_symbol_mismatch": "ignore", "courtyards_overlap": "warning",
                                    "solder_mask_bridge": "warning", "npth_inside_courtyard": "warning"}}},
@@ -377,3 +386,50 @@ def tidy_refs(board, hide_prefixes=("R", "C", "TP"), size=0.7):
         f.Reference().SetTextThickness(MM(0.1))
         if re.match(r"^(%s)\d" % "|".join(hide_prefixes), r) or r.startswith("H"):
             f.Reference().SetVisible(False)
+
+
+def snap(board, pairs, rmax=7.0, step=0.2, margin=0.12, edge=0.6, keepout=()):
+    """Move each part to the nearest free spot around an anchor pad: pairs = [(ref, anchor_ref, anchor_pad), ...].
+
+    Free = courtyard does not overlap any other footprint on the same side (or a keepout box) and stays inside the board.
+    Used after legalize() to put decoupling capacitors / filter parts next to the pin they serve."""
+    fps = {f.GetReference(): f for f in board.b.GetFootprints()}
+    t = pcbnew.ToMM
+    ov = lambda a, b: a[0] < b[2] + margin and a[2] > b[0] - margin and a[1] < b[3] + margin and a[3] > b[1] - margin
+    moved = []
+    for ref, aref, apad in pairs:
+        f = fps.get(ref)
+        a = fps.get(aref)
+        if f is None or a is None:
+            continue
+        pp = [p for p in a.Pads() if p.GetNumber() == str(apad)]
+        if not pp:
+            continue
+        ax, ay = t(pp[0].GetPosition().x) - OX, t(pp[0].GetPosition().y) - OY
+        sd = "B" if f.GetSide() == pcbnew.B_Cu else "F"
+        others = [list(k) for k in keepout]
+        for g in fps.values():
+            if g is f:
+                continue
+            if g.GetReference().startswith("H") or ("B" if g.GetSide() == pcbnew.B_Cu else "F") == sd:
+                others.append(_box(g))
+        b0 = _box(f)
+        cx, cy = (b0[0] + b0[2]) / 2, (b0[1] + b0[3]) / 2
+        best = None
+        n = int(rmax / step)
+        for iy in range(-n, n + 1):
+            for ix in range(-n, n + 1):
+                tx, ty = ax + ix * step, ay + iy * step           # candidate centre of the courtyard
+                d2 = (ix * step) ** 2 + (iy * step) ** 2
+                if best is not None and d2 >= best[0]:
+                    continue
+                bb = [tx - (b0[2] - b0[0]) / 2, ty - (b0[3] - b0[1]) / 2, tx + (b0[2] - b0[0]) / 2, ty + (b0[3] - b0[1]) / 2]
+                if bb[0] < edge or bb[1] < edge or bb[2] > board.w - edge or bb[3] > board.h - edge:
+                    continue
+                if any(ov(bb, o) for o in others):
+                    continue
+                best = (d2, tx - cx, ty - cy)
+        if best and (abs(best[1]) > 1e-6 or abs(best[2]) > 1e-6):
+            f.Move(pcbnew.VECTOR2I(MM(best[1]), MM(best[2])))
+            moved.append((ref, round(best[0] ** 0.5, 1)))
+    return moved
