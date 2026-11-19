@@ -27,7 +27,8 @@
 3. Write `SHOPPING.md`: one complete bench iteration (JLCPCB boards, JLC3DP prints, PCBWay CNC reservoir ×2 per size, NFP motors, M1.6 rod/nuts, magnets, duckbill valves, 30G needles, silicone, FFC, programmer) with links, qty, prices.
 4. User: print the dock fit-test coupon first, test against a real Insight Flex head, enter the winning variant.
 5. First order, bench tests per `docs/02-safety.md` §3; log real prices in `docs/05-cost-model.md`.
-6. Rev B: integrated pod (bare nRF54L15, HDI), motor with FPC tail (group buy), battery + Qi, no cables inside the pod (spec §1c).
+6. **CAD detailing pass** (only after the layout/dimensions are final): vendor-accurate motor model from the NFP drawing (pins, bosses, D-shaft), KiCad STEP of both boards with components, involute gear teeth from module/tooth count, cosmetic threads, fillets/chamfers/draft, properly shaped snap arms, lid lettering + fill-window scale, then photoreal SolidCraft path-traced renders (iso, exploded, section) for the website and docs. Current models are deliberately simplified envelopes for fit/interference checks.
+7. Rev B: integrated pod (bare nRF54L15, HDI), motor with FPC tail (group buy), battery + Qi, no cables inside the pod (spec §1c).
 
 ## Goal
 
