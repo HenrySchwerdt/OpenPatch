@@ -7,7 +7,17 @@ import { Marked } from 'marked';
 
 export const SITE = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..');
 export const REPO_ROOT = resolve(SITE, '..');
-export const REPO_URL = (process.env.VITE_REPO_URL || 'https://github.com/HenrySchwerdt/ai-insulin-pump').replace(/\/$/, '');
+function originUrl() {
+  try {
+    const u = execFileSync('git', ['config', '--get', 'remote.origin.url'], { cwd: REPO_ROOT, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim();
+    const m = /github\.com[:/]([^/]+\/[^/.]+?)(?:\.git)?$/.exec(u);
+    return m ? `https://github.com/${m[1]}` : '';
+  } catch { return ''; }
+}
+// Set by the Pages workflow (github.repository); locally derived from the git remote.
+export const REPO_URL = (process.env.VITE_REPO_URL || originUrl() || 'https://github.com').replace(/\/$/, '');
+const REPO_SLUG = REPO_URL.replace(/^https:\/\/github\.com\//, '');
+const OWNER = REPO_SLUG.split('/')[0] || 'x';
 
 export const exists = (rel) => existsSync(join(REPO_ROOT, rel));
 export const read = (rel) => (exists(rel) ? readFileSync(join(REPO_ROOT, rel), 'utf8') : null);
@@ -130,7 +140,8 @@ export function renderMarkdown(md, opts = {}) {
   let html = m.parse(md);
   html = html.replaceAll('<table>', '<div class="tablewrap" role="region" aria-label="Table" tabindex="0"><table>').replaceAll('</table>', '</table></div>');
   // keep personal names out of visible text (hrefs to the repository stay)
-  html = html.replace(/>([^<]*)HenrySchwerdt\/ai-insulin-pump/g, '>$1the OpenPatch repository').replace(/>https:\/\/henryschwerdt\.github\.io\/ai-insulin-pump\/?</g, '>the project site<');
+  const own = OWNER.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  html = html.replace(new RegExp(`>([^<]*)${own}/[\\w.-]+`, 'gi'), '>$1the OpenPatch repository').replace(new RegExp(`>https://${own}\\.github\\.io/[^<]*<`, 'gi'), '>the project site<');
   return { html, toc };
 }
 
