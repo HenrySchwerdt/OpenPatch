@@ -53,6 +53,7 @@ def generate_size(p: dict, variant: str, outdir: Path, snapshots: bool) -> dict:
     (outdir / f"{tag}.mech.json").write_text(json.dumps(L, indent=1), encoding="utf-8")
     if snapshots:
         shots(sc, outdir, tag, L, created)
+        asm_shots(sc, outdir, tag, L, created)
         cup_annotate.draw(p, L, outdir / f"{tag}_top_annotated.svg")
         import cup_fab
         cup_fab.run(p, outdir, L)
@@ -80,6 +81,35 @@ def shots(sc: Path, outdir: Path, tag: str, L: dict, created: set) -> None:
     cam2 = {"target": [xs, L["width"] / 2, L["height"] / 2], "yaw": 1.5708, "pitch": 0.0, "distance": 30.0}
     run_cli("snapshot", str(sc), "--out", str(outdir / f"{tag}_section_cross_dock.png"), "--camera", json.dumps(cam2), "--section", f"x={xs:.2f}", "--width", "1800", "--height", "900",
             "--no-grid", "--no-axes", *cols)
+
+
+def asm_shots(sc: Path, outdir: Path, tag: str, L: dict, created: set) -> None:
+    import op_cup_asm
+    cols = _cols(created) + ["--body", "lid_gasket:color=#c04040", "--body", "usb_gasket:color=#c04040", "--body", "hub_oring:color=#c04040"]
+    offs = [0, 9, 18, 26, 34, 44, -12]
+    ex = Script()
+    ex.add("parameters.add", name="p_dummy_explode2", expression="0", comment="assembly exploded view")
+    for gi, (gname, names) in enumerate(op_cup_asm.ORDER):
+        for n in names:
+            if n in created:
+                ex.move([n], (0, 0, offs[gi]))
+    for n in ("cannula_adapter", "dock_magnet"):
+        if n in created:
+            ex.move([n], (0, 0, -22))
+    exj = outdir / f"{tag}.asm.json"
+    exj.write_text(json.dumps(ex.dumps()), encoding="utf-8")
+    run_cli("snapshot", str(exj), "--in", str(sc), "--out", str(outdir / f"{tag}_assembly_exploded.png"), "--view", "iso", "--width", "2200", "--height", "1500", "--no-grid", "--no-axes", *cols)
+    exj.unlink()
+    run_cli("snapshot", str(sc), "--out", str(outdir / f"{tag}_iso_lid_off.png"), "--view", "iso", "--width", "1800", "--height", "1000", "--no-grid", "--no-axes", *cols, "--body", "top:opacity=0.02,color=#9fb3c8")
+    rows = [f'<text x="40" y="{1560 + 26 * k}" font-size="20" font-family="Helvetica,Arial,sans-serif"><tspan fill="#c00" font-weight="bold">{g}</tspan>   lifts {offs[k]:+d} mm in the picture</text>' for k, (g, _n) in enumerate(op_cup_asm.ORDER)]
+    svg = (f'<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="2200" height="{1580 + 26 * len(rows)}"><rect width="100%" height="100%" fill="#fff"/>'
+           f'<image x="0" y="0" width="2200" height="1500" xlink:href="{outdir / (tag + "_assembly_exploded.png")}"/>'
+           f'<text x="40" y="40" font-size="26" font-family="Helvetica,Arial,sans-serif" font-weight="bold">{tag} assembly order (exploded, step 1 at the bottom, lid and gaskets last; dock parts from below)</text>' + "".join(rows) + '</svg>')
+    sp = outdir / f"{tag}_assembly_labeled.svg"
+    sp.write_text(svg, encoding="utf-8")
+    import shutil, subprocess
+    if shutil.which("rsvg-convert"):
+        subprocess.run(["rsvg-convert", "-b", "white", "-o", str(sp.with_suffix(".png")), str(sp)], check=True)
 
 
 def main(p0: dict, sizes: list[str] | None, outdir: str | None, no_snapshots: bool, snapshot_sizes: list[str]) -> None:

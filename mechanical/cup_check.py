@@ -107,7 +107,7 @@ def check_size(outdir: Path, variant: str, p: dict) -> dict:
     gap_y = mg["min"][1] - tm["max"][1]
     if gap_y < p["cup"]["tmag"]["gap"] - 1e-6:
         problems.append(f"TMAG only {gap_y:.2f} mm from the magnet edge (< {p['cup']['tmag']['gap']})")
-    behind = [n for n, b in by.items() if n not in ("bottom", "top") and not n.startswith("ko_") and b["bbox"]["min"][0] < L["xc"] - 3.0 - 0.011]
+    behind = [n for n, b in by.items() if n not in ("bottom", "top", "lid_gasket", "usb_gasket") and not n.startswith("ko_") and b["bbox"]["min"][0] < L["xc"] - 3.0 - 0.011]
     if behind:
         problems.append(f"parts behind the motor column (nothing may be left of it): {behind}")
     # ---- exactly two gears, meshing as a miter pair (axes cross at the apex)
@@ -239,6 +239,36 @@ def check_size(outdir: Path, variant: str, p: dict) -> dict:
     warns.append(f"dead volume at empty ~ {dv:.2f} U (outlet bore d{fl['out_d']} through the front wall + gap {dead} mm x {L['bore_area']:.0f} mm2)")
     warns.append(f"layout A: motor column x {L['xc'] - 3:.1f}..{L['xc'] + 3:.1f} (rear), tank x {L['x_dry']:.1f}..{L['x_t0']:.1f} ({L['tank_len']:.1f}), dock x {K['x_bf']:.1f}..{K['x_far']:.1f}; lane 2 y {L['lane2_y'][0]:.1f}..{L['lane2_y'][1]:.1f}: "
                  f"battery x {L['battery']['x'][0]:.1f}..{L['battery']['x'][1]:.1f}, board above, USB-C (+Y wall) x {L['usb']['x'][0]:.1f}..{L['usb']['x'][1]:.1f}, aux/piezo/button x {L['aux']['x'][0]:.1f}..{L['aux']['x'][1]:.1f}")
+    # ---- assembly: every group drops in from above in ORDER (drop path = own bbox x-y swept from the part bottom to the cavity ceiling, free of the housing and of earlier groups)
+    import op_cup_asm
+    tools = Script()
+    grp = {}
+    for gi, (gname, names) in enumerate(op_cup_asm.ORDER):
+        for n in names:
+            grp[n] = gi
+    for n, gi in grp.items():
+        if n in ("bottom", "top", "lid_gasket", "usb_gasket") or n in op_cup_asm.FROM_BELOW or n not in by or gi >= 6:
+            continue
+        mn, mx = bb(n)["min"], bb(n)["max"]
+        z_lo = zc if n in ("bush_rod", "motor", "gearhead", "motor_boss", "motor_rear_boss") else mn[2] + 0.01          # round parts in U seats: test from the axis up
+        tools.box(f"drop_{n}", (mn[0], mx[0]), (mn[1], mx[1]), (z_lo, L["height"] - 0.9))
+    names_t = [x for x in grp if f"drop_{x}" in {c_["params"].get("body_name") for c_ in tools.dumps()}]
+    ex3 = excl + [[f"drop_{a}", f"drop_{b}"] for a in names_t for b in names_t if a < b] + [[f"drop_{a}", a] for a in names_t] + [["drop_gear_a", "gear_b"], ["drop_gear_b", "gear_a"]]
+    ex3 += [[f"drop_{a}", b] for a in names_t for b in grp if grp[b] == grp[a]]
+    ir3 = run_extra(sc, tools, ex3)
+    blocked = {}
+    for i in ir3["interferences"]:
+        if i.get("volume_mm3", 1) <= C.MIN_OVERLAP_MM3:
+            continue
+        a_, b_ = i["a"], i["b"]
+        d_, o_ = (a_, b_) if a_.startswith("drop_") else (b_, a_)
+        if not d_.startswith("drop_") or o_.startswith("drop_"):
+            continue
+        if o_ == "bottom" or grp.get(o_, 99) < grp[d_[5:]]:
+            blocked.setdefault(d_[5:], []).append(o_)
+    for n, o in blocked.items():
+        problems.append(f"assembly: {n} cannot drop in from above, blocked by {sorted(set(o))}")
+    warns.append("assembly order (drop test passed for): " + "; ".join(f"{g}: {len([x for x in names if f'drop_{x}' in {c_['params'].get('body_name') for c_ in tools.dumps()}])} parts" for g, names in op_cup_asm.ORDER[:5]) + "; dock parts (hub + O-ring + needle + guard + clip) are pressed in from BELOW through the pocket window (documented exception)")
     import cup_packing
     pk = cup_packing.run(outdir, variant)
     if pk["rect_4x4_found"]:

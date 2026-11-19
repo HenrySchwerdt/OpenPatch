@@ -243,8 +243,9 @@ def build_housing(s: Script, p: dict, L: dict) -> None:
     for k, y0 in enumerate(ys):
         cuts.append(s.cyl(f"t_sad_bore{k}", "Y", (xc, 0, zc), 6.0 + 2 * c["motor"]["saddle_clr"], y0 - 0.05, y0 + sl + 0.05))
     s.cut("bottom", cuts)
-    s.rrect("top", (0, Lp), (0, W), r, (lap, H))
-    s.rrect("t_cavt", (w, Lp - w), (w, W - w), r - w, (lap - 0.1, H - w))
+    lap_t = lap + 0.4                                                           # lid starts 0.4 above the rim: flat gasket between
+    s.rrect("top", (0, Lp), (0, W), r, (lap_t, H))
+    s.rrect("t_cavt", (w, Lp - w), (w, W - w), r - w, (lap_t - 0.1, H - w))
     s.cut("top", ["t_cavt"])
     v = c["vent"]
     xv = L["aux"]["x"][1] - 2.0
@@ -259,13 +260,15 @@ def build(p: dict, variant: str) -> tuple[Script, dict]:
     build_tank_and_plunger(s, p, L)
     build_drive(s, p, L)
     build_electronics_boxes(s, p, L)
+    import op_cup_asm
+    op_cup_asm.build(s, p, L)
     return s, L
 
 
 MFG_PARTS = {"bottom": ["bottom"], "top": ["top"], "reservoir": ["reservoir"], "plunger_core": ["plunger_core"], "plunger_seal": ["seal_a", "seal_b"],
-             "thrust_sleeve": ["thrust_sleeve"], "thrust_collar": ["thrust_collar"]}
+             "thrust_sleeve": ["thrust_sleeve"], "thrust_collar": ["thrust_collar"], "lid_gasket": ["lid_gasket"], "usb_gasket": ["usb_gasket"]}
 PURCHASED = ["nut", "rod", "bush_rod", "gear_a", "gear_b", "motor", "gearhead", "motor_boss", "motor_shaft", "motor_rear_boss", "motor_term", "magnet", "hall_tmag", "septum",
-             "needle", "needle_hub", "needle_guard", "cannula_adapter", "dock_magnet", "dock_clip", "hall_dock"]
+             "hub_oring", "needle", "needle_hub", "needle_guard", "cannula_adapter", "dock_magnet", "dock_clip", "hall_dock"]
 KEEPOUT = ["ko_board", "ko_aux", "ko_io", "ko_side_a", "ko_side_b", "ko_battery", "ko_usb", "ko_tmag_board", "ko_dock_board"]
 PART_NAMES = [b for v in MFG_PARTS.values() for b in v] + PURCHASED + KEEPOUT
-EXCLUDE_PAIRS = [["gear_a", "gear_b"], ["needle_guard", "needle_hub"], ["needle_hub", "reservoir"]]
+EXCLUDE_PAIRS = [["gear_a", "gear_b"], ["needle_guard", "needle_hub"], ["needle_hub", "reservoir"], ["lid_gasket", "top"], ["hub_oring", "reservoir"]]
