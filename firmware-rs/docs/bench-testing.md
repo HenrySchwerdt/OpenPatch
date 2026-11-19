@@ -42,7 +42,7 @@ Every line goes to RTT (`CSV ` prefix) and to the Log characteristic. Lines star
 DOCKED`, `# bench done`, `# bench failed code=N`, `# rejected: ...`). The CSV is `openpatch_core::bench::CSV_HEADER`:
 
 ```
-t_ms,pulse,cmd_mu,delivered_pulses,delivered_mu,angle_counts,faults
+t_ms,pulse,cmd_mu,delivered_pulses,delivered_mu,angle_counts,faults,peak_ma
 ```
 
 Extract the CSV from the probe-rs terminal log (timestamps and level are added by defmt):
@@ -53,7 +53,7 @@ grep ' CSV ' run.log | sed 's/.* CSV //' > bench.csv
 ```
 
 With the default `DEFMT_LOG` (`.cargo/config.toml`) the HAL also logs one `DEBUG burst steps=.. peak_ma=.. samples=.. enc_counts=..` line per burst.
-`delivered_pulses` (= motor steps) / `delivered_mu` are cumulative; `angle_counts` is the unwrapped leadscrew angle (4096 per turn) engine totals; `faults` is the core fault bitmask (protocol section 4.1).
+`delivered_pulses` (= motor steps) / `delivered_mu` are cumulative; `angle_counts` is the unwrapped leadscrew angle (4096 per turn) engine totals; `faults` is the core fault bitmask (protocol section 4.1); `peak_ma` is the largest motor-current peak (mA) of the pulse (empty without a current sensor).
 
 ## Gravimetric procedure
 

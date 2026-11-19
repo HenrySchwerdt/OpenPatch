@@ -15,6 +15,9 @@ DRIVE="${DRIVE:-drive-nfp-608-26-45-g15-12}"
 # Angle source: angle-tmag (default) or angle-qdec-fallback (NOT sufficient for the 3 %/turn check).
 ANGLE="${ANGLE:-angle-tmag}"
 
+echo "== drive guard (exactly one drive feature)"
+"$ROOT/scripts/check-drive-guard.sh"
+
 echo "== bootloader"
 ( cd "$ROOT/openpatch-bootloader" && cargo build --release )
 rust-size "$ROOT/openpatch-bootloader/target/thumbv7em-none-eabihf/release/openpatch-bootloader"
