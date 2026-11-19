@@ -85,6 +85,14 @@ pub struct Pump<H: Hal> {
     /// Record id of the HAL-level cause raised by the burst in progress (0 = none): the core's own
     /// record (for example `7-70-005`) links to it (cause chain).
     pub(crate) hal_rec: u32,
+    /// Last self-test (`SELFTEST_STATE`).
+    pub(crate) selftest: proto::SelfTestState,
+    /// Pending `SELFTEST_PROGRESS` notification argument.
+    pub(crate) selftest_note: Option<u32>,
+    /// Write event type 31 for new diagnostic records (off by default, see [`Pump::set_diag_history`]).
+    pub(crate) diag_history: bool,
+    /// Next record id not yet written as event 31.
+    pub(crate) diag_hist_next: u32,
 }
 
 impl<H: Hal> Pump<H> {
@@ -121,6 +129,10 @@ impl<H: Hal> Pump<H> {
             last_motor_fault: None,
             peak_ma: None,
             hal_rec: 0,
+            selftest: proto::SelfTestState::default(),
+            selftest_note: None,
+            diag_history: false,
+            diag_hist_next: 0,
             hal,
         };
         p.pod.docked = p.hal_docked(); // no event for the boot state
@@ -171,15 +183,30 @@ impl<H: Hal> Pump<H> {
 
     /// Encode + seal the next pending notification as a frame (type 0x90, own nonce direction).
     pub fn notification_frame<C: Ccm>(&mut self, session: &mut Session<C>, encrypt: bool, out: &mut [u8]) -> Option<Result<usize, Error>> {
-        let n = self.take_notification()?;
-        let (kind, arg) = match n {
-            Notification::DrawProgress(v) => (proto::notify::DRAW_PROGRESS, v),
-            Notification::DrawDone(v) => (proto::notify::DRAW_DONE, v),
-            Notification::DrawStalled(v) => (proto::notify::DRAW_STALLED, v),
-            Notification::Fault(b) => (proto::notify::FAULT, b as u32),
+        // legacy notifications first, then the diagnostic ones (kinds 5 to 7)
+        let mut record: Option<crate::diag::DiagRecord> = None;
+        let (kind, arg) = if let Some(n) = self.take_notification() {
+            match n {
+                Notification::DrawProgress(v) => (proto::notify::DRAW_PROGRESS, v),
+                Notification::DrawDone(v) => (proto::notify::DRAW_DONE, v),
+                Notification::DrawStalled(v) => (proto::notify::DRAW_STALLED, v),
+                Notification::Fault(b) => (proto::notify::FAULT, b as u32),
+            }
+        } else if let Some(d) = self.take_diag_note() {
+            match d {
+                DiagNote::Raised(r) => {
+                    record = Some(r);
+                    (proto::notify::DIAG_RAISED, r.code.0)
+                }
+                DiagNote::Cleared(c) => (proto::notify::DIAG_CLEARED, c.0),
+            }
+        } else if let Some(p) = self.selftest_note.take() {
+            (proto::notify::SELFTEST_PROGRESS, p)
+        } else {
+            return None;
         };
-        let mut body = [0u8; 16];
-        let r = proto::encode_notification_payload(kind, arg, &mut body).and_then(|l| {
+        let mut body = [0u8; 64];
+        let r = proto::encode_notification_payload_ex(kind, arg, record.as_ref(), &mut body).and_then(|l| {
             let seq = self.notify_seq;
             self.notify_seq = if seq >= proto::SEQ_MAX { 0 } else { seq + 1 };
             session.seal_notification(proto::notify::FRAME_TYPE, seq, encrypt, &body[..l], out)
@@ -364,6 +391,124 @@ impl<H: Hal> Pump<H> {
         self.sv.diag_mut().take_note()
     }
 
+    /// Also write event type 31 `DIAG` (a = code, b = `ctx_a`) to the event log for every new
+    /// diagnostic record, so a v1-only history reader sees that a record exists. Off by default:
+    /// the C reference never writes it and the differential tests compare the event log.
+    pub fn set_diag_history(&mut self, on: bool) {
+        self.diag_history = on;
+        if on {
+            self.diag_hist_next = self.sv.diag().next_id();
+        }
+    }
+
+    fn log_diag_history(&mut self) {
+        if !self.diag_history {
+            return;
+        }
+        let end = self.sv.diag().next_id();
+        let mut id = self.diag_hist_next.max(self.sv.diag().oldest_id());
+        while id != end {
+            if let Some(r) = self.sv.diag().record(id) {
+                if r.flags & openpatch_diag::flags::CLEARED == 0 {
+                    self.log_ev(EventType::Diag, r.code.0 as i32, r.ctx_a);
+                }
+            }
+            id = id.wrapping_add(1);
+            if id == 0 {
+                id = 1;
+            }
+        }
+        self.diag_hist_next = end;
+    }
+
+    /// Diagnostic summary for `DIAG_SUMMARY`.
+    pub fn diag_summary(&self) -> proto::DiagSummary {
+        self.sv.diag().summary()
+    }
+
+    /// `ClearDiag`. `NotFound` when the code is not active, `NotClearable` when it is latched and
+    /// its verification test has not passed, or when the cause persists (battery, calibration,
+    /// wear, empty reservoir). Returns the number of cleared records.
+    pub fn clear_diag(&mut self, code: DiagCode) -> Result<usize, Error> {
+        let before = self.sv.faults();
+        // verification tests of latched codes (A01/A02, S04..S06, ...) are WP-3: nothing is verified yet
+        let r = {
+            let persist_bits = self.sv.persisting(Faults::ALL);
+            self.sv.diag_mut().clear_diag(code, false, |a| {
+                crate::diag::legacy_bit(a.code, a.severity).is_some_and(|b| persist_bits.bits() & (1 << b) != 0)
+            })
+        };
+        self.sv.resync_faults();
+        let cleared = before & !self.sv.faults();
+        if !cleared.is_empty() {
+            self.log_ev(EventType::Ack, cleared.bits() as i32, 0);
+        }
+        if self.sv.faults().is_empty() {
+            self.hal.buzzer(Buzzer::Off);
+        }
+        self.log_diag_history();
+        r.map_err(|e| match e {
+            crate::diag::ClearError::NotFound => Error::NotFound,
+            crate::diag::ClearError::NotClearable => Error::NotClearable,
+        })
+    }
+
+    /// `RunSelfTest`: refused while not suspended, while a draw runs, or while a test runs. The
+    /// core sequences the steps; the pin-level proofs are the HAL's (`Hal::selftest`). A proof the
+    /// HAL cannot do stays UNKNOWN (neither passed nor failed). Ends with `7-74-006 POST_RESULT`
+    /// (`ctx_a` = steps passed mask, `ctx_b` = steps failed mask).
+    pub fn run_self_test(&mut self, sub_op: u8) -> Result<(), Error> {
+        use crate::hal::{SelfTestOutcome, SelfTestStep};
+        if !(proto::selftest::SUBOP_POST_S..=proto::selftest::SUBOP_WATCHDOG).contains(&sub_op) {
+            return Err(Error::BadArg);
+        }
+        if !self.de.is_suspended() || self.draw_running() || self.selftest.state == proto::selftest::RUNNING {
+            return Err(Error::SelfTestRefused);
+        }
+        self.selftest = proto::SelfTestState { state: proto::selftest::RUNNING, kind: sub_op, ..Default::default() };
+        let steps: &[SelfTestStep] = match sub_op {
+            proto::selftest::SUBOP_POST_A => &[SelfTestStep::GateCut, SelfTestStep::DockGateBlock],
+            proto::selftest::SUBOP_WATCHDOG => &[SelfTestStep::WatchdogProof],
+            _ => &[],
+        };
+        let faults_before = self.sv.faults();
+        let (mut passed, mut failed) = (0u16, 0u16);
+        for (i, step) in steps.iter().enumerate() {
+            match self.hal.selftest(*step) {
+                SelfTestOutcome::Unsupported => {}
+                SelfTestOutcome::Passed => passed |= 1 << i,
+                SelfTestOutcome::Failed(code) => {
+                    failed |= 1 << i;
+                    self.hal_rec = self.sv.raise(Raise::new(code).during_post());
+                }
+            }
+        }
+        self.selftest = proto::SelfTestState { state: proto::selftest::DONE, kind: sub_op, steps_passed: passed, steps_failed: failed };
+        self.sv.raise(Raise::new(codes::POST_RESULT).a(passed as i32).b(failed as i32).inst(sub_op).during_post());
+        // a proof that was not performed is UNKNOWN, never "passed": only a complete pass counts
+        let all_passed = !steps.is_empty() && passed.count_ones() as usize == steps.len();
+        let post = match (sub_op, failed != 0, all_passed) {
+            (proto::selftest::SUBOP_POST_S, true, _) => 3,
+            (proto::selftest::SUBOP_POST_A, true, _) => 4,
+            (proto::selftest::SUBOP_POST_S, false, true) => 1,
+            (proto::selftest::SUBOP_POST_A, false, true) => 2,
+            _ => self.sv.diag().post_state(),
+        };
+        self.sv.diag_mut().set_post_state(post);
+        self.selftest_note = Some(((passed as u32) << 16) | failed as u32);
+        self.sv.resync_faults();
+        self.sync_faults(faults_before);
+        self.log_diag_history();
+        Ok(())
+    }
+
+    /// Latched code that makes `Resume` / `Activate` refuse (`Latched`), if any.
+    fn latched_root(&self) -> Option<u32> {
+        let l = self.sv.diag().latched().first()?;
+        let root = self.sv.diag().record(l.rec_id).map(|r| self.sv.diag().root_of(&r).code.0);
+        Some(root.unwrap_or(l.code.0))
+    }
+
     // ---- two-pod helpers ---------------------------------------------------------------
     pub(crate) fn hal_docked(&mut self) -> bool {
         self.hal.docked()
@@ -473,6 +618,7 @@ impl<H: Hal> Pump<H> {
         self.drain_hal_diag();
         self.observe();
         self.sync_faults(before);
+        self.log_diag_history();
         self.hal.watchdog_kick();
     }
 
@@ -738,6 +884,17 @@ impl<H: Hal> Pump<H> {
         s.draw_state = self.draw.state;
         s.draw_requested_mu = self.draw.requested_mu;
         s.draw_done_mu = self.draw.drawn_mu;
+        // diagnostics: the presence of DIAG_SUMMARY is the feature test for the app
+        s.diag = Some(self.sv.diag().summary());
+        s.fru_health = Some(self.sv.diag().fru_health());
+        let uid = self.hal.pod_uid();
+        s.pod_uid = (uid != 0).then_some(uid);
+        if !self.sv.diag().active().is_empty() {
+            s.flags |= st::DIAG_ACTIVE;
+        }
+        if !self.sv.diag().latched().is_empty() {
+            s.flags |= st::LATCHED;
+        }
         s
     }
 
@@ -876,7 +1033,13 @@ impl<H: Hal> Pump<H> {
             CommandBody::Bolus { amount_mu } => self.bolus(MilliUnits(*amount_mu)),
             CommandBody::CancelBolus => self.cancel_bolus(),
             CommandBody::Suspend => self.suspend(),
-            CommandBody::Resume => self.resume(),
+            CommandBody::Resume => match self.latched_root() {
+                Some(root) => {
+                    rsp.diag_code = Some(root);
+                    Err(Error::Latched)
+                }
+                None => self.resume(),
+            },
             CommandBody::FillPrime { sub_op, fill_mu, prime_steps } => match *sub_op {
                 SUBOP_FILL => self.fill(MilliUnits(*fill_mu)),
                 SUBOP_PRIME => self.prime(Pulses(*prime_steps as u32)),
@@ -885,7 +1048,12 @@ impl<H: Hal> Pump<H> {
             CommandBody::Acknowledge { fault_mask } => self.acknowledge(Faults(*fault_mask)),
             CommandBody::SetPairing { pair_id, role } => self.set_pairing(*pair_id, *role),
             CommandBody::Activate { pair_id, activation_id, schedule, temp } => {
+                let latched = self.latched_root();
                 let r = match Self::schedule_from_wire(schedule) {
+                    Ok(_) if latched.is_some() => {
+                        rsp.diag_code = latched;
+                        Err(Error::Latched)
+                    }
                     Ok(s) => {
                         let a = ActivateArgs {
                             pair_id: *pair_id,
@@ -927,7 +1095,42 @@ impl<H: Hal> Pump<H> {
                 rsp.history = Some(h);
                 Ok(())
             }
+            CommandBody::GetFaultLog { from_id, max_events } => {
+                let mut max = *max_events as usize;
+                if max == 0 || max > proto::DIAG_RECORDS_PER_RESPONSE {
+                    max = proto::DIAG_RECORDS_PER_RESPONSE;
+                }
+                let mut buf = [proto::DiagRecord::default(); proto::DIAG_RECORDS_PER_RESPONSE];
+                let n = self.sv.diag().records_from(*from_id, &mut buf[..max]);
+                let mut f = proto::FaultLog {
+                    next_id: self.sv.diag().next_id(),
+                    oldest_id: self.sv.diag().oldest_id(),
+                    ..Default::default()
+                };
+                for l in self.sv.diag().latched().iter().take(proto::DIAG_LATCHED_MAX) {
+                    let _ = f.latched.push(l.code.0);
+                }
+                for r in &buf[..n] {
+                    let _ = f.records.push(*r);
+                }
+                rsp.fault_log = Some(f);
+                Ok(())
+            }
+            CommandBody::RunSelfTest { sub_op } => {
+                let r = self.run_self_test(*sub_op);
+                rsp.selftest = Some(self.selftest);
+                r
+            }
+            CommandBody::ClearDiag { code } => {
+                let r = self.clear_diag(DiagCode(*code));
+                if r.is_err() {
+                    rsp.diag_code = Some(*code);
+                }
+                rsp.diag = Some(self.sv.diag().summary());
+                r.map(|_| ())
+            }
         };
+        self.log_diag_history();
         rsp.result = Error::result_code(&r);
         rsp
     }

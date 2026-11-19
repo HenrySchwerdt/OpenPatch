@@ -257,6 +257,12 @@ impl SafetySupervisor {
         self.raise(r.caused_by(cause_rec))
     }
 
+    /// Recomputes the derived legacy bits after the diagnostic state was changed through
+    /// [`SafetySupervisor::diag_mut`].
+    pub fn resync_faults(&mut self) {
+        self.sync_faults_cache();
+    }
+
     fn sync_faults_cache(&mut self) {
         let now = self.diag.legacy_faults();
         self.last_new_faults |= now & !self.faults;
@@ -427,10 +433,9 @@ impl SafetySupervisor {
         false
     }
 
-    /// Clears acknowledgeable faults. Faults whose cause persists (battery critical, no
-    /// calibration, wear expired, reservoir empty) stay latched: `Err(Persists)`.
-    pub fn acknowledge(&mut self, mask: Faults) -> Result<(), Error> {
-        let target = self.faults & mask;
+    /// Legacy fault bits (of `target`) whose cause is still present and that can therefore not be
+    /// acknowledged (battery critical, no calibration, wear expired, reservoir empty).
+    pub fn persisting(&self, target: Faults) -> Faults {
         let mut blocked = Faults::NONE;
         if target.contains(Faults::BATTERY_CRITICAL)
             && self.last_battery_mv < BATTERY_CRITICAL_MV + BATTERY_HYSTERESIS_MV
@@ -446,6 +451,14 @@ impl SafetySupervisor {
         if target.contains(Faults::RESERVOIR_EMPTY) && self.last_reservoir == Some(MilliUnits(0)) {
             blocked |= Faults::RESERVOIR_EMPTY;
         }
+        blocked
+    }
+
+    /// Clears acknowledgeable faults. Faults whose cause persists (battery critical, no
+    /// calibration, wear expired, reservoir empty) stay latched: `Err(Persists)`.
+    pub fn acknowledge(&mut self, mask: Faults) -> Result<(), Error> {
+        let target = self.faults & mask;
+        let mut blocked = self.persisting(target);
         let clear = target & !blocked;
         // latched (L) records stay: they are cleared only by their verification test (ClearDiag)
         let cleared = self.diag.clear_legacy(clear);

@@ -415,8 +415,11 @@ impl DiagState {
                 }
             }
         }
-        let rec = self.ring[Self::idx(id)];
-        self.note(DiagNote::Raised(rec));
+        if tracked {
+            // I records are log only: no alert, no notification (the app pulls them)
+            let rec = self.ring[Self::idx(id)];
+            self.note(DiagNote::Raised(rec));
+        }
         id
     }
 

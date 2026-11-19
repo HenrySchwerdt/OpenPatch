@@ -34,6 +34,13 @@ pub enum Error {
     PrimeRequired = 26,
     /// Rust extension: refused because the pod is docked (draw mode only when undocked).
     Docked = 27,
+    /// Diagnostics: not suspended, a draw is running or a test is already running.
+    SelfTestRefused = 28,
+    /// Diagnostics: `Resume` / `Activate` refused because a latched code is set (the response
+    /// carries `DIAG_CODE` of the root latched code).
+    Latched = 29,
+    /// Diagnostics: the code is latched and its verification test has not passed (or the cause persists).
+    NotClearable = 30,
 }
 
 impl Error {
@@ -72,6 +79,9 @@ impl Error {
             24 => Error::Charging,
             26 => Error::PrimeRequired,
             27 => Error::Docked,
+            28 => Error::SelfTestRefused,
+            29 => Error::Latched,
+            30 => Error::NotClearable,
             _ => return None,
         })
     }

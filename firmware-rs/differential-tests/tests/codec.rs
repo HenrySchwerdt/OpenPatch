@@ -27,7 +27,7 @@ fn new_rust_session() -> Session<NoCrypto> {
 
 /// Compare one input on (possibly stateful) sessions. Returns Ok(was_accepted).
 fn compare_decode(cs: &mut CSession, rs: &mut Session<NoCrypto>, bytes: &[u8]) -> Result<bool, String> {
-    if bytes.len() > 1 && bytes[1] == cmd::FILL_DRAW {
+    if bytes.len() > 1 && differential_tests::rust_only_cmd(bytes[1]) {
         return Ok(false); // Rust-only command, documented
     }
     let c = cs.decode(bytes).map(|f| CmdDesc::from_flat(&f));
@@ -65,7 +65,7 @@ fn tlv_soup(r: &mut Rng) -> Vec<u8> {
 
 fn random_type(r: &mut Rng) -> u8 {
     let t = if r.chance(900) { r.range(1, 0x0E) as u8 } else { r.below(256) as u8 };
-    if t == cmd::FILL_DRAW { cmd::GET_STATUS } else { t }
+    if differential_tests::rust_only_cmd(t) { cmd::GET_STATUS } else { t }
 }
 
 proptest! {

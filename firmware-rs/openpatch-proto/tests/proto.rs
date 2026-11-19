@@ -275,6 +275,7 @@ fn rsp_roundtrip_status() {
         draw_state: draw::STALLED,
         draw_requested_mu: 5000,
         draw_done_mu: 4321,
+        ..Default::default()
     };
     let r = Response { type_: cmd::GET_STATUS, seq: 77, result: 0, status: Some(st), ..Default::default() };
     let mut buf = [0u8; 200];
@@ -424,6 +425,7 @@ fn arb_status() -> impl Strategy<Value = Status> {
             draw_state: d.2,
             draw_requested_mu: d.0,
             draw_done_mu: d.1,
+            ..Default::default()
         })
 }
 
@@ -441,6 +443,7 @@ fn arb_response() -> impl Strategy<Value = Response> {
             status: st,
             act_delivered_mu: act,
             history: None,
+            ..Default::default()
         });
     let history = (any::<u16>(), any::<u8>(), any::<u32>(), any::<u32>(), prop::collection::vec(arb_event(), 0..=10))
         .prop_map(|(seq, res, n, o, ev)| Response {
@@ -450,6 +453,7 @@ fn arb_response() -> impl Strategy<Value = Response> {
             status: None,
             act_delivered_mu: None,
             history: Some(History { next_event_id: n, oldest_event_id: o, events: ev.into_iter().collect() }),
+            ..Default::default()
         });
     prop_oneof![status, history]
 }

@@ -8,7 +8,7 @@ use crate::msg::*;
 use crate::tlv::{rd16, rd32, TlvReader, TlvWriter};
 
 fn known_cmd(t: u8) -> bool {
-    (cmd::GET_STATUS..=cmd::FILL_DRAW).contains(&t)
+    (cmd::GET_STATUS..=cmd::CLEAR_DIAG).contains(&t)
 }
 
 fn put_segs(w: &mut TlvWriter<'_>, segs: &BasalSegs) {
@@ -50,6 +50,12 @@ pub fn encode_command_payload(c: &Command, out: &mut [u8]) -> Result<usize, Erro
         }
         CommandBody::Release { pair_id } => w.put_u32(tag::PAIR_ID, *pair_id),
         CommandBody::FillDraw { amount_mu } => w.put_u32(tag::FILL_MU, *amount_mu),
+        CommandBody::GetFaultLog { from_id, max_events } => {
+            w.put_u32(tag::FROM_ID, *from_id);
+            w.put_u8(tag::MAX_EVENTS, *max_events);
+        }
+        CommandBody::RunSelfTest { sub_op } => w.put_u8(tag::SUB_OP, *sub_op),
+        CommandBody::ClearDiag { code } => w.put_u32(tag::DIAG_CODE, *code),
         CommandBody::Activate { pair_id, activation_id, schedule, temp } => {
             w.put_u32(tag::PAIR_ID, *pair_id);
             w.put_u32(tag::ACTIVATION_ID, *activation_id);
@@ -82,6 +88,7 @@ struct Acc {
     role: u8,
     role_seen: bool,
     activation_id: Option<u32>,
+    diag_code: Option<u32>,
 }
 
 /// Returns `false` for a malformed TLV (frame error).
@@ -165,7 +172,7 @@ fn take_tag(a: &mut Acc, ty: u8, t: u8, v: &[u8]) -> bool {
             true
         }
         tag::SUB_OP => {
-            if ty != cmd::FILL_PRIME {
+            if ty != cmd::FILL_PRIME && ty != cmd::RUN_SELF_TEST {
                 return true;
             }
             if vl != 1 {
@@ -206,7 +213,7 @@ fn take_tag(a: &mut Acc, ty: u8, t: u8, v: &[u8]) -> bool {
             true
         }
         tag::FROM_ID => {
-            if ty != cmd::GET_HISTORY {
+            if ty != cmd::GET_HISTORY && ty != cmd::GET_FAULT_LOG {
                 return true;
             }
             if vl != 4 {
@@ -216,13 +223,23 @@ fn take_tag(a: &mut Acc, ty: u8, t: u8, v: &[u8]) -> bool {
             true
         }
         tag::MAX_EVENTS => {
-            if ty != cmd::GET_HISTORY {
+            if ty != cmd::GET_HISTORY && ty != cmd::GET_FAULT_LOG {
                 return true;
             }
             if vl != 1 {
                 return false;
             }
             a.max_events = v[0];
+            true
+        }
+        tag::DIAG_CODE => {
+            if ty != cmd::CLEAR_DIAG {
+                return true;
+            }
+            if vl != 4 {
+                return false;
+            }
+            a.diag_code = Some(rd32(v));
             true
         }
         _ => true, // unknown tags are skipped (forward compatibility)
@@ -278,6 +295,9 @@ pub fn decode_command(type_: u8, seq: u16, payload: &[u8]) -> Result<Command, Er
             }
             CommandBody::FillDraw { amount_mu: a.fill }
         }
+        cmd::GET_FAULT_LOG => CommandBody::GetFaultLog { from_id: a.from_id, max_events: a.max_events },
+        cmd::RUN_SELF_TEST => CommandBody::RunSelfTest { sub_op: a.sub_op.ok_or(Error::Frame)? },
+        cmd::CLEAR_DIAG => CommandBody::ClearDiag { code: a.diag_code.ok_or(Error::Frame)? },
         cmd::RELEASE => CommandBody::Release { pair_id: a.pair_id.ok_or(Error::Frame)? },
         cmd::ACTIVATE => {
             let pair_id = a.pair_id.ok_or(Error::Frame)?;

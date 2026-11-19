@@ -119,6 +119,10 @@ pub trait Hal {
     fn breadcrumb(&mut self) -> u32 {
         0
     }
+    /// Stable identity of the pod (nRF `FICR.DEVICEID`), 0 = unknown (then `POD_UID` is not reported).
+    fn pod_uid(&mut self) -> u64 {
+        0
+    }
 }
 
 /// A fault the HAL detected on its own, reported as data (see [`Hal::take_diag`]).

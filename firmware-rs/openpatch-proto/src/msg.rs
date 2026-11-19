@@ -1,7 +1,8 @@
 //! Typed messages (wire level). Core crate converts these to/from its unit-typed domain.
 
-use crate::consts::{cmd, BASAL_SEGMENTS_MAX, HIST_MAX_PER_RESPONSE};
+use crate::consts::{cmd, BASAL_SEGMENTS_MAX, DIAG_LATCHED_MAX, DIAG_RECORDS_PER_RESPONSE, HIST_MAX_PER_RESPONSE};
 use heapless::Vec;
+pub use openpatch_diag::{DiagRecord, DiagSummary};
 
 /// One basal segment on the wire: slot 0..47 (30 min), rate in mU/h (u16).
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
@@ -37,6 +38,12 @@ pub enum CommandBody {
     Release { pair_id: u32 },
     /// Rust extension: automatic draw of `amount_mu` (0 = cancel).
     FillDraw { amount_mu: u32 },
+    /// Diagnostics: records from `from_id` on. `max_events` as on the wire (0 or above 4 gives 4).
+    GetFaultLog { from_id: u32, max_events: u8 },
+    /// Diagnostics: `selftest::SUBOP_*`.
+    RunSelfTest { sub_op: u8 },
+    /// Diagnostics: code to clear, 0 = every clearable W/F record.
+    ClearDiag { code: u32 },
 }
 
 impl CommandBody {
@@ -57,6 +64,9 @@ impl CommandBody {
             CommandBody::Activate { .. } => cmd::ACTIVATE,
             CommandBody::Release { .. } => cmd::RELEASE,
             CommandBody::FillDraw { .. } => cmd::FILL_DRAW,
+            CommandBody::GetFaultLog { .. } => cmd::GET_FAULT_LOG,
+            CommandBody::RunSelfTest { .. } => cmd::RUN_SELF_TEST,
+            CommandBody::ClearDiag { .. } => cmd::CLEAR_DIAG,
         }
     }
 }
@@ -103,6 +113,10 @@ pub struct Status {
     pub draw_state: u8,
     pub draw_requested_mu: u32,
     pub draw_done_mu: u32,
+    /// Diagnostics (tags 0x27, 0x28, 0x2F). `None` = the pod does not report them (v1 pod).
+    pub diag: Option<DiagSummary>,
+    pub fru_health: Option<u64>,
+    pub pod_uid: Option<u64>,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
@@ -121,6 +135,36 @@ pub struct History {
     pub events: Vec<HistoryEvent, HIST_MAX_PER_RESPONSE>,
 }
 
+/// `GetFaultLog` answer.
+#[derive(Clone, Debug, PartialEq, Eq, Default)]
+pub struct FaultLog {
+    pub next_id: u32,
+    pub oldest_id: u32,
+    /// Codes of the latched set (up to 16).
+    pub latched: Vec<u32, DIAG_LATCHED_MAX>,
+    pub records: Vec<DiagRecord, DIAG_RECORDS_PER_RESPONSE>,
+}
+
+/// `SELFTEST_STATE` (tag 0x2D).
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
+pub struct SelfTestState {
+    /// `selftest::IDLE`, `RUNNING`, `DONE`.
+    pub state: u8,
+    /// 1 POST-S, 2 POST-A, 3 watchdog proof.
+    pub kind: u8,
+    pub steps_passed: u16,
+    pub steps_failed: u16,
+}
+
+/// An unsolicited notification (Alert characteristic), decoded.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct NotifyBody {
+    pub kind: u8,
+    pub arg: u32,
+    /// `DIAG_RECORD` of a `DIAG_RAISED` notification.
+    pub record: Option<DiagRecord>,
+}
+
 #[derive(Clone, Debug, PartialEq, Eq, Default)]
 pub struct Response {
     /// Command type (without the response bit).
@@ -131,4 +175,10 @@ pub struct Response {
     pub status: Option<Status>,
     pub act_delivered_mu: Option<u32>,
     pub history: Option<History>,
+    /// Diagnostics (tags 0x27 and 0x2A..0x2E): the `DIAG_SUMMARY` of a response without a status
+    /// (`ClearDiag`), the fault log, the self-test state, and the code a refusal refers to.
+    pub diag: Option<DiagSummary>,
+    pub fault_log: Option<FaultLog>,
+    pub selftest: Option<SelfTestState>,
+    pub diag_code: Option<u32>,
 }

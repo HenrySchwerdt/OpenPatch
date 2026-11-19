@@ -481,6 +481,8 @@ dependencies = [
  "heapless",
  "hkdf",
  "hmac",
+ "openpatch-diag",
+ "openpatch-proto",
  "proptest",
  "rand_core 0.6.4",
  "serde_json",

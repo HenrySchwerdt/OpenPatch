@@ -132,8 +132,11 @@ fn notifications_raised_and_cleared_and_the_queue_is_lossy() {
     assert_eq!(d.take_note(), None);
     for i in 0..(EVENTS_MAX as i32 + 5) {
         d.set_time_s(i as u32 * 20);
-        d.raise(Raise::new(codes::BOOT).a(i));
+        d.raise(Raise::new(codes::TMAG_CRC_ERRORS).a(i));
+        d.clear(codes::TMAG_CRC_ERRORS);
     }
+    // an information record is log only: no notification
+    d.raise(Raise::new(codes::BOOT));
     let mut n = 0;
     while d.take_note().is_some() {
         n += 1;
