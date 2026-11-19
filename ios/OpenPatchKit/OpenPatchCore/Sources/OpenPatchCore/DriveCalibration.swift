@@ -31,8 +31,10 @@ public struct DriveCalibration: Equatable, Hashable, Codable {
     /// per step (the pod reports the floor, 3 948; the ratio x 100 is rounded, 3306). Firmware id 0x25.
     public static let nfp608_26_45_g16_20 = DriveCalibration(driveID: 0x25, microUnitsPerStep: 3_948, stepsPerRevolution: 20, gearRatioTimes100: 3_306)
 
-    /// The only drives the app accepts. A pod reporting anything else is refused.
-    public static let known: [DriveCalibration] = [.zwbpd006006_5_1, .faulhaber_16_1, .nfp608_26_45_g16_20]
+    /// The only drives the app accepts: the two legacy C reference drives plus every production preset of `firmware-rs`
+    /// (`openpatch-core/src/drive_cal.rs`; a Swift test parses that file and checks this table against it). A pod
+    /// reporting anything else is refused: the volume per step would be a guess.
+    public static let known: [DriveCalibration] = [.zwbpd006006_5_1, .faulhaber_16_1] + firmwarePresets
 
     public var isKnown: Bool { Self.known.contains(self) }
 

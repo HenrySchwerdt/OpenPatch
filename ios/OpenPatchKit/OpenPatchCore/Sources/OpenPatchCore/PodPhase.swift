@@ -55,6 +55,8 @@ public extension PodPhase {
         case .setPairing: return self != .unpaired && self != .active && self != .suspended
         case .activatePod: return self == .filled
         case .releasePod: return self != .unpaired
+        case .assistedFill: return self == .paired || self == .filled
+        case .cancelAssistedFill: return true
         }
     }
 

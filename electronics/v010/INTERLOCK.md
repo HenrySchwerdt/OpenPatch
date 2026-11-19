@@ -149,3 +149,52 @@ Permission drops within 1 ms of any input change (EXTI on `MCU_EN`, `OC_OK`, `DO
 **Independence argument:** diverse core and vendor (Cortex-M0+ STM32C0 vs Cortex-M4 nRF52840), own clock, own flash with RDP, separate decoupling, wire-only provisioning, no shared writable memory, outputs default to no permission through external pull-downs; the supervisor is **one more AND leg** (Q15) and the STCK gate, so a supervisor that is wrong in the permitting direction still meets the discrete MCU_EN / OC / dock-DIR legs on Q4, and a runaway main MCU is bounded by the 32-pulse windows and the buckets. Residual common cause: the shared 3V3 LDO and the battery (both fail safe: all gates open), and the same engineer/toolchain family (mitigated by separate review). Software item class C (IEC 62304 view in `regulatory/SOFTWARE`): the supervisor firmware must be listed as its own software item.
 
 **USB must not bypass authorisation:** USB (CDC log, DFU) is a transport of the main MCU only; the supervisor pins have no connection to USB or SWD of the main MCU; the main firmware applies the same authenticated session layer on USB as on BLE and stops delivery while `VBUS_SENSE` is high.
+
+---
+
+## I. CUP pod v4 (`design/netlist_v4.py`, single board `cup/`): hardware vs supervisor split (decision 2026-11-19, `DECISION-omnipod-lessons.md`)
+
+Supersedes sections A to F for the cup pod; sections G and H still apply (the supervisor of H is unchanged except for two new pins). The rule stays: **the hardware must be correct even if the software is wrong**: a minimal pure-hardware cut path remains, everything else moved into the independent supervisor MCU (STM32C011) to save about 25 discrete parts.
+
+```
+VMOT = VBAT -- Q4 (gate PGATE) -- Q15 (gate PGATE2) -- VMOT_RAW -- shunt R44 -- VMOT
+Q4  conducts only if  LATCH_Q (U6, set by ARM_CLK, cleared by TPL5010 timeout / supervisor reset / over-current)
+                  AND MCU_EN (main MCU, own leg)
+                  AND ( DOCKED_H  OR  MOT_DIR[reverse] )          chain: PGATE -R11- QL - QE - (QD || QR) - GND
+Q15 conducts only if  SUP_PERMIT (supervisor, through QS)          independent second series switch
+```
+
+| Element | v3 (MAIN/POWER) | v4 (CUP) | Where the function lives now |
+|---|---|---|---|
+| Latch + watchdog | none (supervisor challenge/response only) | **TPL5010 (U5) + latch (U6) back in hardware**; U5 watches the **supervisor** (`SUP_DONE` after `SUP_WAKE`, 2 s), a missing DONE pulls `SUP_NRST` low: resets the supervisor and clears the latch | hardware, independent of both MCUs' firmware |
+| `MCU_EN` leg | Q8 | QE (kept: rule "MCU enable AND watchdog") | hardware |
+| Dock leg | Q6 + XOR network (Q10, Q20, Q21, Q22, Q11) = `DOCKED XOR DIR_REV` (H15) | QD (`DOCKED_H`) **OR** QR (`MOT_DIR` reverse): forward undocked blocked, reverse undocked allowed (refill / draw), **docked + reverse is NOT blocked in hardware any more** | undocked-forward: hardware; **H15 docked-reverse: supervisor (`FAULT` when docked and reverse) + firmware + POST A02a only** |
+| Over-current | INA180 + TLV7011 + U12 latch + Q13 leg + OC_TEST | INA180 + TLV7011 (trip about 0.39 A) whose output (`OC_OK` low) goes through the AND gate U32 into `LATCH_CLR_N`: **a trip clears the latch in hardware** (about 0.1 ms blanking); no own latch, no Q13 leg, no OC_TEST | hardware trip; lock-out of re-arming (2 s) in the supervisor (`OC_OK` falling edge -> `FAULT`) |
+| 2oo2 halls | two DRV5032 + Q7/Q7B NOR | **single hall** centred on the dock magnet | a second hall cannot see a d1 x 0.5 magnet (Bz of a dipole changes sign about 1 mm off axis at 0.7 mm height), so 2oo2 is dropped; a hall stuck asserted now lets the dock leg pass **undocked forward**: still blocked by latch, `MCU_EN` and Q15; the stuck hall itself is NOT detected by hardware (the supervisor only sees the same `DOCKED_H` level; POST A02b with `DOCK_TEST` proves the gate path, not the sensor); **open items: firmware plausibility check (docked while the wear/handshake state says undocked) and, for the mechanics, a second magnet + hall pair** |
+| Step budget | U31 AND gate with `SUP_STCK_EN` + supervisor counter | unchanged | hardware gate, supervisor decides |
+| Series switches | Q4, Q15 | unchanged (gate of Q15 owned by the supervisor through QS) | |
+| Bleeders | Q17, Q17B | unchanged | |
+| Readbacks | PGATE_MON, SENSE_EN divider, NTC | `LATCH_Q` on pad 4 (RB6), `VMOT_SENSE`, `OC_OK`, `DOCKED_H`, own pins; VBAT sense is an always-on 4.7 M / 4.7 M divider (0.4 uA); NTC dropped (cell has its own PCM) | |
+| Boost | populated 5 V boost | **dropped** (direct cell supply: firmware refuses motor starts below about 3.4 V open circuit; thrust test decides) | |
+
+Truth table of the hardware path (per leg):
+
+| LATCH_Q | MCU_EN | DOCKED_H | MOT_DIR | SUP_PERMIT | VMOT |
+|---|---|---|---|---|---|
+| 0 | x | x | x | x | off |
+| x | 0 | x | x | x | off |
+| 1 | 1 | 0 | 0 (fwd) | x | **off (undocked + forward)** |
+| 1 | 1 | 0 | 1 (rev) | 1 | on (undocked + reverse: refill / draw) |
+| 1 | 1 | 1 | 0 | 1 | on (docked + forward: delivery) |
+| 1 | 1 | 1 | 1 | x | **hardware passes, supervisor withholds `SUP_PERMIT` (H15)** |
+| 1 | 1 | x | x | 0 | off (supervisor leg) |
+
+Supervisor pins added on UFQFPN-20: pin 2 `SUP_DONE` (out, to TPL5010 DONE), pin 3 `SUP_WAKE` (in, TPL5010 WAKE, EXTI): **assignment to be verified against DS13866**. The supervisor keeps its `FAULT`/`LOCKED` behaviour of section H; `OC_OK` is now the raw comparator output (no latch), so the supervisor must treat any falling edge as a trip (it already does).
+Safe defaults: `SUP_NRST` low (power-up, reset, TPL5010 timeout) clears the latch (U32), `LATCH_Q` has a pull-down, `MCU_EN`, `MOT_DIR`, `SUP_PERMIT`, `ARM_CLK`, `DOCK_TEST` have pull-downs, PGATE/PGATE2 are pulled to the supply: **VMOT = 0** in every unpowered, floating or reset state.
+Honest limits of the reduction: (1) docked reverse is software-only (hazard H15 class: aspiration through the cannula, water only on this project); (2) over-current re-arming is blocked by the supervisor, not by an own hardware latch (an ARM_CLK edge from a runaway main MCU can re-arm Q4, Q15 still needs the supervisor); (3) a single dock hall; (4) the TPL5010 now watches the supervisor, the main MCU is watched by the supervisor's challenge/response as before.
+
+### I.1 Open items of the v4 reduction (coordinator list, 2026-11-19)
+
+* **(a) Stuck-asserted dock hall.** Firmware plus supervisor plausibility check: `DOCKED_H` must toggle on every undock/dock cycle (cannula release, pod swap, refill with the pod off the dock); a hall that has not changed level since the last known undock event, or reads docked while the wear/handshake state says undocked, is never trusted: forward motion is withheld (`SUP_PERMIT` low) and a diagnostic is raised. Not implemented yet.
+* **(b) Supervisor test vector for H15 (reverse while docked).** The hardware dock leg is an OR and passes docked + reverse, so the supervisor firmware needs a host-test and a bench vector: inputs `DOCKED_H`=1, `MOT_DIR`=1 (reverse), `MCU_EN`=1, latch armed: expected `SUP_PERMIT` stays 0 within 1 ms (state `FAULT`), `VMOT_SENSE` below 0.3 V for 50 ms (POST A02a); positive controls: docked + forward permits, undocked + reverse permits. Must also hold for a `DOCKED_H` glitch during reverse. Not implemented yet.
+* **(c) Why the second dock hall was dropped.** The dock magnet is d1 x 0.5 mm and the hall sits about 0.7 mm from it. The axial field Bz of a small dipole is proportional to (3 cos^2 t - 1) / r^3 and changes sign at t = 54.7 degrees, i.e. about 1.0 mm lateral offset at 0.7 mm height; a second DRV5032 (1.1 x 1.4 mm package) beside the first cannot sit closer than about 1.8 mm and would see no field or the wrong sign, and a hall on the top side of the 0.8 mm board sees about 5 % of the field. **A DNP footprint for a second hall was not added: there is no position on this board where it would see the magnet.** The fix is mechanical (a second magnet plus hall pair, or a larger magnet); until then single hall plus items (a) and (b).

@@ -212,13 +212,21 @@ final class V1TransportTests: XCTestCase {
     func test_resultCodesMapToNackReasons() {
         let cases: [(V1.Result, NackReason)] = [(.busy, .busy), (.hourly, .hourlyLimit), (.limit, .limitExceeded),
                                                 (.badArg, .malformed), (.reservoir, .insufficientReservoir),
-                                                (.suspended, .invalidState), (.fault, .invalidState), (.replay, .session)]
+                                                (.suspended, .invalidState), (.fault, .invalidState)]
         for (code, reason) in cases {
             let transport = makeTransport(phase: .active)
             link.resultFor[V1.CommandID.bolus.rawValue] = code
             XCTAssertEqual(send(transport, .bolus(id: 1, pulses: 20)), .success(.rejected(reason)), "\(code)")
             XCTAssertEqual(link.requests.count, 1, "no status read after a rejected command")
         }
+    }
+
+    func test_aReplyOfReplay_isRetriedAboveTheSequence_thenReportedAsSessionProblem() {
+        let transport = makeTransport(phase: .active)
+        link.resultFor[V1.CommandID.bolus.rawValue] = .replay
+        XCTAssertEqual(send(transport, .bolus(id: 1, pulses: 20)), .success(.rejected(.session)))
+        XCTAssertEqual(link.requests.count, 1 + V1Transport.resyncJumps.count, "refused before execution: resent with jumps, then given up")
+        XCTAssertEqual(link.requests.map(\.seq), [1, 18, 275, 4372])
     }
 
     func test_cancelWithNothingToCancel_isTreatedAsSuccess() {
@@ -269,7 +277,7 @@ final class V1TransportTests: XCTestCase {
         link.history = [V1.HistoryEvent(id: 10, timeSeconds: 0, type: V1.HistoryType.bolusStart.rawValue, a: 1500, b: 0),
                         V1.HistoryEvent(id: 11, timeSeconds: 0, type: V1.HistoryType.bolusDone.rawValue, a: 0, b: 0)]
         _ = send(transport, .getStatus)
-        XCTAssertEqual(events, [.bolusCompleted(id: 9, deliveredPulses: 30)])
+        XCTAssertEqual(events, [.bolusStarted(pulses: 30), .bolusCompleted(id: 9, deliveredPulses: 30)])
     }
 
     // MARK: sequence numbers & errors

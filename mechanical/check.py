@@ -464,11 +464,14 @@ def main() -> None:
     ap.add_argument("--outdir")
     ap.add_argument("--sizes", nargs="*")
     ap.add_argument("--ignore-length", action="store_true")
-    ap.add_argument("--drive", choices=["standard", "inline", "coaxial"], default="standard", help="inline / coaxial: check out/bench-inline / out/bench-coaxial (sealed on-axis drives)")
+    ap.add_argument("--drive", choices=["standard", "inline", "coaxial", "cup"], default="standard", help="cup (with --variant v010): check out/v010-cup; inline / coaxial: check out/bench-inline / out/bench-coaxial (sealed on-axis drives)")
     ap.add_argument("-v", "--verbose", action="store_true")
     ap.add_argument("--strict", action="store_true", help="the known-failing fluid-boundary check (slotted reservoir) also fails the exit code")
     ap.add_argument("--assembly", action="store_true", help="bench only: also run check_assembly.py (assembly paths, tool access, DFM, fit classes; see ASSEMBLY-CHECK.md)")
     args = ap.parse_args()
+    if args.variant == "v010" and args.drive == "cup":      # single-rod cup pod (cup_check.py)
+        import cup_check
+        sys.exit(cup_check.main(args))
     if args.variant == "v010":          # additive variant (v010_check.py)
         import v010_check
         sys.exit(v010_check.main(args))

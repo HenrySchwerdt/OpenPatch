@@ -11,13 +11,15 @@ public final class OpenPatchSimulator {
     private var pairTransports: [PodRole: SimulatedTransport] = [:]
     private var pairTimers: [PodRole: DispatchSourceTimer] = [:]
     private let queue = DispatchQueue(label: "org.openpatch.simulator")
+    /// The simulated pod is the cup pod: assisted pressure fill only, 0.00703 U per step.
+    public static let simulatedDrive = DriveCalibration.nfp608_26_45_cupMiter1_1
 
     public var pod: SimulatedPod? { queue.sync { transport?.pod } }
 
     public func makeTransport(size: PodSize) -> OpenPatchTransport {
         queue.sync {
             if let transport, transport.pod.size == size { return transport }
-            let pod = SimulatedPod(size: size, startDate: Date())
+            let pod = SimulatedPod(size: size, startDate: Date(), calibration: Self.simulatedDrive)
             let new = SimulatedTransport(pod: pod)
             transport = new
             timer?.cancel()
@@ -34,7 +36,7 @@ public final class OpenPatchSimulator {
     public func makeTransport(size: PodSize, role: PodRole) -> OpenPatchTransport {
         queue.sync {
             if let existing = pairTransports[role], existing.pod.size == size { return existing }
-            let new = SimulatedTransport(pod: SimulatedPod(size: size, startDate: Date()))
+            let new = SimulatedTransport(pod: SimulatedPod(size: size, startDate: Date(), calibration: Self.simulatedDrive))
             pairTransports[role] = new
             pairTimers[role]?.cancel()
             let source = DispatchSource.makeTimerSource(queue: queue)

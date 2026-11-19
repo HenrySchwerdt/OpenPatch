@@ -17,6 +17,7 @@ final class OpenPatchSwapTests: XCTestCase {
         super.setUp()
         savedFactory = OpenPatchPumpManager.transportFactory
         savedPairFactory = OpenPatchPumpManager.pairTransportFactory
+        OpenPatchPumpManager.uncertaintyRecoveryDelays = []
         build(calibrationA: .zwbpd006006_5_1)
     }
 

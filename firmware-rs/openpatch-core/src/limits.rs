@@ -216,21 +216,19 @@ pub const fn draw_chunk_steps(pps: u32) -> u32 {
 /// drive (push rod with a captured, play-free link: the socket play disappears and this takes the value of the new train).
 pub const LOST_MOTION_SOCKET_UM: u32 = 300;
 pub const LOST_MOTION_NUT_UM: u32 = 30;
-/// Plunger face area of the reservoir: 5 x 11 mm stadium bore + two 2.5 mm radius ends = 74.63 mm^2, in 0.01 mm^2.
-pub const PLUNGER_AREA_MM2_X100: u32 = 7_463;
-/// Volume swept by a plunger travel of `um` micrometre, mU (1 U = 10 mm^3 = 1000 mU, so mU = um x mm^2 x 0.1).
-pub const fn plunger_um_to_mu(um: u32) -> u32 {
-    (um as u64 * PLUNGER_AREA_MM2_X100 as u64 / 1000) as u32
-}
-/// Forward travel (as a volume, so it scales with the drive) run BEFORE the first prime after a draw: after the reversal
-/// the first forward travel only takes up the free motion of the socket and the nut and the elasticity of carriage,
-/// seal and tongue (mechanical sim 2.9: first 1 U after a draw -22 ... -60 % without it). It is the lost motion above
-/// ([`LOST_MOTION_SOCKET_UM`] + [`LOST_MOTION_NUT_UM`] = 0.33 mm = 2 463 mU = 623 steps on the 16:20 drive; the old
-/// value, 632 mU = 160 steps, was the simulator recommendation and covered only a quarter of the socket play). The steps
-/// go through the supervisor like every forward step (hourly / per-minute accounting, docked, interlock) but are NOT
-/// counted as delivery (engine totals, `delivered_mu`); the reservoir model consumes them (a draw credits steps whose
-/// first part never moved the plunger, so this corrects the model). Configurable: `PumpConfig::takeup_mu` (0 = none).
-pub const TAKEUP_MU_AFTER_DRAW: u32 = plunger_um_to_mu(LOST_MOTION_SOCKET_UM + LOST_MOTION_NUT_UM);
+/// Total lost motion at a reversal as a plunger TRAVEL, micrometre ([`LOST_MOTION_SOCKET_UM`] + [`LOST_MOTION_NUT_UM`] =
+/// 0.33 mm). A travel, not a volume: the volume (and the step count) it stands for depends on the bore of the ACTIVE drive
+/// preset (`drive_cal::Preset::bore_area_x100`: 74.6 mm^2 = 2.46 U = 623 steps on the 16:20 bench pod, 106.26 mm^2 = 3.51 U
+/// = 494 steps on the cup pod); there is deliberately no global plunger area.
+pub const LOST_MOTION_TOTAL_UM: u32 = LOST_MOTION_SOCKET_UM + LOST_MOTION_NUT_UM;
+/// Forward TRAVEL run BEFORE the first prime after a reversal (an assisted fill, or a draw where the preset allows it):
+/// after the reversal the first forward travel only takes up the free motion of the socket and the nut and the elasticity
+/// of carriage, seal and tongue (mechanical sim 2.9: first 1 U after a draw -22 ... -60 % without it). It is the lost
+/// motion above (0.33 mm) and is converted to steps with the active preset (`Preset::travel_um_to_steps`, rounded up). The
+/// steps go through the supervisor like every forward step (hourly / per-minute accounting, docked, interlock) but are NOT
+/// counted as delivery (engine totals, `delivered_mu`); the reservoir model consumes them (a fill credits steps whose
+/// first part never moved the plunger, so this corrects the model). Configurable: `PumpConfig::takeup_um` (0 = none).
+pub const TAKEUP_UM_AFTER_REVERSAL: u32 = LOST_MOTION_TOTAL_UM;
 /// Volume of the fluid path from the reservoir port to the needle tip (mechanical report 5.1: 22.1 mm^3), mU. This
 /// is what a complete purge must push through; the 1.0 mm dead layer in front of the plunger (7.5 U of air) is not
 /// reachable by priming.

@@ -111,6 +111,9 @@ extension V1Transport {
         guard let message = decoded, message.type == SecureChannel.notificationType,
               let kind = message.u8(.notifyKind), let arg = message.u32(.notifyArg) else { return }
         switch kind {
+        case 1: eventHandler?(.fillUpdate(state: .drawing, drawnUnits: Double(arg) / 1000))    // DRAW_PROGRESS
+        case 3: eventHandler?(.fillUpdate(state: .done, drawnUnits: Double(arg) / 1000))       // DRAW_DONE
+        case 4: eventHandler?(.fillUpdate(state: .stalled, drawnUnits: Double(arg) / 1000))    // DRAW_STALLED
         case 2: Self.faultCode(mask: UInt16(truncatingIfNeeded: arg)).map { eventHandler?(.fault($0)) }
         case 5: message.diagRecords.first.map { eventHandler?(.diag($0)) }
         case 6: eventHandler?(.diagCleared(DiagCode(raw: arg)))

@@ -6,6 +6,7 @@
 "Invalid insulin amount." = "Invalid insulin amount.";
 "Delivery limit exceeded (%@)." = "Delivery limit exceeded (%@).";
 "The pod rejected the command (%@)." = "The pod rejected the command (%@).";
+"The secure connection to the pod could not be set up (wrong key or an altered exchange). Do not retry blindly: press the pod's button and pair it again." = "The secure connection to the pod could not be set up (wrong key or an altered exchange). Do not retry blindly: press the pod's button and pair it again.";
 "Communication with the pod failed (%@)." = "Communication with the pod failed (%@).";
 "The basal schedule has not been set yet." = "The basal schedule has not been set yet.";
 "Invalid fill amount (%@)." = "Invalid fill amount (%@).";
@@ -13,7 +14,13 @@
 "The pod reports an unknown drive (id %d, %d µU per step). It cannot be used." = "The pod reports an unknown drive (id %d, %d µU per step). It cannot be used.";
 "A pod swap is in progress. Finish or cancel it first." = "A pod swap is in progress. Finish or cancel it first.";
 "This pod is not the active pod." = "This pod is not the active pod.";
+"This pod does not know this phone (it was paired with another phone or reset). Press the button on the pod to open its pairing window, then pair it again." = "This pod does not know this phone (it was paired with another phone or reset). Press the button on the pod to open its pairing window, then pair it again.";
+"The pod did not confirm the previous bolus. Another bolus is blocked until the pump has found out what happened." = "The pod did not confirm the previous bolus. Another bolus is blocked until the pump has found out what happened.";
+"The pairing key could not be saved in the keychain. The pod was not paired." = "The pairing key could not be saved in the keychain. The pod was not paired.";
 "The pod reported a fault (%@)." = "The pod reported a fault (%@).";
+"This pod has no check valve and never draws by itself. Fill it with the assisted pressure fill: you push the syringe, the pod retracts." = "This pod has no check valve and never draws by itself. Fill it with the assisted pressure fill: you push the syringe, the pod retracts.";
+"This pod is filled with the assisted pressure fill only: the pod retracts its plunger while you push the syringe." = "This pod is filled with the assisted pressure fill only: the pod retracts its plunger while you push the syringe.";
+"This pod does not support the assisted pressure fill." = "This pod does not support the assisted pressure fill.";
 "pod %@" = "pod %@";
 "Cannot reach %@. Move the phone closer and wake the pod with its button." = "Cannot reach %@. Move the phone closer and wake the pod with its button.";
 "The connection to %@ was lost while sending. The pod may or may not have executed the command." = "The connection to %@ was lost while sending. The pod may or may not have executed the command.";
@@ -34,8 +41,13 @@
 "Pod not docked" = "Pod not docked";
 "Pod stopped" = "Pod stopped";
 "Pod cannot be used" = "Pod cannot be used";
+"Pod outlet blocked" = "Pod outlet blocked";
+"Pod is empty" = "Pod is empty";
+"No contact with the pod" = "No contact with the pod";
 "The pod ended the temporary basal rate after losing contact with the phone." = "The pod ended the temporary basal rate after losing contact with the phone.";
 "About %.0f U of insulin left." = "About %.0f U of insulin left.";
+"The pod detected a blockage at its outlet and stopped. Check the outlet, the capillary and the vial, then refill or replace the pod." = "The pod detected a blockage at its outlet and stopped. Check the outlet, the capillary and the vial, then refill or replace the pod.";
+"The pod ran empty and stopped. Refill it." = "The pod ran empty and stopped. Refill it.";
 "The pod stopped insulin delivery (%@). Replace or refill the pod." = "The pod stopped insulin delivery (%@). Replace or refill the pod.";
 "Pod battery at %d %%. Charge the pod soon." = "Pod battery at %d %%. Charge the pod soon.";
 "The pod lost its dock contact. It delivers no insulin until it sits on the cannula again." = "The pod lost its dock contact. It delivers no insulin until it sits on the cannula again.";
@@ -43,6 +55,7 @@
 "The pod reached its maximum wear time and stopped delivering insulin. Swap pods now." = "The pod reached its maximum wear time and stopped delivering insulin. Swap pods now.";
 "The pod stopped delivering insulin (it was put on a charger or reached its wear limit). Swap pods." = "The pod stopped delivering insulin (it was put on a charger or reached its wear limit). Swap pods.";
 "OK" = "OK";
+"The phone has not reached the pod for %.0f minutes. Move the phone close to the pod. Delivery continues with the programmed basal rate." = "The phone has not reached the pod for %.0f minutes. Move the phone close to the pod. Delivery continues with the programmed basal rate.";
 "The old pod did not confirm that it stopped. Confirm that it is physically removed or try again. The new pod will not start until then." = "The old pod did not confirm that it stopped. Confirm that it is physically removed or try again. The new pod will not start until then.";
 "Pod %@ reported that it was active although it must not be. It was told to stop." = "Pod %@ reported that it was active although it must not be. It was told to stop.";
 "Pod %@ has been worn for 44 hours or more. Swap to the other pod within %.0f hours." = "Pod %@ has been worn for 44 hours or more. Swap to the other pod within %.0f hours.";

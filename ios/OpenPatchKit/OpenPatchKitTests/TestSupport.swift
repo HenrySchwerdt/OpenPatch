@@ -10,10 +10,12 @@ final class TestPumpManagerDelegate: PumpManagerDelegate {
     private var _alerts: [Alert] = []
     private var _reservoir: [Double] = []
     private var _stateUpdates = 0
+    private var _retracted: [String] = []
 
     var events: [NewPumpEvent] { lock.lock(); defer { lock.unlock() }; return _events }
     var alerts: [Alert] { lock.lock(); defer { lock.unlock() }; return _alerts }
     var reservoirValues: [Double] { lock.lock(); defer { lock.unlock() }; return _reservoir }
+    var retractedAlerts: [String] { lock.lock(); defer { lock.unlock() }; return _retracted }
     var stateUpdates: Int { lock.lock(); defer { lock.unlock() }; return _stateUpdates }
 
     func reset() { lock.lock(); _events = []; _alerts = []; _reservoir = []; lock.unlock() }
@@ -22,7 +24,7 @@ final class TestPumpManagerDelegate: PumpManagerDelegate {
     func deviceManager(_ manager: DeviceManager, logEventForDeviceIdentifier deviceIdentifier: String?, type: DeviceLogEntryType, message: String, completion: ((Error?) -> Void)?) { completion?(nil) }
     // AlertIssuer
     func issueAlert(_ alert: Alert) { lock.lock(); _alerts.append(alert); lock.unlock() }
-    func retractAlert(identifier: Alert.Identifier) {}
+    func retractAlert(identifier: Alert.Identifier) { lock.lock(); _retracted.append(identifier.alertIdentifier); lock.unlock() }
     // PersistedAlertStore
     func doesIssuedAlertExist(identifier: Alert.Identifier, completion: @escaping (Swift.Result<Bool, Error>) -> Void) { completion(.success(false)) }
     func lookupAllUnretracted(managerIdentifier: String, completion: @escaping (Swift.Result<[PersistedAlert], Error>) -> Void) { completion(.success([])) }

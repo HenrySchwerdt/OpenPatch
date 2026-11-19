@@ -27,6 +27,7 @@ pub mod tmag5273;
 pub mod units;
 
 pub use delivery::{BasalSchedule, BasalSeg, DeliveryEngine, EngineEvents, EngineReport};
+pub use draw::FillMode;
 pub use drive_cal::{DriveCal, DriveId};
 pub use faults::Faults;
 pub use hal::{Buzzer, Hal, MotorDir, MotorFault};

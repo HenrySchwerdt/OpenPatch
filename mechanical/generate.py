@@ -257,12 +257,16 @@ def main() -> None:
     ap.add_argument("--set", action="append", default=[], metavar="group.key=value")
     ap.add_argument("--no-snapshots", action="store_true")
     ap.add_argument("--snapshot-sizes", nargs="*", default=["OP-100"], help="v010: sizes that get renders (default OP-100)")
-    ap.add_argument("--drive", choices=["standard", "inline", "coaxial"], default="standard",
-                    help="inline = sealed on-axis 'cup' drive (op_inline.py, studies/drive/SEALED-DRIVE-STUDY.md), bench only, default outdir out/bench-inline")
+    ap.add_argument("--drive", choices=["standard", "inline", "coaxial", "cup"], default="standard",
+                    help="cup = v0.1.0 single-rod cup pod (--variant v010 only, op_cup.py, V010-CUP.md); inline = sealed on-axis 'cup' drive (op_inline.py, studies/drive/SEALED-DRIVE-STUDY.md), bench only, default outdir out/bench-inline")
     ap.add_argument("--coupon", action="store_true", help="only build the dock insert variant set + fit-test fixture (out/bench/fab/dock-inserts/)")
     args = ap.parse_args()
 
     p = apply_overrides(load_params(Path(args.params) if args.params else None), args.set, args.coil_d, args.preset)
+    if args.variant == "v010" and args.drive == "cup":      # v0.1.0 single-rod cup pod (op_cup.py, cup_gen.py) -> out/v010-cup/
+        import cup_gen
+        cup_gen.main(p, args.sizes, args.outdir, args.no_snapshots, args.snapshot_sizes)
+        return
     if args.variant == "v010":          # additive variant: bench pod + electronics strip (op_v010.py, v010_gen.py)
         import v010_gen
         v010_gen.main(p, args.sizes, args.outdir, args.no_snapshots, args.snapshot_sizes)

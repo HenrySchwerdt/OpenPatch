@@ -12,15 +12,18 @@ public enum V1 {
     /// ATT MTU 247 - 3. The phone must negotiate an MTU >= 247 before the first command.
     public static let maxFrameSize = 244
     public static let responseFlag: UInt8 = 0x80
+    /// Events per `GetHistory` response (`HIST_MAX_PER_RESPONSE`).
+    public static let historyPageSize = 10
     public static let flagEncrypted: UInt8 = 0x01
     public static let flagResponse: UInt8 = 0x02
 
-    public enum CommandID: UInt8 {
+    public enum CommandID: UInt8, CaseIterable {
         case getStatus = 0x01, setBasalSchedule, setTempBasal, cancelTempBasal, bolus, cancelBolus
         case suspend, resume, fillPrime, acknowledge, getHistory
         case setPairing = 0x0C, activate = 0x0D, release = 0x0E
-        /// Extension (Rust pod): automatic draw.
-        case fillDraw = 0x0F
+        /// Extension (Rust pod): refill with a fixed-rate plunger retraction (`FILL_MU` mU, 0 cancels). On the cup pod this is
+        /// the assisted PRESSURE fill (the user pushes the syringe); other drives may also use it as a suction draw.
+        case assistedFill = 0x0F
         /// Diagnostics (docs/06-diagnostics.md 5.4). Ids 0x20..0x22 so that the response types 0xA0..0xA2 never collide with
         /// the Alert notification frame type 0x90 (the first draft used 0x10..0x12 and `GetFaultLog` answered as 0x90).
         case getFaultLog = 0x20, runSelfTest = 0x21, clearDiag = 0x22
@@ -31,22 +34,28 @@ public enum V1 {
     /// Frame type of unsolicited Alert notifications.
     public static let notificationType: UInt8 = 0x90
 
-    public enum Tag: UInt8 {
+    public enum Tag: UInt8, CaseIterable {
         case result = 0x01, basalSeg, rateMUh, durationMin, amountMU, fillMU, primeSteps, subOp, faultMask
         case fromID, maxEvents, timeOfDayMS, historyEvent, nextEventID, oldestEventID
         case stateFlags = 0x10, reservoirMU, batteryMV, bolusRemainingMU, tempRateMUh, tempRemainingMin
         case currentRateMUh, deliveredMU, scheduledMU, fwVersion
         case lastSeq = 0x1A, driveCal = 0x1B, podInfo = 0x1C, pairID = 0x1D, role = 0x1E, activationID = 0x1F, actDeliveredMU = 0x20
+        /// Fill / draw job of the pod (Rust extension): state (`FillState`), requested and drawn volume in mU.
+        case drawState = 0x21, drawRequestedMU = 0x22, drawDoneMU = 0x23
         case notifyKind = 0x25, notifyArg = 0x26
         /// Diagnostics (docs/06-diagnostics.md 5.4).
         case diagSummary = 0x27, fruHealth = 0x28, diagRecord = 0x29, nextDiagID = 0x2A, oldestDiagID = 0x2B, diagLatched = 0x2C
         case selftestState = 0x2D, diagCode = 0x2E, podUID = 0x2F
     }
 
-    public enum Result: UInt8, Equatable {
+    public enum Result: UInt8, Equatable, CaseIterable {
         case ok = 0, badArg, limit, busy, fault, suspended, notSuspended, reservoir, persists, unsupported
         case frame, crc, version, replay, auth, tooLarge, hourly, notFound, session
         case notDocked, released, alreadyActive, pair, wearExpired, charging
+        /// Rust extension: `Resume` / `Activate` refused because a fill or draw was not followed by a prime yet.
+        case primeRequired = 26
+        /// Rust extension: refill refused because the pod is docked (only an undocked pod may retract its plunger).
+        case docked = 27
         /// Diagnostics: not suspended / draw or test running; Resume or Activate refused by a latched code; code not clearable.
         case selfTestRefused = 28, latched = 29, notClearable = 30
         /// Rust extension: `Resume` refused because the pod holds no basal schedule (send `SetBasalSchedule` first).
@@ -67,6 +76,10 @@ public enum V1 {
         public static let wearWarning = StateFlags(rawValue: 1 << 8)
         public static let docked = StateFlags(rawValue: 1 << 9)
         public static let activePod = StateFlags(rawValue: 1 << 10)
+        /// A fill / draw job is running (the pod is retracting its plunger).
+        public static let drawing = StateFlags(rawValue: 1 << 11)
+        /// A fill / draw happened and the mandatory prime has not been done yet.
+        public static let primeRequired = StateFlags(rawValue: 1 << 12)
         /// Any W/F/L diagnostic record is active.
         public static let diagActive = StateFlags(rawValue: 1 << 13)
         /// The latched set is not empty: Resume and Activate are refused.
@@ -85,10 +98,14 @@ public enum V1 {
         public static let wearExpired: UInt16 = 1 << 7
     }
 
-    public enum HistoryType: UInt8 {
+    public enum HistoryType: UInt8, CaseIterable {
         case boot = 1, bolusStart, bolusDone, bolusCancel, tempStart, tempDone, tempCancel, tempCommFallback
         case basalSet, suspend, resume, fill, prime, fault, ack, lowReservoir, lowBattery
         case undocked = 18, docked, activate, release, wearWarning, wearExpired, paired
+        /// Fill / draw: a = requested mU (start) or drawn mU (done / stall), b = steps (start) or requested mU.
+        case drawStart = 25, drawDone, drawStall
+        /// Prime finished: a = steps.
+        case primeDone = 30
         /// A diagnostic record exists: a = code, b = ctx_a.
         case diag = 31
     }

@@ -191,30 +191,39 @@ private extension AlertCatalogRegistry {
 # pure Swift, without the Xcode project, runs on macOS
 cd ios/OpenPatchKit/OpenPatchCore && swift test
 
+# parity with the Rust pod (golden frames of a real cup pod; regenerate only on an intended wire change)
+cd firmware-rs && cargo test -p openpatch-core --test wire_vectors      # OPENPATCH_WRITE_VECTORS=1 rewrites docs/vectors/wire-v1-scenarios.json
+
 # driver against real LoopKit, on the simulator (workspace with LoopKit + OpenPatchKit required)
 xcodebuild test -workspace Trio.xcworkspace -scheme OpenPatchKit \
   -destination 'platform=iOS Simulator,name=iPhone 17 Pro' CODE_SIGNING_ALLOWED=NO
 ```
 
-Then in Trio: *Settings → Pump → OpenPatch*. Setup flow: pod size → pair → fill (syringe, confirm amount) →
-prime → attach to the cannula head → start. For later pod changes: Settings → "Remove pod from body" → "Refill and reuse pod".
+Then in Trio: *Settings → Pump → OpenPatch*. Bench setup flow (water only, see `ios/BENCH-LOOP.md`): pod size → pair (button!) →
+**assisted pressure fill** (pod off the dock, you push the syringe while the pod retracts) → dock + prime (with the take-up of the drive's
+slack, several minutes) → start. For later refills: Settings → "Take pod off the dock" → "Refill and reuse pod".
 
-### 7a. Application layer security: what the app has to wire up
+### 7a. Application layer security (wired)
 
-`V1Transport(link:initialPhase:..., pairingSecret:)` already does the rest. The pieces that live in the Kit/UI layer:
+`V1Transport(link:initialPhase:..., pairingSecret:)` does the handshake; the Kit wires it up (`OpenPatchPumpManager+Pairing.swift`):
 
-1. **Pairing (once per pod):** the user presses the button on the pod (opens the 60 s window), the app connects and the BLE bond is made
-   (CoreBluetooth shows the system dialog), then the app calls `transport.pair { result in ... }`. On success store the returned 32 bytes
-   in the **Keychain** (`kSecClassGenericPassword`, `kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly`, one item per pod pair id / role), never in
-   `rawState` / UserDefaults. On failure: `.sessionFailed` = window closed or altered exchange, ask the user to press the button again.
-2. **Normal operation:** build the transport with `pairingSecret:` read from the Keychain (`OpenPatchPumpManager.makeV1Transport`). The first
-   `send` of every connection runs the session handshake automatically (two extra round trips); the sequence counter restarts at 1.
-3. **Errors:** `TransportError.notPaired` = the pod has no / another pairing secret (pod replaced, re-paired by someone else): show "pair again".
-   `.sessionFailed` = wrong secret or an attacker in the middle: do not retry blindly, tell the user.
-4. **Two-pod system:** every pod has its own pairing secret (pair A and pair B separately, store both).
-5. **Optional out-of-band code:** `pair(oob:)` mixes a code both sides know into the exchange (makes the first pairing resistant to a
-   man in the middle). The bench pod has no OOB source yet, so pass nothing.
-6. `OpenPatchPumpManagerTests` / the simulator use `SimulatedTransport` and are unaffected.
+1. **Pairing (once per pod):** the user presses the button on the pod (opens the 60 s window); `pair(...)` connects and runs
+   `transport.pair`. The 32 byte secret goes into the **iOS keychain** (`KeychainPairingSecretStore`, generic password,
+   `kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly`, one item per pod, keyed by the CoreBluetooth peripheral identifier), never into
+   `rawState`. `OpenPatchPumpManager.pairingSecretStore` is replaceable (tests use `InMemoryPairingSecretStore`).
+2. **Normal operation:** `makeV1Transport` reads the secret from the store. The first `send` of every connection runs the session handshake
+   (two extra round trips), the sequence counter restarts at 1 and every command / response is AES-CCM protected. Plaintext is only spoken
+   when there is no secret (simulated pod, `dev-plaintext` pod). Settings -> Drive -> Link shows "Paired, encrypted session".
+3. **Errors:** a pod that answers `PAIR` (reset, or paired by another phone) makes `pair(...)` forget the stale secret and pair again once;
+   that needs the pod's pairing window (button). Without it the user sees "press the button on the pod ... pair it again"
+   (`OpenPatchError.needsPairing`, also `pairAgain(completion:)`). `.sessionFailed` is reported as a failed secure connection, never retried blindly.
+4. **Two-pod system:** every pod has its own secret (`pairSparePod` pairs the spare with its own button press).
+5. **Alert characteristic:** `CoreBluetoothLink` subscribes to it when the pod has it and forwards the frames (fill progress, faults, diagnostics) to
+   `V1Transport.handleNotification`; the status / history read stays the reliable path.
+6. **Sequence persistence / `LAST_SEQ`:** with a session nothing has to be remembered. For plain-text pods the next `seq` is persisted before it is used
+   (+16 margin after a restart); a status carries `LAST_SEQ` and moves a phone that is behind, a silent pod (replayed frame) is answered by repeating
+   READS with +16 / +256 / +4096 (never a write), and a `REPLAY` answer is resent with a higher `seq` (refused before execution, safe).
+7. Keychain access needs a host app: the `OpenPatchKitTests` logic bundle skips that one test (everything else uses the in-memory store).
 
 On Linux (CI container) `swift test` in `OpenPatchCore` works without Xcode: Package.swift pulls in swift-crypto on non-Apple platforms (CryptoKit on iOS/macOS).
 The LoopKit based Kit tests (`xcodebuild test`) need macOS/Xcode and cannot run on Linux. The Xcode project was regenerated (new source files; the
@@ -223,14 +232,13 @@ UUIDs changed because a newer `xcodeproj` gem was used).
 ### 8. Known gaps (honestly)
 
 * **Never run against hardware.** `CoreBluetoothLink` compiles, but has only been tested against the protocol document and a fake firmware stub.
-* **Security layer: implemented in `OpenPatchCore`, NOT yet wired into the PumpManager / setup UI.** Protocol v1.1 section 5.2
-  (`docs/04-protocol.md`) defines an application layer key agreement; `V1Transport` implements the phone side
-  (`SessionHandshake`, `SecureChannel`, `SessionCrypto`) and is byte-identical with the Rust pod (shared vectors
-  `docs/vectors/session-key-agreement.json`, 24 tests in `swift test`). What the app still has to do (see the next section): create the
-  pairing secret during pod setup, keep it in the Keychain, hand it to `V1Transport`, and show the pairing / "pair again" UI.
-  Until then the driver sends plaintext frames, which only a `dev-plaintext` pod accepts. Replay protection: the command `seq` is
-  per session (restarts at 1 with every handshake); `commandSequence` in `rawState` only matters for plaintext (dev) pods.
-
+* **Security layer: wired** (previous section), tested against a Swift pod model built from the same primitives and byte for byte against the Rust pod
+  (`docs/vectors/session-key-agreement.json`). Not tried against a real pod or CoreBluetooth yet.
+* **Wire parity with `firmware-rs`:** `docs/vectors/wire-v1-scenarios.json` holds the frames of a real cup pod (generated by
+  `firmware-rs/openpatch-core/tests/wire_vectors.rs`; `OPENPATCH_WRITE_VECTORS=1 cargo test -p openpatch-core --test wire_vectors`) driven through pair, assisted fill,
+  activate, prime, doses, refusals, replay, release. `WireGoldenTests` reproduces every request byte for byte and decodes every response;
+  `FirmwareParityTests` parses `consts.rs`, `error.rs`, `faults.rs`, `log.rs` and `drive_cal.rs` and compares every command id, tag, flag, result code, history kind,
+  fault bit and drive preset with the Swift tables. (It found `PrimeRequired` 26 and `Docked` 27 missing on the Swift side.)
 * **No push of alerts:** v1 has no alert characteristic. Alerts and bolus end arrive via `GetHistory` polling after each status read.
   The history cursor is persisted in `rawState` (`historyCursor`); events below the cursor are never delivered again (deduplication via the
   event ID), missed ones arrive exactly once after the restart. Delivery is at-least-once: if the app crashes between delivery and saving, an alert may arrive twice.
@@ -287,7 +295,22 @@ self-maintained Trio fork.
   the screen resumes after a BLE loss or an app restart. Rules: never two active pods (no `Activate` before the old pod confirmed `Release` or
   the user confirmed it is physically removed - an undocked pod cannot deliver), a lost reply is resolved with a status read / idempotent resend,
   an uncertain prime is never retried blindly, a pod that reports itself active although it must not be is released at once.
-* **Alerts:** wear 44 h (warning) / 52 h (stop), spare pod not charged / not filled / not seen, old pod unconfirmed, pod conflict, pod undocked.
+* **Alerts:** wear 44 h (warning) / 52 h (stop), spare pod not charged / not filled / not seen, old pod unconfirmed, pod conflict, pod undocked,
+  occlusion (critical), pod empty (critical), other pod faults (critical), low reservoir, low battery, temp basal ended after comm loss, and "no contact with
+  the pod" after 30 min without a successful status read (raised once, retracted by the next read).
 * **Drive calibration.** There is no global "units per step" any more. The pod reports `DRIVE_CAL` in every `GetStatus`; the app accepts only the
-  known drives (`DriveCalibration.known`: ZWBPD006006 5:1 = 0.0261 U/step, Faulhaber 16:1 = 0.0082 U/step) and refuses to pair-and-fill, prime, bolus,
-  set a temp basal or resume with a pod that reports none or an unknown one (clear error in the UI). Suspend and cancel always work.
+  known drives (`DriveCalibration.known`: the two legacy C drives ZWBPD006006 5:1 = 0.0261 U/step and Faulhaber 16:1 = 0.0082 U/step, the 16:20 pod
+  `0x25` = 0.003948 U/step, and the **v0.1.0 cup pod `0x26` (`nfp-608-26-45-cup-miter-1-1`) = 0.00703 U/step**) and refuses to pair-and-fill, prime, bolus,
+  set a temp basal or resume with a pod that reports none or an unknown one (clear error in the UI). The other firmware presets (`0x20`..`0x24`, `0x30`) are refused
+  on purpose (`DriveCalibration.refusedFirmwarePresetIDs`, checked against `drive_cal.rs`). Suspend and cancel always work. The preset name, id, volume per step,
+  refill method and link security are shown in Settings -> OpenPatch -> Drive.
+* **Refill.** `startFill(mode:units:)`: the cup pod (`allowsSuctionDraw == false`: no check valve) is filled by the assisted PRESSURE fill only (wire `AssistedFill`,
+  0x0F; the pod retracts at 200 steps/s = 1.4 U/s while the user pushes the syringe). A suction draw and the manual "I injected X, confirm" fill are refused for it
+  (`OpenPatchError.fillModeNotAllowed`); legacy C pods keep the manual fill. After a fill the first prime answers `Hourly` while the pod takes up the lost motion of its
+  drive; the app repeats it every 61 s up to 6 times (`state.primeTakeupAttempt` drives the screen).
+* **Uncertain delivery** (Loop / Trio contract). A lost reply to a bolus, temp basal, cancel, suspend, resume or basal program leaves `deliveryIsUncertain` set, records the command
+  (`PendingCommand`, persisted) and starts automatic status + history reads. `BolusStart` / `TempStart` history events prove execution (the dose is adopted and reported once, SMBs stay
+  `automatic`), a completely read history without one proves non-execution (nothing reported), an incompletely read history keeps the delivery uncertain; a basal program is
+  simply sent again. No second bolus is accepted while a bolus is unresolved.
+* **Doses of SMB size.** Bolus volumes are on the 0.05 U grid (= 7.11 steps on the cup pod). The pod delivers whole steps and carries the fraction to the next dose (exact
+  accounting, one accumulator), so 100 x 0.05 U delivers 5.0 U within one step; Trio is told the commanded amount.

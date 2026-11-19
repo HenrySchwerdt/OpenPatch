@@ -462,6 +462,7 @@ dependencies = [
  "openpatch-diag",
  "openpatch-proto",
  "proptest",
+ "serde_json",
 ]
 
 [[package]]

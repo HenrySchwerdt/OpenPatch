@@ -34,6 +34,8 @@ public enum NackReason: UInt8, Equatable {
     case latched = 18          // a latched diagnostic code refuses Resume / Activate until its verification test passes
     case notClearable = 19     // ClearDiag: latched and not verified, or the cause persists
     case noSchedule = 20       // Resume refused: the pod holds no basal schedule (e.g. not restorable after a reset)
+    case primeRequired = 21    // a fill / draw was not followed by a prime yet
+    case podDocked = 22        // the fill needs an undocked pod (a docked pod is connected to the cannula and never retracts)
 }
 
 public struct BolusStatus: Equatable {
@@ -73,11 +75,16 @@ public struct PodStatus: Equatable {
     public var diag: DiagSummary?
     public var fruHealth: FruHealth?
     public var uid: PodUID?
+    /// Fill / draw job of the pod (`DRAW_STATE` ...). `nil` = the pod does not report it (C reference, simulator).
+    public var fill: FillStatus?
+    /// `NEXT_EVENT_ID` of the pod's history (`nil` = no history, e.g. the simulator): "caught up" means the cursor reached it.
+    public var historyNextEventID: UInt32?
 
     public init(phase: PodPhase, reservoirPulses: UInt16, batteryPercent: UInt8, podTime: Date,
                 totalDeliveredPulses: UInt32, bolus: BolusStatus? = nil, tempBasal: TempBasalStatus? = nil, faultCode: FaultCode? = nil,
                 driveCalibration: DriveCalibration? = nil, pairing: PodPairingInfo? = nil, releaseReport: ReleaseReport? = nil,
-                diag: DiagSummary? = nil, fruHealth: FruHealth? = nil, uid: PodUID? = nil) {
+                diag: DiagSummary? = nil, fruHealth: FruHealth? = nil, uid: PodUID? = nil, fill: FillStatus? = nil, historyNextEventID: UInt32? = nil) {
+        self.fill = fill; self.historyNextEventID = historyNextEventID
         self.driveCalibration = driveCalibration; self.pairing = pairing; self.releaseReport = releaseReport
         self.diag = diag; self.fruHealth = fruHealth; self.uid = uid
         self.phase = phase; self.reservoirPulses = reservoirPulses; self.batteryPercent = batteryPercent
@@ -96,6 +103,13 @@ public enum Response: Equatable {
 
 /// Unsolicited pod -> phone notifications.
 public enum PodEvent: Equatable {
+    /// The pod logged the start of a bolus of `pulses` x 0.05 U. Arrives from the history, also when the reply of the
+    /// bolus command was lost: the proof that the pod executed it.
+    case bolusStarted(pulses: UInt16)
+    /// The pod logged the start of a temp basal (same purpose as `bolusStarted`).
+    case tempBasalStarted(rateTicks: UInt16, durationMinutes: UInt16)
+    /// Fill / draw progress or end (notification or history): what the pod confirmed so far.
+    case fillUpdate(state: FillState, drawnUnits: Double)
     case bolusCompleted(id: UInt16, deliveredPulses: UInt16)
     case tempBasalEnded
     case tempBasalRevertedCommLoss

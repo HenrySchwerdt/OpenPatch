@@ -5,6 +5,7 @@ import OpenPatchCore
 enum OpenPatchAlert: String {
     case lowReservoir, podFault, batteryLow, tempBasalCommLoss
     case podWearWarning, podWearExpired, spareNotReady, swapOldPodUnconfirmed, podConflict, podUndocked, podReleased, calibration
+    case occlusion, podEmpty, commLoss
 
     var title: String {
         switch self {
@@ -20,6 +21,9 @@ enum OpenPatchAlert: String {
         case .podUndocked: return NSLocalizedString("Pod not docked", bundle: .openPatchKit, comment: "Alert title")
         case .podReleased: return NSLocalizedString("Pod stopped", bundle: .openPatchKit, comment: "Alert title")
         case .calibration: return NSLocalizedString("Pod cannot be used", bundle: .openPatchKit, comment: "Alert title")
+        case .occlusion: return NSLocalizedString("Pod outlet blocked", bundle: .openPatchKit, comment: "Alert title")
+        case .podEmpty: return NSLocalizedString("Pod is empty", bundle: .openPatchKit, comment: "Alert title")
+        case .commLoss: return NSLocalizedString("No contact with the pod", bundle: .openPatchKit, comment: "Alert title")
         }
     }
 }
@@ -39,6 +43,10 @@ extension OpenPatchPumpManager {
                 let fraction = bolus.units > 0 ? delivered / bolus.units : 0
                 finalize(bolus: bolus.cancelled(at: bolus.startDate.addingTimeInterval(bolus.duration * fraction), deliveredUnits: delivered))
             }
+        case .bolusStarted, .tempBasalStarted:
+            handleStartEvent(event)
+        case .fillUpdate:
+            break   // progress is read from the status (reliable); a notification only makes the screen faster
         case .tempBasalEnded:
             if let temp = state.unfinalizedTempBasal { finalize(temp: temp.cancelled(at: min(now, temp.scheduledEnd))) }
         case .tempBasalRevertedCommLoss:
@@ -49,7 +57,14 @@ extension OpenPatchPumpManager {
             issue(.lowReservoir, body: String(format: NSLocalizedString("About %.0f U of insulin left.", bundle: .openPatchKit, comment: "Alert body"), UnitConversion.units(forPulses: Int(pulses))))
         case .fault(let code):
             mutateState { $0.faultCode = code; $0.phase = .faulted }
-            issue(.podFault, body: String(format: NSLocalizedString("The pod stopped insulin delivery (%@). Replace or refill the pod.", bundle: .openPatchKit, comment: "Alert body"), "\(code)"))
+            switch code {
+            case .occlusion:
+                issue(.occlusion, body: NSLocalizedString("The pod detected a blockage at its outlet and stopped. Check the outlet, the capillary and the vial, then refill or replace the pod.", bundle: .openPatchKit, comment: "Alert body"))
+            case .reservoirEmpty:
+                issue(.podEmpty, body: NSLocalizedString("The pod ran empty and stopped. Refill it.", bundle: .openPatchKit, comment: "Alert body"))
+            default:
+                issue(.podFault, body: String(format: NSLocalizedString("The pod stopped insulin delivery (%@). Replace or refill the pod.", bundle: .openPatchKit, comment: "Alert body"), "\(code)"))
+            }
             reportDoses(extra: [.openPatchAlarm(at: now, type: code == .occlusion ? .occlusion : (code == .reservoirEmpty ? .noInsulin : .other("\(code)")), title: "Pod fault: \(code)")])
         case .batteryLow(let percent):
             mutateState { $0.batteryFraction = Double(percent) / 100 }
@@ -87,17 +102,38 @@ extension OpenPatchPumpManager {
     func issue(_ alert: OpenPatchAlert, body: String) {
         let content = Alert.Content(title: alert.title, body: body,
                                     acknowledgeActionButtonLabel: NSLocalizedString("OK", bundle: .openPatchKit, comment: "Alert button"))
-        let critical = alert == .podFault
+        let critical = alert == .podFault || alert == .occlusion || alert == .podEmpty
         let alert = Alert(identifier: Alert.Identifier(managerIdentifier: Self.pluginIdentifier, alertIdentifier: alert.rawValue),
                           foregroundContent: content, backgroundContent: content, trigger: .immediate,
                           interruptionLevel: critical ? .critical : .timeSensitive)
         delegate.notify { $0?.issueAlert(alert) }
     }
 
+    /// Contact with the pod: after `commLossAlertAfter` without a successful status read the user is told once; the alert is
+    /// retracted by the next successful read.
+    func evaluateCommLoss(syncSucceeded: Bool, now: Date = Date()) {
+        let lastSync = state.lastSync
+        lock.lock()
+        let issued = commLossIssued
+        if syncSucceeded { commLossIssued = false } else if !issued, let last = lastSync, now.timeIntervalSince(last) >= Self.commLossAlertAfter { commLossIssued = true }
+        let raise = !syncSucceeded && !issued && commLossIssued
+        lock.unlock()
+        if syncSucceeded, issued {
+            let identifier = Alert.Identifier(managerIdentifier: Self.pluginIdentifier, alertIdentifier: OpenPatchAlert.commLoss.rawValue)
+            delegate.notify { $0?.retractAlert(identifier: identifier) }
+        }
+        if raise {
+            issue(.commLoss, body: String(format: NSLocalizedString("The phone has not reached the pod for %.0f minutes. Move the phone close to the pod. Delivery continues with the programmed basal rate.", bundle: .openPatchKit, comment: "Alert body"), Self.commLossAlertAfter / 60))
+        }
+    }
+
     // MARK: Reconciliation with a pod status
 
     /// Folds a pod status into the persisted state: telemetry, lifecycle, and any dose the pod no longer reports.
     func reconcile(with status: PodStatus, at now: Date) {
+        var decision: UncertaintyResolution?
+        var statusEvents: [NewPumpEvent] = []
+        let hadPending = state.pendingCommand
         mutateState { st in
             st.reservoirUnits = status.reservoirUnits
             st.batteryFraction = Double(status.batteryPercent) / 100
@@ -107,6 +143,8 @@ extension OpenPatchPumpManager {
             st.driveCalibration = status.driveCalibration
             st.calibrationProblem = CalibrationProblem.check(status.driveCalibration)
             st.podReportsActive = status.pairing?.isActive
+            st.fill = status.fill
+            if status.phase != .filled { st.primeTakeupAttempt = nil }
             if let role = st.podRole { st.pair?.update(role) { $0.update(from: status, at: now) } }
             // Do not let a stale poll downgrade a lifecycle step we drive ourselves.
             if status.phase != .unpaired || st.phase == .unpaired { st.phase = status.phase }
@@ -123,10 +161,11 @@ extension OpenPatchPumpManager {
                 let units = UnitConversion.units(forPulses: Int(adopted.requestedPulses))
                 let done = UnitConversion.units(forPulses: Int(adopted.deliveredPulses))
                 let duration = UnitConversion.bolusDuration(forUnits: units)
+                var automatic = false
+                if case .bolus(_, _, let wasAutomatic)? = st.pendingCommand?.kind { automatic = wasAutomatic }
                 st.unfinalizedBolus = OpenPatchDose(kind: .bolus, id: adopted.id, units: units,
                                                     startDate: now.addingTimeInterval(-UnitConversion.bolusDuration(forUnits: done)),
-                                                    duration: duration, automatic: false, insulinType: st.insulinType)
-                st.deliveryUncertainSince = nil
+                                                    duration: duration, automatic: automatic, insulinType: st.insulinType)
             }
             if st.unfinalizedTempBasal == nil, let adopted = status.tempBasal, adopted.remainingMinutes > 0,
                adoptTempBasalFromNextStatus || st.deliveryUncertainSince != nil {
@@ -139,7 +178,15 @@ extension OpenPatchPumpManager {
                 st.unreportedFinishedDoses.append(ended)
                 st.unfinalizedTempBasal = nil
             }
+            // A command whose reply was lost: what do the history and this status say about it?
+            decision = applyUncertaintyResolution(&st, status: status)
+            if let pending = hadPending, decision == .executed {
+                if case .suspend = pending.kind { statusEvents.append(.openPatchSuspend(at: now)) }
+                if case .resume = pending.kind { statusEvents.append(.openPatchResume(at: now, insulinType: st.insulinType)) }
+            }
         }
+        if decision == .resend { resendBasalProgram() }
+        if !statusEvents.isEmpty { reportDoses(extra: statusEvents) }
         adoptTempBasalFromNextStatus = false
         reportReservoir()
         if !state.unreportedFinishedDoses.isEmpty { reportDoses() }

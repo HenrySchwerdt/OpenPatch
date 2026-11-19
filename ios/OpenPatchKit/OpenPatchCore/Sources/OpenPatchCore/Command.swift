@@ -5,6 +5,7 @@ public enum CommandKind: Equatable, CaseIterable {
     case bolus, cancelBolus, setTempBasal, cancelTempBasal, suspend, resume
     case confirmFill, prime, confirmAttached, deactivate, silenceAlarm
     case setPairing, activatePod, releasePod
+    case assistedFill, cancelAssistedFill
 }
 
 /// Phone -> pod commands. Amounts are integer pulses (0.05 U) / ticks (0.05 U/h) so the wire
@@ -33,6 +34,11 @@ public enum Command: Equatable {
     case activatePod(pairID: UInt32, activationID: UInt32, program: BasalProgram, tempBasal: HandoverTempBasal?)
     /// Two-pod: stop delivering and return the totals. Idempotent.
     case releasePod(pairID: UInt32)
+    /// Refill: the pod retracts its plunger by `pulses` x 0.05 U at a fixed rate while the user pushes the syringe
+    /// (assisted pressure fill). Only an undocked, suspended pod; progress arrives in `PodStatus.fill`.
+    case assistedFill(pulses: UInt16)
+    /// Stops a running fill; the volume drawn so far stays booked.
+    case cancelAssistedFill
 
     public var kind: CommandKind {
         switch self {
@@ -55,6 +61,8 @@ public enum Command: Equatable {
         case .setPairing: return .setPairing
         case .activatePod: return .activatePod
         case .releasePod: return .releasePod
+        case .assistedFill: return .assistedFill
+        case .cancelAssistedFill: return .cancelAssistedFill
         }
     }
 

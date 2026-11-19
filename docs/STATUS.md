@@ -3,6 +3,15 @@
 > This file is the **entry point for every new session** (another machine, another Claude subscription, another person).
 > It is updated on every push. Last updated: **2026-11-19 (cloud session, v0.1.0 integrated model merged)**.
 
+## Take-up is a travel, converted per preset (2026-11-19, electronics worktree, firmware-rs)
+- Fixed bug: `plunger_um_to_mu` used a global 74.63 mm^2 area, so the 0.33 mm take-up after a reversal was 350 steps on the cup pod instead of 499. Each `Preset` now carries `bore_area_x100` (cup 106.26 mm^2); `LOST_MOTION_TOTAL_UM` / `TAKEUP_UM_AFTER_REVERSAL` is a travel, `Preset::travel_um_to_steps` converts it exactly (rounded up), `PumpConfig::takeup_um` replaces `takeup_mu`. Applied after every assisted fill / draw. Golden vector `docs/vectors/wire-v1-scenarios.json` regenerated (one more cup prime retry); Swift golden count 40 -> 41. Open: the real cup backlash is still unmeasured.
+
+## iOS / Trio kit drives the cup pod (2026-11-19, ios worktree)
+- `OpenPatchKit` now runs the v0.1.0 cup pod end to end from Trio on the bench (water only): wire parity with `firmware-rs` by golden frames of a real cup pod (`docs/vectors/wire-v1-scenarios.json`) and a source-parsing parity suite, encrypted session wired with keychain-stored pairing secret, `LAST_SEQ` resync, DRIVE_CAL `0x26` accepted / unknown refused / preset shown, assisted pressure fill only (no draw), prime take-up retry, uncertain-delivery recovery from status + history, new alerts; 257 core + 80 kit tests green; loop + balance compare: `ios/BENCH-LOOP.md`, `ios/tools/bench_compare.py`. Not run against a real pod; open: firmware take-up volume uses the 74.6 mm^2 bore area (cup bore 106 mm^2), Trio has no pump-history export.
+
+## v0.1.0 cup pod, layout A (2026-11-19, mechanical worktree)
+- `generate.py --variant v010 --drive cup` / `check.py --variant v010 --drive cup`: transverse motor at the rear spanning both lanes, miter pair z16:z16 (2 gears), rod ends at gear B, cup plunger, tank (un-frozen for this variant: bore 20.5 x 5.5, fill septum underside + outlet in the front wall), dock at the right end of lane 1 (pocket 11.9 x 9.8, 3.5 mm slide, 301 FH U-clip, spring needle guard), reserved volumes for battery/board/USB-C. OP-100 47.96 x 34.6 x 8.5, OP-200 66.78 x 34.6 x 8.5 (bore 20.5 x 5.5; 45 / 52 mm and 32 mm width targets missed; cell = Ampul 301030, see mechanical/battery-selection.md). Details: `mechanical/V010-CUP.md`. Decision needed: re-freeze the CNC tank (`out/v010-cup/reservoir-cnc`), clip material (301 FH foil), Insight Flex measurements (all dock values TODO-MEASURE).
+
 ## MILESTONE 1 (2026-11-19, cloud session) — what changed since the handoff below
 
 Done and verified (merged to `main`):
@@ -131,3 +140,10 @@ All dimensions and components are in [spec/design-parameters.md](../spec/design-
   - Mechanics: `cd mechanical && python3 generate.py && python3 check.py`
   - Website: `cd site && npm ci && npm run build`
 - After every unit of work, update this file and push.
+
+- 2026-11-19 (user, design review): **v0.1.0 layout = two lanes.** Lane 1 in one row rear→front: transverse motor + right-angle gear → one rotating rod + cup plunger (concept B) → closed CNC tank → end cap (fill septum on the underside) → dock directly after the end cap (place-down pocket + 3–4 mm slide, 12 × 10 mm, U-clip like the original Insight connector, spring-steel clips). Lane 2 (+Y): battery, board, USB-C, piezo, button. Superseded: slot/carriage drive, second shaft, full-length dock tunnel, frozen dock interface.
+- 2026-11-19 (user): size levers for the two-lane layout: **dock in lane 2 beside the end cap** (lane 1 ends at the end cap) and **wider/taller tank bore ≈ 22 × 5.5** (un-freezes the not-yet-ordered CNC reservoir) to hit OP-100 ≤ 45 mm / OP-200 ≤ 52 mm.
+- 2026-11-19 (user): **no separate end cap** — fill septum (angled, from below) and side outlet + needle hub are integrated in the CNC tank front wall; plunger travels to the front wall (near-zero dead volume); dock = place-down pocket + 2 spring-steel clips. Lane 1 as wide as possible (tank bore ~24 × 5.5), lane 2 narrow. Target OP-100 ≈ 30–40 mm long.
+- 2026-11-19 (user, confirmed sketch A — supersedes "dock in lane 2"): top view +X right, +Y up: **motor transverse at the far LEFT spanning both lanes** (nothing left of it); lane 1 (bottom) left→right: bevel pair (rod ends at gear B, magnet in gear B) → cup plunger → tank (septum under the front wall, outlet through the front wall) → **dock at the RIGHT END of lane 1 (bottom right)**; lane 2 (top, narrow): battery, board, piezo, button, USB-C.
+- 2026-11-19 (firmware-rs): drive preset `nfp-608-26-45-cup-miter-1-1` (id 0x26, 840503125/119554 uU = 0.00703 U/step, bore 20.5 x 5.5 per CAD json) is the build.sh default for the cup pod; older presets kept for bench. `FillMode::Draw` (suction) is refused on it (no check valve), assisted pressure fill kept; tests in `openpatch-core/tests/preset_cup.rs`.
+- 2026-11-19 (user): **motor locked = NFP-608-26.45-SGM** for the prototype (fits, 0.00703 U/step, ~8.6 N computed). Motor supply via 5 V boost + bulk cap (cell peak current), undervoltage lockout ~3.4 V; first bench test = thrust at 3.4 V and 5 V. Shorter Ø5 motor deferred.

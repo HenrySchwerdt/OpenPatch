@@ -104,3 +104,138 @@ The discrete HW-A, TPL5010, latch and DONE qualifier are gone; the supervisor MC
 | 26 | P0.18 | `NRST` | `NRST` | also pulled low by the supervisor (open drain) |
 
 Firmware changes for v2: arm once per tick (>= 1.0 s apart), answer the supervisor challenge within 20 ms, treat `SUP_OK` low or a supervisor status of `FAULT/LOCKED` as no delivery, keep forward steps <= 32 per arm, **USB CDC and DFU only through the authenticated session layer** (no unauthenticated command, no dosing or limit change over USB without the BLE-equivalent authorisation and the physical button where proposal 07 requires it), pause delivery while `VBUS_SENSE` is high. Test pads for debugging (all >= 1.0 mm, silk-labelled): GND, 3V3, VBAT, VMOT, VMOT_RAW, PGATE, PGATE2, INA_OUT (motor current, 4.4 mV/mA), ARM_CLK, SUP_PERMIT, SUP_STCK_EN, SUP_OK, SUP_TXD/SUP_RXD (watchdog link), OC_OK, OC_CMP, VBUS_P, NRST, STCK_DRV, MCU_EN, DOCKED_H, SWDIO, SWDCLK, I2C_SDA, I2C_SCL, PGATE_MON; supervisor SWD pads J4 (SWDIO), J5 (SWCLK), J6 (NRST) + GND pad.
+
+
+---
+
+# v3 (ISP1807, MAIN / POWER / SENSOR split, `design/netlist_v3.py`) - supersedes the E73 tables above
+
+Radio = Insight SiP **ISP1807-LR** (nRF52840, 8 x 8 x 1.0 mm LGA-78, integrated antenna, CONSIGNED; footprint `V010:ISP1807`, pads verified against the Insight Eagle library, see `../kicad/FOOTPRINT-VERIFICATION.md`). Pad -> pin -> net table (the firmware owner syncs `firmware-rs/` pin definitions to it; nothing in `firmware-rs/` was edited):
+
+| Pad | Pin | Net | Function |
+|---|---|---|---|
+| 1 | VSS@10 | `GND` | ground |
+| 2 | P0.09/NFC1 | `OC_OK` | in: over-current latch Q_N, low = tripped (NFC pin as GPIO) |
+| 3 | P0.12 | `DOCK_N` | in: dock hall A (low = docked) |
+| 4 | P0.10/NFC2 | `PGATE_MON` | in: high = supply allowed (NFC pin as GPIO) |
+| 5 | P0.14 | `SUP_OK` | in: supervisor healthy |
+| 6 | P0.26 | `TMAG_INT` | in: TMAG5273 INT |
+| 7 | VSS@8 | `GND` | ground |
+| 8 | D+ | `USB_DP` | USB D+ |
+| 10 | D- | `USB_DM` | USB D- |
+| 12 | VBUS | `VBUS_P` | USB VBUS (module needs it to enable USB) |
+| 13 | P0.18/NRESET | `NRST` | reset (P0.18 as RESET, UICR PSELRESET); supervisor PA7 pulls it low |
+| 14 | VSS@2 | `GND` | ground |
+| 16 | VSS@3 | `GND` | ground |
+| 18 | VSS@4 | `GND` | ground |
+| 20 | OUT_ANT | `RF_BRIDGE` | copper bridge pad 20 - pad 22 (internal antenna) |
+| 21 | VSS@5 | `GND` | ground |
+| 22 | OUT_MOD | `RF_BRIDGE` | copper bridge pad 20 - pad 22 (internal antenna) |
+| 23 | VSS@1 | `GND` | ground |
+| 24 | VSS@9 | `GND` | ground |
+| 25 | VSS@7 | `GND` | ground |
+| 26 | VCC_NRF | `3V3` | supply |
+| 27 | P0.17 | `SUP_TXD` | in: UART RX from the supervisor |
+| 28 | SWDIO | `SWDIO` | SWD pad J10 |
+| 29 | P0.13 | `SUP_RXD` | out: UART TX to the supervisor |
+| 30 | SWDCLK | `SWDCLK` | SWD pad J11 |
+| 31 | VSS@6 | `GND` | ground |
+| 32 | P0.08 | `MOT_STBY` | out: STSPIN220 STBY/RESET (100 k pull-down) |
+| 33 | P0.07 | `MOT_DIR` | out: STSPIN220 DIR + interlock reverse path |
+| 34 | P0.06 | `STCK_MCU` | out: step clock (through U31 AND gate, supervisor counts the same edges) |
+| 35 | P0.04/AIN2 | `MOT_EN_FAULT` | io: STSPIN220 EN/FAULT |
+| 36 | P0.05/AIN3 | `VBAT_SENSE` | ain: cell voltage x2 (switched by SENSE_EN) |
+| 37 | P0.15 | `BTN_N` | in: side tact button, active low |
+| 38 | P0.03/AIN1 | `I_SENSE` | ain: motor supply current, INA180A1, mA = mV / 4.4 |
+| 39 | P0.27 | `I2C_SCL` | io: TWIM, 4.7 k pull-up (MAIN) |
+| 40 | P0.02/AIN0 | `VMOT_SENSE` | ain: VMOT x2 |
+| 41 | P0.25 | `I2C_SDA` | io: TWIM, 4.7 k pull-up (MAIN) |
+| 42 | P0.31/AIN7 | `NTC` | ain: pod NTC (switched by SENSE_EN) |
+| 43 | P0.11 | `ARM_CLK` | out: arm request to the supervisor (rising edge, once per tick >= 1 s) |
+| 44 | P0.30/AIN6 | `DOCKED_H` | in: both halls asserted (2oo2) |
+| 45 | P0.19 | `MCU_EN` | out: independent enable (also clears OC latch when low) |
+| 46 | P0.29/AIN5 | `VBUS_SENSE` | ain: VBUS_P x2 (high = on a cable, pause delivery) |
+| 47 | P0.23 | `SENSE_EN` | out: enables VBAT divider + NTC |
+| 48 | P0.28/AIN4 | `CHG_STAT` | in: MCP73832 STAT |
+| 49 | P1.02 | `OC_TEST` | out: POST, pulls the OC reference down |
+| 50 | P1.06 | `DOCK_TEST` | out: POST, forces undocked at the gate |
+| 51 | P1.15 | `BUZ_A` | out: piezo bridge leg A (2.7 kHz) |
+| 52 | P1.14 | `BUZ_B` | out: piezo bridge leg B (inverse of A) |
+| 53 | P1.13 | `LED_ST` | out: status LED, active high |
+
+Notes (v3):
+
+* **No TPL5010, latch, DONE qualifier, `WDT_*`, `LATCH_*`, `HWA_*`, `WIN`**: the supervisor MCU (STM32C011F4U6, UFQFPN-20, `INTERLOCK.md` section H) replaces them. `SUP_RXD` is the UART TX of the nRF52840 (to the supervisor RX), `SUP_TXD` its RX.
+* **NFC pins P0.09 / P0.10 (pads 2 / 4) are GPIO** (`OC_OK`, `PGATE_MON`): `UICR.NFCPINS` = 1 (as on the E73 map). `P0.18` = RESET (`UICR.PSELRESET`).
+* The 32.768 kHz crystal is inside the ISP1807 (no Y1, no XL1/XL2 pads).
+* USB is native on pads 8 / 10 / 12 (`USB_DP`, `USB_DM`, `VBUS_P`); VBUS_SENSE (pad 46) = VBUS divider on POWER.
+* Piezo: two complementary pins `BUZ_A` / `BUZ_B` (2.7 kHz) drive a 2-NFET bridge on POWER (replaces the single `BUZ_PWM` and the magnetic buzzer).
+* `TMAG_INT` is now wired (pad 6); `DOCK_NB` (hall B) is only seen through `DOCKED_H`.
+* `MODE1/MODE2` of the STSPIN220 are hard-wired to GND (no resistors).
+* Spare module pads: all pads not listed (about 15 GPIO of the P1.xx grid) are unconnected; they are inner-grid pads that would need via-in-pad.
+* Via-in-pad (0.20 / 0.40 mm, filled and capped) is placed on every connected module pad of the second row and the inner grid (pads 3, 5, 8-19 odd/even rows, 21, 23, 24, 27, 29, 33-47 odd, 49-53): 27 vias.
+* The cross-board nets (MAIN <-> POWER, 32 pads, 26 unique nets): `design/netlist_v3.py` `B2B_A` / `B2B_B`; `netlist_v3_cross.json`.
+
+
+---
+
+# v0.1.0 CUP pod v4 (single board `cup/`, `design/netlist_v4.py`): ISP1807 pad table
+
+Changes against the v3 table above: no `OC_TEST`, `SENSE_EN`, `NTC`, `PGATE_MON`, `TMAG_INT`; pad 4 is now `LATCH_Q`; **new RGB LED** on pads 53/6/42; battery sense is always on (no switch). GND pads 1, 7, 14, 16, 18, 21, 23, 24, 25, 31. **All pad numbers are the ISP1807 land pads of the `V010:ISP1807` footprint; the nRF pin behind each pad comes from the v3 table, the PWM capability of P0.xx pins must be checked by the firmware owner (every nRF52840 GPIO can be routed to a PWM channel).** NFC pins P0.09/P0.10 as GPIO (UICR `NFCPINS`), P0.18 as reset.
+
+| ISP1807 pad | Net | Function |
+|---|---|---|
+| 2 | `OC_OK` | in: over-current comparator, low = tripped (hardware cleared the latch) |
+| 3 | `DOCK_N` | in: dock hall output (low = docked) |
+| 4 | `LATCH_Q` | in: interlock latch Q readback (RB6) (was PGATE_MON) |
+| 5 | `SUP_OK` | in: supervisor healthy |
+| 6 | `LED_G` | out PWM, active low: RGB LED green (470 R) |
+| 8 | `USB_DP` | USB D+ |
+| 10 | `USB_DM` | USB D- |
+| 12 | `VBUS_P` | USB VBUS |
+| 13 | `NRST` | reset (P0.18), pulled low by the supervisor |
+| 20 | `RF_BRIDGE` | copper bridge pad 20-22 |
+| 22 | `RF_BRIDGE` | copper bridge pad 20-22 |
+| 26 | `3V3` | supply |
+| 27 | `SUP_TXD` | in: UART RX from the supervisor |
+| 28 | `SWDIO` | SWD pad |
+| 29 | `SUP_RXD` | out: UART TX to the supervisor |
+| 30 | `SWDCLK` | SWD pad |
+| 32 | `MOT_STBY` | out: STSPIN220 STBY, 100 k pull-down |
+| 33 | `MOT_DIR` | out: STSPIN220 DIR and interlock reverse leg, high = reverse, 100 k pull-down |
+| 34 | `STCK_MCU` | out PWM: step clock into the step gate U31 (STCK_DRV = STCK_MCU AND SUP_STCK_EN) |
+| 35 | `MOT_EN_FAULT` | io: STSPIN220 EN/FAULT |
+| 36 | `VBAT_SENSE` | ain: cell voltage, 4.7 M/4.7 M always on (x2), sample with long acquisition |
+| 37 | `BTN_N` | in: button, internal pull-up (no external resistor) |
+| 38 | `I_SENSE` | ain: INA180 output after 10 k + 10 nF, 4.4 mV/mA (saturates at the supply) |
+| 39 | `I2C_SCL` | io: TMAG5273 (on the REAR strip), 4.7 k pull-up |
+| 40 | `VMOT_SENSE` | ain: motor supply after the switch, 100 k/100 k (x2) |
+| 41 | `I2C_SDA` | io: TMAG5273, 4.7 k pull-up |
+| 42 | `LED_B` | out PWM, active low: RGB LED blue (470 R) |
+| 43 | `ARM_CLK` | out: rising edge sets the latch U6 and arms the supervisor, 100 k pull-down |
+| 44 | `DOCKED_H` | in: dock hall level (high = docked), single hall |
+| 45 | `MCU_EN` | out: own leg QE, 100 k pull-down |
+| 46 | `VBUS_SENSE` | in/ain: VBUS 100 k/100 k (x2), high = cable present (pause delivery) |
+| 48 | `CHG_STAT` | in: MCP73832 STAT (low = charging, high = done, high-Z = no VBUS); also diode-ORed to the red LED cathode |
+| 50 | `DOCK_TEST` | out: high forces DOCKED_H low (POST) |
+| 51 | `BUZ_A` | out: piezo bridge leg A (NFET gate, 100 k pull-down) |
+| 52 | `BUZ_B` | out: piezo bridge leg B |
+| 53 | `LED_R` | out PWM, active low: RGB LED red (1 k, also driven low by CHG_STAT through D5) |
+
+## Status LED (RGB, top-facing under the clear lid, `LD1`, SZYY1615RGB-B, common anode on VBAT)
+
+| Pad | Net | Series R | Channel | Idle |
+|---|---|---|---|---|
+| 53 | `LED_R` | 1 k (R74) | red, also lit by `CHG_STAT` low through D5 (diode-OR, works while the MCU sleeps) | GPIO high or high-Z = off, no current |
+| 6 | `LED_G` | 470 R (R75) | green | off |
+| 42 | `LED_B` | 470 R (R76) | blue | off |
+
+Pins are **active low** (sink current); the anode is on VBAT (3.0 to 4.2 V), so a GPIO at 3.3 V never lights a channel (red needs more than 1.8 V across the LED, green/blue more than 2.7 V). About 1.5 to 2 mA per channel at 3.7 V (red about 1.7 mA); run PWM at 20 to 50 percent for indication. `CHG_STAT` (pad 48) is also an MCU input: low = charging, high = done, high-Z = no VBUS (read with internal pull-down then pull-up, as before). **Pad order and common-anode polarity of the LED are unverified (vendor drawing)**: check the first board before programming.
+
+Firmware behaviour to implement:
+* default: all three pins high-Z / high, no PWM, the PWM peripheral off between indications (idle current stays negligible);
+* **charging** (`CHG_STAT` low): red pulses (breathing, about 1 Hz); the diode-OR lights red steadily even if the MCU sleeps, the MCU may overlay the pulse;
+* **charge complete** (`CHG_STAT` high with `VBUS_SENSE` high): steady green;
+* **low battery** (below the firmware limit, default 3.5 V open circuit, `VBAT_SENSE`): red blink 1 short flash every 4 s while not charging; critical (below the motor-start limit 3.4 V): double flash;
+* normal state: LED off, short blue/green flash on a button press with the battery state (green above 3.8 V, orange = red + green around 3.5 to 3.8 V, red below);
+* faults from the supervisor / diagnostics: fast red blink (4 Hz) until acknowledged.

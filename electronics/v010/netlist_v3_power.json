@@ -1,0 +1,2382 @@
+[
+ {
+  "ref": "C5",
+  "value": "10uF",
+  "fp": [
+   "Capacitor_SMD",
+   "C_0603_1608Metric"
+  ],
+  "pins": {
+   "1": "VBAT",
+   "2": "GND"
+  },
+  "lcsc": "C19702",
+  "mpn": "CL10A106KP8NNNC",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "pwr",
+  "board": "POWER"
+ },
+ {
+  "ref": "D4",
+  "value": "B5819W SL",
+  "fp": [
+   "Diode_SMD",
+   "D_SOD-123"
+  ],
+  "pins": {
+   "1": "VCHG",
+   "2": "CHG_R"
+  },
+  "lcsc": "C8598",
+  "mpn": "B5819W SL",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "reverse-polarity / back-feed Schottky",
+  "group": "chg",
+  "board": "POWER"
+ },
+ {
+  "ref": "C8",
+  "value": "4.7uF",
+  "fp": [
+   "Capacitor_SMD",
+   "C_0201_0603Metric"
+  ],
+  "pins": {
+   "1": "VCHG",
+   "2": "GND"
+  },
+  "lcsc": "C335103",
+  "mpn": "GRM035R60J475ME15D",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "chg",
+  "board": "POWER"
+ },
+ {
+  "ref": "U3",
+  "value": "MCP73832T-2ACI/OT",
+  "fp": [
+   "Package_TO_SOT_SMD",
+   "SOT-23-5"
+  ],
+  "pins": {
+   "1": "CHG_STAT",
+   "2": "GND",
+   "3": "VBAT",
+   "4": "VCHG",
+   "5": "CHG_PROG"
+  },
+  "lcsc": "C38066",
+  "mpn": "MCP73832T-2ACI/OT",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "chg",
+  "board": "POWER"
+ },
+ {
+  "ref": "R2",
+  "value": "22R",
+  "fp": [
+   "Resistor_SMD",
+   "R_0201_0603Metric"
+  ],
+  "pins": {
+   "1": "VBUS_P",
+   "2": "CHG_R"
+  },
+  "lcsc": "C142011",
+  "mpn": "RC0201JR-0722RL",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "chg",
+  "board": "POWER"
+ },
+ {
+  "ref": "R3",
+  "value": "47k",
+  "fp": [
+   "Resistor_SMD",
+   "R_0201_0603Metric"
+  ],
+  "pins": {
+   "1": "CHG_PROG",
+   "2": "CHG_P2"
+  },
+  "lcsc": "C138139",
+  "mpn": "RC0201FR-0747KL",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "chg",
+  "board": "POWER"
+ },
+ {
+  "ref": "R4",
+  "value": "3.3k",
+  "fp": [
+   "Resistor_SMD",
+   "R_0201_0603Metric"
+  ],
+  "pins": {
+   "1": "CHG_P2",
+   "2": "GND"
+  },
+  "lcsc": "C270350",
+  "mpn": "0201WMF3301TEE",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "chg",
+  "board": "POWER"
+ },
+ {
+  "ref": "C9",
+  "value": "4.7uF",
+  "fp": [
+   "Capacitor_SMD",
+   "C_0201_0603Metric"
+  ],
+  "pins": {
+   "1": "VBAT",
+   "2": "GND"
+  },
+  "lcsc": "C335103",
+  "mpn": "GRM035R60J475ME15D",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "chg",
+  "board": "POWER"
+ },
+ {
+  "ref": "Q1",
+  "value": "AO3401A",
+  "fp": [
+   "Package_TO_SOT_SMD",
+   "SOT-23"
+  ],
+  "pins": {
+   "1": "SP_G",
+   "2": "VBAT",
+   "3": "VBAT_SW"
+  },
+  "lcsc": "C15127",
+  "mpn": "AO3401A",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "sense",
+  "board": "POWER"
+ },
+ {
+  "ref": "R5",
+  "value": "100k",
+  "fp": [
+   "Resistor_SMD",
+   "R_0201_0603Metric"
+  ],
+  "pins": {
+   "1": "VBAT",
+   "2": "SP_G"
+  },
+  "lcsc": "C106224",
+  "mpn": "RC0201FR-07100KL",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "sense",
+  "board": "POWER"
+ },
+ {
+  "ref": "R6",
+  "value": "100k",
+  "fp": [
+   "Resistor_SMD",
+   "R_0201_0603Metric"
+  ],
+  "pins": {
+   "1": "VBAT_SW",
+   "2": "VBAT_SENSE"
+  },
+  "lcsc": "C106224",
+  "mpn": "RC0201FR-07100KL",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "sense",
+  "board": "POWER"
+ },
+ {
+  "ref": "R7",
+  "value": "100k",
+  "fp": [
+   "Resistor_SMD",
+   "R_0201_0603Metric"
+  ],
+  "pins": {
+   "1": "VBAT_SENSE",
+   "2": "GND"
+  },
+  "lcsc": "C106224",
+  "mpn": "RC0201FR-07100KL",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "sense",
+  "board": "POWER"
+ },
+ {
+  "ref": "C10",
+  "value": "100nF",
+  "fp": [
+   "Capacitor_SMD",
+   "C_0201_0603Metric"
+  ],
+  "pins": {
+   "1": "VBAT_SENSE",
+   "2": "GND"
+  },
+  "lcsc": "C66938",
+  "mpn": "0201X104K6R3NT",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "sense",
+  "board": "POWER"
+ },
+ {
+  "ref": "R8",
+  "value": "10k",
+  "fp": [
+   "Resistor_SMD",
+   "R_0201_0603Metric"
+  ],
+  "pins": {
+   "1": "SENSE_EN",
+   "2": "NTC"
+  },
+  "lcsc": "C106225",
+  "mpn": "RC0201FR-0710KL",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "sense",
+  "board": "POWER"
+ },
+ {
+  "ref": "RT1",
+  "value": "NTC 10k NCP15XH103F03RC",
+  "fp": [
+   "Capacitor_SMD",
+   "C_0402_1005Metric"
+  ],
+  "pins": {
+   "1": "NTC",
+   "2": "GND"
+  },
+  "lcsc": "C77131",
+  "mpn": "NCP15XH103F03RC",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "sense",
+  "board": "POWER"
+ },
+ {
+  "ref": "Q4",
+  "value": "AO3401A",
+  "fp": [
+   "Package_TO_SOT_SMD",
+   "SOT-23"
+  ],
+  "pins": {
+   "1": "PGATE",
+   "2": "VBAT",
+   "3": "VMOT_A"
+  },
+  "lcsc": "C15127",
+  "mpn": "AO3401A",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "first series switch",
+  "group": "sw",
+  "board": "POWER"
+ },
+ {
+  "ref": "Q15",
+  "value": "AO3401A",
+  "fp": [
+   "Package_TO_SOT_SMD",
+   "SOT-23"
+  ],
+  "pins": {
+   "1": "PGATE2",
+   "2": "VMOT_A",
+   "3": "VMOT_RAW"
+  },
+  "lcsc": "C15127",
+  "mpn": "AO3401A",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "second series switch, gate owned by the supervisor MCU through QS",
+  "group": "sw",
+  "board": "POWER"
+ },
+ {
+  "ref": "R9",
+  "value": "100k",
+  "fp": [
+   "Resistor_SMD",
+   "R_0201_0603Metric"
+  ],
+  "pins": {
+   "1": "VBAT",
+   "2": "PGATE"
+  },
+  "lcsc": "C106224",
+  "mpn": "RC0201FR-07100KL",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "sw",
+  "board": "POWER"
+ },
+ {
+  "ref": "R10",
+  "value": "100k",
+  "fp": [
+   "Resistor_SMD",
+   "R_0201_0603Metric"
+  ],
+  "pins": {
+   "1": "VBAT",
+   "2": "PGATE"
+  },
+  "lcsc": "C106224",
+  "mpn": "RC0201FR-07100KL",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "parallel pull-up: one open resistor does not float the gate",
+  "group": "sw",
+  "board": "POWER"
+ },
+ {
+  "ref": "C11",
+  "value": "100nF",
+  "fp": [
+   "Capacitor_SMD",
+   "C_0201_0603Metric"
+  ],
+  "pins": {
+   "1": "PGATE",
+   "2": "VBAT"
+  },
+  "lcsc": "C66938",
+  "mpn": "0201X104K6R3NT",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "gate-source: slow turn-on (soft start)",
+  "group": "sw",
+  "board": "POWER"
+ },
+ {
+  "ref": "R11",
+  "value": "10k",
+  "fp": [
+   "Resistor_SMD",
+   "R_0201_0603Metric"
+  ],
+  "pins": {
+   "1": "PGATE",
+   "2": "CH_TOP"
+  },
+  "lcsc": "C106225",
+  "mpn": "RC0201FR-0710KL",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "sw",
+  "board": "POWER"
+ },
+ {
+  "ref": "R87",
+  "value": "100k",
+  "fp": [
+   "Resistor_SMD",
+   "R_0201_0603Metric"
+  ],
+  "pins": {
+   "1": "3V3",
+   "2": "DOCK_NOT"
+  },
+  "lcsc": "C106224",
+  "mpn": "RC0201FR-07100KL",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "sw",
+  "board": "POWER"
+ },
+ {
+  "ref": "Q11",
+  "value": "2N7002",
+  "fp": [
+   "Package_TO_SOT_SMD",
+   "SOT-23"
+  ],
+  "pins": {
+   "1": "MOT_DIR",
+   "2": "GND",
+   "3": "DIR_INV"
+  },
+  "lcsc": "C8545",
+  "mpn": "2N7002",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "sw",
+  "board": "POWER"
+ },
+ {
+  "ref": "R12",
+  "value": "100k",
+  "fp": [
+   "Resistor_SMD",
+   "R_0201_0603Metric"
+  ],
+  "pins": {
+   "1": "3V3",
+   "2": "DIR_INV"
+  },
+  "lcsc": "C106224",
+  "mpn": "RC0201FR-07100KL",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "sw",
+  "board": "POWER"
+ },
+ {
+  "ref": "R13",
+  "value": "0R",
+  "fp": [
+   "Resistor_SMD",
+   "R_0603_1608Metric"
+  ],
+  "pins": {
+   "1": "MOT_DIR",
+   "2": "DIR_REV"
+  },
+  "lcsc": "C21189",
+  "mpn": "0603WAF0000T5E",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "DIR_REV = DIR (default: DIR high = reverse/retract; confirm on the first motor, bench test T5)",
+  "group": "sw",
+  "board": "POWER"
+ },
+ {
+  "ref": "R14",
+  "value": "0R DNP",
+  "fp": [
+   "Resistor_SMD",
+   "R_0603_1608Metric"
+  ],
+  "pins": {
+   "1": "DIR_INV",
+   "2": "DIR_REV"
+  },
+  "lcsc": null,
+  "mpn": null,
+  "side": "F",
+  "bom": false,
+  "dnp": true,
+  "note": "fit instead of R13 if DIR low retracts",
+  "group": "sw",
+  "board": "POWER"
+ },
+ {
+  "ref": "R15",
+  "value": "100k",
+  "fp": [
+   "Resistor_SMD",
+   "R_0201_0603Metric"
+  ],
+  "pins": {
+   "1": "DIR_REV",
+   "2": "GND"
+  },
+  "lcsc": "C106224",
+  "mpn": "RC0201FR-07100KL",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "sw",
+  "board": "POWER"
+ },
+ {
+  "ref": "R16",
+  "value": "100k",
+  "fp": [
+   "Resistor_SMD",
+   "R_0201_0603Metric"
+  ],
+  "pins": {
+   "1": "MOT_DIR",
+   "2": "GND"
+  },
+  "lcsc": "C106224",
+  "mpn": "RC0201FR-07100KL",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "sw",
+  "board": "POWER"
+ },
+ {
+  "ref": "R18",
+  "value": "100k",
+  "fp": [
+   "Resistor_SMD",
+   "R_0201_0603Metric"
+  ],
+  "pins": {
+   "1": "MCU_EN",
+   "2": "GND"
+  },
+  "lcsc": "C106224",
+  "mpn": "RC0201FR-07100KL",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "sw",
+  "board": "POWER"
+ },
+ {
+  "ref": "R24",
+  "value": "100R",
+  "fp": [
+   "Resistor_SMD",
+   "R_0201_0603Metric"
+  ],
+  "pins": {
+   "1": "VMOT",
+   "2": "BLD"
+  },
+  "lcsc": "C77623",
+  "mpn": "RC0201FR-07100RL",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "sw",
+  "board": "POWER"
+ },
+ {
+  "ref": "R25",
+  "value": "100R",
+  "fp": [
+   "Resistor_SMD",
+   "R_0201_0603Metric"
+  ],
+  "pins": {
+   "1": "VMOT",
+   "2": "BLD"
+  },
+  "lcsc": "C77623",
+  "mpn": "RC0201FR-07100RL",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "sw",
+  "board": "POWER"
+ },
+ {
+  "ref": "R22",
+  "value": "100k",
+  "fp": [
+   "Resistor_SMD",
+   "R_0201_0603Metric"
+  ],
+  "pins": {
+   "1": "DOCK_TEST",
+   "2": "GND"
+  },
+  "lcsc": "C106224",
+  "mpn": "RC0201FR-07100KL",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "dock",
+  "board": "POWER"
+ },
+ {
+  "ref": "R44",
+  "value": "0.22R",
+  "fp": [
+   "Resistor_SMD",
+   "R_0603_1608Metric"
+  ],
+  "pins": {
+   "1": "VMOT_PRE",
+   "2": "VMOT"
+  },
+  "lcsc": "C326952",
+  "mpn": "RL0603FR-070R22L",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "supply shunt; 20 V/V -> 4.4 V/A",
+  "group": "oc",
+  "board": "POWER"
+ },
+ {
+  "ref": "C24",
+  "value": "10uF",
+  "fp": [
+   "Capacitor_SMD",
+   "C_0603_1608Metric"
+  ],
+  "pins": {
+   "1": "VMOT_RAW",
+   "2": "GND"
+  },
+  "lcsc": "C19702",
+  "mpn": "CL10A106KP8NNNC",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "oc",
+  "board": "POWER"
+ },
+ {
+  "ref": "U9",
+  "value": "INA180A1IDBVR",
+  "fp": [
+   "Package_TO_SOT_SMD",
+   "SOT-23-5"
+  ],
+  "pins": {
+   "1": "INA_OUT",
+   "2": "GND",
+   "3": "VMOT_PRE",
+   "4": "VMOT",
+   "5": "VMOT_RAW"
+  },
+  "lcsc": "C122228",
+  "mpn": "INA180A1IDBVR",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "supplied from the switched VMOT_RAW: zero idle drain; pinout A",
+  "group": "oc",
+  "board": "POWER"
+ },
+ {
+  "ref": "C25",
+  "value": "100nF",
+  "fp": [
+   "Capacitor_SMD",
+   "C_0201_0603Metric"
+  ],
+  "pins": {
+   "1": "VMOT_RAW",
+   "2": "GND"
+  },
+  "lcsc": "C66938",
+  "mpn": "0201X104K6R3NT",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "oc",
+  "board": "POWER"
+ },
+ {
+  "ref": "R46",
+  "value": "100k",
+  "fp": [
+   "Resistor_SMD",
+   "R_0201_0603Metric"
+  ],
+  "pins": {
+   "1": "INA_OUT",
+   "2": "GND"
+  },
+  "lcsc": "C106224",
+  "mpn": "RC0201FR-07100KL",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "oc",
+  "board": "POWER"
+ },
+ {
+  "ref": "R47",
+  "value": "10k",
+  "fp": [
+   "Resistor_SMD",
+   "R_0201_0603Metric"
+  ],
+  "pins": {
+   "1": "INA_OUT",
+   "2": "I_SENSE"
+  },
+  "lcsc": "C106225",
+  "mpn": "RC0201FR-0710KL",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "oc",
+  "board": "POWER"
+ },
+ {
+  "ref": "C26",
+  "value": "100nF",
+  "fp": [
+   "Capacitor_SMD",
+   "C_0201_0603Metric"
+  ],
+  "pins": {
+   "1": "I_SENSE",
+   "2": "GND"
+  },
+  "lcsc": "C66938",
+  "mpn": "0201X104K6R3NT",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "oc",
+  "board": "POWER"
+ },
+ {
+  "ref": "R48",
+  "value": "10k",
+  "fp": [
+   "Resistor_SMD",
+   "R_0201_0603Metric"
+  ],
+  "pins": {
+   "1": "INA_OUT",
+   "2": "OC_IN"
+  },
+  "lcsc": "C106225",
+  "mpn": "RC0201FR-0710KL",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "oc",
+  "board": "POWER"
+ },
+ {
+  "ref": "C27",
+  "value": "10nF",
+  "fp": [
+   "Capacitor_SMD",
+   "C_0201_0603Metric"
+  ],
+  "pins": {
+   "1": "OC_IN",
+   "2": "GND"
+  },
+  "lcsc": "C76940",
+  "mpn": "GRM033R70J103KA01D",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "oc",
+  "board": "POWER"
+ },
+ {
+  "ref": "U11",
+  "value": "TLV7011DCKR",
+  "fp": [
+   "Package_TO_SOT_SMD",
+   "SOT-353_SC-70-5"
+  ],
+  "pins": {
+   "1": "OC_CMP",
+   "2": "GND",
+   "3": "OC_IN",
+   "4": "OC_REF",
+   "5": "3V3"
+  },
+  "lcsc": "C193688",
+  "mpn": "TLV7011DCKR",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "nano-power push-pull comparator on 3V3; output rises on over-current",
+  "group": "oc",
+  "board": "POWER"
+ },
+ {
+  "ref": "C28",
+  "value": "100nF",
+  "fp": [
+   "Capacitor_SMD",
+   "C_0201_0603Metric"
+  ],
+  "pins": {
+   "1": "3V3",
+   "2": "GND"
+  },
+  "lcsc": "C66938",
+  "mpn": "0201X104K6R3NT",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "oc",
+  "board": "POWER"
+ },
+ {
+  "ref": "R49",
+  "value": "1M",
+  "fp": [
+   "Resistor_SMD",
+   "R_0201_0603Metric"
+  ],
+  "pins": {
+   "1": "3V3",
+   "2": "OC_REF"
+  },
+  "lcsc": "C102686",
+  "mpn": "RTT011004FTH",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "oc",
+  "board": "POWER"
+ },
+ {
+  "ref": "R50",
+  "value": "1M",
+  "fp": [
+   "Resistor_SMD",
+   "R_0201_0603Metric"
+  ],
+  "pins": {
+   "1": "OC_REF",
+   "2": "OC_REF2"
+  },
+  "lcsc": "C102686",
+  "mpn": "RTT011004FTH",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "oc",
+  "board": "POWER"
+ },
+ {
+  "ref": "R51",
+  "value": "100k",
+  "fp": [
+   "Resistor_SMD",
+   "R_0201_0603Metric"
+  ],
+  "pins": {
+   "1": "OC_REF2",
+   "2": "GND"
+  },
+  "lcsc": "C106224",
+  "mpn": "RC0201FR-07100KL",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "oc",
+  "board": "POWER"
+ },
+ {
+  "ref": "R52",
+  "value": "1k",
+  "fp": [
+   "Resistor_SMD",
+   "R_0201_0603Metric"
+  ],
+  "pins": {
+   "1": "OC_TEST_D",
+   "2": "OC_REF"
+  },
+  "lcsc": "C138165",
+  "mpn": "RC0201FR-071KL",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "oc",
+  "board": "POWER"
+ },
+ {
+  "ref": "R53",
+  "value": "100k",
+  "fp": [
+   "Resistor_SMD",
+   "R_0201_0603Metric"
+  ],
+  "pins": {
+   "1": "OC_TEST",
+   "2": "GND"
+  },
+  "lcsc": "C106224",
+  "mpn": "RC0201FR-07100KL",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "oc",
+  "board": "POWER"
+ },
+ {
+  "ref": "U12",
+  "value": "SN74AUP1G74DCUR",
+  "fp": [
+   "Package_SO",
+   "VSSOP-8_2.3x2mm_P0.5mm"
+  ],
+  "pins": {
+   "1": "OC_CMP",
+   "2": "3V3",
+   "3": "OC_OK",
+   "4": "GND",
+   "5": "OC_TRIP",
+   "6": "OC_CLR_N",
+   "7": "3V3",
+   "8": "3V3"
+  },
+  "lcsc": "C140267",
+  "mpn": "SN74AUP1G74DCUR",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "over-current latch: Q_N = OC_OK is the 4th series leg; cleared only by MCU_EN low",
+  "group": "oc",
+  "board": "POWER"
+ },
+ {
+  "ref": "C29",
+  "value": "100nF",
+  "fp": [
+   "Capacitor_SMD",
+   "C_0201_0603Metric"
+  ],
+  "pins": {
+   "1": "3V3",
+   "2": "GND"
+  },
+  "lcsc": "C66938",
+  "mpn": "0201X104K6R3NT",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "oc",
+  "board": "POWER"
+ },
+ {
+  "ref": "R54",
+  "value": "100k",
+  "fp": [
+   "Resistor_SMD",
+   "R_0201_0603Metric"
+  ],
+  "pins": {
+   "1": "MCU_EN",
+   "2": "OC_CLR_N"
+  },
+  "lcsc": "C106224",
+  "mpn": "RC0201FR-07100KL",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "oc",
+  "board": "POWER"
+ },
+ {
+  "ref": "C30",
+  "value": "100nF",
+  "fp": [
+   "Capacitor_SMD",
+   "C_0201_0603Metric"
+  ],
+  "pins": {
+   "1": "OC_CLR_N",
+   "2": "GND"
+  },
+  "lcsc": "C66938",
+  "mpn": "0201X104K6R3NT",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "oc",
+  "board": "POWER"
+ },
+ {
+  "ref": "D5",
+  "value": "1N4148W",
+  "fp": [
+   "Diode_SMD",
+   "D_SOD-123"
+  ],
+  "pins": {
+   "1": "MCU_EN",
+   "2": "OC_CLR_N"
+  },
+  "lcsc": "C81598",
+  "mpn": "1N4148W",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "oc",
+  "board": "POWER"
+ },
+ {
+  "ref": "R57",
+  "value": "100k",
+  "fp": [
+   "Resistor_SMD",
+   "R_0201_0603Metric"
+  ],
+  "pins": {
+   "1": "VMOT",
+   "2": "VMOT_SENSE"
+  },
+  "lcsc": "C106224",
+  "mpn": "RC0201FR-07100KL",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "oc",
+  "board": "POWER"
+ },
+ {
+  "ref": "R58",
+  "value": "100k",
+  "fp": [
+   "Resistor_SMD",
+   "R_0201_0603Metric"
+  ],
+  "pins": {
+   "1": "VMOT_SENSE",
+   "2": "GND"
+  },
+  "lcsc": "C106224",
+  "mpn": "RC0201FR-07100KL",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "oc",
+  "board": "POWER"
+ },
+ {
+  "ref": "C32",
+  "value": "10nF",
+  "fp": [
+   "Capacitor_SMD",
+   "C_0201_0603Metric"
+  ],
+  "pins": {
+   "1": "VMOT_SENSE",
+   "2": "GND"
+  },
+  "lcsc": "C76940",
+  "mpn": "GRM033R70J103KA01D",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "oc",
+  "board": "POWER"
+ },
+ {
+  "ref": "SW1",
+  "value": "TS-1187A-B-A-B",
+  "fp": [
+   "Button_Switch_SMD",
+   "SW_Push_1P1T_XKB_TS-1187A"
+  ],
+  "pins": {
+   "1": "BTN_N",
+   "2": "GND"
+  },
+  "lcsc": "C318884",
+  "mpn": "TS-1187A-B-A-B",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "PROXY: XKB TS-1187A (5.1 mm). A side-actuated tact <= 1.0 mm high must be selected (none verified at JLC); footprint to be replaced",
+  "group": "ui",
+  "board": "POWER"
+ },
+ {
+  "ref": "C42",
+  "value": "100nF",
+  "fp": [
+   "Capacitor_SMD",
+   "C_0201_0603Metric"
+  ],
+  "pins": {
+   "1": "BTN_N",
+   "2": "GND"
+  },
+  "lcsc": "C66938",
+  "mpn": "0201X104K6R3NT",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "ui",
+  "board": "POWER"
+ },
+ {
+  "ref": "R62",
+  "value": "0R",
+  "fp": [
+   "Resistor_SMD",
+   "R_0603_1608Metric"
+  ],
+  "pins": {
+   "1": "DIR_INV",
+   "2": "FWD"
+  },
+  "lcsc": "C21189",
+  "mpn": "0603WAF0000T5E",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "FWD = not DIR_REV (R13 variant)",
+  "group": "hwa",
+  "board": "POWER"
+ },
+ {
+  "ref": "R63",
+  "value": "0R DNP",
+  "fp": [
+   "Resistor_SMD",
+   "R_0603_1608Metric"
+  ],
+  "pins": {
+   "1": "MOT_DIR",
+   "2": "FWD"
+  },
+  "lcsc": null,
+  "mpn": null,
+  "side": "F",
+  "bom": false,
+  "dnp": true,
+  "note": "fit instead of R62 together with R14",
+  "group": "hwa",
+  "board": "POWER"
+ },
+ {
+  "ref": "R83",
+  "value": "100k",
+  "fp": [
+   "Resistor_SMD",
+   "R_0201_0603Metric"
+  ],
+  "pins": {
+   "1": "VMOT_A",
+   "2": "PGATE2"
+  },
+  "lcsc": "C106224",
+  "mpn": "RC0201FR-07100KL",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "sw",
+  "board": "POWER"
+ },
+ {
+  "ref": "C60",
+  "value": "100nF",
+  "fp": [
+   "Capacitor_SMD",
+   "C_0201_0603Metric"
+  ],
+  "pins": {
+   "1": "PGATE2",
+   "2": "VMOT_A"
+  },
+  "lcsc": "C66938",
+  "mpn": "0201X104K6R3NT",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "sw",
+  "board": "POWER"
+ },
+ {
+  "ref": "R84",
+  "value": "10k",
+  "fp": [
+   "Resistor_SMD",
+   "R_0201_0603Metric"
+  ],
+  "pins": {
+   "1": "PGATE2",
+   "2": "QS_D"
+  },
+  "lcsc": "C106225",
+  "mpn": "RC0201FR-0710KL",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "sw",
+  "board": "POWER"
+ },
+ {
+  "ref": "R82",
+  "value": "100k",
+  "fp": [
+   "Resistor_SMD",
+   "R_0201_0603Metric"
+  ],
+  "pins": {
+   "1": "SUP_PERMIT",
+   "2": "GND"
+  },
+  "lcsc": "C106224",
+  "mpn": "RC0201FR-07100KL",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "sw",
+  "board": "POWER"
+ },
+ {
+  "ref": "U8",
+  "value": "MT3608 (DNP)",
+  "fp": [
+   "Package_TO_SOT_SMD",
+   "SOT-23-6"
+  ],
+  "pins": {
+   "1": "BST_SW",
+   "2": "GND",
+   "3": "BST_FB",
+   "4": "VMOT_RAW",
+   "5": "VMOT_RAW",
+   "6": null
+  },
+  "lcsc": "C84817",
+  "mpn": "MT3608",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "MT3608 5 V boost (EN tied to switched VMOT_RAW); VERIFY stability/efficiency; 3 V motor option: depopulate, fit R45",
+  "group": "boost",
+  "board": "POWER"
+ },
+ {
+  "ref": "L1",
+  "value": "CKCS4018-4.7uH",
+  "fp": [
+   "Inductor_SMD",
+   "L_APV_ANR4018"
+  ],
+  "pins": {
+   "1": "VMOT_RAW",
+   "2": "BST_SW"
+  },
+  "lcsc": "C354574",
+  "mpn": "CKCS4018-4.7uH/M",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "boost inductor 4.7 uH 4x4x1.8, Isat to be checked >= 1.5 A (VERIFY)",
+  "group": "boost",
+  "board": "POWER"
+ },
+ {
+  "ref": "D6",
+  "value": "B5819W SL (DNP)",
+  "fp": [
+   "Diode_SMD",
+   "D_SOD-123"
+  ],
+  "pins": {
+   "1": "VMOT_PRE",
+   "2": "BST_SW"
+  },
+  "lcsc": null,
+  "mpn": null,
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "boost",
+  "board": "POWER"
+ },
+ {
+  "ref": "R55",
+  "value": "220k",
+  "fp": [
+   "Resistor_SMD",
+   "R_0402_1005Metric"
+  ],
+  "pins": {
+   "1": "VMOT_PRE",
+   "2": "BST_FB"
+  },
+  "lcsc": "C25767",
+  "mpn": "0402WGF2203TCE",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "boost",
+  "board": "POWER"
+ },
+ {
+  "ref": "R56",
+  "value": "30k",
+  "fp": [
+   "Resistor_SMD",
+   "R_0402_1005Metric"
+  ],
+  "pins": {
+   "1": "BST_FB",
+   "2": "GND"
+  },
+  "lcsc": "C25776",
+  "mpn": "0402WGF3002TCE",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "boost",
+  "board": "POWER"
+ },
+ {
+  "ref": "C31",
+  "value": "10uF",
+  "fp": [
+   "Capacitor_SMD",
+   "C_0603_1608Metric"
+  ],
+  "pins": {
+   "1": "VMOT_PRE",
+   "2": "GND"
+  },
+  "lcsc": null,
+  "mpn": null,
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "boost",
+  "board": "POWER"
+ },
+ {
+  "ref": "R45",
+  "value": "0R DNP (boost bypass)",
+  "fp": [
+   "Resistor_SMD",
+   "R_0603_1608Metric"
+  ],
+  "pins": {
+   "1": "VMOT_RAW",
+   "2": "VMOT_PRE"
+  },
+  "lcsc": "C21189",
+  "mpn": "0603WAF0000T5E",
+  "side": "F",
+  "bom": false,
+  "dnp": true,
+  "note": "fit instead of the boost for a 3 V motor (spec 4b)",
+  "group": "oc",
+  "board": "POWER"
+ },
+ {
+  "ref": "DZ1",
+  "value": "BZT52C6V2 (VMOT overvoltage clamp)",
+  "fp": [
+   "Diode_SMD",
+   "D_SOD-123"
+  ],
+  "pins": {
+   "1": "VMOT_PRE",
+   "2": "GND"
+  },
+  "lcsc": "C27091",
+  "mpn": "LBZT52C6V2T1G",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "clamps a boost overvoltage; cathode (pad 1) to VMOT_PRE",
+  "group": "oc",
+  "board": "POWER"
+ },
+ {
+  "ref": "R85",
+  "value": "100k",
+  "fp": [
+   "Resistor_SMD",
+   "R_0201_0603Metric"
+  ],
+  "pins": {
+   "1": "VBUS_P",
+   "2": "VBUS_SENSE"
+  },
+  "lcsc": "C106224",
+  "mpn": "RC0201FR-07100KL",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "pwr",
+  "board": "POWER"
+ },
+ {
+  "ref": "R86",
+  "value": "100k",
+  "fp": [
+   "Resistor_SMD",
+   "R_0201_0603Metric"
+  ],
+  "pins": {
+   "1": "VBUS_SENSE",
+   "2": "GND"
+  },
+  "lcsc": "C106224",
+  "mpn": "RC0201FR-07100KL",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "pwr",
+  "board": "POWER"
+ },
+ {
+  "ref": "RBA",
+  "value": "1k",
+  "fp": [
+   "Resistor_SMD",
+   "R_0201_0603Metric"
+  ],
+  "pins": {
+   "1": "VBAT",
+   "2": "PZ_A"
+  },
+  "lcsc": "C138165",
+  "mpn": "RC0201FR-071KL",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "ui",
+  "board": "POWER"
+ },
+ {
+  "ref": "RGA",
+  "value": "100R",
+  "fp": [
+   "Resistor_SMD",
+   "R_0201_0603Metric"
+  ],
+  "pins": {
+   "1": "BUZ_A",
+   "2": "BZ_GA"
+  },
+  "lcsc": "C77623",
+  "mpn": "RC0201FR-07100RL",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "ui",
+  "board": "POWER"
+ },
+ {
+  "ref": "RDA",
+  "value": "100k",
+  "fp": [
+   "Resistor_SMD",
+   "R_0201_0603Metric"
+  ],
+  "pins": {
+   "1": "BZ_GA",
+   "2": "GND"
+  },
+  "lcsc": "C106224",
+  "mpn": "RC0201FR-07100KL",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "ui",
+  "board": "POWER"
+ },
+ {
+  "ref": "PZ1",
+  "value": "piezo spring pad A",
+  "fp": [
+   "V010",
+   "Spring_Contact_3.5x2.0"
+  ],
+  "pins": {
+   "1": "PZ_A"
+  },
+  "lcsc": "C2826547",
+  "mpn": "BWCD-L3.5W2.0H1.0",
+  "side": "B",
+  "bom": true,
+  "dnp": false,
+  "note": "spring pad to the piezo disc (9 x 9, C910763) glued to the lid",
+  "group": "ui",
+  "board": "POWER"
+ },
+ {
+  "ref": "RBB",
+  "value": "1k",
+  "fp": [
+   "Resistor_SMD",
+   "R_0201_0603Metric"
+  ],
+  "pins": {
+   "1": "VBAT",
+   "2": "PZ_B"
+  },
+  "lcsc": "C138165",
+  "mpn": "RC0201FR-071KL",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "ui",
+  "board": "POWER"
+ },
+ {
+  "ref": "RGB",
+  "value": "100R",
+  "fp": [
+   "Resistor_SMD",
+   "R_0201_0603Metric"
+  ],
+  "pins": {
+   "1": "BUZ_B",
+   "2": "BZ_GB"
+  },
+  "lcsc": "C77623",
+  "mpn": "RC0201FR-07100RL",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "ui",
+  "board": "POWER"
+ },
+ {
+  "ref": "RDB",
+  "value": "100k",
+  "fp": [
+   "Resistor_SMD",
+   "R_0201_0603Metric"
+  ],
+  "pins": {
+   "1": "BZ_GB",
+   "2": "GND"
+  },
+  "lcsc": "C106224",
+  "mpn": "RC0201FR-07100KL",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "ui",
+  "board": "POWER"
+ },
+ {
+  "ref": "PZ2",
+  "value": "piezo spring pad B",
+  "fp": [
+   "V010",
+   "Spring_Contact_3.5x2.0"
+  ],
+  "pins": {
+   "1": "PZ_B"
+  },
+  "lcsc": "C2826547",
+  "mpn": "BWCD-L3.5W2.0H1.0",
+  "side": "B",
+  "bom": true,
+  "dnp": false,
+  "note": "spring pad to the piezo disc (9 x 9, C910763) glued to the lid",
+  "group": "ui",
+  "board": "POWER"
+ },
+ {
+  "ref": "JU1",
+  "value": "USB-C receptacle (proxy: TYPE-C-31-M-12; IPX7 part to be confirmed)",
+  "fp": [
+   "Connector_USB",
+   "USB_C_Receptacle_HRO_TYPE-C-31-M-12"
+  ],
+  "pins": {
+   "A1": "GND",
+   "A12": "GND",
+   "B1": "GND",
+   "B12": "GND",
+   "SH": "GND",
+   "A4": "VBUS_R",
+   "A9": "VBUS_R",
+   "B4": "VBUS_R",
+   "B9": "VBUS_R",
+   "A5": "CC1",
+   "B5": "CC2",
+   "A6": "USB_DP",
+   "B6": "USB_DP",
+   "A7": "USB_DM",
+   "B7": "USB_DM"
+  },
+  "lcsc": "C165948",
+  "mpn": "TYPE-C-31-M-12",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "placeholder for the IPX7 gasketed receptacle (vendor confirmation needed); XKB U262-161N-4BVC11 C319148 / G-Switch GT-USB-7010 candidates",
+  "group": "usb",
+  "board": "POWER"
+ },
+ {
+  "ref": "DU1",
+  "value": "SMF5.0A TVS",
+  "fp": [
+   "Diode_SMD",
+   "D_SOD-123F"
+  ],
+  "pins": {
+   "1": "VBUS_R",
+   "2": "GND"
+  },
+  "lcsc": "C193402",
+  "mpn": "SMF5.0A",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "usb",
+  "board": "POWER"
+ },
+ {
+  "ref": "RU1",
+  "value": "5.1k",
+  "fp": [
+   "Resistor_SMD",
+   "R_0201_0603Metric"
+  ],
+  "pins": {
+   "1": "CC1",
+   "2": "GND"
+  },
+  "lcsc": "C143995",
+  "mpn": "AF0201FR-075K1L",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "usb",
+  "board": "POWER"
+ },
+ {
+  "ref": "RU2",
+  "value": "5.1k",
+  "fp": [
+   "Resistor_SMD",
+   "R_0201_0603Metric"
+  ],
+  "pins": {
+   "1": "CC2",
+   "2": "GND"
+  },
+  "lcsc": "C143995",
+  "mpn": "AF0201FR-075K1L",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "usb",
+  "board": "POWER"
+ },
+ {
+  "ref": "UU1",
+  "value": "USBLC6-2SC6",
+  "fp": [
+   "Package_TO_SOT_SMD",
+   "SOT-23-6"
+  ],
+  "pins": {
+   "1": "USB_DP",
+   "2": "GND",
+   "3": "USB_DM",
+   "4": "USB_DM",
+   "5": "VBUS_R",
+   "6": "USB_DP"
+  },
+  "lcsc": "C7519",
+  "mpn": "USBLC6-2SC6",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "ESD on D+/D-",
+  "group": "usb",
+  "board": "POWER"
+ },
+ {
+  "ref": "QU1",
+  "value": "AO3401A (ideal diode / reverse protect)",
+  "fp": [
+   "Package_TO_SOT_SMD",
+   "SOT-23"
+  ],
+  "pins": {
+   "1": "VBUS_G",
+   "2": "VBUS_P",
+   "3": "VBUS_R"
+  },
+  "lcsc": "C15127",
+  "mpn": "AO3401A",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "P-FET, body diode orientation: source = output side VBUS_P; gate low through RU3",
+  "group": "usb",
+  "board": "POWER"
+ },
+ {
+  "ref": "RU3",
+  "value": "100k",
+  "fp": [
+   "Resistor_SMD",
+   "R_0201_0603Metric"
+  ],
+  "pins": {
+   "1": "VBUS_G",
+   "2": "GND"
+  },
+  "lcsc": "C106224",
+  "mpn": "RC0201FR-07100KL",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "usb",
+  "board": "POWER"
+ },
+ {
+  "ref": "CU1",
+  "value": "10uF",
+  "fp": [
+   "Capacitor_SMD",
+   "C_0603_1608Metric"
+  ],
+  "pins": {
+   "1": "VBUS_P",
+   "2": "GND"
+  },
+  "lcsc": "C19702",
+  "mpn": "CL10A106KP8NNNC",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "usb",
+  "board": "POWER"
+ },
+ {
+  "ref": "CU2",
+  "value": "1uF",
+  "fp": [
+   "Capacitor_SMD",
+   "C_0201_0603Metric"
+  ],
+  "pins": {
+   "1": "VBUS_R",
+   "2": "GND"
+  },
+  "lcsc": "C53067",
+  "mpn": "CL03A105MQ3CSNH",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "usb",
+  "board": "POWER"
+ },
+ {
+  "ref": "J7P",
+  "value": "board-to-board pads to MAIN (2 x 16)",
+  "fp": [
+   "V010",
+   "B2B_Pads_2x16_P0.8"
+  ],
+  "pins": {
+   "1": "GND",
+   "2": "VBAT",
+   "3": "VBAT",
+   "4": "GND",
+   "5": "VMOT",
+   "6": "VMOT",
+   "7": "GND",
+   "8": "3V3",
+   "9": "VBUS_P",
+   "10": "USB_DP",
+   "11": "USB_DM",
+   "12": "CHG_STAT",
+   "13": "VBUS_SENSE",
+   "14": "VBAT_SENSE",
+   "15": "NTC",
+   "16": "SENSE_EN",
+   "17": "GND",
+   "18": "VMOT_SENSE",
+   "19": "I_SENSE",
+   "20": "MCU_EN",
+   "21": "MOT_DIR",
+   "22": "DIR_REV",
+   "23": "DOCKED_H",
+   "24": "DOCK_TEST",
+   "25": "SUP_PERMIT",
+   "26": "OC_OK",
+   "27": "OC_TEST",
+   "28": "PGATE_MON",
+   "29": "BTN_N",
+   "30": "BUZ_A",
+   "31": "BUZ_B",
+   "32": "GND"
+  },
+  "lcsc": null,
+  "mpn": null,
+  "side": "F",
+  "bom": false,
+  "dnp": false,
+  "note": "mirror of MAIN J7",
+  "group": "b2b",
+  "board": "POWER"
+ },
+ {
+  "ref": "TP1",
+  "value": "GND",
+  "fp": [
+   "TestPoint",
+   "TestPoint_Pad_D1.0mm"
+  ],
+  "pins": {
+   "1": "GND"
+  },
+  "lcsc": null,
+  "mpn": null,
+  "side": "F",
+  "bom": false,
+  "dnp": false,
+  "note": "test pad",
+  "group": "tp",
+  "board": "POWER"
+ },
+ {
+  "ref": "TP2",
+  "value": "VBAT",
+  "fp": [
+   "TestPoint",
+   "TestPoint_Pad_D1.0mm"
+  ],
+  "pins": {
+   "1": "VBAT"
+  },
+  "lcsc": null,
+  "mpn": null,
+  "side": "F",
+  "bom": false,
+  "dnp": false,
+  "note": "test pad",
+  "group": "tp",
+  "board": "POWER"
+ },
+ {
+  "ref": "TP3",
+  "value": "VMOT",
+  "fp": [
+   "TestPoint",
+   "TestPoint_Pad_D1.0mm"
+  ],
+  "pins": {
+   "1": "VMOT"
+  },
+  "lcsc": null,
+  "mpn": null,
+  "side": "F",
+  "bom": false,
+  "dnp": false,
+  "note": "test pad",
+  "group": "tp",
+  "board": "POWER"
+ },
+ {
+  "ref": "TP4",
+  "value": "VMOT_RAW",
+  "fp": [
+   "TestPoint",
+   "TestPoint_Pad_D1.0mm"
+  ],
+  "pins": {
+   "1": "VMOT_RAW"
+  },
+  "lcsc": null,
+  "mpn": null,
+  "side": "F",
+  "bom": false,
+  "dnp": false,
+  "note": "test pad",
+  "group": "tp",
+  "board": "POWER"
+ },
+ {
+  "ref": "TP5",
+  "value": "VMOT_PRE",
+  "fp": [
+   "TestPoint",
+   "TestPoint_Pad_D1.0mm"
+  ],
+  "pins": {
+   "1": "VMOT_PRE"
+  },
+  "lcsc": null,
+  "mpn": null,
+  "side": "F",
+  "bom": false,
+  "dnp": false,
+  "note": "test pad",
+  "group": "tp",
+  "board": "POWER"
+ },
+ {
+  "ref": "TP6",
+  "value": "PGATE",
+  "fp": [
+   "TestPoint",
+   "TestPoint_Pad_D1.0mm"
+  ],
+  "pins": {
+   "1": "PGATE"
+  },
+  "lcsc": null,
+  "mpn": null,
+  "side": "F",
+  "bom": false,
+  "dnp": false,
+  "note": "test pad",
+  "group": "tp",
+  "board": "POWER"
+ },
+ {
+  "ref": "TP7",
+  "value": "PGATE2",
+  "fp": [
+   "TestPoint",
+   "TestPoint_Pad_D1.0mm"
+  ],
+  "pins": {
+   "1": "PGATE2"
+  },
+  "lcsc": null,
+  "mpn": null,
+  "side": "F",
+  "bom": false,
+  "dnp": false,
+  "note": "test pad",
+  "group": "tp",
+  "board": "POWER"
+ },
+ {
+  "ref": "TP8",
+  "value": "INA_OUT",
+  "fp": [
+   "TestPoint",
+   "TestPoint_Pad_D1.0mm"
+  ],
+  "pins": {
+   "1": "INA_OUT"
+  },
+  "lcsc": null,
+  "mpn": null,
+  "side": "F",
+  "bom": false,
+  "dnp": false,
+  "note": "test pad",
+  "group": "tp",
+  "board": "POWER"
+ },
+ {
+  "ref": "TP9",
+  "value": "OC_CMP",
+  "fp": [
+   "TestPoint",
+   "TestPoint_Pad_D1.0mm"
+  ],
+  "pins": {
+   "1": "OC_CMP"
+  },
+  "lcsc": null,
+  "mpn": null,
+  "side": "F",
+  "bom": false,
+  "dnp": false,
+  "note": "test pad",
+  "group": "tp",
+  "board": "POWER"
+ },
+ {
+  "ref": "TP10",
+  "value": "CH_TOP",
+  "fp": [
+   "TestPoint",
+   "TestPoint_Pad_D1.0mm"
+  ],
+  "pins": {
+   "1": "CH_TOP"
+  },
+  "lcsc": null,
+  "mpn": null,
+  "side": "F",
+  "bom": false,
+  "dnp": false,
+  "note": "test pad",
+  "group": "tp",
+  "board": "POWER"
+ },
+ {
+  "ref": "TP11",
+  "value": "PG_MID2",
+  "fp": [
+   "TestPoint",
+   "TestPoint_Pad_D1.0mm"
+  ],
+  "pins": {
+   "1": "PG_MID2"
+  },
+  "lcsc": null,
+  "mpn": null,
+  "side": "F",
+  "bom": false,
+  "dnp": false,
+  "note": "test pad",
+  "group": "tp",
+  "board": "POWER"
+ },
+ {
+  "ref": "TP12",
+  "value": "VCHG",
+  "fp": [
+   "TestPoint",
+   "TestPoint_Pad_D1.0mm"
+  ],
+  "pins": {
+   "1": "VCHG"
+  },
+  "lcsc": null,
+  "mpn": null,
+  "side": "F",
+  "bom": false,
+  "dnp": false,
+  "note": "test pad",
+  "group": "tp",
+  "board": "POWER"
+ },
+ {
+  "ref": "H1",
+  "value": "NPTH 1.2",
+  "fp": [
+   "Bench",
+   "NPTH_1.2mm"
+  ],
+  "pins": {},
+  "lcsc": null,
+  "mpn": null,
+  "side": "F",
+  "bom": false,
+  "dnp": false,
+  "note": "",
+  "group": "mech",
+  "board": "POWER"
+ },
+ {
+  "ref": "H2",
+  "value": "NPTH 1.2",
+  "fp": [
+   "Bench",
+   "NPTH_1.2mm"
+  ],
+  "pins": {},
+  "lcsc": null,
+  "mpn": null,
+  "side": "F",
+  "bom": false,
+  "dnp": false,
+  "note": "",
+  "group": "mech",
+  "board": "POWER"
+ },
+ {
+  "ref": "H3",
+  "value": "NPTH 1.2",
+  "fp": [
+   "Bench",
+   "NPTH_1.2mm"
+  ],
+  "pins": {},
+  "lcsc": null,
+  "mpn": null,
+  "side": "F",
+  "bom": false,
+  "dnp": false,
+  "note": "",
+  "group": "mech",
+  "board": "POWER"
+ },
+ {
+  "ref": "QD1",
+  "value": "2N7002DW (Q8 + Q16)",
+  "fp": [
+   "Package_TO_SOT_SMD",
+   "SOT-363_SC-70-6"
+  ],
+  "pins": {
+   "2": "MCU_EN",
+   "1": "PG_MID2",
+   "6": "CH_TOP",
+   "5": "PGATE",
+   "4": "GND",
+   "3": "PGATE_MON"
+  },
+  "lcsc": "C83571",
+  "mpn": "2N7002DW-7-F",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "dual N-FET replacing Q8 (S1 G2 D6) and Q16 (S4 G5 D3):  | no external pull-up (idle current): firmware enables the MCU internal pull-up while reading",
+  "group": "sw",
+  "board": "POWER"
+ },
+ {
+  "ref": "QD2",
+  "value": "2N7002DW (Q13 + Q17)",
+  "fp": [
+   "Package_TO_SOT_SMD",
+   "SOT-363_SC-70-6"
+  ],
+  "pins": {
+   "2": "OC_OK",
+   "1": "PG_MID2A",
+   "6": "PG_MID2",
+   "5": "PGATE",
+   "4": "GND",
+   "3": "BLD"
+  },
+  "lcsc": "C83571",
+  "mpn": "2N7002DW-7-F",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "dual N-FET replacing Q13 (S1 G2 D6) and Q17 (S4 G5 D3):  | turns on when PGATE is high = supply off",
+  "group": "sw",
+  "board": "POWER"
+ },
+ {
+  "ref": "QD3",
+  "value": "2N7002DW (Q6 + Q20)",
+  "fp": [
+   "Package_TO_SOT_SMD",
+   "SOT-363_SC-70-6"
+  ],
+  "pins": {
+   "2": "DOCKED_H",
+   "1": "XA",
+   "6": "PG_MID2A",
+   "5": "DOCKED_H",
+   "4": "GND",
+   "3": "DOCK_NOT"
+  },
+  "lcsc": "C83571",
+  "mpn": "2N7002DW-7-F",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "dual N-FET replacing Q6 (S1 G2 D6) and Q20 (S4 G5 D3): H15 branch 1: docked AND forward | inverter: DOCK_NOT high = not both halls asserted",
+  "group": "sw",
+  "board": "POWER"
+ },
+ {
+  "ref": "QD4",
+  "value": "2N7002DW (Q21 + Q14)",
+  "fp": [
+   "Package_TO_SOT_SMD",
+   "SOT-363_SC-70-6"
+  ],
+  "pins": {
+   "2": "FWD",
+   "1": "GND",
+   "6": "XA",
+   "5": "OC_TEST",
+   "4": "GND",
+   "3": "OC_TEST_D"
+  },
+  "lcsc": "C83571",
+  "mpn": "2N7002DW-7-F",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "dual N-FET replacing Q21 (S1 G2 D6) and Q14 (S4 G5 D3):  | POST: pulls the reference down, trips easier only",
+  "group": "sw",
+  "board": "POWER"
+ },
+ {
+  "ref": "QD5",
+  "value": "2N7002DW (Q10 + Q12)",
+  "fp": [
+   "Package_TO_SOT_SMD",
+   "SOT-363_SC-70-6"
+  ],
+  "pins": {
+   "2": "DOCK_NOT",
+   "1": "XB",
+   "6": "PG_MID2A",
+   "5": "DOCK_TEST",
+   "4": "GND",
+   "3": "DOCKED_H"
+  },
+  "lcsc": "C83571",
+  "mpn": "2N7002DW-7-F",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "dual N-FET replacing Q10 (S1 G2 D6) and Q12 (S4 G5 D3): H15 branch 2: undocked AND reverse (interlock = DOCKED XOR DIR_REV) | POST: forces 'undocked' at the gate",
+  "group": "sw",
+  "board": "POWER"
+ },
+ {
+  "ref": "QD6",
+  "value": "2N7002DW (Q22 + Q2)",
+  "fp": [
+   "Package_TO_SOT_SMD",
+   "SOT-363_SC-70-6"
+  ],
+  "pins": {
+   "2": "DIR_REV",
+   "1": "GND",
+   "6": "XB",
+   "5": "SENSE_EN",
+   "4": "GND",
+   "3": "SP_G"
+  },
+  "lcsc": "C83571",
+  "mpn": "2N7002DW-7-F",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "dual N-FET replacing Q22 (S1 G2 D6) and Q2 (S4 G5 D3):  | ",
+  "group": "sw",
+  "board": "POWER"
+ },
+ {
+  "ref": "QD7",
+  "value": "2N7002DW (QS + QBA)",
+  "fp": [
+   "Package_TO_SOT_SMD",
+   "SOT-363_SC-70-6"
+  ],
+  "pins": {
+   "2": "SUP_PERMIT",
+   "1": "GND",
+   "6": "QS_D",
+   "5": "BZ_GA",
+   "4": "GND",
+   "3": "PZ_A"
+  },
+  "lcsc": "C83571",
+  "mpn": "2N7002DW-7-F",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "dual N-FET replacing QS (S1 G2 D6) and QBA (S4 G5 D3): supervisor leg: pulls PGATE2 low only while SUP_PERMIT is high | piezo bridge leg A",
+  "group": "sw",
+  "board": "POWER"
+ },
+ {
+  "ref": "QD8",
+  "value": "2N7002DW (Q17B + QBB)",
+  "fp": [
+   "Package_TO_SOT_SMD",
+   "SOT-363_SC-70-6"
+  ],
+  "pins": {
+   "2": "PGATE2",
+   "1": "GND",
+   "6": "BLD",
+   "5": "BZ_GB",
+   "4": "GND",
+   "3": "PZ_B"
+  },
+  "lcsc": "C83571",
+  "mpn": "2N7002DW-7-F",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "dual N-FET replacing Q17B (S1 G2 D6) and QBB (S4 G5 D3): bleeder also when only the supervisor has cut | piezo bridge leg B",
+  "group": "sw",
+  "board": "POWER"
+ }
+]

@@ -1,0 +1,1417 @@
+[
+ {
+  "ref": "U1",
+  "value": "ISP1807-LR (consigned)",
+  "fp": [
+   "V010",
+   "ISP1807"
+  ],
+  "pins": {
+   "26": "3V3",
+   "12": "VBUS_P",
+   "8": "USB_DP",
+   "10": "USB_DM",
+   "13": "NRST",
+   "28": "SWDIO",
+   "30": "SWDCLK",
+   "20": "RF_BRIDGE",
+   "22": "RF_BRIDGE",
+   "1": "GND",
+   "7": "GND",
+   "25": "GND",
+   "31": "GND",
+   "14": "GND",
+   "16": "GND",
+   "18": "GND",
+   "21": "GND",
+   "23": "GND",
+   "24": "GND",
+   "32": "MOT_STBY",
+   "34": "STCK_MCU",
+   "36": "VBAT_SENSE",
+   "38": "I_SENSE",
+   "40": "VMOT_SENSE",
+   "42": "NTC",
+   "44": "DOCKED_H",
+   "46": "VBUS_SENSE",
+   "48": "CHG_STAT",
+   "2": "OC_OK",
+   "4": "PGATE_MON",
+   "6": "TMAG_INT",
+   "33": "MOT_DIR",
+   "35": "MOT_EN_FAULT",
+   "37": "BTN_N",
+   "39": "I2C_SCL",
+   "41": "I2C_SDA",
+   "43": "ARM_CLK",
+   "45": "MCU_EN",
+   "47": "SENSE_EN",
+   "3": "DOCK_N",
+   "5": "SUP_OK",
+   "27": "SUP_TXD",
+   "29": "SUP_RXD",
+   "49": "OC_TEST",
+   "50": "DOCK_TEST",
+   "51": "BUZ_A",
+   "52": "BUZ_B",
+   "53": "LED_ST"
+  },
+  "lcsc": null,
+  "mpn": "ISP1807-LR",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "Insight SiP nRF52840 module 8x8x1.0, integrated antenna (pads 20/22 bridged), CONSIGNED: not in the JLC library; internal 32.768 kHz crystal. NFC pins P0.09/P0.10 used as GPIO: UICR NFCPINS=1. Antenna half (local +Y) toward the board edge",
+  "group": "mcu",
+  "board": "MAIN"
+ },
+ {
+  "ref": "C1",
+  "value": "100nF",
+  "fp": [
+   "Capacitor_SMD",
+   "C_0201_0603Metric"
+  ],
+  "pins": {
+   "1": "3V3",
+   "2": "GND"
+  },
+  "lcsc": "C66938",
+  "mpn": "0201X104K6R3NT",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "mcu",
+  "board": "MAIN"
+ },
+ {
+  "ref": "C2",
+  "value": "4.7uF",
+  "fp": [
+   "Capacitor_SMD",
+   "C_0201_0603Metric"
+  ],
+  "pins": {
+   "1": "3V3",
+   "2": "GND"
+  },
+  "lcsc": "C335103",
+  "mpn": "GRM035R60J475ME15D",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "mcu",
+  "board": "MAIN"
+ },
+ {
+  "ref": "R1",
+  "value": "100k",
+  "fp": [
+   "Resistor_SMD",
+   "R_0201_0603Metric"
+  ],
+  "pins": {
+   "1": "3V3",
+   "2": "NRST"
+  },
+  "lcsc": "C106224",
+  "mpn": "RC0201FR-07100KL",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "mcu",
+  "board": "MAIN"
+ },
+ {
+  "ref": "SP1",
+  "value": "BWCD-L3.5W2.0H1.0 spring",
+  "fp": [
+   "V010",
+   "Spring_Contact_3.5x2.0"
+  ],
+  "pins": {
+   "1": "VBAT"
+  },
+  "lcsc": "C2826547",
+  "mpn": "BWCD-L3.5W2.0H1.0",
+  "side": "B",
+  "bom": true,
+  "dnp": false,
+  "note": "SMD spring contact on the cell tab; free height 1.0 mm vs 1.05 mm gap: VERIFY preload (see ORDER.md)",
+  "group": "batt",
+  "board": "MAIN"
+ },
+ {
+  "ref": "SP2",
+  "value": "BWCD-L3.5W2.0H1.0 spring",
+  "fp": [
+   "V010",
+   "Spring_Contact_3.5x2.0"
+  ],
+  "pins": {
+   "1": "GND"
+  },
+  "lcsc": "C2826547",
+  "mpn": "BWCD-L3.5W2.0H1.0",
+  "side": "B",
+  "bom": true,
+  "dnp": false,
+  "note": "SMD spring contact on the cell tab; free height 1.0 mm vs 1.05 mm gap: VERIFY preload (see ORDER.md)",
+  "group": "batt",
+  "board": "MAIN"
+ },
+ {
+  "ref": "MP1",
+  "value": "BWCD-L3.5W2.0H1.0 motor pad",
+  "fp": [
+   "V010",
+   "Spring_Contact_3.5x2.0"
+  ],
+  "pins": {
+   "1": "MOT_B2"
+  },
+  "lcsc": "C2826547",
+  "mpn": "BWCD-L3.5W2.0H1.0",
+  "side": "B",
+  "bom": true,
+  "dnp": false,
+  "note": "replaces the PicoBlade J1 (pin 1): motor lead pad, spring contact on the motor flex; VERIFY geometry",
+  "group": "mot",
+  "board": "MAIN"
+ },
+ {
+  "ref": "MP2",
+  "value": "BWCD-L3.5W2.0H1.0 motor pad",
+  "fp": [
+   "V010",
+   "Spring_Contact_3.5x2.0"
+  ],
+  "pins": {
+   "1": "MOT_A2"
+  },
+  "lcsc": "C2826547",
+  "mpn": "BWCD-L3.5W2.0H1.0",
+  "side": "B",
+  "bom": true,
+  "dnp": false,
+  "note": "replaces the PicoBlade J1 (pin 2): motor lead pad, spring contact on the motor flex; VERIFY geometry",
+  "group": "mot",
+  "board": "MAIN"
+ },
+ {
+  "ref": "MP3",
+  "value": "BWCD-L3.5W2.0H1.0 motor pad",
+  "fp": [
+   "V010",
+   "Spring_Contact_3.5x2.0"
+  ],
+  "pins": {
+   "1": "MOT_B1"
+  },
+  "lcsc": "C2826547",
+  "mpn": "BWCD-L3.5W2.0H1.0",
+  "side": "B",
+  "bom": true,
+  "dnp": false,
+  "note": "replaces the PicoBlade J1 (pin 3): motor lead pad, spring contact on the motor flex; VERIFY geometry",
+  "group": "mot",
+  "board": "MAIN"
+ },
+ {
+  "ref": "MP4",
+  "value": "BWCD-L3.5W2.0H1.0 motor pad",
+  "fp": [
+   "V010",
+   "Spring_Contact_3.5x2.0"
+  ],
+  "pins": {
+   "1": "MOT_A1"
+  },
+  "lcsc": "C2826547",
+  "mpn": "BWCD-L3.5W2.0H1.0",
+  "side": "B",
+  "bom": true,
+  "dnp": false,
+  "note": "replaces the PicoBlade J1 (pin 4): motor lead pad, spring contact on the motor flex; VERIFY geometry",
+  "group": "mot",
+  "board": "MAIN"
+ },
+ {
+  "ref": "U2",
+  "value": "XC6206P332MR-G",
+  "fp": [
+   "Package_TO_SOT_SMD",
+   "SOT-23"
+  ],
+  "pins": {
+   "1": "GND",
+   "2": "3V3",
+   "3": "VBAT"
+  },
+  "lcsc": "C5446",
+  "mpn": "XC6206P332MR-G",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "Torex pinout 1 GND 2 OUT 3 IN",
+  "group": "pwr",
+  "board": "MAIN"
+ },
+ {
+  "ref": "C6",
+  "value": "1uF",
+  "fp": [
+   "Capacitor_SMD",
+   "C_0201_0603Metric"
+  ],
+  "pins": {
+   "1": "VBAT",
+   "2": "GND"
+  },
+  "lcsc": "C53067",
+  "mpn": "CL03A105MQ3CSNH",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "pwr",
+  "board": "MAIN"
+ },
+ {
+  "ref": "C7",
+  "value": "10uF",
+  "fp": [
+   "Capacitor_SMD",
+   "C_0603_1608Metric"
+  ],
+  "pins": {
+   "1": "3V3",
+   "2": "GND"
+  },
+  "lcsc": "C19702",
+  "mpn": "CL10A106KP8NNNC",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "pwr",
+  "board": "MAIN"
+ },
+ {
+  "ref": "U7",
+  "value": "STSPIN220",
+  "fp": [
+   "Package_DFN_QFN",
+   "QFN-16-1EP_3x3mm_P0.5mm_EP1.7x1.7mm"
+  ],
+  "pins": {
+   "1": "MOT_DIR",
+   "2": "STCK_DRV",
+   "3": "MOT_A1",
+   "4": "SNSA",
+   "5": "MOT_A2",
+   "6": "VMOT",
+   "7": "GND",
+   "8": "MOT_B2",
+   "9": "SNSB",
+   "10": "MOT_B1",
+   "11": "MOT_REF",
+   "12": "TOFF",
+   "13": "MOT_EN_FAULT",
+   "14": "MOT_STBY",
+   "15": "GND",
+   "16": "GND",
+   "17": "GND"
+  },
+  "lcsc": "C2150516",
+  "mpn": "STSPIN220",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "MODE1/MODE2 hard-wired to GND (full step), the 10 k resistors R41/R42 are dropped (area)",
+  "group": "drv",
+  "board": "MAIN"
+ },
+ {
+  "ref": "R34",
+  "value": "1.0R",
+  "fp": [
+   "Resistor_SMD",
+   "R_0603_1608Metric"
+  ],
+  "pins": {
+   "1": "SNSA",
+   "2": "GND"
+  },
+  "lcsc": "C174300",
+  "mpn": "RS-03L1R00FT",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "drv",
+  "board": "MAIN"
+ },
+ {
+  "ref": "R35",
+  "value": "1.0R",
+  "fp": [
+   "Resistor_SMD",
+   "R_0603_1608Metric"
+  ],
+  "pins": {
+   "1": "SNSB",
+   "2": "GND"
+  },
+  "lcsc": "C174300",
+  "mpn": "RS-03L1R00FT",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "drv",
+  "board": "MAIN"
+ },
+ {
+  "ref": "R36",
+  "value": "47k",
+  "fp": [
+   "Resistor_SMD",
+   "R_0201_0603Metric"
+  ],
+  "pins": {
+   "1": "TOFF",
+   "2": "GND"
+  },
+  "lcsc": "C138139",
+  "mpn": "RC0201FR-0747KL",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "drv",
+  "board": "MAIN"
+ },
+ {
+  "ref": "R37",
+  "value": "100k",
+  "fp": [
+   "Resistor_SMD",
+   "R_0201_0603Metric"
+  ],
+  "pins": {
+   "1": "MOT_STBY",
+   "2": "MOT_REF"
+  },
+  "lcsc": "C106224",
+  "mpn": "RC0201FR-07100KL",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "VREF divider is fed from MOT_STBY: no idle current",
+  "group": "drv",
+  "board": "MAIN"
+ },
+ {
+  "ref": "R38",
+  "value": "5.1k",
+  "fp": [
+   "Resistor_SMD",
+   "R_0201_0603Metric"
+  ],
+  "pins": {
+   "1": "MOT_REF",
+   "2": "GND"
+  },
+  "lcsc": "C143995",
+  "mpn": "AF0201FR-075K1L",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "drv",
+  "board": "MAIN"
+ },
+ {
+  "ref": "C19",
+  "value": "100nF",
+  "fp": [
+   "Capacitor_SMD",
+   "C_0201_0603Metric"
+  ],
+  "pins": {
+   "1": "MOT_REF",
+   "2": "GND"
+  },
+  "lcsc": "C66938",
+  "mpn": "0201X104K6R3NT",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "drv",
+  "board": "MAIN"
+ },
+ {
+  "ref": "R39",
+  "value": "100k",
+  "fp": [
+   "Resistor_SMD",
+   "R_0201_0603Metric"
+  ],
+  "pins": {
+   "1": "MOT_STBY",
+   "2": "GND"
+  },
+  "lcsc": "C106224",
+  "mpn": "RC0201FR-07100KL",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "drv",
+  "board": "MAIN"
+ },
+ {
+  "ref": "R40",
+  "value": "10k",
+  "fp": [
+   "Resistor_SMD",
+   "R_0201_0603Metric"
+  ],
+  "pins": {
+   "1": "3V3",
+   "2": "MOT_EN_FAULT"
+  },
+  "lcsc": "C106225",
+  "mpn": "RC0201FR-0710KL",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "drv",
+  "board": "MAIN"
+ },
+ {
+  "ref": "C20",
+  "value": "10nF",
+  "fp": [
+   "Capacitor_SMD",
+   "C_0201_0603Metric"
+  ],
+  "pins": {
+   "1": "MOT_EN_FAULT",
+   "2": "GND"
+  },
+  "lcsc": "C76940",
+  "mpn": "GRM033R70J103KA01D",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "drv",
+  "board": "MAIN"
+ },
+ {
+  "ref": "C23",
+  "value": "100nF",
+  "fp": [
+   "Capacitor_SMD",
+   "C_0201_0603Metric"
+  ],
+  "pins": {
+   "1": "VMOT",
+   "2": "GND"
+  },
+  "lcsc": "C66938",
+  "mpn": "0201X104K6R3NT",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "drv",
+  "board": "MAIN"
+ },
+ {
+  "ref": "R43",
+  "value": "100k",
+  "fp": [
+   "Resistor_SMD",
+   "R_0201_0603Metric"
+  ],
+  "pins": {
+   "1": "STCK_MCU",
+   "2": "GND"
+  },
+  "lcsc": "C106224",
+  "mpn": "RC0201FR-07100KL",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "drv",
+  "board": "MAIN"
+ },
+ {
+  "ref": "C21",
+  "value": "22uF",
+  "fp": [
+   "Capacitor_SMD",
+   "C_0603_1608Metric"
+  ],
+  "pins": {
+   "1": "VMOT",
+   "2": "GND"
+  },
+  "lcsc": "C380323",
+  "mpn": "TCC0603X5R226M6R3CT",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "drv",
+  "board": "MAIN"
+ },
+ {
+  "ref": "C22",
+  "value": "10uF",
+  "fp": [
+   "Capacitor_SMD",
+   "C_0603_1608Metric"
+  ],
+  "pins": {
+   "1": "VMOT",
+   "2": "GND"
+  },
+  "lcsc": "C19702",
+  "mpn": "CL10A106KP8NNNC",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "drv",
+  "board": "MAIN"
+ },
+ {
+  "ref": "Q7",
+  "value": "2N7002",
+  "fp": [
+   "Package_TO_SOT_SMD",
+   "SOT-23"
+  ],
+  "pins": {
+   "1": "DOCK_N",
+   "2": "GND",
+   "3": "DOCKED_H"
+  },
+  "lcsc": "C8545",
+  "mpn": "2N7002",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "dock",
+  "board": "MAIN"
+ },
+ {
+  "ref": "Q7B",
+  "value": "2N7002",
+  "fp": [
+   "Package_TO_SOT_SMD",
+   "SOT-23"
+  ],
+  "pins": {
+   "1": "DOCK_NB",
+   "2": "GND",
+   "3": "DOCKED_H"
+  },
+  "lcsc": "C8545",
+  "mpn": "2N7002",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "dock",
+  "board": "MAIN"
+ },
+ {
+  "ref": "R19",
+  "value": "4.7M",
+  "fp": [
+   "Resistor_SMD",
+   "R_0201_0603Metric"
+  ],
+  "pins": {
+   "1": "3V3",
+   "2": "DOCK_N"
+  },
+  "lcsc": "C423341",
+  "mpn": "0201WMJ0475TEE",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "dock",
+  "board": "MAIN"
+ },
+ {
+  "ref": "R20",
+  "value": "4.7M",
+  "fp": [
+   "Resistor_SMD",
+   "R_0201_0603Metric"
+  ],
+  "pins": {
+   "1": "3V3",
+   "2": "DOCK_NB"
+  },
+  "lcsc": "C423341",
+  "mpn": "0201WMJ0475TEE",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "dock",
+  "board": "MAIN"
+ },
+ {
+  "ref": "R21",
+  "value": "100k",
+  "fp": [
+   "Resistor_SMD",
+   "R_0201_0603Metric"
+  ],
+  "pins": {
+   "1": "3V3",
+   "2": "DOCKED_H"
+  },
+  "lcsc": "C106224",
+  "mpn": "RC0201FR-07100KL",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "dock",
+  "board": "MAIN"
+ },
+ {
+  "ref": "LD1",
+  "value": "red status",
+  "fp": [
+   "LED_SMD",
+   "LED_0603_1608Metric"
+  ],
+  "pins": {
+   "1": "LD1_K",
+   "2": "LED_A"
+  },
+  "lcsc": "C2286",
+  "mpn": "KT-0603R",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "red 0603 status LED",
+  "group": "ui",
+  "board": "MAIN"
+ },
+ {
+  "ref": "R74",
+  "value": "1k",
+  "fp": [
+   "Resistor_SMD",
+   "R_0201_0603Metric"
+  ],
+  "pins": {
+   "1": "LED_ST",
+   "2": "LED_A"
+  },
+  "lcsc": "C138165",
+  "mpn": "RC0201FR-071KL",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "ui",
+  "board": "MAIN"
+ },
+ {
+  "ref": "R75",
+  "value": "100R",
+  "fp": [
+   "Resistor_SMD",
+   "R_0201_0603Metric"
+  ],
+  "pins": {
+   "1": "LD1_K",
+   "2": "GND"
+  },
+  "lcsc": "C77623",
+  "mpn": "RC0201FR-07100RL",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "ui",
+  "board": "MAIN"
+ },
+ {
+  "ref": "R67",
+  "value": "4.7k",
+  "fp": [
+   "Resistor_SMD",
+   "R_0201_0603Metric"
+  ],
+  "pins": {
+   "1": "3V3",
+   "2": "I2C_SDA"
+  },
+  "lcsc": "C138135",
+  "mpn": "RC0201FR-074K7L",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "tmag",
+  "board": "MAIN"
+ },
+ {
+  "ref": "R68",
+  "value": "4.7k",
+  "fp": [
+   "Resistor_SMD",
+   "R_0201_0603Metric"
+  ],
+  "pins": {
+   "1": "3V3",
+   "2": "I2C_SCL"
+  },
+  "lcsc": "C138135",
+  "mpn": "RC0201FR-074K7L",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "tmag",
+  "board": "MAIN"
+ },
+ {
+  "ref": "R73",
+  "value": "100k",
+  "fp": [
+   "Resistor_SMD",
+   "R_0201_0603Metric"
+  ],
+  "pins": {
+   "1": "3V3",
+   "2": "BTN_N"
+  },
+  "lcsc": "C106224",
+  "mpn": "RC0201FR-07100KL",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "ui",
+  "board": "MAIN"
+ },
+ {
+  "ref": "U30",
+  "value": "STM32C011F4U6",
+  "fp": [
+   "V010",
+   "UFQFPN-20_3x3_P0.5"
+  ],
+  "pins": {
+   "1": "MCU_EN",
+   "4": "3V3",
+   "5": "GND",
+   "6": "SUP_NRST",
+   "7": "ARM_CLK",
+   "8": "STCK_MCU",
+   "9": "DIR_REV",
+   "10": "OC_OK",
+   "11": "SUP_STCK_EN",
+   "12": "SUP_PERMIT",
+   "13": "SUP_OK",
+   "14": "NRST",
+   "16": "SUP_TXD",
+   "17": "SUP_RXD",
+   "18": "SUP_SWDIO",
+   "19": "SUP_SWDCLK",
+   "20": "DOCKED_H",
+   "21": "GND"
+  },
+  "lcsc": "C5456188",
+  "mpn": "STM32C011F4U6",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "independent supervisor (INTERLOCK.md section H); UFQFPN-20 pin map assumed equal to the TSSOP-20 map of netlist_v2 (G0/C0 family keeps numbering): VERIFY against DS13866 before ordering. EP = VSS",
+  "group": "sup",
+  "board": "MAIN"
+ },
+ {
+  "ref": "C50",
+  "value": "100nF",
+  "fp": [
+   "Capacitor_SMD",
+   "C_0201_0603Metric"
+  ],
+  "pins": {
+   "1": "3V3",
+   "2": "GND"
+  },
+  "lcsc": "C66938",
+  "mpn": "0201X104K6R3NT",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "sup",
+  "board": "MAIN"
+ },
+ {
+  "ref": "C51",
+  "value": "1uF",
+  "fp": [
+   "Capacitor_SMD",
+   "C_0201_0603Metric"
+  ],
+  "pins": {
+   "1": "3V3",
+   "2": "GND"
+  },
+  "lcsc": "C53067",
+  "mpn": "CL03A105MQ3CSNH",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "sup",
+  "board": "MAIN"
+ },
+ {
+  "ref": "R80",
+  "value": "100k",
+  "fp": [
+   "Resistor_SMD",
+   "R_0201_0603Metric"
+  ],
+  "pins": {
+   "1": "SUP_NRST",
+   "2": "3V3"
+  },
+  "lcsc": "C106224",
+  "mpn": "RC0201FR-07100KL",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "sup",
+  "board": "MAIN"
+ },
+ {
+  "ref": "R81",
+  "value": "100k",
+  "fp": [
+   "Resistor_SMD",
+   "R_0201_0603Metric"
+  ],
+  "pins": {
+   "1": "SUP_STCK_EN",
+   "2": "GND"
+  },
+  "lcsc": "C106224",
+  "mpn": "RC0201FR-07100KL",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "sup",
+  "board": "MAIN"
+ },
+ {
+  "ref": "U31",
+  "value": "SN74AUP1G08DCKR",
+  "fp": [
+   "Package_TO_SOT_SMD",
+   "SOT-353_SC-70-5"
+  ],
+  "pins": {
+   "1": "STCK_MCU",
+   "2": "SUP_STCK_EN",
+   "3": "GND",
+   "4": "STCK_DRV",
+   "5": "3V3"
+  },
+  "lcsc": "C507223",
+  "mpn": "SN74AUP1G08DCKR",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "STCK_DRV = STCK_MCU AND SUP_STCK_EN (SC-70-5 TI part, same pinout as the clone)",
+  "group": "sup",
+  "board": "MAIN"
+ },
+ {
+  "ref": "C52",
+  "value": "100nF",
+  "fp": [
+   "Capacitor_SMD",
+   "C_0201_0603Metric"
+  ],
+  "pins": {
+   "1": "3V3",
+   "2": "GND"
+  },
+  "lcsc": "C66938",
+  "mpn": "0201X104K6R3NT",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "sup",
+  "board": "MAIN"
+ },
+ {
+  "ref": "J7",
+  "value": "board-to-board pads to POWER (2 x 16)",
+  "fp": [
+   "V010",
+   "B2B_Pads_2x16_P0.8_M"
+  ],
+  "pins": {
+   "1": "GND",
+   "2": "VBAT",
+   "3": "VBAT",
+   "4": "GND",
+   "5": "VMOT",
+   "6": "VMOT",
+   "7": "GND",
+   "8": "3V3",
+   "9": "VBUS_P",
+   "10": "USB_DP",
+   "11": "USB_DM",
+   "12": "CHG_STAT",
+   "13": "VBUS_SENSE",
+   "14": "VBAT_SENSE",
+   "15": "NTC",
+   "16": "SENSE_EN",
+   "17": "GND",
+   "18": "VMOT_SENSE",
+   "19": "I_SENSE",
+   "20": "MCU_EN",
+   "21": "MOT_DIR",
+   "22": "DIR_REV",
+   "23": "DOCKED_H",
+   "24": "DOCK_TEST",
+   "25": "SUP_PERMIT",
+   "26": "OC_OK",
+   "27": "OC_TEST",
+   "28": "PGATE_MON",
+   "29": "BTN_N",
+   "30": "BUZ_A",
+   "31": "BUZ_B",
+   "32": "GND"
+  },
+  "lcsc": null,
+  "mpn": null,
+  "side": "B",
+  "bom": false,
+  "dnp": false,
+  "note": "bare ENIG pad rows for an elastomeric strip / spring contacts; POWER carries the mirror pattern",
+  "group": "b2b",
+  "board": "MAIN"
+ },
+ {
+  "ref": "J3",
+  "value": "SENSOR link pads (9)",
+  "fp": [
+   "V010",
+   "SENSOR_Pads_9_P0.8"
+  ],
+  "pins": {
+   "1": "GND",
+   "2": "3V3",
+   "3": "I2C_SDA",
+   "4": "I2C_SCL",
+   "5": "DOCK_N",
+   "6": "DOCK_NB",
+   "7": "TMAG_INT",
+   "8": "GND",
+   "9": "GND"
+  },
+  "lcsc": null,
+  "mpn": null,
+  "side": "B",
+  "bom": false,
+  "dnp": false,
+  "note": "bare pads for the SENSOR FFC (hot-bar/ACF or elastomer); SENSOR keeps its FH12-10S J3S: mating method is OPEN (no <= 1 mm ZIF verified)",
+  "group": "b2b",
+  "board": "MAIN"
+ },
+ {
+  "ref": "J10",
+  "value": "SWD pad SWDIO",
+  "fp": [
+   "V010",
+   "TP_Pad_D0.8"
+  ],
+  "pins": {
+   "1": "SWDIO"
+  },
+  "lcsc": null,
+  "mpn": null,
+  "side": "F",
+  "bom": false,
+  "dnp": false,
+  "note": "SWD pad (spring probe jig)",
+  "group": "swd",
+  "board": "MAIN"
+ },
+ {
+  "ref": "J11",
+  "value": "SWD pad SWDCLK",
+  "fp": [
+   "V010",
+   "TP_Pad_D0.8"
+  ],
+  "pins": {
+   "1": "SWDCLK"
+  },
+  "lcsc": null,
+  "mpn": null,
+  "side": "F",
+  "bom": false,
+  "dnp": false,
+  "note": "SWD pad (spring probe jig)",
+  "group": "swd",
+  "board": "MAIN"
+ },
+ {
+  "ref": "J12",
+  "value": "SWD pad NRST",
+  "fp": [
+   "V010",
+   "TP_Pad_D0.8"
+  ],
+  "pins": {
+   "1": "NRST"
+  },
+  "lcsc": null,
+  "mpn": null,
+  "side": "F",
+  "bom": false,
+  "dnp": false,
+  "note": "SWD pad (spring probe jig)",
+  "group": "swd",
+  "board": "MAIN"
+ },
+ {
+  "ref": "J13",
+  "value": "SWD pad GND",
+  "fp": [
+   "V010",
+   "TP_Pad_D0.8"
+  ],
+  "pins": {
+   "1": "GND"
+  },
+  "lcsc": null,
+  "mpn": null,
+  "side": "F",
+  "bom": false,
+  "dnp": false,
+  "note": "SWD pad (spring probe jig)",
+  "group": "swd",
+  "board": "MAIN"
+ },
+ {
+  "ref": "J14",
+  "value": "SWD pad SUP_SWDIO",
+  "fp": [
+   "V010",
+   "TP_Pad_D0.8"
+  ],
+  "pins": {
+   "1": "SUP_SWDIO"
+  },
+  "lcsc": null,
+  "mpn": null,
+  "side": "F",
+  "bom": false,
+  "dnp": false,
+  "note": "SWD pad (spring probe jig)",
+  "group": "swd",
+  "board": "MAIN"
+ },
+ {
+  "ref": "J15",
+  "value": "SWD pad SUP_SWDCLK",
+  "fp": [
+   "V010",
+   "TP_Pad_D0.8"
+  ],
+  "pins": {
+   "1": "SUP_SWDCLK"
+  },
+  "lcsc": null,
+  "mpn": null,
+  "side": "F",
+  "bom": false,
+  "dnp": false,
+  "note": "SWD pad (spring probe jig)",
+  "group": "swd",
+  "board": "MAIN"
+ },
+ {
+  "ref": "J16",
+  "value": "SWD pad SUP_NRST",
+  "fp": [
+   "V010",
+   "TP_Pad_D0.8"
+  ],
+  "pins": {
+   "1": "SUP_NRST"
+  },
+  "lcsc": null,
+  "mpn": null,
+  "side": "F",
+  "bom": false,
+  "dnp": false,
+  "note": "SWD pad (spring probe jig)",
+  "group": "swd",
+  "board": "MAIN"
+ },
+ {
+  "ref": "TP1",
+  "value": "3V3",
+  "fp": [
+   "V010",
+   "TP_Pad_D0.8"
+  ],
+  "pins": {
+   "1": "3V3"
+  },
+  "lcsc": null,
+  "mpn": null,
+  "side": "F",
+  "bom": false,
+  "dnp": false,
+  "note": "test pad",
+  "group": "tp",
+  "board": "MAIN"
+ },
+ {
+  "ref": "TP2",
+  "value": "VMOT",
+  "fp": [
+   "V010",
+   "TP_Pad_D0.8"
+  ],
+  "pins": {
+   "1": "VMOT"
+  },
+  "lcsc": null,
+  "mpn": null,
+  "side": "F",
+  "bom": false,
+  "dnp": false,
+  "note": "test pad",
+  "group": "tp",
+  "board": "MAIN"
+ },
+ {
+  "ref": "TP3",
+  "value": "STCK_DRV",
+  "fp": [
+   "V010",
+   "TP_Pad_D0.8"
+  ],
+  "pins": {
+   "1": "STCK_DRV"
+  },
+  "lcsc": null,
+  "mpn": null,
+  "side": "F",
+  "bom": false,
+  "dnp": false,
+  "note": "test pad",
+  "group": "tp",
+  "board": "MAIN"
+ },
+ {
+  "ref": "TP4",
+  "value": "SUP_STCK_EN",
+  "fp": [
+   "V010",
+   "TP_Pad_D0.8"
+  ],
+  "pins": {
+   "1": "SUP_STCK_EN"
+  },
+  "lcsc": null,
+  "mpn": null,
+  "side": "F",
+  "bom": false,
+  "dnp": false,
+  "note": "test pad",
+  "group": "tp",
+  "board": "MAIN"
+ },
+ {
+  "ref": "TP5",
+  "value": "SUP_OK",
+  "fp": [
+   "V010",
+   "TP_Pad_D0.8"
+  ],
+  "pins": {
+   "1": "SUP_OK"
+  },
+  "lcsc": null,
+  "mpn": null,
+  "side": "F",
+  "bom": false,
+  "dnp": false,
+  "note": "test pad",
+  "group": "tp",
+  "board": "MAIN"
+ },
+ {
+  "ref": "TP6",
+  "value": "SUP_TXD",
+  "fp": [
+   "V010",
+   "TP_Pad_D0.8"
+  ],
+  "pins": {
+   "1": "SUP_TXD"
+  },
+  "lcsc": null,
+  "mpn": null,
+  "side": "F",
+  "bom": false,
+  "dnp": false,
+  "note": "test pad",
+  "group": "tp",
+  "board": "MAIN"
+ },
+ {
+  "ref": "TP7",
+  "value": "SUP_RXD",
+  "fp": [
+   "V010",
+   "TP_Pad_D0.8"
+  ],
+  "pins": {
+   "1": "SUP_RXD"
+  },
+  "lcsc": null,
+  "mpn": null,
+  "side": "F",
+  "bom": false,
+  "dnp": false,
+  "note": "test pad",
+  "group": "tp",
+  "board": "MAIN"
+ },
+ {
+  "ref": "TP8",
+  "value": "ARM_CLK",
+  "fp": [
+   "V010",
+   "TP_Pad_D0.8"
+  ],
+  "pins": {
+   "1": "ARM_CLK"
+  },
+  "lcsc": null,
+  "mpn": null,
+  "side": "F",
+  "bom": false,
+  "dnp": false,
+  "note": "test pad",
+  "group": "tp",
+  "board": "MAIN"
+ },
+ {
+  "ref": "TP9",
+  "value": "MOT_EN_FAULT",
+  "fp": [
+   "V010",
+   "TP_Pad_D0.8"
+  ],
+  "pins": {
+   "1": "MOT_EN_FAULT"
+  },
+  "lcsc": null,
+  "mpn": null,
+  "side": "F",
+  "bom": false,
+  "dnp": false,
+  "note": "test pad",
+  "group": "tp",
+  "board": "MAIN"
+ },
+ {
+  "ref": "TP10",
+  "value": "I2C_SDA",
+  "fp": [
+   "V010",
+   "TP_Pad_D0.8"
+  ],
+  "pins": {
+   "1": "I2C_SDA"
+  },
+  "lcsc": null,
+  "mpn": null,
+  "side": "F",
+  "bom": false,
+  "dnp": false,
+  "note": "test pad",
+  "group": "tp",
+  "board": "MAIN"
+ },
+ {
+  "ref": "TP11",
+  "value": "I2C_SCL",
+  "fp": [
+   "V010",
+   "TP_Pad_D0.8"
+  ],
+  "pins": {
+   "1": "I2C_SCL"
+  },
+  "lcsc": null,
+  "mpn": null,
+  "side": "F",
+  "bom": false,
+  "dnp": false,
+  "note": "test pad",
+  "group": "tp",
+  "board": "MAIN"
+ },
+ {
+  "ref": "TP12",
+  "value": "GND",
+  "fp": [
+   "V010",
+   "TP_Pad_D0.8"
+  ],
+  "pins": {
+   "1": "GND"
+  },
+  "lcsc": null,
+  "mpn": null,
+  "side": "F",
+  "bom": false,
+  "dnp": false,
+  "note": "test pad",
+  "group": "tp",
+  "board": "MAIN"
+ }
+]

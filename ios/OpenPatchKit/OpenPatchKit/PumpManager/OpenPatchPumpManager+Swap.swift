@@ -101,15 +101,20 @@ extension OpenPatchPumpManager {
         pairTransports[role] = spare
         let offset = Int16(clamping: state.timeZone.secondsFromGMT() / 60)
         let hello = Command.hello(protocolVersion: PumpConstants.protocolVersion, time: Date(), utcOffsetMinutes: offset)
-        sparePodExchange(role, hello) { [weak self] result in
+        // every pod has its own pairing secret (docs/04-protocol.md): the spare is paired with its own button press
+        ensurePairingSecret(on: spare, peripheral: peripheralIdentifier, simulated: simulated) { [weak self] pairingError in
             guard let self else { return }
-            switch result {
-            case .failure(let error): completion(error)
-            case .success:
-                self.sparePodExchange(role, .setPairing(pairID: pair.pairID, role: role)) { second in
-                    if case .failure(let error) = second { return completion(error) }
-                    self.configurePair()
-                    completion(nil)
+            if let pairingError { return completion(pairingError) }
+            self.sparePodExchange(role, hello) { [weak self] result in
+                guard let self else { return }
+                switch result {
+                case .failure(let error): completion(error)
+                case .success:
+                    self.sparePodExchange(role, .setPairing(pairID: pair.pairID, role: role)) { second in
+                        if case .failure(let error) = second { return completion(error) }
+                        self.configurePair()
+                        completion(nil)
+                    }
                 }
             }
         }

@@ -35,7 +35,7 @@ extension OpenPatchPumpManager {
                 case .failure(let error):
                     let lostReply = error == .timeout || error == .disconnected
                     let uncertain = command.affectsDelivery && lostReply
-                    if uncertain { self.mutateState { $0.deliveryUncertainSince = $0.deliveryUncertainSince ?? Date() } }
+                    if uncertain { self.markUncertain(after: command) }
                     completion(.failure(CommandFailure(error: .transport(error), deliveryUncertain: uncertain)))
                 }
             }
@@ -48,8 +48,14 @@ extension OpenPatchPumpManager {
         switch error {
         case .transport(let t) where t == .notConnected || t == .bluetoothUnavailable:
             return .connection(error)
+        case .transport(.notPaired), .transport(.sessionFailed), .needsPairing, .secretNotStored:
+            return .deviceState(error)
         case .transport:
             return .communication(error)
+        case .fillModeNotAllowed:
+            return .configuration(error)
+        case .deliveryUncertain:
+            return .uncertainDelivery
         case .rejected, .notReady, .bolusInProgress, .suspended, .noBolusToCancel, .podFault, .calibration, .swapInProgress, .notActivePod:
             return .deviceState(error)
         case .swap(.unreachable), .swap(.ambiguous):
