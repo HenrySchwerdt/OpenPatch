@@ -65,6 +65,12 @@
 
 - **Two sizes only: OP-100 and OP-200.** OP-70 is dropped (with OP-100 ≤ 45 mm a separate 70 U pod is not worth the extra CAD, tests and reservoir orders). Existing OP-70 bench files stay as history; new work targets OP-100 and OP-200.
 
+## 2d. USB-C instead of charge pads; split boards allowed (decision 2026-11-19, user)
+
+- v0.1.0 gets a **waterproof USB-C receptacle (IPX7-rated with gasket)** at a pod edge where the height allows (~3.2 mm body): charging (5 V → charger), **firmware flashing via the nRF52840's native USB** (USB bootloader/DFU; the debug probe is only needed for debugging), and a USB serial log for bench data. Charge pads, the charging cradle and pogo pins are dropped. This replaces the earlier "no connector hole" rationale of §1 for v0.1.0; Qi/pads may return in a later revision.
+- The electronics may be **split into several small boards** (e.g. main: radio + safety chain + motor driver above the dock tunnel; USB/charger board at the edge; sensor board at the spindle magnet), connected **without soldering** (FPC/FFC + ZIF, or spring contacts), produced as one JLC panel.
+- The safety chain stays complete; firmware updates over USB must use the signed-image bootloader (no unsigned code path), and USB data must never be able to command delivery without the same authorisation as BLE.
+
 ## 2a. Transparent lid (decision 2026-11-19, user)
 
 - The lid is printed in **clear resin** (JLC3DP clear SLA, polished/clear-coated outside) so reservoir, water level, plunger and drive are visible. The **fill window slot in the lid is removed**; the fill scale (ticks every 10 U, long every 50 U) becomes a shallow engraving on the lid inner face above the plunger travel.
