@@ -149,3 +149,34 @@ fn per_revolution_angle_check_is_rust_only() {
     assert_ne!(r_faults & Faults::ENCODER_DEVIATION.bits(), 0, "Rust per-revolution check must fire");
     let _ = Stats::default();
 }
+
+/// (6) FINDING-001: a RESPONSE-flagged frame. The C reference opens it as if it were a command (no replay check,
+/// heartbeat refreshed); the Rust pod refuses every wrong-direction frame before doing anything else.
+#[test]
+fn response_flagged_frames_are_refused_by_the_rust_pod_only() {
+    let mut p = Pair::new(&setup());
+    let f = build_frame(PROTO_VERSION, cmd::GET_STATUS, FLAG_RESPONSE, 1, &[]);
+    assert!(p.c.handle_frame(&f).is_ok(), "C answers a RESPONSE-flagged command");
+    let mut s = Session::new(NoCrypto, false, [0; 4], true);
+    let mut out = [0u8; 256];
+    assert_eq!(p.r.handle_frame(&mut s, &f, &mut out), Err(Error::Frame));
+}
+
+/// (7) The hourly cap: Rust is a true rolling 60 minutes reduced by `HOURLY_CAL_MARGIN_PCT`; the C reference sums
+/// 60 wall-clock minute buckets of exactly 15 U. `PumpConfig::RELAXED` (what the differential harness uses) restores
+/// the C accounting; the production STRICT config is tighter.
+#[test]
+fn strict_hourly_cap_is_tighter_than_the_c_reference() {
+    use openpatch_core::limits::*;
+    let hal = differential_tests::rmock::MockHal::new();
+    let cal = CalSel::T26100.rust_cal().unwrap();
+    let strict = Pump::new(hal.clone(), Some(&cal), MilliUnits(100_000), 1);
+    let mut relaxed = Pump::new(hal.clone(), Some(&cal), MilliUnits(100_000), 1);
+    relaxed.set_config(PumpConfig::RELAXED);
+    let (s, r) = (strict.supervisor().hourly_cap_steps().0, relaxed.supervisor().hourly_cap_steps().0);
+    assert!(s < r);
+    assert_eq!(r, strict.pulse_cal().mu_to_pulses(MAX_HOURLY).0);
+    // the physical volume at the worst-case tolerance stays within 15 U
+    let uu = strict.pulse_cal().pulses_to_micro(Pulses(s)).0;
+    assert!(uu * (100 + HOURLY_CAL_MARGIN_PCT as u64) <= MAX_HOURLY.0 as u64 * 1000 * 100);
+}

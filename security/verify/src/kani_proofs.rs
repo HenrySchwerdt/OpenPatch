@@ -73,7 +73,9 @@ fn proof_session_replay_monotonic() {
     let mut p2 = [0u8; 244];
     let first = s.open(&a[..la], &mut p1).map(|o| (o.seq, o.flags & 2 != 0));
     let second = s.open(&b[..lb], &mut p2).map(|o| (o.seq, o.flags & 2 != 0));
-    if let (Ok((s1, false)), Ok((s2, false))) = (first, second) {
+    // a pod session never accepts a RESPONSE-flagged frame (FINDING-001), so any two accepted frames are commands
+    if let (Ok((s1, r1)), Ok((s2, r2))) = (first, second) {
+        assert!(!r1 && !r2);
         assert!(s2 > s1);
     }
 }

@@ -285,27 +285,27 @@ final class DiagV1TransportTests: XCTestCase {
         XCTAssertEqual(events, [.diag(record), .diagCleared(.batteryLow), .selfTest(passed: 3, failed: 4), .fault(.occlusion)])
     }
 
-    func testEncryptedNotificationAndResponseOfType0x90AreBothOpenedWithTheirOwnNonceDirection() throws {
-        // GetFaultLog's response type (0x10 | 0x80) equals the notification frame type 0x90: the origin decides the nonce
+    func testNotificationAndGetFaultLogResponseHaveDifferentFrameTypes() throws {
+        // GetFaultLog's response type is 0x20 | 0x80 = 0xA0; only notifications are type 0x90, so the type alone decides the nonce direction
         let keys = SessionHandshake.SessionKeys(keyC2P: [UInt8](repeating: 1, count: 16), keyP2C: [UInt8](repeating: 2, count: 16), salt: [9, 8, 7, 6])
         let channel = SecureChannel(keys: keys)
         let aes = SessionCrypto.AESCCM(key: keys.keyP2C)
-        func seal(dir: UInt8, seq: UInt16) -> Data {
+        func seal(type: UInt8, dir: UInt8, seq: UInt16) -> Data {
             let payload: [UInt8] = [V1.Tag.result.rawValue, 1, 0]
             let body = payload.count + 8
-            let header: [UInt8] = [1, 0x90, V1.flagEncrypted | V1.flagResponse, UInt8(seq & 0xFF), UInt8(seq >> 8), UInt8(body), 0]
+            let header: [UInt8] = [1, type, V1.flagEncrypted | V1.flagResponse, UInt8(seq & 0xFF), UInt8(seq >> 8), UInt8(body), 0]
             let nonce = keys.salt + [dir, UInt8(seq & 0xFF), UInt8(seq >> 8)] + [UInt8](repeating: 0, count: 6)
             var bytes = header + aes.seal(nonce: nonce, aad: header, plaintext: payload)
             let crc = V1.crc16(bytes)
             bytes += [UInt8(crc & 0xFF), UInt8(crc >> 8)]
             return Data(bytes)
         }
-        let asResponse = seal(dir: 1, seq: 5), asNotification = seal(dir: 2, seq: 5)
-        XCTAssertEqual(try channel.open(asResponse, as: .response).result, .ok)
-        XCTAssertEqual(try channel.open(asNotification, as: .notification).result, .ok)
-        XCTAssertThrowsError(try channel.open(asResponse, as: .notification))
-        XCTAssertThrowsError(try channel.open(asNotification, as: .response))
-        // without the hint the type decides, as before: 0x90 is a notification
-        XCTAssertEqual(try channel.open(asNotification).result, .ok)
+        let response = seal(type: V1.CommandID.getFaultLog.rawValue | V1.responseFlag, dir: 1, seq: 5)
+        let notification = seal(type: V1.notificationType, dir: 2, seq: 5)
+        XCTAssertEqual(try channel.open(response).result, .ok)
+        XCTAssertEqual(try channel.open(notification).result, .ok)
+        XCTAssertEqual(try channel.open(response, as: .response).result, .ok)
+        XCTAssertEqual(try channel.open(notification, as: .notification).result, .ok)
+        XCTAssertThrowsError(try channel.open(notification, as: .response))
     }
 }

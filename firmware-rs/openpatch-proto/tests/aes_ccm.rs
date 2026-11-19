@@ -67,7 +67,7 @@ fn mismatched_buffer_lengths_are_rejected() {
 fn end_to_end_sealed_and_opened_frame_via_session() {
     let key = [0x42u8; 16];
     let salt = [9, 8, 7, 6];
-    let mut phone = Session::new(AesCcm::new(&key), true, salt, false);
+    let mut phone = Session::new(AesCcm::new(&key), true, salt, false).with_role(LinkRole::Phone);
     let mut pod = Session::new(AesCcm::new(&key), true, salt, false);
     let payload = [tag::AMOUNT_MU, 4, 0xD0, 0x07, 0, 0];
     let mut buf = [0u8; 64];

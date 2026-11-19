@@ -41,6 +41,9 @@ pub enum Error {
     Latched = 29,
     /// Diagnostics: the code is latched and its verification test has not passed (or the cause persists).
     NotClearable = 30,
+    /// Rust extension: `Resume` refused because the pod holds no basal schedule (for example after a reset whose
+    /// schedule could not be restored): send `SetBasalSchedule` (or `Activate`) first. Never silently 0 U/h.
+    NoSchedule = 31,
 }
 
 impl Error {
@@ -82,6 +85,7 @@ impl Error {
             28 => Error::SelfTestRefused,
             29 => Error::Latched,
             30 => Error::NotClearable,
+            31 => Error::NoSchedule,
             _ => return None,
         })
     }

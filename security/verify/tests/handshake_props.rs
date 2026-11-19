@@ -127,11 +127,14 @@ fn low_order_public_keys_are_rejected() {
     }
 }
 
-/// FINDING-004 (low/medium, DoS): the pod keeps ONE pending handshake. Anyone in range that knows the (public, cleartext,
-/// static) PS_ID can send a SESSION_INIT between the phone's INIT and FINISH and make the phone's FINISH fail (SESSION),
-/// without knowing PS. Passes while open; see proposal 03 (per-connection pending slots + rate limit).
+/// FINDING-004 (low-medium) -- MITIGATED. Anyone who can read the (cleartext, static) PS_ID could replay the phone's
+/// INIT between its INIT and FINISH and displace the single pending handshake, so the phone's FINISH failed. The
+/// responder now keeps `PENDING_SLOTS` half-open handshakes and a FINISH is matched to its slot by the key confirmation
+/// tag (which needs the session keys), a failed FINISH discards nothing. One replayed INIT, or any number of bogus
+/// FINISH frames, no longer displaces the phone. Residual (documented, proposal 03 s.5): a flood of >= PENDING_SLOTS
+/// INITs inside one handshake round trip still evicts the oldest slot; that needs a rate limit on a pod clock.
 #[test]
-fn known_issue_pending_slot_can_be_displaced_by_unauthenticated_init() {
+fn fixed_pending_slot_cannot_be_displaced_by_one_replayed_init_or_bogus_finish() {
     let mut rng = Det(9);
     let mut pod = Responder::new(None);
     let ps = pair_up(&mut pod, &mut rng);
@@ -139,13 +142,48 @@ fn known_issue_pending_slot_can_be_displaced_by_unauthenticated_init() {
     let (mut b1, mut b2, mut b3, mut b4) = ([0u8; FRAME_MAX], [0u8; FRAME_MAX], [0u8; FRAME_MAX], [0u8; FRAME_MAX]);
     let n = phone.init_frame(0, &mut b1).unwrap();
     let o = pod.handle(&b1[..n], false, &mut rng, &mut b2).unwrap();
-    // attacker replays the observed phone INIT (contains PS_ID in clear) -> pod replaces the pending handshake
+    // the attacker replays the observed phone INIT (PS_ID in clear): used to replace the pending handshake
     let _ = pod.handle(&b1[..n], false, &mut rng, &mut b4).unwrap();
+    // ... and sends a FINISH with a made-up confirm tag: used to discard it
+    let mut bogus = Vec::new();
+    {
+        let mut tmp = [0u8; FRAME_MAX];
+        let mut w = openpatch_proto::tlv::TlvWriter::new(&mut tmp);
+        w.put(htag::CONFIRM, &[0xAB; 16]);
+        let l = w.finish().unwrap();
+        bogus.extend_from_slice(&tmp[..l]);
+    }
+    let mut fb = [0u8; FRAME_MAX];
+    let fl = openpatch_proto::encode_frame(
+        &openpatch_proto::Frame { version: 1, type_: htype::SESSION_FINISH, flags: 0, seq: 9, payload: &bogus },
+        &mut fb,
+    )
+    .unwrap();
+    let _ = pod.handle(&fb[..fl], false, &mut rng, &mut b4).unwrap();
+    // the phone's genuine FINISH still succeeds
     let m = phone.on_init_response(&b2[..o.reply_len], 1, &mut b3).unwrap();
     let o2 = pod.handle(&b3[..m], false, &mut rng, &mut b2).unwrap();
-    assert!(matches!(o2.event, Event::None), "FINDING-004: the phone's FINISH no longer matches the pending handshake");
+    assert!(matches!(o2.event, Event::SessionUp(_)), "FINDING-004: the phone's handshake was displaced");
     let r = openpatch_proto::decode_frame(&b2[..o2.reply_len]).unwrap();
-    assert_eq!(&r.payload[..3], &[0x01, 1, hresult::AUTH], "FINISH answered AUTH: session establishment denied");
+    assert_eq!(&r.payload[..3], &[0x01, 1, hresult::OK]);
+}
+
+/// The residual risk stays visible: PENDING_SLOTS or more INITs between the phone's INIT and FINISH evict its slot.
+#[test]
+fn residual_finding_004_an_init_flood_still_evicts_the_oldest_pending() {
+    let mut rng = Det(10);
+    let mut pod = Responder::new(None);
+    let ps = pair_up(&mut pod, &mut rng);
+    let mut phone = Initiator::session(&mut rng, ps);
+    let (mut b1, mut b2, mut b3, mut b4) = ([0u8; FRAME_MAX], [0u8; FRAME_MAX], [0u8; FRAME_MAX], [0u8; FRAME_MAX]);
+    let n = phone.init_frame(0, &mut b1).unwrap();
+    let o = pod.handle(&b1[..n], false, &mut rng, &mut b2).unwrap();
+    for _ in 0..PENDING_SLOTS {
+        let _ = pod.handle(&b1[..n], false, &mut rng, &mut b4).unwrap();
+    }
+    let m = phone.on_init_response(&b2[..o.reply_len], 1, &mut b3).unwrap();
+    let o2 = pod.handle(&b3[..m], false, &mut rng, &mut b2).unwrap();
+    assert!(matches!(o2.event, Event::None));
 }
 
 /// FINDING-005 (low, privacy): PS_ID is a 4 byte STATIC identifier of the pairing, sent in clear in every SESSION_INIT.

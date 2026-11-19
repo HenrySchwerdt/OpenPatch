@@ -43,7 +43,7 @@ fn run(cal: PulseCal, ops: &[Op]) -> (Vec<(u64, u32)>, u32, u32) {
     let mut t = 0u64;
     let mut timeline = Vec::new();
     let per_min = cal.mu_to_pulses(MAX_PER_MIN).0;
-    let cap = cal.mu_to_pulses(MAX_HOURLY).0;
+    let cap = s.hourly_cap_steps().0; // MAX_HOURLY less the calibration tolerance margin
     for o in ops {
         match o {
             Op::Approve { dt_ms, requested, reservoir_mu } => {
@@ -91,15 +91,18 @@ proptest! {
         }
     }
 
-    /// P3 (the TRUE, weaker bound): in ANY sliding real-time 60 minute window at most MAX_HOURLY + MAX_PER_MIN
-    /// (16.7 U) is approved. See finding_003 below for why it is not MAX_HOURLY.
+    /// P3: in ANY sliding real-time 60 minute window at most the hourly cap (MAX_HOURLY less the calibration
+    /// tolerance margin, i.e. <= 15 U physical) is approved. (FINDING-003 fixed: the old wall-clock buckets allowed 16.7 U.)
     #[test]
     fn p3_sliding_hour_bound(ops in proptest::collection::vec(op(), 1..200), ci in 0usize..8) {
         let cs = cals(); let cal = cs[ci % cs.len()];
-        let (tl, per_min, cap) = run(cal, &ops);
+        let (tl, _per_min, cap) = run(cal, &ops);
         for (t, _) in &tl {
+            // every window [t, t + 60 min) and the window ending at t
             let sum = window_sum(&tl, *t, *t + HOUR);
-            prop_assert!(sum <= cap as u64 + per_min as u64, "sliding hour from {t}: {sum} > {}", cap + per_min);
+            prop_assert!(sum <= cap as u64, "sliding hour from {t}: {sum} > {cap}");
+            let back = window_sum(&tl, t.saturating_sub(HOUR - 1), *t + 1);
+            prop_assert!(back <= cap as u64, "sliding hour ending {t}: {back} > {cap}");
         }
     }
 
@@ -132,16 +135,16 @@ proptest! {
     }
 }
 
-/// FINDING-003 (low, documentation/spec gap): the "rolling 60 minute" limit is implemented as 60 wall-clock minute
-/// buckets, so a real-time sliding hour can contain 61 buckets. Deliveries at the very end of minute 0 and at the
-/// very start of minute 60 are 59 minutes apart but never counted in the same window. The actual worst case is
-/// MAX_HOURLY + MAX_PER_MIN = 16.7 U in 59 minutes instead of 15 U in 60 minutes (+11 %). This test PASSES while
-/// the finding is open; when the supervisor is changed to a true sliding window it fails and must be inverted.
+/// FINDING-003 (low) -- FIXED. The "rolling 60 minute" limit used to be 60 wall-clock minute buckets: a full per-minute
+/// budget taken at the end of minute 0 and again at the start of minute 60 gave MAX_HOURLY + MAX_PER_MIN = 16.7 U in
+/// 59 minutes. The supervisor now sums 10 s buckets over the newest 361 of them (a true rolling bound) and the cap is
+/// reduced by the calibration tolerance margin. This is the exact boundary attack of the finding: it must now be refused.
 #[test]
-fn finding_003_sliding_window_exceeds_nominal_hourly_cap() {
+fn fixed_finding_003_sliding_window_never_exceeds_the_hourly_cap() {
     let cal = drive_cal::NFP_608_2645_G15_12.cal();
     let mut s = supervisor(cal);
-    let cap = cal.mu_to_pulses(MAX_HOURLY).0;
+    let cap = s.hourly_cap_steps().0;
+    assert!(cap < cal.mu_to_pulses(MAX_HOURLY).0, "the cap carries the calibration tolerance margin");
     let per_min = cal.mu_to_pulses(MAX_PER_MIN).0;
     let mut tl = Vec::new();
     let mut go = |t: u64, req: u32, tl: &mut Vec<(u64, u32)>| {
@@ -150,21 +153,20 @@ fn finding_003_sliding_window_exceeds_nominal_hourly_cap() {
         tl.push((t, n));
         n
     };
-    // Minute 0: take a full per-minute budget as late as possible.
+    // the attack: a full per-minute budget as late as possible in minute 0, then everything the window allows ...
     let m0 = go(59_900, per_min, &mut tl);
     assert_eq!(m0, per_min);
-    // Minutes 1..=59: take everything the window still allows (cap - m0).
     let mut got = m0;
     for m in 1..60u64 {
         got += go(m * MINUTE + 1_000, per_min, &mut tl);
     }
-    assert_eq!(got, cap, "window of minutes 0..59 is exactly full");
-    // Minute 60: minute 0 has fallen out of the 60-bucket window, so m0 more steps are approved.
+    assert_eq!(got, cap, "the first 59 minutes fill the cap exactly");
+    // ... and the same again just after minute 60 starts: minute 0's steps are still inside a real hour
     let late = go(60 * MINUTE + 100, per_min, &mut tl);
-    assert_eq!(late, m0);
+    assert_eq!(late, 0, "FINDING-003: the old bucket window released a whole minute early");
     let total: u64 = window_sum(&tl, 59_900, 60 * MINUTE + 101);
-    let span_ms = 60 * MINUTE + 100 - 59_900;
-    assert!(span_ms < HOUR, "all of it inside one real-time hour ({span_ms} ms)");
-    assert_eq!(total, cap as u64 + per_min as u64);
-    assert!(total > cap as u64, "more than the nominal 15 U in less than 60 minutes");
+    assert!(total <= cap as u64);
+    // once the 10 s bucket of the first approval has really aged out, delivery continues
+    let after = go(59_900 + HOUR + 10_000, per_min, &mut tl);
+    assert!(after > 0, "the window must not stay closed longer than an hour (+ one bucket)");
 }
