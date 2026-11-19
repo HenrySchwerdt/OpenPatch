@@ -48,6 +48,10 @@ def build_plunger(s: Script, p: dict, L: dict) -> None:
     tools.append(s.box("t_pg_y", (x0g, xf + 0.1), (yr - wc / 2 - 0.1, yr + wc / 2 + 0.1), (zc - pg["groove_w"] / 2, zc + pg["groove_w"] / 2)))
     tools.append(s.box("t_pg_z", (x0g, xf + 0.1), (yr - pg["groove_w"] / 2, yr + pg["groove_w"] / 2), (zc - hc / 2 - 0.1, zc + hc / 2 + 0.1)))
     tools.append(s.cyl("t_pg_c", "X", (0, yr, zc), pg["centre_d"], x0g, xf + 0.1))
+    tr = sl["guide"]["tape_recess"]       # flange guide bands turned down for an optional PTFE tape wrap
+    for k, (xa, xb) in enumerate(((xr - 0.1, xr + sl["ring_a"][0]), (xr + sl["ring_b"][1], xf + 0.1))):
+        s.stadium_ring(f"t_gt{k}", (xa, xb), yr, zc, wc + 0.8, hc + 0.8, wc - 2 * tr, hc - 2 * tr)
+        tools.append(f"t_gt{k}")
     s.cut("plunger_core", tools)
     if L["mode"] == "bench" and rs.get("nose_len", 0) > 0:      # legacy separate printed nose (nose_len = 0 since the seal study)
         s.stadium("plunger_nose", (xf, xf + rs["nose_len"]), yr, zc, wc, hc)

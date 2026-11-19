@@ -51,13 +51,14 @@
   "w_in": 16.0,
   "h_in": 5.0,
   "wall": 0.8,
-  "dead": 1.0,
-  "plunger_len": 3.8,
-  "plunger_clr": 0.2,
+  "dead": 0.04,
+  "plunger_len": 4.76,
+  "plunger_clr": 0.1,
   "plunger_gap": 0.2,
   "fill_fraction": 1.0,
   "cnc_split": true,
-  "nose_len": 0.7
+  "nose_len": 0.0,
+  "_comment_seal_study": "2026-11-19 SEAL-AND-DEAD-VOLUME.md: plunger core is now 4.76 long with the front flange 0.46 behind the front bead, dead layer 0.04 (dead + plunger_len = 4.80 as before, so the CNC reservoir length is unchanged); core clearance 0.1 per side; the separate printed nose is gone (nose_len 0)."
  },
  "septum": {
   "d": 4.0,
@@ -249,19 +250,20 @@
   "recess_depth": 0.2
  },
  "seal": {
-  "ring_w": 0.8,
-  "flange": 0.6,
-  "groove_depth": 0.5,
-  "free_oversize": 0.3,
+  "_comment": "Cast silicone bead seal, three mould variants (op_seal.py, op_mould.py, SEAL-AND-DEAD-VOLUME.md). free_oversize = cavity tip diameter minus 16.0 (before cast shrink ~0.1-0.2 %).",
+  "ring_w": 0.6,
+  "flange": 0.4,
+  "groove_depth": 0.55,
+  "free_oversize": 0.15,
   "assembly_gap": 0.02,
   "socket_clr": 0.1,
   "ring_a": [
-   0.6,
-   1.4
+   0.4,
+   1.0
   ],
   "ring_b": [
-   2.3,
-   3.1
+   3.65,
+   4.25
   ],
   "socket_x": [
    1.45,
@@ -271,7 +273,49 @@
    1.55,
    2.15
   ],
-  "socket_depth": 1.6
+  "socket_depth": 1.6,
+  "land": 0.2,
+  "active_variant": "S2",
+  "variants": {
+   "S1": {
+    "rings": [
+     "b"
+    ],
+    "free_oversize": 0.15,
+    "land": 0.2,
+    "shore_target": 30,
+    "role": "primary: single front bead, land 0.20, net squeeze ~0.047 mm per side"
+   },
+   "S2": {
+    "rings": [
+     "b"
+    ],
+    "free_oversize": 0.12,
+    "land": 0.15,
+    "shore_target": 30,
+    "role": "low-friction: land 0.15, net squeeze ~0.03 mm per side (use if S1 breaks away above ~2.5 N; leak margin is thinner)"
+   },
+   "T": {
+    "rings": [
+     "a",
+     "b"
+    ],
+    "free_oversize": 0.14,
+    "land": 0.2,
+    "shore_target": 30,
+    "role": "twin bead (redundant seal, longer guide), about 1.7x the friction of S1 (use if S1 leaks)"
+   }
+  },
+  "purge": {
+   "groove_w": 0.4,
+   "groove_d": 0.1,
+   "centre_d": 1.8
+  },
+  "guide": {
+   "mu_g": 0.15,
+   "_note": "[ASM] mu_g = core flange vs PP bore, silicone-oil wetted. tape_recess: both core flanges are turned down by this much per side so that one wrap of 0.1 mm PTFE thread-seal tape (optional) restores the 0.1 mm clearance and lowers the guide friction to ~0.10 (see SEAL-AND-DEAD-VOLUME.md, cocking).",
+   "tape_recess": 0.1
+  }
  },
  "mould": {
   "margin": 6.0,
@@ -279,7 +323,7 @@
   "pin_d": 2.0,
   "pin_clr": 0.1,
   "pin_h": 2.5,
-  "sprue_d": 0.7,
+  "sprue_d": 0.8,
   "vent_d": 0.5,
   "core_clr": 0.03
  },
@@ -640,12 +684,13 @@
   "valve_x0": 0.6,
   "cap": {
    "septum_x": 2.2,
-   "spigot_len": 2.0,
+   "spigot_len": 2.4,
    "spigot_d": 1.98,
    "block_y0": 1.0,
    "block_up_y": 3.0,
-   "jog_x": 0.3,
-   "wall_hole_d": 2.0
+   "jog_x": 0.45,
+   "wall_hole_d": 2.0,
+   "prime_d": 0.6
   },
   "guard_lead_in": 0.4
  },

@@ -19,7 +19,7 @@ import time
 HERE = pathlib.Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 
-import a1_drive, a2_dose, a3_tolerance, a4_structural, a5_fluidics  # noqa: E402
+import a1_drive, a2_dose, a3_tolerance, a4_structural, a5_fluidics, a6_seal  # noqa: E402
 from common import CONST as C, MECH, Ctx, table  # noqa: E402
 
 
@@ -40,7 +40,8 @@ def main():
     r2 = a2_dose.run(ctx)
     r3 = a3_tolerance.run(ctx)
     r5 = a5_fluidics.run(ctx)
-    results = [r1, r2, r3, r4, r5]
+    r6 = a6_seal.run(ctx)
+    results = [r1, r2, r3, r4, r5, r6]
     rows = sorted([r for res in results for r in res.rows], key=natural)
     cnt = {k: sum(1 for r in rows if r.status == k) for k in ("PASS", "WARN", "FAIL", "INFO")}
 
@@ -71,7 +72,7 @@ def main():
     w("Read the status with its confidence: rows that rest on *geometry from the CAD* (tongue stress, lid/reservoir stack, thread and collar budget, 105 mA current limit, prime volume, snap-arm strain) "
       "are firm; rows that rest on *[ASM] friction or process inputs* (seal friction, once-per-rev screw error, stick-slip, compliance, bubble size) show what the design **needs** and which side of the line "
       "a plausible value lands on, and are settled only by the bench tests listed at the end.\n")
-    CAD = {"1.1", "1.2", "1.10", "1.11", "2.1", "2.2", "3.1", "3.2", "3.3", "3.4", "3.5", "3.6", "3.7", "3.8", "4.1", "4.2", "4.3", "4.4", "4.5", "4.6", "4.7", "4.9", "4.10", "4.11", "5.1", "5.2", "5.3"}
+    CAD = {"1.1", "1.2", "1.10", "1.11", "2.1", "2.2", "3.1", "3.2", "3.3", "3.4", "3.5", "3.6", "3.7", "3.8", "4.1", "4.2", "4.3", "4.4", "4.5", "4.6", "4.7", "4.9", "4.10", "4.11", "5.1", "5.2", "5.3", "6.1"}
     basis = lambda r: "CAD" if (r.id in CAD or r.id.startswith("4.8")) else "model [ASM]"
     w(table(["ID", "Requirement", "Value", "Margin", "Status", "Basis", "Note"], [[r.id, r.requirement, r.value, r.margin, "**%s**" % r.status if r.status in ("FAIL", "WARN") else r.status, basis(r), r.note] for r in rows]))
 

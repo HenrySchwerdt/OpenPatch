@@ -38,6 +38,13 @@ CONST = {
     # seal (platinum-cure silicone lip rings in a PP bore)
     "shore_A": (30.0, 40.0, 50.0),    # parts list: Shore A 40
     "mu_seal": (0.15, 0.40, 0.90),    # [ASM/LIT] lubed .. wetted .. dry silicone on PP
+    "mu_seal_design": (0.12, 0.22, 0.40),   # [LIT/ASM] PDMS bead on PP with a 350 cSt silicone-oil film, boundary regime at < 0.2 mm/s (syringe glide data 0.1-0.3)
+    "mu_guide": (0.06, 0.10, 0.20),   # [ASM] design condition: core flange guide bands wrapped with 0.1 mm PTFE tape (PTFE on PP ~0.1) + oil film
+    "mu_guide_bare": (0.08, 0.15, 0.30),   # [ASM] bare resin flange vs PP bore, oil-wetted (dry resin on PP: 0.3-0.4 -> jams, see seal_model.cocking_factor)
+    "mould_tol_diam": 0.05,           # [ASM] +-0.05 mm on the printed cavity diameter (SLA)
+    "shrink_range": (0.001, 0.002, 0.003),  # [LIT] platinum PDMS linear cast shrinkage
+    "shore_scatter": 4.0,             # [ASM] Shore A +- from mixing ratio / cure
+    "valve_void_frac": 0.12,          # [ASM] internal cavity of a micro duckbill as a fraction of its envelope
     "breakaway": (1.2, 1.5, 2.5),     # [ASM] static/kinetic friction ratio incl. dwell
     "silicone_shrink": 0.002,         # [LIT] platinum-cure linear cast shrinkage ~0.1-0.3 %
     # materials

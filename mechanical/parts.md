@@ -133,9 +133,9 @@ magnet turn per screw turn). 100 U needs 13.4 mm = 38 300 full steps at ratio 5.
 | reservoir (16.0 x 5.0 stadium bore, 0.8 mm wall, dry end open) | **SLA clear resin** from JLC3DP/PCBWay (single piece, `*_reservoir.stl`) | clear resin ("BioMed Clear"-class if offered) | **water ONLY** - never insulin, not sterile |
 | reservoir, optional material preparation (never filled with insulin) | **CNC PP halves** (`*_reservoir_cnc_lower/upper.step`, PCBWay CNC, ~25+ USD each), bond halves; later COC/COP injection-moulded | polypropylene (USP VI grade) | preparation for a future manufacturer only; never filled with insulin; leachables/extractables NOT evaluated |
 | plunger core | SLA tough resin (`*_plunger_core.stl`); later PP/PEEK CNC | resin | water test only |
-| plunger lip seals | **cast silicone** around the core: print `mould/mould_lower` + `mould_upper` (SLA), cast two rings per plunger in the core grooves | 2-part platinum-cure silicone **Shore A 40** (e.g. Smooth-On Smooth-Sil 940 class; later USP Class VI / ISO 10993 grade from NuSil/Elkem/Wacker) | water only; never insulin |
+| plunger lip seals | **cast silicone** around the core: print `mould/mould_lower` + `mould_upper` (SLA), cast two rings per plunger in the core grooves | 2-part platinum-cure silicone **Shore A ~30** (Sylgard 184 15:1-20:1 or Mold Star 30; see SEAL-AND-DEAD-VOLUME.md; three mould variants S1/S2/T) (e.g. Smooth-On Smooth-Sil 940 class; later USP Class VI / ISO 10993 grade from NuSil/Elkem/Wacker) | water only; never insulin |
 | lubricant | silicone oil 350 cSt (Rev A: any; later "medical fluid" grade, e.g. DOW 360 Medical Fluid 350 cSt class) - thin film in bore and on the lips | | |
-| mould details | split plane through bore centre, 4 pins dia 2.0 / holes 2.2, sprue dia 0.7 (22G syringe) + vent dia 0.5 per ring; free ring size = bore + 0.3 (compressed to bore in the assembly = 0.15/side) | | |
+| mould details | split plane through bore centre, 4 pins dia 2.0 / holes 2.2, sprue dia 0.8 (22G syringe) + vent dia 0.5 per ring; free ring size = bore + 0.3 (compressed to bore in the assembly = 0.15/side) | | |
 
 Rule: **this pump is never filled with insulin or any other drug, and nothing printed or cast in Rev A is ever connected to a person: water only.** The documents and CAD are for
 mechanical development only.

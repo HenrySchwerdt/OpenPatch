@@ -308,3 +308,26 @@ class SealDesign:
         fc = cocking_factor(mu_g, self.e, Lg)
         return {"F_seal": F, "N": N, "Fp": Fp, "b": b, "p_mean": pm, "delta": dl, "E": gent_E(shore), "f_cock": fc, "F_push": F * fc,
                 "perim": self.perim(dbore), "n": self.n, "e": self.e, "L_g": Lg}
+
+
+def _tri(rng, t, n):
+    return rng.triangular(t[0], t[1], t[2], n)
+
+
+def monte_carlo(design, C, rng, N=20000, mu=None, mu_g=None, brk=None):
+    """Tolerance / friction Monte Carlo of one seal design.  Returns arrays: F_seal, F_push, F_break, p_mean, delta."""
+    mu = C["mu_seal_design"] if mu is None else mu
+    mu_g = C["mu_guide"] if mu_g is None else mu_g
+    brk = C["breakaway"] if brk is None else brk
+    dbore = rng.uniform(0, design.tol_plus, N)
+    over = design.oversize + rng.triangular(-C["mould_tol_diam"], 0, C["mould_tol_diam"], N)
+    shrink = _tri(rng, C["shrink_range"], N)
+    shore = design.shore + rng.triangular(-C["shore_scatter"], 0, C["shore_scatter"], N)
+    delta = (over - shrink * design.w_in - dbore) / 2.0
+    Fp, b, pm = design.line_load(delta, shore)
+    per = perim_stadium(design.w_in + dbore, design.h_in + dbore)
+    Fs = _tri(rng, mu, N) * Fp * per * design.n
+    d = 1.0 - 2.0 * _tri(rng, mu_g, N) * design.e / design.L_g
+    fc = np.where(d > 0.05, 1.0 / np.maximum(d, 0.05), 20.0)
+    Fpush = Fs * fc
+    return {"F_seal": Fs, "F_push": Fpush, "F_break": _tri(rng, brk, N) * Fpush, "p_mean": pm, "delta": delta, "b": b}

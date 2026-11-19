@@ -12,7 +12,6 @@
     "motor_pins",
     "gear_a",
     "gear_b",
-    "leadscrew",
     "nut",
     "magnet",
     "needle",
@@ -266,28 +265,6 @@
    ],
    "operation": "cut",
    "name": "cut gear (2)"
-  }
- },
- {
-  "command": "file.insert_step",
-  "params": {
-   "path": "components/out/rod_m1p6_21.step",
-   "flatten": true,
-   "name": "rod",
-   "matrix": [
-    0,
-    0,
-    1,
-    1.65,
-    1.0,
-    -0.0,
-    0,
-    22.5,
-    0.0,
-    1.0,
-    0,
-    4.2
-   ]
   }
  },
  {

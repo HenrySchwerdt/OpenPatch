@@ -147,3 +147,5 @@ plunger_seal,gasket}.step/.stl`, `{mould_lower,mould_upper}.step/.stl`, `{reserv
 * **Real component models** (`mechanical/components/`, `op_models.py`): `OP-xx_real.sc` replaces the envelopes of motor, gears, rod, nut, magnet, needle and duckbill by the library STEP models;
   renders/exploded views use it, `check.py` runs an interference check on it, `out/bench/OP-xx_assembly.glb` (metres, Y up) is the website asset. The rod STEPs are gitignored: `python3 components/build_all.py --only rod_m1p6_21,rod_m1p6_25,rod_m1p6_38.5 --no-boards` (about 3 min each).
 * **FFC connector:** the FH12 is 2.0 mm high and does not fit (see `parts.md`, open point).
+
+* **Seal + dead volume study (2026-11-19):** bead seal family S1/S2/T (`op_seal.py`, `op_mould.py`, three mould pairs), plunger core 4.76 with purge grooves and PTFE-tape guide recess, spigot 2.4 / d0.6 main channels: see `SEAL-AND-DEAD-VOLUME.md`.
