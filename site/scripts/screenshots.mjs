@@ -6,7 +6,7 @@ import { existsSync, mkdirSync, readdirSync, rmSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const base = (process.argv[2] ?? 'http://127.0.0.1:4173/').replace(/\/?$/, '/');
+const base = (process.argv[2] ?? 'http://127.0.0.1:4174/').replace(/\/?$/, '/');
 const out = join(dirname(fileURLToPath(import.meta.url)), '..', 'screenshots');
 rmSync(out, { recursive: true, force: true });
 mkdirSync(out, { recursive: true });
@@ -24,7 +24,7 @@ function findChrome() {
 }
 
 const PAGES = [['home', ''], ['design', 'design/'], ['safety', 'safety/'], ['faults', 'faults/'], ['status', 'status/'], ['build', 'build/'], ['parts', 'parts/'], ['licence', 'licence/'], ['legal', 'legal/'], ['doc', 'docs/mechanical-assembly/']];
-const browser = await chromium.launch({ executablePath: findChrome(), args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
+const browser = await chromium.launch({ executablePath: findChrome(), args: ['--no-sandbox', '--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
 const problems = [];
 
 for (const theme of ['light', 'dark']) {

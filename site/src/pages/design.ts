@@ -1,5 +1,20 @@
 // Loads three.js and the meshes only when the visitor asks for 3D. The page itself ships no 3D code.
 export {};
+
+// ---- scroll story: the sticky image follows the chapter in the middle of the viewport
+const story = document.querySelector<HTMLElement>('[data-story]');
+if (story && 'IntersectionObserver' in window) {
+  const imgs = [...story.querySelectorAll<HTMLElement>('.story-img')];
+  const chs = [...story.querySelectorAll<HTMLElement>('.chapter')];
+  const set = (i: number): void => {
+    imgs.forEach((el, k) => el.classList.toggle('on', k === i));
+    chs.forEach((el, k) => el.classList.toggle('on', k === i));
+  };
+  const io = new IntersectionObserver((entries) => {
+    for (const e of entries) if (e.isIntersecting) set(Number((e.target as HTMLElement).dataset.i));
+  }, { rootMargin: '-45% 0px -45% 0px' });
+  chs.forEach((c) => io.observe(c));
+}
 const root = document.querySelector<HTMLElement>('[data-viewer]');
 const start = root?.querySelector<HTMLButtonElement>('.viewer-start');
 if (root && start) {
