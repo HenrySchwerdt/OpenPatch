@@ -76,8 +76,10 @@
 
 ## 3b. Plunger coupling = central push rod, closed reservoir (decision 2026-11-19)
 
-- Finding: the previous side-slot coupling (carriage tongue through a slot in the +Y reservoir wall) leaks: the slot must span the whole stroke, so at a full reservoir about 12 mm of slot lie in front of the seal, in the water. It also pushed the plunger 7.2 mm off-axis (cocking, friction ×1.5–3, jamming risk).
-- Decision: the carriage drives a **push rod on the bore axis** that enters the reservoir from the open dry end (classic syringe-pump layout). The reservoir becomes a **closed tube without any wall opening** (only the port at the closed end); this replaces the slot in `reservoir_frozen` (re-freeze before ordering). The pod gets longer by about the stroke (OP-100 ≈ +13 mm); buildability and leak-tightness beat minimal size.
+- Finding: the previous side-slot coupling (carriage tongue through a slot in the +Y reservoir wall) leaks: the slot must span the whole stroke, so at a full reservoir about 12 mm of slot lie in front of the seal, in the water. It also pushed the plunger 7.2 mm off-axis (cocking).
+- Magnetic coupling through a closed wall (keeps the dimensions) was **rejected by simulation** (`mechanical/sim/studies/magnetic_coupling.py`, magpylib, N52): about 1.2 N maximum shear for magnets that fit the plunger (1.2 mm gap), about 3 N with a doubled plunger length, versus about 1.6 N needed just to move (seal breakaway + duckbill) and about 7 N with occlusion back-pressure (30 kPa × 74.6 mm²) and a safety factor of 2.
+- Decision for v0.1.0: the carriage (beside the reservoir) carries a rigid yoke behind the open dry end and a **push rod on the bore axis** that engages the plunger centre (push and pull, for draw mode). The reservoir is a **closed tube without any wall opening** (only the port at the closed end; re-freeze `reservoir_frozen` before ordering). Width and height stay; length grows by about one stroke (OP-100 about 47 → 60 mm).
+- Study for a later, shorter revision: a flexible push element (spring-steel band or beaded chain in a U-shaped guide) turning around the open end (about +5 mm instead of +stroke).
 
 ## 4. Drive — geared micro stepper + direct leadscrew, automatic refill (decision 2026-11-19)
 
