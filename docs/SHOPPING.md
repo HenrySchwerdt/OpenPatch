@@ -55,7 +55,7 @@ Requirement (from the task text; `spec/design-parameters.md` in this branch has 
 | 21 | FFC 0.5 mm, 10-pin (same-side contacts), 5 pcs | 5 / 1 | | 1.5 - 3 | AliExpress | | | 5 - 7 | 5 - 7 |
 | 22 | Velcro, silicone oil 350 cSt, 1 mL syringe, fill needles | 1 / 1 | | 10 - 18 | Amazon.de / EU | 0 - 4 | incl. | 10 - 22 | 8 - 16 |
 | 23 | Accu-Chek Insight Flex cannula head (consumable; sold in boxes, price not verified) | 1 box / 1 | | 10 - 40 | pharmacy / supplier | | | 10 - 40 | 0 - 10 (single/borrowed) |
-| 24 | Fill: water (insulin tests excluded) | | | 0 | | | | 0 | 0 |
+| 24 | Fill: water (never insulin or any drug) | | | 0 | | | | 0 | 0 |
 | | **TOTAL (rounded)** | | | | | | | **358 - 607** | **186 - 310** |
 
 Excluded (one-time tools, per requirement): programmer (nRF52840-DK ~ 40 EUR or CMSIS-DAP/J-Link clone ~ 8 - 15 EUR), calipers, tweezers, side cutters, hot-air gun not needed (no soldering).
@@ -84,13 +84,13 @@ Because the first pump already pays for the MOQ surplus (second assembled board,
 | Rank | Driver | Cost in A | Cut | Saving (EUR) | Who decides |
 |---|---|---|---|---|---|
 | 1 | JLCPCB PCBA fixed + extended fees, 2 projects, shipping | 130 - 193 | merge pod sensor into the controller panel as a break-off tab (one PCBA project: 1 setup, 1 stencil, 1 FH12 feeder, 1 shipment), cut Extended parts to <= 6, drop 2 optional DRV5032 | 20 - 45 | electronics owner (tab thickness 1.6 mm vs. 0.6 - 0.8 mm pod board space; needs Z-budget check) |
-| 2 | PCBWay CNC PP reservoir (25 USD minimum + DHL + VAT + duty) | 55 - 96 | water-only printed SLA/MJF reservoir for the first pump (spec §3 already allows it for water tests); order the PP part only when insulin tests start, **one size only, qty 1 - 2, in one PCBWay order with any other CNC part**; JLCCNC has no PP (POM is not insulin-validated) | 50 - 90 | mechanical owner / safety (insulin stays on PP) |
+| 2 | PCBWay CNC PP reservoir (25 USD minimum + DHL + VAT + duty) | 55 - 96 | water-only printed SLA/MJF reservoir for the first pump (spec §3 already allows it for water tests); order the PP part only as optional material preparation (never filled with insulin), **one size only, qty 1 - 2, in one PCBWay order with any other CNC part**; JLCCNC has no PP (POM is not insulin-validated) | 50 - 90 | mechanical owner / safety (insulin stays on PP) |
 | 3 | Printed parts + coupon incl. DHL | 39 - 71 | one JLC3DP order with the coupon; MJF PA12 vs SLA: compare in the live quote; order together with JLCPCB in one shipment if the account allows | 8 - 20 | sourcing |
 | 4 | Motor (US shop shipping + VAT + duty) | 31 - 53 | verify a ZW/AliExpress 6 mm 20-step 26:1 sample; if ratio differs, firmware preset; keep NFP as reference; buy 2 not 5 (already assumed) | 0 - 25 (uncertain) | firmware + mechanical |
 | 5 | Separate AliExpress parcels (3 EUR duty/tariff line each) | ~ 25 - 45 incl. duty | consolidate: one hardware seller (rod, nuts, screws), one silicone seller, magnets with the needles if the same shop; or Amazon.de/EU shops for M1.6/M1.2 fasteners, silicone, velcro | 10 - 25 | sourcing |
 | 6 | Gears | 10 - 12 (15:12) vs **32.30 + shipping if 18:18 at GHW (2 x 16.15 EUR, verified)** | **keep 15:12 from GHW (5.95 EUR)**; if the CAD stays 18:18, buy AliExpress 0.3 mod 18 T brass (verified listings 8 - 18 T, 2 mm bore, about 1 - 3 USD/pack) instead of GHW: 25 - 30 saved, but bores are 2.0 only and quality unverified (sleeve already planned for the screw gear) | 0 / 25 - 30 | mechanical owner |
 | 7 | Cannula heads (box) | 10 - 40 | get 1 - 2 heads from a diabetic user/pharmacy sample | 10 - 30 | user |
-| 8 | Casting kit (silicone) | 10 - 20 | water-only: skip; use a punched sheet washer or O-ring for water tests; kit only for insulin tests (medical grade) | 10 - 20 | mechanical |
+| 8 | Casting kit (silicone) | 10 - 20 | water-only: skip; use a punched sheet washer or O-ring for water tests; medical-grade kit only as optional material preparation | 10 - 20 | mechanical |
 | 9 | Duckbill / needles / magnets in MOQ packs | 25 - 50 | buy the smallest pack; the pack surplus pays marginal pumps | 5 - 10 | sourcing |
 
 Not a saving: skipping the nRF52840-DK (tool, excluded anyway); 2-layer instead of 4-layer controller saves only ~ 5 - 8 EUR and costs RF/GND integrity: not proposed. JLC "Standard" PCBA costs 17 - 43 USD more setup than Economic: stay on Economic.
@@ -101,7 +101,7 @@ Proposals for the mechanical/electronics owners (not done here). B above already
 
 1. **One PCBA project**: pod sensor board as a break-off tab of the controller panel (or at least one JLC cart with both, one shipment). Needs one board thickness; if 1.6 mm is too thick for the pod, a 1.0 mm common thickness or flex is needed. (-20 to -35 EUR)
 2. **<= 6 Extended parts on the controller**: drop the 32.768 kHz crystal (E73 has an internal RC; firmware choice), the SWD 2x5 header (Tag-Connect TC2030 pads are already on the board), duplicate LEDs, switch the USB-C and buzzer to Basic equivalents if they exist, reduce the pod to TMAG5273 + 1 dock sensor. Interlock parts (TPL5010, SN74AUP1G74, STSPIN220, E73) stay. (-8 to -15 EUR)
-3. **Water-only printed reservoir for the first pump**; CNC PP reservoir only for insulin tests, one size. (-50 to -90 EUR)
+3. **Water-only printed reservoir for the first pump**; CNC PP reservoir optional (material preparation only, water only), one size. (-50 to -90 EUR)
 4. **One JLC shipment** (PCBA + prints). (-12 to -20 EUR)
 5. **Gear pair 15:12 (5.95 EUR, GHW)** rather than 18:18 (32.30 EUR at GHW). If 15:12 cannot fit, source 18 T gears from AliExpress. (-25 EUR if 18:18 is chosen)
 6. Optional, risky: AliExpress/ZW motor (-0 to -25 EUR) after a sample proves the ratio.
