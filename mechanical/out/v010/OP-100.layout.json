@@ -355,7 +355,7 @@
   ],
   "height_mm": 3.4,
   "lead_length_estimate_mm": 24.65,
-  "lead_length_limit_mm": 25.0,
+  "lead_length_limit_mm": 40.0,
   "note": "footprint as molex_picoblade_53261_0471 in components/catalog.json; VERIFY against the Molex drawing"
  },
  "piezo": {

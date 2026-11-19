@@ -56,6 +56,11 @@
 - **Build height 8.5 mm** (8.0 is not achievable with the 16×5 reservoir: stack = 8.4 mm; only with 0.6 mm reservoir wall + 0.75 mm shell) including housing wall and Velcro surface. Corners R ≥ 4 mm, top slightly domed (pillow shape).
 - Housing wall thickness: 0.9 mm (MJF PA12 or SLA resin for prototype; later injection-molded PC/PP).
 
+## 2b. Size targets for the integrated pod v0.1.0 (decision 2026-11-19, user: "nobody wants a 7 cm pump")
+
+- Hard targets incl. battery and electronics: **OP-100 ≤ 45 mm**, **OP-200 ≤ 52 mm** (Omnipod DASH: 52 × 39 × 14.5 mm, 200 U), width ≤ 32 mm, height ≤ 8.5 mm. A design that misses them is not accepted silently; the gap and the next lever are reported.
+- Levers, in order: (1) stack battery + board above the dock tunnel (≈ 3 mm free above the cannula head) instead of a tail; (2) low-profile radio (≤ 1.3 mm) on the lid side + spring contacts instead of connectors; (3) coaxial leadscrew in the reservoir axis (Omnipod-style) + wider bore → shorter stroke; (4) minimal fluid path without valve (§3c).
+
 ## 2a. Transparent lid (decision 2026-11-19, user)
 
 - The lid is printed in **clear resin** (JLC3DP clear SLA, polished/clear-coated outside) so reservoir, water level, plunger and drive are visible. The **fill window slot in the lid is removed**; the fill scale (ticks every 10 U, long every 50 U) becomes a shallow engraving on the lid inner face above the plunger travel.

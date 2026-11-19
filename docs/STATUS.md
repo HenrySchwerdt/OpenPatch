@@ -83,6 +83,7 @@ All dimensions and components are in [spec/design-parameters.md](../spec/design-
 
 ## Decision log (user)
 
+- 2026-11-19: **Size targets v0.1.0: OP-100 ≤ 45 mm, OP-200 ≤ 52 mm** incl. battery + electronics (spec §2b); first v0.1.0 CAD was 74 mm (OP-100) — rejected.
 - 2026-11-19: **No check valve; Omnipod-style pressure fill** (spec §3c): syringe pushes through the septum while the motor retracts at a fixed rate; self-locking leadscrew prevents free flow; fluid module = clamp ring + septum + needle. Supersedes the automatic suction draw mode.
 - 2026-11-19: **Transparent lid, no fill-window slot** (spec §2a): clear SLA lid with an engraved scale.
 - 2026-11-19: **Independent design review** (`docs/REVIEW-2026-11-19.md`): top problems = seal friction budget, off-axis push lever, end cap not sealed to the reservoir, uncontrolled air path in draw mode, ~2.2 U lost motion at reversals, stick-slip basal accuracy, firmware current-sense scaling 3× wrong, TMAG angle plane, push-rod length, manufacturability/doc conflicts. All dispatched to the owners. **Before ordering the full pod: a ~20 € seal/leak/septum/lost-motion test-coupon order** settles the biggest unknowns.
