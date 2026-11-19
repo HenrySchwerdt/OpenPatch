@@ -6,6 +6,7 @@
 //! deterministic seeded clock, a scenario runner (`opsim`), Monte Carlo and a JSON line interface.
 #![forbid(unsafe_code)]
 
+pub mod board;
 pub mod device;
 pub mod electrical;
 pub mod flash;

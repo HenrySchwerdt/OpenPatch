@@ -247,7 +247,9 @@ fn a_failed_selftest_step_raises_the_hals_code_and_marks_post_failed() {
         fn selftest(&mut self, step: openpatch_core::hal::SelfTestStep) -> SelfTestOutcome {
             match step {
                 openpatch_core::hal::SelfTestStep::GateCut => SelfTestOutcome::Passed,
-                _ => SelfTestOutcome::Failed(codes::GATE_DOCK_STUCK_PASS),
+                openpatch_core::hal::SelfTestStep::DockGateBlock => SelfTestOutcome::Failed(codes::GATE_DOCK_STUCK_PASS),
+                // A12 (over-current leg) cannot be done by this HAL: UNKNOWN, neither passed nor failed
+                _ => SelfTestOutcome::Unsupported,
             }
         }
     }

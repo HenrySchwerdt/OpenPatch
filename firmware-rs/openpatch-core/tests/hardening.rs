@@ -202,17 +202,35 @@ fn f4_the_first_prime_after_a_draw_runs_the_takeup_first_and_does_not_count_it_a
     let kicks0 = h.st().kicks;
     let takeup = cal_test().pulse_cal().unwrap().mu_to_pulses(MilliUnits(TAKEUP_MU_AFTER_DRAW)).0;
     assert!(takeup > 0);
-    p.prime(Pulses(2)).unwrap();
-    assert_eq!(h.st().total_steps - steps0, takeup + 2, "take-up + prime");
+    // the lost motion is larger than one minute of the backstop allows together with a prime: several commands
+    let commands = prime_all(&mut p, &h, 2);
+    assert!(commands >= 2, "take-up {takeup} steps does not fit one minute with the prime");
+    assert_eq!(h.st().total_steps - steps0, takeup + 2, "take-up + prime, no step more");
     assert_eq!(p.engine().delivered_steps(), delivered0, "neither take-up nor prime is delivery");
     assert!(!p.prime_required());
     // a second prime has no take-up
     let steps1 = h.st().total_steps;
+    run_secs(&mut p, &h, 61);
     p.prime(Pulses(2)).unwrap();
     assert_eq!(h.st().total_steps - steps1, 2);
     // chunks: every burst <= PRIME_CHUNK_STEPS and the watchdog was fed between them
     assert!(h.st().step_calls.iter().all(|&n| n <= PRIME_CHUNK_STEPS));
     assert!(h.st().kicks > kicks0 || takeup + 2 <= PRIME_CHUNK_STEPS);
+}
+
+#[test]
+fn f4_the_takeup_never_exceeds_the_per_minute_cap_even_though_it_is_larger_than_one_minute_allows() {
+    let (mut p, h) = draw_pump();
+    let cal = cal_test().pulse_cal().unwrap();
+    let minute = cal.mu_to_pulses(MAX_PER_MIN).0;
+    let takeup = cal.mu_to_pulses(MilliUnits(TAKEUP_MU_AFTER_DRAW)).0;
+    assert!(takeup + 2 > minute);
+    let s0 = h.st().total_steps;
+    assert_eq!(p.prime(Pulses(2)), Err(Error::Hourly), "part of the take-up, no prime");
+    let first = h.st().total_steps - s0;
+    assert!(first > 0 && first <= minute, "{first} steps in the first minute, cap {minute}");
+    assert!(p.prime_required(), "the prime itself has not run");
+    assert!(p.supervisor().faults().is_empty(), "a refusal never latches");
 }
 
 #[test]

@@ -54,6 +54,12 @@ pub enum Action {
     FlashPowerLoss { frac: f64, off_ms: f64 },
     /// Firmware-bug injection: issue forward pulses straight on the HAL, bypassing the supervisor.
     ForceSteps { n: u32 },
+    /// Inject (or remove) a hardware fault of the bench controller's interlock board (`board::BoardFaults` field names),
+    /// or fit the R97 DIR option (`"r97_fitted"`, the firmware assumes R96).
+    BoardFault { fault: String, on: bool },
+    /// `RunSelfTest` through the protocol path: 1 = POST-S, 2 = POST-A, 3 = watchdog. The pod must be suspended. The
+    /// verdict records the result and the diagnostic codes that are active afterwards.
+    SelfTest { sub_op: u8 },
     /// Name a physical instant (shows up in the verdict).
     Mark { name: String },
 }

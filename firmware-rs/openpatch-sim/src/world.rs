@@ -61,6 +61,8 @@ pub struct World {
     pub docked_phys: bool,
     pub hall_stuck_docked: bool,
     pub charger: bool,
+    /// The interlock board's analog / fault model (`board.rs`).
+    pub board: crate::board::BoardModel,
     pub magnet_strength: f64,
     pub angle_nack: bool,
     pub battery: Battery,
@@ -110,6 +112,7 @@ impl World {
             docked_phys: true,
             hall_stuck_docked: false,
             charger: false,
+            board: Default::default(),
             magnet_strength: 1.0,
             angle_nack: false,
             battery,
@@ -158,12 +161,12 @@ impl World {
     // ---- inputs as the board sees them ---------------------------------------------------------
     /// DOCKED as the hall switch reports it (also what the interlock gate sees).
     pub fn docked_hw(&self) -> bool {
-        self.docked_phys || self.hall_stuck_docked
+        (self.docked_phys || self.hall_stuck_docked) && !self.board.f.ffc_unplugged
     }
 
-    /// `VMOT on = MCU_EN AND latch AND (DOCKED OR DIR_REVERSE)`.
+    /// `VMOT on = MCU_EN AND latch AND OC_OK AND (DOCKED OR DIR_REVERSE)`, through the P-FET (`board.rs`, faults included).
     pub fn vmot_on(&self) -> bool {
-        self.power_on && self.mcu_en && self.latch_q && (self.docked_hw() || self.dir_reverse)
+        self.switch_on()
     }
 
     fn vmot_v(&self) -> f64 {
@@ -182,7 +185,7 @@ impl World {
     }
 
     pub fn angle_read(&mut self) -> Option<i64> {
-        if !self.power_on || self.angle_nack {
+        if !self.power_on || self.angle_nack || self.board.f.ffc_unplugged {
             return None;
         }
         self.poll_angle();
@@ -205,6 +208,8 @@ impl World {
         self.dir_reverse = false;
         self.runaway_hz = None;
         self.hung = false;
+        self.board.oc_ok = true;
+        self.board.stby = false;
         self.flash.power_cut(&mut self.rng);
         self.power_cut_at_us = None;
         self.reset_pending = Some(cause);
@@ -218,6 +223,7 @@ impl World {
         self.latch_q = false;
         self.mcu_en = false;
         self.dir_reverse = false;
+        self.board.stby = false;
         self.runaway_hz = None;
         self.hung = false; // a software hang is cleared by the reset; a stuck DONE line is not
         self.reset_pending = Some(ResetCause::Watchdog);
@@ -290,6 +296,7 @@ impl World {
             }
             let dt = quantum.max(1).min(target_us - self.t_us);
             self.t_us += dt;
+            self.board_step();
             let mut motor_ma = 0.0;
             if let Some(hz) = runaway {
                 self.runaway_carry += hz * dt as f64 / 1e6;
@@ -454,5 +461,36 @@ impl Hal for SimHal {
         } else {
             None
         }
+    }
+    /// Findings of the bench controller (POST), as data.
+    fn take_diag(&mut self) -> Option<openpatch_core::hal::DiagEvent> {
+        self.0.borrow_mut().board.events.pop_front()
+    }
+    /// RB1..RB10 from the board model.
+    fn interlock_state(&mut self) -> Option<openpatch_core::hal::InterlockReadback> {
+        use openpatch_core::bench_ctl::{own_pin_mismatch, readback_from, BenchPins};
+        let mut pins = crate::board::SimPins(self.0.clone());
+        let r = pins.read();
+        let (v, i) = (pins.vmot_mv(), pins.isense_mv());
+        let (stby, en) = { let w = self.0.borrow(); (w.board.stby, w.mcu_en) };
+        Some(readback_from(&r, v, i, own_pin_mismatch(&r, en, stby, r.latch_clr)))
+    }
+    /// The core's POST proofs (`BenchCtl::selftest`) run unchanged against the board model.
+    fn selftest(&mut self, step: openpatch_core::hal::SelfTestStep) -> openpatch_core::hal::SelfTestOutcome {
+        use openpatch_core::bench_ctl::{BenchCtl, CtlCfg};
+        let mut c = BenchCtl::new(crate::board::SimPins(self.0.clone()), CtlCfg::BENCH);
+        {
+            let w = self.0.borrow();
+            c.quarantined = w.board.quarantined;
+            c.failed = w.board.failed;
+        }
+        let out = c.selftest(step);
+        let mut w = self.0.borrow_mut();
+        w.board.quarantined = c.quarantined;
+        w.board.failed = c.failed;
+        while let Some(e) = c.take_event() {
+            w.board.events.push_back(e);
+        }
+        out
     }
 }

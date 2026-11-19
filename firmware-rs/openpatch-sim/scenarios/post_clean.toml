@@ -1,0 +1,13 @@
+name = "post_clean"
+description = "Healthy bench controller: the pod is suspended, POST-S and POST-A run and every proof passes (supply cut by each gate alone, dock and DIR legs block, over-current leg trips). No diagnostic code is raised."
+seed = 71
+duration_s = 60.0
+events = [
+  { at_s = 3.0, action = "suspend" },
+  { at_s = 10.0, action = "self_test", sub_op = 1 },
+  { at_s = 14.0, action = "self_test", sub_op = 2 },
+]
+
+[setup]
+fill_u = 40.0
+basal = [[0.0, 1.0]]

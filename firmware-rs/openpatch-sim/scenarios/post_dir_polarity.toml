@@ -1,0 +1,14 @@
+name = "post_dir_polarity"
+description = "R97 is fitted but the firmware assumes the default R96 (DIR_FORWARD_HIGH = false): the DIR_REV readback is inverted at the forward level. POST raises 4-40-003 and no proof is reported as passed."
+seed = 77
+duration_s = 60.0
+events = [
+  { at_s = 3.0, action = "suspend" },
+  { at_s = 6.0, action = "board_fault", fault = "r97_fitted", on = true },
+  { at_s = 10.0, action = "self_test", sub_op = 1 },
+  { at_s = 14.0, action = "self_test", sub_op = 2 },
+]
+
+[setup]
+fill_u = 40.0
+basal = [[0.0, 1.0]]

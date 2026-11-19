@@ -57,7 +57,7 @@ impl Tmag {
             TMAG_PRESENT.store(false, Ordering::Relaxed);
             return None;
         }
-        for (reg, val) in t::config_writes(TMAG_CRC_EN) {
+        for (reg, val) in t::config_writes_for(TMAG_CRC_EN, TMAG_PLANE, TMAG_RANGE_80MT) {
             let w = select(t.write(TMAG_ADDR, &[reg, val]), Timer::after_millis(30)).await;
             if !matches!(w, Either::First(Ok(()))) {
                 defmt::warn!("TMAG5273 configuration write failed");

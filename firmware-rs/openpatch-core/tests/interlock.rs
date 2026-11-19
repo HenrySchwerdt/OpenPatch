@@ -1,4 +1,4 @@
-//! Bench interlock model (`VMOT = MCU_EN AND LATCH AND (DOCKED OR DIR_REVERSE)`), the power-up plan,
+//! Bench interlock model (`MOT_ALLOW = MCU_EN AND LATCH AND OC_OK AND (DOCKED OR DIR_REVERSE)`), the power-up plan,
 //! draw-mode direction sequencing at the Hal boundary, HAL fault return, runtime occlusion
 //! threshold and the peak-current CSV column.
 mod common;
@@ -85,7 +85,8 @@ impl Board {
         for s in plan {
             match *s {
                 Step::SetDir(d) => self.dir = d,
-                Step::ReleaseKill => {}
+                Step::ReleaseLatchClear => {}
+                Step::CheckOcOk => {}
                 Step::McuEnHigh => self.mcu_en = true,
                 Step::ArmEdge => self.latch = true,
                 Step::CheckLatchSet => assert!(self.latch),
@@ -116,7 +117,7 @@ fn draw_undocked_with_reverse_first_brings_the_supply_up() {
 fn draw_with_dir_set_after_the_enable_would_not_come_up() {
     // The ordering the plan forbids: MCU_EN / ARM first, DIR afterwards.
     let mut b = Board::new(false);
-    let wrong = [Step::ReleaseKill, Step::McuEnHigh, Step::ArmEdge, Step::CheckLatchSet, Step::CheckVmotUp, Step::SetDir(MotorDir::Reverse)];
+    let wrong = [Step::ReleaseLatchClear, Step::McuEnHigh, Step::ArmEdge, Step::CheckLatchSet, Step::CheckVmotUp, Step::SetDir(MotorDir::Reverse)];
     assert_eq!(b.run(&wrong), Err(SupplyCheck::Missing));
 }
 

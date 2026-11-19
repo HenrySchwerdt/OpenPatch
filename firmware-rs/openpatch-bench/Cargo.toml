@@ -14,8 +14,11 @@ description = "OpenPatch bench controller firmware (Embassy, nRF52840). TEST PRO
 default = ["board-bench-e73", "angle-tmag"]
 
 # ---- board (exactly one) ----
-board-bench-e73 = []        # electronics/bench/pin-assignment.md (Ebyte E73-2G4M08S1CX)
+board-bench-e73 = ["embassy-nrf/nfc-pins-as-gpio"]   # electronics/bench/pin-assignment.md (Ebyte E73-2G4M08S1CX); P0.09 / P0.10 are OC_OK / PGATE_MON: UICR.NFCPINS = GPIO (written by embassy_nrf::init)
 board-nrf52840-dk = []      # Nordic nRF52840-DK, no motor driver / interlock (docs/boards.md)
+
+# ---- MOT_DIR polarity (INTERLOCK.md R96 / R97): default R96 fitted, forward = DIR low ----
+dir-forward-high = []             # R97 fitted instead of R96: forward = DIR high (DIR_FORWARD_HIGH = true)
 
 # ---- drive calibration preset (exactly one, no default; stored on first boot, compared at every boot) ----
 drive-nfp-608-26-45-g16-20 = []   # PRIMARY (scripts/build.sh default): NFP-608-26.45 + GHW 16T -> 20T step-down pair, total ratio 33.0625, 0.003949 U/step (id 0x25), matches the current CAD
@@ -39,6 +42,10 @@ angle-tmag = []                   # TMAG5273 over I2C 0x35 (P0.26 / P0.06), the 
 # Synthesizes angle counts from the two DRV5032 hall switches (quadrature, 1024 counts per edge, one
 # pole pair placeholder). NOT sufficient for the 3 %/revolution check: expect deviation faults.
 angle-qdec-fallback = []
+# TMAG5273 angle plane (default Y-Z: the leadscrew magnet rotates in the pod Y-Z plane) and range (default +-80 mT).
+tmag-plane-xy = []
+tmag-plane-xz = []
+tmag-range-40mt = []
 # Optional coarse cross-check: keep the QDEC task running and log raw counts per burst.
 coarse-qdec = []
 

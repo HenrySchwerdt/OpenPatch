@@ -687,7 +687,7 @@ fn pump_strict_config_draw_requires_priming_again() {
     hal.st().docked = true;
     run_secs(&mut p, &hal, 1);
     assert_eq!(p.resume(), Err(Error::PrimeRequired));
-    assert_eq!(p.prime(Pulses(3)), Ok(()));
+    prime_all(&mut p, &hal, 3); // the take-up after the draw takes more than one minute of the cap
     assert_eq!(p.resume(), Ok(()));
 }
 

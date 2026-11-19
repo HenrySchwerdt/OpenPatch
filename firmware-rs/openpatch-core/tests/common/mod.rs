@@ -272,3 +272,17 @@ pub fn run_draw(p: &mut Pump<MockHal>, h: &MockHal) {
         run_secs(p, h, 1);
     }
 }
+
+/// Prime the way a phone does: the lost motion after a draw is recovered no faster than the per-minute cap allows, so
+/// the pod answers `Hourly` after doing the part of the take-up that fits; repeat after a minute. Returns the number of
+/// commands it took. Panics on any other error.
+pub fn prime_all(p: &mut Pump<MockHal>, h: &MockHal, steps: u32) -> usize {
+    for n in 1..=6 {
+        match p.prime(openpatch_core::Pulses(steps)) {
+            Ok(()) => return n,
+            Err(openpatch_core::Error::Hourly) => run_secs(p, h, 61),
+            Err(e) => panic!("prime refused: {e:?}"),
+        }
+    }
+    panic!("prime did not complete in 6 commands")
+}

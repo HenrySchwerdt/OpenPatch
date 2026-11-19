@@ -175,6 +175,12 @@ pub struct InterlockReadback {
     pub own_pin_mismatch: u8,
     /// RB10 `EN/FAULT` low.
     pub driver_fault: Option<bool>,
+    /// `OC_OK`: the hardware over-current latch has not tripped.
+    pub oc_ok: Option<bool>,
+    /// The composite `MOT_ALLOW` (`PGATE_MON` low): the supply switch is on.
+    pub mot_allow: Option<bool>,
+    /// `POD_ID_N` low: pod board present, FFC intact.
+    pub pod_present: Option<bool>,
 }
 
 /// Steps of the self-test whose proof needs pin-level control (the core owns the sequencing, the
@@ -188,6 +194,12 @@ pub enum SelfTestStep {
     DockGateBlock,
     /// A08: the watchdog is effective (service command, resets the MCU).
     WatchdogProof,
+    /// A12: the over-current leg (comparator, latch, supply switch) cuts the supply when the test pin lowers the
+    /// reference, and the latch clears only by cycling MCU_EN. Needs the motor connected (holding current).
+    OverCurrentCut,
+    /// S05..S08, S10: passive readbacks at idle (supply absent, latch clear, gate closed, own pins, rails, FFC / pod,
+    /// dock path consistency). The motor is never driven.
+    PassiveChecks,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]

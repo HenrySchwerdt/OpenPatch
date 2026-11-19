@@ -541,7 +541,8 @@ impl<H: Hal> Pump<H> {
         }
         self.selftest = proto::SelfTestState { state: proto::selftest::RUNNING, kind: sub_op, ..Default::default() };
         let steps: &[SelfTestStep] = match sub_op {
-            proto::selftest::SUBOP_POST_A => &[SelfTestStep::GateCut, SelfTestStep::DockGateBlock],
+            proto::selftest::SUBOP_POST_S => &[SelfTestStep::PassiveChecks],
+            proto::selftest::SUBOP_POST_A => &[SelfTestStep::GateCut, SelfTestStep::DockGateBlock, SelfTestStep::OverCurrentCut],
             proto::selftest::SUBOP_WATCHDOG => &[SelfTestStep::WatchdogProof],
             _ => &[],
         };
@@ -858,16 +859,28 @@ impl<H: Hal> Pump<H> {
         // After a draw the first forward travel only takes up backlash and elasticity: run the take-up first. It goes
         // through the supervisor like every forward step but is NOT delivery (engine totals are untouched).
         let takeup = if self.cfg.takeup_mu > 0 { self.takeup_pending } else { 0 };
+        // The lost motion of the mechanics is larger than one minute of the 1.7 U/min backstop allows together with a
+        // prime (`limits::TAKEUP_MU_AFTER_DRAW`): it is recovered no faster than the caps allow, over several prime
+        // commands. A command whose take-up + prime does not fit runs the part of the take-up that fits (through the
+        // supervisor, never beyond the per-minute / hourly caps), does NOT prime and answers `Hourly`: the phone repeats
+        // the prime after the cap has recovered. Never latches.
+        let (mut takeup_now, mut prime_now, mut partial) = (takeup, steps.0, false);
         if takeup > 0 {
             let t = self.now();
             let rem = self.res.remaining();
-            if self.sv.step_room(t, rem).0 < takeup + steps.0 {
-                return Err(Error::Hourly); // would trim against the per-minute / hourly cap: refuse, do not latch
+            let room = self.sv.step_room(t, rem).0;
+            if room < takeup + steps.0 {
+                takeup_now = takeup.min(room);
+                prime_now = 0;
+                partial = true;
+                if takeup_now == 0 {
+                    return Err(Error::Hourly);
+                }
             }
         }
         // RELAXED (C parity): one burst. Otherwise watchdog-safe chunks, verified and followed by a DONE pulse.
         let chunk = if self.cfg.takeup_mu > 0 { PRIME_CHUNK_STEPS } else { u32::MAX };
-        let (mut left_takeup, mut left) = (takeup, steps.0);
+        let (mut left_takeup, mut left) = (takeup_now, prime_now);
         let mut ok = true;
         while left_takeup + left > 0 {
             let in_takeup = left_takeup > 0;
@@ -896,14 +909,18 @@ impl<H: Hal> Pump<H> {
                 self.hal.watchdog_kick(); // between verified chunks, so a long prime never starves the TPL5010
             }
         }
-        let executed = if ok { steps } else { Pulses(0) };
         if ok {
-            self.takeup_pending = 0;
-            self.log_ev(EventType::Prime, steps.0 as i32, 0);
+            self.takeup_pending = takeup.saturating_sub(takeup_now);
+            if !partial {
+                self.log_ev(EventType::Prime, steps.0 as i32, 0);
+            }
             self.observe(); // the angle sensor verifies the prime like any other delivery
         }
         self.sync_faults(before);
-        if executed == steps && self.sv.faults() == before {
+        if ok && partial && self.sv.faults() == before {
+            return Err(Error::Hourly);
+        }
+        if ok && self.sv.faults() == before {
             self.prime_required = false;
             Ok(())
         } else {

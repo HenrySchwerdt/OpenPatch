@@ -1,0 +1,14 @@
+name = "post_oc_leg_stuck"
+description = "The over-current comparator / latch never trips. The POST-A over-current proof (OC_TEST lowers the reference with the coils holding) fails and names the over-current leg (1-07-007, inst 7)."
+seed = 76
+duration_s = 60.0
+events = [
+  { at_s = 3.0, action = "suspend" },
+  { at_s = 6.0, action = "board_fault", fault = "oc_never_trips", on = true },
+  { at_s = 10.0, action = "self_test", sub_op = 1 },
+  { at_s = 14.0, action = "self_test", sub_op = 2 },
+]
+
+[setup]
+fill_u = 40.0
+basal = [[0.0, 1.0]]

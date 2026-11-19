@@ -25,23 +25,39 @@ mod dk;
 #[cfg(feature = "board-nrf52840-dk")]
 pub use dk::*;
 
-/// Hardware interlock pins (E73 bench board only): `VMOT on = latch AND MCU_EN AND DOCKED`.
+/// Hardware interlock pins (E73 bench board only): `MOT_ALLOW = MCU_EN AND LATCH_Q AND OC_OK AND (DOCKED_H OR DIR_REV)`
+/// (`electronics/bench/INTERLOCK.md`). Outputs can only remove permission; the "diag" inputs are readbacks.
 pub struct InterlockPins {
     /// Latch clock: rising edge = ARM. Idle low.
     pub arm_clk: Peri<'static, AnyPin>,
     /// Open drain, low = clear latch (motor off). Never driven high.
-    pub kill_n: Peri<'static, AnyPin>,
-    /// Direct MCU enable (second series gate). High = allow.
+    pub latch_clr_n: Peri<'static, AnyPin>,
+    /// Direct MCU enable (series gate). High = allow. Also read back (input buffer connected).
     pub mcu_en: Peri<'static, AnyPin>,
-    /// Read-back of the latch output (MOT_ALLOW).
+    /// Read-back of the latch output (`LATCH_Q`, firmware name `LATCH_Q_MON`).
     pub latch_q_mon: Peri<'static, AnyPin>,
+    /// Diag in: over-current latch OK (high = OK, low = tripped). NFC pin used as GPIO.
+    pub oc_ok: Peri<'static, AnyPin>,
+    /// Diag in: composite MOT_ALLOW, low = supply switch on. NFC pin used as GPIO.
+    pub pgate_mon: Peri<'static, AnyPin>,
+    /// Diag in: the DIR_REVERSE level at the gate (high = reverse).
+    pub dir_rev: Peri<'static, AnyPin>,
+    /// Diag in: the DOCKED level at the gate (high = docked).
+    pub docked_h: Peri<'static, AnyPin>,
+    /// Self-test out: high forces "undocked" at the gate (can never force docked).
+    pub dock_test: Peri<'static, AnyPin>,
+    /// Self-test out: high lowers the over-current reference (trips easier, can never mask it).
+    pub oc_test: Peri<'static, AnyPin>,
+    /// Diag in: pod board present (low = present, loopback on the FFC).
+    pub pod_id_n: Peri<'static, AnyPin>,
 }
 
-/// External TPL5010 watchdog pins.
+/// External TPL5010 watchdog pins. WAKE is sensed in hardware (GPIOTE -> PPI -> EGU3 interrupt) and DONE is pulsed from
+/// that interrupt within microseconds: the board's qualifier only accepts a DONE edge while WAKE is high (<= 20 ms).
 pub struct WatchdogPins {
-    /// DONE: pulse high after each WAKE. Driven ONLY from the safety task.
+    /// DONE (through the qualifier U10): idle LOW, ONE rising edge per WAKE. Driven ONLY by `hal::wdt`.
     pub done: Peri<'static, AnyPin>,
-    /// WAKE pulse (rising edge sensed by a small helper task that only sets a flag).
+    /// WAKE pulse input (GPIOTE channel, rising edge).
     pub wake: Peri<'static, AnyPin>,
 }
 
@@ -49,8 +65,6 @@ pub struct WatchdogPins {
 pub struct BoardIo {
     pub mot_stck: Peri<'static, AnyPin>,
     pub mot_dir: Peri<'static, AnyPin>,
-    pub mot_mode1: Peri<'static, AnyPin>,
-    pub mot_mode2: Peri<'static, AnyPin>,
     pub mot_stby: Peri<'static, AnyPin>,
     pub mot_en_fault: Peri<'static, AnyPin>,
     pub hall_a: Peri<'static, AnyPin>,
@@ -74,7 +88,7 @@ pub struct BoardIo {
 
 /// Peripherals that are board independent. Reserved for the radio stack (MPSL / SDC): RTC0, TIMER0,
 /// TEMP, PPI channels 17 to 31 and RNG; RTC1 is the embassy time driver. The application owns
-/// TIMER1 (step counter), PPI channels 0 and 1, PWM0 (buzzer), PWM1 (STCK), QDEC, SAADC, TWISPI0.
+/// TIMER1 (step counter), PPI channels 0, 1 and 2 (2 = WAKE), GPIOTE channel 7, EGU3, PWM0 (buzzer), PWM1 (STCK), QDEC, SAADC, TWISPI0.
 pub struct Common {
     pub rtc0: Peri<'static, per::RTC0>,
     pub timer0: Peri<'static, per::TIMER0>,
@@ -104,6 +118,9 @@ pub struct Common {
     pub qdec: Peri<'static, per::QDEC>,
     pub saadc: Peri<'static, per::SAADC>,
     pub twispi0: Peri<'static, per::TWISPI0>,
+    /// GPIOTE channel 7 and PPI channel 2: the TPL5010 WAKE edge -> EGU3 interrupt path (`hal::wdt`).
+    pub gpiote_ch7: Peri<'static, per::GPIOTE_CH7>,
+    pub ppi_ch2: Peri<'static, per::PPI_CH2>,
 }
 
 /// Moves the board independent peripherals out of `$p` (partial move; `$p` must be owned).
@@ -138,6 +155,8 @@ macro_rules! take_common {
             qdec: $p.QDEC,
             saadc: $p.SAADC,
             twispi0: $p.TWISPI0,
+            gpiote_ch7: $p.GPIOTE_CH7,
+            ppi_ch2: $p.PPI_CH2,
         }
     };
 }

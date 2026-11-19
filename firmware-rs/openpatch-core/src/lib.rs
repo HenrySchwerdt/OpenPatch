@@ -8,6 +8,7 @@
 #![forbid(unsafe_code)]
 
 pub mod bench;
+pub mod bench_ctl;
 pub mod delivery;
 pub mod diag;
 pub mod drive_cal;

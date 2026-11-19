@@ -89,18 +89,19 @@ from the executed pulses.
 frames (type 0x90) are drained from `Pump::take_notification` after every tick and frame and notified on the Alert characteristic (docs/protocol-extensions.md).
 On the bench board the supply gate lets a draw through only with DIR = reverse (`Hal::motor_enable_dir(Reverse)` sets it first, see the interlock section and docs/stubs.md).
 
-## Hardware interlock sequence (`hal/driver.rs`, bench board)
+## Hardware interlock sequence (`openpatch_core::bench_ctl`, bound to the pins by `hal/driver.rs`, bench board)
 
-`VMOT = MCU_EN AND TPL5010_LATCH AND (DOCKED OR DIR_REVERSE)` (model + plan: `openpatch_core::interlock`, host tested). Each burst:
-`motor_enable_dir(dir)` = **DIR to the burst direction first** (it is an input of the gate), release KILL_N, MCU_EN high, **one ARM_CLK rising edge
-immediately before delivering**, LATCH_Q_MON must read high, VMOT_SENSE must show the supply, STBY high (MODE pins latched, full
-step), EN/FAULT must release. Forward needs DOCKED, reverse (draw) needs UNDOCKED: a forward step while undocked is refused, cuts the supply and is a
-fault (`MotorFault::ForwardWhileUndocked`); after a DIR change while powered and after each burst VMOT is compared with the gate model (missing = fault,
-present where the gate must be open = interlock failure); `motor_step`; `motor_enable(false)` = STBY low, EN/FAULT driven low, MCU_EN low, KILL_N low, then
-LATCH_Q_MON must read low and VMOT must collapse. If the supply is **not verified cut** (or the latch / VMOT is active while the
-driver is off at the idle check of every tick) the HAL latches `failed`: DONE is withheld, the alarm LED blinks, and the TPL5010
-resets the MCU within about 2 s (RSTn clears the latch independently of firmware). Faults in the core (`Pump::sync_faults`,
-`emergency_stop`) call `motor_enable(false)` too. The DK has no interlock (compiled out by data, not by cfg: `interlock: None`).
+`MOT_ALLOW = MCU_EN AND LATCH_Q AND OC_OK AND (DOCKED_H OR DIR_REV)` (`electronics/bench/INTERLOCK.md`; model, plan and every decision are in the core and host tested, `openpatch-core/tests/bench_ctl.rs`, `openpatch-sim/tests/post.rs`).
+Each burst: `motor_enable_dir(dir)` = **DIR to the burst direction first** (it is an input of the gate), release `LATCH_CLR_N`, `MCU_EN` high, **one `ARM_CLK` rising edge immediately before delivering**, `LATCH_Q` must read high, `PGATE_MON` must show `MOT_ALLOW` and `VMOT_SENSE` the
+supply, `OC_OK` must still be high, STBY high (hard-wired full step), EN/FAULT must release. Forward needs DOCKED, reverse (draw) needs UNDOCKED: a forward step while undocked is refused, cuts the supply and is a fault (`MotorFault::ForwardWhileUndocked`); after a DIR change while powered and after each burst
+`VMOT_SENSE` and the gate readbacks are compared with the model (a leg that passes although its input is closed, a switch that blocks although all inputs are open, an over-current trip = driver fault). `motor_enable(false)` = STBY low, EN/FAULT driven low, then **one gate cuts in rotation**
+(`MCU_EN` only / `LATCH_CLR_N` only / both), the collapse is verified, the second gate follows at once if it does not happen and the stuck leg is named. If the supply is **not verified cut** (or the latch / VMOT is active while the driver is off at the idle check of every tick) the controller latches `failed`: the DONE permit is
+withdrawn, the alarm LED blinks and the TPL5010 resets the MCU within about 2 s (RSTn clears the latch independently of firmware). If the supply stays up while the P-FET gate is OFF (Q4 shorted) the controller is **quarantined** instead (no reset, STBY low, alarm, no power-up). Faults in the core
+(`Pump::sync_faults`, `emergency_stop`) call `motor_enable(false)` too. The DK runs the same controller with `CtlCfg::NO_INTERLOCK` (direction, STBY, EN/FAULT only; every proof UNKNOWN).
+
+**TPL5010 DONE** is answered by the EGU3 interrupt within microseconds of the WAKE edge, only inside the permit the safety task renews after every verified tick (`hal/wdt.rs`; the Rev A qualifier rejects any DONE edge outside the 20 ms WAKE window). `Hal::watchdog_kick` therefore means "verify the idle interlock and renew the permit".
+
+**POST** (docs/boards.md): POST-S at boot (`BenchHal::boot_post_s`, findings reach the core through `Hal::take_diag`) and on `RunSelfTest`; POST-A (`GateCut`, `DockGateBlock`, `OverCurrentCut`) only while SUSPENDED, through `Hal::selftest`.
 
 ## Flash and the safety task
 

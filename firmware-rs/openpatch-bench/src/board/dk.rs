@@ -14,8 +14,7 @@
 //! | DOCKED toggle | P0.12 (BUTTON2) | pressing toggles simulated DOCKED |
 //! | MOT_STCK | P1.05 (D4) | PWM1 |
 //! | MOT_DIR | P1.06 (D5) | |
-//! | MOT_MODE1 | P1.07 (D6) | |
-//! | MOT_MODE2 | P1.08 (D7) | |
+//! | (MODE pins removed: the Rev A controller hard-wires full step) | | |
 //! | MOT_STBY | P1.10 (D8) | |
 //! | MOT_EN_FAULT | P1.11 (D9) | |
 //! | HALL_A / HALL_B | P1.01 (D0) / P1.02 (D1) | QDEC (internal pull-ups) |
@@ -49,8 +48,6 @@ pub fn take(p: Peripherals) -> (BoardIo, Common) {
     let io = BoardIo {
         mot_stck: p.P1_05.into(),
         mot_dir: p.P1_06.into(),
-        mot_mode1: p.P1_07.into(),
-        mot_mode2: p.P1_08.into(),
         mot_stby: p.P1_10.into(),
         mot_en_fault: p.P1_11.into(),
         hall_a: p.P1_01.into(),

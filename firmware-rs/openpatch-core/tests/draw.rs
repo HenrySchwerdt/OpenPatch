@@ -617,7 +617,7 @@ fn strict_draw_requires_a_prime_before_resume() {
     run_secs(&mut p, &h, 1);
     assert_eq!(p.resume(), Err(Error::PrimeRequired));
     assert_eq!(Error::PrimeRequired.code(), 26);
-    assert_eq!(p.prime(Pulses(2)), Ok(()));
+    prime_all(&mut p, &h, 2);
     assert!(!p.prime_required());
     assert!(p.get_status().flags & st::PRIME_REQUIRED == 0);
     assert_eq!(p.resume(), Ok(()));
@@ -750,9 +750,19 @@ fn strict_prime_required_flag_over_frames() {
     assert_eq!(r.result, Error::PrimeRequired.code());
     let flags = rpc(&mut p, &mut s, 3, CommandBody::GetStatus).status.unwrap().flags;
     assert!(flags & st::PRIME_REQUIRED != 0);
-    let pr = rpc(&mut p, &mut s, 4, CommandBody::FillPrime { sub_op: proto::SUBOP_PRIME, fill_mu: 0, prime_steps: 2 });
-    assert_eq!(pr.result, 0);
-    assert_eq!(rpc(&mut p, &mut s, 5, CommandBody::Resume).result, 0);
+    // the take-up after the draw is recovered over several prime commands (per-minute cap): repeat like a phone
+    let mut seq = 4;
+    loop {
+        let pr = rpc(&mut p, &mut s, seq, CommandBody::FillPrime { sub_op: proto::SUBOP_PRIME, fill_mu: 0, prime_steps: 2 });
+        seq += 1;
+        if pr.result == 0 {
+            break;
+        }
+        assert_eq!(pr.result, Error::Hourly.code(), "only the cap may refuse");
+        assert!(seq < 12);
+        run_secs(&mut p, &h, 61);
+    }
+    assert_eq!(rpc(&mut p, &mut s, seq, CommandBody::Resume).result, 0);
 }
 
 fn parse_notification(payload: &[u8]) -> (u8, u32) {
