@@ -16,6 +16,8 @@
 | H8 | **Insulin degradation** | Heat from charging or electronics, unsuitable materials | Charge only with the pod detached (charge detection → delivery paused + notice); temperature sensor; insulin-contacting parts only from medical-grade PP/COC/silicone. **3D-printed reservoirs for water tests only.** |
 | H9 | **Forgot to remove / pod on the charger** | Use | Docking detection: if the pod is not docked, it pauses delivery, alarms after 15 min and reports "not docked" to Trio |
 | H10 | **Mechanical backflow / siphon** | Pressure on the housing | Stadium piston with anti-rotation feature, self-locking spindle (M1.6 × 0.35 is self-locking) |
+| H14 | **Manual injection through the fill septum while docked** (found 2026-11-19) | The fill septum is upstream of the outlet and there is no valve (§3c); the plunger is locked by the self-locking screw, so anything pushed into the septum while docked leaves through the outlet into the cannula — an uncontrolled bolus that bypasses firmware, interlock and step budget | **Mechanical:** the fill septum must be physically inaccessible while docked (covered by the dock insert / cannula base, Omnipod-style fill port on the underside); verified by a CAD check (no straight needle path to the septum with the pod docked). **Detection (secondary):** pressure/flow anomaly → diagnostic code. |
+| H15 | **Reverse motion while docked** (found 2026-11-19) | Firmware bug or attacker runs the motor in reverse while docked → aspiration through the cannula | **Hardware interlock:** forward only when DOCKED, reverse only when NOT DOCKED (`DOCKED XOR DIR_REVERSE`, previously `DOCKED OR DIR_REVERSE`); POST proves both directions are cut in the wrong dock state. |
 
 ## 2. Hardware interlock (core)
 

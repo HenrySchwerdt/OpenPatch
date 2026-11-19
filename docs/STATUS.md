@@ -83,6 +83,7 @@ All dimensions and components are in [spec/design-parameters.md](../spec/design-
 
 ## Decision log (user)
 
+- 2026-11-19: **New hazards H14/H15** (docs/02-safety.md): manual septum injection while docked would bypass all limits → septum must be unreachable when docked (spec §3e); reverse while docked → interlock becomes `DOCKED XOR DIR_REVERSE`.
 - 2026-11-19: **Only the integrated v0.1.0 pod is built** (spec §4c); the bench controller board is parked as a fallback/debug fixture (not ordered).
 - 2026-11-19: **Drive = coaxial translating leadscrew + closed reservoir** (spec §3d); **OP-200 keeps 200 U at ≈ 54 mm** (user), OP-100 ≤ 45 mm via wider bore + compact front.
 - 2026-11-19: **v0.1.0 safety chain uses a tiny independent supervisor MCU** (+ hardware over-current cut + two series switches; spec §7a) to reach ~300 mm² board area. Motor candidates for v0.1.0 in spec §4b (Zhaowei Ø3.4 geared stepper, samples first). The first v0.1.0 board (185 parts, 54 × 29 mm) did not route.
