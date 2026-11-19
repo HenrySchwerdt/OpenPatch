@@ -19,7 +19,13 @@ public final class SimulatedPod {
     private var reservoirSteps = 0
     private(set) var faultCode: FaultCode?
     private var deliveredStepsTotal = 0
-    private var events: [PodEvent] = []
+    var events: [PodEvent] = []
+    /// Diagnostics (`SimulatedPod+Diag.swift`).
+    var diag = SimulatedDiagState()
+    /// `false` simulates a v1 pod: no `DIAG_SUMMARY`, `FRU_HEALTH`, `POD_UID` in the status.
+    public var reportsDiagnostics = true
+    /// Reported as `POD_UID` when set (a stable pod identity independent of the role A/B).
+    public var uid: PodUID?
     private var lowReservoirAnnounced = false
     private var lastContact: Date
 
@@ -86,7 +92,10 @@ public final class SimulatedPod {
             tempBasal: temp.map { TempBasalStatus(rateTicks: $0.rateTicks, remainingMinutes: UInt16(clamping: Int((max($0.end.timeIntervalSince(now), 0) / 60).rounded(.up)))) },
             faultCode: faultCode,
             driveCalibration: reportsCalibration ? calibration : nil,
-            pairing: isStrict ? pairingInfo : nil)
+            pairing: isStrict ? pairingInfo : nil,
+            diag: reportsDiagnostics ? diagSummary : nil,
+            fruHealth: reportsDiagnostics ? fruHealth : nil,
+            uid: reportsDiagnostics ? uid : nil)
     }
 
     private var pairingInfo: PodPairingInfo {
@@ -269,7 +278,10 @@ public final class SimulatedPod {
 
     public func injectFault(_ code: FaultCode) { enterFault(code) }
 
-    private func enterFault(_ code: FaultCode) {
+    /// After the last stopping diagnostic record cleared, the legacy fault summary goes with it.
+    func clearLegacyFaultAfterDiag() { faultCode = nil }
+
+    func enterFault(_ code: FaultCode) {
         guard phase != .faulted else { return }
         finishBolus(cancelled: true)
         temp = nil
@@ -294,6 +306,7 @@ public final class SimulatedPod {
 
     private func tick() {
         var stepsThisSecond = 0
+        diag.uptimeSeconds &+= 1
 
         if phase == .priming {
             primeRemaining -= 1

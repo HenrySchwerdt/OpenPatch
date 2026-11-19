@@ -30,6 +30,9 @@ public enum NackReason: UInt8, Equatable {
     case pairMismatch = 14     // pod not paired or pair ID differs
     case charging = 15         // pod sits on a charger
     case calibration = 16      // the pod's drive calibration is missing or unknown
+    case selfTestRefused = 17  // not suspended, a draw or another self-test is running
+    case latched = 18          // a latched diagnostic code refuses Resume / Activate until its verification test passes
+    case notClearable = 19     // ClearDiag: latched and not verified, or the cause persists
 }
 
 public struct BolusStatus: Equatable {
@@ -65,11 +68,17 @@ public struct PodStatus: Equatable {
     public var pairing: PodPairingInfo?
     /// Only set in the answer to `releasePod`: what the pod delivered since its activation and what is left.
     public var releaseReport: ReleaseReport?
+    /// Diagnostics (`DIAG_SUMMARY`, `FRU_HEALTH`, `POD_UID`). `nil` = a v1 pod without diagnostics: `faultCode` stays the only summary.
+    public var diag: DiagSummary?
+    public var fruHealth: FruHealth?
+    public var uid: PodUID?
 
     public init(phase: PodPhase, reservoirPulses: UInt16, batteryPercent: UInt8, podTime: Date,
                 totalDeliveredPulses: UInt32, bolus: BolusStatus? = nil, tempBasal: TempBasalStatus? = nil, faultCode: FaultCode? = nil,
-                driveCalibration: DriveCalibration? = nil, pairing: PodPairingInfo? = nil, releaseReport: ReleaseReport? = nil) {
+                driveCalibration: DriveCalibration? = nil, pairing: PodPairingInfo? = nil, releaseReport: ReleaseReport? = nil,
+                diag: DiagSummary? = nil, fruHealth: FruHealth? = nil, uid: PodUID? = nil) {
         self.driveCalibration = driveCalibration; self.pairing = pairing; self.releaseReport = releaseReport
+        self.diag = diag; self.fruHealth = fruHealth; self.uid = uid
         self.phase = phase; self.reservoirPulses = reservoirPulses; self.batteryPercent = batteryPercent
         self.podTime = podTime; self.totalDeliveredPulses = totalDeliveredPulses
         self.bolus = bolus; self.tempBasal = tempBasal; self.faultCode = faultCode
@@ -97,6 +106,12 @@ public enum PodEvent: Equatable {
     case wearWarning
     case wearExpired
     case released(deliveredUnits: Double, reason: ReleaseReason)
+    /// A diagnostic record was raised (or an old one found by the pull path). The root cause rule is applied by the consumer.
+    case diag(DiagRecord)
+    /// A diagnostic condition cleared.
+    case diagCleared(DiagCode)
+    /// Self-test progress (bit masks of the steps).
+    case selfTest(passed: UInt16, failed: UInt16)
 }
 
 public enum ReleaseReason: Equatable {

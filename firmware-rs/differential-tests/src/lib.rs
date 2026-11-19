@@ -10,3 +10,10 @@ pub mod harness;
 pub mod pair;
 pub mod rmock;
 pub mod rng;
+
+/// Command ids that exist only in the Rust protocol (C answers `Unsupported` at decode time):
+/// 0x0F FillDraw and the diagnostics commands 0x10..0x12 (docs/06-diagnostics.md 5.4). They never
+/// occur in streams shared with the C reference; each has its own Rust-only tests.
+pub fn rust_only_cmd(t: u8) -> bool {
+    (openpatch_proto::cmd::FILL_DRAW..=openpatch_proto::cmd::CLEAR_DIAG).contains(&t)
+}

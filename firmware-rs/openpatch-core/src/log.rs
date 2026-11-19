@@ -47,6 +47,10 @@ pub enum EventType {
     DrawStall = 27,
     /// Prime finished. a = steps.
     PrimeDone = 30,
+    /// A diagnostic record was raised (docs/06-diagnostics.md 5.4): a = code, b = `ctx_a`. Written
+    /// only after [`crate::Pump::set_diag_history`], so a v1-only history reader sees that
+    /// something happened; the legacy `Fault` event (14) is written as before.
+    Diag = 31,
 }
 
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]

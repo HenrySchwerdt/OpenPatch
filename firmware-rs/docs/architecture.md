@@ -146,3 +146,21 @@ and the data set is a few small keyed records; `ekv` (LSM tree) pays off for man
 * `Hal::motor_fault() -> Option<MotorFault>` (take-and-clear, default `None`) and `Hal::motor_enable_dir(MotorDir)` (default `motor_enable(true)`). The core
   queries the fault after every forward and reverse burst, latches INTERNAL and keeps the cause in `Pump::last_motor_fault()`; a draw is aborted.
 * `bench::CsvRow::peak_ma` (`Option<u16>`, empty field without a current sensor), column `peak_ma` appended to `CSV_HEADER`; fed from `Pump::take_peak_ma()`.
+
+## Diagnostics in the core (docs/06-diagnostics.md; WP-0, WP-1, WP-2 part 1, WP-4)
+
+* **Crate `openpatch-diag`** (no_std, no unsafe): `DiagCode` (32 bit), `Severity`, `Action`, `Fru`, the 32 byte `DiagRecord`, `DiagSummary`, and the
+  GENERATED `catalogue.rs` (150 rows, `codes::NAME` constants). Source of truth: `spec/diag-codes.csv`; `tools/gen_diag.py` generates the Rust and Swift
+  catalogues and `docs/06-diagnostics-trace.md`; `tools/gen_diag.py --check` (also run by a cargo test) fails on drift against the doc tables.
+* **`openpatch_core::diag::DiagState`** (about 3.4 KB RAM, owned by the `SafetySupervisor`): 64 record ring, active set (32), latched set (16), cause chain
+  (depth 4), coalescing (10 s), escalation, clear records, notification queue, summary and FRU health (UNKNOWN until a proof exists). The legacy
+  `Faults` bits are a **derived projection** of the active F/L records (`SafetySupervisor::faults()`); `latch(Faults::X)` raises a catalogue code
+  (INTERNAL: `7-7C-003`). New call sites use `SafetySupervisor::raise` / `raise_caused_by`.
+* **Hal (additive, default no-op):** `take_diag`, `motor_step_ex`, `interlock_state`, `selftest`, `reset_cause`, `breadcrumb`, `pod_uid`. The HAL reports,
+  the core decides policy; HAL records are the root of the chain, the core's own record (for example `7-70-005`) links to them.
+* **Detectors implemented so far** (one `diag_<code>` test each, see `tools/diag_coverage.py`): reset cause, tick overrun, battery low/critical, reservoir
+  empty/low, wear warning/expired, calibration, limit vetoes, occlusion (shortfall, current), window and per-revolution deviation, carriage jam, lost angle
+  channel, steps short of approval, HAL burst faults, draw aborted / blocked / direction inverted.
+* **Deliberately not done in the core yet:** `7-7B-002 TICK_STALL` as a fault (the C reference only counts it; a fault bit would break the differential
+  parity), frozen / jump / noise angle detectors and uncommanded-motion detection (need the nominal 72 h soak first), everything that needs the bench HAL
+  (WP-3).

@@ -45,6 +45,13 @@ pub mod cmd {
     /// Rust extension: automatic draw (refill) of `FILL_MU` mU; amount 0 cancels a running draw.
     /// Only suspended + undocked.
     pub const FILL_DRAW: u8 = 0x0F;
+    // ---- diagnostics (docs/06-diagnostics.md 5.4), additive ----
+    /// Records of the persistent fault log, `FROM_ID` / `MAX_EVENTS` (0 or above 4 gives 4).
+    pub const GET_FAULT_LOG: u8 = 0x10;
+    /// `SUB_OP`: 1 POST-S again, 2 POST-A, 3 watchdog proof (service). Suspended only.
+    pub const RUN_SELF_TEST: u8 = 0x11;
+    /// `DIAG_CODE` (0 = every clearable W/F record).
+    pub const CLEAR_DIAG: u8 = 0x12;
 }
 
 /// TLV tags.
@@ -94,6 +101,23 @@ pub mod tag {
     /// Notification: u8 kind, u32 argument.
     pub const NOTIFY_KIND: u8 = 0x25;
     pub const NOTIFY_ARG: u8 = 0x26;
+    // ---- diagnostics (docs/06-diagnostics.md 5.4), additive; unknown tags are skipped by v1 receivers ----
+    /// 14 bytes, see `openpatch_diag::DiagSummary`.
+    pub const DIAG_SUMMARY: u8 = 0x27;
+    /// u64, 2 bits per FRU id 0..31: 0 unknown, 1 ok, 2 degraded (W), 3 failed (F/L).
+    pub const FRU_HEALTH: u8 = 0x28;
+    /// 32 bytes, see `openpatch_diag::DiagRecord`.
+    pub const DIAG_RECORD: u8 = 0x29;
+    pub const NEXT_DIAG_ID: u8 = 0x2A;
+    pub const OLDEST_DIAG_ID: u8 = 0x2B;
+    /// 4 to 64 bytes: up to 16 x u32 code of the latched set.
+    pub const DIAG_LATCHED: u8 = 0x2C;
+    /// 6 bytes: `u8 state, u8 kind, u16 steps_passed, u16 steps_failed`.
+    pub const SELFTEST_STATE: u8 = 0x2D;
+    /// u32 code (request of `ClearDiag`; also returned with refusals).
+    pub const DIAG_CODE: u8 = 0x2E;
+    /// u64: nRF `FICR.DEVICEID`, the stable identity of a pod (independent of role A/B).
+    pub const POD_UID: u8 = 0x2F;
 }
 
 pub const SUBOP_FILL: u8 = 1;
@@ -116,7 +140,27 @@ pub mod st {
     pub const DRAWING: u16 = 1 << 11;
     /// Mandatory priming after a fill / draw has not been done yet.
     pub const PRIME_REQUIRED: u16 = 1 << 12;
+    /// Any W/F/L diagnostic record is active.
+    pub const DIAG_ACTIVE: u16 = 1 << 13;
+    /// The latched set is not empty: `Resume` and `Activate` are refused.
+    pub const LATCHED: u16 = 1 << 14;
 }
+
+/// `RunSelfTest` sub-ops and `SELFTEST_STATE` values.
+pub mod selftest {
+    pub const SUBOP_POST_S: u8 = 1;
+    pub const SUBOP_POST_A: u8 = 2;
+    /// Service command: withholds the watchdog DONE once, resets the MCU.
+    pub const SUBOP_WATCHDOG: u8 = 3;
+    pub const IDLE: u8 = 0;
+    pub const RUNNING: u8 = 1;
+    pub const DONE: u8 = 2;
+}
+
+/// Records per `GetFaultLog` response and the size of the latched set on the wire.
+pub const DIAG_RECORDS_PER_RESPONSE: usize = 4;
+pub const DIAG_LATCHED_MAX: usize = 16;
+pub(crate) const SELFTEST_TLV_LEN: usize = 6;
 
 pub(crate) const EVENT_TLV_LEN: usize = 17;
 pub(crate) const POD_INFO_TLV_LEN: usize = 10;
@@ -146,4 +190,10 @@ pub mod notify {
     pub const DRAW_DONE: u8 = 3;
     /// Draw ended early by a stall, arg = drawn volume (mU).
     pub const DRAW_STALLED: u8 = 4;
+    /// A diagnostic record was raised: arg = code, plus a `DIAG_RECORD` tag with the complete record.
+    pub const DIAG_RAISED: u8 = 5;
+    /// A diagnostic condition cleared: arg = code.
+    pub const DIAG_CLEARED: u8 = 6;
+    /// Self-test progress: arg = passed mask (high half) and failed mask (low half).
+    pub const SELFTEST_PROGRESS: u8 = 7;
 }

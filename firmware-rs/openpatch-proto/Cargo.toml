@@ -14,10 +14,11 @@ aes-ccm = ["dep:aes", "dep:ccm"]
 # ephemeral X25519 + HKDF-SHA256 bound to a long-term pairing secret. Pure Rust, no_std, no alloc.
 key-agreement = ["aes-ccm", "dep:x25519-dalek", "dep:hkdf", "dep:sha2", "dep:hmac", "dep:subtle", "dep:rand_core"]
 std = []
-defmt = ["dep:defmt"]
+defmt = ["dep:defmt", "openpatch-diag/defmt"]
 
 [dependencies]
 heapless = { workspace = true }
+openpatch-diag = { path = "../openpatch-diag" }
 aes = { version = "0.8.4", optional = true, default-features = false }
 ccm = { version = "0.5.0", optional = true, default-features = false }
 defmt = { version = "0.3.8", optional = true }
@@ -30,4 +31,6 @@ rand_core = { version = "0.6.4", optional = true, default-features = false }
 
 [dev-dependencies]
 proptest = { workspace = true }
+# the golden frames of docs/vectors/diag-frames.json use the real AES-CCM
+openpatch-proto = { path = ".", features = ["aes-ccm"] }
 serde_json = "1.0"

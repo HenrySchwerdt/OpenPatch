@@ -263,16 +263,16 @@ impl Gen {
                 return f;
             }
         }
-        if ty == cmd::FILL_DRAW {
-            ty = cmd::GET_STATUS; // 0x0F is Rust-only (documented)
+        if crate::rust_only_cmd(ty) {
+            ty = cmd::GET_STATUS; // 0x0F..0x12 are Rust-only (documented)
         }
         let mut f = build_frame(ver, ty, flags, seq, &payload);
         if bad_crc {
             let n = f.len();
             f[n - 1] ^= 0x5A;
         }
-        // a random byte string may still carry type 0x0F in byte 1: keep it out of shared streams
-        if f.len() > 1 && f[1] == cmd::FILL_DRAW {
+        // a random byte string may still carry a Rust-only type in byte 1: keep it out of shared streams
+        if f.len() > 1 && crate::rust_only_cmd(f[1]) {
             f[1] = cmd::GET_STATUS;
         }
         f

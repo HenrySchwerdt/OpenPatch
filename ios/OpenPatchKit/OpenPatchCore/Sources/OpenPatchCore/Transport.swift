@@ -20,6 +20,26 @@ public protocol OpenPatchTransport: AnyObject {
     func connect(completion: @escaping (Result<Void, TransportError>) -> Void)
     func disconnect()
     func send(_ command: Command, completion: @escaping (Result<Response, TransportError>) -> Void)
+
+    // MARK: Diagnostics (docs/06-diagnostics.md 5.5). Defaults answer "unsupported" until a transport implements them.
+
+    /// All records from `from` on (paged until the pod's `NEXT_DIAG_ID`), with the latched set.
+    func getFaultLog(from: UInt32, completion: @escaping (Result<FaultLog, DiagCommandError>) -> Void)
+    func runSelfTest(_ kind: SelfTestState.Kind, completion: @escaping (Result<SelfTestState, DiagCommandError>) -> Void)
+    /// `nil` clears every clearable W/F record. The pod, not the app, decides whether a latched code clears.
+    func clearDiag(_ code: DiagCode?, completion: @escaping (Result<DiagSummary, DiagCommandError>) -> Void)
+}
+
+public extension OpenPatchTransport {
+    func getFaultLog(from: UInt32, completion: @escaping (Result<FaultLog, DiagCommandError>) -> Void) {
+        completion(.failure(.nack(.unsupported, code: nil)))
+    }
+    func runSelfTest(_ kind: SelfTestState.Kind, completion: @escaping (Result<SelfTestState, DiagCommandError>) -> Void) {
+        completion(.failure(.nack(.unsupported, code: nil)))
+    }
+    func clearDiag(_ code: DiagCode?, completion: @escaping (Result<DiagSummary, DiagCommandError>) -> Void) {
+        completion(.failure(.nack(.unsupported, code: nil)))
+    }
 }
 
 public enum SimulatedTransportFault: Equatable {
@@ -64,6 +84,37 @@ public final class SimulatedTransport: OpenPatchTransport {
         forwardEvents()
         if injected == .dropResponse { return completion(.failure(.timeout)) }
         completion(.success(response))
+    }
+
+    private func diagnostics<T>(_ work: () -> Result<T, DiagCommandError>, completion: (Result<T, DiagCommandError>) -> Void) {
+        guard isConnected, isReachable else { isConnected = false; return completion(.failure(.transport(.notConnected))) }
+        guard pod.reportsDiagnostics else { return completion(.failure(.nack(.unsupported, code: nil))) }
+        let result = work()
+        forwardEvents()
+        completion(result)
+    }
+
+    public func getFaultLog(from: UInt32, completion: @escaping (Result<FaultLog, DiagCommandError>) -> Void) {
+        diagnostics({
+            var log = pod.faultLog(from: from)
+            var cursor = from
+            while let last = log.records.last, last.recID + 1 < log.nextID, log.records.count < SimulatedDiagState.ringCapacity {
+                cursor = last.recID + 1
+                let page = pod.faultLog(from: cursor)
+                guard !page.records.isEmpty else { break }
+                log.records += page.records
+            }
+            _ = cursor
+            return .success(log)
+        }, completion: completion)
+    }
+
+    public func runSelfTest(_ kind: SelfTestState.Kind, completion: @escaping (Result<SelfTestState, DiagCommandError>) -> Void) {
+        diagnostics({ pod.runSelfTest(kind) }, completion: completion)
+    }
+
+    public func clearDiag(_ code: DiagCode?, completion: @escaping (Result<DiagSummary, DiagCommandError>) -> Void) {
+        diagnostics({ pod.clearDiag(code) }, completion: completion)
     }
 
     /// Advances simulated time and delivers resulting pod events.

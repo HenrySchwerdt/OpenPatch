@@ -223,8 +223,13 @@ public final class SecureChannel {
         return Self.finish(header: header, body: sealed)
     }
 
+    /// Which characteristic a frame came from. The nonce direction depends on it: responses are dir 1, notifications dir 2.
+    /// Frame type 0x90 is ambiguous (the response to `GetFaultLog` 0x10 is 0x10 | 0x80, and notifications are type 0x90), so callers that
+    /// know the characteristic pass it; without it the type decides (0x90 = notification), as before.
+    public enum Origin: Equatable { case response, notification }
+
     /// Opens a response (RESPONSE flag, dir 1) or a notification (type 0x90, dir 2). Commands are not accepted here.
-    public func open(_ data: Data) throws -> V1.Message {
+    public func open(_ data: Data, as origin: Origin? = nil) throws -> V1.Message {
         let bytes = [UInt8](data)
         guard bytes.count >= V1.headerSize + V1.crcSize, bytes.count <= V1.maxFrameSize else { throw Failure.malformed }
         let length = Int(bytes[5]) | Int(bytes[6]) << 8
@@ -236,7 +241,7 @@ public final class SecureChannel {
         guard flags & V1.flagResponse != 0 else { throw Failure.malformed }   // a command is never a valid inbound frame
         let type = bytes[1]
         let seq = UInt16(bytes[3]) | UInt16(bytes[4]) << 8
-        let dir: UInt8 = type == Self.notificationType ? 2 : 1
+        let dir: UInt8 = (origin ?? (type == Self.notificationType ? .notification : .response)) == .notification ? 2 : 1
         let sealed = Array(bytes[V1.headerSize..<(V1.headerSize + length)])
         guard let plain = p2c.open(nonce: nonce(dir: dir, seq: seq), aad: Array(bytes[0..<V1.headerSize]), sealed: sealed) else {
             throw Failure.authentication

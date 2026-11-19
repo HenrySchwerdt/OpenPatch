@@ -26,7 +26,9 @@ pub mod ccm_impl;
 pub mod handshake;
 
 pub use codec_cmd::{decode_command, encode_command_payload};
-pub use codec_rsp::{decode_response, encode_notification_payload, encode_response_payload};
+pub use codec_rsp::{
+    decode_notification_payload, decode_response, encode_notification_payload, encode_notification_payload_ex, encode_response_payload,
+};
 pub use consts::*;
 pub use error::Error;
 pub use frame::{decode_frame, encode_frame, Frame};

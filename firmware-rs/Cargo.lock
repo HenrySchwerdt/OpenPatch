@@ -459,8 +459,16 @@ dependencies = [
  "defmt 0.3.101",
  "heapless",
  "openpatch-core",
+ "openpatch-diag",
  "openpatch-proto",
  "proptest",
+]
+
+[[package]]
+name = "openpatch-diag"
+version = "0.1.0"
+dependencies = [
+ "defmt 0.3.101",
 ]
 
 [[package]]
@@ -473,6 +481,8 @@ dependencies = [
  "heapless",
  "hkdf",
  "hmac",
+ "openpatch-diag",
+ "openpatch-proto",
  "proptest",
  "rand_core 0.6.4",
  "serde_json",

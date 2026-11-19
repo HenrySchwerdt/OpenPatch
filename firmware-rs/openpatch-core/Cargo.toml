@@ -8,12 +8,13 @@ rust-version.workspace = true
 
 [features]
 default = []
-defmt = ["dep:defmt", "openpatch-proto/defmt"]
+defmt = ["dep:defmt", "openpatch-proto/defmt", "openpatch-diag/defmt"]
 # HOST TESTS ONLY: adds the 26 100 / 8 156 uU/pulse test calibrations. Never enable in firmware.
 test-calibrations = []
 
 [dependencies]
 openpatch-proto = { path = "../openpatch-proto" }
+openpatch-diag = { path = "../openpatch-diag" }
 heapless = { workspace = true }
 defmt = { version = "0.3.8", optional = true }
 
