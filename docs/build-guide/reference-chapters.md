@@ -1,4 +1,4 @@
-# OpenPatch bench pod build guide
+# Reference chapters of the OpenPatch bench pod build guide
 
 > **WARNING: BENCH TEST ONLY.** OpenPatch is a test project and **not a medical device**. The pod must **never be worn on, attached to, or used on a person or an animal.** **Fill it with water only. Never put insulin or any other drug into it, not even into a container.** All tests are table-top tests into a beaker, a vial or onto a balance. See [DISCLAIMER.md](../../DISCLAIMER.md), [CLAUDE.md](../../CLAUDE.md) and [docs/02-safety.md](../02-safety.md).
 
