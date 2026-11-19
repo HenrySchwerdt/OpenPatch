@@ -52,6 +52,136 @@
    ],
    "variant": "dark",
    "bytes": 32160
+  },
+  {
+   "id": "hero_opaque",
+   "file": "renders/hero_opaque.webp",
+   "kind": "hero",
+   "title": "OP-100, opaque lid variant",
+   "caption": "Alternate view with an opaque lid.",
+   "size": [
+    1500,
+    940
+   ],
+   "variant": "light",
+   "bytes": 11972
+  },
+  {
+   "id": "hero_opaque",
+   "file": "renders/hero_opaque-dark.webp",
+   "kind": "hero",
+   "title": "OP-100, opaque lid variant",
+   "caption": "Alternate view with an opaque lid.",
+   "size": [
+    1500,
+    940
+   ],
+   "variant": "dark",
+   "bytes": 14368
+  },
+  {
+   "id": "hero_34_b",
+   "file": "renders/hero_34_b.webp",
+   "kind": "hero",
+   "title": "OP-100, from the dry end",
+   "caption": "Same pod seen from the dry end.",
+   "size": [
+    1500,
+    940
+   ],
+   "variant": "light",
+   "bytes": 14100
+  },
+  {
+   "id": "hero_34_b",
+   "file": "renders/hero_34_b-dark.webp",
+   "kind": "hero",
+   "title": "OP-100, from the dry end",
+   "caption": "Same pod seen from the dry end.",
+   "size": [
+    1500,
+    940
+   ],
+   "variant": "dark",
+   "bytes": 16466
+  },
+  {
+   "id": "top",
+   "file": "renders/top.webp",
+   "kind": "hero",
+   "title": "OP-100, top view",
+   "caption": "Top view with the fill window and the 10 U scale.",
+   "size": [
+    1500,
+    1000
+   ],
+   "variant": "light",
+   "bytes": 16798
+  },
+  {
+   "id": "top",
+   "file": "renders/top-dark.webp",
+   "kind": "hero",
+   "title": "OP-100, top view",
+   "caption": "Top view with the fill window and the 10 U scale.",
+   "size": [
+    1500,
+    1000
+   ],
+   "variant": "dark",
+   "bytes": 16892
+  },
+  {
+   "id": "exploded",
+   "file": "renders/exploded.webp",
+   "kind": "exploded",
+   "title": "OP-100 exploded",
+   "caption": "Every real part, spaced out along the assembly axes.",
+   "size": [
+    1800,
+    1500
+   ],
+   "variant": "light",
+   "bytes": 41886
+  },
+  {
+   "id": "exploded_labelled",
+   "file": "renders/exploded-labelled.webp",
+   "kind": "exploded",
+   "title": "OP-100 exploded, labelled",
+   "caption": "Exploded view with part names.",
+   "size": [
+    1800,
+    1500
+   ],
+   "variant": "light",
+   "bytes": 117568
+  },
+  {
+   "id": "exploded",
+   "file": "renders/exploded-dark.webp",
+   "kind": "exploded",
+   "title": "OP-100 exploded",
+   "caption": "Every real part, spaced out along the assembly axes.",
+   "size": [
+    1800,
+    1500
+   ],
+   "variant": "dark",
+   "bytes": 47966
+  },
+  {
+   "id": "exploded_labelled",
+   "file": "renders/exploded-labelled-dark.webp",
+   "kind": "exploded",
+   "title": "OP-100 exploded, labelled",
+   "caption": "Exploded view with part names.",
+   "size": [
+    1800,
+    1500
+   ],
+   "variant": "dark",
+   "bytes": 120776
   }
  ]
 }

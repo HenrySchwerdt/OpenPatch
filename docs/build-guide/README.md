@@ -23,7 +23,7 @@ Use these when you follow chapters 10 and 11 (they supersede older numbers there
 | Prime after a refill | automatic take-up (160 steps, not counted as delivery), wait one minute (1.7 U/min backstop), then 5 prime commands (prime path about 2.21 U, may shrink after the seal and dead-volume study) |
 | Draw rate | capped by the fill needle gauge (29G: 841 pps) |
 
-## Steps (48)
+## Steps (31)
 
 ### A. Prepare the parts
 
@@ -65,28 +65,6 @@ Use these when you follow chapters 10 and 11 (they supersede older numbers there
 | [29](steps/B07.webp) | Unscrew the rod piece | 1x B5 | Non-magnetic tweezers |
 | [30](steps/B08.webp) | Press the shim into the carriage pocket | 1x B10, 1x C2 | Non-magnetic tweezers |
 | [31](steps/B09.webp) | Press the fill septum into the end cap | 1x B14 | Non-magnetic tweezers |
-| [32](steps/B10.webp) | Drop the duckbill valve into the slot | 1x B13 | Non-magnetic tweezers |
-| [33](steps/B11.webp) | Press the valve plug into the slot | 1x M3 | Non-magnetic tweezers |
-| [34](steps/B12.webp) | Press the end cap onto the reservoir port | 1x P7, 1x P6 | Non-magnetic tweezers |
-| [35](steps/B13.webp) | Push the plunger into the reservoir | 1x P4, 1x P6 | Non-magnetic tweezers |
-
-### C. Shell, drive and needle
-
-| Step | Action | Parts | Tools |
-|---|---|---|---|
-| [36](steps/C01.webp) | Press the dry bush into the shell | 1x B7 | Non-magnetic tweezers |
-| [37](steps/C02.webp) | Press the far bush into the shell | 1x B7 | Non-magnetic tweezers |
-| [38](steps/C03.webp) | Lower the reservoir into the shell | 1x P6 | - |
-| [39](steps/C04.webp) | Slide the sleeve into gear B | 1x B4, 1x B3, 1x C1 | Non-magnetic tweezers |
-| [40](steps/C05.webp) | Lay the carriage on the floor rail | 1x P3 | Non-magnetic tweezers |
-| [41](steps/C06.webp) | Lay gear B with its sleeve in the gear plane | 1x B3 | Non-magnetic tweezers |
-| [42](steps/C07.webp) | Insert the rod from the dock end | 1x B5 | Pin vise + drills |
-| [43](steps/C08.webp) | Turn the rod: carriage runs to the rear stop | - | Pin vise + drills |
-| [44](steps/C09.webp) | Press the collar onto the rod end | 1x B4c, 1x C1 | Non-magnetic tweezers, Feeler gauges |
-| [45](steps/C10.webp) | Glue the spindle magnet on the rod end | 1x B8, 1x C2 | Non-magnetic tweezers |
-| [46](steps/C11.webp) | Lay the motor into its three cradles | 1x B1 | Non-magnetic tweezers |
-| [47](steps/C12.webp) | Slide gear A onto the D-shaft, dry | 1x B2 | Non-magnetic tweezers |
-| [48](steps/C13.webp) | Check the mesh by hand | - | Feeler gauges |
 
 ## Licence
 
