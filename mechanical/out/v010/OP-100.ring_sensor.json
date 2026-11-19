@@ -1,0 +1,22 @@
+{
+ "size": "OP-100",
+ "rel_mm": [
+  -0.65,
+  -4.3,
+  0.175
+ ],
+ "nominal": {
+  "B_yz_min_mT": 35.17,
+  "B_yz_max_mT": 75.3,
+  "B_x_pk_mT": 25.44,
+  "angle_err_pp_deg": 48.59,
+  "angle_slope": -1.051
+ },
+ "worst_0p3mm": {
+  "angle_err_pp_deg": 51.74,
+  "B_yz_min_mT": 28.45,
+  "B_yz_max_mT": 95.02
+ },
+ "magnet": "diametric ring d5 x d2 x 1.5, N45 Br 1.30 T assumed",
+ "tmag_variant_note": "TMAG5273A1 (+-40 / +-80 mT) if B_yz_max < 40 mT, else A2 (+-133 / +-266 mT)"
+}

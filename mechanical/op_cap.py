@@ -63,7 +63,7 @@ def build_cap(s: Script, p: dict, L: dict) -> dict:
     nsh = 2.8
     # ------------------------------------------------------------------ base
     s.box("end_cap", (x0, x1), (y0, y1), (z0, zs))
-    j = [_half(s, "t_spg_l", ("X", (0, yc, zp), cp["spigot_d"], xr - cp["spigot_len"], xr + 0.01), (xr - cp["spigot_len"] - 0.1, xr + 0.1), (yc - 2, yc + 2), (zp - 2, zs)),
+    j = [_half(s, "t_spg_l", ("X", (0, yc, zp), cp["spigot_d"], xr - cp["spigot_len"], xr + 0.01), (xr - cp["spigot_len"] - 0.1, xr + 0.1), (yc - 0.8, yc + 0.8), (zp - 2, zs)),
          s.cyl("t_cap_shroud", "X", (0, yc, zn), cn["O_cyl_od"], x1 - 0.05, D["shroud_end"])]
     s.join("end_cap", j)
     s.tube("t_og_b", "X", (0, yc, zp), og["groove_inner_d"] + 2 * og["groove_w"], og["groove_inner_d"], xr - 0.1, xr + og["groove_depth"])
@@ -72,7 +72,7 @@ def build_cap(s: Script, p: dict, L: dict) -> dict:
         s.box("t_g_rec", (xr + gx0, xr + gx1), (y0 + gm, gy1), (zs - rec, zs + 0.1)),                                  # gasket recess (0.4 deep)
         s.cyl("t_cap_p", "X", (0, yc, zp), dp, xr - cp["spigot_len"] - 0.1, xr + gx0 + 0.1),                          # port channel (half groove in the spigot)
         s.cyl("t_cap_via", "Z", (xd, yc, 0), sw["via_d"], zn - 0.3, zs - rec + 0.1),                                  # via: slot layer -> needle axis
-        s.cyl("t_cap_nb", "X", (0, yc, zn), dp, xd - 0.3, D["x_h0"] + 0.1),                                           # needle bore: junction -> hub
+        s.cyl("t_cap_nb", "X", (0, yc, zn), cp.get("bore_d", dp), xd + (0.1 if "bore_d" in cp else -0.3), D["x_h0"] + (0.02 if "bore_d" in cp else 0.1)),                                           # needle bore: junction -> hub
         s.cyl("t_cap_hb", "X", (0, yc, zn), dk["hub_d"] - cp["hub_press"], D["x_h0"], D["shroud_end"] + 0.1),         # hub seat (needle UV-glued, jig)
         s.cyl("t_cap_sp", "Z", (xd, yd, 0), sdia + sfl, zf, zs + 0.05),                                                # septum pocket (axis Z, open top)
         s.cyl("t_cap_fh", "Z", (xd, yd, 0), cp["fill_hole_d"], z0 - 0.1, zf + 0.1),                                    # fill-needle hole down to the pod floor hole
@@ -82,7 +82,7 @@ def build_cap(s: Script, p: dict, L: dict) -> dict:
     s.cut("end_cap", cuts)
     # ------------------------------------------------------------------ lid
     s.box("end_cap_lid", (x0, x1), (y0, y1), (zs, zt))
-    s.join("end_cap_lid", [_half(s, "t_spg_u", ("X", (0, yc, zp), cp["spigot_d"], xr - cp["spigot_len"], xr + 0.01), (xr - cp["spigot_len"] - 0.1, xr + 0.1), (yc - 2, yc + 2), (zs, zp + 2))])
+    s.join("end_cap_lid", [_half(s, "t_spg_u", ("X", (0, yc, zp), cp["spigot_d"], xr - cp["spigot_len"], xr + 0.01), (xr - cp["spigot_len"] - 0.1, xr + 0.1), (yc - 0.8, yc + 0.8), (zs, zp + 2))])
     s.tube("t_og_u", "X", (0, yc, zp), og["groove_inner_d"] + 2 * og["groove_w"], og["groove_inner_d"], xr - 0.1, xr + og["groove_depth"])
     lcuts = [
         "t_og_u",
@@ -93,7 +93,8 @@ def build_cap(s: Script, p: dict, L: dict) -> dict:
     sc = sw["screws"]
     for k, (sx, sy) in enumerate(sc["pos"]):
         lcuts.append(s.cyl(f"t_cap_cl{k}", "Z", (xr + sx, yc + sy, 0), sc["clear"], zs - 0.1, zt + 0.1))
-        lcuts.append(s.cyl(f"t_cap_hd{k}", "Z", (xr + sx, yc + sy, 0), sc["head_d"], zt - sc["head_depth"], zt + 0.1))
+        if sc["head_depth"] > 0:           # v0.1.0: no counterbore (the head sits on the lid top, 0.9 mm high, under the pod lid)
+            lcuts.append(s.cyl(f"t_cap_hd{k}", "Z", (xr + sx, yc + sy, 0), sc["head_d"], zt - sc["head_depth"], zt + 0.1))
     s.cut("end_cap_lid", lcuts)
     # ------------------------------------------------------------------ gasket (silicone sheet, the port path = one slot)
     s.box("cap_gasket", (xr + gx0, xr + gx1), (y0 + gm, gy1), (zs - rec, zs - rec + gt))
@@ -101,6 +102,8 @@ def build_cap(s: Script, p: dict, L: dict) -> dict:
         s.box("t_gs_p", (xr + gx0 - 0.1, xd + ws / 2), (yc - ws / 2, yc + ws / 2), (zs - 1, zs + 1)),                  # port slot
         s.cyl("t_gs_s", "Z", (xd, yd, 0), sdia + sfl, zs - 1, zs + 1),                                                 # septum pocket opening
     ]
+    for k, (sx, sy) in enumerate(sw["screws"]["pos"]):         # clamp screw passes through the sheet
+        gc.append(s.cyl(f"t_gs_sc{k}", "Z", (xr + sx, yc + sy, 0), sw["screws"]["clear"], zs - 1, zs + 1))
     s.cut("cap_gasket", gc)
     return G
 

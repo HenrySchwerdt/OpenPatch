@@ -1,0 +1,110 @@
+{
+ "baseline: NFP-608 in the rear zone, bore 25.7 x 4.7, frozen dock tail 21.2": {
+  "OP-100": [
+   58.2,
+   8.62,
+   20.6
+  ],
+  "OP-200": [
+   66.9,
+   17.23,
+   20.6
+  ]
+ },
+ "Zhaowei d3.4 motor (envelope 14.1 mm stack, UNVERIFIED torque)": {
+  "OP-100": [
+   54.7,
+   8.62,
+   17.1
+  ],
+  "OP-200": [
+   66.4,
+   17.23,
+   20.1
+  ]
+ },
+ "dock tail 21.2 -> 19.0 (decision: septum off the insert footprint, datum moves 2.2)": {
+  "OP-100": [
+   56.0,
+   8.62,
+   20.6
+  ],
+  "OP-200": [
+   64.7,
+   17.23,
+   20.6
+  ]
+ },
+ "dock tail 21.2 -> 17.2 (decision, f = 4 of the drive study)": {
+  "OP-100": [
+   54.2,
+   8.62,
+   20.6
+  ],
+  "OP-200": [
+   62.9,
+   17.23,
+   20.6
+  ]
+ },
+ "no lid-screw lane: bore 28.0 wide (decision: lid fixed by snap hooks)": {
+  "OP-100": [
+   57.5,
+   7.88,
+   20.6
+  ],
+  "OP-200": [
+   65.4,
+   15.77,
+   20.6
+  ]
+ },
+ "NFP + tail 19.0 + bore 28.0": {
+  "OP-100": [
+   55.3,
+   7.88,
+   20.6
+  ],
+  "OP-200": [
+   63.2,
+   15.77,
+   20.6
+  ]
+ },
+ "Zhaowei + tail 19.0": {
+  "OP-100": [
+   52.5,
+   8.62,
+   17.1
+  ],
+  "OP-200": [
+   64.2,
+   17.23,
+   20.1
+  ]
+ },
+ "Zhaowei + tail 17.2 + bore 28.0": {
+  "OP-100": [
+   50.0,
+   7.88,
+   17.1
+  ],
+  "OP-200": [
+   59.4,
+   15.77,
+   18.7
+  ]
+ },
+ "Zhaowei + tail 17.2 + bore 28.0 + end wall 1.5 + dry strip 0.5": {
+  "OP-100": [
+   49.0,
+   7.88,
+   17.1
+  ],
+  "OP-200": [
+   58.4,
+   15.77,
+   18.7
+  ]
+ }
+}

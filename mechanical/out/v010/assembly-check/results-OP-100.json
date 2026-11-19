@@ -1,0 +1,6407 @@
+{
+ "size": "OP-100",
+ "steps": [
+  {
+   "id": "P1",
+   "title": "Front seal bead ring B (cast silicone) stretched over the core into the front groove",
+   "guide": "ASSEMBLY.md",
+   "context": "plunger",
+   "parts": [
+    "seal_b"
+   ],
+   "tool": "hand (stretch over the core)",
+   "present": 1,
+   "status": "OK",
+   "notes": [],
+   "events": [
+    {
+     "pair": [
+      "seal_b",
+      "plunger_core"
+     ],
+     "kind": "stretch",
+     "max_overlap_mm3": 15.1497,
+     "from_s": 1.4,
+     "to_s": 0.1
+    }
+   ],
+   "alternatives": [],
+   "path": [
+    {
+     "dir": [
+      -1.0,
+      0.0,
+      0.0
+     ],
+     "dist": 4.5
+    }
+   ],
+   "seconds": 0.3
+  },
+  {
+   "id": "C1",
+   "title": "O-ring 2.0 x 0.7 stretched over the spigot into the face groove of the end cap",
+   "guide": "ASSEMBLY.md",
+   "context": "capsub",
+   "parts": [
+    "cap_oring"
+   ],
+   "tool": "tweezers",
+   "present": 1,
+   "status": "OK",
+   "notes": [],
+   "events": [
+    {
+     "pair": [
+      "cap_oring",
+      "end_cap"
+     ],
+     "kind": "press",
+     "max_overlap_mm3": 0.0001,
+     "from_s": 0.1,
+     "to_s": 0.0
+    }
+   ],
+   "alternatives": [],
+   "path": [
+    {
+     "dir": [
+      1.0,
+      0.0,
+      0.0
+     ],
+     "dist": 3.0
+    }
+   ],
+   "seconds": 0.2
+  },
+  {
+   "id": "C2",
+   "title": "Silicone sheet gasket laid into the 0.4 mm recess of the end cap",
+   "guide": "ASSEMBLY.md",
+   "context": "capsub",
+   "parts": [
+    "cap_gasket"
+   ],
+   "tool": "tweezers",
+   "present": 2,
+   "status": "OK",
+   "notes": [],
+   "events": [],
+   "alternatives": [],
+   "path": [
+    {
+     "dir": [
+      0.0,
+      0.0,
+      -1.0
+     ],
+     "dist": 3.0
+    }
+   ],
+   "seconds": 0.1
+  },
+  {
+   "id": "C3",
+   "title": "Septum disc d3.2 x 2 dropped into the septum pocket (open top)",
+   "guide": "ASSEMBLY.md",
+   "context": "capsub",
+   "parts": [
+    "septum"
+   ],
+   "tool": "tweezers",
+   "present": 3,
+   "status": "OK",
+   "notes": [],
+   "events": [],
+   "alternatives": [],
+   "path": [
+    {
+     "dir": [
+      0.0,
+      0.0,
+      -1.0
+     ],
+     "dist": 6.0
+    }
+   ],
+   "seconds": 0.1
+  },
+  {
+   "id": "C4",
+   "title": "End cap lid lowered on the lands (clamp screws follow once the module sits in the pod)",
+   "guide": "ASSEMBLY.md",
+   "context": "capsub",
+   "parts": [
+    "end_cap_lid"
+   ],
+   "tool": "finger",
+   "present": 4,
+   "status": "OK",
+   "notes": [],
+   "events": [
+    {
+     "pair": [
+      "end_cap_lid",
+      "end_cap"
+     ],
+     "kind": "press",
+     "max_overlap_mm3": 0.0238,
+     "from_s": 0.3,
+     "to_s": 0.0
+    },
+    {
+     "pair": [
+      "end_cap_lid",
+      "cap_oring"
+     ],
+     "kind": "press",
+     "max_overlap_mm3": 0.9209,
+     "from_s": 1.7,
+     "to_s": 0.0
+    },
+    {
+     "pair": [
+      "end_cap_lid",
+      "cap_gasket"
+     ],
+     "kind": "press",
+     "max_overlap_mm3": 1.5611,
+     "from_s": 0.0,
+     "to_s": 0.0
+    }
+   ],
+   "alternatives": [],
+   "path": [
+    {
+     "dir": [
+      0.0,
+      0.0,
+      -1.0
+     ],
+     "dist": 8.0
+    }
+   ],
+   "seconds": 0.1
+  },
+  {
+   "id": "R1",
+   "title": "Plunger (core + front bead) pushed into the reservoir from the open dry end",
+   "guide": "ASSEMBLY.md",
+   "context": "res_sub",
+   "parts": [
+    "plunger_core",
+    "seal_b"
+   ],
+   "tool": "finger",
+   "present": 1,
+   "status": "OK",
+   "notes": [],
+   "events": [],
+   "alternatives": [],
+   "path": [
+    {
+     "dir": [
+      1.0,
+      0.0,
+      0.0
+     ],
+     "dist": 8.0
+    }
+   ],
+   "seconds": 0.3
+  },
+  {
+   "id": "R2",
+   "title": "Fluid module (cap sandwich with O-ring) pressed onto the reservoir end: spigot into the port, O-ring on the end face",
+   "guide": "ASSEMBLY.md",
+   "context": "res_sub",
+   "parts": [
+    "end_cap",
+    "cap_oring",
+    "cap_gasket",
+    "septum",
+    "end_cap_lid"
+   ],
+   "tool": "finger",
+   "present": 3,
+   "status": "OK",
+   "notes": [],
+   "events": [
+    {
+     "pair": [
+      "end_cap,cap_oring...",
+      "reservoir"
+     ],
+     "kind": "press",
+     "max_overlap_mm3": 0.7058,
+     "from_s": 0.1,
+     "to_s": 0.0
+    }
+   ],
+   "alternatives": [],
+   "path": [
+    {
+     "dir": [
+      -1.0,
+      0.0,
+      0.0
+     ],
+     "dist": 5.0
+    }
+   ],
+   "seconds": 0.4
+  },
+  {
+   "id": "M1",
+   "title": "Dry bush pressed into the bearing-block bore (reamed d3.05)",
+   "guide": "ASSEMBLY.md",
+   "context": "main",
+   "parts": [
+    "bush_dry2"
+   ],
+   "tool": "tweezers",
+   "present": 1,
+   "status": "OK",
+   "notes": [],
+   "events": [],
+   "alternatives": [],
+   "path": [
+    {
+     "dir": [
+      -1.0,
+      0.0,
+      0.0
+     ],
+     "dist": 6.0
+    }
+   ],
+   "seconds": 0.1
+  },
+  {
+   "id": "M2",
+   "title": "FPC spine laid into the floor channel (it passes UNDER the reservoir; riser at the contact shelf)",
+   "guide": "ASSEMBLY.md",
+   "context": "main",
+   "parts": [
+    "spine_fpc"
+   ],
+   "tool": "tweezers",
+   "present": 2,
+   "status": "OK",
+   "notes": [],
+   "events": [],
+   "alternatives": [],
+   "path": [
+    {
+     "dir": [
+      0.0,
+      0.0,
+      -1.0
+     ],
+     "dist": 6.0
+    }
+   ],
+   "seconds": 0.0
+  },
+  {
+   "id": "M3",
+   "title": "Motor (rear boss, motor, gearbox, front boss, shaft, terminal block + pins) laid into the three saddles, terminal pins facing +Y",
+   "guide": "ASSEMBLY.md",
+   "context": "main",
+   "parts": [
+    "motor",
+    "gearhead",
+    "motor_boss",
+    "motor_shaft",
+    "motor_rear_boss",
+    "motor_term",
+    "motor_pins"
+   ],
+   "tool": "tweezers",
+   "present": 3,
+   "status": "OK",
+   "notes": [],
+   "events": [],
+   "alternatives": [],
+   "path": [
+    {
+     "dir": [
+      0.0,
+      0.0,
+      -1.0
+     ],
+     "dist": 10.0
+    }
+   ],
+   "seconds": 0.2
+  },
+  {
+   "id": "M4",
+   "title": "Gear A (z16) slid onto the motor shaft from the front and glued",
+   "guide": "ASSEMBLY.md",
+   "context": "main",
+   "parts": [
+    "gear_a"
+   ],
+   "tool": "tweezers",
+   "present": 10,
+   "status": "OK",
+   "notes": [],
+   "events": [],
+   "alternatives": [],
+   "path": [
+    {
+     "dir": [
+      -1.0,
+      0.0,
+      0.0
+     ],
+     "dist": 2.0
+    }
+   ],
+   "seconds": 0.1
+  },
+  {
+   "id": "G1",
+   "title": "Thrust sleeve (brass tube) glued into the nut gear",
+   "guide": "ASSEMBLY.md",
+   "context": "gearpack",
+   "parts": [
+    "thrust_sleeve2"
+   ],
+   "tool": "tweezers",
+   "present": 1,
+   "status": "OK",
+   "notes": [],
+   "events": [],
+   "alternatives": [],
+   "path": [
+    {
+     "dir": [
+      -1.0,
+      0.0,
+      0.0
+     ],
+     "dist": 4.0
+    }
+   ],
+   "seconds": 0.2
+  },
+  {
+   "id": "G2",
+   "title": "Diametric ring magnet pushed over the rear end of the sleeve and glued (pole direction marked)",
+   "guide": "ASSEMBLY.md",
+   "context": "gearpack",
+   "parts": [
+    "ring_magnet"
+   ],
+   "tool": "tweezers",
+   "present": 2,
+   "status": "OK",
+   "notes": [],
+   "events": [
+    {
+     "pair": [
+      "ring_magnet",
+      "thrust_sleeve2"
+     ],
+     "kind": "press",
+     "max_overlap_mm3": 0.0016,
+     "from_s": 1.4,
+     "to_s": 0.0
+    }
+   ],
+   "alternatives": [],
+   "path": [
+    {
+     "dir": [
+      1.0,
+      0.0,
+      0.0
+     ],
+     "dist": 3.0
+    }
+   ],
+   "seconds": 0.9
+  },
+  {
+   "id": "G3",
+   "title": "M1.6 nut glued (Loctite 638) on the front face of the nut gear",
+   "guide": "ASSEMBLY.md",
+   "context": "gearpack",
+   "parts": [
+    "nut"
+   ],
+   "tool": "tweezers",
+   "present": 3,
+   "status": "OK",
+   "notes": [],
+   "events": [],
+   "alternatives": [],
+   "path": [
+    {
+     "dir": [
+      -1.0,
+      0.0,
+      0.0
+     ],
+     "dist": 3.0
+    }
+   ],
+   "seconds": 0.0
+  },
+  {
+   "id": "M5",
+   "title": "Nut-gear pack lowered into the bearing block, meshing with gear A",
+   "guide": "ASSEMBLY.md",
+   "context": "main",
+   "parts": [
+    "gear_d",
+    "thrust_sleeve2",
+    "ring_magnet",
+    "nut"
+   ],
+   "tool": "tweezers",
+   "present": 11,
+   "status": "OK",
+   "notes": [],
+   "events": [
+    {
+     "pair": [
+      "gear_d,thrust_sleeve2...",
+      "gear_a"
+     ],
+     "kind": "press",
+     "max_overlap_mm3": 1.0854,
+     "from_s": 2.3,
+     "to_s": 0.0
+    }
+   ],
+   "alternatives": [],
+   "path": [
+    {
+     "dir": [
+      0.0,
+      0.0,
+      -1.0
+     ],
+     "dist": 10.0
+    }
+   ],
+   "seconds": 0.8
+  },
+  {
+   "id": "M6",
+   "title": "Reservoir sub-assembly lowered and slid 1.2 mm toward -X over the nut (the nut protrudes into the bore opening)",
+   "guide": "ASSEMBLY.md",
+   "context": "main",
+   "parts": [
+    "reservoir",
+    "plunger_core",
+    "seal_b",
+    "end_cap",
+    "cap_oring",
+    "cap_gasket",
+    "septum",
+    "end_cap_lid"
+   ],
+   "tool": "finger",
+   "present": 15,
+   "status": "OK",
+   "notes": [],
+   "events": [],
+   "alternatives": [],
+   "path": [
+    {
+     "dir": [
+      0.0,
+      0.0,
+      -1.0
+     ],
+     "dist": 12.0
+    },
+    {
+     "dir": [
+      -1.0,
+      0.0,
+      0.0
+     ],
+     "dist": 1.2
+    }
+   ],
+   "seconds": 2.2
+  },
+  {
+   "id": "M7",
+   "title": "Needle + hub pressed into the guard tube from the dock mouth",
+   "guide": "ASSEMBLY.md",
+   "context": "main",
+   "parts": [
+    "needle_hub",
+    "needle"
+   ],
+   "tool": "tweezers",
+   "present": 23,
+   "status": "OK",
+   "notes": [],
+   "events": [
+    {
+     "pair": [
+      "needle_hub,needle",
+      "end_cap"
+     ],
+     "kind": "press",
+     "max_overlap_mm3": 0.1747,
+     "from_s": 3.3,
+     "to_s": 0.0
+    }
+   ],
+   "alternatives": [],
+   "path": [
+    {
+     "dir": [
+      -1.0,
+      0.0,
+      0.0
+     ],
+     "dist": 25.0
+    }
+   ],
+   "seconds": 0.6
+  },
+  {
+   "id": "M8",
+   "title": "Drive screw (the only rod) inserted from the REAR through the rear-wall hole, turned through the nut with a pin vise until the slot meets the plunger tab",
+   "guide": "ASSEMBLY.md",
+   "context": "main",
+   "parts": [
+    "drive_screw"
+   ],
+   "tool": "pin vise",
+   "present": 25,
+   "status": "OK",
+   "notes": [],
+   "events": [],
+   "alternatives": [],
+   "path": [
+    {
+     "dir": [
+      1.0,
+      0.0,
+      0.0
+     ],
+     "dist": 40.0
+    }
+   ],
+   "seconds": 1.8
+  },
+  {
+   "id": "M9",
+   "title": "Silicone stopper pressed into the rear-wall hole",
+   "guide": "ASSEMBLY.md",
+   "context": "main",
+   "parts": [
+    "rear_plug"
+   ],
+   "tool": "tweezers",
+   "present": 26,
+   "status": "OK",
+   "notes": [],
+   "events": [],
+   "alternatives": [],
+   "path": [
+    {
+     "dir": [
+      1.0,
+      0.0,
+      0.0
+     ],
+     "dist": 3.0
+    }
+   ],
+   "seconds": 0.0
+  },
+  {
+   "id": "M10",
+   "title": "USB-C gasket frame laid against the inside of the rear wall",
+   "guide": "ASSEMBLY.md",
+   "context": "main",
+   "parts": [
+    "usb_gasket"
+   ],
+   "tool": "tweezers",
+   "present": 27,
+   "status": "OK",
+   "notes": [],
+   "events": [],
+   "alternatives": [],
+   "path": [
+    {
+     "dir": [
+      -1.0,
+      0.0,
+      0.0
+     ],
+     "dist": 3.0
+    }
+   ],
+   "seconds": 0.0
+  },
+  {
+   "id": "M11",
+   "title": "Waterproof USB-C receptacle pushed to the rear wall (nose through the opening, flange on the gasket)",
+   "guide": "ASSEMBLY.md",
+   "context": "main",
+   "parts": [
+    "usb_conn"
+   ],
+   "tool": "finger",
+   "present": 28,
+   "status": "OK",
+   "notes": [],
+   "events": [],
+   "alternatives": [],
+   "path": [
+    {
+     "dir": [
+      0.0,
+      0.0,
+      -1.0
+     ],
+     "dist": 6.0
+    },
+    {
+     "dir": [
+      -1.0,
+      0.0,
+      0.0
+     ],
+     "dist": 1.0
+    }
+   ],
+   "seconds": 0.0
+  },
+  {
+   "id": "M12",
+   "title": "USB board dropped behind the receptacle",
+   "guide": "ASSEMBLY.md",
+   "context": "main",
+   "parts": [
+    "usb_board"
+   ],
+   "tool": "tweezers",
+   "present": 29,
+   "status": "OK",
+   "notes": [],
+   "events": [],
+   "alternatives": [],
+   "path": [
+    {
+     "dir": [
+      0.0,
+      0.0,
+      -1.0
+     ],
+     "dist": 5.0
+    }
+   ],
+   "seconds": 0.0
+  },
+  {
+   "id": "M13",
+   "title": "SENSOR board with the TMAG5273 lowered onto three posts / pins beside the ring magnet",
+   "guide": "ASSEMBLY.md",
+   "context": "main",
+   "parts": [
+    "sensor_board",
+    "hall_tmag"
+   ],
+   "tool": "tweezers",
+   "present": 30,
+   "status": "OK",
+   "notes": [],
+   "events": [],
+   "alternatives": [],
+   "path": [
+    {
+     "dir": [
+      0.0,
+      0.0,
+      -1.0
+     ],
+     "dist": 10.0
+    }
+   ],
+   "seconds": 0.0
+  },
+  {
+   "id": "M14",
+   "title": "Motor contact card (4 SMD spring contacts) lowered into its slot, springs wipe onto the motor pin tips",
+   "guide": "ASSEMBLY.md",
+   "context": "main",
+   "parts": [
+    "motor_card",
+    "mspring_1",
+    "mspring_2",
+    "mspring_3",
+    "mspring_4"
+   ],
+   "tool": "tweezers",
+   "present": 32,
+   "status": "OK",
+   "notes": [],
+   "events": [],
+   "alternatives": [],
+   "path": [
+    {
+     "dir": [
+      0.0,
+      0.0,
+      -1.0
+     ],
+     "dist": 8.0
+    }
+   ],
+   "seconds": 0.0
+  },
+  {
+   "id": "M15",
+   "title": "Li-Po cell on 0.6 mm foam tape, tabs up, between the two bay ribs",
+   "guide": "ASSEMBLY.md",
+   "context": "main",
+   "parts": [
+    "bat_foam",
+    "battery",
+    "bat_pad_p",
+    "bat_pad_n"
+   ],
+   "tool": "tweezers",
+   "present": 37,
+   "status": "OK",
+   "notes": [],
+   "events": [],
+   "alternatives": [],
+   "path": [
+    {
+     "dir": [
+      0.0,
+      0.0,
+      -1.0
+     ],
+     "dist": 8.0
+    }
+   ],
+   "seconds": 0.0
+  },
+  {
+   "id": "M16",
+   "title": "Dock insert slid into the dock window from the +X mouth until the detents click (before the board: the dock hall chip hangs below it)",
+   "guide": "ASSEMBLY.md",
+   "context": "main",
+   "parts": [
+    "dock_insert"
+   ],
+   "tool": "finger",
+   "present": 41,
+   "status": "OK",
+   "notes": [],
+   "events": [
+    {
+     "pair": [
+      "dock_insert",
+      "bottom"
+     ],
+     "kind": "flexible",
+     "max_overlap_mm3": 0.1148,
+     "from_s": 3.1,
+     "to_s": 0.3
+    }
+   ],
+   "alternatives": [],
+   "path": [
+    {
+     "dir": [
+      -1.0,
+      0.0,
+      0.0
+     ],
+     "dist": 20.0
+    }
+   ],
+   "seconds": 0.5
+  },
+  {
+   "id": "M17",
+   "title": "MAIN board (radio, button, dock hall, 2 cell springs, 8 spine springs) lowered onto the pins",
+   "guide": "ASSEMBLY.md",
+   "context": "main",
+   "parts": [
+    "pod_board",
+    "radio",
+    "switch",
+    "hall_dock",
+    "spring_p",
+    "spring_n",
+    "spine_springs"
+   ],
+   "tool": "tweezers",
+   "present": 42,
+   "status": "OK",
+   "notes": [],
+   "events": [],
+   "alternatives": [],
+   "path": [
+    {
+     "dir": [
+      0.0,
+      0.0,
+      -1.0
+     ],
+     "dist": 10.0
+    }
+   ],
+   "seconds": 0.1
+  },
+  {
+   "id": "M18",
+   "title": "Main gasket laid on the wall top",
+   "guide": "ASSEMBLY.md",
+   "context": "main",
+   "parts": [
+    "gasket"
+   ],
+   "tool": "tweezers",
+   "present": 49,
+   "status": "OK",
+   "notes": [],
+   "events": [],
+   "alternatives": [],
+   "path": [
+    {
+     "dir": [
+      0.0,
+      0.0,
+      -1.0
+     ],
+     "dist": 6.0
+    }
+   ],
+   "seconds": 0.2
+  },
+  {
+   "id": "L1",
+   "title": "Piezo glued to the lid inner face (ePTFE vent disc and PU film glued into their recesses)",
+   "guide": "ASSEMBLY.md",
+   "context": "lidpack",
+   "parts": [
+    "piezo"
+   ],
+   "tool": "tweezers",
+   "present": 1,
+   "status": "OK",
+   "notes": [],
+   "events": [],
+   "alternatives": [],
+   "path": [
+    {
+     "dir": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "dist": 6.0
+    }
+   ],
+   "seconds": 0.0
+  },
+  {
+   "id": "M19",
+   "title": "Clear lid with piezo lowered straight down",
+   "guide": "ASSEMBLY.md",
+   "context": "main",
+   "parts": [
+    "top",
+    "piezo"
+   ],
+   "tool": "finger",
+   "present": 50,
+   "status": "OK",
+   "notes": [],
+   "events": [],
+   "alternatives": [],
+   "path": [
+    {
+     "dir": [
+      0.0,
+      0.0,
+      -1.0
+     ],
+     "dist": 10.0
+    }
+   ],
+   "seconds": 0.5
+  },
+  {
+   "id": "A1",
+   "title": "Dock magnet d2 x 1 glued into the rear lug pocket of the dummy head",
+   "guide": "ASSEMBLY.md",
+   "context": "adapter",
+   "parts": [
+    "dock_magnet"
+   ],
+   "tool": "tweezers",
+   "present": 1,
+   "status": "OK",
+   "notes": [],
+   "events": [],
+   "alternatives": [],
+   "path": [
+    {
+     "dir": [
+      0.0,
+      0.0,
+      -1.0
+     ],
+     "dist": 5.0
+    }
+   ],
+   "seconds": 0.1
+  },
+  {
+   "id": "D1",
+   "title": "Dock: dummy head pushed into the pod mouth, snap arms spread and latch behind the dome",
+   "guide": "ASSEMBLY.md",
+   "context": "main",
+   "parts": [
+    "cannula_adapter",
+    "dock_magnet"
+   ],
+   "tool": "finger",
+   "present": 52,
+   "status": "OK",
+   "notes": [],
+   "events": [
+    {
+     "pair": [
+      "cannula_adapter,dock_magnet",
+      "dock_insert"
+     ],
+     "kind": "snap",
+     "max_overlap_mm3": 11.4216,
+     "from_s": 7.1,
+     "to_s": 0.2,
+     "required_deflection_mm": [
+      1.808,
+      1.808
+     ],
+     "arm_t": 0.75,
+     "arm_len": 10.400000000000006,
+     "strain_pct": 1.88,
+     "material": "SLA_TOUGH",
+     "limit_pct": 2.0,
+     "strain_ok": true,
+     "cad_travel_mm": 1.908,
+     "cad_strain_pct": 1.98
+    }
+   ],
+   "alternatives": [],
+   "path": [
+    {
+     "dir": [
+      -1.0,
+      0.0,
+      0.0
+     ],
+     "dist": 16.0
+    }
+   ],
+   "seconds": 0.8
+  }
+ ],
+ "access": [
+  {
+   "id": "C1",
+   "kind": "tweezers",
+   "title": "O-ring 2.0 x 0.7 stretched over the spigot into the face groove of the end cap",
+   "axis": [
+    -1.0,
+    -0.0,
+    -0.0
+   ],
+   "apex": [
+    36.87,
+    10.45,
+    5.06
+   ],
+   "best_tilt_deg": 15,
+   "approach": "free at 0 deg tilt from the insertion axis",
+   "max_free_half_angle_deg": 30,
+   "required_deg": 10,
+   "blockers": {},
+   "status": "OK"
+  },
+  {
+   "id": "C2",
+   "kind": "tweezers",
+   "title": "Silicone sheet gasket laid into the 0.4 mm recess of the end cap",
+   "axis": [
+    -0.0,
+    -0.0,
+    1.0
+   ],
+   "apex": [
+    39.53,
+    9.95,
+    4.4
+   ],
+   "best_tilt_deg": 0,
+   "approach": "free at 0 deg tilt from the insertion axis",
+   "max_free_half_angle_deg": 30,
+   "required_deg": 10,
+   "blockers": {},
+   "status": "OK"
+  },
+  {
+   "id": "C3",
+   "kind": "tweezers",
+   "title": "Septum disc d3.2 x 2 dropped into the septum pocket (open top)",
+   "axis": [
+    -0.0,
+    -0.0,
+    1.0
+   ],
+   "apex": [
+    39.36,
+    7.93,
+    4.3
+   ],
+   "best_tilt_deg": 0,
+   "approach": "free at 0 deg tilt from the insertion axis",
+   "max_free_half_angle_deg": 30,
+   "required_deg": 10,
+   "blockers": {},
+   "status": "OK"
+  },
+  {
+   "id": "M1",
+   "kind": "tweezers",
+   "title": "Dry bush pressed into the bearing-block bore (reamed d3.05)",
+   "axis": [
+    1.0,
+    -0.0,
+    -0.0
+   ],
+   "apex": [
+    17.05,
+    17.57,
+    3.51
+   ],
+   "best_tilt_deg": 30,
+   "approach": "free at 0 deg tilt from the insertion axis",
+   "max_free_half_angle_deg": 30,
+   "required_deg": 10,
+   "blockers": {},
+   "status": "OK"
+  },
+  {
+   "id": "M2",
+   "kind": "tweezers",
+   "title": "FPC spine laid into the floor channel (it passes UNDER the reservoir; riser at the contact shelf)",
+   "axis": [
+    -0.0,
+    -0.0,
+    1.0
+   ],
+   "apex": [
+    39.29,
+    28.5,
+    4.55
+   ],
+   "best_tilt_deg": 0,
+   "approach": "free at 0 deg tilt from the insertion axis",
+   "max_free_half_angle_deg": 30,
+   "required_deg": 10,
+   "blockers": {},
+   "status": "OK"
+  },
+  {
+   "id": "M3",
+   "kind": "tweezers",
+   "title": "Motor (rear boss, motor, gearbox, front boss, shaft, terminal block + pins) laid into the three saddles, terminal pins facing +Y",
+   "axis": [
+    -0.0,
+    -0.0,
+    1.0
+   ],
+   "apex": [
+    10.68,
+    23.17,
+    7.26
+   ],
+   "best_tilt_deg": 0,
+   "approach": "free at 0 deg tilt from the insertion axis",
+   "max_free_half_angle_deg": 30,
+   "required_deg": 10,
+   "blockers": {},
+   "status": "OK"
+  },
+  {
+   "id": "M4",
+   "kind": "tweezers",
+   "title": "Gear A (z16) slid onto the motor shaft from the front and glued",
+   "axis": [
+    1.0,
+    -0.0,
+    -0.0
+   ],
+   "apex": [
+    20.15,
+    22.71,
+    6.95
+   ],
+   "best_tilt_deg": 0,
+   "approach": "free at 0 deg tilt from the insertion axis",
+   "max_free_half_angle_deg": 30,
+   "required_deg": 10,
+   "blockers": {},
+   "status": "OK"
+  },
+  {
+   "id": "G1",
+   "kind": "tweezers",
+   "title": "Thrust sleeve (brass tube) glued into the nut gear",
+   "axis": [
+    1.0,
+    -0.0,
+    -0.0
+   ],
+   "apex": [
+    20.15,
+    16.49,
+    4.78
+   ],
+   "best_tilt_deg": 0,
+   "approach": "free at 0 deg tilt from the insertion axis",
+   "max_free_half_angle_deg": 30,
+   "required_deg": 10,
+   "blockers": {},
+   "status": "OK"
+  },
+  {
+   "id": "G2",
+   "kind": "tweezers",
+   "title": "Diametric ring magnet pushed over the rear end of the sleeve and glued (pole direction marked)",
+   "axis": [
+    -1.0,
+    -0.0,
+    -0.0
+   ],
+   "apex": [
+    17.05,
+    16.98,
+    3.26
+   ],
+   "best_tilt_deg": 0,
+   "approach": "free at 0 deg tilt from the insertion axis",
+   "max_free_half_angle_deg": 30,
+   "required_deg": 10,
+   "blockers": {},
+   "status": "OK"
+  },
+  {
+   "id": "G3",
+   "kind": "tweezers",
+   "title": "M1.6 nut glued (Loctite 638) on the front face of the nut gear",
+   "axis": [
+    1.0,
+    -0.0,
+    -0.0
+   ],
+   "apex": [
+    21.47,
+    17.96,
+    4.4
+   ],
+   "best_tilt_deg": 0,
+   "approach": "free at 0 deg tilt from the insertion axis",
+   "max_free_half_angle_deg": 30,
+   "required_deg": 10,
+   "blockers": {},
+   "status": "OK"
+  },
+  {
+   "id": "M5",
+   "kind": "tweezers",
+   "title": "Nut-gear pack lowered into the bearing block, meshing with gear A",
+   "axis": [
+    -0.0,
+    -0.0,
+    1.0
+   ],
+   "apex": [
+    19.17,
+    17.21,
+    7.6
+   ],
+   "best_tilt_deg": 0,
+   "approach": "free at 0 deg tilt from the insertion axis",
+   "max_free_half_angle_deg": 30,
+   "required_deg": 10,
+   "blockers": {},
+   "status": "OK"
+  },
+  {
+   "id": "M7",
+   "kind": "tweezers",
+   "title": "Needle + hub pressed into the guard tube from the dock mouth",
+   "axis": [
+    1.0,
+    -0.0,
+    -0.0
+   ],
+   "apex": [
+    47.39,
+    11.2,
+    3.0
+   ],
+   "best_tilt_deg": 0,
+   "approach": "free at 0 deg tilt from the insertion axis",
+   "max_free_half_angle_deg": 30,
+   "required_deg": 10,
+   "blockers": {},
+   "status": "OK"
+  },
+  {
+   "id": "M9",
+   "kind": "tweezers",
+   "title": "Silicone stopper pressed into the rear-wall hole",
+   "axis": [
+    -1.0,
+    -0.0,
+    -0.0
+   ],
+   "apex": [
+    -0.05,
+    17.21,
+    4.04
+   ],
+   "best_tilt_deg": 0,
+   "approach": "free at 0 deg tilt from the insertion axis",
+   "max_free_half_angle_deg": 30,
+   "required_deg": 10,
+   "blockers": {},
+   "status": "OK"
+  },
+  {
+   "id": "M10",
+   "kind": "tweezers",
+   "title": "USB-C gasket frame laid against the inside of the rear wall",
+   "axis": [
+    1.0,
+    -0.0,
+    -0.0
+   ],
+   "apex": [
+    1.45,
+    9.5,
+    4.6
+   ],
+   "best_tilt_deg": 30,
+   "approach": "free at 0 deg tilt from the insertion axis",
+   "max_free_half_angle_deg": 30,
+   "required_deg": 10,
+   "blockers": {},
+   "status": "OK"
+  },
+  {
+   "id": "M12",
+   "kind": "tweezers",
+   "title": "USB board dropped behind the receptacle",
+   "axis": [
+    -0.0,
+    -0.0,
+    1.0
+   ],
+   "apex": [
+    9.5,
+    14.27,
+    3.25
+   ],
+   "best_tilt_deg": 0,
+   "approach": "free at 0 deg tilt from the insertion axis",
+   "max_free_half_angle_deg": 30,
+   "required_deg": 10,
+   "blockers": {},
+   "status": "OK"
+  },
+  {
+   "id": "M13",
+   "kind": "tweezers",
+   "title": "SENSOR board with the TMAG5273 lowered onto three posts / pins beside the ring magnet",
+   "axis": [
+    -0.0,
+    -0.0,
+    1.0
+   ],
+   "apex": [
+    15.75,
+    11.45,
+    5.2
+   ],
+   "best_tilt_deg": 0,
+   "approach": "free at 0 deg tilt from the insertion axis",
+   "max_free_half_angle_deg": 30,
+   "required_deg": 10,
+   "blockers": {},
+   "status": "OK"
+  },
+  {
+   "id": "M14",
+   "kind": "tweezers",
+   "title": "Motor contact card (4 SMD spring contacts) lowered into its slot, springs wipe onto the motor pin tips",
+   "axis": [
+    -0.0,
+    -0.0,
+    1.0
+   ],
+   "apex": [
+    6.8,
+    27.76,
+    6.45
+   ],
+   "best_tilt_deg": 0,
+   "approach": "free at 0 deg tilt from the insertion axis",
+   "max_free_half_angle_deg": 30,
+   "required_deg": 10,
+   "blockers": {},
+   "status": "OK"
+  },
+  {
+   "id": "M15",
+   "kind": "tweezers",
+   "title": "Li-Po cell on 0.6 mm foam tape, tabs up, between the two bay ribs",
+   "axis": [
+    -0.0,
+    -0.0,
+    1.0
+   ],
+   "apex": [
+    49.06,
+    26.57,
+    4.75
+   ],
+   "best_tilt_deg": 0,
+   "approach": "free at 0 deg tilt from the insertion axis",
+   "max_free_half_angle_deg": 30,
+   "required_deg": 10,
+   "blockers": {},
+   "status": "OK"
+  },
+  {
+   "id": "M17",
+   "kind": "tweezers",
+   "title": "MAIN board (radio, button, dock hall, 2 cell springs, 8 spine springs) lowered onto the pins",
+   "axis": [
+    -0.0,
+    -0.0,
+    1.0
+   ],
+   "apex": [
+    47.24,
+    14.2,
+    7.3
+   ],
+   "best_tilt_deg": 0,
+   "approach": "free at 0 deg tilt from the insertion axis",
+   "max_free_half_angle_deg": 30,
+   "required_deg": 10,
+   "blockers": {},
+   "status": "OK"
+  },
+  {
+   "id": "M18",
+   "kind": "tweezers",
+   "title": "Main gasket laid on the wall top",
+   "axis": [
+    -0.0,
+    -0.0,
+    1.0
+   ],
+   "apex": [
+    29.12,
+    31.1,
+    6.0
+   ],
+   "best_tilt_deg": 0,
+   "approach": "free at 0 deg tilt from the insertion axis",
+   "max_free_half_angle_deg": 30,
+   "required_deg": 10,
+   "blockers": {},
+   "status": "OK"
+  },
+  {
+   "id": "L1",
+   "kind": "tweezers",
+   "title": "Piezo glued to the lid inner face (ePTFE vent disc and PU film glued into their recesses)",
+   "axis": [
+    -0.0,
+    -0.0,
+    -1.0
+   ],
+   "apex": [
+    5.39,
+    8.82,
+    6.45
+   ],
+   "best_tilt_deg": 0,
+   "approach": "free at 0 deg tilt from the insertion axis",
+   "max_free_half_angle_deg": 30,
+   "required_deg": 10,
+   "blockers": {},
+   "status": "OK"
+  },
+  {
+   "id": "A1",
+   "kind": "tweezers",
+   "title": "Dock magnet d2 x 1 glued into the rear lug pocket of the dummy head",
+   "axis": [
+    -0.0,
+    -0.0,
+    1.0
+   ],
+   "apex": [
+    55.0,
+    11.2,
+    4.35
+   ],
+   "best_tilt_deg": 0,
+   "approach": "free at 0 deg tilt from the insertion axis",
+   "max_free_half_angle_deg": 30,
+   "required_deg": 10,
+   "blockers": {},
+   "status": "OK"
+  },
+  {
+   "id": "S-cap-1",
+   "kind": "driver",
+   "title": "fluid sandwich clamp screw 1",
+   "xy": [
+    39.64,
+    13.1
+   ],
+   "after": "M16",
+   "seat_z": 7.3,
+   "tip_1.5": {
+    "free_tilt_deg": 20,
+    "blockers": {}
+   },
+   "tip_2.0": {
+    "free_tilt_deg": 20,
+    "blockers": {}
+   },
+   "min_tip_len_mm": 0.25,
+   "status": "OK",
+   "required_tilt_deg": 10
+  },
+  {
+   "id": "S-lid-1",
+   "kind": "driver",
+   "title": "lid screw 1",
+   "xy": [
+    5.2,
+    2.0
+   ],
+   "after": "M19",
+   "seat_z": 8.4,
+   "tip_1.5": {
+    "free_tilt_deg": 20,
+    "blockers": {}
+   },
+   "tip_2.0": {
+    "free_tilt_deg": 20,
+    "blockers": {}
+   },
+   "min_tip_len_mm": 0.25,
+   "status": "OK",
+   "required_tilt_deg": 10
+  },
+  {
+   "id": "S-lid-2",
+   "kind": "driver",
+   "title": "lid screw 2",
+   "xy": [
+    17.13,
+    2.0
+   ],
+   "after": "M19",
+   "seat_z": 8.4,
+   "tip_1.5": {
+    "free_tilt_deg": 20,
+    "blockers": {}
+   },
+   "tip_2.0": {
+    "free_tilt_deg": 20,
+    "blockers": {}
+   },
+   "min_tip_len_mm": 0.25,
+   "status": "OK",
+   "required_tilt_deg": 10
+  },
+  {
+   "id": "S-lid-3",
+   "kind": "driver",
+   "title": "lid screw 3",
+   "xy": [
+    29.07,
+    2.0
+   ],
+   "after": "M19",
+   "seat_z": 8.4,
+   "tip_1.5": {
+    "free_tilt_deg": 20,
+    "blockers": {}
+   },
+   "tip_2.0": {
+    "free_tilt_deg": 20,
+    "blockers": {}
+   },
+   "min_tip_len_mm": 0.25,
+   "status": "OK",
+   "required_tilt_deg": 10
+  },
+  {
+   "id": "S-lid-4",
+   "kind": "driver",
+   "title": "lid screw 4",
+   "xy": [
+    41.0,
+    2.0
+   ],
+   "after": "M19",
+   "seat_z": 8.4,
+   "tip_1.5": {
+    "free_tilt_deg": 20,
+    "blockers": {}
+   },
+   "tip_2.0": {
+    "free_tilt_deg": 20,
+    "blockers": {}
+   },
+   "min_tip_len_mm": 0.25,
+   "status": "OK",
+   "required_tilt_deg": 10
+  },
+  {
+   "id": "S-lid-5",
+   "kind": "driver",
+   "title": "lid screw 5",
+   "xy": [
+    52.94,
+    2.0
+   ],
+   "after": "M19",
+   "seat_z": 8.4,
+   "tip_1.5": {
+    "free_tilt_deg": 20,
+    "blockers": {}
+   },
+   "tip_2.0": {
+    "free_tilt_deg": 20,
+    "blockers": {}
+   },
+   "min_tip_len_mm": 0.25,
+   "status": "OK",
+   "required_tilt_deg": 10
+  },
+  {
+   "id": "S-lid-6",
+   "kind": "driver",
+   "title": "lid screw 6",
+   "xy": [
+    2.0,
+    27.0
+   ],
+   "after": "M19",
+   "seat_z": 8.4,
+   "tip_1.5": {
+    "free_tilt_deg": 20,
+    "blockers": {}
+   },
+   "tip_2.0": {
+    "free_tilt_deg": 20,
+    "blockers": {}
+   },
+   "min_tip_len_mm": 0.25,
+   "status": "OK",
+   "required_tilt_deg": 10
+  }
+ ],
+ "dfm": [
+  {
+   "name": "bottom",
+   "process": "MJF",
+   "qty": "1",
+   "file": "out/v010/fab/OP-100/bottom.stl",
+   "extents": [
+    58.24,
+    32.0,
+    6.43
+   ],
+   "faces": 89032,
+   "watertight": true,
+   "footprint_mm": 43.2,
+   "wall_vendor": 1.45,
+   "wall_floor": 0.5,
+   "violations": [
+    {
+     "sev": "WARN",
+     "what": "89.5 % of the wall samples thinner than the vendor value 1.45 mm for a 43 mm part (min 0.48 mm)",
+     "where": "",
+     "places": 1,
+     "also": []
+    },
+    {
+     "sev": "WARN",
+     "what": "slot/channel width 0.82 mm < vendor minimum 1.5 mm (MJF); post-drill/ream it",
+     "where": [
+      57.76,
+      3.79,
+      0.91
+     ],
+     "places": 1,
+     "also": []
+    },
+    {
+     "sev": "WARN",
+     "what": "slot/channel width 0.86 mm < vendor minimum 1.5 mm (MJF); post-drill/ream it",
+     "where": [
+      56.97,
+      21.19,
+      3.65
+     ],
+     "places": 1,
+     "also": []
+    },
+    {
+     "sev": "WARN",
+     "what": "slot/channel width 0.87 mm < vendor minimum 1.5 mm (MJF); post-drill/ream it",
+     "where": [
+      56.98,
+      24.25,
+      1.32
+     ],
+     "places": 4,
+     "also": [
+      [
+       56.96,
+       21.29,
+       1.18
+      ],
+      [
+       56.97,
+       21.31,
+       4.75
+      ]
+     ],
+     "n": 0
+    },
+    {
+     "sev": "WARN",
+     "what": "hole width 1.00 mm < vendor minimum 1.5 mm (MJF); post-drill/ream it",
+     "where": [
+      5.2,
+      2.01,
+      3.76
+     ],
+     "places": 6,
+     "also": [
+      [
+       17.13,
+       2.02,
+       3.28
+      ],
+      [
+       17.13,
+       2.01,
+       4.66
+      ]
+     ],
+     "n": 0
+    }
+   ],
+   "wall_min": 0.47836791821823954,
+   "wall_p01": 0.5310247084654796,
+   "wall_p05": 0.5842335780602941,
+   "area_below_floor_pct": 0.11,
+   "area_below_vendor_pct": 89.5,
+   "wall_clusters": [
+    {
+     "min_mm": 0.4811276450401409,
+     "n": 6,
+     "where": [
+      11.03,
+      19.16,
+      4.16
+     ],
+     "normal": [
+      0.0,
+      -1.0,
+      0.0
+     ]
+    },
+    {
+     "min_mm": 0.4812015899269802,
+     "n": 25,
+     "where": [
+      44.67,
+      18.33,
+      0.62
+     ],
+     "normal": [
+      0.93,
+      -0.36,
+      0.05
+     ]
+    },
+    {
+     "min_mm": 0.4837306760029475,
+     "n": 13,
+     "where": [
+      16.79,
+      26.16,
+      3.99
+     ],
+     "normal": [
+      0.0,
+      1.0,
+      -0.0
+     ]
+    },
+    {
+     "min_mm": 0.48528174760519394,
+     "n": 25,
+     "where": [
+      44.68,
+      3.93,
+      0.66
+     ],
+     "normal": [
+      0.98,
+      -0.2,
+      -0.02
+     ]
+    },
+    {
+     "min_mm": 0.4867343965702981,
+     "n": 16,
+     "where": [
+      11.05,
+      19.62,
+      4.0
+     ],
+     "normal": [
+      0.01,
+      1.0,
+      0.05
+     ]
+    },
+    {
+     "min_mm": 0.48800901051111417,
+     "n": 17,
+     "where": [
+      11.88,
+      25.69,
+      3.94
+     ],
+     "normal": [
+      -0.01,
+      -1.0,
+      0.1
+     ]
+    },
+    {
+     "min_mm": 0.48837013012867575,
+     "n": 14,
+     "where": [
+      14.06,
+      19.16,
+      3.93
+     ],
+     "normal": [
+      0.0,
+      -1.0,
+      -0.0
+     ]
+    },
+    {
+     "min_mm": 0.48908536081343024,
+     "n": 13,
+     "where": [
+      14.38,
+      25.69,
+      3.93
+     ],
+     "normal": [
+      -0.01,
+      -1.0,
+      0.1
+     ]
+    },
+    {
+     "min_mm": 0.48944012040431384,
+     "n": 9,
+     "where": [
+      44.41,
+      4.22,
+      0.63
+     ],
+     "normal": [
+      -0.06,
+      1.0,
+      -0.03
+     ]
+    },
+    {
+     "min_mm": 0.4910240542856504,
+     "n": 8,
+     "where": [
+      14.04,
+      26.16,
+      3.91
+     ],
+     "normal": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    },
+    {
+     "min_mm": 0.4914230040355982,
+     "n": 10,
+     "where": [
+      11.51,
+      26.16,
+      3.91
+     ],
+     "normal": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    },
+    {
+     "min_mm": 0.49477479222833154,
+     "n": 8,
+     "where": [
+      16.84,
+      25.69,
+      3.88
+     ],
+     "normal": [
+      -0.0,
+      -0.99,
+      0.13
+     ]
+    },
+    {
+     "min_mm": 0.4959472081269718,
+     "n": 9,
+     "where": [
+      13.61,
+      26.16,
+      3.86
+     ],
+     "normal": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    },
+    {
+     "min_mm": 0.5007656632226734,
+     "n": 10,
+     "where": [
+      10.93,
+      19.64,
+      3.85
+     ],
+     "normal": [
+      0.0,
+      0.99,
+      0.13
+     ]
+    }
+   ],
+   "holes": [
+    {
+     "width_mm": 0.82,
+     "kind": "slot/channel",
+     "axis": [
+      -0.71,
+      -0.71,
+      0.0
+     ],
+     "depth_mm": 0.3,
+     "where": [
+      57.76,
+      3.79,
+      0.91
+     ],
+     "verdict": "WARN",
+     "text": "slot/channel width 0.82 mm < vendor minimum 1.5 mm (MJF); post-drill/ream it",
+     "n": 10,
+     "open_ends": 1
+    },
+    {
+     "width_mm": 0.86,
+     "kind": "slot/channel",
+     "axis": [
+      -0.58,
+      0.58,
+      0.58
+     ],
+     "depth_mm": 0.6,
+     "where": [
+      56.97,
+      21.19,
+      3.65
+     ],
+     "verdict": "WARN",
+     "text": "slot/channel width 0.86 mm < vendor minimum 1.5 mm (MJF); post-drill/ream it",
+     "n": 10,
+     "open_ends": 1
+    },
+    {
+     "width_mm": 0.87,
+     "kind": "slot/channel",
+     "axis": [
+      -0.58,
+      0.58,
+      0.58
+     ],
+     "depth_mm": 0.6,
+     "where": [
+      56.98,
+      24.25,
+      1.32
+     ],
+     "verdict": "WARN",
+     "text": "slot/channel width 0.87 mm < vendor minimum 1.5 mm (MJF); post-drill/ream it",
+     "n": 10,
+     "open_ends": 1
+    },
+    {
+     "width_mm": 0.87,
+     "kind": "slot/channel",
+     "axis": [
+      -0.58,
+      0.58,
+      0.58
+     ],
+     "depth_mm": 0.5,
+     "where": [
+      56.96,
+      21.29,
+      1.18
+     ],
+     "verdict": "WARN",
+     "text": "slot/channel width 0.87 mm < vendor minimum 1.5 mm (MJF); post-drill/ream it",
+     "n": 8,
+     "open_ends": 1
+    },
+    {
+     "width_mm": 0.87,
+     "kind": "slot/channel",
+     "axis": [
+      -0.58,
+      0.58,
+      0.58
+     ],
+     "depth_mm": 0.6,
+     "where": [
+      56.97,
+      21.31,
+      4.75
+     ],
+     "verdict": "WARN",
+     "text": "slot/channel width 0.87 mm < vendor minimum 1.5 mm (MJF); post-drill/ream it",
+     "n": 6,
+     "open_ends": 1
+    },
+    {
+     "width_mm": 0.87,
+     "kind": "slot/channel",
+     "axis": [
+      -0.58,
+      0.58,
+      0.58
+     ],
+     "depth_mm": 0.6,
+     "where": [
+      56.98,
+      24.26,
+      4.69
+     ],
+     "verdict": "WARN",
+     "text": "slot/channel width 0.87 mm < vendor minimum 1.5 mm (MJF); post-drill/ream it",
+     "n": 8,
+     "open_ends": 1
+    },
+    {
+     "width_mm": 1.0,
+     "kind": "hole",
+     "axis": [
+      0.0,
+      0.0,
+      -1.0
+     ],
+     "depth_mm": 0.7,
+     "where": [
+      5.2,
+      2.01,
+      3.76
+     ],
+     "verdict": "WARN",
+     "text": "hole width 1.00 mm < vendor minimum 1.5 mm (MJF); post-drill/ream it",
+     "n": 14,
+     "open_ends": 1
+    },
+    {
+     "width_mm": 1.0,
+     "kind": "hole",
+     "axis": [
+      0.0,
+      0.0,
+      -1.0
+     ],
+     "depth_mm": 0.2,
+     "where": [
+      17.13,
+      2.02,
+      3.28
+     ],
+     "verdict": "WARN",
+     "text": "hole width 1.00 mm < vendor minimum 1.5 mm (MJF); post-drill/ream it",
+     "n": 9,
+     "open_ends": 1
+    },
+    {
+     "width_mm": 1.0,
+     "kind": "hole",
+     "axis": [
+      0.0,
+      0.0,
+      -1.0
+     ],
+     "depth_mm": 1.6,
+     "where": [
+      17.13,
+      2.01,
+      4.66
+     ],
+     "verdict": "WARN",
+     "text": "hole width 1.00 mm < vendor minimum 1.5 mm (MJF); post-drill/ream it",
+     "n": 7,
+     "open_ends": 1
+    },
+    {
+     "width_mm": 1.0,
+     "kind": "hole",
+     "axis": [
+      0.0,
+      0.0,
+      -1.0
+     ],
+     "depth_mm": 1.7,
+     "where": [
+      52.94,
+      1.99,
+      4.76
+     ],
+     "verdict": "WARN",
+     "text": "hole width 1.00 mm < vendor minimum 1.5 mm (MJF); post-drill/ream it",
+     "n": 10,
+     "open_ends": 1
+    },
+    {
+     "width_mm": 1.0,
+     "kind": "hole",
+     "axis": [
+      0.0,
+      0.0,
+      -1.0
+     ],
+     "depth_mm": 1.6,
+     "where": [
+      2.0,
+      26.99,
+      4.68
+     ],
+     "verdict": "WARN",
+     "text": "hole width 1.00 mm < vendor minimum 1.5 mm (MJF); post-drill/ream it",
+     "n": 6,
+     "open_ends": 1
+    },
+    {
+     "width_mm": 1.0,
+     "kind": "hole",
+     "axis": [
+      0.0,
+      0.0,
+      -1.0
+     ],
+     "depth_mm": 1.7,
+     "where": [
+      5.2,
+      1.99,
+      4.75
+     ],
+     "verdict": "WARN",
+     "text": "hole width 1.00 mm < vendor minimum 1.5 mm (MJF); post-drill/ream it",
+     "n": 9,
+     "open_ends": 1
+    }
+   ],
+   "verdict": "WARN",
+   "image": "img/dfm_bottom.png"
+  },
+  {
+   "name": "top",
+   "process": "SLA",
+   "qty": "1",
+   "file": "out/v010/fab/OP-100/top.stl",
+   "extents": [
+    58.24,
+    32.0,
+    2.45
+   ],
+   "faces": 104684,
+   "watertight": true,
+   "footprint_mm": 43.2,
+   "wall_vendor": 0.97,
+   "wall_floor": 0.4,
+   "violations": [
+    {
+     "sev": "WARN",
+     "what": "89.5 % of the wall samples thinner than the vendor value 0.97 mm for a 43 mm part (min 0.22 mm)",
+     "where": "",
+     "places": 1,
+     "also": []
+    }
+   ],
+   "wall_min": 0.22047607603978714,
+   "wall_p01": 0.5377066578399404,
+   "wall_p05": 0.7970686441449522,
+   "area_below_floor_pct": 0.01,
+   "area_below_vendor_pct": 89.5,
+   "wall_clusters": [
+    {
+     "min_mm": 0.3838489842367041,
+     "n": 9,
+     "where": [
+      22.23,
+      25.75,
+      7.72
+     ],
+     "normal": [
+      1.0,
+      -0.0,
+      0.0
+     ]
+    },
+    {
+     "min_mm": 0.5267810923983829,
+     "n": 15,
+     "where": [
+      28.37,
+      2.02,
+      6.56
+     ],
+     "normal": [
+      1.0,
+      -0.07,
+      -0.04
+     ]
+    },
+    {
+     "min_mm": 0.527125575364223,
+     "n": 13,
+     "where": [
+      29.06,
+      2.7,
+      6.11
+     ],
+     "normal": [
+      -0.05,
+      -1.0,
+      0.02
+     ]
+    },
+    {
+     "min_mm": 0.5279627127505533,
+     "n": 13,
+     "where": [
+      29.04,
+      2.7,
+      7.31
+     ],
+     "normal": [
+      0.08,
+      -1.0,
+      -0.02
+     ]
+    },
+    {
+     "min_mm": 0.5293408723871303,
+     "n": 10,
+     "where": [
+      28.37,
+      2.07,
+      7.47
+     ],
+     "normal": [
+      0.99,
+      -0.12,
+      0.0
+     ]
+    },
+    {
+     "min_mm": 0.5295754192251355,
+     "n": 15,
+     "where": [
+      4.5,
+      2.02,
+      7.32
+     ],
+     "normal": [
+      1.0,
+      -0.03,
+      -0.01
+     ]
+    },
+    {
+     "min_mm": 0.5296319219222775,
+     "n": 23,
+     "where": [
+      2.7,
+      27.07,
+      6.07
+     ],
+     "normal": [
+      -0.99,
+      -0.1,
+      0.01
+     ]
+    },
+    {
+     "min_mm": 0.5300327537987511,
+     "n": 14,
+     "where": [
+      53.64,
+      2.02,
+      6.57
+     ],
+     "normal": [
+      -1.0,
+      -0.02,
+      0.01
+     ]
+    },
+    {
+     "min_mm": 0.530113311369728,
+     "n": 19,
+     "where": [
+      41.7,
+      2.0,
+      6.08
+     ],
+     "normal": [
+      -1.0,
+      0.03,
+      0.0
+     ]
+    },
+    {
+     "min_mm": 0.5304347956398993,
+     "n": 8,
+     "where": [
+      2.69,
+      27.09,
+      7.48
+     ],
+     "normal": [
+      -0.99,
+      -0.17,
+      -0.01
+     ]
+    },
+    {
+     "min_mm": 0.5305712534071523,
+     "n": 9,
+     "where": [
+      17.15,
+      2.7,
+      7.37
+     ],
+     "normal": [
+      -0.01,
+      -1.0,
+      -0.01
+     ]
+    },
+    {
+     "min_mm": 0.5310247084654793,
+     "n": 17,
+     "where": [
+      52.68,
+      23.22,
+      7.5
+     ],
+     "normal": [
+      0.0,
+      -0.0,
+      -1.0
+     ]
+    },
+    {
+     "min_mm": 0.5310247084654793,
+     "n": 11,
+     "where": [
+      56.69,
+      23.12,
+      7.5
+     ],
+     "normal": [
+      -0.0,
+      -0.0,
+      -1.0
+     ]
+    },
+    {
+     "min_mm": 0.5310247084654793,
+     "n": 16,
+     "where": [
+      53.55,
+      24.47,
+      8.0
+     ],
+     "normal": [
+      0.0,
+      0.0,
+      1.0
+     ]
+    }
+   ],
+   "holes": [
+    {
+     "width_mm": 1.4,
+     "kind": "hole",
+     "axis": [
+      0.0,
+      0.0,
+      -1.0
+     ],
+     "depth_mm": 2.4,
+     "where": [
+      29.07,
+      2.02,
+      6.72
+     ],
+     "verdict": "OK",
+     "text": "",
+     "n": 12,
+     "open_ends": 2
+    },
+    {
+     "width_mm": 1.4,
+     "kind": "slot/channel",
+     "axis": [
+      -0.71,
+      0.0,
+      -0.71
+     ],
+     "depth_mm": 1.0,
+     "where": [
+      17.13,
+      1.99,
+      7.27
+     ],
+     "verdict": "OK",
+     "text": "",
+     "n": 19,
+     "open_ends": 1
+    },
+    {
+     "width_mm": 1.4,
+     "kind": "slot/channel",
+     "axis": [
+      -0.71,
+      0.0,
+      -0.71
+     ],
+     "depth_mm": 1.0,
+     "where": [
+      5.2,
+      2.02,
+      7.24
+     ],
+     "verdict": "OK",
+     "text": "",
+     "n": 15,
+     "open_ends": 1
+    },
+    {
+     "width_mm": 1.4,
+     "kind": "slot/channel",
+     "axis": [
+      -0.71,
+      0.0,
+      -0.71
+     ],
+     "depth_mm": 1.0,
+     "where": [
+      40.99,
+      1.99,
+      7.26
+     ],
+     "verdict": "OK",
+     "text": "",
+     "n": 8,
+     "open_ends": 1
+    },
+    {
+     "width_mm": 1.4,
+     "kind": "slot/channel",
+     "axis": [
+      -0.71,
+      0.0,
+      -0.71
+     ],
+     "depth_mm": 1.0,
+     "where": [
+      29.08,
+      2.01,
+      7.26
+     ],
+     "verdict": "OK",
+     "text": "",
+     "n": 22,
+     "open_ends": 1
+    },
+    {
+     "width_mm": 1.4,
+     "kind": "slot/channel",
+     "axis": [
+      -0.71,
+      0.0,
+      0.71
+     ],
+     "depth_mm": 1.0,
+     "where": [
+      2.01,
+      26.98,
+      7.2
+     ],
+     "verdict": "OK",
+     "text": "",
+     "n": 9,
+     "open_ends": 1
+    },
+    {
+     "width_mm": 1.4,
+     "kind": "slot/channel",
+     "axis": [
+      -0.71,
+      0.0,
+      -0.71
+     ],
+     "depth_mm": 1.0,
+     "where": [
+      1.99,
+      27.01,
+      7.24
+     ],
+     "verdict": "OK",
+     "text": "",
+     "n": 7,
+     "open_ends": 1
+    },
+    {
+     "width_mm": 1.4,
+     "kind": "hole",
+     "axis": [
+      0.0,
+      0.0,
+      -1.0
+     ],
+     "depth_mm": 2.4,
+     "where": [
+      52.94,
+      1.98,
+      6.7
+     ],
+     "verdict": "OK",
+     "text": "",
+     "n": 8,
+     "open_ends": 2
+    },
+    {
+     "width_mm": 1.4,
+     "kind": "hole",
+     "axis": [
+      0.0,
+      0.0,
+      -1.0
+     ],
+     "depth_mm": 2.4,
+     "where": [
+      40.98,
+      2.02,
+      6.72
+     ],
+     "verdict": "OK",
+     "text": "",
+     "n": 8,
+     "open_ends": 2
+    },
+    {
+     "width_mm": 1.4,
+     "kind": "slot/channel",
+     "axis": [
+      -0.71,
+      0.0,
+      -0.71
+     ],
+     "depth_mm": 1.0,
+     "where": [
+      52.94,
+      1.99,
+      7.26
+     ],
+     "verdict": "OK",
+     "text": "",
+     "n": 13,
+     "open_ends": 1
+    },
+    {
+     "width_mm": 1.4,
+     "kind": "hole",
+     "axis": [
+      0.0,
+      0.0,
+      -1.0
+     ],
+     "depth_mm": 2.4,
+     "where": [
+      1.99,
+      27.01,
+      6.74
+     ],
+     "verdict": "OK",
+     "text": "",
+     "n": 7,
+     "open_ends": 2
+    },
+    {
+     "width_mm": 1.4,
+     "kind": "hole",
+     "axis": [
+      -0.71,
+      0.0,
+      -0.71
+     ],
+     "depth_mm": 1.0,
+     "where": [
+      29.06,
+      1.99,
+      7.29
+     ],
+     "verdict": "OK",
+     "text": "",
+     "n": 14,
+     "open_ends": 1
+    }
+   ],
+   "verdict": "WARN",
+   "image": "img/dfm_top.png"
+  },
+  {
+   "name": "end_cap",
+   "process": "SLA",
+   "qty": "2",
+   "file": "out/v010/fab/OP-100/end_cap.stl",
+   "extents": [
+    10.0,
+    9.3,
+    3.7
+   ],
+   "faces": 75782,
+   "watertight": true,
+   "footprint_mm": 9.6,
+   "wall_vendor": 0.78,
+   "wall_floor": 0.4,
+   "violations": [
+    {
+     "sev": "WARN",
+     "what": "33.5 % of the wall samples thinner than the vendor value 0.78 mm for a 10 mm part (min 0.42 mm)",
+     "where": "",
+     "places": 1,
+     "also": []
+    },
+    {
+     "sev": "WARN",
+     "what": "slot/channel width 0.49 mm < vendor minimum 1.0 mm (SLA); post-drill/ream it",
+     "where": [
+      37.56,
+      10.64,
+      2.86
+     ],
+     "places": 1,
+     "also": []
+    },
+    {
+     "sev": "WARN",
+     "what": "slot/channel width 0.52 mm < vendor minimum 1.0 mm (SLA); post-drill/ream it",
+     "where": [
+      37.55,
+      10.2,
+      3.14
+     ],
+     "places": 1,
+     "also": []
+    },
+    {
+     "sev": "WARN",
+     "what": "slot/channel width 0.54 mm < vendor minimum 1.0 mm (SLA); post-drill/ream it",
+     "where": [
+      37.54,
+      11.74,
+      2.86
+     ],
+     "places": 1,
+     "also": []
+    },
+    {
+     "sev": "WARN",
+     "what": "slot/channel width 0.55 mm < vendor minimum 1.0 mm (SLA); post-drill/ream it",
+     "where": [
+      37.54,
+      9.82,
+      3.69
+     ],
+     "places": 1,
+     "also": []
+    },
+    {
+     "sev": "WARN",
+     "what": "slot/channel width 0.56 mm < vendor minimum 1.0 mm (SLA); post-drill/ream it",
+     "where": [
+      37.54,
+      12.25,
+      3.2
+     ],
+     "places": 1,
+     "also": []
+    },
+    {
+     "sev": "WARN",
+     "what": "slot/channel width 0.57 mm < vendor minimum 1.0 mm (SLA); post-drill/ream it",
+     "where": [
+      39.33,
+      11.2,
+      2.92
+     ],
+     "places": 1,
+     "also": []
+    },
+    {
+     "sev": "WARN",
+     "what": "slot/channel width 0.60 mm < vendor minimum 1.0 mm (SLA); post-drill/ream it",
+     "where": [
+      37.54,
+      11.26,
+      2.76
+     ],
+     "places": 1,
+     "also": []
+    },
+    {
+     "sev": "WARN",
+     "what": "slot/channel width 0.82 mm < vendor minimum 1.0 mm (SLA); post-drill/ream it",
+     "where": [
+      37.29,
+      12.02,
+      2.99
+     ],
+     "places": 1,
+     "also": []
+    },
+    {
+     "sev": "WARN",
+     "what": "hole width 0.90 mm < vendor minimum 1.0 mm (SLA); post-drill/ream it",
+     "where": [
+      41.26,
+      11.2,
+      3.01
+     ],
+     "places": 2,
+     "also": [
+      [
+       40.25,
+       11.2,
+       3.01
+      ]
+     ],
+     "n": 0
+    },
+    {
+     "sev": "WARN",
+     "what": "slot/channel width 0.98 mm < vendor minimum 1.0 mm (SLA); post-drill/ream it",
+     "where": [
+      37.25,
+      11.23,
+      2.76
+     ],
+     "places": 1,
+     "also": []
+    }
+   ],
+   "wall_min": 0.4188987240603989,
+   "wall_p01": 0.47781663174489475,
+   "wall_p05": 0.5887117973252318,
+   "area_below_floor_pct": 0.0,
+   "area_below_vendor_pct": 33.5,
+   "wall_clusters": [
+    {
+     "min_mm": 0.4188987240603989,
+     "n": 139,
+     "where": [
+      39.58,
+      11.21,
+      3.45
+     ],
+     "normal": [
+      0.02,
+      -0.07,
+      -1.0
+     ]
+    },
+    {
+     "min_mm": 0.42190927502925324,
+     "n": 220,
+     "where": [
+      40.48,
+      11.19,
+      3.45
+     ],
+     "normal": [
+      -0.01,
+      0.06,
+      -1.0
+     ]
+    },
+    {
+     "min_mm": 0.4536817057208973,
+     "n": 78,
+     "where": [
+      40.85,
+      10.99,
+      3.85
+     ],
+     "normal": [
+      0.0,
+      0.0,
+      1.0
+     ]
+    },
+    {
+     "min_mm": 0.46045861921511655,
+     "n": 40,
+     "where": [
+      39.92,
+      10.97,
+      3.85
+     ],
+     "normal": [
+      -0.0,
+      0.0,
+      1.0
+     ]
+    },
+    {
+     "min_mm": 0.47781663174489475,
+     "n": 36,
+     "where": [
+      38.04,
+      12.77,
+      4.21
+     ],
+     "normal": [
+      1.0,
+      -0.0,
+      0.0
+     ]
+    },
+    {
+     "min_mm": 0.47781663174489475,
+     "n": 50,
+     "where": [
+      37.59,
+      12.88,
+      4.24
+     ],
+     "normal": [
+      -1.0,
+      0.0,
+      -0.0
+     ]
+    },
+    {
+     "min_mm": 0.47781663174489475,
+     "n": 24,
+     "where": [
+      38.04,
+      9.99,
+      3.9
+     ],
+     "normal": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    },
+    {
+     "min_mm": 0.47781663174489475,
+     "n": 41,
+     "where": [
+      37.59,
+      9.42,
+      4.19
+     ],
+     "normal": [
+      -1.0,
+      0.0,
+      0.0
+     ]
+    },
+    {
+     "min_mm": 0.47781663174489475,
+     "n": 9,
+     "where": [
+      37.59,
+      10.16,
+      3.8
+     ],
+     "normal": [
+      -1.0,
+      0.0,
+      -0.0
+     ]
+    },
+    {
+     "min_mm": 0.47781663174489475,
+     "n": 40,
+     "where": [
+      37.59,
+      9.61,
+      3.99
+     ],
+     "normal": [
+      -1.0,
+      0.0,
+      0.0
+     ]
+    },
+    {
+     "min_mm": 0.47781663174489475,
+     "n": 27,
+     "where": [
+      38.04,
+      9.98,
+      4.03
+     ],
+     "normal": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    },
+    {
+     "min_mm": 0.47781663174489475,
+     "n": 23,
+     "where": [
+      38.04,
+      12.24,
+      3.92
+     ],
+     "normal": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    },
+    {
+     "min_mm": 0.47781663174489475,
+     "n": 30,
+     "where": [
+      37.59,
+      12.62,
+      3.77
+     ],
+     "normal": [
+      -1.0,
+      -0.0,
+      0.0
+     ]
+    },
+    {
+     "min_mm": 0.47781663174489475,
+     "n": 7,
+     "where": [
+      37.59,
+      13.05,
+      4.04
+     ],
+     "normal": [
+      -1.0,
+      0.0,
+      0.0
+     ]
+    }
+   ],
+   "holes": [
+    {
+     "width_mm": 0.49,
+     "kind": "slot/channel",
+     "axis": [
+      -0.71,
+      -0.71,
+      0.0
+     ],
+     "depth_mm": 0.0,
+     "where": [
+      37.56,
+      10.64,
+      2.86
+     ],
+     "verdict": "WARN",
+     "text": "slot/channel width 0.49 mm < vendor minimum 1.0 mm (SLA); post-drill/ream it",
+     "n": 9,
+     "open_ends": 1
+    },
+    {
+     "width_mm": 0.52,
+     "kind": "slot/channel",
+     "axis": [
+      -0.71,
+      -0.71,
+      0.0
+     ],
+     "depth_mm": 0.0,
+     "where": [
+      37.55,
+      10.2,
+      3.14
+     ],
+     "verdict": "WARN",
+     "text": "slot/channel width 0.52 mm < vendor minimum 1.0 mm (SLA); post-drill/ream it",
+     "n": 21,
+     "open_ends": 1
+    },
+    {
+     "width_mm": 0.54,
+     "kind": "slot/channel",
+     "axis": [
+      -0.58,
+      -0.58,
+      -0.58
+     ],
+     "depth_mm": 0.1,
+     "where": [
+      37.54,
+      11.74,
+      2.86
+     ],
+     "verdict": "WARN",
+     "text": "slot/channel width 0.54 mm < vendor minimum 1.0 mm (SLA); post-drill/ream it",
+     "n": 20,
+     "open_ends": 1
+    },
+    {
+     "width_mm": 0.55,
+     "kind": "slot/channel",
+     "axis": [
+      -0.58,
+      -0.58,
+      0.58
+     ],
+     "depth_mm": 0.1,
+     "where": [
+      37.54,
+      9.82,
+      3.69
+     ],
+     "verdict": "WARN",
+     "text": "slot/channel width 0.55 mm < vendor minimum 1.0 mm (SLA); post-drill/ream it",
+     "n": 18,
+     "open_ends": 1
+    },
+    {
+     "width_mm": 0.56,
+     "kind": "slot/channel",
+     "axis": [
+      -0.58,
+      -0.58,
+      -0.58
+     ],
+     "depth_mm": 0.1,
+     "where": [
+      37.54,
+      12.25,
+      3.2
+     ],
+     "verdict": "WARN",
+     "text": "slot/channel width 0.56 mm < vendor minimum 1.0 mm (SLA); post-drill/ream it",
+     "n": 28,
+     "open_ends": 1
+    },
+    {
+     "width_mm": 0.57,
+     "kind": "slot/channel",
+     "axis": [
+      -1.0,
+      0.0,
+      0.0
+     ],
+     "depth_mm": 0.4,
+     "where": [
+      39.33,
+      11.2,
+      2.92
+     ],
+     "verdict": "WARN",
+     "text": "slot/channel width 0.57 mm < vendor minimum 1.0 mm (SLA); post-drill/ream it",
+     "n": 67,
+     "open_ends": 1
+    },
+    {
+     "width_mm": 0.6,
+     "kind": "slot/channel",
+     "axis": [
+      -0.71,
+      -0.71,
+      0.0
+     ],
+     "depth_mm": 0.1,
+     "where": [
+      37.54,
+      11.26,
+      2.76
+     ],
+     "verdict": "WARN",
+     "text": "slot/channel width 0.60 mm < vendor minimum 1.0 mm (SLA); post-drill/ream it",
+     "n": 25,
+     "open_ends": 1
+    },
+    {
+     "width_mm": 0.82,
+     "kind": "slot/channel",
+     "axis": [
+      -0.58,
+      -0.58,
+      -0.58
+     ],
+     "depth_mm": 0.5,
+     "where": [
+      37.29,
+      12.02,
+      2.99
+     ],
+     "verdict": "WARN",
+     "text": "slot/channel width 0.82 mm < vendor minimum 1.0 mm (SLA); post-drill/ream it",
+     "n": 7,
+     "open_ends": 1
+    },
+    {
+     "width_mm": 0.9,
+     "kind": "hole",
+     "axis": [
+      -1.0,
+      0.0,
+      0.0
+     ],
+     "depth_mm": 2.3,
+     "where": [
+      41.26,
+      11.2,
+      3.01
+     ],
+     "verdict": "WARN",
+     "text": "hole width 0.90 mm < vendor minimum 1.0 mm (SLA); post-drill/ream it",
+     "n": 149,
+     "open_ends": 1
+    },
+    {
+     "width_mm": 0.9,
+     "kind": "hole",
+     "axis": [
+      -1.0,
+      0.0,
+      0.0
+     ],
+     "depth_mm": 1.3,
+     "where": [
+      40.25,
+      11.2,
+      3.01
+     ],
+     "verdict": "WARN",
+     "text": "hole width 0.90 mm < vendor minimum 1.0 mm (SLA); post-drill/ream it",
+     "n": 164,
+     "open_ends": 1
+    },
+    {
+     "width_mm": 0.98,
+     "kind": "slot/channel",
+     "axis": [
+      -0.58,
+      -0.58,
+      -0.58
+     ],
+     "depth_mm": 0.6,
+     "where": [
+      37.25,
+      11.23,
+      2.76
+     ],
+     "verdict": "WARN",
+     "text": "slot/channel width 0.98 mm < vendor minimum 1.0 mm (SLA); post-drill/ream it",
+     "n": 108,
+     "open_ends": 1
+    },
+    {
+     "width_mm": 1.0,
+     "kind": "hole",
+     "axis": [
+      0.0,
+      0.0,
+      -1.0
+     ],
+     "depth_mm": 0.8,
+     "where": [
+      39.64,
+      13.1,
+      2.25
+     ],
+     "verdict": "OK",
+     "text": "",
+     "n": 302,
+     "open_ends": 1
+    }
+   ],
+   "verdict": "WARN",
+   "image": "img/dfm_end_cap.png"
+  },
+  {
+   "name": "end_cap_lid",
+   "process": "SLA",
+   "qty": "2",
+   "file": "out/v010/fab/OP-100/end_cap_lid.stl",
+   "extents": [
+    6.2,
+    9.3,
+    2.55
+   ],
+   "faces": 24390,
+   "watertight": true,
+   "footprint_mm": 7.6,
+   "wall_vendor": 0.66,
+   "wall_floor": 0.4,
+   "violations": [
+    {
+     "sev": "WARN",
+     "what": "0.6 % of the wall samples thinner than the vendor value 0.66 mm for a 8 mm part (min 0.53 mm)",
+     "where": "",
+     "places": 1,
+     "also": []
+    },
+    {
+     "sev": "WARN",
+     "what": "slot/channel width 0.54 mm < vendor minimum 1.0 mm (SLA); post-drill/ream it",
+     "where": [
+      37.55,
+      9.8,
+      4.76
+     ],
+     "places": 2,
+     "also": [
+      [
+       37.54,
+       10.41,
+       5.52
+      ]
+     ],
+     "n": 0
+    },
+    {
+     "sev": "WARN",
+     "what": "slot/channel width 0.56 mm < vendor minimum 1.0 mm (SLA); post-drill/ream it",
+     "where": [
+      37.54,
+      10.73,
+      5.67
+     ],
+     "places": 2,
+     "also": [
+      [
+       37.54,
+       10.19,
+       5.35
+      ]
+     ],
+     "n": 0
+    },
+    {
+     "sev": "WARN",
+     "what": "slot/channel width 0.57 mm < vendor minimum 1.0 mm (SLA); post-drill/ream it",
+     "where": [
+      37.54,
+      11.77,
+      5.63
+     ],
+     "places": 2,
+     "also": [
+      [
+       37.54,
+       12.61,
+       4.74
+      ]
+     ],
+     "n": 0
+    },
+    {
+     "sev": "WARN",
+     "what": "slot/channel width 0.71 mm < vendor minimum 1.0 mm (SLA); post-drill/ream it",
+     "where": [
+      39.24,
+      10.8,
+      4.63
+     ],
+     "places": 1,
+     "also": []
+    },
+    {
+     "sev": "WARN",
+     "what": "slot/channel width 0.80 mm < vendor minimum 1.0 mm (SLA); post-drill/ream it",
+     "where": [
+      37.25,
+      10.17,
+      5.33
+     ],
+     "places": 1,
+     "also": []
+    },
+    {
+     "sev": "WARN",
+     "what": "slot/channel width 0.86 mm < vendor minimum 1.0 mm (SLA); post-drill/ream it",
+     "where": [
+      37.28,
+      9.8,
+      4.76
+     ],
+     "places": 1,
+     "also": []
+    }
+   ],
+   "wall_min": 0.526790965565937,
+   "wall_p01": 0.6960699850293617,
+   "wall_p05": 0.8435532767759074,
+   "area_below_floor_pct": 0.0,
+   "area_below_vendor_pct": 0.6,
+   "wall_clusters": [
+    {
+     "min_mm": 0.526790965565937,
+     "n": 11,
+     "where": [
+      37.22,
+      10.27,
+      4.25
+     ],
+     "normal": [
+      0.0,
+      -0.0,
+      -1.0
+     ]
+    },
+    {
+     "min_mm": 0.5498364485138103,
+     "n": 12,
+     "where": [
+      37.25,
+      12.11,
+      4.25
+     ],
+     "normal": [
+      -0.0,
+      0.0,
+      -1.0
+     ]
+    },
+    {
+     "min_mm": 0.5837951300803083,
+     "n": 65,
+     "where": [
+      35.77,
+      10.96,
+      4.31
+     ],
+     "normal": [
+      0.0,
+      0.97,
+      -0.24
+     ]
+    },
+    {
+     "min_mm": 0.5842343690376582,
+     "n": 60,
+     "where": [
+      36.77,
+      10.4,
+      4.35
+     ],
+     "normal": [
+      -0.0,
+      -1.0,
+      0.0
+     ]
+    },
+    {
+     "min_mm": 0.5842841874274805,
+     "n": 32,
+     "where": [
+      35.84,
+      12.0,
+      4.35
+     ],
+     "normal": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    },
+    {
+     "min_mm": 0.5843358099879138,
+     "n": 30,
+     "where": [
+      36.67,
+      12.0,
+      4.35
+     ],
+     "normal": [
+      -0.0,
+      1.0,
+      0.0
+     ]
+    },
+    {
+     "min_mm": 0.5874191277495526,
+     "n": 31,
+     "where": [
+      35.3,
+      11.44,
+      4.32
+     ],
+     "normal": [
+      0.0,
+      -0.96,
+      -0.27
+     ]
+    },
+    {
+     "min_mm": 0.5877996734223685,
+     "n": 41,
+     "where": [
+      36.27,
+      11.44,
+      4.32
+     ],
+     "normal": [
+      0.0,
+      -0.96,
+      -0.28
+     ]
+    }
+   ],
+   "holes": [
+    {
+     "width_mm": 0.54,
+     "kind": "slot/channel",
+     "axis": [
+      -0.71,
+      0.0,
+      -0.71
+     ],
+     "depth_mm": 0.1,
+     "where": [
+      37.55,
+      9.8,
+      4.76
+     ],
+     "verdict": "WARN",
+     "text": "slot/channel width 0.54 mm < vendor minimum 1.0 mm (SLA); post-drill/ream it",
+     "n": 30,
+     "open_ends": 1
+    },
+    {
+     "width_mm": 0.54,
+     "kind": "slot/channel",
+     "axis": [
+      -0.58,
+      -0.58,
+      -0.58
+     ],
+     "depth_mm": 0.1,
+     "where": [
+      37.54,
+      10.41,
+      5.52
+     ],
+     "verdict": "WARN",
+     "text": "slot/channel width 0.54 mm < vendor minimum 1.0 mm (SLA); post-drill/ream it",
+     "n": 6,
+     "open_ends": 1
+    },
+    {
+     "width_mm": 0.56,
+     "kind": "slot/channel",
+     "axis": [
+      -0.58,
+      -0.58,
+      -0.58
+     ],
+     "depth_mm": 0.1,
+     "where": [
+      37.54,
+      10.73,
+      5.67
+     ],
+     "verdict": "WARN",
+     "text": "slot/channel width 0.56 mm < vendor minimum 1.0 mm (SLA); post-drill/ream it",
+     "n": 33,
+     "open_ends": 1
+    },
+    {
+     "width_mm": 0.56,
+     "kind": "slot/channel",
+     "axis": [
+      -0.58,
+      -0.58,
+      -0.58
+     ],
+     "depth_mm": 0.1,
+     "where": [
+      37.54,
+      10.19,
+      5.35
+     ],
+     "verdict": "WARN",
+     "text": "slot/channel width 0.56 mm < vendor minimum 1.0 mm (SLA); post-drill/ream it",
+     "n": 27,
+     "open_ends": 1
+    },
+    {
+     "width_mm": 0.57,
+     "kind": "slot/channel",
+     "axis": [
+      -0.71,
+      -0.71,
+      0.0
+     ],
+     "depth_mm": 0.1,
+     "where": [
+      37.54,
+      11.77,
+      5.63
+     ],
+     "verdict": "WARN",
+     "text": "slot/channel width 0.57 mm < vendor minimum 1.0 mm (SLA); post-drill/ream it",
+     "n": 30,
+     "open_ends": 1
+    },
+    {
+     "width_mm": 0.57,
+     "kind": "slot/channel",
+     "axis": [
+      -0.58,
+      -0.58,
+      0.58
+     ],
+     "depth_mm": 0.1,
+     "where": [
+      37.54,
+      12.61,
+      4.74
+     ],
+     "verdict": "WARN",
+     "text": "slot/channel width 0.57 mm < vendor minimum 1.0 mm (SLA); post-drill/ream it",
+     "n": 26,
+     "open_ends": 1
+    },
+    {
+     "width_mm": 0.71,
+     "kind": "slot/channel",
+     "axis": [
+      -0.58,
+      -0.58,
+      -0.58
+     ],
+     "depth_mm": 0.2,
+     "where": [
+      39.24,
+      10.8,
+      4.63
+     ],
+     "verdict": "WARN",
+     "text": "slot/channel width 0.71 mm < vendor minimum 1.0 mm (SLA); post-drill/ream it",
+     "n": 78,
+     "open_ends": 1
+    },
+    {
+     "width_mm": 0.8,
+     "kind": "slot/channel",
+     "axis": [
+      -0.58,
+      -0.58,
+      -0.58
+     ],
+     "depth_mm": 0.6,
+     "where": [
+      37.25,
+      10.17,
+      5.33
+     ],
+     "verdict": "WARN",
+     "text": "slot/channel width 0.80 mm < vendor minimum 1.0 mm (SLA); post-drill/ream it",
+     "n": 160,
+     "open_ends": 1
+    },
+    {
+     "width_mm": 0.86,
+     "kind": "slot/channel",
+     "axis": [
+      -0.58,
+      -0.58,
+      -0.58
+     ],
+     "depth_mm": 0.5,
+     "where": [
+      37.28,
+      9.8,
+      4.76
+     ],
+     "verdict": "WARN",
+     "text": "slot/channel width 0.86 mm < vendor minimum 1.0 mm (SLA); post-drill/ream it",
+     "n": 173,
+     "open_ends": 1
+    },
+    {
+     "width_mm": 1.4,
+     "kind": "hole",
+     "axis": [
+      -0.71,
+      0.0,
+      -0.71
+     ],
+     "depth_mm": 1.0,
+     "where": [
+      39.64,
+      13.1,
+      4.75
+     ],
+     "verdict": "OK",
+     "text": "",
+     "n": 769,
+     "open_ends": 1
+    },
+    {
+     "width_mm": 1.4,
+     "kind": "hole",
+     "axis": [
+      0.0,
+      0.0,
+      -1.0
+     ],
+     "depth_mm": 2.6,
+     "where": [
+      39.64,
+      13.1,
+      5.76
+     ],
+     "verdict": "OK",
+     "text": "",
+     "n": 758,
+     "open_ends": 2
+    }
+   ],
+   "verdict": "WARN",
+   "image": "img/dfm_end_cap_lid.png"
+  },
+  {
+   "name": "plunger_core",
+   "process": "SLA",
+   "qty": "2",
+   "file": "out/v010/fab/OP-100/plunger_core.stl",
+   "extents": [
+    4.76,
+    25.5,
+    4.5
+   ],
+   "faces": 29748,
+   "watertight": true,
+   "footprint_mm": 11.0,
+   "wall_vendor": 0.81,
+   "wall_floor": 0.4,
+   "violations": [
+    {
+     "sev": "WARN",
+     "what": "12.4 % of the wall samples thinner than the vendor value 0.81 mm for a 11 mm part (min 0.42 mm)",
+     "where": "",
+     "places": 1,
+     "also": []
+    },
+    {
+     "sev": "WARN",
+     "what": "slot/channel width 0.56 mm < vendor minimum 1.0 mm (SLA); post-drill/ream it",
+     "where": [
+      25.42,
+      11.22,
+      2.53
+     ],
+     "places": 2,
+     "also": [
+      [
+       25.42,
+       15.74,
+       5.97
+      ]
+     ],
+     "n": 0
+    },
+    {
+     "sev": "WARN",
+     "what": "slot/channel width 0.57 mm < vendor minimum 1.0 mm (SLA); post-drill/ream it",
+     "where": [
+      25.42,
+      18.76,
+      5.97
+     ],
+     "places": 3,
+     "also": [
+      [
+       25.42,
+       10.27,
+       5.97
+      ],
+      [
+       25.42,
+       21.34,
+       5.97
+      ]
+     ],
+     "n": 0
+    },
+    {
+     "sev": "WARN",
+     "what": "slot/channel width 0.58 mm < vendor minimum 1.0 mm (SLA); post-drill/ream it",
+     "where": [
+      25.42,
+      10.26,
+      2.53
+     ],
+     "places": 7,
+     "also": [
+      [
+       25.42,
+       22.74,
+       2.53
+      ],
+      [
+       25.42,
+       12.85,
+       5.97
+      ]
+     ],
+     "n": 0
+    }
+   ],
+   "wall_min": 0.4246065252662836,
+   "wall_p01": 0.43524854656200507,
+   "wall_p05": 0.5416647000031805,
+   "area_below_floor_pct": 0.0,
+   "area_below_vendor_pct": 12.4,
+   "wall_clusters": [
+    {
+     "min_mm": 0.4246065252662836,
+     "n": 72,
+     "where": [
+      23.5,
+      16.95,
+      4.15
+     ],
+     "normal": [
+      0.0,
+      -1.0,
+      0.0
+     ]
+    },
+    {
+     "min_mm": 0.4246065252662836,
+     "n": 28,
+     "where": [
+      23.57,
+      17.35,
+      5.09
+     ],
+     "normal": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    },
+    {
+     "min_mm": 0.4246065252662836,
+     "n": 40,
+     "where": [
+      22.65,
+      17.35,
+      4.38
+     ],
+     "normal": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    },
+    {
+     "min_mm": 0.4246065252662836,
+     "n": 18,
+     "where": [
+      22.74,
+      16.95,
+      5.23
+     ],
+     "normal": [
+      -0.0,
+      -1.0,
+      0.0
+     ]
+    },
+    {
+     "min_mm": 0.4246065252662836,
+     "n": 20,
+     "where": [
+      22.64,
+      17.35,
+      5.19
+     ],
+     "normal": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    },
+    {
+     "min_mm": 0.4246065252662836,
+     "n": 64,
+     "where": [
+      23.51,
+      17.35,
+      4.16
+     ],
+     "normal": [
+      0.0,
+      1.0,
+      -0.0
+     ]
+    },
+    {
+     "min_mm": 0.4246065252662836,
+     "n": 46,
+     "where": [
+      22.69,
+      16.95,
+      4.87
+     ],
+     "normal": [
+      0.0,
+      -1.0,
+      -0.0
+     ]
+    },
+    {
+     "min_mm": 0.4246065252662836,
+     "n": 28,
+     "where": [
+      23.56,
+      16.95,
+      5.11
+     ],
+     "normal": [
+      -0.0,
+      -1.0,
+      -0.0
+     ]
+    },
+    {
+     "min_mm": 0.42460652526628373,
+     "n": 39,
+     "where": [
+      22.68,
+      16.95,
+      3.68
+     ],
+     "normal": [
+      0.0,
+      -1.0,
+      0.0
+     ]
+    },
+    {
+     "min_mm": 0.42460652526628373,
+     "n": 70,
+     "where": [
+      23.58,
+      17.35,
+      3.34
+     ],
+     "normal": [
+      -0.0,
+      1.0,
+      0.0
+     ]
+    },
+    {
+     "min_mm": 0.42460652526628373,
+     "n": 66,
+     "where": [
+      23.5,
+      16.95,
+      3.77
+     ],
+     "normal": [
+      0.0,
+      -1.0,
+      -0.0
+     ]
+    },
+    {
+     "min_mm": 0.42460652526628373,
+     "n": 45,
+     "where": [
+      22.74,
+      17.35,
+      3.69
+     ],
+     "normal": [
+      -0.0,
+      1.0,
+      0.0
+     ]
+    },
+    {
+     "min_mm": 0.43524854656200507,
+     "n": 56,
+     "where": [
+      26.28,
+      16.95,
+      2.02
+     ],
+     "normal": [
+      1.0,
+      0.0,
+      -0.0
+     ]
+    },
+    {
+     "min_mm": 0.43524854656200507,
+     "n": 62,
+     "where": [
+      26.28,
+      16.99,
+      6.26
+     ],
+     "normal": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    }
+   ],
+   "holes": [
+    {
+     "width_mm": 0.56,
+     "kind": "slot/channel",
+     "axis": [
+      0.0,
+      -0.71,
+      -0.71
+     ],
+     "depth_mm": 0.0,
+     "where": [
+      25.42,
+      11.22,
+      2.53
+     ],
+     "verdict": "WARN",
+     "text": "slot/channel width 0.56 mm < vendor minimum 1.0 mm (SLA); post-drill/ream it",
+     "n": 7,
+     "open_ends": 1
+    },
+    {
+     "width_mm": 0.56,
+     "kind": "slot/channel",
+     "axis": [
+      0.0,
+      -0.71,
+      -0.71
+     ],
+     "depth_mm": 0.0,
+     "where": [
+      25.42,
+      15.74,
+      5.97
+     ],
+     "verdict": "WARN",
+     "text": "slot/channel width 0.56 mm < vendor minimum 1.0 mm (SLA); post-drill/ream it",
+     "n": 7,
+     "open_ends": 1
+    },
+    {
+     "width_mm": 0.57,
+     "kind": "slot/channel",
+     "axis": [
+      0.0,
+      -0.71,
+      -0.71
+     ],
+     "depth_mm": 0.0,
+     "where": [
+      25.42,
+      18.76,
+      5.97
+     ],
+     "verdict": "WARN",
+     "text": "slot/channel width 0.57 mm < vendor minimum 1.0 mm (SLA); post-drill/ream it",
+     "n": 8,
+     "open_ends": 1
+    },
+    {
+     "width_mm": 0.57,
+     "kind": "slot/channel",
+     "axis": [
+      0.0,
+      -0.71,
+      -0.71
+     ],
+     "depth_mm": 0.0,
+     "where": [
+      25.42,
+      10.27,
+      5.97
+     ],
+     "verdict": "WARN",
+     "text": "slot/channel width 0.57 mm < vendor minimum 1.0 mm (SLA); post-drill/ream it",
+     "n": 9,
+     "open_ends": 1
+    },
+    {
+     "width_mm": 0.57,
+     "kind": "slot/channel",
+     "axis": [
+      0.0,
+      -0.71,
+      -0.71
+     ],
+     "depth_mm": 0.0,
+     "where": [
+      25.42,
+      21.34,
+      5.97
+     ],
+     "verdict": "WARN",
+     "text": "slot/channel width 0.57 mm < vendor minimum 1.0 mm (SLA); post-drill/ream it",
+     "n": 6,
+     "open_ends": 1
+    },
+    {
+     "width_mm": 0.58,
+     "kind": "slot/channel",
+     "axis": [
+      0.0,
+      -0.71,
+      -0.71
+     ],
+     "depth_mm": 0.0,
+     "where": [
+      25.42,
+      10.26,
+      2.53
+     ],
+     "verdict": "WARN",
+     "text": "slot/channel width 0.58 mm < vendor minimum 1.0 mm (SLA); post-drill/ream it",
+     "n": 7,
+     "open_ends": 1
+    },
+    {
+     "width_mm": 0.58,
+     "kind": "slot/channel",
+     "axis": [
+      0.0,
+      -0.71,
+      -0.71
+     ],
+     "depth_mm": 0.0,
+     "where": [
+      25.42,
+      22.74,
+      2.53
+     ],
+     "verdict": "WARN",
+     "text": "slot/channel width 0.58 mm < vendor minimum 1.0 mm (SLA); post-drill/ream it",
+     "n": 8,
+     "open_ends": 1
+    },
+    {
+     "width_mm": 0.58,
+     "kind": "slot/channel",
+     "axis": [
+      0.0,
+      -0.71,
+      -0.71
+     ],
+     "depth_mm": 0.0,
+     "where": [
+      25.42,
+      12.85,
+      5.97
+     ],
+     "verdict": "WARN",
+     "text": "slot/channel width 0.58 mm < vendor minimum 1.0 mm (SLA); post-drill/ream it",
+     "n": 7,
+     "open_ends": 1
+    },
+    {
+     "width_mm": 0.58,
+     "kind": "slot/channel",
+     "axis": [
+      0.0,
+      -0.71,
+      -0.71
+     ],
+     "depth_mm": 0.0,
+     "where": [
+      25.42,
+      26.26,
+      5.97
+     ],
+     "verdict": "WARN",
+     "text": "slot/channel width 0.58 mm < vendor minimum 1.0 mm (SLA); post-drill/ream it",
+     "n": 6,
+     "open_ends": 1
+    },
+    {
+     "width_mm": 0.58,
+     "kind": "slot/channel",
+     "axis": [
+      0.0,
+      -0.71,
+      -0.71
+     ],
+     "depth_mm": 0.0,
+     "where": [
+      25.42,
+      13.77,
+      2.53
+     ],
+     "verdict": "WARN",
+     "text": "slot/channel width 0.58 mm < vendor minimum 1.0 mm (SLA); post-drill/ream it",
+     "n": 6,
+     "open_ends": 1
+    },
+    {
+     "width_mm": 0.58,
+     "kind": "slot/channel",
+     "axis": [
+      0.0,
+      -0.71,
+      -0.71
+     ],
+     "depth_mm": 0.0,
+     "where": [
+      25.42,
+      19.32,
+      2.53
+     ],
+     "verdict": "WARN",
+     "text": "slot/channel width 0.58 mm < vendor minimum 1.0 mm (SLA); post-drill/ream it",
+     "n": 11,
+     "open_ends": 1
+    },
+    {
+     "width_mm": 0.58,
+     "kind": "slot/channel",
+     "axis": [
+      0.0,
+      -0.71,
+      -0.71
+     ],
+     "depth_mm": 0.0,
+     "where": [
+      25.42,
+      23.18,
+      5.97
+     ],
+     "verdict": "WARN",
+     "text": "slot/channel width 0.58 mm < vendor minimum 1.0 mm (SLA); post-drill/ream it",
+     "n": 6,
+     "open_ends": 1
+    }
+   ],
+   "verdict": "WARN",
+   "image": "img/dfm_plunger_core.png"
+  },
+  {
+   "name": "mould_lower",
+   "process": "SLA",
+   "qty": "1",
+   "file": "out/v010/fab/mould/mould_lower.stl",
+   "extents": [
+    16.76,
+    37.85,
+    8.5
+   ],
+   "faces": 28504,
+   "watertight": true,
+   "footprint_mm": 25.2,
+   "wall_vendor": 0.88,
+   "wall_floor": 0.4,
+   "violations": [],
+   "wall_min": 1.9336420797904361,
+   "wall_p01": 1.942945426454286,
+   "wall_p05": 3.957677166284287,
+   "area_below_floor_pct": 0.0,
+   "area_below_vendor_pct": 0.0,
+   "wall_clusters": [],
+   "holes": [],
+   "verdict": "OK"
+  },
+  {
+   "name": "mould_upper",
+   "process": "SLA",
+   "qty": "1",
+   "file": "out/v010/fab/mould/mould_upper.stl",
+   "extents": [
+    16.76,
+    37.85,
+    6.0
+   ],
+   "faces": 43104,
+   "watertight": true,
+   "footprint_mm": 25.2,
+   "wall_vendor": 0.88,
+   "wall_floor": 0.4,
+   "violations": [
+    {
+     "sev": "WARN",
+     "what": "hole width 0.50 mm < vendor minimum 1.0 mm (SLA); post-drill/ream it",
+     "where": [
+      9.8,
+      12.43,
+      11.27
+     ],
+     "places": 2,
+     "also": [
+      [
+       9.8,
+       12.43,
+       8.74
+      ]
+     ],
+     "n": 0
+    },
+    {
+     "sev": "WARN",
+     "what": "slot/channel width 0.50 mm < vendor minimum 1.0 mm (SLA); post-drill/ream it",
+     "where": [
+      9.8,
+      12.42,
+      11.75
+     ],
+     "places": 1,
+     "also": []
+    },
+    {
+     "sev": "WARN",
+     "what": "hole width 0.80 mm < vendor minimum 1.0 mm (SLA); post-drill/ream it",
+     "where": [
+      9.8,
+      25.42,
+      10.26
+     ],
+     "places": 2,
+     "also": [
+      [
+       9.8,
+       25.42,
+       11.25
+      ]
+     ],
+     "n": 0
+    },
+    {
+     "sev": "WARN",
+     "what": "slot/channel width 0.80 mm < vendor minimum 1.0 mm (SLA); post-drill/ream it",
+     "where": [
+      9.8,
+      25.42,
+      8.78
+     ],
+     "places": 1,
+     "also": []
+    }
+   ],
+   "wall_min": 1.464038768477221,
+   "wall_p01": 1.5140929215801968,
+   "wall_p05": 3.5107226743738367,
+   "area_below_floor_pct": 0.0,
+   "area_below_vendor_pct": 0.0,
+   "wall_clusters": [],
+   "holes": [
+    {
+     "width_mm": 0.5,
+     "kind": "hole",
+     "axis": [
+      0.0,
+      0.0,
+      -1.0
+     ],
+     "depth_mm": 6.0,
+     "where": [
+      9.8,
+      12.43,
+      11.27
+     ],
+     "verdict": "WARN",
+     "text": "hole width 0.50 mm < vendor minimum 1.0 mm (SLA); post-drill/ream it",
+     "n": 24,
+     "open_ends": 2
+    },
+    {
+     "width_mm": 0.5,
+     "kind": "hole",
+     "axis": [
+      0.0,
+      0.0,
+      -1.0
+     ],
+     "depth_mm": 6.0,
+     "where": [
+      9.8,
+      12.43,
+      8.74
+     ],
+     "verdict": "WARN",
+     "text": "hole width 0.50 mm < vendor minimum 1.0 mm (SLA); post-drill/ream it",
+     "n": 20,
+     "open_ends": 2
+    },
+    {
+     "width_mm": 0.5,
+     "kind": "slot/channel",
+     "axis": [
+      -0.71,
+      0.0,
+      0.71
+     ],
+     "depth_mm": 0.3,
+     "where": [
+      9.8,
+      12.42,
+      11.75
+     ],
+     "verdict": "WARN",
+     "text": "slot/channel width 0.50 mm < vendor minimum 1.0 mm (SLA); post-drill/ream it",
+     "n": 20,
+     "open_ends": 1
+    },
+    {
+     "width_mm": 0.8,
+     "kind": "hole",
+     "axis": [
+      0.0,
+      0.0,
+      -1.0
+     ],
+     "depth_mm": 6.0,
+     "where": [
+      9.8,
+      25.42,
+      10.26
+     ],
+     "verdict": "WARN",
+     "text": "hole width 0.80 mm < vendor minimum 1.0 mm (SLA); post-drill/ream it",
+     "n": 41,
+     "open_ends": 2
+    },
+    {
+     "width_mm": 0.8,
+     "kind": "hole",
+     "axis": [
+      0.0,
+      0.0,
+      -1.0
+     ],
+     "depth_mm": 6.0,
+     "where": [
+      9.8,
+      25.42,
+      11.25
+     ],
+     "verdict": "WARN",
+     "text": "hole width 0.80 mm < vendor minimum 1.0 mm (SLA); post-drill/ream it",
+     "n": 46,
+     "open_ends": 2
+    },
+    {
+     "width_mm": 0.8,
+     "kind": "slot/channel",
+     "axis": [
+      0.0,
+      -0.71,
+      -0.71
+     ],
+     "depth_mm": 0.6,
+     "where": [
+      9.8,
+      25.42,
+      8.78
+     ],
+     "verdict": "WARN",
+     "text": "slot/channel width 0.80 mm < vendor minimum 1.0 mm (SLA); post-drill/ream it",
+     "n": 34,
+     "open_ends": 1
+    },
+    {
+     "width_mm": 2.2,
+     "kind": "hole",
+     "axis": [
+      0.0,
+      0.0,
+      -1.0
+     ],
+     "depth_mm": 0.1,
+     "where": [
+      14.26,
+      2.51,
+      8.61
+     ],
+     "verdict": "OK",
+     "text": "",
+     "n": 21,
+     "open_ends": 1
+    },
+    {
+     "width_mm": 2.2,
+     "kind": "hole",
+     "axis": [
+      0.0,
+      0.0,
+      -1.0
+     ],
+     "depth_mm": 1.5,
+     "where": [
+      2.49,
+      35.34,
+      7.2
+     ],
+     "verdict": "OK",
+     "text": "",
+     "n": 39,
+     "open_ends": 1
+    },
+    {
+     "width_mm": 2.2,
+     "kind": "hole",
+     "axis": [
+      0.0,
+      0.0,
+      -1.0
+     ],
+     "depth_mm": 0.4,
+     "where": [
+      14.26,
+      35.35,
+      8.25
+     ],
+     "verdict": "OK",
+     "text": "",
+     "n": 96,
+     "open_ends": 1
+    },
+    {
+     "width_mm": 2.2,
+     "kind": "hole",
+     "axis": [
+      0.0,
+      0.0,
+      -1.0
+     ],
+     "depth_mm": 1.5,
+     "where": [
+      2.48,
+      2.49,
+      7.25
+     ],
+     "verdict": "OK",
+     "text": "",
+     "n": 31,
+     "open_ends": 1
+    },
+    {
+     "width_mm": 2.2,
+     "kind": "hole",
+     "axis": [
+      0.0,
+      0.0,
+      -1.0
+     ],
+     "depth_mm": 0.4,
+     "where": [
+      2.51,
+      35.35,
+      8.27
+     ],
+     "verdict": "OK",
+     "text": "",
+     "n": 59,
+     "open_ends": 1
+    },
+    {
+     "width_mm": 2.2,
+     "kind": "hole",
+     "axis": [
+      -0.58,
+      -0.58,
+      0.58
+     ],
+     "depth_mm": 1.3,
+     "where": [
+      2.49,
+      35.35,
+      6.77
+     ],
+     "verdict": "OK",
+     "text": "",
+     "n": 52,
+     "open_ends": 1
+    }
+   ],
+   "verdict": "WARN",
+   "image": "img/dfm_mould_upper.png"
+  },
+  {
+   "name": "insert_v01",
+   "process": "SLA",
+   "qty": "-",
+   "file": "out/v010/fab/dock-inserts/insert_v01.stl",
+   "extents": [
+    16.7,
+    15.1,
+    5.2
+   ],
+   "faces": 11326,
+   "watertight": true,
+   "footprint_mm": 15.9,
+   "wall_vendor": 0.83,
+   "wall_floor": 0.4,
+   "violations": [
+    {
+     "sev": "WARN",
+     "what": "zero-thickness skin (0.001 mm): coincident or tangent faces, e.g. a bore tangent to an outer face; the slicer will drop or crack it (SLA)",
+     "where": [
+      7.71,
+      18.75,
+      0.65
+     ],
+     "n": 51,
+     "places": 1,
+     "also": []
+    },
+    {
+     "sev": "WARN",
+     "what": "zero-thickness skin (0.002 mm): coincident or tangent faces, e.g. a bore tangent to an outer face; the slicer will drop or crack it (SLA)",
+     "where": [
+      7.09,
+      3.65,
+      0.98
+     ],
+     "n": 16,
+     "places": 1,
+     "also": []
+    },
+    {
+     "sev": "WARN",
+     "what": "zero-thickness skin (0.003 mm): coincident or tangent faces, e.g. a bore tangent to an outer face; the slicer will drop or crack it (SLA)",
+     "where": [
+      7.08,
+      3.65,
+      1.01
+     ],
+     "n": 24,
+     "places": 1,
+     "also": []
+    },
+    {
+     "sev": "WARN",
+     "what": "zero-thickness skin (0.017 mm): coincident or tangent faces, e.g. a bore tangent to an outer face; the slicer will drop or crack it (SLA)",
+     "where": [
+      7.08,
+      18.74,
+      1.06
+     ],
+     "n": 19,
+     "places": 1,
+     "also": []
+    },
+    {
+     "sev": "WARN",
+     "what": "62.8 % of the wall samples thinner than the vendor value 0.83 mm for a 16 mm part (min 0.00 mm)",
+     "where": "",
+     "places": 1,
+     "also": []
+    },
+    {
+     "sev": "WARN",
+     "what": "slot/channel width 0.60 mm < vendor minimum 1.0 mm (SLA); post-drill/ream it",
+     "where": [
+      7.86,
+      5.15,
+      1.58
+     ],
+     "places": 1,
+     "also": []
+    }
+   ],
+   "wall_min": 0.001073560426839508,
+   "wall_p01": 0.6413010721542935,
+   "wall_p05": 0.7757855530025821,
+   "area_below_floor_pct": 0.14,
+   "area_below_vendor_pct": 62.8,
+   "wall_clusters": [
+    {
+     "min_mm": 0.001073560426839508,
+     "n": 51,
+     "where": [
+      7.71,
+      18.75,
+      0.65
+     ],
+     "normal": [
+      -0.72,
+      -0.7,
+      -0.0
+     ]
+    },
+    {
+     "min_mm": 0.0023119321638009893,
+     "n": 16,
+     "where": [
+      7.09,
+      3.65,
+      0.98
+     ],
+     "normal": [
+      0.0,
+      -1.0,
+      0.0
+     ]
+    },
+    {
+     "min_mm": 0.0032935823153739108,
+     "n": 24,
+     "where": [
+      7.08,
+      3.65,
+      1.01
+     ],
+     "normal": [
+      -0.0,
+      -1.0,
+      0.0
+     ]
+    },
+    {
+     "min_mm": 0.016887237032476236,
+     "n": 19,
+     "where": [
+      7.08,
+      18.74,
+      1.06
+     ],
+     "normal": [
+      0.72,
+      -0.7,
+      0.0
+     ]
+    },
+    {
+     "min_mm": 0.5264008692124754,
+     "n": 89,
+     "where": [
+      4.47,
+      11.26,
+      4.7
+     ],
+     "normal": [
+      0.01,
+      -0.04,
+      -1.0
+     ]
+    },
+    {
+     "min_mm": 0.5284708262091721,
+     "n": 65,
+     "where": [
+      5.19,
+      11.29,
+      4.7
+     ],
+     "normal": [
+      -0.01,
+      -0.04,
+      -1.0
+     ]
+    },
+    {
+     "min_mm": 0.5310247084654798,
+     "n": 143,
+     "where": [
+      7.7,
+      5.11,
+      4.0
+     ],
+     "normal": [
+      -1.0,
+      0.0,
+      -0.0
+     ]
+    },
+    {
+     "min_mm": 0.5310247084654798,
+     "n": 134,
+     "where": [
+      7.7,
+      5.39,
+      2.24
+     ],
+     "normal": [
+      -1.0,
+      0.0,
+      0.0
+     ]
+    },
+    {
+     "min_mm": 0.5310247084654798,
+     "n": 91,
+     "where": [
+      7.7,
+      5.09,
+      4.22
+     ],
+     "normal": [
+      -1.0,
+      0.0,
+      -0.0
+     ]
+    },
+    {
+     "min_mm": 0.5310247084654798,
+     "n": 72,
+     "where": [
+      7.7,
+      5.16,
+      1.99
+     ],
+     "normal": [
+      -1.0,
+      0.0,
+      0.0
+     ]
+    },
+    {
+     "min_mm": 0.5310247084654807,
+     "n": 106,
+     "where": [
+      8.2,
+      5.26,
+      4.2
+     ],
+     "normal": [
+      1.0,
+      -0.0,
+      0.0
+     ]
+    },
+    {
+     "min_mm": 0.5310247084654808,
+     "n": 154,
+     "where": [
+      8.2,
+      5.3,
+      2.53
+     ],
+     "normal": [
+      1.0,
+      -0.0,
+      0.0
+     ]
+    },
+    {
+     "min_mm": 0.5310247084654808,
+     "n": 86,
+     "where": [
+      8.2,
+      5.22,
+      2.0
+     ],
+     "normal": [
+      1.0,
+      0.0,
+      -0.0
+     ]
+    },
+    {
+     "min_mm": 0.5310247084654808,
+     "n": 108,
+     "where": [
+      8.2,
+      5.05,
+      3.46
+     ],
+     "normal": [
+      1.0,
+      -0.0,
+      0.0
+     ]
+    }
+   ],
+   "holes": [
+    {
+     "width_mm": 0.6,
+     "kind": "slot/channel",
+     "axis": [
+      -0.71,
+      -0.71,
+      0.0
+     ],
+     "depth_mm": 0.4,
+     "where": [
+      7.86,
+      5.15,
+      1.58
+     ],
+     "verdict": "WARN",
+     "text": "slot/channel width 0.60 mm < vendor minimum 1.0 mm (SLA); post-drill/ream it",
+     "n": 17,
+     "open_ends": 1
+    }
+   ],
+   "verdict": "WARN",
+   "image": "img/dfm_insert_v01.png"
+  },
+  {
+   "name": "insert_v10",
+   "process": "SLA",
+   "qty": "-",
+   "file": "out/v010/fab/dock-inserts/insert_v10.stl",
+   "extents": [
+    16.7,
+    15.1,
+    5.2
+   ],
+   "faces": 11864,
+   "watertight": true,
+   "footprint_mm": 15.9,
+   "wall_vendor": 0.83,
+   "wall_floor": 0.4,
+   "violations": [
+    {
+     "sev": "WARN",
+     "what": "zero-thickness skin (0.000 mm): coincident or tangent faces, e.g. a bore tangent to an outer face; the slicer will drop or crack it (SLA)",
+     "where": [
+      7.09,
+      18.75,
+      1.1
+     ],
+     "n": 13,
+     "places": 1,
+     "also": []
+    },
+    {
+     "sev": "WARN",
+     "what": "zero-thickness skin (0.001 mm): coincident or tangent faces, e.g. a bore tangent to an outer face; the slicer will drop or crack it (SLA)",
+     "where": [
+      7.09,
+      18.75,
+      0.81
+     ],
+     "n": 39,
+     "places": 1,
+     "also": []
+    },
+    {
+     "sev": "WARN",
+     "what": "zero-thickness skin (0.003 mm): coincident or tangent faces, e.g. a bore tangent to an outer face; the slicer will drop or crack it (SLA)",
+     "where": [
+      7.72,
+      3.65,
+      0.65
+     ],
+     "n": 17,
+     "places": 1,
+     "also": []
+    },
+    {
+     "sev": "WARN",
+     "what": "zero-thickness skin (0.006 mm): coincident or tangent faces, e.g. a bore tangent to an outer face; the slicer will drop or crack it (SLA)",
+     "where": [
+      7.08,
+      3.65,
+      1.1
+     ],
+     "n": 14,
+     "places": 1,
+     "also": []
+    },
+    {
+     "sev": "WARN",
+     "what": "61.7 % of the wall samples thinner than the vendor value 0.83 mm for a 16 mm part (min 0.00 mm)",
+     "where": "",
+     "places": 1,
+     "also": []
+    },
+    {
+     "sev": "WARN",
+     "what": "slot/channel width 0.60 mm < vendor minimum 1.0 mm (SLA); post-drill/ream it",
+     "where": [
+      9.22,
+      4.96,
+      1.58
+     ],
+     "places": 1,
+     "also": []
+    }
+   ],
+   "wall_min": 0.00035304783289902275,
+   "wall_p01": 0.7736796417398566,
+   "wall_p05": 0.7757855530025821,
+   "area_below_floor_pct": 0.12,
+   "area_below_vendor_pct": 61.7,
+   "wall_clusters": [
+    {
+     "min_mm": 0.00035304783289902275,
+     "n": 13,
+     "where": [
+      7.09,
+      18.75,
+      1.1
+     ],
+     "normal": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    },
+    {
+     "min_mm": 0.0010459654269562386,
+     "n": 39,
+     "where": [
+      7.09,
+      18.75,
+      0.81
+     ],
+     "normal": [
+      0.72,
+      -0.7,
+      0.0
+     ]
+    },
+    {
+     "min_mm": 0.0030497229517956193,
+     "n": 17,
+     "where": [
+      7.72,
+      3.65,
+      0.65
+     ],
+     "normal": [
+      0.0,
+      -1.0,
+      -0.0
+     ]
+    },
+    {
+     "min_mm": 0.006230375076561323,
+     "n": 14,
+     "where": [
+      7.08,
+      3.65,
+      1.1
+     ],
+     "normal": [
+      0.0,
+      -1.0,
+      0.0
+     ]
+    },
+    {
+     "min_mm": 0.5289151247950393,
+     "n": 84,
+     "where": [
+      4.7,
+      11.28,
+      4.7
+     ],
+     "normal": [
+      -0.0,
+      -0.05,
+      -1.0
+     ]
+    },
+    {
+     "min_mm": 0.5295618485071092,
+     "n": 57,
+     "where": [
+      5.09,
+      11.31,
+      4.7
+     ],
+     "normal": [
+      0.0,
+      -0.09,
+      -1.0
+     ]
+    },
+    {
+     "min_mm": 0.5310247084654798,
+     "n": 93,
+     "where": [
+      7.7,
+      5.23,
+      3.52
+     ],
+     "normal": [
+      -1.0,
+      -0.0,
+      -0.0
+     ]
+    },
+    {
+     "min_mm": 0.5310247084654798,
+     "n": 87,
+     "where": [
+      7.7,
+      5.26,
+      2.35
+     ],
+     "normal": [
+      -1.0,
+      -0.0,
+      -0.0
+     ]
+    },
+    {
+     "min_mm": 0.5310247084654798,
+     "n": 82,
+     "where": [
+      7.7,
+      5.08,
+      1.94
+     ],
+     "normal": [
+      -1.0,
+      -0.0,
+      -0.0
+     ]
+    },
+    {
+     "min_mm": 0.5310247084654798,
+     "n": 91,
+     "where": [
+      7.7,
+      5.13,
+      4.36
+     ],
+     "normal": [
+      -1.0,
+      0.0,
+      -0.0
+     ]
+    },
+    {
+     "min_mm": 0.5310247084654798,
+     "n": 10,
+     "where": [
+      7.7,
+      4.96,
+      2.42
+     ],
+     "normal": [
+      -1.0,
+      0.0,
+      0.0
+     ]
+    },
+    {
+     "min_mm": 0.5310247084654798,
+     "n": 8,
+     "where": [
+      7.7,
+      4.95,
+      3.89
+     ],
+     "normal": [
+      -1.0,
+      0.0,
+      -0.0
+     ]
+    },
+    {
+     "min_mm": 0.5310247084654807,
+     "n": 81,
+     "where": [
+      8.2,
+      5.27,
+      4.24
+     ],
+     "normal": [
+      1.0,
+      0.0,
+      -0.0
+     ]
+    },
+    {
+     "min_mm": 0.5310247084654808,
+     "n": 103,
+     "where": [
+      8.2,
+      5.25,
+      3.62
+     ],
+     "normal": [
+      1.0,
+      0.0,
+      -0.0
+     ]
+    }
+   ],
+   "holes": [
+    {
+     "width_mm": 0.6,
+     "kind": "slot/channel",
+     "axis": [
+      -0.71,
+      -0.71,
+      0.0
+     ],
+     "depth_mm": 0.5,
+     "where": [
+      9.22,
+      4.96,
+      1.58
+     ],
+     "verdict": "WARN",
+     "text": "slot/channel width 0.60 mm < vendor minimum 1.0 mm (SLA); post-drill/ream it",
+     "n": 11,
+     "open_ends": 1
+    }
+   ],
+   "verdict": "WARN",
+   "image": "img/dfm_insert_v10.png"
+  },
+  {
+   "name": "OP-100_reservoir_cnc",
+   "process": "CNC_PP",
+   "qty": "2",
+   "file": "out/v010/fab/reservoir-cnc/OP-100_reservoir_cnc.step",
+   "extents": [
+    16.42,
+    27.7,
+    6.7
+   ],
+   "faces": 76316,
+   "watertight": true,
+   "footprint_mm": 21.3,
+   "wall_vendor": 1.5,
+   "wall_floor": 1.0,
+   "violations": [
+    {
+     "sev": "WARN",
+     "what": "85.6 % of the wall samples thinner than the vendor value 1.50 mm for a 21 mm part (min 1.04 mm)",
+     "where": "",
+     "places": 1,
+     "also": []
+    },
+    {
+     "sev": "WARN",
+     "what": "16 sharp inner corner samples (R < 0.5 mm), e.g. the arm slot: needs an end mill no wider than the slot (1.6 mm), not the D5 tool",
+     "where": "",
+     "places": 1,
+     "also": []
+    }
+   ],
+   "wall_min": 1.0423963204486908,
+   "wall_p01": 1.0521772958148008,
+   "wall_p05": 1.054564321790759,
+   "area_below_floor_pct": 0.0,
+   "area_below_vendor_pct": 85.6,
+   "wall_clusters": [
+    {
+     "min_mm": 1.0423963204486908,
+     "n": 11,
+     "where": [
+      20.89,
+      6.29,
+      1.93
+     ],
+     "normal": [
+      0.0,
+      0.15,
+      0.99
+     ]
+    },
+    {
+     "min_mm": 1.0425474742269707,
+     "n": 9,
+     "where": [
+      20.64,
+      5.34,
+      6.2
+     ],
+     "normal": [
+      0.0,
+      0.56,
+      -0.83
+     ]
+    },
+    {
+     "min_mm": 1.0425923007575557,
+     "n": 12,
+     "where": [
+      20.68,
+      29.65,
+      3.01
+     ],
+     "normal": [
+      0.0,
+      -0.85,
+      0.53
+     ]
+    },
+    {
+     "min_mm": 1.0426070773363296,
+     "n": 12,
+     "where": [
+      20.89,
+      29.64,
+      5.49
+     ],
+     "normal": [
+      0.0,
+      -0.85,
+      -0.53
+     ]
+    },
+    {
+     "min_mm": 1.0432304526448766,
+     "n": 13,
+     "where": [
+      20.84,
+      28.75,
+      6.33
+     ],
+     "normal": [
+      -0.01,
+      -0.47,
+      -0.88
+     ]
+    },
+    {
+     "min_mm": 1.0432399544391513,
+     "n": 12,
+     "where": [
+      20.82,
+      29.92,
+      4.85
+     ],
+     "normal": [
+      -0.0,
+      -0.97,
+      -0.25
+     ]
+    },
+    {
+     "min_mm": 1.0433206164769768,
+     "n": 11,
+     "where": [
+      20.67,
+      29.44,
+      2.73
+     ],
+     "normal": [
+      -0.0,
+      -0.76,
+      0.65
+     ]
+    },
+    {
+     "min_mm": 1.0433509123553444,
+     "n": 10,
+     "where": [
+      20.74,
+      28.9,
+      2.26
+     ],
+     "normal": [
+      0.0,
+      -0.53,
+      0.85
+     ]
+    },
+    {
+     "min_mm": 1.0433925223339884,
+     "n": 11,
+     "where": [
+      20.78,
+      28.17,
+      1.96
+     ],
+     "normal": [
+      -0.0,
+      -0.22,
+      0.98
+     ]
+    },
+    {
+     "min_mm": 1.0434117035171981,
+     "n": 15,
+     "where": [
+      20.93,
+      4.55,
+      5.3
+     ],
+     "normal": [
+      0.01,
+      0.89,
+      -0.45
+     ]
+    },
+    {
+     "min_mm": 1.043671632141015,
+     "n": 9,
+     "where": [
+      20.86,
+      5.44,
+      2.24
+     ],
+     "normal": [
+      -0.01,
+      0.52,
+      0.85
+     ]
+    },
+    {
+     "min_mm": 1.0439458778515436,
+     "n": 11,
+     "where": [
+      20.84,
+      4.52,
+      3.25
+     ],
+     "normal": [
+      -0.01,
+      0.91,
+      0.42
+     ]
+    },
+    {
+     "min_mm": 1.0443649052410362,
+     "n": 9,
+     "where": [
+      20.91,
+      29.08,
+      6.12
+     ],
+     "normal": [
+      0.0,
+      -0.61,
+      -0.79
+     ]
+    },
+    {
+     "min_mm": 1.044398456160134,
+     "n": 8,
+     "where": [
+      20.92,
+      4.73,
+      2.89
+     ],
+     "normal": [
+      -0.0,
+      0.81,
+      0.58
+     ]
+    }
+   ],
+   "holes": [
+    {
+     "width_mm": 2.0,
+     "kind": "hole",
+     "axis": [
+      -1.0,
+      0.0,
+      0.0
+     ],
+     "depth_mm": 16.4,
+     "where": [
+      35.72,
+      11.2,
+      4.25
+     ],
+     "verdict": "OK",
+     "text": "",
+     "n": 98,
+     "open_ends": 2
+    },
+    {
+     "width_mm": 2.0,
+     "kind": "hole",
+     "axis": [
+      -0.71,
+      -0.71,
+      0.0
+     ],
+     "depth_mm": 1.4,
+     "where": [
+      36.26,
+      11.2,
+      4.25
+     ],
+     "verdict": "OK",
+     "text": "",
+     "n": 77,
+     "open_ends": 1
+    }
+   ],
+   "cnc": {
+    "violations": [
+     {
+      "sev": "WARN",
+      "what": "16 sharp inner corner samples (R < 0.5 mm), e.g. the arm slot: needs an end mill no wider than the slot (1.6 mm), not the D5 tool",
+      "where": ""
+     }
+    ],
+    "sharp_corners_below_0.5mm": 16,
+    "r_min_mm": 3.08,
+    "depth_mm": null
+   },
+   "verdict": "WARN",
+   "image": "img/dfm_OP-100_reservoir_cnc.png"
+  },
+  {
+   "name": "OP-200_reservoir_cnc",
+   "process": "CNC_PP",
+   "qty": "2",
+   "file": "out/v010/fab/reservoir-cnc/OP-200_reservoir_cnc.step",
+   "extents": [
+    25.03,
+    27.7,
+    6.7
+   ],
+   "faces": 98416,
+   "watertight": true,
+   "footprint_mm": 26.3,
+   "wall_vendor": 1.5,
+   "wall_floor": 1.0,
+   "violations": [
+    {
+     "sev": "WARN",
+     "what": "90.5 % of the wall samples thinner than the vendor value 1.50 mm for a 26 mm part (min 1.04 mm)",
+     "where": "",
+     "places": 1,
+     "also": []
+    },
+    {
+     "sev": "WARN",
+     "what": "14 sharp inner corner samples (R < 0.5 mm), e.g. the arm slot: needs an end mill no wider than the slot (1.6 mm), not the D5 tool",
+     "where": "",
+     "places": 1,
+     "also": []
+    }
+   ],
+   "wall_min": 1.0428685266487274,
+   "wall_p01": 1.0522541803553662,
+   "wall_p05": 1.0548053107871784,
+   "area_below_floor_pct": 0.0,
+   "area_below_vendor_pct": 90.5,
+   "wall_clusters": [
+    {
+     "min_mm": 1.042977898077207,
+     "n": 11,
+     "where": [
+      20.78,
+      6.23,
+      1.94
+     ],
+     "normal": [
+      -0.0,
+      0.18,
+      0.98
+     ]
+    },
+    {
+     "min_mm": 1.043053092539722,
+     "n": 9,
+     "where": [
+      20.74,
+      5.2,
+      6.1
+     ],
+     "normal": [
+      0.01,
+      0.62,
+      -0.79
+     ]
+    },
+    {
+     "min_mm": 1.0431289230020662,
+     "n": 11,
+     "where": [
+      20.8,
+      4.89,
+      5.81
+     ],
+     "normal": [
+      0.0,
+      0.75,
+      -0.66
+     ]
+    },
+    {
+     "min_mm": 1.04330389573904,
+     "n": 13,
+     "where": [
+      20.64,
+      27.86,
+      1.91
+     ],
+     "normal": [
+      -0.0,
+      -0.09,
+      1.0
+     ]
+    },
+    {
+     "min_mm": 1.0436575823804584,
+     "n": 11,
+     "where": [
+      20.91,
+      28.93,
+      2.28
+     ],
+     "normal": [
+      0.01,
+      -0.55,
+      0.84
+     ]
+    },
+    {
+     "min_mm": 1.0438274100727492,
+     "n": 8,
+     "where": [
+      20.86,
+      28.87,
+      6.26
+     ],
+     "normal": [
+      0.01,
+      -0.52,
+      -0.86
+     ]
+    },
+    {
+     "min_mm": 1.043916097590181,
+     "n": 8,
+     "where": [
+      20.84,
+      29.2,
+      6.02
+     ],
+     "normal": [
+      0.0,
+      -0.66,
+      -0.75
+     ]
+    },
+    {
+     "min_mm": 1.0439912297984137,
+     "n": 11,
+     "where": [
+      20.68,
+      29.98,
+      3.99
+     ],
+     "normal": [
+      -0.0,
+      -0.99,
+      0.11
+     ]
+    },
+    {
+     "min_mm": 1.0442510064270212,
+     "n": 11,
+     "where": [
+      20.77,
+      4.64,
+      3.04
+     ],
+     "normal": [
+      0.0,
+      0.86,
+      0.52
+     ]
+    },
+    {
+     "min_mm": 1.0443416553879337,
+     "n": 6,
+     "where": [
+      20.9,
+      5.96,
+      2.0
+     ],
+     "normal": [
+      -0.0,
+      0.3,
+      0.96
+     ]
+    },
+    {
+     "min_mm": 1.0452256539010985,
+     "n": 7,
+     "where": [
+      20.88,
+      29.99,
+      4.07
+     ],
+     "normal": [
+      -0.0,
+      -1.0,
+      0.07
+     ]
+    },
+    {
+     "min_mm": 1.0462982629447075,
+     "n": 9,
+     "where": [
+      20.63,
+      5.98,
+      2.0
+     ],
+     "normal": [
+      -0.01,
+      0.3,
+      0.95
+     ]
+    },
+    {
+     "min_mm": 1.0479820559439053,
+     "n": 27,
+     "where": [
+      21.78,
+      29.05,
+      6.14
+     ],
+     "normal": [
+      -0.03,
+      -0.61,
+      -0.79
+     ]
+    },
+    {
+     "min_mm": 1.0484998026147494,
+     "n": 18,
+     "where": [
+      41.57,
+      5.78,
+      2.07
+     ],
+     "normal": [
+      0.02,
+      0.38,
+      0.92
+     ]
+    }
+   ],
+   "holes": [
+    {
+     "width_mm": 2.0,
+     "kind": "hole",
+     "axis": [
+      -1.0,
+      0.0,
+      0.0
+     ],
+     "depth_mm": 25.0,
+     "where": [
+      43.85,
+      11.2,
+      4.25
+     ],
+     "verdict": "OK",
+     "text": "",
+     "n": 47,
+     "open_ends": 2
+    },
+    {
+     "width_mm": 2.0,
+     "kind": "hole",
+     "axis": [
+      -0.71,
+      -0.71,
+      0.0
+     ],
+     "depth_mm": 1.4,
+     "where": [
+      44.75,
+      11.2,
+      4.25
+     ],
+     "verdict": "OK",
+     "text": "",
+     "n": 66,
+     "open_ends": 1
+    }
+   ],
+   "cnc": {
+    "violations": [
+     {
+      "sev": "WARN",
+      "what": "14 sharp inner corner samples (R < 0.5 mm), e.g. the arm slot: needs an end mill no wider than the slot (1.6 mm), not the D5 tool",
+      "where": ""
+     }
+    ],
+    "sharp_corners_below_0.5mm": 14,
+    "r_min_mm": 1.32,
+    "depth_mm": null
+   },
+   "verdict": "WARN",
+   "image": "img/dfm_OP-200_reservoir_cnc.png"
+  }
+ ],
+ "fits": [
+  {
+   "id": "F01",
+   "name": "dry bush OD3.0 in the bearing-block bore (printed, MJF)",
+   "kind": "transition",
+   "step": "M1",
+   "hole_proc": "MJF",
+   "shaft_proc": "purchased:bush_od",
+   "d_hole": 3.04,
+   "d_shaft": 2.999,
+   "gap_nominal": 0.041,
+   "window": [
+    -0.05,
+    0.1
+   ],
+   "scenarios": {
+    "project": {
+     "p_ok": 0.887,
+     "p_too_tight": 0.112,
+     "p_too_loose": 0.001,
+     "gap_mean": -0.009,
+     "gap_p01": -0.087,
+     "gap_p99": 0.069,
+     "recommended_hole_shift": null
+    },
+    "vendor": {
+     "p_ok": 0.309,
+     "p_too_tight": 0.576,
+     "p_too_loose": 0.114,
+     "gap_mean": -0.079,
+     "gap_p01": -0.427,
+     "gap_p99": 0.273,
+     "recommended_hole_shift": null
+    }
+   },
+   "status": "RISK",
+   "status_vendor": "FAIL",
+   "post": [
+    "project: 11 % too tight -> ream the bore with a 3.05 mm drill by hand",
+    "vendor: 58 % too tight -> ream the bore with a 3.05 mm drill by hand",
+    "vendor: 11 % too loose -> one drop of CA on the bush OD"
+   ],
+   "in_build_guide": true,
+   "guide_regex": "ream the bush bore.{0,60}3\\.05",
+   "note": ""
+  },
+  {
+   "id": "F02",
+   "name": "plunger core height 4.5 in the CNC PP bore 4.7 (sliding)",
+   "kind": "float",
+   "step": "R1",
+   "hole_proc": "CNC_PP",
+   "shaft_proc": "SLA",
+   "d_hole": 4.7,
+   "d_shaft": 4.5,
+   "gap_nominal": 0.2,
+   "window": [
+    0.1,
+    0.8
+   ],
+   "scenarios": {
+    "project": {
+     "p_ok": 1.0,
+     "p_too_tight": 0.0,
+     "p_too_loose": 0.0,
+     "gap_mean": 0.2,
+     "gap_p01": 0.16,
+     "gap_p99": 0.24,
+     "recommended_hole_shift": 0.0
+    },
+    "vendor": {
+     "p_ok": 0.814,
+     "p_too_tight": 0.186,
+     "p_too_loose": 0.0,
+     "gap_mean": 0.2,
+     "gap_p01": -0.058,
+     "gap_p99": 0.458,
+     "recommended_hole_shift": 0.158
+    }
+   },
+   "status": "OK",
+   "status_vendor": "RISK",
+   "post": [
+    "vendor: 19 % too tight -> sand the core flanges with 1500 grit on a flat stick"
+   ],
+   "in_build_guide": true,
+   "guide_regex": "sand the plunger core.{0,80}1500",
+   "note": ""
+  },
+  {
+   "id": "F03",
+   "name": "plunger core width 25.5 in the CNC PP bore 25.7 (sliding)",
+   "kind": "float",
+   "step": "R1",
+   "hole_proc": "CNC_PP",
+   "shaft_proc": "SLA",
+   "d_hole": 25.697,
+   "d_shaft": 25.495,
+   "gap_nominal": 0.202,
+   "window": [
+    0.1,
+    0.8
+   ],
+   "scenarios": {
+    "project": {
+     "p_ok": 1.0,
+     "p_too_tight": 0.0,
+     "p_too_loose": 0.0,
+     "gap_mean": 0.202,
+     "gap_p01": 0.162,
+     "gap_p99": 0.242,
+     "recommended_hole_shift": 0.0
+    },
+    "vendor": {
+     "p_ok": 0.82,
+     "p_too_tight": 0.18,
+     "p_too_loose": 0.0,
+     "gap_mean": 0.202,
+     "gap_p01": -0.056,
+     "gap_p99": 0.461,
+     "recommended_hole_shift": 0.156
+    }
+   },
+   "status": "OK",
+   "status_vendor": "RISK",
+   "post": [
+    "vendor: 18 % too tight -> sand the core flanges with 1500 grit on a flat stick"
+   ],
+   "in_build_guide": true,
+   "guide_regex": "sand the plunger core.{0,80}1500",
+   "note": ""
+  },
+  {
+   "id": "F04",
+   "name": "end-cap spigot d1.98 in the CNC port d2.0 H7 (locating, transition)",
+   "kind": "transition",
+   "step": "R2",
+   "hole_proc": "CNC_PP",
+   "shaft_proc": "SLA",
+   "d_hole": 2.0,
+   "d_shaft": 1.98,
+   "gap_nominal": 0.02,
+   "window": [
+    -0.05,
+    0.1
+   ],
+   "scenarios": {
+    "project": {
+     "p_ok": 1.0,
+     "p_too_tight": 0.0,
+     "p_too_loose": 0.0,
+     "gap_mean": 0.02,
+     "gap_p01": -0.02,
+     "gap_p99": 0.06,
+     "recommended_hole_shift": 0.0
+    },
+    "vendor": {
+     "p_ok": 0.495,
+     "p_too_tight": 0.268,
+     "p_too_loose": 0.236,
+     "gap_mean": 0.02,
+     "gap_p01": -0.238,
+     "gap_p99": 0.278,
+     "recommended_hole_shift": null
+    }
+   },
+   "status": "OK",
+   "status_vendor": "FAIL",
+   "post": [
+    "vendor: 27 % too tight -> sand the spigot to d1.95 (1500 grit, rotate in a drill)",
+    "vendor: 24 % too loose -> the O-ring seals; a drop of UV adhesive locates the cap"
+   ],
+   "in_build_guide": true,
+   "guide_regex": "sand the spigot.{0,80}1\\.95",
+   "note": ""
+  },
+  {
+   "id": "F05",
+   "name": "needle hub d2.0 (PTFE) in the cap hub seat d2.0 (press)",
+   "kind": "press",
+   "step": "M7",
+   "hole_proc": "SLA",
+   "shaft_proc": "purchased:ptfe",
+   "d_hole": 1.919,
+   "d_shaft": 1.998,
+   "gap_nominal": -0.079,
+   "window": [
+    -0.12,
+    -0.01
+   ],
+   "scenarios": {
+    "project": {
+     "p_ok": 0.679,
+     "p_too_tight": 0.321,
+     "p_too_loose": 0.0,
+     "gap_mean": -0.109,
+     "gap_p01": -0.164,
+     "gap_p99": -0.055,
+     "recommended_hole_shift": 0.044
+    },
+    "vendor": {
+     "p_ok": 0.238,
+     "p_too_tight": 0.603,
+     "p_too_loose": 0.16,
+     "gap_mean": -0.16,
+     "gap_p01": -0.51,
+     "gap_p99": 0.194,
+     "recommended_hole_shift": null
+    }
+   },
+   "status": "FAIL",
+   "status_vendor": "FAIL",
+   "post": [
+    "project: 32 % too tight -> ream the seat with a 2.0 mm drill",
+    "vendor: 60 % too tight -> ream the seat with a 2.0 mm drill",
+    "vendor: 16 % too loose -> UV adhesive drop (water test only)"
+   ],
+   "in_build_guide": true,
+   "guide_regex": "ream the hub seat.{0,60}2\\.0",
+   "note": ""
+  },
+  {
+   "id": "F06",
+   "name": "thrust sleeve OD2.0 (brass) in the nut-gear bore 2.04 (glued)",
+   "kind": "glued",
+   "step": "G1",
+   "hole_proc": "purchased:gear_bore",
+   "shaft_proc": "purchased:brass_tube",
+   "d_hole": 2.04,
+   "d_shaft": 1.998,
+   "gap_nominal": 0.042,
+   "window": [
+    -0.02,
+    0.15
+   ],
+   "scenarios": {
+    "project": {
+     "p_ok": 1.0,
+     "p_too_tight": 0.0,
+     "p_too_loose": 0.0,
+     "gap_mean": 0.042,
+     "gap_p01": 0.024,
+     "gap_p99": 0.059,
+     "recommended_hole_shift": 0.0
+    },
+    "vendor": {
+     "p_ok": 1.0,
+     "p_too_tight": 0.0,
+     "p_too_loose": 0.0,
+     "gap_mean": 0.042,
+     "gap_p01": 0.024,
+     "gap_p99": 0.059,
+     "recommended_hole_shift": 0.0
+    }
+   },
+   "status": "OK",
+   "status_vendor": "OK",
+   "post": [],
+   "in_build_guide": true,
+   "guide_regex": "Loctite 638",
+   "note": ""
+  },
+  {
+   "id": "F07",
+   "name": "gear A bore 2.04 on the motor shaft d2.0 (glued)",
+   "kind": "glued",
+   "step": "M4",
+   "hole_proc": "purchased:gear_bore",
+   "shaft_proc": "purchased:steel_rod",
+   "d_hole": 2.018,
+   "d_shaft": 1.998,
+   "gap_nominal": 0.02,
+   "window": [
+    -0.02,
+    0.15
+   ],
+   "scenarios": {
+    "project": {
+     "p_ok": 1.0,
+     "p_too_tight": 0.0,
+     "p_too_loose": 0.0,
+     "gap_mean": 0.02,
+     "gap_p01": 0.009,
+     "gap_p99": 0.031,
+     "recommended_hole_shift": 0.0
+    },
+    "vendor": {
+     "p_ok": 1.0,
+     "p_too_tight": 0.0,
+     "p_too_loose": 0.0,
+     "gap_mean": 0.02,
+     "gap_p01": 0.009,
+     "gap_p99": 0.031,
+     "recommended_hole_shift": 0.0
+    }
+   },
+   "status": "OK",
+   "status_vendor": "OK",
+   "post": [],
+   "in_build_guide": true,
+   "guide_regex": "Loctite 638",
+   "note": ""
+  },
+  {
+   "id": "F08",
+   "name": "M1.6 screw in the brass thrust sleeve ID 1.7 (running)",
+   "kind": "running",
+   "step": "M8",
+   "hole_proc": "purchased:brass_tube",
+   "shaft_proc": "purchased:steel_rod",
+   "d_hole": 1.698,
+   "d_shaft": 1.597,
+   "gap_nominal": 0.101,
+   "window": [
+    0.05,
+    0.4
+   ],
+   "scenarios": {
+    "project": {
+     "p_ok": 1.0,
+     "p_too_tight": 0.0,
+     "p_too_loose": 0.0,
+     "gap_mean": 0.101,
+     "gap_p01": 0.084,
+     "gap_p99": 0.118,
+     "recommended_hole_shift": 0.0
+    },
+    "vendor": {
+     "p_ok": 1.0,
+     "p_too_tight": 0.0,
+     "p_too_loose": 0.0,
+     "gap_mean": 0.101,
+     "gap_p01": 0.084,
+     "gap_p99": 0.118,
+     "recommended_hole_shift": 0.0
+    }
+   },
+   "status": "OK",
+   "status_vendor": "OK",
+   "post": [],
+   "in_build_guide": true,
+   "guide_regex": "brass tube",
+   "note": ""
+  },
+  {
+   "id": "F09",
+   "name": "M1.6 screw in the dry bush ID 1.7 (running)",
+   "kind": "running",
+   "step": "M8",
+   "hole_proc": "purchased:ptfe",
+   "shaft_proc": "purchased:steel_rod",
+   "d_hole": 1.698,
+   "d_shaft": 1.598,
+   "gap_nominal": 0.1,
+   "window": [
+    0.05,
+    0.4
+   ],
+   "scenarios": {
+    "project": {
+     "p_ok": 0.998,
+     "p_too_tight": 0.002,
+     "p_too_loose": 0.0,
+     "gap_mean": 0.1,
+     "gap_p01": 0.061,
+     "gap_p99": 0.139,
+     "recommended_hole_shift": 0.0
+    },
+    "vendor": {
+     "p_ok": 0.998,
+     "p_too_tight": 0.002,
+     "p_too_loose": 0.0,
+     "gap_mean": 0.1,
+     "gap_p01": 0.061,
+     "gap_p99": 0.14,
+     "recommended_hole_shift": 0.0
+    }
+   },
+   "status": "OK",
+   "status_vendor": "OK",
+   "post": [],
+   "in_build_guide": true,
+   "guide_regex": "brass tube",
+   "note": ""
+  },
+  {
+   "id": "F10",
+   "name": "ring magnet ID 2.0 on the sleeve OD 2.0 (glued)",
+   "kind": "glued",
+   "step": "G2",
+   "hole_proc": "purchased:magnet",
+   "shaft_proc": "purchased:brass_tube",
+   "d_hole": 1.999,
+   "d_shaft": 1.998,
+   "gap_nominal": 0.001,
+   "window": [
+    -0.02,
+    0.15
+   ],
+   "scenarios": {
+    "project": {
+     "p_ok": 0.88,
+     "p_too_tight": 0.12,
+     "p_too_loose": 0.0,
+     "gap_mean": 0.001,
+     "gap_p01": -0.04,
+     "gap_p99": 0.042,
+     "recommended_hole_shift": 0.02
+    },
+    "vendor": {
+     "p_ok": 0.879,
+     "p_too_tight": 0.121,
+     "p_too_loose": 0.0,
+     "gap_mean": 0.001,
+     "gap_p01": -0.041,
+     "gap_p99": 0.043,
+     "recommended_hole_shift": 0.021
+    }
+   },
+   "status": "RISK",
+   "status_vendor": "RISK",
+   "post": [
+    "project: 12 % too tight -> ream / drill / sand to size",
+    "vendor: 12 % too tight -> ream / drill / sand to size"
+   ],
+   "in_build_guide": true,
+   "guide_regex": "Loctite 638",
+   "note": ""
+  },
+  {
+   "id": "F11",
+   "name": "dock magnet d2.0 in the adapter lug pocket d2.1 (glued)",
+   "kind": "glued",
+   "step": "A1",
+   "hole_proc": "SLA",
+   "shaft_proc": "purchased:magnet",
+   "d_hole": 2.098,
+   "d_shaft": 1.998,
+   "gap_nominal": 0.1,
+   "window": [
+    0.0,
+    0.2
+   ],
+   "scenarios": {
+    "project": {
+     "p_ok": 0.998,
+     "p_too_tight": 0.002,
+     "p_too_loose": 0.0,
+     "gap_mean": 0.07,
+     "gap_p01": 0.015,
+     "gap_p99": 0.124,
+     "recommended_hole_shift": 0.0
+    },
+    "vendor": {
+     "p_ok": 0.436,
+     "p_too_tight": 0.45,
+     "p_too_loose": 0.114,
+     "gap_mean": 0.019,
+     "gap_p01": -0.331,
+     "gap_p99": 0.373,
+     "recommended_hole_shift": null
+    }
+   },
+   "status": "OK",
+   "status_vendor": "FAIL",
+   "post": [
+    "vendor: 45 % too tight -> open the pocket with a 2.1 mm drill",
+    "vendor: 11 % too loose -> CA drop"
+   ],
+   "in_build_guide": true,
+   "guide_regex": "open the magnet pocket.{0,60}2\\.1",
+   "note": ""
+  },
+  {
+   "id": "F12",
+   "name": "M1.2 lid screw in the lid clearance hole d1.4 (clear SLA)",
+   "kind": "clearance",
+   "step": "M19",
+   "hole_proc": "SLA",
+   "shaft_proc": "fixed:0.04",
+   "d_hole": 1.395,
+   "d_shaft": 1.2,
+   "gap_nominal": 0.195,
+   "window": [
+    0.1,
+    0.6
+   ],
+   "scenarios": {
+    "project": {
+     "p_ok": 0.999,
+     "p_too_tight": 0.001,
+     "p_too_loose": 0.0,
+     "gap_mean": 0.166,
+     "gap_p01": 0.116,
+     "gap_p99": 0.214,
+     "recommended_hole_shift": 0.0
+    },
+    "vendor": {
+     "p_ok": 0.539,
+     "p_too_tight": 0.461,
+     "p_too_loose": 0.0,
+     "gap_mean": 0.115,
+     "gap_p01": -0.233,
+     "gap_p99": 0.469,
+     "recommended_hole_shift": null
+    }
+   },
+   "status": "OK",
+   "status_vendor": "FAIL",
+   "post": [
+    "vendor: 46 % too tight -> drill d1.4 by hand"
+   ],
+   "in_build_guide": true,
+   "guide_regex": "drill the lid screw holes.{0,60}1\\.4",
+   "note": ""
+  },
+  {
+   "id": "F13",
+   "name": "M1.2 thread-forming screw pilot d1.0 in the bottom dome (MJF)",
+   "kind": "pilot",
+   "step": "M19",
+   "hole_proc": "MJF",
+   "shaft_proc": "screw",
+   "d_hole": 0.992,
+   "window": [
+    0.95,
+    1.1
+   ],
+   "gap_nominal": null,
+   "scenarios": {
+    "project": {
+     "p_ok": 0.403,
+     "p_too_tight": 0.597,
+     "p_too_loose": 0.0,
+     "gap_mean": 0.942,
+     "gap_p01": 0.864,
+     "gap_p99": 1.02,
+     "recommended_hole_shift": null
+    },
+    "vendor": {
+     "p_ok": 0.236,
+     "p_too_tight": 0.701,
+     "p_too_loose": 0.063,
+     "gap_mean": 0.871,
+     "gap_p01": 0.523,
+     "gap_p99": 1.218,
+     "recommended_hole_shift": null
+    }
+   },
+   "status": "FAIL",
+   "status_vendor": "FAIL",
+   "post": [
+    "project: 60 % too tight -> drill d1.0 by hand",
+    "vendor: 70 % too tight -> drill d1.0 by hand"
+   ],
+   "in_build_guide": true,
+   "guide_regex": "drill the pilots.{0,60}1\\.0",
+   "note": ""
+  },
+  {
+   "id": "F14",
+   "name": "MAIN board locating pin d1.0 (printed, MJF) in the PCB hole d1.2",
+   "kind": "running",
+   "step": "M17",
+   "hole_proc": "fixed:0.1",
+   "shaft_proc": "MJF",
+   "d_hole": 1.196,
+   "d_shaft": 0.988,
+   "gap_nominal": 0.209,
+   "window": [
+    0.05,
+    0.4
+   ],
+   "scenarios": {
+    "project": {
+     "p_ok": 1.0,
+     "p_too_tight": 0.0,
+     "p_too_loose": 0.0,
+     "gap_mean": 0.209,
+     "gap_p01": 0.1,
+     "gap_p99": 0.317,
+     "recommended_hole_shift": 0.0
+    },
+    "vendor": {
+     "p_ok": 0.739,
+     "p_too_tight": 0.155,
+     "p_too_loose": 0.106,
+     "gap_mean": 0.208,
+     "gap_p01": -0.145,
+     "gap_p99": 0.562,
+     "recommended_hole_shift": null
+    }
+   },
+   "status": "OK",
+   "status_vendor": "FAIL",
+   "post": [
+    "vendor: 16 % too tight -> file the pin / drill the PCB hole 1.2",
+    "vendor: 11 % too loose -> adhesive / shim / oversize the mating part"
+   ],
+   "in_build_guide": true,
+   "guide_regex": "file the pins",
+   "note": ""
+  },
+  {
+   "id": "SNAP-SLA",
+   "name": "dock snap arms (SLA): strain and latch margin",
+   "kind": "snap",
+   "hole_proc": "SLA",
+   "shaft_proc": "SLA (dummy head)",
+   "step": "D1",
+   "d_hole": null,
+   "d_shaft": null,
+   "gap_nominal": 1.908,
+   "window": [
+    0.3,
+    null
+   ],
+   "scenarios": {
+    "project": {
+     "p_ok": 0.991,
+     "p_too_tight": 0.009,
+     "p_too_loose": 0.0,
+     "gap_mean": 1.823,
+     "gap_p01": 1.795,
+     "gap_p99": 1.851,
+     "strain_mean_pct": 1.9,
+     "strain_p99_pct": 2.0,
+     "recommended_hole_shift": null
+    },
+    "vendor": {
+     "p_ok": 0.613,
+     "p_too_tight": 0.387,
+     "p_too_loose": 0.0,
+     "gap_mean": 1.848,
+     "gap_p01": 1.636,
+     "gap_p99": 2.062,
+     "strain_mean_pct": 1.92,
+     "strain_p99_pct": 2.58,
+     "recommended_hole_shift": null
+    }
+   },
+   "limit_pct": 2.0,
+   "note": "too_tight = arm strain above the material limit (arm overstressed / breaks); too_loose = no spread (dome smaller than hook gap: no retention). Dome A and hook gap are TODO-MEASURE placeholders in params.json.",
+   "status": "OK",
+   "status_vendor": "FAIL",
+   "post": [],
+   "in_build_guide": true
+  },
+  {
+   "id": "SNAP-MJF",
+   "name": "dock snap arms (MJF): strain and latch margin",
+   "kind": "snap",
+   "hole_proc": "MJF",
+   "shaft_proc": "SLA (dummy head)",
+   "step": "D1",
+   "d_hole": null,
+   "d_shaft": null,
+   "gap_nominal": 1.908,
+   "window": [
+    0.3,
+    null
+   ],
+   "scenarios": {
+    "project": {
+     "p_ok": 1.0,
+     "p_too_tight": 0.0,
+     "p_too_loose": 0.0,
+     "gap_mean": 1.833,
+     "gap_p01": 1.789,
+     "gap_p99": 1.877,
+     "strain_mean_pct": 1.91,
+     "strain_p99_pct": 2.11,
+     "recommended_hole_shift": null
+    },
+    "vendor": {
+     "p_ok": 0.995,
+     "p_too_tight": 0.005,
+     "p_too_loose": 0.0,
+     "gap_mean": 1.868,
+     "gap_p01": 1.656,
+     "gap_p99": 2.082,
+     "strain_mean_pct": 1.95,
+     "strain_p99_pct": 2.9,
+     "recommended_hole_shift": null
+    }
+   },
+   "limit_pct": 3.0,
+   "note": "too_tight = arm strain above the material limit (arm overstressed / breaks); too_loose = no spread (dome smaller than hook gap: no retention). Dome A and hook gap are TODO-MEASURE placeholders in params.json.",
+   "status": "OK",
+   "status_vendor": "OK",
+   "post": [],
+   "in_build_guide": true
+  }
+ ],
+ "proposals": []
+}

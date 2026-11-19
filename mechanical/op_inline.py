@@ -60,7 +60,7 @@ def predicted_x_r1(p: dict, stroke: float) -> float:
     rs, dr = p["reservoir"], p["drive"]
     if mode_of(p) == "coaxial":
         x_r0 = coax_gear_x1(stroke) + COAX_CLR
-        lin = rs["dead"] + stroke + 3.8 + rs["plunger_gap"]
+        lin = rs["dead"] + stroke + rs["plunger_len"] + rs["plunger_gap"]
     else:
         x_r0 = GEAR_X0 + dr["gear_t"] + p["fit"]["clr_small"]
         lin = rs["dead"] + stroke + cup_len(stroke) + rs["plunger_gap"]
@@ -115,6 +115,8 @@ def cup_geometry(p: dict, L: dict) -> dict:
 
 
 def pl_core(p: dict) -> float:
+    if mode_of(p) == "coaxial":
+        return p["reservoir"]["plunger_len"]      # seal study 2026-11-19: 4.76 core, front flange 0.46 behind the front bead
     return 3.8      # piston core length: seal rings at 0.6..1.4 and 2.3..3.1 (params seal.ring_a/b) fit this core
 
 
@@ -173,7 +175,8 @@ def build_inline_drive(s, p: dict, L: dict) -> None:
     if coax:       # anti-rotation tab at the socket bottom: engages the hacksaw slot across the screw tip
         s.box("t_ptab", (xpr + COAX_SOCKET - COAX_TAB_LEN, xpr + COAX_SOCKET + 0.05), (yr - COAX_TAB_T / 2, yr + COAX_TAB_T / 2), (zc - 1.1, zc + 1.1))
         s.join("plunger_core", ["t_ptab"])
-    s.stadium("plunger_nose", (C["nose"][0], C["nose"][1]), yr, zc, wc, hc)
+    if rs["nose_len"] > 0:                 # seal study 2026-11-19: nose_len 0 (no separate nose; zero-length extrude fails)
+        s.stadium("plunger_nose", (C["nose"][0], C["nose"][1]), yr, zc, wc, hc)
     ao = sl["assembly_gap"]
     for k, nm in enumerate(("seal_a", "seal_b")):
         a, b = (sl["ring_a"], sl["ring_b"])[k]
@@ -268,7 +271,7 @@ def check_inline(p: dict, L: dict, by: dict) -> tuple[list, list]:
     I = L["inline"]
     C = I["cup"] if I.get("cup") else cup_geometry(p, L)
     coax = I.get("variant") == "coaxial"
-    for need in (() if coax else ("plunger_tube", "plunger_plate")) + ("drive_screw", "gear_c", "gear_d", "idler_pin", "bush_dry2", "thrust_sleeve2", "nut", "plunger_core", "plunger_nose",
+    for need in (() if coax else ("plunger_tube", "plunger_plate")) + ("drive_screw", "gear_c", "gear_d", "idler_pin", "bush_dry2", "thrust_sleeve2", "nut", "plunger_core",
                  "gear_a", "gear_b", "leadscrew", "bush_dry", "bush_far", "thrust_sleeve", "thrust_collar", "magnet"):
         if need not in by:
             problems.append(f"inline body missing: {need}")
@@ -323,8 +326,8 @@ def check_inline(p: dict, L: dict, by: dict) -> tuple[list, list]:
         if engaged_empty < 0.9:
             problems.append(f"screw beyond the nut front at empty only {engaged_empty:.2f} mm (< 0.9)")
     # nose at empty must stay behind the closed end (dead layer)
-    nose_empty = bb("plunger_nose")["max"][0] + s
-    if L["x_in1"] - nose_empty < 0.2:
+    nose_empty = (bb("plunger_nose")["max"][0] if "plunger_nose" in by else bb("plunger_core")["max"][0]) + s
+    if L["x_in1"] - nose_empty < min(0.2, p["reservoir"]["dead"] - 0.01):      # dead layer 0.04 per the seal study
         problems.append(f"piston nose at empty {nose_empty:.2f} hits the closed end x {L['x_in1']:.2f}")
     # plate inside the bore at full (behind it only the dry strip), screw passes the plate hole
     if not coax:
