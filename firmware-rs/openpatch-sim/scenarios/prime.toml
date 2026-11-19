@@ -1,0 +1,8 @@
+name = "prime"
+description = "Standard bring-up with a 0.3 U prime. What does the prime really purge?"
+seed = 23
+duration_s = 600.0
+
+[setup]
+fill_u = 40.0
+prime_u = 0.3

@@ -4,7 +4,7 @@
 # `cargo test --workspace` never tries to compile it for the host.
 [workspace]
 resolver = "2"
-members = ["openpatch-proto", "openpatch-core", "differential-tests"]
+members = ["openpatch-proto", "openpatch-core", "differential-tests", "openpatch-sim"]
 exclude = ["openpatch-bench"]
 
 [workspace.package]

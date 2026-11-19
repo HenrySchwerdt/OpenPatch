@@ -1,0 +1,12 @@
+name = "occlusion_bubble"
+description = "Occlusion with a 20 ul air bubble in the reservoir (compliance soaks up insulin before the pressure rises)."
+seed = 34
+duration_s = 14400.0
+events = [
+  { at_s = 600.0, action = "bubble", ul = 20.0 },
+  { at_s = 1800.0, action = "occlude" },
+]
+
+[setup]
+fill_u = 60.0
+basal = [[0.0, 2.0]]
