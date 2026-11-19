@@ -83,7 +83,7 @@ All dimensions and components are in [spec/design-parameters.md](../spec/design-
 
 ## Decision log (user)
 
-- 2026-11-19: **Plunger coupling = central push rod, closed reservoir** (spec §3b). The side-slot coupling leaked (slot in front of the seal at full reservoir) and pushed off-axis. Decided by the coordinator after the user left the choice open; pod length +~stroke.
+- 2026-11-19: **Plunger coupling = magnetic coupling through a closed reservoir wall, dimensions unchanged** (user; spec §3b). The side-slot coupling leaked (slot in front of the seal at a full reservoir). Fallback: central push rod (+~stroke length).
 - 2026-11-19: **Water only.** The pump must never be filled with insulin or any other drug, not even for bench tests into containers. Supersedes the earlier decision that allowed insulin bench tests into containers (commit 7c95570). Website gets a non-dismissable top banner on every page.
 - 2026-11-19: **Goal v0.1.0 beta = integrated pod without the bench controller board**, parts ~98 % final before ordering, as much verification as possible in simulation (virtual pod, mechanical calcs, SPICE), then one order and bench tests only (still a test sample, never worn). The bench controller board stays as an optional test fixture.
 - 2026-11-19: **Cost target ≤ 200 € all-in per complete pump, AliExpress-first** (spec §1d).
