@@ -23,10 +23,12 @@ BENCH_MFG_PARTS = {
     "bottom": ["bottom"], "top": ["top"], "carriage": ["carriage"], "reservoir": ["reservoir"],
     "cannula_adapter": ["cannula_adapter"], "dock_insert": ["dock_insert"], "plunger_core": ["plunger_core"], "plunger_nose": ["plunger_nose"], "thrust_sleeve": ["thrust_sleeve"], "thrust_collar": ["thrust_collar"], "valve_plug": ["valve_plug"], "coupler": ["coupler"], "end_cap": ["end_cap"],
     "plunger_seal": ["seal_a", "seal_b"], "gasket": ["gasket"],
+    "plunger_plate": ["plunger_plate"], "thrust_sleeve2": ["thrust_sleeve2"],      # --drive inline (op_inline.py); skipped when absent
 }
 COAX_PARTS = ["motor", "gearhead", "motor_boss", "motor_shaft", "motor_rear_boss", "motor_term", "motor_pins", "duckbill_valve", "gear_a", "gear_b", "bush_dry"]
 BENCH_PURCHASED = ["tongue_shim", "leadscrew", "nut", "bush_far", "magnet", "septum", "needle", "needle_hub", "pod_board",
-                   "hall_tmag", "hall_drv0", "hall_drv1", "hall_dock", "ffc_conn", "ffc_cable", "dock_magnet"] + COAX_PARTS
+                   "hall_tmag", "hall_drv0", "hall_drv1", "hall_dock", "ffc_conn", "ffc_cable", "dock_magnet"] + COAX_PARTS \
+    + ["drive_screw", "bush_dry2", "gear_c", "gear_d", "idler_pin", "plunger_tube"]      # --drive inline only
 BENCH_PART_NAMES = [b for v in BENCH_MFG_PARTS.values() for b in v] + BENCH_PURCHASED
 BENCH_EXCLUDE_PAIRS = [["gear_a", "gear_b"], ["valve_plug", "end_cap"],     # meshing teeth: both modelled as tip circles, overlap = tooth engagement
                        ["needle_hub", "end_cap"], ["needle", "end_cap"], ["duckbill_valve", "end_cap"]]
@@ -90,10 +92,14 @@ def build_model(p: dict, variant: str) -> tuple[Script, dict]:
     build_bottom(s, p, L)
     build_top(s, p, L)
     build_gasket(s, p, L)
-    build_reservoir(s, p, L)
-    build_plunger(s, p, L)
-    build_carriage(s, p, L)
-    build_drive(s, p, L)
+    if L.get("inline"):
+        from op_inline import build_inline_drive      # closed reservoir, cup plunger, on-axis screw (replaces slot + carriage + tongue)
+        build_inline_drive(s, p, L)
+    else:
+        build_reservoir(s, p, L)
+        build_plunger(s, p, L)
+        build_carriage(s, p, L)
+        build_drive(s, p, L)
     if L["mode"] == "bench":
         from op_bench import build_bench_electronics
         build_bench_electronics(s, p, L)

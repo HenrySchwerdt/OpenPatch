@@ -39,8 +39,9 @@ def build_bottom(s: Script, p: dict, L: dict) -> None:
     fb = L["far_block"]
     joins.append(s.box("t_fblk", (fb[0], fb[1]), yb, (wall - 0.1, z_top_blk)))
     # Führungsschiene für den Schlitten
-    joins.append(s.box("t_rail", (L["x_r0"] + 0.4, fb[0] - 0.3), (ys - dr["rail_w"] / 2, ys + dr["rail_w"] / 2),
-                       (wall - 0.1, dr["rail_top"])))
+    if not L.get("inline"):          # sealed inline drive has no carriage
+        joins.append(s.box("t_rail", (L["x_r0"] + 0.4, fb[0] - 0.3), (ys - dr["rail_w"] / 2, ys + dr["rail_w"] / 2),
+                           (wall - 0.1, dr["rail_top"])))
     # Motor-Sättel (Schalen) unter Getriebekopf/Motor
     ym, zr = L["y_m"], dr["motor_d"] / 2
     saddles = [L["gh_x"][0] + 3.0, L["mo_x"][0] + (0.6 if L["nfp"] else 2.0), L["mo_x"][1] - 2.0]
@@ -127,6 +128,9 @@ def build_bottom(s: Script, p: dict, L: dict) -> None:
                                (wall - lr["floor_relief_gear_b"], wall + 0.01))])
     dock_cuts = (dock_cuts_new if bench_ else build_dock_cuts(s, p, L)) + build_mouth_cut(s, p, L, "t_kmouth")
     s.cut("bottom", dock_cuts)
+    if L.get("inline"):
+        from op_inline import bottom_extra
+        bottom_extra(s, p, L)
     if bench_:
         s.join("bottom", dock_bumps)          # detent bumps on the ledge (after the pocket cut)
 
@@ -171,7 +175,7 @@ def build_top(s: Script, p: dict, L: dict) -> None:
                           tuple(fl["slot_z"])))
         cuts.extend(build_mouth_cut(s, p, L, "t_kmouth_top", top_part=True))
         # fill window over the carriage lane + scale (tick every 10 U delivered, long every 50 U; 1 U = 10 mm3)
-        ys_, mm10 = L["y_s"], 100.0 / 74.63
+        ys_, mm10 = (L["y_r"] if L.get("inline") else L["y_s"]), 100.0 / 74.63
         cuts.append(s.box("t_fillwin", (L["xrear_full"] + 0.5, L["xrear_empty"] + 3.5), (ys_ - 1.0, ys_ + 1.0), (zt - wall - 0.1, zt + 0.1)))
         k = 0
         while k * mm10 <= L["stroke"] + 1e-6:
@@ -179,6 +183,9 @@ def build_top(s: Script, p: dict, L: dict) -> None:
             ln = 1.0 if k % 5 == 0 else 0.5
             cuts.append(s.box(f"t_tick{k}", (x - 0.12, x + 0.12), (ys_ + 1.3, ys_ + 1.3 + ln), (zt - 0.3, zt + 0.1)))
             k += 1
+        if L.get("inline"):
+            from op_inline import top_extra_cuts
+            cuts += top_extra_cuts(s, p, L)
         s.cut("top", cuts)
         return
     # Spulensitz: 4 Pratzen außerhalb der Spule

@@ -230,6 +230,9 @@ def compute_layout(p: dict, variant: str) -> dict:
         "drive": {"gh_ratio_nominal": dr["gh_ratio"], "u_per_step": u_per_step(p, dr["gh_ratio"] * (gears["ratio_motor_to_screw"] if layout == "side_gears" else 1.0)),
                   "gear_ratio_motor_to_screw": gears["ratio_motor_to_screw"]},
     }
+    if p.get("drive_mode") == "inline":          # optional sealed on-axis drive (op_inline.py); default pod untouched
+        from op_inline import inline_layout
+        out["inline"] = inline_layout(p, out)
     if out["mode"] == "bench":
         from op_bench import bench_geometry          # lazy: op_bench needs only the finished layout dict
         out["bench"] = bench_geometry(p, out)
