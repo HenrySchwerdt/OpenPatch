@@ -130,7 +130,7 @@ impl DeviceSpec {
 pub struct Setup {
     /// Run the standard bring-up: draw, dock, pair, activate, prime, resume.
     pub standard: bool,
-    /// Insulin drawn into the reservoir (U).
+    /// Water drawn into the reservoir (U).
     pub fill_u: f64,
     /// Basal profile (hour of day, U/h).
     pub basal: Vec<(f64, f64)>,

@@ -63,7 +63,7 @@ pub struct BootReport {
     pub reservoir_restored: Option<(u32, u32)>,
     pub pod_restored: Option<PodRec>,
     pub evt_start: u32,
-    /// reservoir model after boot minus the physically present insulin (mU): lower is safer
+    /// reservoir model after boot minus the physically present water (mU): lower is safer
     pub model_minus_actual_mu_before: Option<f64>,
     pub model_minus_actual_mu_after: Option<f64>,
     /// event id the pod before the reset would have issued next
@@ -134,7 +134,7 @@ impl Device {
     }
 
     /// Model-minus-reality of the reservoir in mU (positive = the pod believes it has more
-    /// insulin than it has).
+    /// water than it has).
     pub fn reservoir_discrepancy_mu(&self) -> Option<f64> {
         let p = self.pump.as_ref()?;
         let model = p.reservoir().remaining().0 as f64;

@@ -60,16 +60,16 @@ pub struct Plant {
     // ---- fluid state ----
     pub pressure_kpa: f64,
     open: bool,
-    /// insulin currently in the reservoir (ul).
+    /// water currently in the reservoir (ul).
     pub liquid_ul: f64,
     /// air bubble in the reservoir (ul at ambient pressure).
     pub bubble_ul: f64,
     /// air in the connector path (ul), flushed out first.
     pub line_air_ul: f64,
-    /// insulin that left through the outlet (ul).
+    /// water that left through the outlet (ul).
     pub out_ul: f64,
     pub out_air_ul: f64,
-    /// insulin drawn in from the vial (ul).
+    /// water drawn in from the vial (ul).
     pub drawn_ul: f64,
     pub peak_pressure_kpa: f64,
 }

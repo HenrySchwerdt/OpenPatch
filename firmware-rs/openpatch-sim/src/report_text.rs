@@ -19,7 +19,7 @@ What it can do: replace hardware orders with questions. Does an occlusion alarm 
 dock loss mid bolus stop the motor? What does a firmware hang cost before the TPL5010 cuts the
 supply? Which tolerances dominate dosing accuracy? Which bench measurement has to be made first?
 
-What it cannot do: prove anything about real silicone, real motors or real insulin. Every number
+What it cannot do: prove anything about real silicone, real motors or real water. Every number
 here is "the core's logic on THIS plant". The plant parameters that are not in `spec/` are
 assumptions (section 3); the Monte Carlo spreads them, but a population drawn from a wrong centre
 is still wrong. Treat a result as "the logic is capable of this", and treat a surprise as
@@ -77,13 +77,13 @@ distributions below are asserted loosely in `tests/montecarlo.rs`.
 | flash | 90 ms per record write, A/B atomic (a torn write keeps the previous copy) | `architecture.md` + ASSUMPTION |
 | persistence policy | constants copied from `openpatch-bench/src/config.rs` (reservoir +64 steps, wear +600 s, event ceiling +64) | copy, keep in sync |
 
-Not modelled: temperature, insulin viscosity and degradation, motor resonance and inertia, cannula
+Not modelled: temperature, fluid viscosity and degradation, motor resonance and inertia, cannula
 kinking physics beyond a resistance factor, RF / BLE timing, Qi charging, the SMA drive.
 
 Bench measurements that would replace the most influential assumptions, in order of leverage:
 
 1. Force versus displacement of carriage + plunger + seal (static and dynamic break-away, stiffness).
-   Sets lost motion, small-dose lumping and the insulin soaked up before an occlusion alarm.
+   Sets lost motion, small-dose lumping and the water soaked up before an occlusion alarm.
 2. Motor current versus load at 200 Hz and 600 Hz (`CsvRow` has no current column yet: see
    `architecture.md`). Sets whether the 140 mA threshold has margin for forward delivery AND draw.
 3. Thrust of the geared drive at 200 / 600 Hz and 3.3 .. 4.2 V.
@@ -93,7 +93,7 @@ Bench measurements that would replace the most influential assumptions, in order
 ## 4. Scenarios
 
 All scenarios use the nominal plant (defaults) unless the description says otherwise. `needle` is the
-insulin that really left the outlet (gravimetric equivalent), `core` what the pod booked as delivered.
+water that really left the outlet (gravimetric equivalent), `core` what the pod booked as delivered.
 The first hour of every scenario carries the lost motion after the refill's reversal (backlash plus
 seal and arm elasticity, about 0.4 U with the assumed stiffness), so a few percent of
 under-delivery there is expected.
@@ -147,7 +147,7 @@ moment the alarm latches. Spec 7: alarm at <= 2 U undelivered.
 ### 5.3 Sensitivity of the occlusion result to the carriage -> plunger stiffness
 
 The single most influential unmeasured parameter (section 3, item 1): the softer the drive, the more
-insulin the elastic parts soak up before the pressure is high enough to load the motor.
+water the elastic parts soak up before the pressure is high enough to load the motor.
 
 {{SENSITIVITY}}
 

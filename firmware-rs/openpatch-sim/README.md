@@ -1,6 +1,6 @@
 # openpatch-sim: the virtual pod
 
-> TEST PROJECT. Not a medical device, never to be worn (see `../../DISCLAIMER.md`).
+> TEST PROJECT. Not a medical device, never to be worn. WATER ONLY: no insulin is ever used (see `../../DISCLAIMER.md`).
 
 Host-only crate. It runs the real `openpatch-core` on a physics model of the pod so that most of the
 verification can happen before parts are ordered: delivery accuracy, occlusion detection, dock loss,
@@ -49,7 +49,7 @@ Exit code 1 = a verdict failed. CSV columns: `t_s, rate_mu_h, scheduled_mu, core
 actual_out_mu` (what left the needle), `reservoir_model_mu, reservoir_actual_mu, plunger_mm,
 pressure_kpa, angle_core, angle_true, current_ma, battery_mv, docked, faults, flags`.
 The JSON verdict holds: delivered vs commanded in total, per bolus and per hour; fault log; per
-injected fault the detection latency and the insulin undelivered at the alarm; the safety limit check
+injected fault the detection latency and the water undelivered at the alarm; the safety limit check
 (commanded and at the needle); interlock check (forward motion while physically undocked); resets,
 boot reports (what flash restored, reservoir model vs reality); draw results.
 

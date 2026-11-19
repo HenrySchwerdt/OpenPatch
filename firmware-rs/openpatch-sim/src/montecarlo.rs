@@ -5,7 +5,7 @@
 //!   10 U bolus on a zero basal. Per bolus the fluid that left the needle (gravimetric equivalent,
 //!   60 s settling) is compared with the command.
 //! * `occlusion-basal[-no-current]`: cannula blocked at a random time during a 1 U/h basal;
-//!   detection latency and the insulin not delivered at the alarm (spec: <= 2 U).
+//!   detection latency and the water not delivered at the alarm (spec: <= 2 U).
 //! * `occlusion-bolus[-no-current]`: the same during an 8 U bolus.
 //!
 //! Runs are independent and reproducible from (seed, index); threads only split the index range, so

@@ -121,7 +121,7 @@ fn a_bubble_in_the_reservoir_delays_but_does_not_change_the_settled_dose() {
 
 #[test]
 fn volume_is_conserved_over_a_whole_refill_and_delivery_cycle() {
-    // insulin in the reservoir + insulin out through the needle = what was drawn in
+    // water in the reservoir + water out through the needle = what was drawn in
     let o = run("refill_draw");
     let w = o.dev.world.borrow();
     let balance = w.plant.drawn_ul; // the setup draw and the mid-life draw

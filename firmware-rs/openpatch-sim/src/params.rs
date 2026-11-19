@@ -286,7 +286,7 @@ impl Params {
         self.motor.steps_per_rev * self.motor.gearhead_ratio * self.drive.z_screw / self.drive.z_motor
     }
 
-    /// Insulin volume per step the mechanics really deliver (U, 1 U = 10 mm^3), ideal fluid.
+    /// Water volume per step the mechanics really deliver (U, 1 U = 10 mm^3), ideal fluid.
     pub fn true_u_per_step(&self) -> f64 {
         self.drive.lead_mm * (1.0 + self.drive.pitch_error_pct / 100.0) / self.steps_per_screw_turn() * self.drive.area_mm2 / 10.0
     }

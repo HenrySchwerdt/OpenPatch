@@ -24,7 +24,7 @@ pub fn fault_names(bits: u16) -> Vec<String> {
     FAULT_NAMES.iter().filter(|(b, _)| bits & b != 0).map(|(_, n)| n.to_string()).collect()
 }
 
-pub const MU_PER_UL: f64 = 100.0; // 1 ul of U100 = 0.1 U = 100 mU
+pub const MU_PER_UL: f64 = 100.0; // 1 ul of water-equivalent test fluid is booked as 0.1 U = 100 mU (U100 convention)
 
 #[derive(Clone, Debug, Serialize)]
 pub struct Row {
@@ -364,7 +364,7 @@ impl Runner {
 
     fn standard_setup(&mut self) -> Result<(), String> {
         let fill_mu = (self.sc.setup.fill_u * 1000.0).round() as u32;
-        // 1. undock, draw the insulin in
+        // 1. undock, draw the water in
         self.dev.world.borrow_mut().docked_phys = false;
         self.run_s(2.0);
         let r = self.dev.cmd(CommandBody::FillDraw { amount_mu: fill_mu });

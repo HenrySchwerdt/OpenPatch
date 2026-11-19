@@ -180,7 +180,7 @@ fn occlusion_during_bolus_alarms_within_two_minutes() {
 fn occlusion_with_a_20_ul_bubble_still_alarms_before_2_u() {
     let o = run("occlusion_bubble");
     assert_occlusion_ok(&o, 2.0 * 3600.0);
-    // the bubble costs insulin: more is soaked up than without one
+    // the bubble costs water: more is soaked up than without one
     let plain = run("occlusion_basal");
     let (u_b, u_p) = (det(&o.verdict, "Occlude").undelivered_at_alarm_mu.unwrap(), det(&plain.verdict, "Occlude").undelivered_at_alarm_mu.unwrap());
     assert!(u_b > 0.5 * u_p, "bubble {u_b} plain {u_p}"); // (basal rates differ; only a sanity bound)
@@ -244,7 +244,7 @@ fn magnet_loss_during_a_bolus_is_detected_within_10_seconds() {
     let d = det(&o.verdict, "Magnet");
     assert!(d.latency_s.expect("detected") <= 10.0, "latency {:?}", d.latency_s);
     assert!(d.fault_names.iter().any(|n| n == "ENCODER_DEVIATION" || n == "OCCLUSION" || n == "INTERNAL"));
-    // after the alarm no more insulin is booked
+    // after the alarm no more water is booked
     let t = d.detected_at_s.unwrap();
     assert_eq!(row_at(&o, t + 60.0).core_delivered_mu, o.rows.last().unwrap().core_delivered_mu);
     // unverified delivery between the loss and the alarm stays small
@@ -440,7 +440,7 @@ fn a_flash_write_that_destroys_the_old_record_fails_safe() {
     let b = &o.dev.boot_reports[1];
     // one record is gone: either the reservoir (model reads empty) or the pod (not paired / released)
     assert!(b.reservoir_restored.is_none() || b.pod_restored.is_none());
-    // after the reset the pod never delivers more than it knows it has: no insulin after the alarm/refusal
+    // after the reset the pod never delivers more than it knows it has: no water after the alarm/refusal
     let after_reset = needle_mu(&o, 3500.0) - needle_mu(&o, 1605.0);
     assert!(after_reset < 50.0, "{after_reset} mU flowed after a state loss");
     assert!(has_fault(v, "RESERVOIR_EMPTY") || v.notes.iter().any(|n| n.contains("result")), "silent: faults {:?} notes {:?}", v.faults, v.notes);

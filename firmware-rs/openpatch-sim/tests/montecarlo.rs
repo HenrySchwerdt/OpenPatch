@@ -68,7 +68,7 @@ fn occlusion_with_current_sense_meets_the_2_u_spec_for_nearly_every_pod() {
 }
 
 #[test]
-fn encoder_only_occlusion_detection_loses_much_more_insulin_than_with_the_current_sense() {
+fn encoder_only_occlusion_detection_loses_much_more_water_than_with_the_current_sense() {
     let with = run(&cfg(Experiment::OcclusionBasal { current_sense: true }, 60, 4));
     let without = run(&cfg(Experiment::OcclusionBasal { current_sense: false }, 60, 4));
     let (w, wo) = (with.occlusion.unwrap(), without.occlusion.unwrap());
