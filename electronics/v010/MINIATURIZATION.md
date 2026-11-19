@@ -223,4 +223,42 @@ Panel: the three boards in **one JLC panel / one PCBA project** (tab-routed with
 * DFU over USB: MCUboot **signed images only**, anti-rollback, started only with the button pressed; no raw flash write, no `nrfutil` open bootloader.
 * `VBUS_SENSE` high = pod is on a cable: firmware pauses delivery (H8, as with the removed charge pads), `MCU_EN` low, the dock gate already blocks forward motion undocked; USB and SWD never enable the motor path (the hardware chain has no input from VBUS).
 * SWD stays on pads (4 pads, RESET included) for provisioning; APPROTECT must be enabled in production firmware. A USB-connected host cannot reach the supervisor MCU (9.1 S) at all.
-* Safety elements are unchanged by the split: series P-FET pair, gate chain legs or supervisor + two discrete legs, OC comparator, 2oo2 halls, bleeder, readbacks all live on MAIN except the halls on SENSOR (FFC loss reads "not docked": fail safe).
+* (see section 11 for the strict MAIN <= 300 mm2 brief.) Safety elements are unchanged by the split: series P-FET pair, gate chain legs or supervisor + two discrete legs, OC comparator, 2oo2 halls, bleeder, readbacks all live on MAIN except the halls on SENSOR (FFC loss reads "not docked": fail safe).
+
+## 11. Strict brief: MAIN <= 300 mm2 (hard max 400), 2.3 mm free, HJ-840, parts moved off-board (analysis; NOT built, NOT routed)
+
+Status: no small MAIN was built or routed in this work package. The 52 x 38 mm MAIN of the previous round stays the only MAIN with a layout (72 connections unrouted). This section gives verified facts and a partition with numbers as the start of the next spin.
+
+**Verified facts**
+* HJ-840 (`C50052094`, stock 95): body 7.00 x 6.20 x 1.00 mm (A 0.96..1.04), **LGA-64 as an 8 x 8 grid of 0.30 mm pads, reference pitches 0.65 / 0.90 / 0.45 mm** (datasheet figure 7.1), pads A..H x 1..8 including inner rows. Pin grid (datasheet 2.5): **D+ (F1), D- (G1), VBUS (F2), DECUSB (G2) are exposed: USB works**; also VDD (H3/H4), VDDH (H2), DCCH (H1), DEC1 (H6), DEC5 (C4), ANT (A7), BOARD_ANT (A8), SWDIO (C2), SWCLK (C3), RESET (E1). Inner 0.3 mm pads at 0.65 mm pitch leave 0.35 mm between pad edges: **no dog-bone fits, via-in-pad (about 0.15 mm drill, filled, JLC 6-layer class) is needed for the inner ring**. The exact pad coordinates are only in the datasheet drawing (an image, page 18 of the PDF); I did not transcribe them, so **no HJ-840 footprint exists in the repo yet**. The module has no antenna of its own: ANT/BOARD_ANT pads need a chip or PCB antenna plus a pi match on the host (keep-out about 6 x 4 mm).
+* Smallest supervisor packages at JLC: STM32C011F4U6 UFQFPN-20 3 x 3 (`C5456188`, stock 47, $1.97) and WLCSP-12 1.4 x 1.7 `C6689571` (STM32C011D6Y6, stock 68, $2.13). The WLCSP has 12 balls, too few for the 14 supervisor signals (ARM, STCK, DIR, OC_OK, STCK_EN, PERMIT, OK, NRST_MAIN, TX, RX, MCU_EN, DOCKED_H, SWDIO, SWDCLK): **UFQFPN-20 is the smallest usable** (thin stock).
+
+**Partition proposal (every safety element kept, moved not dropped)**
+
+| Function | Board | Why |
+|---|---|---|
+| HJ-840 + antenna, supervisor (UFQFPN-20) + AND gate, STSPIN220 + INA180 current sense + VREF, 3V3 LDO, MOT_DIR/STCK/STBY/EN_FAULT, I2C to SENSOR, LED, 6 spring pads (cell 2, motor 4), board-to-board pads | **MAIN** | must sit next to the MCU, driver and the motor/cell contacts |
+| USB-C, TVS/ESD, charger, **5 V boost + clamp**, **both series P-FETs, the discrete gate legs (MCU_EN, OC_OK, dock-xor-dir), OC comparator + latch U11/U12, bleeders, battery sense and NTC switch** | **USB-CHARGE (rename POWER)** | not needed beside the MCU; the 0.3 A motor path goes to MAIN over two spring pads and returns as `VMOT` / current sense |
+| TMAG5273 + 2 dock halls | SENSOR | unchanged |
+| Buzzer | off-board: piezo disc glued to the lid, 2 spring pads on POWER, driven by a 2-NFET bridge there | a 3 mm magnetic buzzer cannot exist in 2.3 mm |
+| Button | a side-actuated tact on the POWER board edge (height <= 1.0 mm; no JLC part verified), or BLE-only pairing with physical presence taken from a magnet tap on the TMAG5273 field channel (must be specified and tested: security proposal 07 requires physical confirmation) | keep the function, move the part |
+| Motor / cell connectors | 4 + 2 spring pads (BWCD class, `C2826547`) | no PicoBlade |
+| MAIN-POWER, MAIN-SENSOR | spring/pogo pad rows, or a 0.3 mm-pitch ZIF <= 0.9 mm (none verified at JLC) | FH12 is 2.0 mm tall and does not fit 2.3 mm |
+
+**MAIN area after the moves (courtyard estimates, 0201 where possible)**
+
+| Block | mm2 |
+|---|---|
+| HJ-840 + chip antenna + pi match | 85 |
+| STSPIN220 3 x 3 + 2 sense resistors + VREF + 22 uF + 10 uF | 40 |
+| INA180 + sense resistor + filters | 20 |
+| supervisor UFQFPN-20 + decoupling | 20 |
+| AND gate, LDO, I2C pull-ups, LED, misc 0201 (about 40 x 1.2) | 75 |
+| test pads (>= 0.8 mm, about 20) + SWD pads (main 4 + supervisor 4) | 45 |
+| spring pads cell 2 + motor 4 + board-to-board rows (about 24 pads) | 60 |
+| **Total courtyard** | **about 345** |
+
+Top side (everything above 0.4 mm) about 250 mm2 at <= 1.3 mm, bottom (<= 0.4 mm: 0201 passives, flat pads) about 95 mm2. Top-side fill 0.6 gives **about 420 mm2**, fill 0.75 about 330 mm2. **300 mm2 is not reachable; about 400 mm2 (the hard max) is reachable only with a top-side fill of about 0.62, via-in-pad on the HJ-840 inner ring, a 6-layer 0.8 mm stackup, 0201 assembly and about 24 board-to-board pads.** With the ISP1807 (8 x 8 x 1.0, integrated antenna, consigned, internal 32 kHz crystal) the antenna block disappears (about -15 mm2); the estimate is otherwise the same. Stack above the dock tunnel: 0.8 mm board + 1.3 mm lid-side parts = 2.1 mm, plus 0.4 mm bottom = **2.5 mm, 0.2 mm over the 2.3 mm free**; a 0.6 mm board makes it 2.3 mm.
+POWER board after the moves: discrete legs (about 14 NFETs as 7 dual SOT-363, 3 P-FETs), OC chain, bleeders, sense (about 110 mm2), boost (about 60 mm2 incl. the 1.8 mm 4 x 4 inductor), charger (12), USB receptacle + TVS/ESD (about 120 mm2) = about 300 to 350 mm2: fits the 572 mm2 outline.
+
+**What remains (in order):** (1) transcribe the HJ-840 pad map from datasheet page 18 into a footprint and do the 8 x 8 breakout study on 6 layers with via-in-pad; (2) `netlist_v3.py` implementing the partition (about 25 nets cross MAIN-POWER: VBAT, GND x3, VMOT, VMOT_SENSE, I_SENSE, MCU_EN, MOT_DIR, DOCKED_H, SUP_PERMIT, OC_OK, PGATE_MON, 3V3, CHG_STAT, VBUS_SENSE, VBAT_SENSE, SENSE_EN, DOCK_TEST, OC_TEST, USB_DP/DM, VBUS_P); (3) a manual placement + fanout-via script before Freerouting; (4) route MAIN and POWER to DRC 0. This is several hours of layout work with a high risk that the 6-layer via-in-pad cost and lead time dominate. **Fallback if 400 mm2 / 2.3 mm cannot be met: ISP1807 with the same partition, or a 10 mm top-side tail on the pod.**
