@@ -71,7 +71,7 @@ def build_carriage(s: Script, p: dict, L: dict) -> None:
 
 
 def build_drive(s: Script, p: dict, L: dict) -> None:
-    if L["mode"] == "bench":
+    if L["mode"] == "bench" and L["coax"]:
         from op_coax import build_coax_parts
         return build_coax_parts(s, p, L)
     dr = p["drive"]
@@ -80,11 +80,11 @@ def build_drive(s: Script, p: dict, L: dict) -> None:
     s.cyl("gearhead", "X", (0, ym, zc), dr["motor_d"], L["gh_x"][0], L["gh_x"][1])
     s.cyl("motor", "X", (0, ym, zc), dr["motor_d"], L["mo_x"][0], L["mo_x"][1])
     # Zahnräder (Modul 0.3, z=18) als Fußkreis modelliert (Kopfkreis Ø6.0)
-    s.cyl("gear_a", "X", (0, ym, zc), dr["gear_root_d"], gx0, L["gear_x1"])
+    s.cyl("gear_a", "X", (0, ym, zc), L["gears"]["root_motor"], gx0, L["gear_x1"])
     if L["nfp"]:                                   # D-shaft bore (flat modelled as a plain bore d2.04)
         s.cyl("t_gab", "X", (0, ym, zc), dr["shaft_d"] + 0.04, gx0 - 0.1, L["gear_x1"] + 0.1)
         s.cut("gear_a", ["t_gab"])
-    s.cyl("gear_b", "X", (0, ys, zc), dr["gear_root_d"], gx0, L["gear_x1"])
+    s.cyl("gear_b", "X", (0, ys, zc), L["gears"]["root_screw"], gx0, L["gear_x1"])
     s.cyl("t_gbb", "X", (0, ys, zc), dr["screw_d"] + 0.04, gx0 - 0.1, L["gear_x1"] + 0.1)
     s.cut("gear_b", ["t_gbb"])
     s.cyl("leadscrew", "X", (0, ys, zc), dr["screw_d"], L["dry_bush"][0] + 0.1, L["screw_tip"])

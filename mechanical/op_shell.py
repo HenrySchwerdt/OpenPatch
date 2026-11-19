@@ -28,7 +28,7 @@ def build_bottom(s: Script, p: dict, L: dict) -> None:
     bh = dr["bush_od"] + 2 * 0.675
     z_top_blk = zc + bh / 2
     yb = (ys - bh / 2, ys + bh / 2)
-    if L["mode"] != "bench":
+    if not L["coax"]:
         joins.append(s.box("t_dblk", (wall + 0.02, dr["gear_x0"] - 0.05), yb, (wall - 0.1, z_top_blk)))
     fb = L["far_block"]
     joins.append(s.box("t_fblk", (fb[0], fb[1]), yb, (wall - 0.1, z_top_blk)))
@@ -38,7 +38,7 @@ def build_bottom(s: Script, p: dict, L: dict) -> None:
     # Motor-Sättel (Schalen) unter Getriebekopf/Motor
     ym, zr = L["y_m"], dr["motor_d"] / 2
     saddles = [L["gh_x"][0] + 3.0, L["mo_x"][0] + (0.6 if L["nfp"] else 2.0), L["mo_x"][1] - 2.0]
-    if L["mode"] == "bench":                     # coaxial motor: cradles under the motor / gearbox on the lane axis
+    if L["coax"]:                                # coaxial motor: cradles under the motor / gearbox on the lane axis
         C = L["coax"]
         ym = ys
         saddles = [C["x_m0"] + 1.2, C["x_m1"] + 1.5, C["x_g1"] - 1.8]
@@ -68,8 +68,9 @@ def build_bottom(s: Script, p: dict, L: dict) -> None:
         for i, q in enumerate(mt["posts"] + [mt["screw"]]):
             d = mt["post_d"] if i < len(mt["posts"]) else mt["boss_d"]
             joins.append(s.cyl(f"t_bpost{i}", "Z", (L["x_r1"] + q[0], q[1], 0), d, wall - 0.1, z_b))
-        from op_coax import build_coax_joins
-        joins.extend(build_coax_joins(s, p, L))
+        if L["coax"]:
+            from op_coax import build_coax_joins
+            joins.extend(build_coax_joins(s, p, L))
     s.join("bottom", joins)
 
     cut = []
@@ -80,13 +81,13 @@ def build_bottom(s: Script, p: dict, L: dict) -> None:
         cut.append(s.cyl("t_fillacc", "Y", (L["x_r1"] + p["dock"]["cap"]["septum_x"], 0, L["dock"]["z_n"]), p["dock"]["cap"]["wall_hole_d"], -0.1, wall + 0.1))
     # Lager-Bohrungen
     bb = dr["bush_od"] + dr["bush_bore_clr"]
-    if L["mode"] != "bench":
+    if not L["coax"]:
         cut.append(s.cyl("t_dbore", "X", (0, ys, zc), bb, L["dry_bush"][0], dr["gear_x0"] + 0.05))
     cut.append(s.cyl("t_fbore", "X", (0, ys, zc), bb, fb[0] - 0.1, fb[1] + 0.1))
     # Sattel-Mulden (Motor Ø6.1)
     for i in range(len(saddles)):
         pass
-    if L["mode"] != "bench":
+    if not L["coax"]:
         cut.append(s.cyl("t_mcut", "X", (0, ym, zc), dr["motor_d"] + 0.1, L["gh_x"][0] - 0.2, L["mot_end"] + 0.5 - dr["motor_tail"]))
     else:
         cut.append(s.cyl("t_mcut", "X", (0, ys, zc), dr["motor_d"] + 0.1, L["coax"]["x_m0"] - 0.1, L["coax"]["x_fb0"] + 0.1))
@@ -97,10 +98,23 @@ def build_bottom(s: Script, p: dict, L: dict) -> None:
         mt, bd = p["bench"]["mount"], L["bench"]
         q = mt["screw"]
         cut.append(s.cyl("t_bscrew", "Z", (L["x_r1"] + q[0], q[1], 0), sc["pilot"], bd["z0"] - 3.4, bd["z0"] + 0.1))
-        from op_coax import build_coax_cuts, build_valve_cut
-        cut.extend(build_coax_cuts(s, p, L))
+        if L["coax"]:
+            from op_coax import build_coax_cuts
+            cut.extend(build_coax_cuts(s, p, L))
     cut.append(s.rrect("t_vel", (L["x_r0"] + vc["margin_x"], L["x_r1"] - 1.5), (vc["y0"], vc["y1"]), vc["r"], (-0.1, vc["depth"])))
+    n = L["nfp_term"]
+    if bench and n and not L["coax"]:       # side-by-side motor: terminal block pocket (pins point down), lead channel to the +X wall slot
+        ld = p["bench"]["lead"]
+        m = ld["pocket_margin"]
+        cut.append(s.box("t_tpocket", (n["block_x"][0] - m, n["block_x"][1] + m), (n["block_y"][0] - m, n["block_y"][1] + m), (ld["pocket_floor"], wall + 0.05)))
+        cut.append(s.box("t_leadch", (n["x_center"], L["length"] - wall - 0.2), (ld["groove_y"] - ld["groove_w"] / 2, ld["groove_y"] + ld["groove_w"] / 2), (ld["groove_floor"], ld["groove_top"])))
+        cut.append(s.box("t_leadslot", (L["length"] - wall - 0.3, L["length"] + 0.1), (ld["groove_y"] - ld["slot_w"] / 2, ld["groove_y"] + ld["slot_w"] / 2), (ld["groove_floor"], ld["slot_z_top"])))
     s.cut("bottom", cut)
+    if bench and n and not L["coax"]:
+        ld = p["bench"]["lead"]
+        posts = [s.cyl(f"t_zz{k}", "Z", (L["mot_end"] + ld["post_x0"] + k * ld["post_pitch"], ld["groove_y"] + (-1) ** k * ld["post_dy"], 0), ld["post_d"], ld["groove_floor"] - 0.05, wall + ld["post_h"])
+                 for k in range(ld["posts"])]
+        s.join("bottom", posts)
     dock_cuts = build_dock_cuts(s, p, L) + build_mouth_cut(s, p, L, "t_kmouth")
     s.cut("bottom", dock_cuts)
 

@@ -115,10 +115,10 @@ def check_bench(p: dict, L: dict, bodies: list) -> tuple[list, list]:
     b, B = p["bench"], L["bench"]
     by = {x["name"]: x for x in bodies}
     for need in ("pod_board", "hall_tmag", "hall_drv0", "hall_drv1", "hall_dock", "ffc_conn", "ffc_cable",
-                 "cannula_adapter", "dock_magnet", "motor", "gearhead", "motor_shaft", "motor_pins", "coupler", "duckbill_valve", "end_cap"):
+                 "cannula_adapter", "dock_magnet", "motor", "gearhead", "motor_shaft", "motor_pins", "duckbill_valve", "end_cap") + (("coupler",) if L["coax"] else ("gear_a", "gear_b")):
         if need not in by:
             problems.append(f"bench body missing: {need}")
-    for gone in ("battery", "qi_coil", "rf_module", "pcb", "buzzer", "gear_a", "gear_b", "ratchet_wheel", "sma_slider"):
+    for gone in ("battery", "qi_coil", "rf_module", "pcb", "buzzer", "ratchet_wheel", "sma_slider"):
         if gone in by:
             problems.append(f"integrated part present in bench pod: {gone}")
     if problems:
@@ -144,13 +144,22 @@ def check_bench(p: dict, L: dict, bodies: list) -> tuple[list, list]:
     cy = (dh["min"][1] + dh["max"][1]) / 2 - (dm["min"][1] + dm["max"][1]) / 2
     if abs(cx) > 0.1 or abs(cy) > 0.1:
         problems.append(f"dock hall not centred over the magnet (dx {cx:.2f}, dy {cy:.2f})")
-    # coaxial motor chain: shaft inside the coupler bore, screw inside the M1.6 bore, pins inside the lead slot
-    C = L["coax"]
-    cp, sh_, ls = by["coupler"]["bbox"], by["motor_shaft"]["bbox"], by["leadscrew"]["bbox"]
-    if sh_["max"][0] > cp["max"][0] or sh_["max"][0] < cp["min"][0] + 2.0 or ls["min"][0] < cp["min"][0] or ls["min"][0] - sh_["max"][0] < 0.1:
-        problems.append("coupler does not cover shaft end and screw start with a gap")
-    if by["motor_pins"]["bbox"]["min"][1] < L["yi0"] + 0.3:
-        problems.append("motor pins reach the -Y wall")
+    if L["coax"]:
+        cp, sh_, ls = by["coupler"]["bbox"], by["motor_shaft"]["bbox"], by["leadscrew"]["bbox"]
+        if sh_["max"][0] > cp["max"][0] or sh_["max"][0] < cp["min"][0] + 2.0 or ls["min"][0] < cp["min"][0] or ls["min"][0] - sh_["max"][0] < 0.1:
+            problems.append("coupler does not cover shaft end and screw start with a gap")
+        if by["motor_pins"]["bbox"]["min"][1] < L["yi0"] + 0.3:
+            problems.append("motor pins reach the -Y wall")
+    else:       # side-by-side motor + gear pair: motor body must clear the carriage lane, gear centre must be >= min
+        G = L["gears"]
+        if G["centre"] < p["bench"]["gears"]["min_centre"] - 1e-6:
+            problems.append(f"gear centre distance {G['centre']:.2f} mm < {p['bench']['gears']['min_centre']} (motor body would hit the carriage lane)")
+        mo = by["motor"]["bbox"]
+        car = by["carriage"]["bbox"]
+        if mo["min"][1] < car["max"][1] + 0.1:
+            problems.append("motor body closer than 0.1 mm to the carriage lane")
+        if by["motor_pins"]["bbox"]["min"][2] < p["bench"]["lead"]["pocket_floor"] - 1e-6:
+            problems.append("motor pin tabs below the floor pocket")
     if by["duckbill_valve"]["bbox"]["max"][0] > L["x_r1"] + p["dock"]["block_len"]:
         problems.append("duckbill valve pocket outside the end cap")
     ec, rv = by["end_cap"]["bbox"], by["reservoir"]["bbox"]
@@ -179,8 +188,8 @@ def check_bench(p: dict, L: dict, bodies: list) -> tuple[list, list]:
         problems.append(f"snap arm strain {D['arm_strain']*100:.1f} % > 3 %")
     warns.append(f"dock: arm tip travel {D['travel']:.2f} mm, free length {D['flex_len']:.1f} mm, strain {D['arm_strain']*100:.1f} %, "
                  f"arm force {D['arm_tip_force_N']:.1f} N (PA12 E=1.7 GPa)")
-    warns.append(f"bench: board {B['width']:.1f} x {B['height']:.1f} mm identical for all sizes; dock gap {gap:.2f} mm; motor chain {C['length_motor_chain']:.1f} mm "
-                 f"(dry wall to shaft tip), pod {L['length']:.1f} x {L['width']:.1f}")
+    warns.append(f"bench: board {B['width']:.1f} x {B['height']:.1f} mm identical for all sizes; dock gap {gap:.2f} mm; layout {L['drive_layout']}, U/step {L['drive']['u_per_step']:.5f}, "
+                 f"pod {L['length']:.1f} x {L['width']:.1f}")
     return problems, warns
 
 
@@ -195,7 +204,7 @@ def check_size(outdir: Path, variant: str, p: dict, ignore_length: bool) -> dict
     lo, hi = envelope([b for b in bodies if not (mode == 'bench' and b['name'] in ('ffc_cable', 'cannula_adapter'))])
     dims = [hi[i] - lo[i] for i in range(3)]
     spec = p["spec"]
-    tgt_l = (p["bench"]["length_targets"] if mode == "bench" else spec["length_targets"])[variant]
+    tgt_l = (p["bench"]["length_targets_by_layout"][p["bench"]["drive_layout"]] if mode == "bench" else spec["length_targets"])[variant]
     L = json.loads((outdir / (f"{variant}.mech.json" if mode == "bench" else f"{variant}.layout.json")).read_text())
     problems, warns = [], []
     if dims[2] > spec["max_height"] + EPS:

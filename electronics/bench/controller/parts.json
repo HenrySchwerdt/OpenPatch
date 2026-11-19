@@ -629,6 +629,76 @@
   "note": "",
   "side": "F"
  },
+ "Q10": {
+  "ref": "Q10",
+  "value": "2N7002",
+  "fp": "SOT-23",
+  "lcsc": "C8545",
+  "mpn": "2N7002",
+  "bom": true,
+  "note": "parallel to Q6: pull-down path is closed if DOCKED OR DIR_REV",
+  "side": "F"
+ },
+ "Q11": {
+  "ref": "Q11",
+  "value": "2N7002",
+  "fp": "SOT-23",
+  "lcsc": "C8545",
+  "mpn": "2N7002",
+  "bom": true,
+  "note": "inverter for the optional inverted DIR_REV polarity",
+  "side": "F"
+ },
+ "R98": {
+  "ref": "R98",
+  "value": "100k",
+  "fp": "R_0402_1005Metric",
+  "lcsc": "C25741",
+  "mpn": "0402WGF1003TCE",
+  "bom": true,
+  "note": "",
+  "side": "F"
+ },
+ "R99": {
+  "ref": "R99",
+  "value": "100k",
+  "fp": "R_0402_1005Metric",
+  "lcsc": "C25741",
+  "mpn": "0402WGF1003TCE",
+  "bom": true,
+  "note": "",
+  "side": "F"
+ },
+ "R100": {
+  "ref": "R100",
+  "value": "100k",
+  "fp": "R_0402_1005Metric",
+  "lcsc": "C25741",
+  "mpn": "0402WGF1003TCE",
+  "bom": true,
+  "note": "",
+  "side": "F"
+ },
+ "R96": {
+  "ref": "R96",
+  "value": "0R",
+  "fp": "R_0603_1608Metric",
+  "lcsc": "C21189",
+  "mpn": "0603WAF0000T5E",
+  "bom": true,
+  "note": "DIR_REV = DIR (fitted by default: DIR high = reverse/retract, ASSUMPTION, verify on the motor)",
+  "side": "F"
+ },
+ "R97": {
+  "ref": "R97",
+  "value": "0R",
+  "fp": "R_0603_1608Metric",
+  "lcsc": null,
+  "mpn": null,
+  "bom": false,
+  "note": "DNP: fit instead of R96 if DIR low retracts the plunger",
+  "side": "F"
+ },
  "Q7": {
   "ref": "Q7",
   "value": "2N7002",
@@ -922,6 +992,16 @@
  "TP9": {
   "ref": "TP9",
   "value": "DOCK_N",
+  "fp": "TestPoint_Pad_D1.0mm",
+  "lcsc": null,
+  "mpn": null,
+  "bom": false,
+  "note": "",
+  "side": "F"
+ },
+ "TP41": {
+  "ref": "TP41",
+  "value": "DIR_REV",
   "fp": "TestPoint_Pad_D1.0mm",
   "lcsc": null,
   "mpn": null,

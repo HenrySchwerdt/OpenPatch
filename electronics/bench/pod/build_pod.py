@@ -54,8 +54,8 @@ def build(with_tmag=True):
         b.add(ref, "100nF", C0402, x, y, 0 if ref == "C1" else 90, side=side, pins={"1": "3V3", "2": "GND"}, lcsc="C1525", mpn="CL05B104KO5NNNC")
     # ---- FFC connector, top side, cable exit +X (rot 90), pin 1 toward -by
     ffc = {"1": "GND", "2": "3V3", "3": "HALL_A", "4": "HALL_B", "5": "DOCK_N", "6": "I2C_SDA", "7": "I2C_SCL", "8": "TMAG_INT", "10": "GND", "MP": "GND"}
-    b.add("J1", "FH12-10S-0.5SH(55)", ("Connector_FFC-FPC", "Hirose_FH12-10S-0.5SH_1x10-1MP_P0.50mm_Horizontal"), float(os.environ.get("J1X", 11.25)),
-          Y(float(os.environ.get("J1Y", 18.7))), 90, pins=ffc, lcsc="C506791", mpn="FH12-10S-0.5SH(55)")
+    b.add("J1", "FH12-10S-0.5SH(55)", ("Connector_FFC-FPC", "Hirose_FH12-10S-0.5SH_1x10-1MP_P0.50mm_Horizontal"), float(os.environ.get("J1X", 12.4)),
+          Y(float(os.environ.get("J1Y", 15.25))), 90, pins=ffc, lcsc="C506791", mpn="FH12-10S-0.5SH(55)")
     # ---- holes
     for i, h in enumerate(LAY["mounting"]["locating_pins"]):
         b.add(f"H{i+1}", "NPTH 1.2", ("Bench", "NPTH_1.2mm"), h["center_board_mm"][0], Y(h["center_board_mm"][1]), bom=False, hide_ref=True)

@@ -11,17 +11,22 @@ Status legend used below:
 
 All dimensions below are the ones used in `params.json` (single source of truth); the CAD follows them.
 
-## 1. Drive: NFP-608-26.45-SGM geared stepper, coaxial sleeve coupler (primary, spec 4)
+## 1. Drive: NFP-608-26.45-SGM geared stepper BESIDE the leadscrew + purchased gear pair (default, `bench.drive_layout = side_gears`; coaxial sleeve-coupler layout kept as option `coaxial`)
 
-**Bench pod drive = NFP-608-26.45-SGM** (section 1.0 below has the drawing numbers), **coaxial** with the M1.6 x 0.35 leadscrew through a **sleeve coupler**: d3.0 x 6.0 brass tube (turned/cut, SEARCH-TERM
-"brass tube 3 mm OD 2 mm ID", ream D / tap M1.6) or the SLA printed `coupler` (`out/bench/fab`): D-bore d2.04 with flat 1.5, 3.2 deep, on the motor shaft (one drop CA or Loctite 638), M1.6 bore d1.64,
-2.8 deep, on the screw. Free shaft length (5.3) and pin block position are DERIVED from the not-to-scale drawing (VERIFY with calipers on the real motor). Pod gets longer by the motor chain (about 23 mm).
+**Gear pair (purchased brass, GHW-Modellbau module 0.3, source `gear-selection.md`, page <https://ghw-modellbau.de/Spur-gear-Brass-Module-03-10-120-T>, all VERIFY, check delivery country at checkout):**
 
-**Duckbill check valve** in the outlet path before the 30G needle: miniature silicone duckbill, OD <= 3.0 mm x about 3.4 mm; SEARCH-TERMs (nothing was fetched, VERIFY): "Minivalve silicone duckbill valve micro",
-"Vernay miniature duckbill check valve", "silicone duckbill check valve 3mm AliExpress"; typical cracking pressure 1-5 kPa (0.15-0.7 psi), 1-4 USD each (estimates). Pocket in the dock end block, see `REFILL.md`.
+| use | GHW order no | z | bore | OD | face | price (as listed, incl. VAT) | remark |
+|---|---|---|---|---|---|---|---|
+| motor gear (NFP D-shaft d2.0 / flat 1.5) | 390755 (18 Z) | 18 | 2.0 | 6.0 | 5 mm (skim/part to about 1.4-2 mm on a lathe, or order the thin 753xxx type if offered at z18) | 16.15 EUR | Loctite 638 on the round bore + flat gap |
+| screw gear (M1.6 rod) | 390755 (18 Z) | 18 | 2.0 -> needs a **sleeve** d2.0 OD x d1.6 ID, 2 mm long (brass tube / SLA) pressed on the rod | 6.0 | same | 16.15 EUR | bore 1.5 gears exist only for z10/z12 |
 
-**Superseded (notes only):** SMA ratchet drive (stencil ratchet z=56 OD 5.6, 0.0466 U/tooth, pawls, wedge slider, half-nut refill, hex rewind with slip clutch; see `gear-selection.md`): concept work was
-dropped on 2026-11-19 (too many fine custom parts); a standard module 0.1 spur gear (~56 T, OD 5.8) can still serve as a Rev B ratchet wheel (section 7).
+Ratio z_screw/z_motor = **18/18 = 1.000** -> **U/step = 0.35 / (20 x 26.45 x 1.000) x 74.63 / 10 = 0.004938 U** (0.05 U = about 10 steps). Centre distance 0.3 x (18+18)/2 = **5.40 mm** (CAD value; add 0.05 backlash).
+**The lead pair 15:12 (centre 4.05, 0.00617 U/step) and 15:15 (centre 4.50) do NOT fit in this pod:** the NFP motor body (d6) beside the leadscrew lane needs a centre distance >= 5.3 mm to clear the carriage (lane edge y_s + 2.2); the CAD check
+`gear centre distance < 5.3` fails (tested: 15:12 gives carriage x gearhead interference 13.6 mm3). They work only with the coaxial layout (no gear pair) or with a carriage narrower than 4.4 mm. Other exact values if you change the pair later:
+U/step = 0.004938 / (z_screw / z_motor): 15:12 -> 0.00617, 15:15 -> 0.00494, 16:16 -> 0.00494 (centre 4.8, also too small).
+Gear search terms for a cheaper source: "0.3 modulus 18 teeth brass spur gear 2 mm bore" (VERIFY the listing, buy an assortment first).
+
+Superseded notes below: the coaxial layout (sleeve coupler d3.0 x 5.6, D-bore on the shaft, M1.6 on the screw) is still generated with `--set bench.drive_layout=\"coaxial\"`; it makes the pod 65/69/83 x 27 mm.
 
 ### 1.0 PRIMARY: NFP-608-26.45-SGM, 6 mm planetary-gear stepper (drawing data)
 

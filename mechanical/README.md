@@ -126,4 +126,6 @@ plunger_seal,gasket}.step/.stl`, `{mould_lower,mould_upper}.step/.stl`, `{reserv
   postponed to Rev B together with the SMA drive; `out/OP-xx*` files are the pre-dock state.
 
 * **Drive (final 2026-11-19): NFP-608-26.45-SGM geared stepper, coaxial with the leadscrew via a sleeve coupler** (`op_coax.py`), fixed nut, duckbill check valve (`REFILL.md`: automatic draw mode, water only).
-  The bench pod is therefore longer (OP-70/100/200: 63.2 / 67.2 / 80.6 mm) and narrower (30.0 mm); envelope targets for the bench variant are in `params.json -> bench.length_targets`.
+  
+* **Layout switch (2026-11-19):** `params.json -> bench.drive_layout`: `side_gears` (default: NFP motor beside the leadscrew, purchased gear pair z18:z18 centre 5.4, pod 40.9 / 44.9 / 58.3 x 32.0 x 8.5) or `coaxial` (sleeve coupler, 65 / 69 / 83 x 27). Gear pair and centre distance: `bench.gears` (check.py rejects centres < 5.3 mm).
+  The frozen CNC reservoir (`reservoir-cnc/`) and the end cap are identical in both layouts.

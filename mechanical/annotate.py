@@ -58,17 +58,34 @@ def draw(variant: str) -> Path:
     C = L["coax"]
     rect(L["xrear_full"], ys - 2.2, L["xrear_full"] + p["drive"]["carriage_len"], ys + 2.2, "#f0c040", "#a08000")
     # motor chain
-    rect(C["x_m0"], ys - 3, C["x_m1"], ys + 3, "#8a8f98", "#444")
-    rect(C["x_m1"], ys - 3, C["x_g1"], ys + 3, "#b9bec6", "#444")
-    rect(C["x_rb0"], ys - 1.3, C["x_m0"], ys + 1.3, "#666", "#333")
-    rect(C["x_fb0"], ys - 1.75, C["x_fb1"], ys + 1.75, "#999", "#444")
-    line(C["x_fb1"], ys, C["x_tip"], ys, "#222", 3)
-    rect(C["c0"], ys - 1.5, C["c1"], ys + 1.5, "#d4a017", "#7a5a00")
-    line(C["screw_x0"], ys, L["screw_tip"], ys, "#222", 2)
-    rect(*([C["block_x"][0], C["block_y"][0], C["block_x"][1], C["block_y"][1]]), "#c06020", "#703000")
-    ytip = C["pin_tip_y"]
-    line(C["pin_x"], C["block_y"][0], C["pin_x"], ytip, "#703000", 2.5)
-    line(C["pin_x"], ytip, 0.0, ytip - 0.3, "#d02020", 1.4, "4,3")        # lead to the dry-end slot
+    if C:
+        rect(C["x_m0"], ys - 3, C["x_m1"], ys + 3, "#8a8f98", "#444")
+        rect(C["x_m1"], ys - 3, C["x_g1"], ys + 3, "#b9bec6", "#444")
+        rect(C["x_rb0"], ys - 1.3, C["x_m0"], ys + 1.3, "#666", "#333")
+        rect(C["x_fb0"], ys - 1.75, C["x_fb1"], ys + 1.75, "#999", "#444")
+        line(C["x_fb1"], ys, C["x_tip"], ys, "#222", 3)
+        rect(C["c0"], ys - 1.5, C["c1"], ys + 1.5, "#d4a017", "#7a5a00")
+        line(C["screw_x0"], ys, L["screw_tip"], ys, "#222", 2)
+        rect(*([C["block_x"][0], C["block_y"][0], C["block_x"][1], C["block_y"][1]]), "#c06020", "#703000")
+        ytip = C["pin_tip_y"]
+        line(C["pin_x"], C["block_y"][0], C["pin_x"], ytip, "#703000", 2.5)
+        line(C["pin_x"], ytip, 0.0, ytip - 0.3, "#d02020", 1.4, "4,3")
+        pin_xy, mot_mid, gb_mid, cpl_mid, cpl_y = (C["pin_x"], ytip), (C["x_m0"] + C["x_m1"]) / 2, (C["x_m1"] + C["x_g1"]) / 2, (C["c0"] + C["c1"]) / 2, ys + 1.5
+        gear_note, ym_ = "Gearbox 26.45:1 (8.1 mm)", ys
+    else:
+        ym_, G, N = L["y_m"], L["gears"], L["nfp_term"]
+        rect(L["gh_x"][0], ym_ - 3, L["gh_x"][1], ym_ + 3, "#b9bec6", "#444")
+        rect(L["mo_x"][0], ym_ - 3, L["mo_x"][1], ym_ + 3, "#8a8f98", "#444")
+        rect(L["mo_x"][1], ym_ - 1.3, L["mot_end"], ym_ + 1.3, "#666", "#333")
+        rect(L["mx0"] - 0.8, ym_ - 1.75, L["mx0"], ym_ + 1.75, "#999", "#444")
+        rect(L["gear_x1"] - 1.2, ys - G["root_screw"] / 2, L["gear_x1"], ys + G["root_screw"] / 2, "#d4a017", "#7a5a00")
+        rect(L["gear_x1"] - 1.2, ym_ - G["root_motor"] / 2, L["gear_x1"], ym_ + G["root_motor"] / 2, "#d4a017", "#7a5a00")
+        line(1.0, ys, L["screw_tip"], ys, "#222", 2)
+        rect(N["block_x"][0], N["block_y"][0], N["block_x"][1], N["block_y"][1], "#c06020", "#703000")
+        ld = p["bench"]["lead"]
+        line(N["x_center"], ld["groove_y"], Ln + 3, ld["groove_y"], "#d02020", 1.6, "4,3")
+        pin_xy, mot_mid, gb_mid, cpl_mid, cpl_y = (N["x_center"], ld["groove_y"]), (L["mo_x"][0] + L["mo_x"][1]) / 2, (L["gh_x"][0] + L["gh_x"][1]) / 2, L["gear_x1"] - 0.6, ys + 2.0
+        gear_note, ytip = "Gearbox 26.45:1 (8.1 mm)", ld["groove_y"]
     # reservoir stops, magnet
     rect(L["xrear_full"] - 0.7, ys + 1.6, L["xrear_full"], ys + 2.15, "#555", "#222")
     rect(L["xrear_full"] - 0.7, ys - 2.15, L["xrear_full"], ys - 1.6, "#555", "#222")
@@ -105,21 +122,21 @@ def draw(variant: str) -> Path:
     tm = next(s for s in LJ["hall_sensors"] if s["id"] == "HALL_3D")["center_pod_mm"]
     dh = next(s for s in LJ["hall_sensors"] if s["id"] == "HALL_DOCK")["center_pod_mm"]
     items = [
-        ((C["x_m0"] + C["x_m1"]) / 2, ys + 3, "Stepper motor NFP-608 (rear 8.0 mm)", -2, W + 2.2),
-        ((C["x_m1"] + C["x_g1"]) / 2, ys + 3, "Gearbox 26.45:1 (8.1 mm)", 12, W + 3.6),
-        (C["pin_x"], ytip, "4 motor pins -> factory lead (red) -> dry-end wall slot", 0, 10.5),
-        ((C["c0"] + C["c1"]) / 2, ys + 1.5, "Sleeve coupler", C["c0"] - 4, W + 2.2),
-        (L["xrear_full"] + 6, ys, "M1.6 leadscrew (thread side)", L["xrear_full"] + 2, W + 3.6),
-        (L["xrear_full"] + 2, ys + 2.2, "Carriage + fixed nut (full position)", L["xrear_full"] + 8, W + 2.2),
-        ((L["x_r0"] + L["x_r1"]) / 2, yr, "Reservoir (stadium 16 x 5 inside)", (L["x_r0"] + L["x_r1"]) / 2 - 8, 7.0),
-        (xr + dk["valve_x0"] + 1.7, D["y_c"] + 1.5, "Duckbill check valve (in the end cap)", xr - 3, 1.2),
-        (xr + 2.2, cp["block_y0"] + 1.0, "Fill septum (end cap, needle through the -Y wall hole)", xr, 1.2),
-        (D["x_d"], D["y_c"], "Cannula dome (latched) + snap arms", D["x_d"] - 6, 1.2),
-        (tm[0], tm[1], "TMAG5273 (under board)", tm[0] - 4, W + 3.6),
-        (dh[0], dh[1], "Dock hall (above adapter magnet)", dh[0] - 3, 1.2),
-        (fc[0] + 3, fc[1], "FFC connector + cable exit (+X)", Ln - 12, W + 2.2),
-        (L["mag_x"][0] + 0.5, ys - 1.0, "Spindle magnet", L["mag_x"][0] - 6, 7.0),
-        ((L["xrear_full"] + L["xrear_empty"]) / 2, ys - 1.0, "Fill window (scale in U) in the lid", L["xrear_full"] - 4, 7.0 + 0.0),
+        (mot_mid, ym_ + 3 if not C else ys + 3, "Stepper motor NFP-608 (motor part 8.0 mm)", 0, 0),
+        (gb_mid, ym_ + 3 if not C else ys + 3, gear_note, 0, 0),
+        (pin_xy[0], pin_xy[1], "4 motor pins -> factory lead (red) -> wall slot", 0, 0),
+        (cpl_mid, cpl_y, "Sleeve coupler" if C else "Gear pair module 0.3 (z%d : z%d, centre %.2f)" % (L["gears"]["z_motor"], L["gears"]["z_screw"], L["gears"]["centre"]), 0, 0),
+        (L["xrear_full"] + 6, ys, "M1.6 leadscrew (thread side)", 0, 0),
+        (L["xrear_full"] + 2, ys + 2.2, "Carriage + fixed nut (full position)", 0, 0),
+        ((L["x_r0"] + L["x_r1"]) / 2, yr, "Reservoir (stadium 16 x 5 inside)", 0, 0),
+        (xr + dk["valve_x0"] + 1.7, D["y_c"] + 1.5, "Duckbill check valve (in the end cap)", 0, 0),
+        (xr + 2.2, cp["block_y0"] + 1.0, "Fill septum (end cap, needle through the -Y wall hole)", 0, 0),
+        (D["x_d"], D["y_c"], "Cannula dome (latched) + snap arms", 0, 0),
+        (tm[0], tm[1], "TMAG5273 (under board)", 0, 0),
+        (dh[0], dh[1], "Dock hall (above adapter magnet)", 0, 0),
+        (fc[0] + 3, fc[1], "FFC connector + cable exit (+X)", 0, 0),
+        (L["mag_x"][0] + 0.5, ys - 1.0, "Spindle magnet", 0, 0),
+        ((L["xrear_full"] + L["xrear_empty"]) / 2, ys - 1.0, "Fill window (scale in U) in the lid", 0, 0),
     ]
     H = int(W * S + 2 * M + 40 + 20 * ((len(items) + 1) // 2))
     out = [f'<svg xmlns="http://www.w3.org/2000/svg" width="{int(Ln*S+2*M)}" height="{H}" viewBox="0 0 {int(Ln*S+2*M)} {H}" font-family="Helvetica,Arial,sans-serif">',

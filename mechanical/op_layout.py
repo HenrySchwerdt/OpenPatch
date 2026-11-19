@@ -60,7 +60,8 @@ def compute_layout(p: dict, variant: str) -> dict:
     y_r = y_r0 + res_w_out / 2
     y_s = y_r0 + res_w_out + dr["lane_clr"] + dr["screw_lane_w"] / 2
     coax = None
-    if bench:                                   # NFP motor coaxial with the leadscrew: the reservoir lane starts behind the coupler
+    layout = p["bench"]["drive_layout"] if bench else "side_gears"
+    if bench and layout == "coaxial":           # NFP motor coaxial with the leadscrew: the reservoir lane starts behind the coupler
         from op_coax import coax_geometry
         coax = coax_geometry(p, wall, y_s, z_axis)
         x_r0 = coax["x_carriage_min"] - rs["plunger_gap"] - rs["wall"]
@@ -68,7 +69,12 @@ def compute_layout(p: dict, variant: str) -> dict:
         x_r0 = gear_x1 + fit["clr_small"]
     x_r1 = x_r0 + res_len
     x_in0, x_in1 = x_r0 + rs["wall"], x_r1 - end_wall
-    y_m = y_s + dr["gear_center"]
+    gz = p["bench"]["gears"] if (bench and layout == "side_gears") else {"z_motor": dr["gear_z"], "z_screw": dr["gear_z"], "module": dr["gear_module"]}
+    gear_center = gz["module"] * (gz["z_motor"] + gz["z_screw"]) / 2
+    gears = {"z_motor": gz["z_motor"], "z_screw": gz["z_screw"], "module": gz["module"], "centre": gear_center,
+             "root_motor": gz["module"] * (gz["z_motor"] - 2.5), "root_screw": gz["module"] * (gz["z_screw"] - 2.5),
+             "ratio_motor_to_screw": gz["z_screw"] / gz["z_motor"]}
+    y_m = y_s + gear_center
 
     xrear_full = x_in0 + rs["plunger_gap"]
     xrear = xrear_full + stroke * (1.0 - rs["fill_fraction"])
@@ -101,8 +107,9 @@ def compute_layout(p: dict, variant: str) -> dict:
            {"x": hall_x, "y": y_s + hl["drv_dy"], "z_top": pcb_z0, "side": "bottom"}]
 
     c_x = x_r1 + sc["c_dx"]
-    screws = [{"x": sc["dry_x"], "y": y} for y in sc["dry_y"]] + [{"x": c_x, "y": sc["c_y"]}]
-    if bench:                                   # long pod: two more lid screws beside the motor (free area y < 19)
+    dry_y = sc["dry_y"] if layout == "coaxial" else p["screws"].get("dry_y_side", [4.2, 11.7, 19.0])
+    screws = [{"x": sc["dry_x"], "y": y} for y in dry_y] + [{"x": c_x, "y": sc["c_y"]}]
+    if bench and layout == "coaxial":           # long pod: two more lid screws beside the motor (free area y < 19)
         screws += [{"x": 14.0, "y": 4.2}, {"x": 14.0, "y": 16.5}]
 
     bat_x0 = max(x_r1 + bt["margin"], mot_end + 0.3, c_x + sc["boss_d"] / 2 + 0.3, mag_x[1] + 0.3)
@@ -176,7 +183,7 @@ def compute_layout(p: dict, variant: str) -> dict:
                     "pin_order_drawing_left_to_right": ["B", "A-", "B+", "A"],
                     "pins_as_supplied_tip_z": round(zb - dr["pin_len"], 3)}
     out = {
-        "nfp_term": nfp_term, "coax": coax,
+        "nfp_term": nfp_term, "coax": coax, "gears": gears, "drive_layout": layout,
         "mode": p.get("mode", "integrated"), "nfp": "boss_front" in dr, "mx0": mx0,
         "dock": D, "variant": variant, "stroke": stroke, "length": length, "width": W,
         "height": sh["height"], "wall": wall, "xi0": wall, "yi0": yi0, "yi1": yi1,
@@ -201,7 +208,8 @@ def compute_layout(p: dict, variant: str) -> dict:
         "topside_height_under_coil": co["z0"] - (pcb_z0 + pc["t"]),
         "coil": {"cx": x_r1 + co["gap_x"] + co["d"] / 2, "cy": yi0 + 0.2 + co["d"] / 2, "d": co["d"],
                  "z": [co["z0"], co["z0"] + co["t"]]},
-        "drive": {"gh_ratio_nominal": dr["gh_ratio"], "u_per_step": u_per_step(p, dr["gh_ratio"])},
+        "drive": {"gh_ratio_nominal": dr["gh_ratio"], "u_per_step": u_per_step(p, dr["gh_ratio"] * (gears["ratio_motor_to_screw"] if layout == "side_gears" else 1.0)),
+                  "gear_ratio_motor_to_screw": gears["ratio_motor_to_screw"]},
     }
     if out["mode"] == "bench":
         from op_bench import bench_geometry          # lazy: op_bench needs only the finished layout dict

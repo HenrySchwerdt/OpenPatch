@@ -41,7 +41,7 @@ POS = {
     "LD2": (31.5, 16.0, 0), "R6": (34.4, 16.0, 0), "R7": (29.9, 17.6, 0), "LD3": (31.5, 17.6, 0), "R8": (34.4, 17.6, 0), "R9": (29.9, 16.0, 0),
     "Q5": (23.0, 27.5, 0), "Q8": (26.5, 27.5, 0), "Q6": (30.0, 27.5, 0), "Q7": (30.0, 32.5, 0), "R40": (33.0, 33.2, 0), "R41": (33.0, 31.6, 0),
     "R42": (23.0, 30.5, 0), "R43": (26.5, 30.5, 0), "D2": (30.5, 44.0, 0), "R46": (26.5, 41.5, 0), "C29": (28.4, 41.5, 0),
-    "J4": (39.6, 41.0, 90), "BZ1": (10.0, 12.0, 0), "J5": (4.2, 41.0, -90), "J6": (4.2, 49.0, -90), "R50": (27.0, 21.8, 0), "R51": (27.0, 23.4, 0), "R52": (33.0, 36.6, 0), "R53": (33.0, 38.2, 0),
+    "J4": (39.6, 41.0, 90), "BZ1": (10.0, 12.0, 0), "J5": (4.2, 36.5, -90), "J6": (4.2, 44.5, -90), "R50": (27.0, 21.8, 0), "R51": (27.0, 23.4, 0), "R52": (33.0, 36.6, 0), "R53": (33.0, 38.2, 0),
     "R35": (29.0, 50.2, 0), "R36": (31.0, 50.2, 0),
 }
 def build():
@@ -161,6 +161,15 @@ def build():
     b.add("Q5", "2N7002", SOT23, 24.0, 28.0, 0, pins={"1": "MOT_ALLOW", "2": "PG_MID1", "3": "PGATE"}, lcsc="C8545", mpn="2N7002")
     b.add("Q8", "2N7002", SOT23, 27.5, 28.0, 0, pins={"1": "MCU_EN", "2": "PG_MID2", "3": "PG_MID1"}, lcsc="C8545", mpn="2N7002")
     b.add("Q6", "2N7002", SOT23, 31.0, 28.0, 0, pins={"1": "DOCKED_H", "2": "GND", "3": "PG_MID2"}, lcsc="C8545", mpn="2N7002")
+    # refill/draw: motion in the REVERSE direction is allowed undocked. DIR_REV = MOT_DIR (default) or its inverse (swap R96/R97 by BOM)
+    b.add("Q10", "2N7002", SOT23, 30.0, 24.0, 0, pins={"1": "DIR_REV", "2": "GND", "3": "PG_MID2"}, lcsc="C8545", mpn="2N7002",
+          note="parallel to Q6: pull-down path is closed if DOCKED OR DIR_REV")
+    b.add("Q11", "2N7002", SOT23, 33.0, 24.0, 0, pins={"1": "MOT_DIR", "2": "GND", "3": "DIR_INV"}, lcsc="C8545", mpn="2N7002", note="inverter for the optional inverted DIR_REV polarity")
+    R("R98", "100k", "3V3", "DIR_INV", 33.0, 26.0)
+    R("R99", "100k", "DIR_REV", "GND", 28.0, 24.0)
+    R("R100", "100k", "MOT_DIR", "GND", 26.0, 24.0)
+    b.add("R96", "0R", R0603, 35.0, 24.0, 0, pins={"1": "MOT_DIR", "2": "DIR_REV"}, lcsc="C21189", mpn="0603WAF0000T5E", note="DIR_REV = DIR (fitted by default: DIR high = reverse/retract, ASSUMPTION, verify on the motor)")
+    b.add("R97", "0R", R0603, 37.0, 24.0, 0, pins={"1": "DIR_INV", "2": "DIR_REV"}, bom=False, note="DNP: fit instead of R96 if DIR low retracts the plunger")
     b.add("Q7", "2N7002", SOT23, 31.0, 33.0, 0, pins={"1": "DOCK_N", "2": "GND", "3": "DOCKED_H"}, lcsc="C8545", mpn="2N7002")
     R("R40", "100k", "3V3", "DOCKED_H", 34.2, 33.0)
     R("R41", "100k", "3V3", "DOCK_N", 34.2, 31.2)
@@ -200,7 +209,7 @@ def build():
     # ------------------------------------------------------------------ test points
     tps = [("TP1", "GND", 2.0, 22.0), ("TP2", "3V3", 17.0, 24.0), ("TP3", "VBUS", 17.5, 50.0), ("TP4", "VMOT", 3.0, 44.0),
            ("TP5", "PGATE", 12.0, 49.5), ("TP6", "MOT_ALLOW", 23.0, 25.0), ("TP7", "MCU_EN", 27.0, 25.0), ("TP8", "DOCKED_H", 34.5, 26.0),
-           ("TP9", "DOCK_N", 30.0, 25.0), ("TP10", "LATCH_CLR_N", 35.5, 41.5), ("TP11", "ARM_CLK", 25.0, 43.5), ("TP12", "WDT_WAKE", 19.0, 37.5),
+           ("TP9", "DOCK_N", 30.0, 25.0), ("TP41", "DIR_REV", 24.0, 26.0), ("TP10", "LATCH_CLR_N", 35.5, 41.5), ("TP11", "ARM_CLK", 25.0, 43.5), ("TP12", "WDT_WAKE", 19.0, 37.5),
            ("TP13", "WDT_DONE", 16.0, 36.0), ("TP14", "NRST", 33.5, 23.5), ("TP15", "MOT_A1", 3.0, 28.0), ("TP16", "MOT_A2", 3.0, 31.0),
            ("TP17", "MOT_B1", 14.0, 24.0), ("TP18", "MOT_B2", 3.0, 34.0), ("TP19", "MOT_STCK", 2.0, 15.0), ("TP20", "MOT_DIR", 2.0, 18.0),
            ("TP21", "MOT_STBY", 2.0, 25.0), ("TP22", "I_SENSE", 23.5, 43.0), ("TP23", "HALL_A", 41.5, 36.0), ("TP24", "HALL_B", 41.5, 38.5),

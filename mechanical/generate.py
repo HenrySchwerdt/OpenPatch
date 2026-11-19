@@ -121,7 +121,9 @@ def generate_size(p: dict, variant: str, outdir: Path, snapshots: bool) -> dict:
     MFG_PARTS, PART_NAMES, _ = part_sets(L["mode"])
     tag = variant
     from op_build import NFP_PARTS
-    asm = [b for b in PART_NAMES if b != "pcb_keepout" and (L["nfp"] or b not in NFP_PARTS)]
+    created = {c["params"].get("body_name") for c in s.dumps() if c["params"].get("body_name")}
+    asm = [b for b in PART_NAMES if b != "pcb_keepout" and b in created]
+    MFG_PARTS = {k: [b for b in v if b in created] for k, v in MFG_PARTS.items() if any(b in created for b in v)}
     s.export_step(str(outdir / f"{tag}_assembly.step"), asm)
     for part, bodies in MFG_PARTS.items():
         s.export_step(str(outdir / f"{tag}_{part}.step"), bodies)
@@ -148,11 +150,11 @@ def generate_size(p: dict, variant: str, outdir: Path, snapshots: bool) -> dict:
     for f in ("mould_lower.step", "mould_upper.step", "mould_lower.stl", "mould_upper.stl"):
         shutil.copy(outdir / f, outdir / f"{tag}_{f}")
     if snapshots:
-        shots(sc, outdir, tag, L)
+        shots(sc, outdir, tag, L, created)
     return L
 
 
-def shots(sc: Path, outdir: Path, tag: str, L: dict) -> None:
+def shots(sc: Path, outdir: Path, tag: str, L: dict, created: set | None = None) -> None:
     bench = L["mode"] == "bench"
     COLORS = BENCH_COLORS if bench else globals()["COLORS"]
     EXPLODE = BENCH_EXPLODE if bench else globals()["EXPLODE"]
@@ -161,7 +163,8 @@ def shots(sc: Path, outdir: Path, tag: str, L: dict) -> None:
     ex = Script()
     ex.add("parameters.add", name="p_dummy_explode", expression="0", comment="exploded-view helper")
     for b, t in EXPLODE.items():
-        ex.move([b], t)
+        if created is None or b in created:
+            ex.move([b], t)
     exj = outdir / f"{tag}.explode.json"
     exj.write_text(json.dumps(ex.dumps()), encoding="utf-8")
     run_cli("snapshot", str(exj), "--in", str(sc), "--out", str(outdir / f"{tag}_exploded.png"), "--view", "iso",
@@ -218,7 +221,7 @@ def main() -> None:
     p = apply_overrides(load_params(Path(args.params) if args.params else None), args.set, args.coil_d, args.preset)
     p["mode"] = args.variant
     if args.variant == "bench":
-        p["shell"]["width"] = p["bench"]["width"]          # narrower pod (no motor lane)
+        p["shell"]["width"] = p["bench"]["width_by_layout"][p["bench"]["drive_layout"]]
     if args.coupon:
         generate_coupon(p)
         return

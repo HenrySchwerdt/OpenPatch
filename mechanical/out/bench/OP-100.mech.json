@@ -39,112 +39,89 @@
   ],
   "pins_as_supplied_tip_z": -0.5
  },
- "coax": {
-  "x_rb0": 2.8,
-  "x_m0": 3.5,
-  "x_m1": 11.5,
-  "x_g1": 19.6,
-  "x_fb0": 19.6,
-  "x_fb1": 20.400000000000002,
-  "x_tip": 25.700000000000003,
-  "c0": 22.700000000000003,
-  "c1": 28.300000000000004,
-  "screw_x0": 25.900000000000002,
-  "x_carriage_min": 28.600000000000005,
-  "pin_x": 8.600000000000001,
-  "pin_z": [
-   6.0,
-   4.8,
-   3.6,
-   2.4000000000000004
-  ],
-  "block_x": [
-   6.900000000000001,
-   10.3
-  ],
-  "block_z": [
-   1.9000000000000004,
-   6.5
-  ],
-  "block_y": [
-   18.950000000000003,
-   19.6
-  ],
-  "pin_tip_y": 17.900000000000002,
-  "length_motor_chain": 22.900000000000002
+ "coax": null,
+ "gears": {
+  "z_motor": 18,
+  "z_screw": 18,
+  "module": 0.3,
+  "centre": 5.3999999999999995,
+  "root_motor": 4.6499999999999995,
+  "root_screw": 4.6499999999999995,
+  "ratio_motor_to_screw": 1.0
  },
+ "drive_layout": "side_gears",
  "mode": "bench",
  "nfp": true,
  "mx0": 4.1000000000000005,
  "dock": {
-  "x_h0": 54.1,
-  "x_h1": 54.800000000000004,
-  "x_tip": 58.300000000000004,
-  "x_face": 56.400000000000006,
-  "x_f": 55.400000000000006,
-  "x_d": 60.400000000000006,
+  "x_h0": 29.8,
+  "x_h1": 30.5,
+  "x_tip": 34.0,
+  "x_face": 32.1,
+  "x_f": 31.1,
+  "x_d": 36.1,
   "y_c": 11.5,
   "z_n": 3.0,
   "R": 5.0,
   "notch_half": 3.1418745424597088,
   "hook_in": 3.2918745424597087,
   "travel": 1.808125457540291,
-  "x_hook": 63.60000000000001,
-  "flex_len": 9.100000000000009,
-  "arm_strain": 0.026201552337258124,
-  "arm_tip_force_N": 1.9057070447201354,
+  "x_hook": 39.300000000000004,
+  "flex_len": 9.100000000000005,
+  "arm_strain": 0.026201552337258148,
+  "arm_tip_force_N": 1.9057070447201374,
   "arm_t": 0.8,
   "arm_h": 3.6500000000000004,
   "arm_x": [
-   54.5,
-   64.5
+   30.2,
+   40.2
   ],
-  "shroud_end": 56.2,
+  "shroud_end": 31.900000000000002,
   "mouth_half": 5.8,
   "floor_half": 6.1,
   "arm_in": 5.2,
-  "x_arm0": 54.5,
+  "x_arm0": 30.2,
   "strain_ok": true
  },
  "variant": "OP-100",
  "stroke": 13.4,
- "length": 69.20000000000002,
- "width": 27.0,
+ "length": 44.9,
+ "width": 32.0,
  "height": 8.5,
  "wall": 0.9,
  "xi0": 0.9,
  "yi0": 0.9,
- "yi1": 26.1,
- "x_end": 68.30000000000001,
+ "yi1": 31.1,
+ "x_end": 44.0,
  "res_len": 21.7,
  "res_h_out": 6.6,
  "res_w_out": 17.6,
  "z_axis": 4.2,
- "x_r0": 27.600000000000005,
- "x_r1": 49.300000000000004,
- "x_in0": 28.400000000000006,
- "x_in1": 46.800000000000004,
+ "x_r0": 3.3000000000000003,
+ "x_r1": 25.0,
+ "x_in0": 4.1000000000000005,
+ "x_in1": 22.5,
  "y_r0": 2.7,
  "y_r": 11.5,
  "y_s": 22.6,
  "y_m": 28.0,
  "lin": 18.4,
- "xrear": 28.600000000000005,
- "xrear_full": 28.600000000000005,
- "xrear_empty": 42.00000000000001,
- "tower_x": 19.000000000000007,
- "x_p": 60.400000000000006,
+ "xrear": 4.300000000000001,
+ "xrear_full": 4.300000000000001,
+ "xrear_empty": 17.700000000000003,
+ "tower_x": 19.0,
+ "x_p": 36.1,
  "y_p": 11.5,
- "x_n": 54.800000000000004,
+ "x_n": 30.5,
  "y_n": 11.5,
  "z_tip": 3.0,
  "pocket_h": 5.0,
- "x_s": 46.2,
+ "x_s": 21.9,
  "z_top_inner": 7.6,
- "coil_cx": 58.2,
+ "coil_cx": 33.900000000000006,
  "coil_cy": 9.9,
- "bat_x": 14.400000000000006,
- "bat_x0": 53.7,
+ "bat_x": 14.399999999999995,
+ "bat_x0": 29.400000000000002,
  "bat_y0": 15.8,
  "bat_y1": 27.0,
  "contacts": {
@@ -152,7 +129,7 @@
   "pcb_bottom_z": 4.9,
   "battery_tabs": [
    {
-    "x": 54.5,
+    "x": 30.200000000000003,
     "y": 23.1,
     "z_pad_top": 4.35,
     "pad": [
@@ -161,7 +138,7 @@
     ]
    },
    {
-    "x": 54.5,
+    "x": 30.200000000000003,
     "y": 25.0,
     "z_pad_top": 4.35,
     "pad": [
@@ -209,7 +186,7 @@
   },
   "hold_down_pads": [
    {
-    "x": 54.5,
+    "x": 30.200000000000003,
     "y": 24.05,
     "d": 1.2,
     "z0": 5.55,
@@ -225,7 +202,7 @@
   ],
   "note": "Federkontakte (<=1.2 mm) auf PCB-Unterseite; Deckelpads (z 5.55..7.6) halten die Platine nieder (Vorspannung)."
  },
- "bat_vol_mm3": 516.0960000000002,
+ "bat_vol_mm3": 516.0959999999999,
  "gear_x1": 3.2,
  "gh_x": [
   4.1000000000000005,
@@ -237,24 +214,24 @@
  ],
  "mot_end": 20.9,
  "far_bush": [
-  48.1,
-  49.1
+  23.8,
+  24.8
  ],
  "far_block": [
-  48.00000000000001,
-  49.2
+  23.7,
+  24.9
  ],
  "dry_bush": [
   0.9,
   1.9
  ],
- "screw_tip": 49.45,
+ "screw_tip": 25.15,
  "mag_x": [
-  49.45,
-  50.45
+  25.15,
+  26.15
  ],
  "hall": {
-  "x": 52.15,
+  "x": 27.849999999999998,
   "y": 22.6,
   "z_top": 4.9,
   "side": "bottom",
@@ -266,13 +243,13 @@
  },
  "drv5032": [
   {
-   "x": 52.15,
+   "x": 27.849999999999998,
    "y": 21.0,
    "z_top": 4.9,
    "side": "bottom"
   },
   {
-   "x": 52.15,
+   "x": 27.849999999999998,
    "y": 24.200000000000003,
    "z_top": 4.9,
    "side": "bottom"
@@ -289,30 +266,22 @@
   },
   {
    "x": 2.0,
-   "y": 14.5
+   "y": 19.0
   },
   {
-   "x": 52.300000000000004,
+   "x": 28.0,
    "y": 18.8
-  },
-  {
-   "x": 14.0,
-   "y": 4.2
-  },
-  {
-   "x": 14.0,
-   "y": 16.5
   }
  ],
- "c_x": 52.300000000000004,
+ "c_x": 28.0,
  "pcb": {
   "x": [
-   49.400000000000006,
-   67.70000000000002
+   25.1,
+   43.4
   ],
   "y": [
    1.5,
-   25.5
+   30.5
   ],
   "z": [
    4.9,
@@ -320,26 +289,26 @@
   ],
   "cutouts": {
    "magnet": [
-    49.300000000000004,
-    51.15,
+    25.0,
+    26.849999999999998,
     21.200000000000003,
     24.0
    ],
    "tower_notch": [
-    49.300000000000004,
-    52.65,
+    25.0,
+    28.349999999999998,
     1.4,
     4.6000000000000005
    ],
    "screw_c": [
-    50.900000000000006,
-    53.7,
+    26.6,
+    29.4,
     17.400000000000002,
     20.2
    ],
    "dock_channel": [
-    49.300000000000004,
-    68.4,
+    25.0,
+    44.1,
     5.6,
     17.4
    ]
@@ -347,12 +316,12 @@
  },
  "rf_module": {
   "x": [
-   58.90000000000002,
-   66.90000000000002
+   34.6,
+   42.6
   ],
   "y": [
-   16.7,
-   24.7
+   21.7,
+   29.7
   ],
   "z": [
    5.5,
@@ -360,29 +329,29 @@
   ],
   "antenna_end": "+Y",
   "keepout_xy": [
-   58.40000000000002,
-   67.00000000000001,
+   34.1,
+   42.7,
    26.400000000000002,
-   26.1
+   31.1
   ],
   "keepout_r": 4.5
  },
  "buzzer": {
-  "x0": 56.0,
-  "x1": 63.40000000000002,
+  "x0": 31.700000000000006,
+  "x1": 39.1,
   "y0": 18.9,
-  "y1": 16.5,
+  "y1": 21.5,
   "fits_9x9": false,
   "z0": 5.5,
   "z1": 7.5
  },
  "button": {
-  "x": 65.70000000000002,
-  "y": 17.7
+  "x": 41.4,
+  "y": 20.2
  },
  "topside_height_under_coil": 1.4000000000000004,
  "coil": {
-  "cx": 58.2,
+  "cx": 33.900000000000006,
   "cy": 9.9,
   "d": 17.6,
   "z": [
@@ -392,16 +361,17 @@
  },
  "drive": {
   "gh_ratio_nominal": 26.45,
-  "u_per_step": 0.004938040440402206
+  "u_per_step": 0.004938040440402206,
+  "gear_ratio_motor_to_screw": 1.0
  },
  "bench": {
-  "xr": 49.300000000000004,
-  "X0": 51.00000000000001,
+  "xr": 25.0,
+  "X0": 26.7,
   "V0": 4.6,
   "ztop": 6.1,
   "z0": 5.3,
   "t": 0.8,
-  "u_right": 18.400000000000013,
+  "u_right": 18.4,
   "outline": [
    [
     0.0,
@@ -496,7 +466,7 @@
     20.1
    ]
   ],
-  "width": 16.700000000000014,
+  "width": 16.7,
   "height": 20.9,
   "sensors": [
    {
@@ -508,7 +478,7 @@
      18.0
     ],
     "center_pod_mm": [
-     52.8,
+     28.5,
      22.6
     ],
     "body_xyz_mm": [
@@ -539,7 +509,7 @@
      16.5
     ],
     "center_pod_mm": [
-     51.9,
+     27.6,
      21.1
     ],
     "body_xyz_mm": [
@@ -574,7 +544,7 @@
      19.2
     ],
     "center_pod_mm": [
-     51.9,
+     27.6,
      23.8
     ],
     "body_xyz_mm": [
@@ -609,7 +579,7 @@
      6.9
     ],
     "center_pod_mm": [
-     66.0,
+     41.7,
      11.5
     ],
     "body_xyz_mm": [
@@ -640,7 +610,7 @@
   "magnets": {
    "spindle": {
     "center_pod_mm": [
-     49.95,
+     25.65,
      22.6,
      4.2
     ],
@@ -648,7 +618,7 @@
     "t_mm": 1.0,
     "axis": "X",
     "magnetisation": "diametric (rotates with the spindle)",
-    "end_face_x_pod": 50.45,
+    "end_face_x_pod": 26.15,
     "spindle_axis_yz_pod": [
      22.6,
      4.2
@@ -656,7 +626,7 @@
    },
    "dock": {
     "center_pod_mm": [
-     66.0,
+     41.7,
      11.5,
      3.8
     ],
@@ -670,54 +640,48 @@
    "assumed_Br_T": 1.3
   },
   "contacts": {
-   "bench_variant": "NO motor contacts on the pod sensor board: the NFP motor keeps its factory lead (4 x 30 AWG soldered to the 4 pins, JST 1.25 plug). The lead runs along -X to a slot in the dry end wall and plugs into the bench controller board (not into this board).",
+   "bench_variant": "SIDE-BY-SIDE layout (bench.drive_layout = side_gears): NFP motor beside the leadscrew lane, gear pair GHW module 0.3 z18 (motor) : z18 (screw), centre 5.40 mm. The motor keeps its factory lead (4 x 30 AWG, JST 1.25); it leaves through a floor channel and a slot in the +X end wall, plugs into the bench controller board (not into this board).",
+   "gear_pair": {
+    "z_motor": 18,
+    "z_screw": 18,
+    "ratio_motor_to_screw": 1.0,
+    "centre_mm": 5.3999999999999995,
+    "u_per_step": 0.004938040440402206,
+    "formula": "0.35 / (20 x 26.45 x ratio) x 74.63 / 10, ratio = z_screw / z_motor"
+   },
+   "motor_axis_pod": {
+    "y": 28.0,
+    "z": 4.2,
+    "leadscrew_y": 22.6
+   },
    "motor_pins_pod": {
-    "x_pod": 8.6,
-    "z_pod_B_Aminus_Bplus_A": [
-     6.0,
-     4.8,
-     3.6,
-     2.4
+    "x_pod": 15.1,
+    "y_pod_centres": [
+     29.8,
+     28.6,
+     27.4,
+     26.2
     ],
-    "y_tip_pod": 17.9,
-    "direction": "-Y",
-    "pitch_mm": 1.2,
-    "note": "pins point -Y (into the empty area beside the motor), row along Z; y_s = 22.60"
+    "direction": "-Z (down, bent/trimmed, see parts.md)",
+    "pitch_mm": 1.2
    },
-   "lead_exit_slot": {
-    "wall": "dry end wall (x = 0)",
-    "x_pod": [
-     -0.1,
-     1.0
+   "lead_channel": {
+    "width_mm": 2.2,
+    "centre_y_pod": 26.8,
+    "floor_z_pod": 0.4,
+    "slot_x_pod": [
+     43.9,
+     45.0
     ],
-    "y_pod": [
-     16.4,
-     19.4
+    "slot_y_pod": [
+     25.7,
+     27.9
     ],
-    "z_pod": [
-     2.4,
-     4.8
-    ],
-    "strain_relief": "2 staggered posts d0.8 at (x-1.2, y+0.45) and (x-2.4, y-0.45) from the pin tips: the wires weave between them"
-   },
-   "motor_chain_pod_x": {
-    "rear_boss": 2.8,
-    "motor": [
-     3.5,
-     11.5
-    ],
-    "gearbox": [
-     11.5,
-     19.6
-    ],
-    "shaft_tip": 25.7,
-    "coupler": [
-     22.7,
-     28.3
+    "slot_z_pod": [
+     0.4,
+     1.7
     ]
-   },
-   "u_per_step": 0.004938040440402206,
-   "note": "TMAG5273 is MANDATORY (angle per revolution = 1 leadscrew turn = 0.35 mm = 2.61 U / 26.45... see REFILL.md); DRV pair optional."
+   }
   },
   "ffc": {
    "part": "Hirose FH12-10S-0.5SH(55) (LCSC C506791, 10 pos, 0.5 mm pitch, ~1.0 mm high, ZIF flip-lock)",
@@ -731,7 +695,7 @@
     13.9
    ],
    "center_pod_mm": [
-    65.1,
+    40.8,
     18.5
    ],
    "body_mm": {
@@ -756,8 +720,8 @@
    "exit_slot": {
     "wall": "+X end wall (lid part)",
     "x_pod": [
-     68.2,
-     69.3
+     43.9,
+     45.0
     ],
     "y_pod": [
      14.5,
@@ -770,7 +734,7 @@
     "centre_y_pod": 18.5,
     "sealed": false
    },
-   "inner_wall_x_pod": 68.3
+   "inner_wall_x_pod": 44.0
   },
   "mount": {
    "locating_pins": [
@@ -781,7 +745,7 @@
       13.4
      ],
      "center_pod_mm": [
-      59.9,
+      35.6,
       18.0
      ],
      "pin_d_mm": 1.0,
@@ -796,7 +760,7 @@
       17.4
      ],
      "center_pod_mm": [
-      66.5,
+      42.2,
       22.0
      ],
      "pin_d_mm": 1.0,
@@ -812,7 +776,7 @@
      14.8
     ],
     "center_pod_mm": [
-     59.9,
+     35.6,
      19.4
     ],
     "board_hole_d_mm": 1.4,
@@ -828,7 +792,7 @@
       17.8
      ],
      "center_pod_mm": [
-      56.3,
+      32.0,
       22.4
      ],
      "d_mm": 1.6,
@@ -842,7 +806,7 @@
       11.4
      ],
      "center_pod_mm": [
-      66.5,
+      42.2,
       16.0
      ],
      "d_mm": 1.6,
@@ -858,7 +822,7 @@
       17.8
      ],
      "center_pod_mm": [
-      55.8,
+      31.5,
       22.4
      ],
      "d_mm": 1.2,
@@ -871,7 +835,7 @@
       18.2
      ],
      "center_pod_mm": [
-      62.2,
+      37.9,
       22.8
      ],
      "d_mm": 1.2,
@@ -884,7 +848,7 @@
       8.7
      ],
      "center_pod_mm": [
-      65.5,
+      41.2,
       13.3
      ],
      "d_mm": 1.2,
@@ -1005,7 +969,7 @@
     "layers": "top: no components"
    }
   ],
-  "x_dock": 66.0,
+  "x_dock": 41.7,
   "motor_clearance_mm": {
    "board_vs_motor_axis_edge": 0.3,
    "note": "wing top edge to motor body (\u00d86, y_m-3), at x < motor end + 0.3"
@@ -1013,13 +977,13 @@
  },
  "envelope": {
   "bbox_mm": [
-   69.2,
-   27.0,
+   44.9,
+   32.0,
    8.5
   ],
-  "bbox_volume_ml": 15.88,
-  "footprint_mm2": 1854.7,
-  "outer_solid_volume_ml_approx": 15.76,
+  "bbox_volume_ml": 12.21,
+  "footprint_mm2": 1423.1,
+  "outer_solid_volume_ml_approx": 12.1,
   "note": "outer_solid_volume ignores the 1.0 mm top edge fillet (conservative, <2 % high)"
  }
 }

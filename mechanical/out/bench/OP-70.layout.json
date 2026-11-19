@@ -14,7 +14,7 @@
  },
  "transform": {
   "board_origin_in_pod_mm": [
-   47.0,
+   22.7,
    4.6
   ],
   "rotation_deg": 0,
@@ -129,7 +129,7 @@
   ],
   "edge_clearance_to_housing_mm": {
    "x_end_wall": 0.6,
-   "y_top_wall": -4.4
+   "y_top_wall": 0.6
   }
  },
  "stack_z_pod": {
@@ -262,7 +262,7 @@
     18.0
    ],
    "center_pod_mm": [
-    48.8,
+    24.5,
     22.6
    ],
    "body_xyz_mm": [
@@ -293,7 +293,7 @@
     16.5
    ],
    "center_pod_mm": [
-    47.9,
+    23.6,
     21.1
    ],
    "body_xyz_mm": [
@@ -328,7 +328,7 @@
     19.2
    ],
    "center_pod_mm": [
-    47.9,
+    23.6,
     23.8
    ],
    "body_xyz_mm": [
@@ -363,7 +363,7 @@
     6.9
    ],
    "center_pod_mm": [
-    62.0,
+    37.7,
     11.5
    ],
    "body_xyz_mm": [
@@ -394,7 +394,7 @@
  "magnets": {
   "spindle": {
    "center_pod_mm": [
-    45.95,
+    21.65,
     22.6,
     4.2
    ],
@@ -402,7 +402,7 @@
    "t_mm": 1.0,
    "axis": "X",
    "magnetisation": "diametric (rotates with the spindle)",
-   "end_face_x_pod": 46.45,
+   "end_face_x_pod": 22.15,
    "spindle_axis_yz_pod": [
     22.6,
     4.2
@@ -410,7 +410,7 @@
   },
   "dock": {
    "center_pod_mm": [
-    62.0,
+    37.7,
     11.5,
     3.8
    ],
@@ -424,54 +424,48 @@
   "assumed_Br_T": 1.3
  },
  "motor": {
-  "bench_variant": "NO motor contacts on the pod sensor board: the NFP motor keeps its factory lead (4 x 30 AWG soldered to the 4 pins, JST 1.25 plug). The lead runs along -X to a slot in the dry end wall and plugs into the bench controller board (not into this board).",
+  "bench_variant": "SIDE-BY-SIDE layout (bench.drive_layout = side_gears): NFP motor beside the leadscrew lane, gear pair GHW module 0.3 z18 (motor) : z18 (screw), centre 5.40 mm. The motor keeps its factory lead (4 x 30 AWG, JST 1.25); it leaves through a floor channel and a slot in the +X end wall, plugs into the bench controller board (not into this board).",
+  "gear_pair": {
+   "z_motor": 18,
+   "z_screw": 18,
+   "ratio_motor_to_screw": 1.0,
+   "centre_mm": 5.3999999999999995,
+   "u_per_step": 0.004938040440402206,
+   "formula": "0.35 / (20 x 26.45 x ratio) x 74.63 / 10, ratio = z_screw / z_motor"
+  },
+  "motor_axis_pod": {
+   "y": 28.0,
+   "z": 4.2,
+   "leadscrew_y": 22.6
+  },
   "motor_pins_pod": {
-   "x_pod": 8.6,
-   "z_pod_B_Aminus_Bplus_A": [
-    6.0,
-    4.8,
-    3.6,
-    2.4
+   "x_pod": 15.1,
+   "y_pod_centres": [
+    29.8,
+    28.6,
+    27.4,
+    26.2
    ],
-   "y_tip_pod": 17.9,
-   "direction": "-Y",
-   "pitch_mm": 1.2,
-   "note": "pins point -Y (into the empty area beside the motor), row along Z; y_s = 22.60"
+   "direction": "-Z (down, bent/trimmed, see parts.md)",
+   "pitch_mm": 1.2
   },
-  "lead_exit_slot": {
-   "wall": "dry end wall (x = 0)",
-   "x_pod": [
-    -0.1,
-    1.0
+  "lead_channel": {
+   "width_mm": 2.2,
+   "centre_y_pod": 26.8,
+   "floor_z_pod": 0.4,
+   "slot_x_pod": [
+    39.9,
+    41.0
    ],
-   "y_pod": [
-    16.4,
-    19.4
+   "slot_y_pod": [
+    25.7,
+    27.9
    ],
-   "z_pod": [
-    2.4,
-    4.8
-   ],
-   "strain_relief": "2 staggered posts d0.8 at (x-1.2, y+0.45) and (x-2.4, y-0.45) from the pin tips: the wires weave between them"
-  },
-  "motor_chain_pod_x": {
-   "rear_boss": 2.8,
-   "motor": [
-    3.5,
-    11.5
-   ],
-   "gearbox": [
-    11.5,
-    19.6
-   ],
-   "shaft_tip": 25.7,
-   "coupler": [
-    22.7,
-    28.3
+   "slot_z_pod": [
+    0.4,
+    1.7
    ]
-  },
-  "u_per_step": 0.004938040440402206,
-  "note": "TMAG5273 is MANDATORY (angle per revolution = 1 leadscrew turn = 0.35 mm = 2.61 U / 26.45... see REFILL.md); DRV pair optional."
+  }
  },
  "ffc_connector": {
   "part": "Hirose FH12-10S-0.5SH(55) (LCSC C506791, 10 pos, 0.5 mm pitch, ~1.0 mm high, ZIF flip-lock)",
@@ -485,7 +479,7 @@
    13.9
   ],
   "center_pod_mm": [
-   61.1,
+   36.8,
    18.5
   ],
   "body_mm": {
@@ -510,8 +504,8 @@
   "exit_slot": {
    "wall": "+X end wall (lid part)",
    "x_pod": [
-    64.2,
-    65.3
+    39.9,
+    41.0
    ],
    "y_pod": [
     14.5,
@@ -524,7 +518,7 @@
    "centre_y_pod": 18.5,
    "sealed": false
   },
-  "inner_wall_x_pod": 64.3
+  "inner_wall_x_pod": 40.0
  },
  "mounting": {
   "locating_pins": [
@@ -535,7 +529,7 @@
      13.4
     ],
     "center_pod_mm": [
-     55.9,
+     31.6,
      18.0
     ],
     "pin_d_mm": 1.0,
@@ -550,7 +544,7 @@
      17.4
     ],
     "center_pod_mm": [
-     62.5,
+     38.2,
      22.0
     ],
     "pin_d_mm": 1.0,
@@ -566,7 +560,7 @@
     14.8
    ],
    "center_pod_mm": [
-    55.9,
+    31.6,
     19.4
    ],
    "board_hole_d_mm": 1.4,
@@ -582,7 +576,7 @@
      17.8
     ],
     "center_pod_mm": [
-     52.3,
+     28.0,
      22.4
     ],
     "d_mm": 1.6,
@@ -596,7 +590,7 @@
      11.4
     ],
     "center_pod_mm": [
-     62.5,
+     38.2,
      16.0
     ],
     "d_mm": 1.6,
@@ -612,7 +606,7 @@
      17.8
     ],
     "center_pod_mm": [
-     51.8,
+     27.5,
      22.4
     ],
     "d_mm": 1.2,
@@ -625,7 +619,7 @@
      18.2
     ],
     "center_pod_mm": [
-     58.2,
+     33.9,
      22.8
     ],
     "d_mm": 1.2,
@@ -638,7 +632,7 @@
      8.7
     ],
     "center_pod_mm": [
-     61.5,
+     37.2,
      13.3
     ],
     "d_mm": 1.2,
@@ -656,14 +650,14 @@
   "magnet": "\u00d82 x 1 mm axial NdFeB in the rear latch lug, top face z=4.30"
  },
  "dock": {
-  "note": "slide-on dock: horizontal needle axis y=11.50 z=3.00, dome centre x=56.40 when latched; all cannula.* values TODO-MEASURE",
+  "note": "slide-on dock: horizontal needle axis y=11.50 z=3.00, dome centre x=32.10 when latched; all cannula.* values TODO-MEASURE",
   "arm_strain_pct": 2.62
  },
  "references": {
   "pod_layout_full": "OP-70.mech.json",
   "motor_end_x_pod": 20.9,
-  "x_r1": 45.3,
-  "x_dome_centre": 56.4,
+  "x_r1": 21.0,
+  "x_dome_centre": 32.1,
   "spindle_axis_pod_yz": [
    22.6,
    4.2

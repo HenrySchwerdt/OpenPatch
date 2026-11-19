@@ -474,6 +474,46 @@
    "OP-70": 65.5,
    "OP-100": 69.5,
    "OP-200": 83.0
+  },
+  "drive_layout": "side_gears",
+  "width_by_layout": {
+   "side_gears": 32.0,
+   "coaxial": 27.0
+  },
+  "gears": {
+   "_comment": "GHW-Modellbau module 0.3 brass gears (gear-selection.md). z_motor on the NFP D-shaft (bore 2.0, Loctite 638), z_screw on the M1.6 leadscrew. centre = 0.15*(zm+zs) must be >= 5.3 mm here (motor body clear of the carriage lane): 18:18 only.",
+   "z_motor": 18,
+   "z_screw": 18,
+   "module": 0.3,
+   "min_centre": 5.3
+  },
+  "lead": {
+   "pocket_floor": 0.35,
+   "pocket_margin": 0.3,
+   "groove_w": 2.2,
+   "groove_floor": 0.4,
+   "groove_top": 0.95,
+   "groove_y": 26.8,
+   "slot_w": 2.2,
+   "slot_z_top": 1.7,
+   "posts": 3,
+   "post_d": 0.8,
+   "post_dy": 0.65,
+   "post_pitch": 2.0,
+   "post_x0": 1.0,
+   "post_h": 0.9
+  },
+  "length_targets_by_layout": {
+   "side_gears": {
+    "OP-70": 41.5,
+    "OP-100": 45.5,
+    "OP-200": 59.0
+   },
+   "coaxial": {
+    "OP-70": 65.5,
+    "OP-100": 69.5,
+    "OP-200": 83.0
+   }
   }
  },
  "dock": {

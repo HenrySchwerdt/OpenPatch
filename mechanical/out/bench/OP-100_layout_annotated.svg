@@ -1,87 +1,86 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1227" height="752" viewBox="0 0 1227 752" font-family="Helvetica,Arial,sans-serif">
+<svg xmlns="http://www.w3.org/2000/svg" width="838" height="832" viewBox="0 0 838 832" font-family="Helvetica,Arial,sans-serif">
 <rect width="100%" height="100%" fill="#ffffff"/>
-<text x="60" y="26" font-size="18" font-weight="bold">OpenPatch bench pod OP-100: top view (X right, Y up), 69.2 x 27.0 x 8.5 mm</text>
+<text x="60" y="26" font-size="18" font-weight="bold">OpenPatch bench pod OP-100: top view (X right, Y up), 44.9 x 32.0 x 8.5 mm</text>
 <text x="60" y="46" font-size="12" fill="#555">schematic to scale; bench only (water/insulin into containers, never a person); green = pod sensor board (z 5.3..6.1, above the drive)</text>
-<rect x="60.0" y="60.0" width="1107.2" height="432.0" rx="64.0" fill="#f4f6f8" fill-opacity="1.0" stroke="#222" stroke-width="1"/>
-<rect x="74.4" y="74.4" width="1078.4" height="403.2" rx="49.6" fill="#ffffff" fill-opacity="1.0" stroke="#999" stroke-width="1"/>
-<rect x="501.6" y="167.2" width="347.2" height="281.6" rx="52.8" fill="#bfe8f2" fill-opacity="0.8" stroke="#2a7f96" stroke-width="1"/>
-<rect x="517.6" y="183.2" width="60.8" height="249.6" rx="0.0" fill="#e0803a" fill-opacity="0.8" stroke="#a04a10" stroke-width="1"/>
-<rect x="517.6" y="95.2" width="64.0" height="70.4" rx="0.0" fill="#f0c040" fill-opacity="1.0" stroke="#a08000" stroke-width="1"/>
-<rect x="116.0" y="82.4" width="128.0" height="96.0" rx="0.0" fill="#8a8f98" fill-opacity="1.0" stroke="#444" stroke-width="1"/>
-<rect x="244.0" y="82.4" width="129.6" height="96.0" rx="0.0" fill="#b9bec6" fill-opacity="1.0" stroke="#444" stroke-width="1"/>
-<rect x="104.8" y="109.6" width="11.2" height="41.6" rx="0.0" fill="#666" fill-opacity="1.0" stroke="#333" stroke-width="1"/>
-<rect x="373.6" y="102.4" width="12.8" height="56.0" rx="0.0" fill="#999" fill-opacity="1.0" stroke="#444" stroke-width="1"/>
-<line x1="386.4" y1="130.4" x2="471.2" y2="130.4" stroke="#222" stroke-width="3"/>
-<rect x="423.2" y="106.4" width="89.6" height="48.0" rx="0.0" fill="#d4a017" fill-opacity="1.0" stroke="#7a5a00" stroke-width="1"/>
-<line x1="474.4" y1="130.4" x2="851.2" y2="130.4" stroke="#222" stroke-width="2"/>
-<rect x="170.4" y="178.4" width="54.4" height="10.4" rx="0.0" fill="#c06020" fill-opacity="1.0" stroke="#703000" stroke-width="1"/>
-<line x1="197.6" y1="188.8" x2="197.6" y2="205.6" stroke="#703000" stroke-width="2.5"/>
-<line x1="197.6" y1="205.6" x2="60.0" y2="210.4" stroke="#d02020" stroke-width="1.4" stroke-dasharray="4,3"/>
-<rect x="506.4" y="96.0" width="11.2" height="8.8" rx="0.0" fill="#555" fill-opacity="1.0" stroke="#222" stroke-width="1"/>
-<rect x="506.4" y="156.0" width="11.2" height="8.8" rx="0.0" fill="#555" fill-opacity="1.0" stroke="#222" stroke-width="1"/>
-<circle cx="859.2" cy="130.4" r="16.0" fill="#cc2222" fill-opacity="1.0" stroke="#880000" stroke-width="1"/>
-<rect x="848.8" y="260.0" width="70.4" height="216.0" rx="0.0" fill="#d8dde3" fill-opacity="1.0" stroke="#555" stroke-width="1"/>
-<rect x="919.2" y="212.0" width="12.8" height="192.0" rx="0.0" fill="#9fb3c8" fill-opacity="1.0" stroke="#445" stroke-width="1"/>
-<rect x="852.0" y="444.0" width="64.0" height="32.0" rx="0.0" fill="#f2c6a0" fill-opacity="1.0" stroke="#a05020" stroke-width="1"/>
-<rect x="858.4" y="284.0" width="54.4" height="48.0" rx="0.0" fill="#5ec8e8" fill-opacity="1.0" stroke="#1a6a85" stroke-width="1"/>
-<line x1="925.6" y1="308.0" x2="992.8" y2="308.0" stroke="#111" stroke-width="1.2"/>
-<rect x="919.2" y="210.4" width="248.0" height="195.2" rx="0.0" fill="#ffffff" fill-opacity="0.0" stroke="#aaa" stroke-width="1" stroke-dasharray="5,4"/>
-<rect x="932.0" y="391.2" width="160.0" height="12.8" rx="0.0" fill="#9fb3c8" fill-opacity="1.0" stroke="#445" stroke-width="1"/>
-<line x1="1077.6" y1="360.7" x2="1077.6" y2="391.2" stroke="#445" stroke-width="3"/>
-<rect x="932.0" y="212.0" width="160.0" height="12.8" rx="0.0" fill="#9fb3c8" fill-opacity="1.0" stroke="#445" stroke-width="1"/>
-<line x1="1077.6" y1="255.3" x2="1077.6" y2="224.8" stroke="#445" stroke-width="3"/>
-<circle cx="1026.4" cy="308.0" r="80.0" fill="#e8f6ff" fill-opacity="0.45" stroke="#2a6a9a" stroke-width="1" stroke-dasharray="6,3"/>
-<polygon points="876.0,168.8 992.8,168.8 992.8,260.0 1072.8,260.0 1072.8,418.4 1143.2,418.4 1143.2,260.0 1143.2,124.0 1142.9,118.8 1141.8,113.6 1140.2,108.7 1137.8,104.0 1134.9,99.6 1131.5,95.7 1127.6,92.3 1123.2,89.4 1118.5,87.0 1113.6,85.4 1108.4,84.3 1103.2,84.0 992.8,84.0 992.8,96.8 876.0,96.8" fill="#2e8b57" fill-opacity="0.35" stroke="#145a32" stroke-width="1"/>
-<rect x="881.6" y="108.0" width="46.4" height="44.8" rx="0.0" fill="#ffd400" fill-opacity="1.0" stroke="#333" stroke-width="1"/>
-<rect x="879.2" y="145.6" width="22.4" height="17.6" rx="0.0" fill="#ffd400" fill-opacity="1.0" stroke="#333" stroke-width="1"/>
-<rect x="879.2" y="102.4" width="22.4" height="17.6" rx="0.0" fill="#ffd400" fill-opacity="1.0" stroke="#333" stroke-width="1"/>
-<rect x="1107.2" y="296.8" width="17.6" height="22.4" rx="0.0" fill="#ff7f00" fill-opacity="1.0" stroke="#333" stroke-width="1"/>
-<rect x="1069.6" y="136.8" width="64.0" height="118.4" rx="0.0" fill="#222" fill-opacity="0.8" stroke="#000" stroke-width="1"/>
-<line x1="1133.6" y1="196.0" x2="1231.2" y2="196.0" stroke="#e8c36a" stroke-width="4"/>
-<rect x="525.6" y="114.4" width="262.4" height="32.0" rx="0.0" fill="#ffffff" fill-opacity="0.0" stroke="#c00" stroke-width="1" stroke-dasharray="3,2"/>
-<circle cx="180.0" cy="82.4" r="8" fill="#c00" fill-opacity="0.85"/>
-<text x="180.0" y="86.4" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">1</text>
-<text x="60.0" y="578" font-size="13" fill="#222"><tspan fill="#c00" font-weight="bold">1</tspan>  Stepper motor NFP-608 (rear 8.0 mm)</text>
-<circle cx="308.8" cy="82.4" r="8" fill="#c00" fill-opacity="0.85"/>
-<text x="308.8" y="86.4" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">2</text>
-<text x="613.6000000000001" y="578" font-size="13" fill="#222"><tspan fill="#c00" font-weight="bold">2</tspan>  Gearbox 26.45:1 (8.1 mm)</text>
-<circle cx="197.6" cy="205.6" r="8" fill="#c00" fill-opacity="0.85"/>
-<text x="197.6" y="209.6" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">3</text>
-<text x="60.0" y="598" font-size="13" fill="#222"><tspan fill="#c00" font-weight="bold">3</tspan>  4 motor pins -> factory lead (red) -> dry-end wall slot</text>
-<circle cx="468.0" cy="106.4" r="8" fill="#c00" fill-opacity="0.85"/>
-<text x="468.0" y="110.4" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">4</text>
-<text x="613.6000000000001" y="598" font-size="13" fill="#222"><tspan fill="#c00" font-weight="bold">4</tspan>  Sleeve coupler</text>
-<circle cx="613.6" cy="130.4" r="8" fill="#c00" fill-opacity="0.85"/>
-<text x="613.6" y="134.4" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">5</text>
-<text x="60.0" y="618" font-size="13" fill="#222"><tspan fill="#c00" font-weight="bold">5</tspan>  M1.6 leadscrew (thread side)</text>
-<circle cx="549.6" cy="95.2" r="8" fill="#c00" fill-opacity="0.85"/>
-<text x="549.6" y="99.2" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">6</text>
-<text x="613.6000000000001" y="618" font-size="13" fill="#222"><tspan fill="#c00" font-weight="bold">6</tspan>  Carriage + fixed nut (full position)</text>
-<circle cx="675.2" cy="308.0" r="8" fill="#c00" fill-opacity="0.85"/>
-<text x="675.2" y="312.0" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">7</text>
-<text x="60.0" y="638" font-size="13" fill="#222"><tspan fill="#c00" font-weight="bold">7</tspan>  Reservoir (stadium 16 x 5 inside)</text>
-<circle cx="885.6" cy="284.0" r="8" fill="#c00" fill-opacity="0.85"/>
-<text x="885.6" y="288.0" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">8</text>
-<text x="613.6000000000001" y="638" font-size="13" fill="#222"><tspan fill="#c00" font-weight="bold">8</tspan>  Duckbill check valve (in the end cap)</text>
-<circle cx="884.0" cy="460.0" r="8" fill="#c00" fill-opacity="0.85"/>
-<text x="884.0" y="464.0" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">9</text>
-<text x="60.0" y="658" font-size="13" fill="#222"><tspan fill="#c00" font-weight="bold">9</tspan>  Fill septum (end cap, needle through the -Y wall hole)</text>
-<circle cx="1026.4" cy="308.0" r="8" fill="#c00" fill-opacity="0.85"/>
-<text x="1026.4" y="312.0" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">10</text>
-<text x="613.6000000000001" y="658" font-size="13" fill="#222"><tspan fill="#c00" font-weight="bold">10</tspan>  Cannula dome (latched) + snap arms</text>
-<circle cx="904.8" cy="130.4" r="8" fill="#c00" fill-opacity="0.85"/>
-<text x="904.8" y="134.4" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">11</text>
-<text x="60.0" y="678" font-size="13" fill="#222"><tspan fill="#c00" font-weight="bold">11</tspan>  TMAG5273 (under board)</text>
-<circle cx="1116.0" cy="308.0" r="8" fill="#c00" fill-opacity="0.85"/>
-<text x="1116.0" y="312.0" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">12</text>
-<text x="613.6000000000001" y="678" font-size="13" fill="#222"><tspan fill="#c00" font-weight="bold">12</tspan>  Dock hall (above adapter magnet)</text>
-<circle cx="1149.6" cy="196.0" r="8" fill="#c00" fill-opacity="0.85"/>
-<text x="1149.6" y="200.0" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">13</text>
-<text x="60.0" y="698" font-size="13" fill="#222"><tspan fill="#c00" font-weight="bold">13</tspan>  FFC connector + cable exit (+X)</text>
-<circle cx="859.2" cy="146.4" r="8" fill="#c00" fill-opacity="0.85"/>
-<text x="859.2" y="150.4" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">14</text>
-<text x="613.6000000000001" y="698" font-size="13" fill="#222"><tspan fill="#c00" font-weight="bold">14</tspan>  Spindle magnet</text>
-<circle cx="624.8" cy="146.4" r="8" fill="#c00" fill-opacity="0.85"/>
-<text x="624.8" y="150.4" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">15</text>
-<text x="60.0" y="718" font-size="13" fill="#222"><tspan fill="#c00" font-weight="bold">15</tspan>  Fill window (scale in U) in the lid</text>
+<rect x="60.0" y="60.0" width="718.4" height="512.0" rx="64.0" fill="#f4f6f8" fill-opacity="1.0" stroke="#222" stroke-width="1"/>
+<rect x="74.4" y="74.4" width="689.6" height="483.2" rx="49.6" fill="#ffffff" fill-opacity="1.0" stroke="#999" stroke-width="1"/>
+<rect x="112.8" y="247.2" width="347.2" height="281.6" rx="52.8" fill="#bfe8f2" fill-opacity="0.8" stroke="#2a7f96" stroke-width="1"/>
+<rect x="128.8" y="263.2" width="60.8" height="249.6" rx="0.0" fill="#e0803a" fill-opacity="0.8" stroke="#a04a10" stroke-width="1"/>
+<rect x="128.8" y="175.2" width="64.0" height="70.4" rx="0.0" fill="#f0c040" fill-opacity="1.0" stroke="#a08000" stroke-width="1"/>
+<rect x="125.6" y="76.0" width="129.6" height="96.0" rx="0.0" fill="#b9bec6" fill-opacity="1.0" stroke="#444" stroke-width="1"/>
+<rect x="255.2" y="76.0" width="128.0" height="96.0" rx="0.0" fill="#8a8f98" fill-opacity="1.0" stroke="#444" stroke-width="1"/>
+<rect x="383.2" y="103.2" width="11.2" height="41.6" rx="0.0" fill="#666" fill-opacity="1.0" stroke="#333" stroke-width="1"/>
+<rect x="112.8" y="96.0" width="12.8" height="56.0" rx="0.0" fill="#999" fill-opacity="1.0" stroke="#444" stroke-width="1"/>
+<rect x="92.0" y="173.2" width="19.2" height="74.4" rx="0.0" fill="#d4a017" fill-opacity="1.0" stroke="#7a5a00" stroke-width="1"/>
+<rect x="92.0" y="86.8" width="19.2" height="74.4" rx="0.0" fill="#d4a017" fill-opacity="1.0" stroke="#7a5a00" stroke-width="1"/>
+<line x1="76.0" y1="210.4" x2="462.4" y2="210.4" stroke="#222" stroke-width="2"/>
+<rect x="274.4" y="87.2" width="54.4" height="73.6" rx="0.0" fill="#c06020" fill-opacity="1.0" stroke="#703000" stroke-width="1"/>
+<line x1="301.6" y1="143.2" x2="826.4" y2="143.2" stroke="#d02020" stroke-width="1.6" stroke-dasharray="4,3"/>
+<rect x="117.6" y="176.0" width="11.2" height="8.8" rx="0.0" fill="#555" fill-opacity="1.0" stroke="#222" stroke-width="1"/>
+<rect x="117.6" y="236.0" width="11.2" height="8.8" rx="0.0" fill="#555" fill-opacity="1.0" stroke="#222" stroke-width="1"/>
+<circle cx="470.4" cy="210.4" r="16.0" fill="#cc2222" fill-opacity="1.0" stroke="#880000" stroke-width="1"/>
+<rect x="460.0" y="340.0" width="70.4" height="216.0" rx="0.0" fill="#d8dde3" fill-opacity="1.0" stroke="#555" stroke-width="1"/>
+<rect x="530.4" y="292.0" width="12.8" height="192.0" rx="0.0" fill="#9fb3c8" fill-opacity="1.0" stroke="#445" stroke-width="1"/>
+<rect x="463.2" y="524.0" width="64.0" height="32.0" rx="0.0" fill="#f2c6a0" fill-opacity="1.0" stroke="#a05020" stroke-width="1"/>
+<rect x="469.6" y="364.0" width="54.4" height="48.0" rx="0.0" fill="#5ec8e8" fill-opacity="1.0" stroke="#1a6a85" stroke-width="1"/>
+<line x1="536.8" y1="388.0" x2="604.0" y2="388.0" stroke="#111" stroke-width="1.2"/>
+<rect x="530.4" y="290.4" width="248.0" height="195.2" rx="0.0" fill="#ffffff" fill-opacity="0.0" stroke="#aaa" stroke-width="1" stroke-dasharray="5,4"/>
+<rect x="543.2" y="471.2" width="160.0" height="12.8" rx="0.0" fill="#9fb3c8" fill-opacity="1.0" stroke="#445" stroke-width="1"/>
+<line x1="688.8" y1="440.7" x2="688.8" y2="471.2" stroke="#445" stroke-width="3"/>
+<rect x="543.2" y="292.0" width="160.0" height="12.8" rx="0.0" fill="#9fb3c8" fill-opacity="1.0" stroke="#445" stroke-width="1"/>
+<line x1="688.8" y1="335.3" x2="688.8" y2="304.8" stroke="#445" stroke-width="3"/>
+<circle cx="637.6" cy="388.0" r="80.0" fill="#e8f6ff" fill-opacity="0.45" stroke="#2a6a9a" stroke-width="1" stroke-dasharray="6,3"/>
+<polygon points="487.2,248.8 604.0,248.8 604.0,340.0 684.0,340.0 684.0,498.4 754.4,498.4 754.4,340.0 754.4,204.0 754.1,198.8 753.0,193.6 751.4,188.7 749.0,184.0 746.1,179.6 742.7,175.7 738.8,172.3 734.4,169.4 729.7,167.0 724.8,165.4 719.6,164.3 714.4,164.0 604.0,164.0 604.0,176.8 487.2,176.8" fill="#2e8b57" fill-opacity="0.35" stroke="#145a32" stroke-width="1"/>
+<rect x="492.8" y="188.0" width="46.4" height="44.8" rx="0.0" fill="#ffd400" fill-opacity="1.0" stroke="#333" stroke-width="1"/>
+<rect x="490.4" y="225.6" width="22.4" height="17.6" rx="0.0" fill="#ffd400" fill-opacity="1.0" stroke="#333" stroke-width="1"/>
+<rect x="490.4" y="182.4" width="22.4" height="17.6" rx="0.0" fill="#ffd400" fill-opacity="1.0" stroke="#333" stroke-width="1"/>
+<rect x="718.4" y="376.8" width="17.6" height="22.4" rx="0.0" fill="#ff7f00" fill-opacity="1.0" stroke="#333" stroke-width="1"/>
+<rect x="680.8" y="216.8" width="64.0" height="118.4" rx="0.0" fill="#222" fill-opacity="0.8" stroke="#000" stroke-width="1"/>
+<line x1="744.8" y1="276.0" x2="842.4" y2="276.0" stroke="#e8c36a" stroke-width="4"/>
+<rect x="136.8" y="194.4" width="262.4" height="32.0" rx="0.0" fill="#ffffff" fill-opacity="0.0" stroke="#c00" stroke-width="1" stroke-dasharray="3,2"/>
+<circle cx="319.2" cy="76.0" r="8" fill="#c00" fill-opacity="0.85"/>
+<text x="319.2" y="80.0" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">1</text>
+<text x="60.0" y="658" font-size="13" fill="#222"><tspan fill="#c00" font-weight="bold">1</tspan>  Stepper motor NFP-608 (motor part 8.0 mm)</text>
+<circle cx="190.4" cy="76.0" r="8" fill="#c00" fill-opacity="0.85"/>
+<text x="190.4" y="80.0" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">2</text>
+<text x="419.2" y="658" font-size="13" fill="#222"><tspan fill="#c00" font-weight="bold">2</tspan>  Gearbox 26.45:1 (8.1 mm)</text>
+<circle cx="301.6" cy="143.2" r="8" fill="#c00" fill-opacity="0.85"/>
+<text x="301.6" y="147.2" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">3</text>
+<text x="60.0" y="678" font-size="13" fill="#222"><tspan fill="#c00" font-weight="bold">3</tspan>  4 motor pins -> factory lead (red) -> wall slot</text>
+<circle cx="101.6" cy="178.4" r="8" fill="#c00" fill-opacity="0.85"/>
+<text x="101.6" y="182.4" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">4</text>
+<text x="419.2" y="678" font-size="13" fill="#222"><tspan fill="#c00" font-weight="bold">4</tspan>  Gear pair module 0.3 (z18 : z18, centre 5.40)</text>
+<circle cx="224.8" cy="210.4" r="8" fill="#c00" fill-opacity="0.85"/>
+<text x="224.8" y="214.4" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">5</text>
+<text x="60.0" y="698" font-size="13" fill="#222"><tspan fill="#c00" font-weight="bold">5</tspan>  M1.6 leadscrew (thread side)</text>
+<circle cx="160.8" cy="175.2" r="8" fill="#c00" fill-opacity="0.85"/>
+<text x="160.8" y="179.2" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">6</text>
+<text x="419.2" y="698" font-size="13" fill="#222"><tspan fill="#c00" font-weight="bold">6</tspan>  Carriage + fixed nut (full position)</text>
+<circle cx="286.4" cy="388.0" r="8" fill="#c00" fill-opacity="0.85"/>
+<text x="286.4" y="392.0" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">7</text>
+<text x="60.0" y="718" font-size="13" fill="#222"><tspan fill="#c00" font-weight="bold">7</tspan>  Reservoir (stadium 16 x 5 inside)</text>
+<circle cx="496.8" cy="364.0" r="8" fill="#c00" fill-opacity="0.85"/>
+<text x="496.8" y="368.0" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">8</text>
+<text x="419.2" y="718" font-size="13" fill="#222"><tspan fill="#c00" font-weight="bold">8</tspan>  Duckbill check valve (in the end cap)</text>
+<circle cx="495.2" cy="540.0" r="8" fill="#c00" fill-opacity="0.85"/>
+<text x="495.2" y="544.0" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">9</text>
+<text x="60.0" y="738" font-size="13" fill="#222"><tspan fill="#c00" font-weight="bold">9</tspan>  Fill septum (end cap, needle through the -Y wall hole)</text>
+<circle cx="637.6" cy="388.0" r="8" fill="#c00" fill-opacity="0.85"/>
+<text x="637.6" y="392.0" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">10</text>
+<text x="419.2" y="738" font-size="13" fill="#222"><tspan fill="#c00" font-weight="bold">10</tspan>  Cannula dome (latched) + snap arms</text>
+<circle cx="516.0" cy="210.4" r="8" fill="#c00" fill-opacity="0.85"/>
+<text x="516.0" y="214.4" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">11</text>
+<text x="60.0" y="758" font-size="13" fill="#222"><tspan fill="#c00" font-weight="bold">11</tspan>  TMAG5273 (under board)</text>
+<circle cx="727.2" cy="388.0" r="8" fill="#c00" fill-opacity="0.85"/>
+<text x="727.2" y="392.0" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">12</text>
+<text x="419.2" y="758" font-size="13" fill="#222"><tspan fill="#c00" font-weight="bold">12</tspan>  Dock hall (above adapter magnet)</text>
+<circle cx="760.8" cy="276.0" r="8" fill="#c00" fill-opacity="0.85"/>
+<text x="760.8" y="280.0" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">13</text>
+<text x="60.0" y="778" font-size="13" fill="#222"><tspan fill="#c00" font-weight="bold">13</tspan>  FFC connector + cable exit (+X)</text>
+<circle cx="470.4" cy="226.4" r="8" fill="#c00" fill-opacity="0.85"/>
+<text x="470.4" y="230.4" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">14</text>
+<text x="419.2" y="778" font-size="13" fill="#222"><tspan fill="#c00" font-weight="bold">14</tspan>  Spindle magnet</text>
+<circle cx="236.0" cy="226.4" r="8" fill="#c00" fill-opacity="0.85"/>
+<text x="236.0" y="230.4" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">15</text>
+<text x="60.0" y="798" font-size="13" fill="#222"><tspan fill="#c00" font-weight="bold">15</tspan>  Fill window (scale in U) in the lid</text>
 </svg>

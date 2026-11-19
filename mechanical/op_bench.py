@@ -137,18 +137,24 @@ def bench_geometry(p: dict, L: dict) -> dict:
     # ---- motor (NFP, coaxial) and its factory lead -----------------------------------------------------------
     C = L["coax"]
     cx = p["coax"]
-    contacts = {
-        "bench_variant": "NO motor contacts on the pod sensor board: the NFP motor keeps its factory lead (4 x 30 AWG soldered to the 4 pins, JST 1.25 plug). "
-                         "The lead runs along -X to a slot in the dry end wall and plugs into the bench controller board (not into this board).",
-        "motor_pins_pod": {"x_pod": round(C["pin_x"], 3), "z_pod_B_Aminus_Bplus_A": [round(z, 3) for z in C["pin_z"]], "y_tip_pod": round(C["pin_tip_y"], 3),
-                           "direction": "-Y", "pitch_mm": p["drive"]["term_pitch"], "note": "pins point -Y (into the empty area beside the motor), row along Z; y_s = %.2f" % L["y_s"]},
-        "lead_exit_slot": {"wall": "dry end wall (x = 0)", "x_pod": [-0.1, L["wall"] + 0.1], "y_pod": [round(C["pin_tip_y"] - cx["slot_w"] / 2, 3), round(C["pin_tip_y"] + cx["slot_w"] / 2, 3)],
-                           "z_pod": cx["slot_z"],
-                           "strain_relief": "2 staggered posts d%.1f at (x%+.1f, y%+.2f) and (x%+.1f, y%+.2f) from the pin tips: the wires weave between them" % (cx["post_d"], -1.2, 0.45, -2.4, -0.45)},
-        "motor_chain_pod_x": {"rear_boss": round(C["x_rb0"], 3), "motor": [round(C["x_m0"], 3), round(C["x_m1"], 3)], "gearbox": [round(C["x_m1"], 3), round(C["x_g1"], 3)],
-                              "shaft_tip": round(C["x_tip"], 3), "coupler": [round(C["c0"], 3), round(C["c1"], 3)]},
-        "u_per_step": L["drive"]["u_per_step"], "note": "TMAG5273 is MANDATORY (angle per revolution = 1 leadscrew turn = 0.35 mm = 2.61 U / 26.45... see REFILL.md); DRV pair optional.",
-    }
+    if C:
+        contacts = {
+            "bench_variant": "COAXIAL layout (bench.drive_layout = coaxial). The NFP motor keeps its factory lead (4 x 30 AWG, JST 1.25); it runs along -X to a slot in the dry end wall.",
+            "motor_pins_pod": {"x_pod": round(C["pin_x"], 3), "z_pod_B_Aminus_Bplus_A": [round(z, 3) for z in C["pin_z"]], "y_tip_pod": round(C["pin_tip_y"], 3),
+                               "direction": "-Y", "pitch_mm": p["drive"]["term_pitch"]},
+            "lead_exit_slot": {"wall": "dry end wall (x = 0)", "x_pod": [-0.1, L["wall"] + 0.1], "y_pod": [round(C["pin_tip_y"] - cx["slot_w"] / 2, 3), round(C["pin_tip_y"] + cx["slot_w"] / 2, 3)], "z_pod": cx["slot_z"]},
+            "u_per_step": L["drive"]["u_per_step"]}
+    else:
+        n, ld, G = L["nfp_term"], b["lead"], L["gears"]
+        contacts = {
+            "bench_variant": "SIDE-BY-SIDE layout (bench.drive_layout = side_gears): NFP motor beside the leadscrew lane, gear pair GHW module 0.3 z%d (motor) : z%d (screw), centre %.2f mm. "
+                             "The motor keeps its factory lead (4 x 30 AWG, JST 1.25); it leaves through a floor channel and a slot in the +X end wall, plugs into the bench controller board (not into this board)." % (G["z_motor"], G["z_screw"], G["centre"]),
+            "gear_pair": {"z_motor": G["z_motor"], "z_screw": G["z_screw"], "ratio_motor_to_screw": G["ratio_motor_to_screw"], "centre_mm": G["centre"],
+                          "u_per_step": L["drive"]["u_per_step"], "formula": "0.35 / (20 x 26.45 x ratio) x 74.63 / 10, ratio = z_screw / z_motor"},
+            "motor_axis_pod": {"y": round(L["y_m"], 3), "z": L["z_axis"], "leadscrew_y": round(L["y_s"], 3)},
+            "motor_pins_pod": {"x_pod": round(n["x_center"], 3), "y_pod_centres": n["pin_y_centres"], "direction": "-Z (down, bent/trimmed, see parts.md)", "pitch_mm": p["drive"]["term_pitch"]},
+            "lead_channel": {"width_mm": ld["groove_w"], "centre_y_pod": ld["groove_y"], "floor_z_pod": ld["groove_floor"], "slot_x_pod": [round(L["length"] - L["wall"] - 0.1, 3), round(L["length"] + 0.1, 3)],
+                             "slot_y_pod": [round(ld["groove_y"] - ld["slot_w"] / 2, 3), round(ld["groove_y"] + ld["slot_w"] / 2, 3)], "slot_z_pod": [ld["groove_floor"], ld["slot_z_top"]]}}
 
     # ---- FFC connector, cable and exit slot --------------------------------------------------------
     f = b["ffc"]

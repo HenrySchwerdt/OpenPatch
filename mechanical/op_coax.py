@@ -55,9 +55,6 @@ def build_coax_parts(s: Script, p: dict, L: dict) -> None:
     s.cyl("leadscrew", "X", (0, ys, zc), dr["screw_d"], C["screw_x0"], L["screw_tip"])
     s.tube("bush_far", "X", (0, ys, zc), dr["bush_od"], dr["bush_id"], L["far_bush"][0], L["far_bush"][1])
     s.cyl("magnet", "X", (0, ys, zc), dr["mag_d"], L["mag_x"][0], L["mag_x"][1])
-    # duckbill valve in its pocket (flow +X toward the needle)
-    D, dk = L["dock"], p["dock"]
-    s.cyl("duckbill_valve", "X", (0, D["y_c"], D["z_n"]), cx["valve_d"], L["x_r1"] + dk["valve_x0"], L["x_r1"] + dk["valve_x0"] + cx["valve_len"])
 
 
 def build_coax_joins(s: Script, p: dict, L: dict) -> list[str]:

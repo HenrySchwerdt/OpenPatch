@@ -21,12 +21,12 @@
       )
     )
     (boundary
-      (path pcb 0  111526 -80021.4  111847 -80085.2  112157 -80190.3  112450 -80334.9
-            112722 -80516.6  112968 -80732.2  113183 -80978.1  113365 -81250
-            113510 -81543.3  113615 -81853  113679 -82173.7  113700 -82500
-            113700 -94500  112300 -94500  112300 -104400  107500 -104400
-            107500 -94500  105500 -94500  105500 -88800  100000 -88800  100000 -84300
-            105500 -84300  105500 -80000  111200 -80000  111526 -80021.4)
+      (path pcb 0  114526 -80021.4  114847 -80085.2  115157 -80190.3  115450 -80334.9
+            115722 -80516.6  115968 -80732.2  116183 -80978.1  116365 -81250
+            116510 -81543.3  116615 -81853  116679 -82173.7  116700 -82500
+            116700 -91000  116700 -100900  112300 -100900  112300 -91000
+            107300 -91000  107300 -85300  100000 -85300  100000 -80800  107300 -80800
+            107300 -80000  114200 -80000  114526 -80021.4)
     )
     (via "Via[0-1]_500:300_um")
     (rule
@@ -36,37 +36,42 @@
     )
   )
   (placement
-    (component "DRV5032_X2SON-4_DMR0004B"
-      (place U1 101100 -87900 front 90 (PN DRV5032FADMR))
-      (place U2 101100 -85200 front 90 (PN DRV5032FADMR))
-    )
     (component NPTH_1.2mm
-      (place H1 107100 -93200 front 0 (PN "NPTH 1.2"))
-      (place H2 112900 -86500 front 0 (PN "NPTH 1.2"))
+      (place H2 115500 -83500 front 0 (PN "NPTH 1.2"))
+      (place H1 108900 -87500 front 0 (PN "NPTH 1.2"))
     )
-    (component NPTH_1.4mm
-      (place H3 107100 -89600 front 0 (PN "NPTH 1.4"))
-    )
-    (component C_0402_1005Metric
-      (place C1 101450 -86550 front 0 (PN 100nF))
+    (component "DRV5032_X2SON-4_DMR0004B"
+      (place U1 101100 -84400 front 90 (PN DRV5032FADMR))
+      (place U2 101100 -81700 front 90 (PN DRV5032FADMR))
     )
     (component "Hirose_FH12-10S-0.5SH_1x10-1MP_P0.50mm_Horizontal"
-      (place J1 111250 -85700 front 90 (PN "FH12-10S-0.5SH(55)"))
+      (place J1 112400 -85650 front 90 (PN "FH12-10S-0.5SH(55)"))
+    )
+    (component NPTH_1.4mm
+      (place H3 108900 -86100 front 0 (PN "NPTH 1.4"))
+    )
+    (component C_0402_1005Metric
+      (place C1 102650 -83050 front 0 (PN 100nF))
     )
     (component C_0402_1005Metric::1
-      (place C3 111600 -100000 front 90 (PN 100nF))
-    )
-    (component "SOT-23-6"
-      (place U4 101800 -86400 back 270 (PN TMAG5273A1QDBVR))
-    )
-    (component C_0402_1005Metric::2
-      (place C4 106000 -85600 back 270 (PN 100nF))
+      (place C3 113000 -96500 front 90 (PN 100nF))
     )
     (component "DRV5032_X2SON-4_DMR0004B::1"
-      (place U3 109200 -98700 back 0 (PN DRV5032FADMR))
+      (place U3 115000 -94000 back 0 (PN DRV5032FADMR))
+    )
+    (component "SOT-23-6"
+      (place U4 101800 -82900 back 270 (PN TMAG5273A1QDBVR))
+    )
+    (component C_0402_1005Metric::2
+      (place C4 107200 -82100 back 270 (PN 100nF))
     )
   )
   (library
+    (image NPTH_1.2mm
+      (outline (polygon signal 0  895 -895  -895 -895  -895 895  895 895))
+      (keepout "" (circle F.Cu 1700))
+      (keepout "" (circle B.Cu 1700))
+    )
     (image "DRV5032_X2SON-4_DMR0004B"
       (outline (polygon signal 0  -595 -1045  -595 1045  595 1045  595 -1045))
       (outline (path signal 100  -550 1000  550 1000))
@@ -79,24 +84,6 @@
       (pin RoundRect[T]Pad_220.000000x400.000000_44.167000_um_0.000000_0 3 250 -700)
       (pin RoundRect[T]Pad_220.000000x400.000000_44.167000_um_0.000000_0 4 250 700)
       (pin RoundRect[T]Pad_800.000000x600.000000_60.228000_um_0.000000_0 5 0 0)
-    )
-    (image NPTH_1.2mm
-      (outline (polygon signal 0  895 -895  -895 -895  -895 895  895 895))
-      (keepout "" (circle F.Cu 1700))
-      (keepout "" (circle B.Cu 1700))
-    )
-    (image NPTH_1.4mm
-      (outline (polygon signal 0  995 -995  -995 -995  -995 995  995 995))
-      (keepout "" (circle F.Cu 1900))
-      (keepout "" (circle B.Cu 1900))
-    )
-    (image C_0402_1005Metric
-      (outline (polygon signal 0  905 -455  -905 -455  -905 455  905 455))
-      (outline (path signal 120  -107.836 360  107.836 360))
-      (outline (path signal 120  -107.836 -360  107.836 -360))
-      (outline (path signal 100  -500 250  500 250  500 -250  -500 -250  -500 250))
-      (pin RoundRect[T]Pad_560.000000x620.000000_140.533000_um_0.000000_0 1 -480 0)
-      (pin RoundRect[T]Pad_560.000000x620.000000_140.533000_um_0.000000_0 2 480 0)
     )
     (image "Hirose_FH12-10S-0.5SH_1x10-1MP_P0.50mm_Horizontal"
       (outline (polygon signal 0  -5555 -4895  -5555 2995  5555 2995  5555 -4895))
@@ -137,6 +124,19 @@
       (pin Rect[T]Pad_1800.000000x2200.000000_um MP -4150 -1400)
       (pin Rect[T]Pad_1800.000000x2200.000000_um MP@1 4150 -1400)
     )
+    (image NPTH_1.4mm
+      (outline (polygon signal 0  995 -995  -995 -995  -995 995  995 995))
+      (keepout "" (circle F.Cu 1900))
+      (keepout "" (circle B.Cu 1900))
+    )
+    (image C_0402_1005Metric
+      (outline (polygon signal 0  905 -455  -905 -455  -905 455  905 455))
+      (outline (path signal 120  -107.836 360  107.836 360))
+      (outline (path signal 120  -107.836 -360  107.836 -360))
+      (outline (path signal 100  -500 250  500 250  500 -250  -500 -250  -500 250))
+      (pin RoundRect[T]Pad_560.000000x620.000000_140.533000_um_0.000000_0 1 -480 0)
+      (pin RoundRect[T]Pad_560.000000x620.000000_140.533000_um_0.000000_0 2 480 0)
+    )
     (image C_0402_1005Metric::1
       (outline (polygon signal 0  -905 -455  -905 455  905 455  905 -455))
       (outline (path signal 120  -107.836 360  107.836 360))
@@ -144,6 +144,19 @@
       (outline (path signal 100  -500 250  -500 -250  500 -250  500 250  -500 250))
       (pin RoundRect[T]Pad_560.000000x620.000000_140.533000_um_0.000000_0 1 -480 0)
       (pin RoundRect[T]Pad_560.000000x620.000000_140.533000_um_0.000000_0 2 480 0)
+    )
+    (image "DRV5032_X2SON-4_DMR0004B::1"
+      (outline (polygon signal 0  -595 1045  595 1045  595 -1045  -595 -1045))
+      (outline (path signal 100  -550 1000  550 1000))
+      (outline (path signal 50  550 700  550 -700))
+      (outline (path signal 50  550 -700  -550 -700))
+      (outline (path signal 50  -550 700  550 700))
+      (outline (path signal 50  -550 -700  -550 700))
+      (pin RoundRect[T]Pad_220.000000x400.000000_44.167000_um_0.000000_0 1 -250 700)
+      (pin RoundRect[T]Pad_220.000000x400.000000_44.167000_um_0.000000_0 2 -250 -700)
+      (pin RoundRect[T]Pad_220.000000x400.000000_44.167000_um_0.000000_0 3 250 -700)
+      (pin RoundRect[T]Pad_220.000000x400.000000_44.167000_um_0.000000_0 4 250 700)
+      (pin RoundRect[T]Pad_800.000000x600.000000_60.228000_um_0.000000_0 5 0 0)
     )
     (image "SOT-23-6"
       (outline (polygon signal 0  -1045 1495  -1045 1695  1045 1695  1045 1495  2045 1495
@@ -169,19 +182,6 @@
       (outline (path signal 100  -500 250  -500 -250  500 -250  500 250  -500 250))
       (pin RoundRect[T]Pad_560.000000x620.000000_140.533000_um_0.000000_0 1 -480 0)
       (pin RoundRect[T]Pad_560.000000x620.000000_140.533000_um_0.000000_0 2 480 0)
-    )
-    (image "DRV5032_X2SON-4_DMR0004B::1"
-      (outline (polygon signal 0  -595 1045  595 1045  595 -1045  -595 -1045))
-      (outline (path signal 100  -550 1000  550 1000))
-      (outline (path signal 50  550 700  550 -700))
-      (outline (path signal 50  550 -700  -550 -700))
-      (outline (path signal 50  -550 700  550 700))
-      (outline (path signal 50  -550 -700  -550 700))
-      (pin RoundRect[T]Pad_220.000000x400.000000_44.167000_um_0.000000_0 1 -250 700)
-      (pin RoundRect[T]Pad_220.000000x400.000000_44.167000_um_0.000000_0 2 -250 -700)
-      (pin RoundRect[T]Pad_220.000000x400.000000_44.167000_um_0.000000_0 3 250 -700)
-      (pin RoundRect[T]Pad_220.000000x400.000000_44.167000_um_0.000000_0 4 250 700)
-      (pin RoundRect[T]Pad_800.000000x600.000000_60.228000_um_0.000000_0 5 0 0)
     )
     (padstack RoundRect[T]Pad_220.000000x400.000000_44.167000_um_0.000000_0
       (shape (polygon F.Cu 0  -110.167 156  -106.805 172.902  -97.231 187.231  -82.902 196.805
@@ -235,17 +235,17 @@
   )
   (network
     (net 3V3
-      (pins U1-1 U2-1 C1-1 J1-2 C3-1 U4-4 C4-1 U3-1)
+      (pins U1-1 J1-2 C1-1 C3-1 U2-1 U3-1 U4-4 C4-1)
     )
     (net GND
-      (pins U1-2 U1-5 U2-2 U2-5 C1-2 J1-1 J1-10 J1-MP J1-MP@1 C3-2 U4-2 U4-3 C4-2
-        U3-2 U3-5)
+      (pins U1-2 U1-5 J1-1 J1-10 J1-MP J1-MP@1 C1-2 C3-2 U2-2 U2-5 U3-2 U3-5 U4-2
+        U4-3 C4-2)
     )
     (net HALL_A
       (pins U1-4 J1-3)
     )
     (net HALL_B
-      (pins U2-4 J1-4)
+      (pins J1-4 U2-4)
     )
     (net DOCK_N
       (pins J1-5 U3-4)

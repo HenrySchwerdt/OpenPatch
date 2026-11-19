@@ -115,12 +115,13 @@ Test-fit the printed `dock-coupon` to a spare cannula head as described in `cann
 ## B2. Plunger, seal, reservoir, end cap, carriage
 Cast the lip seals in `mould/`, assemble plunger core + seals, push into the reservoir from the open end (sections 1-2 above). Press the **end cap** (d1.98 spigot) onto the d2.0 port of the closed end by hand until the cap block touches the reservoir end face; the fill septum plug (d4 x 2, punched) goes into the cap's side bore (access hole in the -Y shell wall). Carriage with the **fixed M1.6 nut** (press into the hex pocket).
 
-## B3. Motor, coupler, leadscrew
-1. Lay the motor in the three cradles of the lane (rear boss toward the dry end wall, **terminal pins pointing to the +Y wall**). The lead (4 wires) goes through the slot in the +Y wall:
-   weave the wires between the two printed posts (strain relief), then out through the slot. Do not pull on the wires; the solder joints must never carry load.
-2. Sleeve coupler: slide it over the shaft (D-bore matches the flat), one drop of cyanoacrylate on the shaft only. Brass tube alternative: same dimensions.
-3. Thread the M1.6 leadscrew through the carriage nut (turn it by hand) into the coupler (M1.6 bore; or press fit) and through the far bearing; put the **spindle magnet** (diametric, d2 x 1) on the screw end.
-4. Turn the screw by hand: the carriage must run between the rear stop blocks and the far bearing block without binding.
+## B3. Motor, gear pair, leadscrew (default side-by-side layout)
+1. Lay the motor in its three cradles beside the lane (shaft toward the dry end wall). Press **gear A** (z18, bore 2.0) onto the D-shaft with one drop of Loctite 638 on the round bore; the flat leaves a 0.5 mm gap that the adhesive fills.
+2. **Gear B** (z18, bore 2.0) on a d2.0 x d1.6 sleeve pressed on the M1.6 rod end (Loctite 638), so it meshes with gear A (centre 5.4 mm, fixed by the shell cradles). Do not glue the sleeve to the dry bush.
+3. The factory lead (4 wires) hangs from the pins under the motor: lay it in the floor pocket under the terminal block and the 2.2 mm channel to the +X end wall, weave the wires between the three printed posts (strain relief), out through the end-wall slot.
+   **Pins:** as delivered they point down (-Z); trim/bend the pin tips flat toward the rear (VERIFY) so the block sits in its floor pocket; never pull on the wires.
+4. Thread the leadscrew through the dry bush (x = 0.9), the carriage nut and the far bearing; put the spindle magnet (diametric, d2 x 1) on the wet end. Turn it by hand: the carriage runs between the rear stop and the far block.
+(Coaxial option, `bench.drive_layout=coaxial`: sleeve coupler on the shaft and screw, lead to the dry-end wall slot, see parts.md.)
 
 ## B4. Duckbill valve and needle
 1. Drop the **duckbill valve** into the open slot of the end cap (flow direction toward the needle, i.e. toward +X), push it into the d3.05 bore with tweezers.
