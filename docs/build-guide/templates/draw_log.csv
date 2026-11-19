@@ -1,0 +1,1 @@
+run_id,pod_id,date,requested_u,fill_needle_gauge,draw_pps,draw_done_mu,draw_state,source_mass_before_mg,source_mass_after_mg,temp_c,water_density_mg_per_ul,drawn_ul_mass,drawn_ul_firmware,diff_pct,largest_bubble_mm3_est,stalled_yn,first_1U_after_draw_mg,first_1U_error_pct,notes

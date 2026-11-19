@@ -1,0 +1,1 @@
+timestamp,elapsed_h,vial_mass_mg,control_vial_mass_mg,room_temp_c,delivered_u_firmware,resets,alerts,ble_events,fault_bits,motor_temp_by_hand_ok,leak_paper_ok,notes

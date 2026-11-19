@@ -1,0 +1,1 @@
+run_id,pod_id,date,type_bolus_or_basal,bolus_u_or_rate_u_per_h,clamp_time_s,alarm_time_s,latency_s,cmd_since_clamp_u,water_out_since_clamp_u,undelivered_u,alarm_source_current_encoder_both_none,fault_bits,peak_ma_free_median,peak_ma_free_max,peak_ma_blocked_max,release_volume_ul,pass_le_2U,notes

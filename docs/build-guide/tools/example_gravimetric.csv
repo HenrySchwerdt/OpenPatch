@@ -1,0 +1,4 @@
+run_id,pod_id,date,test,commanded_u_per_dose,n_doses,commanded_total_u,steps_total,ambient_c,water_density_mg_per_ul,m_before_mg,m_after_mg,control_drift_mg_per_min,elapsed_min,notes
+EX-1,POD-EXAMPLE,2000-01-01,0.05U series,0.05,100,,1265,20,,0,50,-0.05,7,SYNTHETIC EXAMPLE to test the tool - NOT a measurement
+EX-2,POD-EXAMPLE,2000-01-01,1U series,1.0,10,,2531,20,,0,97,-0.05,8,SYNTHETIC EXAMPLE to test the tool - NOT a measurement
+EX-3,POD-EXAMPLE,2000-01-01,10U bolus,10.0,1,,2531,20,0.9982,0,101,-0.05,7,SYNTHETIC EXAMPLE to test the tool - NOT a measurement
