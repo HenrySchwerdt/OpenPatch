@@ -1,0 +1,11 @@
+name,version,licence,purpose,relevance
+Nordic SoftDevice Controller (binary library inside nrf-sdc-sys),per nrf-sdc 0.4.0 / nrf-sdc-sys 0.3.0 (verify blob version),Nordic proprietary binary licence (verify),BLE link layer controller,availability only: the BLE task cannot move the motor or feed the watchdog (firmware-rs/docs/architecture.md)
+Nordic MPSL (binary library inside nrf-mpsl-sys),per nrf-mpsl 0.4.0 / nrf-mpsl-sys 0.3.0 (verify blob version),Nordic proprietary binary licence (verify),radio scheduling and flash timeslot API,affects tick jitter during flash writes; not measured on hardware
+nRF52840 silicon and errata (Nordic),production revision to be recorded,hardware,MCU (Cortex-M4F),flash erase stalls the CPU (about 85 ms per page); TRNG seeds the DRBG
+Rust toolchain (rustc stable; thumbv7em-none-eabihf),exact rustc version to be pinned (no rust-toolchain file in the repo),MIT OR Apache-2.0,compiler and core library for all firmware,compiler is SOUP: pin the version and record it in the release record
+Apple iOS CoreBluetooth / CryptoKit / Keychain,minimum iOS version to be confirmed in ios/OpenPatchKit/Support/Config.xcconfig,Apple platform terms,BLE central role; X25519/HKDF/HMAC/SHA-256; secret storage,phone-side security and transport; OS updates are outside the manufacturer's control
+LoopKit (PumpManager protocol and UI types),commit f974241 (per docs/STATUS.md),MIT,host framework interfaces used by OpenPatchKit,interface contract to the algorithm app; upstream changes can break compatibility
+Trio (nightscout/Trio) host app,not pinned (the user installs a build),AGPL-3.0,algorithm and UI that calls OpenPatchKit,for a regulated product the manufacturer must control the host app version or specify the interface (FDA ACE pump special controls require a validated interface specification)
+Xcode / Swift toolchain,to be pinned,Apple,build of the iOS kit,tool; output verified by the Swift test suite
+KiCad 10 (PCB design and DRC),10.x,GPL-3.0-or-later,PCB generation and design rule checks,design tool (design records only)
+SolidCraft CLI (3D CAD),version to be recorded,proprietary,housing and CAD generation,design tool (design records only)
