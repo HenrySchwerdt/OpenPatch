@@ -117,17 +117,19 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with: { persist-credentials: false }
       - name: install ProVerif 2.05 (source tarball, checksum pinned) and Maude
+        timeout-minutes: 12   # a stalled mirror once hung this step for 30 min
         run: |
           set -e
           sudo apt-get update -qq && sudo apt-get install -y -qq ocaml-nox maude make gcc
-          curl -fsSL -o /tmp/pv.tgz https://bblanche.gitlabpages.inria.fr/proverif/proverif2.05.tar.gz
+          curl -fsSL --retry 3 --retry-all-errors --connect-timeout 20 --max-time 180 -o /tmp/pv.tgz https://bblanche.gitlabpages.inria.fr/proverif/proverif2.05.tar.gz
           echo "4871f53c32ab4a04669a060c4886ba5d9080496963fb980a9a62d2c429ceabc4  /tmp/pv.tgz" | sha256sum -c -
           mkdir -p /tmp/pv && tar xzf /tmp/pv.tgz -C /tmp/pv && (cd /tmp/pv/proverif2.05 && ./build >/dev/null 2>&1 || true)
           sudo install -m755 /tmp/pv/proverif2.05/proverif /usr/local/bin/proverif
       - name: install Tamarin 1.10.0 (release binary, checksum pinned)
+        timeout-minutes: 8
         run: |
           set -e
-          curl -fsSL -o /tmp/tam.tgz "https://github.com/tamarin-prover/tamarin-prover/releases/download/1.10.0/tamarin-prover-1.10.0-linux64-ubuntu.tar.gz"
+          curl -fsSL --retry 3 --retry-all-errors --connect-timeout 20 --max-time 300 -o /tmp/tam.tgz "https://github.com/tamarin-prover/tamarin-prover/releases/download/1.10.0/tamarin-prover-1.10.0-linux64-ubuntu.tar.gz"
           echo "538fe055b65f419aac4710015948f0e6a2253d2f61958c136e2d2bd67981028c  /tmp/tam.tgz" | sha256sum -c -
           mkdir -p /tmp/tam && tar xzf /tmp/tam.tgz -C /tmp/tam && sudo install -m755 /tmp/tam/tamarin-prover /usr/local/bin/
       - name: run all models, every result must equal the expected value
