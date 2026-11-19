@@ -4,6 +4,18 @@ from __future__ import annotations
 from op_cmds import Script
 
 
+def wall_openings(p: dict, L: dict) -> list[dict]:
+    """Openings through the reservoir WALL (not the open dry end, not the port): used by build_reservoir and by check.py's fluid-boundary check.
+    Current coupling: carriage-arm slot in the +Y wall spanning the whole stroke (coupling decision pending, see SEAL-AND-DEAD-VOLUME.md)."""
+    rs, dr, sl = p["reservoir"], p["drive"], p["seal"]
+    zc = L["z_axis"]
+    y_in_max = L["y_r"] + rs["w_in"] / 2
+    to = sl["tongue_off"]
+    return [{"name": "slot", "x": [L["xrear_full"] + to[0] - 0.2, L["xrear_empty"] + to[1] + 0.2],
+             "y": [y_in_max - 0.2, y_in_max + rs["wall"] + 0.3],
+             "z": [zc - dr["arm_t"] / 2 - dr["slot_clr"], zc + dr["arm_t"] / 2 + dr["slot_clr"]]}]
+
+
 def build_reservoir(s: Script, p: dict, L: dict, name: str = "reservoir") -> None:
     rs, sp, nd, dr, sl = p["reservoir"], p["septum"], p["needle"], p["drive"], p["seal"]
     zc = L["z_axis"]
@@ -17,11 +29,8 @@ def build_reservoir(s: Script, p: dict, L: dict, name: str = "reservoir") -> Non
     else:
         tools.append(s.cyl("t_rport", "X", (0, L["y_n"], nd["channel_z"]), nd["channel_d"], L["x_r1"] - 0.9, L["x_r1"] + 0.1))
         tools.append(s.cyl("t_fport", "Y", (L["x_s"], 0, sp["z"]), sp["port_d"], L["y_r0"] - 0.1, L["y_r0"] + 1.5))
-    slot_z = (zc - dr["arm_t"] / 2 - dr["slot_clr"], zc + dr["arm_t"] / 2 + dr["slot_clr"])
-    y_in_max = L["y_r"] + rs["w_in"] / 2
-    to = sl["tongue_off"]
-    tools.append(s.box("t_slot", (L["xrear_full"] + to[0] - 0.2, L["xrear_empty"] + to[1] + 0.2),
-                       (y_in_max - 0.2, y_in_max + rs["wall"] + 0.3), slot_z))
+    for op in wall_openings(p, L):
+        tools.append(s.box("t_" + op["name"], (op["x"][0], op["x"][1]), tuple(op["y"]), tuple(op["z"])))
     s.cut(name, tools)
 
 

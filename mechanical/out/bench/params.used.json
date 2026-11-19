@@ -284,7 +284,7 @@
     "free_oversize": 0.15,
     "land": 0.2,
     "shore_target": 30,
-    "role": "primary: single front bead, land 0.20, net squeeze ~0.047 mm per side"
+    "role": "fall-back: more squeeze (~0.047 mm per side), single front bead, land 0.20; use if S2 leaks"
    },
    "S2": {
     "rings": [
@@ -293,7 +293,7 @@
     "free_oversize": 0.12,
     "land": 0.15,
     "shore_target": 30,
-    "role": "low-friction: land 0.15, net squeeze ~0.03 mm per side (use if S1 breaks away above ~2.5 N; leak margin is thinner)"
+    "role": "ACTIVE (CAD) / lowest friction: land 0.15, net squeeze ~0.03 mm per side; leak margin thinner"
    },
    "T": {
     "rings": [

@@ -113,6 +113,34 @@ def check_extra(p: dict, L: dict, bodies: list) -> tuple[list, list]:
 BENCH_MIN_CLR = 0.2     # board / sensors / FFC to any metal or shell part that is not a mating part
 
 
+def check_fluid_boundary(p: dict, L: dict) -> tuple[list, list]:
+    """Fluid-boundary check at both plunger extremes (full = plunger at the rear stop, empty = at the front stop).
+
+    Wetted zone = bore in front of the front seal contact line (x from the land of the front bead to the end face) + port + cap channels + valve + needle.
+    It must be bounded only by reservoir / cap / seal / valve / needle surfaces: every opening through the reservoir wall (op_drive.wall_openings) whose
+    x-range reaches in front of the seal contact line is a leak into the pod.  Also: the front seal contact stays inside the bore for the whole stroke,
+    the plunger front stays behind the end face, and the cap's valve insertion slot is closed by the plug.  Returns (problems, known_failing).
+    """
+    from op_drive import wall_openings
+    from op_seal import ring_range, variant
+    rs, sl = p["reservoir"], p["seal"]
+    v = variant(p)
+    problems, known = [], []
+    a, b = ring_range(p, v["rings"][-1])                      # front-most bead of the active variant
+    land_c = (a + b) / 2                                      # centre of the land
+    for tag, xr in (("full", L["xrear_full"]), ("empty", L["xrear_empty"])):
+        line = xr + land_c
+        if not (L["x_r0"] <= xr + a and line <= L["x_in1"]):
+            problems.append(f"fluid: front seal contact line x={line:.2f} outside the bore {L['x_r0']:.2f}..{L['x_in1']:.2f} at the {tag} position")
+        if xr + rs["plunger_len"] > L["x_in1"] + 1e-6:
+            problems.append(f"fluid: plunger front {xr + rs['plunger_len']:.2f} beyond the chamber end {L['x_in1']:.2f} at the {tag} position")
+        for op in wall_openings(p, L):
+            if op["x"][1] > line - 1e-6 and op["x"][0] < L["x_in1"]:
+                known.append(f"fluid boundary: wall opening '{op['name']}' x {op['x'][0]:.1f}..{op['x'][1]:.1f} reaches {op['x'][1] - line:.1f} mm in front of the "
+                             f"front seal contact line (x={line:.1f}) at the {tag} position: the wetted zone leaks into the pod through it")
+    return problems, known
+
+
 def check_bench(p: dict, L: dict, bodies: list) -> tuple[list, list]:
     """Bench-pod checks: board inside the cavity, clearances, sensor-magnet gaps, contact compression, FFC slot, adapter."""
     problems, warns = [], []
@@ -345,6 +373,10 @@ def check_size(outdir: Path, variant: str, p: dict, ignore_length: bool, with_va
     pr, wr = check_bench(p, L, bodies) if mode == "bench" else check_extra(p, L, bodies)
     problems += pr
     warns += wr
+    known = []
+    if mode == "bench":
+        pf, known = check_fluid_boundary(p, L)
+        problems += pf
     if mode == "bench" and not L["coax"]:
         pr_, wr_ = check_real_models(outdir, variant)
         problems += pr_
@@ -359,7 +391,7 @@ def check_size(outdir: Path, variant: str, p: dict, ignore_length: bool, with_va
         for ext in ("step", "stl"):
             if not (outdir / f"{variant}_{part}.{ext}").exists():
                 problems.append(f"missing export {variant}_{part}.{ext}")
-    return {"variant": variant, "dims": dims, "target_l": tgt_l, "problems": problems, "warns": warns,
+    return {"known": known, "variant": variant, "dims": dims, "target_l": tgt_l, "problems": problems, "warns": warns,
             "bodies": len(bodies), "pairs": interf.get("pairs_candidate"), "checked": interf.get("checked")}
 
 
@@ -370,12 +402,14 @@ def main() -> None:
     ap.add_argument("--sizes", nargs="*")
     ap.add_argument("--ignore-length", action="store_true")
     ap.add_argument("-v", "--verbose", action="store_true")
+    ap.add_argument("--strict", action="store_true", help="the known-failing fluid-boundary check (slotted reservoir) also fails the exit code")
     args = ap.parse_args()
     out = Path(args.outdir or (HERE / "out" / "bench" if args.variant == "bench" else HERE / "out"))
     p = load_params(out / "params.used.json") if (out / "params.used.json").exists() else load_params()
     p["mode"] = args.variant
     sizes = args.sizes or list(p["variants"])
     failed = False
+    kfail = False
     print(f"{'Size':8} {'L':>7} {'B':>6} {'H':>6}  {'target L':>8}  status")
     for k, v in enumerate(sizes):
         r = check_size(out, v, p, args.ignore_length, with_variants=(k == 0))
@@ -388,7 +422,12 @@ def main() -> None:
             print(f"    FAIL: {m}")
         for m in r["warns"]:
             print(f"    WARN: {m}")
-    sys.exit(1 if failed else 0)
+        for m in r["known"]:
+            print(f"    KNOWN-FAIL (coupling decision pending, --strict makes it fatal): {m}")
+            kfail = True
+    if kfail:
+        print("\nKNOWN-FAIL: the fluid-boundary check fails on the slotted reservoir; NOT solved, see SEAL-AND-DEAD-VOLUME.md")
+    sys.exit(1 if (failed or (kfail and args.strict)) else 0)
 
 
 if __name__ == "__main__":

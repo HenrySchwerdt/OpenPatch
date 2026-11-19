@@ -95,9 +95,7 @@ plunger_seal,gasket}.step/.stl`, `{mould_lower,mould_upper}.step/.stl`, `{reserv
 3. **Gear ratio / U per step:** the cheap drive is 5:1 (not 10:1): 0.0261 U per full step, pulses of 2 full steps =
    0.0522 U (spec 0.0131 U/step, 4 steps). Premium Faulhaber 16:1 = 0.00816 U/step. Step angle of the cheap motor is
    assumed (20 steps/rev) - confirm with the seller. See `parts.md` table 1.3.
-4. **Reservoir slot:** the carriage tongue passes a 1.6 mm slot in the reservoir wall; the slot is an extra leak
-   path to the dry side only (the fluid is sealed by the two lip rings), but the reservoir is **not** a closed
-   volume on the dry side - the plunger rear faces the pump interior.
+4. **Reservoir slot (LEAK, coupling decision pending):** the carriage tongue passes a 1.6 mm slot in the +Y reservoir wall that spans the whole stroke. At a full reservoir about 12 mm of slot lie in FRONT of the front seal, in the water, so the reservoir leaks into the pod. The earlier statement that the slot is a leak path to the dry side only was wrong. `check.py` now fails this (fluid-boundary check, below). The coupling (central rod, magnetic coupling through a closed wall, ...) is being decided.
 5. **Height 8.5 mm** unchanged (see spec); top fillet 1.0 mm.
 6. **Closure bands** are thin (0.4/0.45 mm) because the 0.9 mm wall has to carry tongue + skirt + gasket seat;
    far-end (X = L) clamping relies on the lap and the lid stiffness - screws are only at the dry end and at the coil side.
@@ -149,3 +147,12 @@ plunger_seal,gasket}.step/.stl`, `{mould_lower,mould_upper}.step/.stl`, `{reserv
 * **FFC connector:** the FH12 is 2.0 mm high and does not fit (see `parts.md`, open point).
 
 * **Seal + dead volume study (2026-11-19):** bead seal family S1/S2/T (`op_seal.py`, `op_mould.py`, three mould pairs), plunger core 4.76 with purge grooves and PTFE-tape guide recess, spigot 2.4 / d0.6 main channels: see `SEAL-AND-DEAD-VOLUME.md`.
+
+## Fluid-boundary check (check.py, bench variant, every size)
+
+`check_fluid_boundary` runs at both plunger extremes (full = rear stop, empty = front stop). The wetted zone is the bore in front of the front seal contact line (centre of the land of the
+front-most bead of the active seal variant) up to the end face, plus the port, the end-cap channels, the valve and the needle bore. Every opening through the reservoir wall is defined once in
+`op_drive.wall_openings` (the CAD cut uses the same numbers). Checks: (1) any wall opening whose x-range reaches in front of the seal contact line is a leak into the pod; (2) the front seal contact
+line stays inside the bore for the whole stroke; (3) the plunger front stays behind the chamber end; (4) the cap's valve slot is closed (valve plug body present). Item (1) currently
+**FAILS on the slotted design and is reported as `KNOWN-FAIL` with an explicit message** (exit code 0 unless `python3 check.py --variant bench --strict`); it is removed from the known list only
+when the coupling no longer opens the wetted zone. Do not read an interference PASS as a sealing PASS.
