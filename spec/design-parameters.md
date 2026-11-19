@@ -72,7 +72,7 @@
 - Fill septum, duckbill check valve and needle hub live in a separate, cheap **end cap** pressed onto the port; housing, dock and cap iterate around the reservoir.
 - Its envelope, datum faces, mounting features and port position are **frozen parameters** (`mechanical/params.json` → `reservoir_frozen`). Changing them requires an explicit decision recorded in `docs/STATUS.md`.
 - Before ordering: independent DFM review of the drawing + PCBWay's quote DFM feedback.
-- Insulin-contact parts for bench tests with insulin (into containers only): PP reservoir, medical platinum-cure silicone seals/septum/duckbill, stainless needle. Never printed resin.
+- **Water only (decision 2026-11-19): the pump is never filled with insulin or any drug, not even into containers.** The wetted-path material choice (PP reservoir, medical platinum-cure silicone seals/septum/duckbill, stainless needle; never printed resin) is kept only as design preparation for a future legal manufacturer; the CNC PP reservoir is optional for this project.
 
 ## 4. Drive — geared micro stepper + direct leadscrew, automatic refill (decision 2026-11-19)
 

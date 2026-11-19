@@ -4071,7 +4071,7 @@
  {
   "command": "file.export_step",
   "params": {
-   "path": "/Users/henryschwerdtner/dev/ai-insulin-pump/mechanical/out/OP-200_assembly.step",
+   "path": "mechanical/out/OP-200_assembly.step",
    "bodies": [
     "bottom",
     "top",
@@ -4108,7 +4108,7 @@
  {
   "command": "file.export_step",
   "params": {
-   "path": "/Users/henryschwerdtner/dev/ai-insulin-pump/mechanical/out/OP-200_bottom.step",
+   "path": "mechanical/out/OP-200_bottom.step",
    "bodies": [
     "bottom"
    ]
@@ -4117,7 +4117,7 @@
  {
   "command": "file.export_stl",
   "params": {
-   "path": "/Users/henryschwerdtner/dev/ai-insulin-pump/mechanical/out/OP-200_bottom.stl",
+   "path": "mechanical/out/OP-200_bottom.stl",
    "bodies": [
     "bottom"
    ],
@@ -4127,7 +4127,7 @@
  {
   "command": "file.export_step",
   "params": {
-   "path": "/Users/henryschwerdtner/dev/ai-insulin-pump/mechanical/out/OP-200_top.step",
+   "path": "mechanical/out/OP-200_top.step",
    "bodies": [
     "top"
    ]
@@ -4136,7 +4136,7 @@
  {
   "command": "file.export_stl",
   "params": {
-   "path": "/Users/henryschwerdtner/dev/ai-insulin-pump/mechanical/out/OP-200_top.stl",
+   "path": "mechanical/out/OP-200_top.stl",
    "bodies": [
     "top"
    ],
@@ -4146,7 +4146,7 @@
  {
   "command": "file.export_step",
   "params": {
-   "path": "/Users/henryschwerdtner/dev/ai-insulin-pump/mechanical/out/OP-200_carriage.step",
+   "path": "mechanical/out/OP-200_carriage.step",
    "bodies": [
     "carriage"
    ]
@@ -4155,7 +4155,7 @@
  {
   "command": "file.export_stl",
   "params": {
-   "path": "/Users/henryschwerdtner/dev/ai-insulin-pump/mechanical/out/OP-200_carriage.stl",
+   "path": "mechanical/out/OP-200_carriage.stl",
    "bodies": [
     "carriage"
    ],
@@ -4165,7 +4165,7 @@
  {
   "command": "file.export_step",
   "params": {
-   "path": "/Users/henryschwerdtner/dev/ai-insulin-pump/mechanical/out/OP-200_reservoir.step",
+   "path": "mechanical/out/OP-200_reservoir.step",
    "bodies": [
     "reservoir"
    ]
@@ -4174,7 +4174,7 @@
  {
   "command": "file.export_stl",
   "params": {
-   "path": "/Users/henryschwerdtner/dev/ai-insulin-pump/mechanical/out/OP-200_reservoir.stl",
+   "path": "mechanical/out/OP-200_reservoir.stl",
    "bodies": [
     "reservoir"
    ],
@@ -4184,7 +4184,7 @@
  {
   "command": "file.export_step",
   "params": {
-   "path": "/Users/henryschwerdtner/dev/ai-insulin-pump/mechanical/out/OP-200_plunger_core.step",
+   "path": "mechanical/out/OP-200_plunger_core.step",
    "bodies": [
     "plunger_core"
    ]
@@ -4193,7 +4193,7 @@
  {
   "command": "file.export_stl",
   "params": {
-   "path": "/Users/henryschwerdtner/dev/ai-insulin-pump/mechanical/out/OP-200_plunger_core.stl",
+   "path": "mechanical/out/OP-200_plunger_core.stl",
    "bodies": [
     "plunger_core"
    ],
@@ -4203,7 +4203,7 @@
  {
   "command": "file.export_step",
   "params": {
-   "path": "/Users/henryschwerdtner/dev/ai-insulin-pump/mechanical/out/OP-200_plunger_seal.step",
+   "path": "mechanical/out/OP-200_plunger_seal.step",
    "bodies": [
     "seal_a",
     "seal_b"
@@ -4213,7 +4213,7 @@
  {
   "command": "file.export_stl",
   "params": {
-   "path": "/Users/henryschwerdtner/dev/ai-insulin-pump/mechanical/out/OP-200_plunger_seal.stl",
+   "path": "mechanical/out/OP-200_plunger_seal.stl",
    "bodies": [
     "seal_a",
     "seal_b"
@@ -4224,7 +4224,7 @@
  {
   "command": "file.export_step",
   "params": {
-   "path": "/Users/henryschwerdtner/dev/ai-insulin-pump/mechanical/out/OP-200_gasket.step",
+   "path": "mechanical/out/OP-200_gasket.step",
    "bodies": [
     "gasket"
    ]
@@ -4233,7 +4233,7 @@
  {
   "command": "file.export_stl",
   "params": {
-   "path": "/Users/henryschwerdtner/dev/ai-insulin-pump/mechanical/out/OP-200_gasket.stl",
+   "path": "mechanical/out/OP-200_gasket.stl",
    "bodies": [
     "gasket"
    ],

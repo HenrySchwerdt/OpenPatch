@@ -1,0 +1,3879 @@
+{
+ "extra": [
+  {
+   "licence": "Nordic proprietary binary licence (verify)",
+   "name": "Nordic SoftDevice Controller (binary library inside nrf-sdc-sys)",
+   "purpose": "BLE link layer controller",
+   "relevance": "availability only: the BLE task cannot move the motor or feed the watchdog (firmware-rs/docs/architecture.md)",
+   "version": "per nrf-sdc 0.4.0 / nrf-sdc-sys 0.3.0 (verify blob version)"
+  },
+  {
+   "licence": "Nordic proprietary binary licence (verify)",
+   "name": "Nordic MPSL (binary library inside nrf-mpsl-sys)",
+   "purpose": "radio scheduling and flash timeslot API",
+   "relevance": "affects tick jitter during flash writes; not measured on hardware",
+   "version": "per nrf-mpsl 0.4.0 / nrf-mpsl-sys 0.3.0 (verify blob version)"
+  },
+  {
+   "licence": "hardware",
+   "name": "nRF52840 silicon and errata (Nordic)",
+   "purpose": "MCU (Cortex-M4F)",
+   "relevance": "flash erase stalls the CPU (about 85 ms per page); TRNG seeds the DRBG",
+   "version": "production revision to be recorded"
+  },
+  {
+   "licence": "MIT OR Apache-2.0",
+   "name": "Rust toolchain (rustc stable; thumbv7em-none-eabihf)",
+   "purpose": "compiler and core library for all firmware",
+   "relevance": "compiler is SOUP: pin the version and record it in the release record",
+   "version": "exact rustc version to be pinned (no rust-toolchain file in the repo)"
+  },
+  {
+   "licence": "Apple platform terms",
+   "name": "Apple iOS CoreBluetooth / CryptoKit / Keychain",
+   "purpose": "BLE central role; X25519/HKDF/HMAC/SHA-256; secret storage",
+   "relevance": "phone-side security and transport; OS updates are outside the manufacturer's control",
+   "version": "minimum iOS version to be confirmed in ios/OpenPatchKit/Support/Config.xcconfig"
+  },
+  {
+   "licence": "MIT",
+   "name": "LoopKit (PumpManager protocol and UI types)",
+   "purpose": "host framework interfaces used by OpenPatchKit",
+   "relevance": "interface contract to the algorithm app; upstream changes can break compatibility",
+   "version": "commit f974241 (per docs/STATUS.md)"
+  },
+  {
+   "licence": "AGPL-3.0",
+   "name": "Trio (nightscout/Trio) host app",
+   "purpose": "algorithm and UI that calls OpenPatchKit",
+   "relevance": "for a regulated product the manufacturer must control the host app version or specify the interface (FDA ACE pump special controls require a validated interface specification)",
+   "version": "not pinned (the user installs a build)"
+  },
+  {
+   "licence": "Apple",
+   "name": "Xcode / Swift toolchain",
+   "purpose": "build of the iOS kit",
+   "relevance": "tool; output verified by the Swift test suite",
+   "version": "to be pinned"
+  },
+  {
+   "licence": "GPL-3.0-or-later",
+   "name": "KiCad 10 (PCB design and DRC)",
+   "purpose": "PCB generation and design rule checks",
+   "relevance": "design tool (design records only)",
+   "version": "10.x"
+  },
+  {
+   "licence": "proprietary",
+   "name": "SolidCraft CLI (3D CAD)",
+   "purpose": "housing and CAD generation",
+   "relevance": "design tool (design records only)",
+   "version": "version to be recorded"
+  }
+ ],
+ "first_party": [
+  {
+   "name": "differential-tests",
+   "scope": "host-workspace",
+   "version": "0.1.0"
+  },
+  {
+   "name": "openpatch-core",
+   "scope": "host-workspace",
+   "version": "0.1.0"
+  },
+  {
+   "name": "openpatch-proto",
+   "scope": "host-workspace",
+   "version": "0.1.0"
+  },
+  {
+   "name": "openpatch-bench",
+   "scope": "bench-app",
+   "version": "0.1.0"
+  },
+  {
+   "name": "openpatch-core",
+   "scope": "bench-app",
+   "version": "0.1.0"
+  },
+  {
+   "name": "openpatch-proto",
+   "scope": "bench-app",
+   "version": "0.1.0"
+  },
+  {
+   "name": "openpatch-bootloader",
+   "scope": "bootloader",
+   "version": "0.1.0"
+  }
+ ],
+ "packages": [
+  {
+   "classification": "bootloader (shipped, update path)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "Apache-2.0 OR MIT",
+   "name": "autocfg",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app,bootloader,host-workspace",
+   "source": "registry",
+   "used_by": [
+    "differential-tests",
+    "openpatch-bench",
+    "openpatch-bootloader"
+   ],
+   "version": "1.5.1"
+  },
+  {
+   "classification": "bootloader (shipped, update path)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT/Apache-2.0",
+   "name": "az",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app,bootloader",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench",
+    "openpatch-bootloader"
+   ],
+   "version": "1.3.0"
+  },
+  {
+   "classification": "bootloader (shipped, update path)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "bare-metal",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app,bootloader",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench",
+    "openpatch-bootloader"
+   ],
+   "version": "0.2.5"
+  },
+  {
+   "classification": "bootloader (shipped, update path)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "bitfield",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app,bootloader",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench",
+    "openpatch-bootloader"
+   ],
+   "version": "0.13.2"
+  },
+  {
+   "classification": "bootloader (shipped, update path)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "Zlib OR Apache-2.0 OR MIT",
+   "name": "bytemuck",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app,bootloader",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench",
+    "openpatch-bootloader"
+   ],
+   "version": "1.25.2"
+  },
+  {
+   "classification": "bootloader (shipped, update path)",
+   "direct": true,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "cortex-m",
+   "purpose": "Cortex-M core access (critical sections, intrinsics)",
+   "scope": "bench-app,bootloader",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench",
+    "openpatch-bootloader"
+   ],
+   "version": "0.7.10"
+  },
+  {
+   "classification": "bootloader (shipped, update path)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "cortex-m-macros",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app,bootloader",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench",
+    "openpatch-bootloader"
+   ],
+   "version": "0.7.8"
+  },
+  {
+   "classification": "bootloader (shipped, update path)",
+   "direct": true,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "cortex-m-rt",
+   "purpose": "Cortex-M start-up / vector table",
+   "scope": "bench-app,bootloader",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench",
+    "openpatch-bootloader"
+   ],
+   "version": "0.7.7"
+  },
+  {
+   "classification": "bootloader (shipped, update path)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "cortex-m-rt-macros",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app,bootloader",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench",
+    "openpatch-bootloader"
+   ],
+   "version": "0.7.7"
+  },
+  {
+   "classification": "bootloader (shipped, update path)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "critical-section",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app,bootloader",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench",
+    "openpatch-bootloader"
+   ],
+   "version": "1.2.0"
+  },
+  {
+   "classification": "bootloader (shipped, update path)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT",
+   "name": "crunchy",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app,bootloader",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench",
+    "openpatch-bootloader"
+   ],
+   "version": "0.2.4"
+  },
+  {
+   "classification": "bootloader (shipped, update path)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "document-features",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app,bootloader",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench",
+    "openpatch-bootloader"
+   ],
+   "version": "0.2.12"
+  },
+  {
+   "classification": "bootloader (shipped, update path)",
+   "direct": true,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "embassy-boot",
+   "purpose": "bootloader library (swap, MCUboot-compatible state)",
+   "scope": "bench-app,bootloader",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench",
+    "openpatch-bootloader"
+   ],
+   "version": "0.7.0"
+  },
+  {
+   "classification": "bootloader (shipped, update path)",
+   "direct": true,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "embassy-boot-nrf",
+   "purpose": "direct dependency (purpose to be written)",
+   "scope": "bootloader",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bootloader"
+   ],
+   "version": "0.12.0"
+  },
+  {
+   "classification": "bootloader (shipped, update path)",
+   "direct": true,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "embassy-embedded-hal",
+   "purpose": "direct dependency (purpose to be written)",
+   "scope": "bench-app,bootloader",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench",
+    "openpatch-bootloader"
+   ],
+   "version": "0.6.0"
+  },
+  {
+   "classification": "bootloader (shipped, update path)",
+   "direct": true,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "embassy-futures",
+   "purpose": "direct dependency (purpose to be written)",
+   "scope": "bench-app,bootloader",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench",
+    "openpatch-bootloader"
+   ],
+   "version": "0.1.2"
+  },
+  {
+   "classification": "bootloader (shipped, update path)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "embassy-hal-internal",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app,bootloader",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench",
+    "openpatch-bootloader"
+   ],
+   "version": "0.4.0"
+  },
+  {
+   "classification": "bootloader (shipped, update path)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "embassy-hal-internal",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app,bootloader",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench",
+    "openpatch-bootloader"
+   ],
+   "version": "0.5.0"
+  },
+  {
+   "classification": "bootloader (shipped, update path)",
+   "direct": true,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "embassy-nrf",
+   "purpose": "nRF52840 peripheral drivers (PWM, SAADC, TWIM, GPIOTE, QDEC)",
+   "scope": "bench-app,bootloader",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench",
+    "openpatch-bootloader"
+   ],
+   "version": "0.11.0"
+  },
+  {
+   "classification": "bootloader (shipped, update path)",
+   "direct": true,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "embassy-sync",
+   "purpose": "channels / mutexes between tasks",
+   "scope": "bench-app,bootloader",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench",
+    "openpatch-bootloader"
+   ],
+   "version": "0.8.0"
+  },
+  {
+   "classification": "bootloader (shipped, update path)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "embassy-usb-driver",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app,bootloader",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench",
+    "openpatch-bootloader"
+   ],
+   "version": "0.2.2"
+  },
+  {
+   "classification": "bootloader (shipped, update path)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "embedded-hal",
+   "purpose": "hardware abstraction traits",
+   "scope": "bench-app,bootloader",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench",
+    "openpatch-bootloader"
+   ],
+   "version": "0.2.7"
+  },
+  {
+   "classification": "bootloader (shipped, update path)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "embedded-hal",
+   "purpose": "hardware abstraction traits",
+   "scope": "bench-app,bootloader",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench",
+    "openpatch-bootloader"
+   ],
+   "version": "1.0.0"
+  },
+  {
+   "classification": "bootloader (shipped, update path)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "embedded-hal-async",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app,bootloader",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench",
+    "openpatch-bootloader"
+   ],
+   "version": "1.0.0"
+  },
+  {
+   "classification": "bootloader (shipped, update path)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "embedded-io",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app,bootloader",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench",
+    "openpatch-bootloader"
+   ],
+   "version": "0.6.1"
+  },
+  {
+   "classification": "bootloader (shipped, update path)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "embedded-io",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app,bootloader",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench",
+    "openpatch-bootloader"
+   ],
+   "version": "0.7.1"
+  },
+  {
+   "classification": "bootloader (shipped, update path)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "embedded-io-async",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app,bootloader",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench",
+    "openpatch-bootloader"
+   ],
+   "version": "0.6.1"
+  },
+  {
+   "classification": "bootloader (shipped, update path)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "embedded-io-async",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app,bootloader",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench",
+    "openpatch-bootloader"
+   ],
+   "version": "0.7.0"
+  },
+  {
+   "classification": "bootloader (shipped, update path)",
+   "direct": true,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "embedded-storage",
+   "purpose": "flash trait",
+   "scope": "bench-app,bootloader",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench",
+    "openpatch-bootloader"
+   ],
+   "version": "0.3.2"
+  },
+  {
+   "classification": "bootloader (shipped, update path)",
+   "direct": true,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "embedded-storage-async",
+   "purpose": "direct dependency (purpose to be written)",
+   "scope": "bench-app,bootloader",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench",
+    "openpatch-bootloader"
+   ],
+   "version": "0.4.2"
+  },
+  {
+   "classification": "bootloader (shipped, update path)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT/Apache-2.0",
+   "name": "fixed",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app,bootloader",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench",
+    "openpatch-bootloader"
+   ],
+   "version": "1.31.0"
+  },
+  {
+   "classification": "bootloader (shipped, update path)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "futures-core",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app,bootloader",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench",
+    "openpatch-bootloader"
+   ],
+   "version": "0.3.34"
+  },
+  {
+   "classification": "bootloader (shipped, update path)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "futures-sink",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app,bootloader",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench",
+    "openpatch-bootloader"
+   ],
+   "version": "0.3.34"
+  },
+  {
+   "classification": "bootloader (shipped, update path)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "half",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app,bootloader",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench",
+    "openpatch-bootloader"
+   ],
+   "version": "2.7.1"
+  },
+  {
+   "classification": "bootloader (shipped, update path)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "litrs",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app,bootloader",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench",
+    "openpatch-bootloader"
+   ],
+   "version": "1.0.1"
+  },
+  {
+   "classification": "bootloader (shipped, update path)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "nb",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app,bootloader",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench",
+    "openpatch-bootloader"
+   ],
+   "version": "0.1.3"
+  },
+  {
+   "classification": "bootloader (shipped, update path)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "nb",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app,bootloader",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench",
+    "openpatch-bootloader"
+   ],
+   "version": "1.1.0"
+  },
+  {
+   "classification": "bootloader (shipped, update path)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "BSD-3-Clause",
+   "name": "nrf-pac",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app,bootloader",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench",
+    "openpatch-bootloader"
+   ],
+   "version": "0.4.0"
+  },
+  {
+   "classification": "bootloader (shipped, update path)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "num-traits",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app,bootloader,host-workspace",
+   "source": "registry",
+   "used_by": [
+    "differential-tests",
+    "openpatch-bench",
+    "openpatch-bootloader"
+   ],
+   "version": "0.2.19"
+  },
+  {
+   "classification": "bootloader (shipped, update path)",
+   "direct": true,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "panic-reset",
+   "purpose": "direct dependency (purpose to be written)",
+   "scope": "bootloader",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bootloader"
+   ],
+   "version": "0.1.1"
+  },
+  {
+   "classification": "bootloader (shipped, update path)",
+   "direct": true,
+   "ecosystem": "cargo",
+   "licence": "Apache-2.0 OR MIT",
+   "name": "salty",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app,bootloader",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench",
+    "openpatch-bootloader"
+   ],
+   "version": "0.3.0"
+  },
+  {
+   "classification": "bootloader (shipped, update path)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "Apache-2.0 OR MIT",
+   "name": "signature",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app,bootloader",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench",
+    "openpatch-bootloader"
+   ],
+   "version": "2.2.0"
+  },
+  {
+   "classification": "bootloader (shipped, update path)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "vcell",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app,bootloader",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench",
+    "openpatch-bootloader"
+   ],
+   "version": "0.1.3"
+  },
+  {
+   "classification": "bootloader (shipped, update path)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT",
+   "name": "void",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app,bootloader",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench",
+    "openpatch-bootloader"
+   ],
+   "version": "1.0.2"
+  },
+  {
+   "classification": "bootloader (shipped, update path)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "volatile-register",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app,bootloader",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench",
+    "openpatch-bootloader"
+   ],
+   "version": "0.2.2"
+  },
+  {
+   "classification": "bootloader (shipped, update path)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "BSD-2-Clause OR Apache-2.0 OR MIT",
+   "name": "zerocopy",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app,bootloader",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench",
+    "openpatch-bootloader"
+   ],
+   "version": "0.8.63"
+  },
+  {
+   "classification": "bootloader (shipped, update path)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "BSD-2-Clause OR Apache-2.0 OR MIT",
+   "name": "zerocopy-derive",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app,bootloader",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench",
+    "openpatch-bootloader"
+   ],
+   "version": "0.8.63"
+  },
+  {
+   "classification": "shipped (bench app, outside the dosing core)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "Unlicense OR MIT",
+   "name": "aho-corasick",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench"
+   ],
+   "version": "1.1.5"
+  },
+  {
+   "classification": "shipped (bench app, outside the dosing core)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "Apache-2.0 OR MIT",
+   "name": "base16ct",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench"
+   ],
+   "version": "0.2.0"
+  },
+  {
+   "classification": "shipped (bench app, outside the dosing core)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "BSD-3-Clause",
+   "name": "bindgen",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench"
+   ],
+   "version": "0.72.1"
+  },
+  {
+   "classification": "shipped (bench app, outside the dosing core)",
+   "direct": true,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "bt-hci",
+   "purpose": "direct dependency (purpose to be written)",
+   "scope": "bench-app",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench"
+   ],
+   "version": "0.10.1"
+  },
+  {
+   "classification": "shipped (bench app, outside the dosing core)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "bt-hci-transport",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench"
+   ],
+   "version": "0.1.0"
+  },
+  {
+   "classification": "shipped (bench app, outside the dosing core)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "btuuid",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench"
+   ],
+   "version": "0.1.1"
+  },
+  {
+   "classification": "shipped (bench app, outside the dosing core)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "bumpalo",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench"
+   ],
+   "version": "3.20.4"
+  },
+  {
+   "classification": "shipped (bench app, outside the dosing core)",
+   "direct": true,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "cc",
+   "purpose": "C compiler driver for the differential tests (host test only)",
+   "scope": "bench-app,host-workspace",
+   "source": "registry",
+   "used_by": [
+    "differential-tests",
+    "openpatch-bench"
+   ],
+   "version": "1.11.2"
+  },
+  {
+   "classification": "shipped (bench app, outside the dosing core)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "Apache-2.0/MIT",
+   "name": "cexpr",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench"
+   ],
+   "version": "0.6.0"
+  },
+  {
+   "classification": "shipped (bench app, outside the dosing core)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "Apache-2.0",
+   "name": "clang-sys",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench"
+   ],
+   "version": "1.9.1"
+  },
+  {
+   "classification": "shipped (bench app, outside the dosing core)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "cmac",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench"
+   ],
+   "version": "0.7.2"
+  },
+  {
+   "classification": "shipped (bench app, outside the dosing core)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "Apache-2.0 OR MIT",
+   "name": "const-oid",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench"
+   ],
+   "version": "0.9.6"
+  },
+  {
+   "classification": "shipped (bench app, outside the dosing core)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT",
+   "name": "convert_case",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench"
+   ],
+   "version": "0.8.0"
+  },
+  {
+   "classification": "shipped (bench app, outside the dosing core)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT",
+   "name": "cordyceps",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench"
+   ],
+   "version": "0.3.5"
+  },
+  {
+   "classification": "shipped (bench app, outside the dosing core)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "Apache-2.0 OR MIT",
+   "name": "crypto-bigint",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench"
+   ],
+   "version": "0.5.5"
+  },
+  {
+   "classification": "shipped (bench app, outside the dosing core)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT",
+   "name": "darling",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench"
+   ],
+   "version": "0.20.11"
+  },
+  {
+   "classification": "shipped (bench app, outside the dosing core)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT",
+   "name": "darling_core",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench"
+   ],
+   "version": "0.20.11"
+  },
+  {
+   "classification": "shipped (bench app, outside the dosing core)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT",
+   "name": "darling_macro",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench"
+   ],
+   "version": "0.20.11"
+  },
+  {
+   "classification": "shipped (bench app, outside the dosing core)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "dbl",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench"
+   ],
+   "version": "0.3.2"
+  },
+  {
+   "classification": "shipped (bench app, outside the dosing core)",
+   "direct": true,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "defmt-rtt",
+   "purpose": "direct dependency (purpose to be written)",
+   "scope": "bench-app",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench"
+   ],
+   "version": "1.3.1"
+  },
+  {
+   "classification": "shipped (bench app, outside the dosing core)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "Apache-2.0 OR MIT",
+   "name": "der",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench"
+   ],
+   "version": "0.7.10"
+  },
+  {
+   "classification": "shipped (bench app, outside the dosing core)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "BSD-3-Clause",
+   "name": "doxygen-rs",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench"
+   ],
+   "version": "0.4.2"
+  },
+  {
+   "classification": "shipped (bench app, outside the dosing core)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "Apache-2.0 OR MIT",
+   "name": "ed25519",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench"
+   ],
+   "version": "2.2.3"
+  },
+  {
+   "classification": "shipped (bench app, outside the dosing core)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "either",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench"
+   ],
+   "version": "1.19.0"
+  },
+  {
+   "classification": "shipped (bench app, outside the dosing core)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "Apache-2.0 OR MIT",
+   "name": "elliptic-curve",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench"
+   ],
+   "version": "0.13.8"
+  },
+  {
+   "classification": "shipped (bench app, outside the dosing core)",
+   "direct": true,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "embassy-executor",
+   "purpose": "async executor, interrupt executors (safety task priority)",
+   "scope": "bench-app",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench"
+   ],
+   "version": "0.10.0"
+  },
+  {
+   "classification": "shipped (bench app, outside the dosing core)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "embassy-executor-macros",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench"
+   ],
+   "version": "0.8.0"
+  },
+  {
+   "classification": "shipped (bench app, outside the dosing core)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "embassy-executor-timer-queue",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench"
+   ],
+   "version": "0.1.0"
+  },
+  {
+   "classification": "shipped (bench app, outside the dosing core)",
+   "direct": true,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "embassy-time",
+   "purpose": "timekeeping and tickers",
+   "scope": "bench-app",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench"
+   ],
+   "version": "0.5.1"
+  },
+  {
+   "classification": "shipped (bench app, outside the dosing core)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "embassy-time-driver",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench"
+   ],
+   "version": "0.2.2"
+  },
+  {
+   "classification": "shipped (bench app, outside the dosing core)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "embassy-time-queue-utils",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench"
+   ],
+   "version": "0.3.2"
+  },
+  {
+   "classification": "shipped (bench app, outside the dosing core)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "embassy-usb-synopsys-otg",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench"
+   ],
+   "version": "0.4.0"
+  },
+  {
+   "classification": "shipped (bench app, outside the dosing core)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT/Apache-2.0",
+   "name": "ff",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench"
+   ],
+   "version": "0.13.1"
+  },
+  {
+   "classification": "shipped (bench app, outside the dosing core)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "find-msvc-tools",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app,host-workspace",
+   "source": "registry",
+   "used_by": [
+    "differential-tests",
+    "openpatch-bench"
+   ],
+   "version": "0.1.15"
+  },
+  {
+   "classification": "shipped (bench app, outside the dosing core)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "Apache-2.0 / MIT",
+   "name": "fnv",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app,host-workspace",
+   "source": "registry",
+   "used_by": [
+    "differential-tests",
+    "openpatch-bench"
+   ],
+   "version": "1.0.7"
+  },
+  {
+   "classification": "shipped (bench app, outside the dosing core)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "futures",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench"
+   ],
+   "version": "0.3.34"
+  },
+  {
+   "classification": "shipped (bench app, outside the dosing core)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "futures-channel",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench"
+   ],
+   "version": "0.3.34"
+  },
+  {
+   "classification": "shipped (bench app, outside the dosing core)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "futures-intrusive",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench"
+   ],
+   "version": "0.5.0"
+  },
+  {
+   "classification": "shipped (bench app, outside the dosing core)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "futures-io",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench"
+   ],
+   "version": "0.3.34"
+  },
+  {
+   "classification": "shipped (bench app, outside the dosing core)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "futures-task",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench"
+   ],
+   "version": "0.3.34"
+  },
+  {
+   "classification": "shipped (bench app, outside the dosing core)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "futures-util",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench"
+   ],
+   "version": "0.3.34"
+  },
+  {
+   "classification": "shipped (bench app, outside the dosing core)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT/Apache-2.0",
+   "name": "generator",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench"
+   ],
+   "version": "0.8.12"
+  },
+  {
+   "classification": "shipped (bench app, outside the dosing core)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "glob",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench"
+   ],
+   "version": "0.3.4"
+  },
+  {
+   "classification": "shipped (bench app, outside the dosing core)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT/Apache-2.0",
+   "name": "group",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench"
+   ],
+   "version": "0.13.0"
+  },
+  {
+   "classification": "shipped (bench app, outside the dosing core)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT/Apache-2.0",
+   "name": "ident_case",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench"
+   ],
+   "version": "1.0.1"
+  },
+  {
+   "classification": "shipped (bench app, outside the dosing core)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "itertools",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench"
+   ],
+   "version": "0.13.0"
+  },
+  {
+   "classification": "shipped (bench app, outside the dosing core)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "js-sys",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench"
+   ],
+   "version": "0.3.107"
+  },
+  {
+   "classification": "shipped (bench app, outside the dosing core)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "lazy_static",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench"
+   ],
+   "version": "1.5.1"
+  },
+  {
+   "classification": "shipped (bench app, outside the dosing core)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "ISC",
+   "name": "libloading",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench"
+   ],
+   "version": "0.8.9"
+  },
+  {
+   "classification": "shipped (bench app, outside the dosing core)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "lock_api",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench"
+   ],
+   "version": "0.4.14"
+  },
+  {
+   "classification": "shipped (bench app, outside the dosing core)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "log",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench"
+   ],
+   "version": "0.4.35"
+  },
+  {
+   "classification": "shipped (bench app, outside the dosing core)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT",
+   "name": "loom",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench"
+   ],
+   "version": "0.7.3"
+  },
+  {
+   "classification": "shipped (bench app, outside the dosing core)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT",
+   "name": "matchers",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench"
+   ],
+   "version": "0.2.0"
+  },
+  {
+   "classification": "shipped (bench app, outside the dosing core)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "Unlicense OR MIT",
+   "name": "memchr",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app,host-workspace",
+   "source": "registry",
+   "used_by": [
+    "differential-tests",
+    "openpatch-bench"
+   ],
+   "version": "2.8.3"
+  },
+  {
+   "classification": "shipped (bench app, outside the dosing core)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT/Apache-2.0",
+   "name": "minimal-lexical",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench"
+   ],
+   "version": "0.2.1"
+  },
+  {
+   "classification": "shipped (bench app, outside the dosing core)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT",
+   "name": "nom",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench"
+   ],
+   "version": "7.1.3"
+  },
+  {
+   "classification": "shipped (bench app, outside the dosing core)",
+   "direct": true,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "nrf-mpsl",
+   "purpose": "Nordic multiprotocol service layer (radio scheduling, flash timeslots; binary blob)",
+   "scope": "bench-app",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench"
+   ],
+   "version": "0.4.0"
+  },
+  {
+   "classification": "shipped (bench app, outside the dosing core)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "non-standard",
+   "name": "nrf-mpsl-sys",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench"
+   ],
+   "version": "0.3.0"
+  },
+  {
+   "classification": "shipped (bench app, outside the dosing core)",
+   "direct": true,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "nrf-sdc",
+   "purpose": "Nordic SoftDevice Controller bindings (BLE link layer, binary blob)",
+   "scope": "bench-app",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench"
+   ],
+   "version": "0.4.0"
+  },
+  {
+   "classification": "shipped (bench app, outside the dosing core)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "non-standard",
+   "name": "nrf-sdc-sys",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench"
+   ],
+   "version": "0.3.0"
+  },
+  {
+   "classification": "shipped (bench app, outside the dosing core)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT",
+   "name": "nu-ansi-term",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench"
+   ],
+   "version": "0.50.3"
+  },
+  {
+   "classification": "shipped (bench app, outside the dosing core)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "once_cell",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app,host-workspace",
+   "source": "registry",
+   "used_by": [
+    "differential-tests",
+    "openpatch-bench"
+   ],
+   "version": "1.21.4"
+  },
+  {
+   "classification": "shipped (bench app, outside the dosing core)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "Apache-2.0 OR MIT",
+   "name": "p256",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench"
+   ],
+   "version": "0.13.2"
+  },
+  {
+   "classification": "shipped (bench app, outside the dosing core)",
+   "direct": true,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "panic-probe",
+   "purpose": "panic handler for the bench build",
+   "scope": "bench-app",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench"
+   ],
+   "version": "1.0.0"
+  },
+  {
+   "classification": "shipped (bench app, outside the dosing core)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT",
+   "name": "phf",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench"
+   ],
+   "version": "0.11.3"
+  },
+  {
+   "classification": "shipped (bench app, outside the dosing core)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT",
+   "name": "phf_generator",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench"
+   ],
+   "version": "0.11.3"
+  },
+  {
+   "classification": "shipped (bench app, outside the dosing core)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT",
+   "name": "phf_macros",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench"
+   ],
+   "version": "0.11.3"
+  },
+  {
+   "classification": "shipped (bench app, outside the dosing core)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT",
+   "name": "phf_shared",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench"
+   ],
+   "version": "0.11.3"
+  },
+  {
+   "classification": "shipped (bench app, outside the dosing core)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "Apache-2.0 OR MIT",
+   "name": "pin-project-lite",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench"
+   ],
+   "version": "0.2.17"
+  },
+  {
+   "classification": "shipped (bench app, outside the dosing core)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "Apache-2.0 OR MIT",
+   "name": "portable-atomic",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench"
+   ],
+   "version": "1.15.0"
+  },
+  {
+   "classification": "shipped (bench app, outside the dosing core)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "ppv-lite86",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench"
+   ],
+   "version": "0.2.21"
+  },
+  {
+   "classification": "shipped (bench app, outside the dosing core)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "prettyplease",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench"
+   ],
+   "version": "0.2.37"
+  },
+  {
+   "classification": "shipped (bench app, outside the dosing core)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "Apache-2.0 OR MIT",
+   "name": "primeorder",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench"
+   ],
+   "version": "0.13.6"
+  },
+  {
+   "classification": "shipped (bench app, outside the dosing core)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "rand",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench"
+   ],
+   "version": "0.8.8"
+  },
+  {
+   "classification": "shipped (bench app, outside the dosing core)",
+   "direct": true,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "rand_chacha",
+   "purpose": "direct dependency (purpose to be written)",
+   "scope": "bench-app",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench"
+   ],
+   "version": "0.3.1"
+  },
+  {
+   "classification": "shipped (bench app, outside the dosing core)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "regex",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench"
+   ],
+   "version": "1.13.2"
+  },
+  {
+   "classification": "shipped (bench app, outside the dosing core)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "regex-automata",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench"
+   ],
+   "version": "0.4.19"
+  },
+  {
+   "classification": "shipped (bench app, outside the dosing core)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "regex-syntax",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app,host-workspace",
+   "source": "registry",
+   "used_by": [
+    "differential-tests",
+    "openpatch-bench"
+   ],
+   "version": "0.8.12"
+  },
+  {
+   "classification": "shipped (bench app, outside the dosing core)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "Apache-2.0 OR MIT",
+   "name": "rustc-hash",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench"
+   ],
+   "version": "2.1.3"
+  },
+  {
+   "classification": "shipped (bench app, outside the dosing core)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "rustversion",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench"
+   ],
+   "version": "1.0.23"
+  },
+  {
+   "classification": "shipped (bench app, outside the dosing core)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT/Apache-2.0",
+   "name": "scoped-tls",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench"
+   ],
+   "version": "1.0.1"
+  },
+  {
+   "classification": "shipped (bench app, outside the dosing core)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "scopeguard",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench"
+   ],
+   "version": "1.2.0"
+  },
+  {
+   "classification": "shipped (bench app, outside the dosing core)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "Apache-2.0 OR MIT",
+   "name": "sec1",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench"
+   ],
+   "version": "0.7.3"
+  },
+  {
+   "classification": "shipped (bench app, outside the dosing core)",
+   "direct": true,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "sequential-storage",
+   "purpose": "wear-levelled key/value storage in flash",
+   "scope": "bench-app",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench"
+   ],
+   "version": "8.0.2"
+  },
+  {
+   "classification": "shipped (bench app, outside the dosing core)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT",
+   "name": "sharded-slab",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench"
+   ],
+   "version": "0.1.7"
+  },
+  {
+   "classification": "shipped (bench app, outside the dosing core)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "shlex",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench"
+   ],
+   "version": "1.3.0"
+  },
+  {
+   "classification": "shipped (bench app, outside the dosing core)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "shlex",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app,host-workspace",
+   "source": "registry",
+   "used_by": [
+    "differential-tests",
+    "openpatch-bench"
+   ],
+   "version": "2.0.1"
+  },
+  {
+   "classification": "shipped (bench app, outside the dosing core)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "siphasher",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench"
+   ],
+   "version": "1.0.4"
+  },
+  {
+   "classification": "shipped (bench app, outside the dosing core)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT",
+   "name": "slab",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench"
+   ],
+   "version": "0.4.12"
+  },
+  {
+   "classification": "shipped (bench app, outside the dosing core)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "smallvec",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench"
+   ],
+   "version": "1.16.6"
+  },
+  {
+   "classification": "shipped (bench app, outside the dosing core)",
+   "direct": true,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "static_cell",
+   "purpose": "direct dependency (purpose to be written)",
+   "scope": "bench-app",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench"
+   ],
+   "version": "2.1.1"
+  },
+  {
+   "classification": "shipped (bench app, outside the dosing core)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT",
+   "name": "strsim",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench"
+   ],
+   "version": "0.11.1"
+  },
+  {
+   "classification": "shipped (bench app, outside the dosing core)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "thread_local",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench"
+   ],
+   "version": "1.1.10"
+  },
+  {
+   "classification": "shipped (bench app, outside the dosing core)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT",
+   "name": "tracing",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench"
+   ],
+   "version": "0.1.44"
+  },
+  {
+   "classification": "shipped (bench app, outside the dosing core)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT",
+   "name": "tracing-attributes",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench"
+   ],
+   "version": "0.1.31"
+  },
+  {
+   "classification": "shipped (bench app, outside the dosing core)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT",
+   "name": "tracing-core",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench"
+   ],
+   "version": "0.1.36"
+  },
+  {
+   "classification": "shipped (bench app, outside the dosing core)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT",
+   "name": "tracing-log",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench"
+   ],
+   "version": "0.2.0"
+  },
+  {
+   "classification": "shipped (bench app, outside the dosing core)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT",
+   "name": "tracing-subscriber",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench"
+   ],
+   "version": "0.3.23"
+  },
+  {
+   "classification": "shipped (bench app, outside the dosing core)",
+   "direct": true,
+   "ecosystem": "cargo",
+   "licence": "Apache-2.0 OR MIT",
+   "name": "trouble-host",
+   "purpose": "BLE host stack (GATT, pairing)",
+   "scope": "bench-app",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench"
+   ],
+   "version": "0.8.0"
+  },
+  {
+   "classification": "shipped (bench app, outside the dosing core)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "Apache-2.0 OR MIT",
+   "name": "trouble-host-macros",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench"
+   ],
+   "version": "0.6.0"
+  },
+  {
+   "classification": "shipped (bench app, outside the dosing core)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "unicode-segmentation",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench"
+   ],
+   "version": "1.13.3"
+  },
+  {
+   "classification": "shipped (bench app, outside the dosing core)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "Apache-2.0 OR MIT",
+   "name": "uuid",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench"
+   ],
+   "version": "1.29.3"
+  },
+  {
+   "classification": "shipped (bench app, outside the dosing core)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT",
+   "name": "valuable",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench"
+   ],
+   "version": "0.1.1"
+  },
+  {
+   "classification": "shipped (bench app, outside the dosing core)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "wasm-bindgen",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench"
+   ],
+   "version": "0.2.130"
+  },
+  {
+   "classification": "shipped (bench app, outside the dosing core)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "wasm-bindgen-macro",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench"
+   ],
+   "version": "0.2.130"
+  },
+  {
+   "classification": "shipped (bench app, outside the dosing core)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "wasm-bindgen-macro-support",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench"
+   ],
+   "version": "0.2.130"
+  },
+  {
+   "classification": "shipped (bench app, outside the dosing core)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "wasm-bindgen-shared",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench"
+   ],
+   "version": "0.2.130"
+  },
+  {
+   "classification": "shipped (bench app, outside the dosing core)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "windows-core",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench"
+   ],
+   "version": "0.100.0"
+  },
+  {
+   "classification": "shipped (bench app, outside the dosing core)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "windows-implement",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench"
+   ],
+   "version": "0.100.0"
+  },
+  {
+   "classification": "shipped (bench app, outside the dosing core)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "windows-interface",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench"
+   ],
+   "version": "0.100.0"
+  },
+  {
+   "classification": "shipped (bench app, outside the dosing core)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "windows-link",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench"
+   ],
+   "version": "0.100.0"
+  },
+  {
+   "classification": "shipped (bench app, outside the dosing core)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "windows-link",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app,host-workspace",
+   "source": "registry",
+   "used_by": [
+    "differential-tests",
+    "openpatch-bench"
+   ],
+   "version": "0.2.1"
+  },
+  {
+   "classification": "shipped (bench app, outside the dosing core)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "windows-result",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench"
+   ],
+   "version": "0.100.0"
+  },
+  {
+   "classification": "shipped (bench app, outside the dosing core)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "windows-strings",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench"
+   ],
+   "version": "0.100.0"
+  },
+  {
+   "classification": "shipped (bench app, outside the dosing core)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "windows-sys",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app,host-workspace",
+   "source": "registry",
+   "used_by": [
+    "differential-tests",
+    "openpatch-bench"
+   ],
+   "version": "0.61.2"
+  },
+  {
+   "classification": "shipped (bench app, outside the dosing core)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT",
+   "name": "winnow",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench"
+   ],
+   "version": "0.7.15"
+  },
+  {
+   "classification": "shipped, safety/security path (core or protocol)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "aead",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app,host-workspace",
+   "source": "registry",
+   "used_by": [
+    "differential-tests",
+    "openpatch-bench",
+    "openpatch-core",
+    "openpatch-proto"
+   ],
+   "version": "0.5.2"
+  },
+  {
+   "classification": "shipped, safety/security path (core or protocol)",
+   "direct": true,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "aes",
+   "purpose": "AES block cipher (frame protection, AES-CCM)",
+   "scope": "bench-app,host-workspace",
+   "source": "registry",
+   "used_by": [
+    "differential-tests",
+    "openpatch-bench",
+    "openpatch-core",
+    "openpatch-proto"
+   ],
+   "version": "0.8.4"
+  },
+  {
+   "classification": "shipped, safety/security path (core or protocol)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT/Apache-2.0",
+   "name": "bitflags",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app,host-workspace",
+   "source": "registry",
+   "used_by": [
+    "differential-tests",
+    "openpatch-bench",
+    "openpatch-core",
+    "openpatch-proto"
+   ],
+   "version": "1.3.2"
+  },
+  {
+   "classification": "shipped, safety/security path (core or protocol)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "bitflags",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app,bootloader,host-workspace",
+   "source": "registry",
+   "used_by": [
+    "differential-tests",
+    "openpatch-bench",
+    "openpatch-bootloader",
+    "openpatch-core",
+    "openpatch-proto"
+   ],
+   "version": "2.13.2"
+  },
+  {
+   "classification": "shipped, safety/security path (core or protocol)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "block-buffer",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app,bootloader,host-workspace",
+   "source": "registry",
+   "used_by": [
+    "differential-tests",
+    "openpatch-bench",
+    "openpatch-bootloader",
+    "openpatch-core",
+    "openpatch-proto"
+   ],
+   "version": "0.10.4"
+  },
+  {
+   "classification": "shipped, safety/security path (core or protocol)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "Unlicense OR MIT",
+   "name": "byteorder",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app,bootloader,host-workspace",
+   "source": "registry",
+   "used_by": [
+    "differential-tests",
+    "openpatch-bench",
+    "openpatch-bootloader",
+    "openpatch-core",
+    "openpatch-proto"
+   ],
+   "version": "1.5.0"
+  },
+  {
+   "classification": "shipped, safety/security path (core or protocol)",
+   "direct": true,
+   "ecosystem": "cargo",
+   "licence": "Apache-2.0 OR MIT",
+   "name": "ccm",
+   "purpose": "AES-CCM AEAD mode (frame protection)",
+   "scope": "bench-app,host-workspace",
+   "source": "registry",
+   "used_by": [
+    "differential-tests",
+    "openpatch-bench",
+    "openpatch-core",
+    "openpatch-proto"
+   ],
+   "version": "0.5.0"
+  },
+  {
+   "classification": "shipped, safety/security path (core or protocol)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "cfg-if",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app,bootloader,host-workspace",
+   "source": "registry",
+   "used_by": [
+    "differential-tests",
+    "openpatch-bench",
+    "openpatch-bootloader",
+    "openpatch-core",
+    "openpatch-proto"
+   ],
+   "version": "1.0.5"
+  },
+  {
+   "classification": "shipped, safety/security path (core or protocol)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "cipher",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app,host-workspace",
+   "source": "registry",
+   "used_by": [
+    "differential-tests",
+    "openpatch-bench",
+    "openpatch-core",
+    "openpatch-proto"
+   ],
+   "version": "0.4.4"
+  },
+  {
+   "classification": "shipped, safety/security path (core or protocol)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "cpufeatures",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app,host-workspace",
+   "source": "registry",
+   "used_by": [
+    "differential-tests",
+    "openpatch-bench",
+    "openpatch-core",
+    "openpatch-proto"
+   ],
+   "version": "0.2.17"
+  },
+  {
+   "classification": "shipped, safety/security path (core or protocol)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "cpufeatures",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "host-workspace",
+   "source": "registry",
+   "used_by": [
+    "differential-tests",
+    "openpatch-core",
+    "openpatch-proto"
+   ],
+   "version": "0.3.1"
+  },
+  {
+   "classification": "shipped, safety/security path (core or protocol)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "crypto-common",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app,bootloader,host-workspace",
+   "source": "registry",
+   "used_by": [
+    "differential-tests",
+    "openpatch-bench",
+    "openpatch-bootloader",
+    "openpatch-core",
+    "openpatch-proto"
+   ],
+   "version": "0.1.7"
+  },
+  {
+   "classification": "shipped, safety/security path (core or protocol)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "ctr",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app,host-workspace",
+   "source": "registry",
+   "used_by": [
+    "differential-tests",
+    "openpatch-bench",
+    "openpatch-core",
+    "openpatch-proto"
+   ],
+   "version": "0.9.2"
+  },
+  {
+   "classification": "shipped, safety/security path (core or protocol)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "BSD-3-Clause",
+   "name": "curve25519-dalek",
+   "purpose": "elliptic-curve arithmetic for X25519",
+   "scope": "bench-app,host-workspace",
+   "source": "registry",
+   "used_by": [
+    "differential-tests",
+    "openpatch-bench",
+    "openpatch-core",
+    "openpatch-proto"
+   ],
+   "version": "4.1.3"
+  },
+  {
+   "classification": "shipped, safety/security path (core or protocol)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT/Apache-2.0",
+   "name": "curve25519-dalek-derive",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app,host-workspace",
+   "source": "registry",
+   "used_by": [
+    "differential-tests",
+    "openpatch-bench",
+    "openpatch-core",
+    "openpatch-proto"
+   ],
+   "version": "0.1.1"
+  },
+  {
+   "classification": "shipped, safety/security path (core or protocol)",
+   "direct": true,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "defmt",
+   "purpose": "logging for embedded targets (not in the safety path)",
+   "scope": "bench-app,host-workspace",
+   "source": "registry",
+   "used_by": [
+    "differential-tests",
+    "openpatch-bench",
+    "openpatch-core",
+    "openpatch-proto"
+   ],
+   "version": "0.3.101"
+  },
+  {
+   "classification": "shipped, safety/security path (core or protocol)",
+   "direct": true,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "defmt",
+   "purpose": "logging for embedded targets (not in the safety path)",
+   "scope": "bench-app,host-workspace",
+   "source": "registry",
+   "used_by": [
+    "differential-tests",
+    "openpatch-bench",
+    "openpatch-core",
+    "openpatch-proto"
+   ],
+   "version": "1.2.0"
+  },
+  {
+   "classification": "shipped, safety/security path (core or protocol)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "defmt-macros",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app,host-workspace",
+   "source": "registry",
+   "used_by": [
+    "differential-tests",
+    "openpatch-bench",
+    "openpatch-core",
+    "openpatch-proto"
+   ],
+   "version": "1.2.0"
+  },
+  {
+   "classification": "shipped, safety/security path (core or protocol)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "defmt-parser",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app,host-workspace",
+   "source": "registry",
+   "used_by": [
+    "differential-tests",
+    "openpatch-bench",
+    "openpatch-core",
+    "openpatch-proto"
+   ],
+   "version": "1.1.0"
+  },
+  {
+   "classification": "shipped, safety/security path (core or protocol)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "digest",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app,bootloader,host-workspace",
+   "source": "registry",
+   "used_by": [
+    "differential-tests",
+    "openpatch-bench",
+    "openpatch-bootloader",
+    "openpatch-core",
+    "openpatch-proto"
+   ],
+   "version": "0.10.7"
+  },
+  {
+   "classification": "shipped, safety/security path (core or protocol)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0 OR BSD-1-Clause",
+   "name": "fiat-crypto",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app,host-workspace",
+   "source": "registry",
+   "used_by": [
+    "differential-tests",
+    "openpatch-bench",
+    "openpatch-core",
+    "openpatch-proto"
+   ],
+   "version": "0.2.9"
+  },
+  {
+   "classification": "shipped, safety/security path (core or protocol)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT",
+   "name": "generic-array",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app,bootloader,host-workspace",
+   "source": "registry",
+   "used_by": [
+    "differential-tests",
+    "openpatch-bench",
+    "openpatch-bootloader",
+    "openpatch-core",
+    "openpatch-proto"
+   ],
+   "version": "0.14.7"
+  },
+  {
+   "classification": "shipped, safety/security path (core or protocol)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "hash32",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app,bootloader,host-workspace",
+   "source": "registry",
+   "used_by": [
+    "differential-tests",
+    "openpatch-bench",
+    "openpatch-bootloader",
+    "openpatch-core",
+    "openpatch-proto"
+   ],
+   "version": "0.3.1"
+  },
+  {
+   "classification": "shipped, safety/security path (core or protocol)",
+   "direct": true,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "heapless",
+   "purpose": "fixed-capacity collections without allocation (core data structures)",
+   "scope": "bench-app,host-workspace",
+   "source": "registry",
+   "used_by": [
+    "differential-tests",
+    "openpatch-bench",
+    "openpatch-core",
+    "openpatch-proto"
+   ],
+   "version": "0.8.0"
+  },
+  {
+   "classification": "shipped, safety/security path (core or protocol)",
+   "direct": true,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "heapless",
+   "purpose": "fixed-capacity collections without allocation (core data structures)",
+   "scope": "bench-app,bootloader",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench",
+    "openpatch-bootloader",
+    "openpatch-core",
+    "openpatch-proto"
+   ],
+   "version": "0.9.4"
+  },
+  {
+   "classification": "shipped, safety/security path (core or protocol)",
+   "direct": true,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "hkdf",
+   "purpose": "HKDF-SHA256 key derivation (session keys)",
+   "scope": "bench-app,host-workspace",
+   "source": "registry",
+   "used_by": [
+    "differential-tests",
+    "openpatch-bench",
+    "openpatch-core",
+    "openpatch-proto"
+   ],
+   "version": "0.12.4"
+  },
+  {
+   "classification": "shipped, safety/security path (core or protocol)",
+   "direct": true,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "hmac",
+   "purpose": "HMAC-SHA256 (key confirmation)",
+   "scope": "bench-app,host-workspace",
+   "source": "registry",
+   "used_by": [
+    "differential-tests",
+    "openpatch-bench",
+    "openpatch-core",
+    "openpatch-proto"
+   ],
+   "version": "0.12.1"
+  },
+  {
+   "classification": "shipped, safety/security path (core or protocol)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "inout",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app,host-workspace",
+   "source": "registry",
+   "used_by": [
+    "differential-tests",
+    "openpatch-bench",
+    "openpatch-core",
+    "openpatch-proto"
+   ],
+   "version": "0.1.4"
+  },
+  {
+   "classification": "shipped, safety/security path (core or protocol)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "libc",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app,host-workspace",
+   "source": "registry",
+   "used_by": [
+    "differential-tests",
+    "openpatch-bench",
+    "openpatch-core",
+    "openpatch-proto"
+   ],
+   "version": "0.2.191"
+  },
+  {
+   "classification": "shipped, safety/security path (core or protocol)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "proc-macro2",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app,bootloader,host-workspace",
+   "source": "registry",
+   "used_by": [
+    "differential-tests",
+    "openpatch-bench",
+    "openpatch-bootloader",
+    "openpatch-core",
+    "openpatch-proto"
+   ],
+   "version": "1.0.107"
+  },
+  {
+   "classification": "shipped, safety/security path (core or protocol)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "quote",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app,bootloader,host-workspace",
+   "source": "registry",
+   "used_by": [
+    "differential-tests",
+    "openpatch-bench",
+    "openpatch-bootloader",
+    "openpatch-core",
+    "openpatch-proto"
+   ],
+   "version": "1.0.47"
+  },
+  {
+   "classification": "shipped, safety/security path (core or protocol)",
+   "direct": true,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "rand_core",
+   "purpose": "RNG trait (ChaCha20 DRBG seeded from the hardware TRNG)",
+   "scope": "bench-app,bootloader,host-workspace",
+   "source": "registry",
+   "used_by": [
+    "differential-tests",
+    "openpatch-bench",
+    "openpatch-bootloader",
+    "openpatch-core",
+    "openpatch-proto"
+   ],
+   "version": "0.10.1"
+  },
+  {
+   "classification": "shipped, safety/security path (core or protocol)",
+   "direct": true,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "rand_core",
+   "purpose": "RNG trait (ChaCha20 DRBG seeded from the hardware TRNG)",
+   "scope": "bench-app,bootloader,host-workspace",
+   "source": "registry",
+   "used_by": [
+    "differential-tests",
+    "openpatch-bench",
+    "openpatch-bootloader",
+    "openpatch-core",
+    "openpatch-proto"
+   ],
+   "version": "0.6.4"
+  },
+  {
+   "classification": "shipped, safety/security path (core or protocol)",
+   "direct": true,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "rand_core",
+   "purpose": "RNG trait (ChaCha20 DRBG seeded from the hardware TRNG)",
+   "scope": "bench-app,bootloader",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench",
+    "openpatch-bootloader",
+    "openpatch-core",
+    "openpatch-proto"
+   ],
+   "version": "0.9.5"
+  },
+  {
+   "classification": "shipped, safety/security path (core or protocol)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT/Apache-2.0",
+   "name": "rustc_version",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app,bootloader",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench",
+    "openpatch-bootloader",
+    "openpatch-core",
+    "openpatch-proto"
+   ],
+   "version": "0.2.3"
+  },
+  {
+   "classification": "shipped, safety/security path (core or protocol)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "rustc_version",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app,host-workspace",
+   "source": "registry",
+   "used_by": [
+    "differential-tests",
+    "openpatch-bench",
+    "openpatch-core",
+    "openpatch-proto"
+   ],
+   "version": "0.4.1"
+  },
+  {
+   "classification": "shipped, safety/security path (core or protocol)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT/Apache-2.0",
+   "name": "semver",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app,bootloader",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench",
+    "openpatch-bootloader",
+    "openpatch-core",
+    "openpatch-proto"
+   ],
+   "version": "0.9.0"
+  },
+  {
+   "classification": "shipped, safety/security path (core or protocol)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "semver",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app,host-workspace",
+   "source": "registry",
+   "used_by": [
+    "differential-tests",
+    "openpatch-bench",
+    "openpatch-core",
+    "openpatch-proto"
+   ],
+   "version": "1.0.28"
+  },
+  {
+   "classification": "shipped, safety/security path (core or protocol)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT/Apache-2.0",
+   "name": "semver-parser",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app,bootloader",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench",
+    "openpatch-bootloader",
+    "openpatch-core",
+    "openpatch-proto"
+   ],
+   "version": "0.7.0"
+  },
+  {
+   "classification": "shipped, safety/security path (core or protocol)",
+   "direct": true,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "sha2",
+   "purpose": "SHA-256 (transcript hash)",
+   "scope": "bench-app,host-workspace",
+   "source": "registry",
+   "used_by": [
+    "differential-tests",
+    "openpatch-bench",
+    "openpatch-core",
+    "openpatch-proto"
+   ],
+   "version": "0.10.9"
+  },
+  {
+   "classification": "shipped, safety/security path (core or protocol)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "stable_deref_trait",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app,bootloader,host-workspace",
+   "source": "registry",
+   "used_by": [
+    "differential-tests",
+    "openpatch-bench",
+    "openpatch-bootloader",
+    "openpatch-core",
+    "openpatch-proto"
+   ],
+   "version": "1.2.1"
+  },
+  {
+   "classification": "shipped, safety/security path (core or protocol)",
+   "direct": true,
+   "ecosystem": "cargo",
+   "licence": "BSD-3-Clause",
+   "name": "subtle",
+   "purpose": "constant-time comparison (key confirmation)",
+   "scope": "bench-app,bootloader,host-workspace",
+   "source": "registry",
+   "used_by": [
+    "differential-tests",
+    "openpatch-bench",
+    "openpatch-bootloader",
+    "openpatch-core",
+    "openpatch-proto"
+   ],
+   "version": "2.6.1"
+  },
+  {
+   "classification": "shipped, safety/security path (core or protocol)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "syn",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app,bootloader,host-workspace",
+   "source": "registry",
+   "used_by": [
+    "differential-tests",
+    "openpatch-bench",
+    "openpatch-bootloader",
+    "openpatch-core",
+    "openpatch-proto"
+   ],
+   "version": "2.0.119"
+  },
+  {
+   "classification": "shipped, safety/security path (core or protocol)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "syn",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app,bootloader,host-workspace",
+   "source": "registry",
+   "used_by": [
+    "differential-tests",
+    "openpatch-bench",
+    "openpatch-bootloader",
+    "openpatch-core",
+    "openpatch-proto"
+   ],
+   "version": "3.0.10"
+  },
+  {
+   "classification": "shipped, safety/security path (core or protocol)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "thiserror",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app,host-workspace",
+   "source": "registry",
+   "used_by": [
+    "differential-tests",
+    "openpatch-bench",
+    "openpatch-core",
+    "openpatch-proto"
+   ],
+   "version": "2.0.21"
+  },
+  {
+   "classification": "shipped, safety/security path (core or protocol)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "thiserror-impl",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app,host-workspace",
+   "source": "registry",
+   "used_by": [
+    "differential-tests",
+    "openpatch-bench",
+    "openpatch-core",
+    "openpatch-proto"
+   ],
+   "version": "2.0.21"
+  },
+  {
+   "classification": "shipped, safety/security path (core or protocol)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "typenum",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app,bootloader,host-workspace",
+   "source": "registry",
+   "used_by": [
+    "differential-tests",
+    "openpatch-bench",
+    "openpatch-bootloader",
+    "openpatch-core",
+    "openpatch-proto"
+   ],
+   "version": "1.20.1"
+  },
+  {
+   "classification": "shipped, safety/security path (core or protocol)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "(MIT OR Apache-2.0) AND Unicode-3.0",
+   "name": "unicode-ident",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app,bootloader,host-workspace",
+   "source": "registry",
+   "used_by": [
+    "differential-tests",
+    "openpatch-bench",
+    "openpatch-bootloader",
+    "openpatch-core",
+    "openpatch-proto"
+   ],
+   "version": "1.0.27"
+  },
+  {
+   "classification": "shipped, safety/security path (core or protocol)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT/Apache-2.0",
+   "name": "version_check",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app,bootloader,host-workspace",
+   "source": "registry",
+   "used_by": [
+    "differential-tests",
+    "openpatch-bench",
+    "openpatch-bootloader",
+    "openpatch-core",
+    "openpatch-proto"
+   ],
+   "version": "0.9.5"
+  },
+  {
+   "classification": "shipped, safety/security path (core or protocol)",
+   "direct": true,
+   "ecosystem": "cargo",
+   "licence": "BSD-3-Clause",
+   "name": "x25519-dalek",
+   "purpose": "X25519 key agreement (pairing / session handshake)",
+   "scope": "bench-app,host-workspace",
+   "source": "registry",
+   "used_by": [
+    "differential-tests",
+    "openpatch-bench",
+    "openpatch-core",
+    "openpatch-proto"
+   ],
+   "version": "2.0.1"
+  },
+  {
+   "classification": "shipped, safety/security path (core or protocol)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "Apache-2.0 OR MIT",
+   "name": "zeroize",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app,bootloader",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench",
+    "openpatch-bootloader",
+    "openpatch-core",
+    "openpatch-proto"
+   ],
+   "version": "1.9.2"
+  },
+  {
+   "classification": "shipped, safety/security path (core or protocol)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "Apache-2.0 OR MIT",
+   "name": "zeroize_derive",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "bench-app,bootloader",
+   "source": "registry",
+   "used_by": [
+    "openpatch-bench",
+    "openpatch-bootloader",
+    "openpatch-core",
+    "openpatch-proto"
+   ],
+   "version": "1.5.0"
+  },
+  {
+   "classification": "test-only (not shipped)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "Apache-2.0 OR MIT",
+   "name": "bit-set",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "host-workspace",
+   "source": "registry",
+   "used_by": [
+    "differential-tests"
+   ],
+   "version": "0.11.1"
+  },
+  {
+   "classification": "test-only (not shipped)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "Apache-2.0 OR MIT",
+   "name": "bit-vec",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "host-workspace",
+   "source": "registry",
+   "used_by": [
+    "differential-tests"
+   ],
+   "version": "0.10.2"
+  },
+  {
+   "classification": "test-only (not shipped)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "borsh",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "host-workspace",
+   "source": "registry",
+   "used_by": [
+    "differential-tests"
+   ],
+   "version": "1.8.1"
+  },
+  {
+   "classification": "test-only (not shipped)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "Apache-2.0",
+   "name": "borsh-derive",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "host-workspace",
+   "source": "registry",
+   "used_by": [
+    "differential-tests"
+   ],
+   "version": "1.8.1"
+  },
+  {
+   "classification": "test-only (not shipped)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT",
+   "name": "bytes",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "host-workspace",
+   "source": "registry",
+   "used_by": [
+    "differential-tests"
+   ],
+   "version": "1.12.2"
+  },
+  {
+   "classification": "test-only (not shipped)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT",
+   "name": "cfg_aliases",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "host-workspace",
+   "source": "registry",
+   "used_by": [
+    "differential-tests"
+   ],
+   "version": "0.2.2"
+  },
+  {
+   "classification": "test-only (not shipped)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "chacha20",
+   "purpose": "ChaCha20 DRBG for ephemeral secrets",
+   "scope": "host-workspace",
+   "source": "registry",
+   "used_by": [
+    "differential-tests"
+   ],
+   "version": "0.10.2"
+  },
+  {
+   "classification": "test-only (not shipped)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT/Apache-2.0",
+   "name": "core_detect",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "host-workspace",
+   "source": "registry",
+   "used_by": [
+    "differential-tests"
+   ],
+   "version": "1.0.0"
+  },
+  {
+   "classification": "test-only (not shipped)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "Apache-2.0 OR MIT",
+   "name": "equivalent",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "host-workspace",
+   "source": "registry",
+   "used_by": [
+    "differential-tests"
+   ],
+   "version": "1.0.3"
+  },
+  {
+   "classification": "test-only (not shipped)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "errno",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "host-workspace",
+   "source": "registry",
+   "used_by": [
+    "differential-tests"
+   ],
+   "version": "0.3.15"
+  },
+  {
+   "classification": "test-only (not shipped)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "Apache-2.0 OR MIT",
+   "name": "fastrand",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "host-workspace",
+   "source": "registry",
+   "used_by": [
+    "differential-tests"
+   ],
+   "version": "2.5.0"
+  },
+  {
+   "classification": "test-only (not shipped)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "getrandom",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "host-workspace",
+   "source": "registry",
+   "used_by": [
+    "differential-tests"
+   ],
+   "version": "0.4.3"
+  },
+  {
+   "classification": "test-only (not shipped)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "hashbrown",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "host-workspace",
+   "source": "registry",
+   "used_by": [
+    "differential-tests"
+   ],
+   "version": "0.17.1"
+  },
+  {
+   "classification": "test-only (not shipped)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "Apache-2.0 OR MIT",
+   "name": "indexmap",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "host-workspace",
+   "source": "registry",
+   "used_by": [
+    "differential-tests"
+   ],
+   "version": "2.14.2"
+  },
+  {
+   "classification": "test-only (not shipped)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "itoa",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "host-workspace",
+   "source": "registry",
+   "used_by": [],
+   "version": "1.0.19"
+  },
+  {
+   "classification": "test-only (not shipped)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "Apache-2.0 WITH LLVM-exception OR Apache-2.0 OR MIT",
+   "name": "linux-raw-sys",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "host-workspace",
+   "source": "registry",
+   "used_by": [
+    "differential-tests"
+   ],
+   "version": "0.12.1"
+  },
+  {
+   "classification": "test-only (not shipped)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "proc-macro-crate",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "host-workspace",
+   "source": "registry",
+   "used_by": [
+    "differential-tests"
+   ],
+   "version": "3.5.0"
+  },
+  {
+   "classification": "test-only (not shipped)",
+   "direct": true,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "proptest",
+   "purpose": "property-based testing (host test only)",
+   "scope": "host-workspace",
+   "source": "registry",
+   "used_by": [
+    "differential-tests"
+   ],
+   "version": "1.12.0"
+  },
+  {
+   "classification": "test-only (not shipped)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT/Apache-2.0",
+   "name": "quick-error",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "host-workspace",
+   "source": "registry",
+   "used_by": [
+    "differential-tests"
+   ],
+   "version": "1.2.3"
+  },
+  {
+   "classification": "test-only (not shipped)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0 OR LGPL-2.1-or-later",
+   "name": "r-efi",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "host-workspace",
+   "source": "registry",
+   "used_by": [
+    "differential-tests"
+   ],
+   "version": "6.0.0"
+  },
+  {
+   "classification": "test-only (not shipped)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "rand",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "host-workspace",
+   "source": "registry",
+   "used_by": [
+    "differential-tests"
+   ],
+   "version": "0.10.4"
+  },
+  {
+   "classification": "test-only (not shipped)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "rand_xorshift",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "host-workspace",
+   "source": "registry",
+   "used_by": [
+    "differential-tests"
+   ],
+   "version": "0.5.0"
+  },
+  {
+   "classification": "test-only (not shipped)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "Apache-2.0 WITH LLVM-exception OR Apache-2.0 OR MIT",
+   "name": "rustix",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "host-workspace",
+   "source": "registry",
+   "used_by": [
+    "differential-tests"
+   ],
+   "version": "1.1.6"
+  },
+  {
+   "classification": "test-only (not shipped)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT/Apache-2.0",
+   "name": "rusty-fork",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "host-workspace",
+   "source": "registry",
+   "used_by": [
+    "differential-tests"
+   ],
+   "version": "0.3.1"
+  },
+  {
+   "classification": "test-only (not shipped)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "serde",
+   "purpose": "serialisation for test vectors (host test only)",
+   "scope": "host-workspace",
+   "source": "registry",
+   "used_by": [
+    "differential-tests"
+   ],
+   "version": "1.0.229"
+  },
+  {
+   "classification": "test-only (not shipped)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "serde_core",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "host-workspace",
+   "source": "registry",
+   "used_by": [
+    "differential-tests"
+   ],
+   "version": "1.0.229"
+  },
+  {
+   "classification": "test-only (not shipped)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "serde_derive",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "host-workspace",
+   "source": "registry",
+   "used_by": [
+    "differential-tests"
+   ],
+   "version": "1.0.229"
+  },
+  {
+   "classification": "test-only (not shipped)",
+   "direct": true,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "serde_json",
+   "purpose": "JSON for test vectors (host test only)",
+   "scope": "host-workspace",
+   "source": "registry",
+   "used_by": [],
+   "version": "1.0.154"
+  },
+  {
+   "classification": "test-only (not shipped)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "tempfile",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "host-workspace",
+   "source": "registry",
+   "used_by": [
+    "differential-tests"
+   ],
+   "version": "3.27.0"
+  },
+  {
+   "classification": "test-only (not shipped)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "toml_datetime",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "host-workspace",
+   "source": "registry",
+   "used_by": [
+    "differential-tests"
+   ],
+   "version": "1.1.3+spec-1.1.0"
+  },
+  {
+   "classification": "test-only (not shipped)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "toml_edit",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "host-workspace",
+   "source": "registry",
+   "used_by": [
+    "differential-tests"
+   ],
+   "version": "0.25.19+spec-1.1.0"
+  },
+  {
+   "classification": "test-only (not shipped)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "toml_parser",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "host-workspace",
+   "source": "registry",
+   "used_by": [
+    "differential-tests"
+   ],
+   "version": "1.1.5+spec-1.1.0"
+  },
+  {
+   "classification": "test-only (not shipped)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT OR Apache-2.0",
+   "name": "unarray",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "host-workspace",
+   "source": "registry",
+   "used_by": [
+    "differential-tests"
+   ],
+   "version": "0.1.4"
+  },
+  {
+   "classification": "test-only (not shipped)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT/Apache-2.0",
+   "name": "wait-timeout",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "host-workspace",
+   "source": "registry",
+   "used_by": [
+    "differential-tests"
+   ],
+   "version": "0.2.1"
+  },
+  {
+   "classification": "test-only (not shipped)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT",
+   "name": "winnow",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "host-workspace",
+   "source": "registry",
+   "used_by": [
+    "differential-tests"
+   ],
+   "version": "1.0.5"
+  },
+  {
+   "classification": "test-only (not shipped)",
+   "direct": false,
+   "ecosystem": "cargo",
+   "licence": "MIT",
+   "name": "zmij",
+   "purpose": "transitive dependency (purpose: see parent crate)",
+   "scope": "host-workspace",
+   "source": "registry",
+   "used_by": [],
+   "version": "1.0.23"
+  },
+  {
+   "classification": "shipped (transitive)",
+   "direct": false,
+   "ecosystem": "swiftpm",
+   "licence": "Apache-2.0",
+   "name": "swift-asn1",
+   "purpose": "ASN.1 parsing, transitive dependency of swift-crypto",
+   "scope": "ios-core",
+   "source": "https://github.com/apple/swift-asn1.git",
+   "used_by": [
+    "OpenPatchCore"
+   ],
+   "version": "1.6.0"
+  },
+  {
+   "classification": "shipped, safety/security path (core or protocol)",
+   "direct": true,
+   "ecosystem": "swiftpm",
+   "licence": "Apache-2.0",
+   "name": "swift-crypto",
+   "purpose": "cryptography on non-Apple platforms (iOS uses CryptoKit); X25519/HKDF/HMAC/SHA-256",
+   "scope": "ios-core",
+   "source": "https://github.com/apple/swift-crypto.git",
+   "used_by": [
+    "OpenPatchCore"
+   ],
+   "version": "3.15.1"
+  }
+ ]
+}
