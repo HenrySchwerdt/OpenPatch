@@ -59,7 +59,9 @@
 ## 2b. Size targets for the integrated pod v0.1.0 (decision 2026-11-19, user: "nobody wants a 7 cm pump")
 
 - Hard targets incl. battery and electronics: **OP-100 ≤ 45 mm**, **OP-200 ≤ 54 mm with the full 200 U** (user decision 2026-11-19 after the drive study showed ≤ 52 mm would cap OP-200 at ~180 U) (Omnipod DASH: 52 × 39 × 14.5 mm, 200 U), width ≤ 32 mm, height ≤ 8.5 mm. A design that misses them is not accepted silently; the gap and the next lever are reported.
-- **Status (2026-11-19):** the integrated model (`mechanical/V010.md`) is OP-100 58.2 mm / OP-200 66.9 mm, so both **miss** the targets. With every lever applied it reaches about 49 / 58 mm. The translating screw's dry tail is the blocker; alternatives are under study in `mechanical/studies/length_closure.md`.
+- **Status (2026-11-19):** both v0.1.0 models **miss** the targets.
+  - **Cup pod, layout A (`--drive cup`, the build candidate):** OP-100 47.96, OP-200 66.78, width 34.6.
+  - **Coaxial comparison model (`--variant v010`, `mechanical/V010.md`):** OP-100 58.2, OP-200 66.9, width 32. With every lever applied it reaches about 49 / 58 mm; the translating screw's dry tail is the blocker.
 - Levers, in order: (1) stack battery + board above the dock tunnel (≈ 3 mm free above the cannula head) instead of a tail; (2) low-profile radio (≤ 1.3 mm) on the lid side + spring contacts instead of connectors; (3) coaxial leadscrew in the reservoir axis (Omnipod-style) + wider bore → shorter stroke; (4) minimal fluid path without valve (§3c).
 
 ## 2c. Sizes for v0.1.0 (decision 2026-11-19, user)
