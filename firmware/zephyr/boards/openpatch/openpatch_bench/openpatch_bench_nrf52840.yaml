@@ -1,0 +1,18 @@
+identifier: openpatch_bench/nrf52840
+name: OpenPatch-Bench
+type: mcu
+arch: arm
+ram: 256
+flash: 1024
+toolchain:
+  - zephyr
+  - gnuarmemb
+supported:
+  - adc
+  - ble
+  - counter
+  - gpio
+  - i2c
+  - pwm
+  - watchdog
+vendor: openpatch

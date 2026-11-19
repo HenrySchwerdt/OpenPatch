@@ -1,0 +1,92 @@
+/*
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * OpenPatch Rev A bench controller (spec/design-parameters.md 4a): nRF52840 module, STSPIN220,
+ * hardware interlock, TPL5010, USB-C 5 V power (no battery, no charger), buzzer, button, 2 LEDs.
+ * Drives the bench pod (motor + 2 halls + dock hall + optional TMAG5273) through an FFC cable.
+ * TEST ONLY - NOT FOR HUMAN USE. Water tests only.
+ *
+ * All pins are in openpatch_bench_nrf52840-pins.dtsi (currently PLACEHOLDERS).
+ */
+
+/dts-v1/;
+#include <nordic/nrf52840_qiaa.dtsi>
+#include <nordic/nrf52840_partition.dtsi>
+#include "openpatch_bench_nrf52840-pins.dtsi"
+
+/ {
+	model = "OpenPatch Rev A bench controller";
+	compatible = "openpatch,bench";
+
+	aliases {
+		pwm-buzzer = &pwm0;
+		qdec-hall = &qdec0;
+		watchdog0 = &wdt0;
+	};
+};
+
+&gpiote {
+	status = "okay";
+};
+
+&gpio0 {
+	status = "okay";
+};
+
+&gpio1 {
+	status = "okay";
+};
+
+&adc {
+	status = "okay";
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	/* Motor current: V(sense) is a few 10 mV to ~0.15 V (VERIFY the analog front end on the board).
+	 * Gain 4 on the 0.6 V reference = 0.15 V full scale, 12 bit = about 37 uV per count. */
+	channel@0 {
+		reg = <0>;
+		zephyr,gain = "ADC_GAIN_4";
+		zephyr,reference = "ADC_REF_INTERNAL";
+		zephyr,acquisition-time = <ADC_ACQ_TIME(ADC_ACQ_TIME_MICROSECONDS, 10)>;
+		zephyr,input-positive = <NRF_SAADC_AIN0>;
+		zephyr,resolution = <12>;
+	};
+};
+
+&i2c0 {
+	compatible = "nordic,nrf-twim";
+	status = "okay";
+	clock-frequency = <I2C_BITRATE_FAST>;
+	pinctrl-0 = <&i2c0_default>;
+	pinctrl-1 = <&i2c0_sleep>;
+	pinctrl-names = "default", "sleep";
+
+	/* TMAG5273A1 3D hall (SOT-23-6 in the pod): OPTIONAL part. Without it the encoder is simulated. */
+	tmag5273: tmag5273@35 {
+		compatible = "openpatch,i2c-chip";
+		reg = <0x35>;
+	};
+};
+
+&pwm0 {
+	status = "okay";
+	pinctrl-0 = <&pwm0_default>;
+	pinctrl-1 = <&pwm0_sleep>;
+	pinctrl-names = "default", "sleep";
+};
+
+&qdec0 {
+	status = "okay";
+	pinctrl-0 = <&qdec_default>;
+	pinctrl-1 = <&qdec_sleep>;
+	pinctrl-names = "default", "sleep";
+	steps = <4>;
+	led-pre = <0>;
+	nordic,period = "SAMPLEPER_2048US";
+};
+
+/* RTC2 = step pulse timebase (RTC0/RTC1 belong to the BLE controller / kernel). */
+&rtc2 {
+	status = "okay";
+};

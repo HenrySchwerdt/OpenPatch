@@ -1,0 +1,5 @@
+# SPDX-License-Identifier: Apache-2.0
+# OpenPatch Rev A bench controller board (spec/design-parameters.md 4a). TEST ONLY - NOT FOR HUMAN USE.
+
+config BOARD_OPENPATCH_BENCH
+	select SOC_NRF52840_QIAA if BOARD_OPENPATCH_BENCH_NRF52840

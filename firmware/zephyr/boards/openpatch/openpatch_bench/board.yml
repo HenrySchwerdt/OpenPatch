@@ -1,0 +1,6 @@
+board:
+  name: openpatch_bench
+  full_name: OpenPatch Rev A bench controller (nRF52840 module, USB powered)
+  vendor: openpatch
+  socs:
+  - name: nrf52840
