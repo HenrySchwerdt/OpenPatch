@@ -1,0 +1,124 @@
+[
+{
+"command": "solid.box",
+"params": {
+"length": 0.5,
+"width": 0.5,
+"height": 0.35,
+"corner": [
+-0.25,
+-0.25,
+0.0
+],
+"body_name": "body",
+"name": "body"
+}
+},
+{
+"command": "solid.box",
+"params": {
+"length": 0.25,
+"width": 0.5,
+"height": 0.35,
+"corner": [
+-0.5,
+-0.25,
+0.0
+],
+"body_name": "term1",
+"name": "term1"
+}
+},
+{
+"command": "solid.box",
+"params": {
+"length": 0.25,
+"width": 0.5,
+"height": 0.35,
+"corner": [
+0.25,
+-0.25,
+0.0
+],
+"body_name": "term2",
+"name": "term2"
+}
+},
+{
+"command": "appearance.assign",
+"params": {
+"bodies": [
+"body"
+],
+"color": "#232323",
+"pbr": {
+"metallic": 0.0,
+"roughness": 0.5,
+"dielectric_ior": 1.5
+}
+}
+},
+{
+"command": "appearance.assign",
+"params": {
+"bodies": [
+"term1"
+],
+"color": "#d4d6d9",
+"pbr": {
+"metallic": 1.0,
+"roughness": 0.3,
+"dielectric_ior": 1.5
+}
+}
+},
+{
+"command": "appearance.assign",
+"params": {
+"bodies": [
+"term2"
+],
+"color": "#d4d6d9",
+"pbr": {
+"metallic": 1.0,
+"roughness": 0.3,
+"dielectric_ior": 1.5
+}
+}
+},
+{
+"command": "file.export_step",
+"params": {
+"path": "r_0402.step",
+"bodies": [
+"body",
+"term1",
+"term2"
+]
+}
+},
+{
+"command": "file.export_stl",
+"params": {
+"path": "r_0402.stl",
+"bodies": [
+"body",
+"term1",
+"term2"
+],
+"quality": "standard"
+}
+},
+{
+"command": "file.export",
+"params": {
+"path": "r_0402.glb",
+"bodies": [
+"body",
+"term1",
+"term2"
+],
+"quality": "standard"
+}
+}
+]
