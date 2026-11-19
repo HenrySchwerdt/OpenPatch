@@ -145,8 +145,6 @@ def build():
     tps = ["3V3", "VMOT", "STCK_DRV", "SUP_STCK_EN", "SUP_OK", "SUP_TXD", "SUP_RXD", "ARM_CLK", "MOT_EN_FAULT", "I2C_SDA", "I2C_SCL", "GND"]
     for i, n in enumerate(tps):
         new("MAIN", "TP%d" % (i + 1), n, ("V010", "TP_Pad_D0.8"), {1: n}, bom=False, group="tp", note="test pad")
-    for i in range(2):
-        new("MAIN", "H%d" % (i + 1), "NPTH 1.2", ("Bench", "NPTH_1.2mm"), {}, bom=False, group="mech")
 
     # =========================================================================================== POWER
     for ref in ("C5", "D4", "C8", "U3", "R2", "R3", "R4", "C9", "Q1", "Q2", "R5", "R6", "R7", "C10", "R8", "RT1",
@@ -167,7 +165,6 @@ def build():
     NM("POWER", "Q17B", "PGATE2", "GND", "BLD", "sw", "bleeder also when only the supervisor has cut")
     pw["Q17"]["note"] = "turns on when PGATE is high = supply off"
     # PGATE_MON readback (Q16) is part of the monolith list: add it (not in the take-list above)
-    take("Q16", "POWER")
     # direction legs: DIR_REV = MOT_DIR (R13) , MOT_DIR pulled down on MAIN side via R16 -> POWER keeps it
     # boost 5 V populated (as v2)
     for ref in ("U8", "L1", "D6", "R55", "R56", "C31"):
@@ -206,6 +203,18 @@ def build():
     for i in range(3):
         new("POWER", "H%d" % (i + 1), "NPTH 1.2", ("Bench", "NPTH_1.2mm"), {}, bom=False, group="mech")
 
+    # dual NFET packages (2N7002DW-7-F, SOT-363) on POWER: no package holds two legs of the same series chain (common-cause)
+    SOT363 = ("Package_TO_SOT_SMD", "SOT-363_SC-70-6")
+    pairs = [("Q8", "Q16"), ("Q13", "Q17"), ("Q6", "Q20"), ("Q21", "Q14"), ("Q10", "Q12"), ("Q22", "Q2"), ("QS", "QBA"), ("Q17B", "QBB")]
+    byref = {p["ref"]: p for p in power}
+    for k, (ra, rb) in enumerate(pairs):
+        a, b2 = byref[ra], byref[rb]
+        pins = {"2": a["pins"]["1"], "1": a["pins"]["2"], "6": a["pins"]["3"], "5": b2["pins"]["1"], "4": b2["pins"]["2"], "3": b2["pins"]["3"]}
+        new("POWER", "QD%d" % (k + 1), "2N7002DW (%s + %s)" % (ra, rb), SOT363, pins, "C83571", "2N7002DW-7-F", group=a["group"],
+            note="dual N-FET replacing %s (S1 G2 D6) and %s (S4 G5 D3): %s | %s" % (ra, rb, a.get("note", ""), b2.get("note", "")))
+    power[:] = [p for p in power if p["ref"] not in {x for pr in pairs for x in pr}]
+    for p in power + main:
+        to201(p)
     # =========================================================================================== SENSOR (unchanged)
     sens = [dict(p, board="SENSOR", group="sensor") for p in v2.build()[1]]
     return main, power, sens

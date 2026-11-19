@@ -265,14 +265,14 @@
   "value": "1uF",
   "fp": [
    "Capacitor_SMD",
-   "C_0402_1005Metric"
+   "C_0201_0603Metric"
   ],
   "pins": {
    "1": "VBAT",
    "2": "GND"
   },
-  "lcsc": "C52923",
-  "mpn": "CL05A105KA5NQNC",
+  "lcsc": "C53067",
+  "mpn": "CL03A105MQ3CSNH",
   "side": "F",
   "bom": true,
   "dnp": false,
@@ -1412,40 +1412,6 @@
   "dnp": false,
   "note": "test pad",
   "group": "tp",
-  "board": "MAIN"
- },
- {
-  "ref": "H1",
-  "value": "NPTH 1.2",
-  "fp": [
-   "Bench",
-   "NPTH_1.2mm"
-  ],
-  "pins": {},
-  "lcsc": null,
-  "mpn": null,
-  "side": "F",
-  "bom": false,
-  "dnp": false,
-  "note": "",
-  "group": "mech",
-  "board": "MAIN"
- },
- {
-  "ref": "H2",
-  "value": "NPTH 1.2",
-  "fp": [
-   "Bench",
-   "NPTH_1.2mm"
-  ],
-  "pins": {},
-  "lcsc": null,
-  "mpn": null,
-  "side": "F",
-  "bom": false,
-  "dnp": false,
-  "note": "",
-  "group": "mech",
   "board": "MAIN"
  }
 ]

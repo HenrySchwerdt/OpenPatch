@@ -104,3 +104,74 @@ The discrete HW-A, TPL5010, latch and DONE qualifier are gone; the supervisor MC
 | 26 | P0.18 | `NRST` | `NRST` | also pulled low by the supervisor (open drain) |
 
 Firmware changes for v2: arm once per tick (>= 1.0 s apart), answer the supervisor challenge within 20 ms, treat `SUP_OK` low or a supervisor status of `FAULT/LOCKED` as no delivery, keep forward steps <= 32 per arm, **USB CDC and DFU only through the authenticated session layer** (no unauthenticated command, no dosing or limit change over USB without the BLE-equivalent authorisation and the physical button where proposal 07 requires it), pause delivery while `VBUS_SENSE` is high. Test pads for debugging (all >= 1.0 mm, silk-labelled): GND, 3V3, VBAT, VMOT, VMOT_RAW, PGATE, PGATE2, INA_OUT (motor current, 4.4 mV/mA), ARM_CLK, SUP_PERMIT, SUP_STCK_EN, SUP_OK, SUP_TXD/SUP_RXD (watchdog link), OC_OK, OC_CMP, VBUS_P, NRST, STCK_DRV, MCU_EN, DOCKED_H, SWDIO, SWDCLK, I2C_SDA, I2C_SCL, PGATE_MON; supervisor SWD pads J4 (SWDIO), J5 (SWCLK), J6 (NRST) + GND pad.
+
+
+---
+
+# v3 (ISP1807, MAIN / POWER / SENSOR split, `design/netlist_v3.py`) - supersedes the E73 tables above
+
+Radio = Insight SiP **ISP1807-LR** (nRF52840, 8 x 8 x 1.0 mm LGA-78, integrated antenna, CONSIGNED; footprint `V010:ISP1807`, pads verified against the Insight Eagle library, see `../kicad/FOOTPRINT-VERIFICATION.md`). Pad -> pin -> net table (the firmware owner syncs `firmware-rs/` pin definitions to it; nothing in `firmware-rs/` was edited):
+
+| Pad | Pin | Net | Function |
+|---|---|---|---|
+| 1 | VSS@10 | `GND` | ground |
+| 2 | P0.09/NFC1 | `OC_OK` | in: over-current latch Q_N, low = tripped (NFC pin as GPIO) |
+| 3 | P0.12 | `DOCK_N` | in: dock hall A (low = docked) |
+| 4 | P0.10/NFC2 | `PGATE_MON` | in: high = supply allowed (NFC pin as GPIO) |
+| 5 | P0.14 | `SUP_OK` | in: supervisor healthy |
+| 6 | P0.26 | `TMAG_INT` | in: TMAG5273 INT |
+| 7 | VSS@8 | `GND` | ground |
+| 8 | D+ | `USB_DP` | USB D+ |
+| 10 | D- | `USB_DM` | USB D- |
+| 12 | VBUS | `VBUS_P` | USB VBUS (module needs it to enable USB) |
+| 13 | P0.18/NRESET | `NRST` | reset (P0.18 as RESET, UICR PSELRESET); supervisor PA7 pulls it low |
+| 14 | VSS@2 | `GND` | ground |
+| 16 | VSS@3 | `GND` | ground |
+| 18 | VSS@4 | `GND` | ground |
+| 20 | OUT_ANT | `RF_BRIDGE` | copper bridge pad 20 - pad 22 (internal antenna) |
+| 21 | VSS@5 | `GND` | ground |
+| 22 | OUT_MOD | `RF_BRIDGE` | copper bridge pad 20 - pad 22 (internal antenna) |
+| 23 | VSS@1 | `GND` | ground |
+| 24 | VSS@9 | `GND` | ground |
+| 25 | VSS@7 | `GND` | ground |
+| 26 | VCC_NRF | `3V3` | supply |
+| 27 | P0.17 | `SUP_TXD` | in: UART RX from the supervisor |
+| 28 | SWDIO | `SWDIO` | SWD pad J10 |
+| 29 | P0.13 | `SUP_RXD` | out: UART TX to the supervisor |
+| 30 | SWDCLK | `SWDCLK` | SWD pad J11 |
+| 31 | VSS@6 | `GND` | ground |
+| 32 | P0.08 | `MOT_STBY` | out: STSPIN220 STBY/RESET (100 k pull-down) |
+| 33 | P0.07 | `MOT_DIR` | out: STSPIN220 DIR + interlock reverse path |
+| 34 | P0.06 | `STCK_MCU` | out: step clock (through U31 AND gate, supervisor counts the same edges) |
+| 35 | P0.04/AIN2 | `MOT_EN_FAULT` | io: STSPIN220 EN/FAULT |
+| 36 | P0.05/AIN3 | `VBAT_SENSE` | ain: cell voltage x2 (switched by SENSE_EN) |
+| 37 | P0.15 | `BTN_N` | in: side tact button, active low |
+| 38 | P0.03/AIN1 | `I_SENSE` | ain: motor supply current, INA180A1, mA = mV / 4.4 |
+| 39 | P0.27 | `I2C_SCL` | io: TWIM, 4.7 k pull-up (MAIN) |
+| 40 | P0.02/AIN0 | `VMOT_SENSE` | ain: VMOT x2 |
+| 41 | P0.25 | `I2C_SDA` | io: TWIM, 4.7 k pull-up (MAIN) |
+| 42 | P0.31/AIN7 | `NTC` | ain: pod NTC (switched by SENSE_EN) |
+| 43 | P0.11 | `ARM_CLK` | out: arm request to the supervisor (rising edge, once per tick >= 1 s) |
+| 44 | P0.30/AIN6 | `DOCKED_H` | in: both halls asserted (2oo2) |
+| 45 | P0.19 | `MCU_EN` | out: independent enable (also clears OC latch when low) |
+| 46 | P0.29/AIN5 | `VBUS_SENSE` | ain: VBUS_P x2 (high = on a cable, pause delivery) |
+| 47 | P0.23 | `SENSE_EN` | out: enables VBAT divider + NTC |
+| 48 | P0.28/AIN4 | `CHG_STAT` | in: MCP73832 STAT |
+| 49 | P1.02 | `OC_TEST` | out: POST, pulls the OC reference down |
+| 50 | P1.06 | `DOCK_TEST` | out: POST, forces undocked at the gate |
+| 51 | P1.15 | `BUZ_A` | out: piezo bridge leg A (2.7 kHz) |
+| 52 | P1.14 | `BUZ_B` | out: piezo bridge leg B (inverse of A) |
+| 53 | P1.13 | `LED_ST` | out: status LED, active high |
+
+Notes (v3):
+
+* **No TPL5010, latch, DONE qualifier, `WDT_*`, `LATCH_*`, `HWA_*`, `WIN`**: the supervisor MCU (STM32C011F4U6, UFQFPN-20, `INTERLOCK.md` section H) replaces them. `SUP_RXD` is the UART TX of the nRF52840 (to the supervisor RX), `SUP_TXD` its RX.
+* **NFC pins P0.09 / P0.10 (pads 2 / 4) are GPIO** (`OC_OK`, `PGATE_MON`): `UICR.NFCPINS` = 1 (as on the E73 map). `P0.18` = RESET (`UICR.PSELRESET`).
+* The 32.768 kHz crystal is inside the ISP1807 (no Y1, no XL1/XL2 pads).
+* USB is native on pads 8 / 10 / 12 (`USB_DP`, `USB_DM`, `VBUS_P`); VBUS_SENSE (pad 46) = VBUS divider on POWER.
+* Piezo: two complementary pins `BUZ_A` / `BUZ_B` (2.7 kHz) drive a 2-NFET bridge on POWER (replaces the single `BUZ_PWM` and the magnetic buzzer).
+* `TMAG_INT` is now wired (pad 6); `DOCK_NB` (hall B) is only seen through `DOCKED_H`.
+* `MODE1/MODE2` of the STSPIN220 are hard-wired to GND (no resistors).
+* Spare module pads: all pads not listed (about 15 GPIO of the P1.xx grid) are unconnected; they are inner-grid pads that would need via-in-pad.
+* Via-in-pad (0.20 / 0.40 mm, filled and capped) is placed on every connected module pad of the second row and the inner grid (pads 3, 5, 8-19 odd/even rows, 21, 23, 24, 27, 29, 33-47 odd, 49-53): 27 vias.
+* The cross-board nets (MAIN <-> POWER, 32 pads, 26 unique nets): `design/netlist_v3.py` `B2B_A` / `B2B_B`; `netlist_v3_cross.json`.
