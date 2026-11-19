@@ -250,7 +250,7 @@ def check_size(outdir: Path, variant: str, p: dict) -> dict:
         if n in ("bottom", "top", "lid_gasket", "usb_gasket") or n in op_cup_asm.FROM_BELOW or n not in by or gi >= 6:
             continue
         mn, mx = bb(n)["min"], bb(n)["max"]
-        z_lo = zc if n in ("bush_rod", "motor", "gearhead", "motor_boss", "motor_rear_boss") else mn[2] + 0.01          # round parts in U seats: test from the axis up
+        z_lo = zc + p["cup"]["motor"]["snap_h"] if n in ("motor", "gearhead", "motor_boss", "motor_rear_boss") else zc if n == "bush_rod" else mn[2] + 0.01          # round parts in U seats: test from the axis up
         tools.box(f"drop_{n}", (mn[0], mx[0]), (mn[1], mx[1]), (z_lo, L["height"] - 0.9))
     names_t = [x for x in grp if f"drop_{x}" in {c_["params"].get("body_name") for c_ in tools.dumps()}]
     ex3 = excl + [[f"drop_{a}", f"drop_{b}"] for a in names_t for b in names_t if a < b] + [[f"drop_{a}", a] for a in names_t] + [["drop_gear_a", "gear_b"], ["drop_gear_b", "gear_a"]]

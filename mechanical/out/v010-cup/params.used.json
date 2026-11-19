@@ -1241,6 +1241,8 @@
   "motor": {
    "saddle_len": 1.5,
    "saddle_clr": 0.05,
+   "snap_h": 1.6,
+   "snap_t": 0.52,
    "pin_dir": "+Y"
   },
   "cap": {

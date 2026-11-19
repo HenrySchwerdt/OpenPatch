@@ -239,7 +239,13 @@ def build_housing(s: Script, p: dict, L: dict) -> None:
     ys = [L["gearhead_y"][0] + 0.5, L["motor_y"][1] - 2.2]
     sl = c["motor"]["saddle_len"]
     for k, y0 in enumerate(ys):
-        joins.append(s.box(f"t_sad{k}", (xc - 3.4, xc + 3.4), (y0, y0 + sl), (w - 0.1, zc)))
+        # snap saddle = C-ring: shell of radius r_bore + snap_t around the can axis, rooted in the floor at its bottom only (relief to both sides), cut flat at zc + snap_h
+        # (tip above the can centre line: mouth 2*sqrt(r_bore^2 - snap_h^2) < can d6.0 -> snap-in from above, the ring arc opens ~0.4 mm per side); the lane-2 saddle is
+        # thinned on the +X side by the battery keep-out (x0), the -X side by the lid wall (w)
+        rb = 3.0 + c["motor"]["saddle_clr"]
+        r_out = min(rb + c["motor"]["snap_t"], xc - w, L["battery"]["x"][0] - xc - 0.03 if y0 > L["lane2_y"][0] else 9.0)
+        joins.append(s.cyl(f"t_sad{k}", "Y", (xc, 0, zc), 2 * r_out, y0, y0 + sl))
+        cuts.append(s.box(f"t_sad_top{k}", (xc - 4.0, xc + 4.0), (y0 - 0.1, y0 + sl + 0.1), (zc + c["motor"]["snap_h"], zc + 4.0)))
     s.join("bottom", joins)
     cuts.append(s.cyl("t_bush_bore", "X", (0, yr, zc), bu["od"] + bu["bore_clr"], L["bush"][0] - 0.05, L["bush"][1] + 0.05))
     for k, y0 in enumerate(ys):

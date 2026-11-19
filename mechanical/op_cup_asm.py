@@ -41,13 +41,7 @@ def build(s: Script, p: dict, L: dict) -> None:
     s.rrect("lid_gasket", (0.15, Lp - 0.15), (0.15, W - 0.15), rr - 0.15, (lap, lap + 0.5))
     s.rrect("t_gk_in", (0.55, Lp - 0.55), (0.55, W - 0.55), rr - 0.55, (lap - 0.1, lap + 0.6))
     s.cut("lid_gasket", ["t_gk_in"])
-    # ---- (2) motor cradle: saddles exist (U, open top); lid posts hold the can; FPC groove from the pin pocket toward lane 2
-    ys = [L["gearhead_y"][0] + 0.5, L["motor_y"][1] - 2.2]
-    sl = c["motor"]["saddle_len"]
-    for k, y0 in enumerate(ys):
-        tcjoin = s.cyl(f"t_mpost{k}", "Z", (xc, y0 + sl / 2, 0), 1.6, H - w - 0.35, H - w + 0.05)
-        joins_top = tcjoin
-        s.join("top", [joins_top])
+    # ---- (2) motor cradle: U saddles with snap lips (built in op_cup.py) hold the can; nothing hangs from the lid; FPC groove from the pin pocket toward lane 2
     yt = L["gearhead_y"][0] + dr["term_x"]
     cuts.append(s.box("t_fpc_groove", (xc, L["battery"]["x"][0] - 0.1), (yt - 1.1, yt + 1.1), (0.35, w + 0.01)))
     # ---- (3) tank seat: rear stop blocks (datum at the dry rim), front datum = dock pocket face; O-ring face groove around the needle-hub seat
