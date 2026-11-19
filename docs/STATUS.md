@@ -83,6 +83,7 @@ All dimensions and components are in [spec/design-parameters.md](../spec/design-
 
 ## Decision log (user)
 
+- 2026-11-19: **v0.1.0 radio = Insight SiP ISP1807** (8 × 8 × 1, integrated certified antenna, consigned to JLC) on a MAIN board ≤ 400 mm²; button = small side-actuated tact switch on the POWER board edge (coordinator choice; a magnet tap near the TMAG would disturb the angle sensor). Partition per electronics/v010/MINIATURIZATION.md §11.
 - 2026-11-19: **New hazards H14/H15** (docs/02-safety.md): manual septum injection while docked would bypass all limits → septum must be unreachable when docked (spec §3e); reverse while docked → interlock becomes `DOCKED XOR DIR_REVERSE`.
 - 2026-11-19: **Only the integrated v0.1.0 pod is built** (spec §4c); the bench controller board is parked as a fallback/debug fixture (not ordered).
 - 2026-11-19: **Drive = coaxial translating leadscrew + closed reservoir** (spec §3d); **OP-200 keeps 200 U at ≈ 54 mm** (user), OP-100 ≤ 45 mm via wider bore + compact front.
