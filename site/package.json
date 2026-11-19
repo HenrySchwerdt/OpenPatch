@@ -1,14 +1,16 @@
 {
   "name": "openpatch-site",
   "private": true,
-  "version": "0.1.0",
+  "version": "0.2.0",
   "type": "module",
-  "description": "OpenPatch project website",
+  "license": "PolyForm-Noncommercial-1.0.0",
+  "description": "OpenPatch project site: an engineering notebook generated from the repository documents (test project, not a medical device)",
   "scripts": {
+    "generate": "node scripts/prepare-models.mjs && node scripts/build-site.mjs",
     "prepare-models": "node scripts/prepare-models.mjs",
-    "predev": "node scripts/prepare-models.mjs",
+    "predev": "npm run generate",
     "dev": "vite",
-    "prebuild": "node scripts/prepare-models.mjs",
+    "prebuild": "npm run generate",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview --host 127.0.0.1 --port 4173",
     "typecheck": "tsc --noEmit",
@@ -25,6 +27,5 @@
     "sharp": "^0.35.5",
     "typescript": "5.9.3",
     "vite": "8.3.8"
-  },
-  "license": "GPL-3.0-or-later"
+  }
 }
