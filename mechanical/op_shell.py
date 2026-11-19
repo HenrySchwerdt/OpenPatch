@@ -170,15 +170,18 @@ def build_top(s: Script, p: dict, L: dict) -> None:
         cuts.append(s.box("t_ffcslot", (w - wall - 0.2, w + 0.1), (fl["v"] - fl["slot_w"] / 2, fl["v"] + fl["slot_w"] / 2),
                           tuple(fl["slot_z"])))
         cuts.extend(build_mouth_cut(s, p, L, "t_kmouth_top", top_part=True))
-        # fill window over the carriage lane + scale (tick every 10 U delivered, long every 50 U; 1 U = 10 mm3)
+        # fill scale = shallow ENGRAVING (0.15 mm) on the lid inner face above the plunger travel (clear lid, spec 2a: no window slot, wall stays closed);
+        # tick every 10 U delivered, long every 50 U, measured from the full position (1 U = 10 mm3)
         ys_, mm10 = L["y_s"], 100.0 / 74.63
-        cuts.append(s.box("t_fillwin", (L["xrear_full"] + 0.5, L["xrear_empty"] + 3.5), (ys_ - 1.0, ys_ + 1.0), (zt - wall - 0.1, zt + 0.1)))
+        zi = zt - wall                                   # lid inner face
+        eg = 0.15
         k = 0
         while k * mm10 <= L["stroke"] + 1e-6:
             x = L["xrear_full"] + k * mm10
-            ln = 1.0 if k % 5 == 0 else 0.5
-            cuts.append(s.box(f"t_tick{k}", (x - 0.12, x + 0.12), (ys_ + 1.3, ys_ + 1.3 + ln), (zt - 0.3, zt + 0.1)))
+            ln = 1.5 if k % 5 == 0 else 0.8
+            cuts.append(s.box(f"t_tick{k}", (x - 0.12, x + 0.12), (ys_ - ln / 2 - 1.8, ys_ + ln / 2 - 1.8), (zi - 0.1, zi + eg)))
             k += 1
+        cuts.append(s.box("t_tickbase", (L["xrear_full"], L["xrear_empty"] + 0.12), (ys_ - 1.8 - 0.1, ys_ - 1.8 + 0.1), (zi - 0.1, zi + eg)))
         s.cut("top", cuts)
         return
     # Spulensitz: 4 Pratzen außerhalb der Spule

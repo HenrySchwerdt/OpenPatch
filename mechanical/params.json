@@ -671,7 +671,22 @@
    "block_up_y": 3.0,
    "jog_x": 0.45,
    "wall_hole_d": 2.0,
-   "prime_d": 0.6
+   "prime_d": 0.6,
+   "oring": {
+    "id": 2.0,
+    "cs": 0.5,
+    "groove_inner_d": 2.2,
+    "groove_w": 0.6,
+    "groove_depth": 0.4,
+    "_note": "catalogue O-ring 2.0 x 0.5 (NBR/silicone) in a face groove of the cap, sealing against the flat PP end face of the reservoir around the port: stretched 10 % on d2.2, cross-section 0.477, axial squeeze (0.477-0.40)/0.477 = 16 %. The d1.98 spigot only locates (clearance fit, NOT a seal)."
+   },
+   "block_up": 3.4,
+   "septum_compress": 0.15,
+   "septum_depth": 1.8,
+   "hub_press": 0.08,
+   "fill_d": 0.8,
+   "lane_off": 2.5,
+   "_note_2026_11_19_review": "septum bore = disc d x (1 - septum_compress) = 3.4 (radial compression 15 %), cavity 1.8 deep for a 2.0 disc (0.2 protrudes: the shell wall compresses it 0.1 axially, no air pocket behind it); needle hub bore = hub_d - hub_press (0.04 interference per side); main path channels d0.6 (L/D <= 5.3, flushable from both ends), fill branch d0.8 (drill/print straight legs)."
   },
   "guard_lead_in": 0.4
  },

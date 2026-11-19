@@ -187,3 +187,12 @@ cut to the stadium shape; see the CNC README. Tests with water only, never a per
 The Hirose FH12-10S-0.5SH(55) is **2.0 mm high** (datasheet, `components/catalog.json`), not 1.0 mm. Free height above the 0.6 mm pod board under the 8.4 mm lid is 1.6 mm, so it does not fit. The CAD
 keeps a 1.0 mm envelope (`bench.ffc.conn`) for a **<= 1.2 mm bottom-contact ZIF, 10 pos, 0.5 mm pitch**; candidate class Hirose FH19C/FH19SC (0.9 mm per the series data; 10-pin bottom-contact variant and LCSC number NOT verified).
 Do not order the FH12 for the pod board until a low-profile part is confirmed.
+
+
+## Cap seals (2026-11-19 review fix)
+
+| part | spec | note |
+|---|---|---|
+| cap face O-ring | **2.0 x 0.5 mm** (ID x CS), NBR 70 or silicone 50-70, 1 per cap (+ spares) | SEARCH-TERM "O-ring 2x0.5"; groove ID d2.2 stretch 10 %, squeeze 16 %; water only |
+| fill septum | silicone disc d4.0 x 2.0, Shore A 40-50, bore d3.4 (15 % radial compression) | punch 4.0 from 2 mm sheet, insert with tweezers, shell wall compresses 0.1 mm |
+| needle hub | PTFE d2.0 x 0.7 pressed into a d1.92 bore | bench only |

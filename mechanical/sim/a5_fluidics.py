@@ -27,6 +27,11 @@ def path_volume(ctx: Ctx):
     zp = ctx.mech[ctx.sizes[0]]["z_axis"] if ctx.sizes[0] in ctx.mech else 4.2
     rem = max(fz["end_wall"] - cp["spigot_len"], 0.0)               # open port bore left in front of the pressed-in spigot
     env_v = cyl(cx["valve_d"], cx["valve_len"])
+    lane = cp.get("lane_off", 2.0)
+    y0 = cp["block_y0"]
+    yc = P["dock"]["y_c"]
+    ya_len = (yc - lane + 0.2) - (y0 + cp.get("septum_depth", 3.5) - 0.1)
+    L_fill = (lane + 0.4) + ((cp["septum_x"] - cp["jog_x"]) + 0.4) + ya_len
     L_pc = cp["spigot_len"] + 0.1 + cp["jog_x"] + 0.2
     L_jv = max(cx and (P["dock"]["valve_x0"] - cp["jog_x"] + 0.3), 0.0)
     return {
@@ -37,8 +42,7 @@ def path_volume(ctx: Ctx):
         "duckbill internal cavity, %.0f %% of the envelope [ASM] (pocket bore has interference, no annulus)" % (100 * C["valve_void_frac"]): (C["valve_void_frac"] * env_v, "prime"),
         "valve -> hub d%.2f x 1.0" % dp: (cyl(dp, 1.0), "prime"),
         "needle lumen d0.159 x 4.2": (cyl(0.159, 4.2), "prime"),
-        "fill side branch (c+b+a) d%.1f x %.1f" % (d, 2.4 + 2.3 + 5.2): (cyl(d, 2.4 + 2.3 + 5.2), "fill"),
-        "septum port d1.0 x 0.8": (cyl(1.0, 0.8), "fill"),
+        "fill side branch d%.1f (c+b+a) x %.1f" % (cp.get("fill_d", d), L_fill): (cyl(cp.get("fill_d", d), L_fill), "fill"),
     }
 
 

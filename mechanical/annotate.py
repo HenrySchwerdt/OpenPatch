@@ -116,8 +116,8 @@ def draw(variant: str) -> Path:
     bd = LJ["ffc_connector"]["body_mm"]
     rect(fc[0] - bd["depth_along_cable_x"] / 2, fc[1] - bd["width_y"] / 2, fc[0] + bd["depth_along_cable_x"] / 2, fc[1] + bd["width_y"] / 2, "#222", "#000", op=0.8)
     line(fc[0] + bd["depth_along_cable_x"] / 2, fc[1], Ln + 4, fc[1], "#e8c36a", 4)
-    # fill window
-    rect(L["xrear_full"] + 0.5, ys - 1.0, L["xrear_empty"] + 3.5, ys + 1.0, "#ffffff", "#c00", op=0.0, dash="3,2")
+    # fill scale engraving (clear lid)
+    rect(L["xrear_full"], ys - 1.9, L["xrear_empty"] + 0.12, ys - 1.7, "#ffffff", "#c00", op=0.0, dash="3,2")
 
     tm = next(s for s in LJ["hall_sensors"] if s["id"] == "HALL_3D")["center_pod_mm"]
     dh = next(s for s in LJ["hall_sensors"] if s["id"] == "HALL_DOCK")["center_pod_mm"]
@@ -136,7 +136,7 @@ def draw(variant: str) -> Path:
         (dh[0], dh[1], "Dock hall (above adapter magnet)", 0, 0),
         (fc[0] + 3, fc[1], "FFC connector + cable exit (+X)", 0, 0),
         (L["mag_x"][0] + 0.5, ys - 1.0, "Spindle magnet", 0, 0),
-        ((L["xrear_full"] + L["xrear_empty"]) / 2, ys - 1.0, "Fill window (scale in U) in the lid", 0, 0),
+        ((L["xrear_full"] + L["xrear_empty"]) / 2, ys - 1.0, "Fill scale (U) engraved on the clear lid", 0, 0),
     ]
     H = int(W * S + 2 * M + 40 + 20 * ((len(items) + 1) // 2))
     out = [f'<svg xmlns="http://www.w3.org/2000/svg" width="{int(Ln*S+2*M)}" height="{H}" viewBox="0 0 {int(Ln*S+2*M)} {H}" font-family="Helvetica,Arial,sans-serif">',

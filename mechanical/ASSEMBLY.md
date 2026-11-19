@@ -131,7 +131,7 @@ Cast the lip seals in `mould/`, assemble plunger core + seals, push into the res
 2. One **M1.2 x 4 screw** into the board boss. FFC cable into the ZIF connector (flip-lock), cable leaving toward the +X end wall.
 
 ## B6. Closing
-Gasket on the bottom tongue, lower the lid (the hold-down pads touch the board, the FFC leaves through its slot, the fill window sits over the carriage lane), 4 lid screws (M1.2 x 6).
+Gasket on the bottom tongue, lower the lid (the hold-down pads touch the board, the FFC leaves through its slot, the clear lid's engraved fill scale sits beside the carriage lane), 4 lid screws (M1.2 x 6).
 
 ## B7. Cannula adapter and dock
 Magnet d2x1 axial into the rear lug pocket (CA drop), punched d2 silicone plug into the septum bore, 1/16" ID silicone tubing on the d1.6 barb. **Dock:** push the pod flat, mouth first, onto the adapter along

@@ -19,8 +19,8 @@ fixed nut in the carriage, one-way duckbill check valve in the outlet path. No c
 * **Rear stop:** `t_rstop0/1`, 0.55 x 2.2 mm contact faces each, x = carriage rear face - 0.02. Stall thrust of the motor about 9.5 N (spec §4, VERIFY) -> 9.5 N / 2.4 mm2 = 4 MPa on PA12 (limit about 40 MPa).
 * **Front stop:** the far bearing block in front of the carriage (`t_fblk`, 0.3 mm gap when empty, plunger dead volume 1.0 mm reached first).
 
-## Fill window and scale
-A window in the lid over the carriage lane (`t_fillwin`, 2 mm wide) shows the carriage; scale ticks every 10 U, long every 50 U, measured from the full position (carriage at the rear stop = 0 U delivered).
+## Fill scale (clear lid)
+The lid is clear SLA resin (spec 2a): there is no window slot and the wall stays closed; the carriage is visible through the lid. The scale is a 0.15 mm engraving on the lid inner face next to the carriage lane (`t_tick*`, `t_tickbase`): ticks every 10 U, long every 50 U, measured from the full position (carriage at the rear stop = 0 U delivered).
 Firmware level = step count from the rear stop (exact); the TMAG angle verifies the leadscrew angle: 1 turn = 0.35 mm x 74.63 mm2 = 26.1 mm3 = 2.61 U (so 0.00494 U = 0.68 deg of leadscrew).
 
 ## Duckbill check valve

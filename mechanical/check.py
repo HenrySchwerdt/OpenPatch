@@ -75,7 +75,7 @@ def declared_walls(p: dict, L: dict) -> list[tuple[str, float, bool]]:
         ("plunger_purge_bridge", rs["plunger_len"] - sl["ring_b"][1] - sl["purge"]["groove_d"], True),
         ("plunger_socket_wall_z", ((rs["h_in"] - 2 * rs["plunger_clr"]) - (dr["arm_t"] + 0.1)) / 2, False),
         ("tongue_x", dr["tongue_x"], False),
-        ("septum_boss_wall", (p["septum"]["boss_d"] - (p["septum"]["d"] + 2 * p["septum"]["bore_clr"])) / 2, True),
+        ("septum_boss_wall", (p["septum"]["boss_d"] - (p["septum"]["d"] * (1.0 - p["dock"]["cap"]["septum_compress"]) if (p.get("mode") == "bench" and p["dock"]["cap"].get("septum_compress")) else p["septum"]["d"] + 2 * p["septum"]["bore_clr"])) / 2, True),
         ("screw_dome_wall", (p["screws"]["boss_d"] - p["screws"]["pilot"]) / 2, False),
     ]
     return [(n, round(t, 3), e) for n, t, e in out]
@@ -138,6 +138,15 @@ def check_fluid_boundary(p: dict, L: dict) -> tuple[list, list]:
             if op["x"][1] > line - 1e-6 and op["x"][0] < L["x_in1"]:
                 known.append(f"fluid boundary: wall opening '{op['name']}' x {op['x'][0]:.1f}..{op['x'][1]:.1f} reaches {op['x'][1] - line:.1f} mm in front of the "
                              f"front seal contact line (x={line:.1f}) at the {tag} position: the wetted zone leaks into the pod through it")
+    if p.get("mode") == "bench":
+        from op_cap import cap_interfaces
+        for itf in cap_interfaces(p, L):
+            if itf["gap"] >= 0.0 and not itf["seal"]:
+                problems.append(f"fluid: cap interface '{itf['name']}' has gap {itf['gap']:+.3f} mm and no seal element (resin/PP clearance or flat face is not a seal)")
+            if itf.get("squeeze") is not None and "O-ring" in (itf["seal"] or "") and not (0.08 <= itf["squeeze"] <= 0.30):
+                problems.append(f"fluid: O-ring squeeze {100 * itf['squeeze']:.0f} % of '{itf['name']}' outside 8..30 %")
+            if itf.get("squeeze") is not None and "radial compression" in (itf["seal"] or "") and not (0.10 <= itf["squeeze"] <= 0.20):
+                problems.append(f"fluid: septum radial compression {100 * itf['squeeze']:.0f} % outside 10..20 %")
     return problems, known
 
 
@@ -147,7 +156,7 @@ def check_bench(p: dict, L: dict, bodies: list) -> tuple[list, list]:
     b, B = p["bench"], L["bench"]
     by = {x["name"]: x for x in bodies}
     for need in ("pod_board", "hall_tmag", "hall_drv0", "hall_drv1", "hall_dock", "ffc_conn", "ffc_cable",
-                 "cannula_adapter", "dock_magnet", "motor", "gearhead", "motor_shaft", "motor_pins", "duckbill_valve", "end_cap", "dock_insert", "valve_plug", "tongue_shim") + (("coupler",) if L["coax"] else ("gear_a", "gear_b", "thrust_sleeve", "thrust_collar")):
+                 "cannula_adapter", "dock_magnet", "motor", "gearhead", "motor_shaft", "motor_pins", "duckbill_valve", "end_cap", "dock_insert", "valve_plug", "tongue_shim", "cap_oring") + (("coupler",) if L["coax"] else ("gear_a", "gear_b", "thrust_sleeve", "thrust_collar")):
         if need not in by:
             problems.append(f"bench body missing: {need}")
     for gone in ("battery", "qi_coil", "rf_module", "pcb", "buzzer", "ratchet_wheel", "sma_slider"):

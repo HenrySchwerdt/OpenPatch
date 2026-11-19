@@ -78,6 +78,22 @@ Wetted channels 22.1 mm3 = 2.21 U (prime path 1.77 U) against MAX_PRIME 0.52 U; 
 
 Occlusion / thrust (sim 1.3-1.6, 5.4-5.5): thrust margin over static friction at 105 mA rises from 0.28x to **2.9x** (4.0 N vs 1.4 N), P(motor cannot break the plunger loose) from 100 % to **7 %** at 105 mA and **0 %** at 181 mA, budget row 1.6 passes (0.8 N vs 1.7 N). The pressure the pump can build is now real (P_stall 27 kPa at F_kin 2 N, higher with the lower friction), so the compliance-stored volume at the alarm is 0.7-1.7 U on top of the 2 U threshold (sim 5.4/5.5, 2.7-3.7 U total, unchanged compliance model: PP walls + printed train + bubble). The dead-layer air that was a 75 mm3 compliance (0.37 U start-of-flow lag) is now 3 mm3 (0.01 U). The firmware occlusion threshold still has to be lowered by V_st (0.3 U at 181 mA) or a current/pressure criterion added.
 
+
+## 2b. Cap interfaces and channels (fix after the independent review, coupling-agnostic)
+
+| interface | before | now | check |
+|---|---|---|---|
+| cap spigot d1.98 in port d2.0 H7 | 0.02-0.03 mm clearance, resin on PP, nothing sealing | **face O-ring 2.0 x 0.5** (catalogue size, NBR or silicone) in a groove of the cap face (inner d2.2, width 0.6, depth 0.4) against the flat PP end face; ring stretch 10 %, axial squeeze **16 %** (limit 8-30 %); the spigot only locates. Cap block raised to z 6.4 (`cap.block_up` 3.4) to hold the groove | `cap_interfaces` in `op_cap.py`, `check_fluid_boundary` |
+| fill septum d4.0 punched disc in a d4.2 bore | no squeeze, 1.05 mm air pocket behind the 2.0 mm disc | bore **d3.4 = radial compression 15 %** (limit 10-20 %), cavity 1.8 deep so the disc sits on the bottom (no air pocket) and stands 0.2 proud, the shell wall compresses it 0.1 axially | same |
+| needle hub d2.0 in a d2.0 seat | zero interference | bore d1.92 = **0.04 per side press fit** (PTFE, bench only; adhesive on the needle as fallback) | same |
+| duckbill valve + slot | bore interference + plug (round 2) | unchanged | same |
+
+Retention of the cap against the O-ring (about 1-3 N for 16 % squeeze of 7.8 mm of cord plus 30 kPa x 7.6 mm2) is **not designed yet**: a printed crush rib or a clamp is an open item; do not rely on the spigot.
+
+`check_fluid_boundary` now also walks the cap interfaces: gap >= 0 without a seal element, an O-ring squeeze outside 8-30 % or a septum compression outside 10-20 % is a FAIL.
+
+**Channels (review item 10):** SLA cleaning limit [ASM]: channels of at least 0.5-0.6 mm that are open at an end and have L/D <= 6 can be flushed with IPA from a syringe; blind or long ones cannot. The main path is therefore d0.6 with the longest straight run 3.15 mm (L/D 5.3, both ends open: port side and valve pocket) to keep the prime path at 0.50 U; the fill branch (not in the prime path, filled by the draw) is **d0.8, 3 straight legs of 2.9 / 2.6 / 6.7 mm** instead of d0.7 / 9.9 mm / 1.05 mm air pocket. It is still 11 mm with two turns: flush it from the septum cavity and the junction and weigh the cap before and after to prove it is empty (bench step); a drilled or open-face-plus-gasket cap is the robust alternative (Rev B).
+
 ## 3. Risks
 * mu_seal and the breakaway factor are assumptions; an unoiled or dried-out bead (mu 0.4-0.9) is 2-4x over budget. Re-oil before every test series.
 * **Eccentric push**: jam at mu_g >= 0.30 (dry resin flange). Mitigation applied: tape recess + PTFE tape + oil. **Recommended next change (not applied, touches the carriage/slot of round 2): push at the plunger centre** with a 1.2 x 1.4 mm stainless blade (about 155 MPa at 5 N, 0.04 mm deflection) through a slot 0.6 mm longer, which removes the cocking factor (x1.5 -> 1.0).

@@ -59,11 +59,11 @@ BENCH_PARTS["bottom"] = (PARTS["bottom"][0], "PA12", "grey (natural)", "bead-bla
                          "+-0.2 mm. Contains the dock: two snap arms 0.8 mm thick x 9.5 mm free length (hook travel 1.8 mm, ~2.4 % strain). "
                          "ORDER THE DOCK COUPON FIRST. Post-drill by hand: M1.2 pilot dia 1.0 (x5), hub bore dia 2.0 (test-fit), fluid channel dia 0.7. "
                          "FFC exit slot is in the lid. Porous: NOT watertight.", True)
-BENCH_PARTS["top"] = (PARTS["top"][0], "PA12", "grey (natural)", "bead-blasted standard", 1,
-                      "+-0.2 mm. FFC slot 8.0 x 1.1 mm in the +X wall, dome mouth in the lap. Screw holes dia 1.4 may need a drill.", True)
+BENCH_PARTS["top"] = ("SLA clear resin (JLC3DP clear, spec 2a)", "clear resin", "clear (polish / clear-coat the outside)", "wash + UV; no window slot: the wall is closed", 1,
+                      "+-0.1 mm. CLEAR LID: reservoir, water level and drive are visible through it. Fill scale = 0.15 mm engraving on the inner face (tick / 10 U, long / 50 U). FFC slot 8.0 x 1.1 mm in the +X wall, dome mouth in the lap. Screw holes dia 1.4 may need a drill. WATER ONLY.", True)
 BENCH_PARTS["end_cap"] = ("SLA (tough resin; later PP / CNC)", "tough resin", "any", "no coating; clear internal channels d0.7 with a 0.5 mm wire", 2,
-                          "+-0.05 mm. End cap pressed onto the d2.0 H7 port of the CNC reservoir (spigot d1.98 x 2.0): fill septum bore d4.2 (side), duckbill pocket d3.05 with open slot, needle guard tube d3.2 / bore d2.0, "
-                          "internal channels d0.7. WATER ONLY in SLA resin.", True)
+                          "+-0.05 mm. End cap pressed onto the d2.0 H7 port of the CNC reservoir (spigot d1.98 x 2.4, locating only; sealed by a face O-ring 2.0 x 0.5 in the cap groove): fill septum bore d3.4 (15 % radial compression on the d4.0 disc, side), duckbill pocket d3.05 with open slot, needle guard tube d3.2 / bore d2.0, "
+                          "main channels d0.6 (short), fill branch d0.8; needle hub bore d1.92 (press fit). WATER ONLY in SLA resin.", True)
 BENCH_PARTS["coupler"] = ("SLA (tough resin) - or turned brass tube (preferred)", "tough resin / brass", "any", "no coating", 2,
                           "+-0.05 mm. Sleeve coupler d3.0 x 6.0: D-bore d2.04 / flat 1.5 (3.2 deep) for the NFP shaft, M1.6 bore d1.64 (2.8 deep) for the leadscrew; "
                           "retain with one drop of cyanoacrylate / Loctite 638. VERIFY the shaft D-flat on the real motor.", True)
