@@ -1,0 +1,6 @@
+ checking version: tamarin-prover 1.10.0, (C) David Basin, Cas Cremers, Jannik Dreier, Simon Meier, Ralf Sasse, Benedikt Schmidt, 2010-2023
+Proverif 2.05. Cryptographic protocol verifier, by Bruno Blanchet, Vincent Cheval, and Marc Sylvestre
+cb3b29190475280c2aaaf2a8d9af6c19616b4708b90e3794a04e83413209a061  tamarin/openpatch_pairing.spthy.in
+1deac0806b9e446f9c3897d0307580e7a93314c042be67b8c5be0176f73c34fa  tamarin/openpatch_session.spthy.in
+f80372ee601be36629f03bd63a8ca4f9d15c94a7ebd4b1a60061c6964824fa97  proverif/openpatch_pairing.pv.in
+faa08f649a0dc45c000257183089a3e7fc3a34b6fb592c75db32cc9ef98f2055  proverif/openpatch_session.pv.in

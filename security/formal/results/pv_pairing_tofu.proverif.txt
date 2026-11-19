@@ -1,0 +1,427 @@
+Linear part:
+exp(exp(g,x),y) = exp(exp(g,y),x)
+Completing equations...
+Completed equations:
+exp(exp(g,x),y) = exp(exp(g,y),x)
+Convergent part: No equation.
+Process 0 (that is, the initial process):
+(
+    {1}!
+    {2}in(c, (pubA: G,nA: bitstring));
+    {3}new b: exponent;
+    {4}new nB: bitstring;
+    {5}let pubB: G = exp(g,b) in
+    {6}let dh: G = exp(pubA,b) in
+    {7}let th: bitstring = h((pubA,pubB,nA,nB)) in
+    {8}let ps: bitstring = h((L1,dh,h(L0),th)) in
+    {9}let ck: bitstring = h((L2,dh,h(L0),th)) in
+    {10}event PodInit(th);
+    {11}out(c, (pubB,nB,hmac(ck,(L3,th))));
+    {12}in(c, cApp: bitstring);
+    {13}if (cApp = hmac(ck,(L4,th))) then
+    {14}event PodPaired(ps,th)
+) | (
+    {15}!
+    {16}new a: exponent;
+    {17}new nA_1: bitstring;
+    {18}let pubA_1: G = exp(g,a) in
+    {19}out(c, (pubA_1,nA_1));
+    {20}in(c, (pubB_1: G,nB_1: bitstring,conf: bitstring));
+    {21}let dh_1: G = exp(pubB_1,a) in
+    {22}let th_1: bitstring = h((pubA_1,pubB_1,nA_1,nB_1)) in
+    {23}let ps_1: bitstring = h((L1,dh_1,h(L0),th_1)) in
+    {24}let ck_1: bitstring = h((L2,dh_1,h(L0),th_1)) in
+    {25}if (conf = hmac(ck_1,(L3,th_1))) then
+    {26}event AppPaired(ps_1,th_1);
+    {27}out(c, hmac(ck_1,(L4,th_1)))
+)
+
+--  Process 1 (that is, process 0, with let moved downwards):
+(
+    {1}!
+    {2}in(c, (pubA: G,nA: bitstring));
+    {3}new b: exponent;
+    {4}new nB: bitstring;
+    {5}let pubB: G = exp(g,b) in
+    {7}let th: bitstring = h((pubA,pubB,nA,nB)) in
+    {10}event PodInit(th);
+    {6}let dh: G = exp(pubA,b) in
+    {9}let ck: bitstring = h((L2,dh,h(L0),th)) in
+    {11}out(c, (pubB,nB,hmac(ck,(L3,th))));
+    {12}in(c, cApp: bitstring);
+    {13}if (cApp = hmac(ck,(L4,th))) then
+    {8}let ps: bitstring = h((L1,dh,h(L0),th)) in
+    {14}event PodPaired(ps,th)
+) | (
+    {15}!
+    {16}new a: exponent;
+    {17}new nA_1: bitstring;
+    {18}let pubA_1: G = exp(g,a) in
+    {19}out(c, (pubA_1,nA_1));
+    {20}in(c, (pubB_1: G,nB_1: bitstring,conf: bitstring));
+    {22}let th_1: bitstring = h((pubA_1,pubB_1,nA_1,nB_1)) in
+    {21}let dh_1: G = exp(pubB_1,a) in
+    {24}let ck_1: bitstring = h((L2,dh_1,h(L0),th_1)) in
+    {25}if (conf = hmac(ck_1,(L3,th_1))) then
+    {23}let ps_1: bitstring = h((L1,dh_1,h(L0),th_1)) in
+    {26}event AppPaired(ps_1,th_1);
+    {27}out(c, hmac(ck_1,(L4,th_1)))
+)
+
+-- Query not (event(AppPaired(ps_2,th_2)) && attacker(ps_2)) in process 1.
+Translating the process into Horn clauses...
+Completing...
+Starting query not (event(AppPaired(ps_2,th_2)) && attacker(ps_2))
+goal reachable: attacker(nB_2) -> event(AppPaired(h((L1,exp(g,a_1),h(L0),h((exp(g,a_1),g,nA_2,nB_2)))),h((exp(g,a_1),g,nA_2,nB_2)))) && attacker(h((L1,exp(g,a_1),h(L0),h((exp(g,a_1),g,nA_2,nB_2)))))
+Abbreviations:
+a_1 = a[!1 = @sid]
+nA_2 = nA_1[!1 = @sid]
+
+Derivation:
+Abbreviations:
+a_1 = a[!1 = @sid]
+nA_2 = nA_1[!1 = @sid]
+
+1. We assume as hypothesis that
+attacker(nB_2).
+
+2. The message (exp(g,a_1),nA_2) may be sent to the attacker at output {19}.
+attacker((exp(g,a_1),nA_2)).
+
+3. By 2, the attacker may know (exp(g,a_1),nA_2).
+Using the function 2-proj-2-tuple the attacker may obtain nA_2.
+attacker(nA_2).
+
+4. Using the function g the attacker may obtain g.
+attacker(g).
+
+5. By 2, the attacker may know (exp(g,a_1),nA_2).
+Using the function 1-proj-2-tuple the attacker may obtain exp(g,a_1).
+attacker(exp(g,a_1)).
+
+6. By 5, the attacker may know exp(g,a_1).
+By 4, the attacker may know g.
+By 3, the attacker may know nA_2.
+By 1, the attacker may know nB_2.
+Using the function 4-tuple the attacker may obtain (exp(g,a_1),g,nA_2,nB_2).
+attacker((exp(g,a_1),g,nA_2,nB_2)).
+
+7. By 6, the attacker may know (exp(g,a_1),g,nA_2,nB_2).
+Using the function h the attacker may obtain h((exp(g,a_1),g,nA_2,nB_2)).
+attacker(h((exp(g,a_1),g,nA_2,nB_2))).
+
+8. Using the function L0 the attacker may obtain L0.
+attacker(L0).
+
+9. By 8, the attacker may know L0.
+Using the function h the attacker may obtain h(L0).
+attacker(h(L0)).
+
+10. Using the function L1 the attacker may obtain L1.
+attacker(L1).
+
+11. By 10, the attacker may know L1.
+By 5, the attacker may know exp(g,a_1).
+By 9, the attacker may know h(L0).
+By 7, the attacker may know h((exp(g,a_1),g,nA_2,nB_2)).
+Using the function 4-tuple the attacker may obtain (L1,exp(g,a_1),h(L0),h((exp(g,a_1),g,nA_2,nB_2))).
+attacker((L1,exp(g,a_1),h(L0),h((exp(g,a_1),g,nA_2,nB_2)))).
+
+12. By 11, the attacker may know (L1,exp(g,a_1),h(L0),h((exp(g,a_1),g,nA_2,nB_2))).
+Using the function h the attacker may obtain h((L1,exp(g,a_1),h(L0),h((exp(g,a_1),g,nA_2,nB_2)))).
+attacker(h((L1,exp(g,a_1),h(L0),h((exp(g,a_1),g,nA_2,nB_2))))).
+
+13. Using the function L3 the attacker may obtain L3.
+attacker(L3).
+
+14. By 13, the attacker may know L3.
+By 7, the attacker may know h((exp(g,a_1),g,nA_2,nB_2)).
+Using the function 2-tuple the attacker may obtain (L3,h((exp(g,a_1),g,nA_2,nB_2))).
+attacker((L3,h((exp(g,a_1),g,nA_2,nB_2)))).
+
+15. Using the function L2 the attacker may obtain L2.
+attacker(L2).
+
+16. By 15, the attacker may know L2.
+By 5, the attacker may know exp(g,a_1).
+By 9, the attacker may know h(L0).
+By 7, the attacker may know h((exp(g,a_1),g,nA_2,nB_2)).
+Using the function 4-tuple the attacker may obtain (L2,exp(g,a_1),h(L0),h((exp(g,a_1),g,nA_2,nB_2))).
+attacker((L2,exp(g,a_1),h(L0),h((exp(g,a_1),g,nA_2,nB_2)))).
+
+17. By 16, the attacker may know (L2,exp(g,a_1),h(L0),h((exp(g,a_1),g,nA_2,nB_2))).
+Using the function h the attacker may obtain h((L2,exp(g,a_1),h(L0),h((exp(g,a_1),g,nA_2,nB_2)))).
+attacker(h((L2,exp(g,a_1),h(L0),h((exp(g,a_1),g,nA_2,nB_2))))).
+
+18. By 17, the attacker may know h((L2,exp(g,a_1),h(L0),h((exp(g,a_1),g,nA_2,nB_2)))).
+By 14, the attacker may know (L3,h((exp(g,a_1),g,nA_2,nB_2))).
+Using the function hmac the attacker may obtain hmac(h((L2,exp(g,a_1),h(L0),h((exp(g,a_1),g,nA_2,nB_2)))),(L3,h((exp(g,a_1),g,nA_2,nB_2)))).
+attacker(hmac(h((L2,exp(g,a_1),h(L0),h((exp(g,a_1),g,nA_2,nB_2)))),(L3,h((exp(g,a_1),g,nA_2,nB_2))))).
+
+19. By 4, the attacker may know g.
+By 1, the attacker may know nB_2.
+By 18, the attacker may know hmac(h((L2,exp(g,a_1),h(L0),h((exp(g,a_1),g,nA_2,nB_2)))),(L3,h((exp(g,a_1),g,nA_2,nB_2)))).
+Using the function 3-tuple the attacker may obtain (g,nB_2,hmac(h((L2,exp(g,a_1),h(L0),h((exp(g,a_1),g,nA_2,nB_2)))),(L3,h((exp(g,a_1),g,nA_2,nB_2))))).
+attacker((g,nB_2,hmac(h((L2,exp(g,a_1),h(L0),h((exp(g,a_1),g,nA_2,nB_2)))),(L3,h((exp(g,a_1),g,nA_2,nB_2)))))).
+
+20. The message (g,nB_2,hmac(h((L2,exp(g,a_1),h(L0),h((exp(g,a_1),g,nA_2,nB_2)))),(L3,h((exp(g,a_1),g,nA_2,nB_2))))) that the attacker may have by 19 may be received at input {20}.
+So event AppPaired(h((L1,exp(g,a_1),h(L0),h((exp(g,a_1),g,nA_2,nB_2)))),h((exp(g,a_1),g,nA_2,nB_2))) may be executed at {26}.
+event(AppPaired(h((L1,exp(g,a_1),h(L0),h((exp(g,a_1),g,nA_2,nB_2)))),h((exp(g,a_1),g,nA_2,nB_2)))).
+
+21. By 20, event(AppPaired(h((L1,exp(g,a_1),h(L0),h((exp(g,a_1),g,nA_2,nB_2)))),h((exp(g,a_1),g,nA_2,nB_2)))).
+By 12, attacker(h((L1,exp(g,a_1),h(L0),h((exp(g,a_1),g,nA_2,nB_2))))).
+The goals are reached, combined in the following fact:
+event(AppPaired(h((L1,exp(g,a_1),h(L0),h((exp(g,a_1),g,nA_2,nB_2)))),h((exp(g,a_1),g,nA_2,nB_2)))) && attacker(h((L1,exp(g,a_1),h(L0),h((exp(g,a_1),g,nA_2,nB_2))))).
+
+
+A more detailed output of the traces is available with
+  set traceDisplay = long.
+
+new a: exponent creating a_2 at {16} in copy a_3
+
+new nA_1: bitstring creating nA_3 at {17} in copy a_3
+
+out(c, (~M,~M_1)) with ~M = exp(g,a_2), ~M_1 = nA_3 at {19} in copy a_3
+
+in(c, (g,a_4,hmac(h((L2,~M,h(L0),h((~M,g,~M_1,a_4)))),(L3,h((~M,g,~M_1,a_4)))))) with hmac(h((L2,~M,h(L0),h((~M,g,~M_1,a_4)))),(L3,h((~M,g,~M_1,a_4)))) = hmac(h((L2,exp(g,a_2),h(L0),h((exp(g,a_2),g,nA_3,a_4)))),(L3,h((exp(g,a_2),g,nA_3,a_4)))) at {20} in copy a_3
+
+event AppPaired(h((L1,exp(g,a_2),h(L0),h((exp(g,a_2),g,nA_3,a_4)))),h((exp(g,a_2),g,nA_3,a_4))) at {26} in copy a_3 (goal)
+
+The event AppPaired(h((L1,exp(g,a_2),h(L0),h((exp(g,a_2),g,nA_3,a_4)))),h((exp(g,a_2),g,nA_3,a_4))) is executed at {26} in copy a_3.
+The attacker has the message h((L1,~M,h(L0),h((~M,g,~M_1,a_4)))) = h((L1,exp(g,a_2),h(L0),h((exp(g,a_2),g,nA_3,a_4)))).
+A trace has been found.
+RESULT not (event(AppPaired(ps_2,th_2)) && attacker(ps_2)) is false.
+-- Query inj-event(PodPaired(ps_2,th_2)) ==> inj-event(AppPaired(ps_2,th_2)) in process 1.
+Translating the process into Horn clauses...
+Completing...
+Starting query inj-event(PodPaired(ps_2,th_2)) ==> inj-event(AppPaired(ps_2,th_2))
+goal reachable: attacker(nA_2) -> inj-event(PodPaired(h((L1,exp(g,b_1),h(L0),h((g,exp(g,b_1),nA_2,nB_2)))),h((g,exp(g,b_1),nA_2,nB_2))),@occ14_1)
+Abbreviations:
+b_1 = b[nA = nA_2,pubA = g,!1 = @sid]
+nB_2 = nB[nA = nA_2,pubA = g,!1 = @sid]
+@occ14_1 = @occ14[cApp = hmac(h((L2,exp(g,b_1),h(L0),h((g,exp(g,b_1),nA_2,nB_2)))),(L4,h((g,exp(g,b_1),nA_2,nB_2)))),nA = nA_2,pubA = g,!1 = @sid]
+
+Derivation:
+Abbreviations:
+b_1 = b[nA = nA_2,pubA = g,!1 = @sid]
+nB_2 = nB[nA = nA_2,pubA = g,!1 = @sid]
+@occ14_1 = @occ14[cApp = hmac(h((L2,exp(g,b_1),h(L0),h((g,exp(g,b_1),nA_2,nB_2)))),(L4,h((g,exp(g,b_1),nA_2,nB_2)))),nA = nA_2,pubA = g,!1 = @sid]
+
+1. We assume as hypothesis that
+attacker(nA_2).
+
+2. Using the function g the attacker may obtain g.
+attacker(g).
+
+3. By 2, the attacker may know g.
+By 1, the attacker may know nA_2.
+Using the function 2-tuple the attacker may obtain (g,nA_2).
+attacker((g,nA_2)).
+
+4. The message (g,nA_2) that the attacker may have by 3 may be received at input {2}.
+So the message (exp(g,b_1),nB_2,hmac(h((L2,exp(g,b_1),h(L0),h((g,exp(g,b_1),nA_2,nB_2)))),(L3,h((g,exp(g,b_1),nA_2,nB_2))))) may be sent to the attacker at output {11}.
+attacker((exp(g,b_1),nB_2,hmac(h((L2,exp(g,b_1),h(L0),h((g,exp(g,b_1),nA_2,nB_2)))),(L3,h((g,exp(g,b_1),nA_2,nB_2)))))).
+
+5. By 4, the attacker may know (exp(g,b_1),nB_2,hmac(h((L2,exp(g,b_1),h(L0),h((g,exp(g,b_1),nA_2,nB_2)))),(L3,h((g,exp(g,b_1),nA_2,nB_2))))).
+Using the function 2-proj-3-tuple the attacker may obtain nB_2.
+attacker(nB_2).
+
+6. By 4, the attacker may know (exp(g,b_1),nB_2,hmac(h((L2,exp(g,b_1),h(L0),h((g,exp(g,b_1),nA_2,nB_2)))),(L3,h((g,exp(g,b_1),nA_2,nB_2))))).
+Using the function 1-proj-3-tuple the attacker may obtain exp(g,b_1).
+attacker(exp(g,b_1)).
+
+7. By 2, the attacker may know g.
+By 6, the attacker may know exp(g,b_1).
+By 1, the attacker may know nA_2.
+By 5, the attacker may know nB_2.
+Using the function 4-tuple the attacker may obtain (g,exp(g,b_1),nA_2,nB_2).
+attacker((g,exp(g,b_1),nA_2,nB_2)).
+
+8. By 7, the attacker may know (g,exp(g,b_1),nA_2,nB_2).
+Using the function h the attacker may obtain h((g,exp(g,b_1),nA_2,nB_2)).
+attacker(h((g,exp(g,b_1),nA_2,nB_2))).
+
+9. Using the function L4 the attacker may obtain L4.
+attacker(L4).
+
+10. By 9, the attacker may know L4.
+By 8, the attacker may know h((g,exp(g,b_1),nA_2,nB_2)).
+Using the function 2-tuple the attacker may obtain (L4,h((g,exp(g,b_1),nA_2,nB_2))).
+attacker((L4,h((g,exp(g,b_1),nA_2,nB_2)))).
+
+11. Using the function L0 the attacker may obtain L0.
+attacker(L0).
+
+12. By 11, the attacker may know L0.
+Using the function h the attacker may obtain h(L0).
+attacker(h(L0)).
+
+13. Using the function L2 the attacker may obtain L2.
+attacker(L2).
+
+14. By 13, the attacker may know L2.
+By 6, the attacker may know exp(g,b_1).
+By 12, the attacker may know h(L0).
+By 8, the attacker may know h((g,exp(g,b_1),nA_2,nB_2)).
+Using the function 4-tuple the attacker may obtain (L2,exp(g,b_1),h(L0),h((g,exp(g,b_1),nA_2,nB_2))).
+attacker((L2,exp(g,b_1),h(L0),h((g,exp(g,b_1),nA_2,nB_2)))).
+
+15. By 14, the attacker may know (L2,exp(g,b_1),h(L0),h((g,exp(g,b_1),nA_2,nB_2))).
+Using the function h the attacker may obtain h((L2,exp(g,b_1),h(L0),h((g,exp(g,b_1),nA_2,nB_2)))).
+attacker(h((L2,exp(g,b_1),h(L0),h((g,exp(g,b_1),nA_2,nB_2))))).
+
+16. By 15, the attacker may know h((L2,exp(g,b_1),h(L0),h((g,exp(g,b_1),nA_2,nB_2)))).
+By 10, the attacker may know (L4,h((g,exp(g,b_1),nA_2,nB_2))).
+Using the function hmac the attacker may obtain hmac(h((L2,exp(g,b_1),h(L0),h((g,exp(g,b_1),nA_2,nB_2)))),(L4,h((g,exp(g,b_1),nA_2,nB_2)))).
+attacker(hmac(h((L2,exp(g,b_1),h(L0),h((g,exp(g,b_1),nA_2,nB_2)))),(L4,h((g,exp(g,b_1),nA_2,nB_2))))).
+
+17. The message (g,nA_2) that the attacker may have by 3 may be received at input {2}.
+The message hmac(h((L2,exp(g,b_1),h(L0),h((g,exp(g,b_1),nA_2,nB_2)))),(L4,h((g,exp(g,b_1),nA_2,nB_2)))) that the attacker may have by 16 may be received at input {12}.
+So event PodPaired(h((L1,exp(g,b_1),h(L0),h((g,exp(g,b_1),nA_2,nB_2)))),h((g,exp(g,b_1),nA_2,nB_2))) may be executed at {14} in session @sid.
+inj-event(PodPaired(h((L1,exp(g,b_1),h(L0),h((g,exp(g,b_1),nA_2,nB_2)))),h((g,exp(g,b_1),nA_2,nB_2))),@occ14_1).
+
+18. By 17, inj-event(PodPaired(h((L1,exp(g,b_1),h(L0),h((g,exp(g,b_1),nA_2,nB_2)))),h((g,exp(g,b_1),nA_2,nB_2))),@occ14_1).
+The goal is reached, represented in the following fact:
+inj-event(PodPaired(h((L1,exp(g,b_1),h(L0),h((g,exp(g,b_1),nA_2,nB_2)))),h((g,exp(g,b_1),nA_2,nB_2))),@occ14_1).
+
+
+A more detailed output of the traces is available with
+  set traceDisplay = long.
+
+in(c, (g,a_1)) at {2} in copy a_2
+
+new b: exponent creating b_2 at {3} in copy a_2
+
+new nB: bitstring creating nB_3 at {4} in copy a_2
+
+event PodInit(h((g,exp(g,b_2),a_1,nB_3))) at {10} in copy a_2
+
+out(c, (~M,~M_1,~M_2)) with ~M = exp(g,b_2), ~M_1 = nB_3, ~M_2 = hmac(h((L2,exp(g,b_2),h(L0),h((g,exp(g,b_2),a_1,nB_3)))),(L3,h((g,exp(g,b_2),a_1,nB_3)))) at {11} in copy a_2
+
+in(c, hmac(h((L2,~M,h(L0),h((g,~M,a_1,~M_1)))),(L4,h((g,~M,a_1,~M_1))))) with hmac(h((L2,~M,h(L0),h((g,~M,a_1,~M_1)))),(L4,h((g,~M,a_1,~M_1)))) = hmac(h((L2,exp(g,b_2),h(L0),h((g,exp(g,b_2),a_1,nB_3)))),(L4,h((g,exp(g,b_2),a_1,nB_3)))) at {12} in copy a_2
+
+event PodPaired(h((L1,exp(g,b_2),h(L0),h((g,exp(g,b_2),a_1,nB_3)))),h((g,exp(g,b_2),a_1,nB_3))) at {14} in copy a_2 (goal)
+
+The event PodPaired(h((L1,exp(g,b_2),h(L0),h((g,exp(g,b_2),a_1,nB_3)))),h((g,exp(g,b_2),a_1,nB_3))) is executed at {14} in copy a_2.
+A trace has been found.
+RESULT inj-event(PodPaired(ps_2,th_2)) ==> inj-event(AppPaired(ps_2,th_2)) is false.
+RESULT (even event(PodPaired(ps_2,th_2)) ==> event(AppPaired(ps_2,th_2)) is false.)
+-- Query event(AppPaired(ps_2,th_2)) ==> event(PodInit(th_2)) in process 1.
+Translating the process into Horn clauses...
+Completing...
+Starting query event(AppPaired(ps_2,th_2)) ==> event(PodInit(th_2))
+goal reachable: attacker(nB_2) -> event(AppPaired(h((L1,exp(g,a_1),h(L0),h((exp(g,a_1),g,nA_2,nB_2)))),h((exp(g,a_1),g,nA_2,nB_2))))
+Abbreviations:
+a_1 = a[!1 = @sid]
+nA_2 = nA_1[!1 = @sid]
+
+Derivation:
+Abbreviations:
+a_1 = a[!1 = @sid]
+nA_2 = nA_1[!1 = @sid]
+
+1. We assume as hypothesis that
+attacker(nB_2).
+
+2. The message (exp(g,a_1),nA_2) may be sent to the attacker at output {19}.
+attacker((exp(g,a_1),nA_2)).
+
+3. By 2, the attacker may know (exp(g,a_1),nA_2).
+Using the function 2-proj-2-tuple the attacker may obtain nA_2.
+attacker(nA_2).
+
+4. Using the function g the attacker may obtain g.
+attacker(g).
+
+5. By 2, the attacker may know (exp(g,a_1),nA_2).
+Using the function 1-proj-2-tuple the attacker may obtain exp(g,a_1).
+attacker(exp(g,a_1)).
+
+6. By 5, the attacker may know exp(g,a_1).
+By 4, the attacker may know g.
+By 3, the attacker may know nA_2.
+By 1, the attacker may know nB_2.
+Using the function 4-tuple the attacker may obtain (exp(g,a_1),g,nA_2,nB_2).
+attacker((exp(g,a_1),g,nA_2,nB_2)).
+
+7. By 6, the attacker may know (exp(g,a_1),g,nA_2,nB_2).
+Using the function h the attacker may obtain h((exp(g,a_1),g,nA_2,nB_2)).
+attacker(h((exp(g,a_1),g,nA_2,nB_2))).
+
+8. Using the function L3 the attacker may obtain L3.
+attacker(L3).
+
+9. By 8, the attacker may know L3.
+By 7, the attacker may know h((exp(g,a_1),g,nA_2,nB_2)).
+Using the function 2-tuple the attacker may obtain (L3,h((exp(g,a_1),g,nA_2,nB_2))).
+attacker((L3,h((exp(g,a_1),g,nA_2,nB_2)))).
+
+10. Using the function L0 the attacker may obtain L0.
+attacker(L0).
+
+11. By 10, the attacker may know L0.
+Using the function h the attacker may obtain h(L0).
+attacker(h(L0)).
+
+12. Using the function L2 the attacker may obtain L2.
+attacker(L2).
+
+13. By 12, the attacker may know L2.
+By 5, the attacker may know exp(g,a_1).
+By 11, the attacker may know h(L0).
+By 7, the attacker may know h((exp(g,a_1),g,nA_2,nB_2)).
+Using the function 4-tuple the attacker may obtain (L2,exp(g,a_1),h(L0),h((exp(g,a_1),g,nA_2,nB_2))).
+attacker((L2,exp(g,a_1),h(L0),h((exp(g,a_1),g,nA_2,nB_2)))).
+
+14. By 13, the attacker may know (L2,exp(g,a_1),h(L0),h((exp(g,a_1),g,nA_2,nB_2))).
+Using the function h the attacker may obtain h((L2,exp(g,a_1),h(L0),h((exp(g,a_1),g,nA_2,nB_2)))).
+attacker(h((L2,exp(g,a_1),h(L0),h((exp(g,a_1),g,nA_2,nB_2))))).
+
+15. By 14, the attacker may know h((L2,exp(g,a_1),h(L0),h((exp(g,a_1),g,nA_2,nB_2)))).
+By 9, the attacker may know (L3,h((exp(g,a_1),g,nA_2,nB_2))).
+Using the function hmac the attacker may obtain hmac(h((L2,exp(g,a_1),h(L0),h((exp(g,a_1),g,nA_2,nB_2)))),(L3,h((exp(g,a_1),g,nA_2,nB_2)))).
+attacker(hmac(h((L2,exp(g,a_1),h(L0),h((exp(g,a_1),g,nA_2,nB_2)))),(L3,h((exp(g,a_1),g,nA_2,nB_2))))).
+
+16. By 4, the attacker may know g.
+By 1, the attacker may know nB_2.
+By 15, the attacker may know hmac(h((L2,exp(g,a_1),h(L0),h((exp(g,a_1),g,nA_2,nB_2)))),(L3,h((exp(g,a_1),g,nA_2,nB_2)))).
+Using the function 3-tuple the attacker may obtain (g,nB_2,hmac(h((L2,exp(g,a_1),h(L0),h((exp(g,a_1),g,nA_2,nB_2)))),(L3,h((exp(g,a_1),g,nA_2,nB_2))))).
+attacker((g,nB_2,hmac(h((L2,exp(g,a_1),h(L0),h((exp(g,a_1),g,nA_2,nB_2)))),(L3,h((exp(g,a_1),g,nA_2,nB_2)))))).
+
+17. The message (g,nB_2,hmac(h((L2,exp(g,a_1),h(L0),h((exp(g,a_1),g,nA_2,nB_2)))),(L3,h((exp(g,a_1),g,nA_2,nB_2))))) that the attacker may have by 16 may be received at input {20}.
+So event AppPaired(h((L1,exp(g,a_1),h(L0),h((exp(g,a_1),g,nA_2,nB_2)))),h((exp(g,a_1),g,nA_2,nB_2))) may be executed at {26}.
+event(AppPaired(h((L1,exp(g,a_1),h(L0),h((exp(g,a_1),g,nA_2,nB_2)))),h((exp(g,a_1),g,nA_2,nB_2)))).
+
+18. By 17, event(AppPaired(h((L1,exp(g,a_1),h(L0),h((exp(g,a_1),g,nA_2,nB_2)))),h((exp(g,a_1),g,nA_2,nB_2)))).
+The goal is reached, represented in the following fact:
+event(AppPaired(h((L1,exp(g,a_1),h(L0),h((exp(g,a_1),g,nA_2,nB_2)))),h((exp(g,a_1),g,nA_2,nB_2)))).
+
+
+A more detailed output of the traces is available with
+  set traceDisplay = long.
+
+new a: exponent creating a_2 at {16} in copy a_3
+
+new nA_1: bitstring creating nA_3 at {17} in copy a_3
+
+out(c, (~M,~M_1)) with ~M = exp(g,a_2), ~M_1 = nA_3 at {19} in copy a_3
+
+in(c, (g,a_4,hmac(h((L2,~M,h(L0),h((~M,g,~M_1,a_4)))),(L3,h((~M,g,~M_1,a_4)))))) with hmac(h((L2,~M,h(L0),h((~M,g,~M_1,a_4)))),(L3,h((~M,g,~M_1,a_4)))) = hmac(h((L2,exp(g,a_2),h(L0),h((exp(g,a_2),g,nA_3,a_4)))),(L3,h((exp(g,a_2),g,nA_3,a_4)))) at {20} in copy a_3
+
+event AppPaired(h((L1,exp(g,a_2),h(L0),h((exp(g,a_2),g,nA_3,a_4)))),h((exp(g,a_2),g,nA_3,a_4))) at {26} in copy a_3 (goal)
+
+The event AppPaired(h((L1,exp(g,a_2),h(L0),h((exp(g,a_2),g,nA_3,a_4)))),h((exp(g,a_2),g,nA_3,a_4))) is executed at {26} in copy a_3.
+A trace has been found.
+RESULT event(AppPaired(ps_2,th_2)) ==> event(PodInit(th_2)) is false.
+
+--------------------------------------------------------------
+Verification summary:
+
+Query not (event(AppPaired(ps_2,th_2)) && attacker(ps_2)) is false.
+
+Query inj-event(PodPaired(ps_2,th_2)) ==> inj-event(AppPaired(ps_2,th_2)) is false.
+
+Query event(AppPaired(ps_2,th_2)) ==> event(PodInit(th_2)) is false.
+
+--------------------------------------------------------------
+
