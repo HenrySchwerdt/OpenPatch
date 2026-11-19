@@ -1,0 +1,7 @@
+window t_w   min 0.27  max 0.83 s
+dead time    min 0.03  max 0.53 s
+arm cycle    min 0.32  max 1.24 s (min distance between two accepted ARM edges)
+watchdog interval 2 s: at most 7 windows = 224 pulses = 0.89 U (16:20, 3.951 mU/step) / 1.11 U (18:18, 4.94 mU/step)
+watchdog interval 4 s: at most 13 windows = 416 pulses = 1.64 U (16:20, 3.951 mU/step) / 2.06 U (18:18, 4.94 mU/step)
+legitimate use: one tick per 1 s with <= 32 forward steps = 0.126 U per tick (more than the 3.4..6.3 steps/s of a 1.5 U/min bolus)
+sustained rate bound with re-arm at the minimum cycle: 32 pulses / 0.32 s = 23.5 U/min (16:20)
