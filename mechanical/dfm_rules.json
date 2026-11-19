@@ -1,0 +1,93 @@
+{
+  "_comment": "Design-for-manufacture rules used by check_assembly.py. Every number carries its source. 'vendor' = what the vendor's own design guide recommends / quotes (conservative); 'hard_floor' = below this the feature is physically not reliable on that process (cross-checked on public design guides; weaker evidence, marked). 'project_assumed' = what the OpenPatch CAD/sim currently assume. Where sources disagree the more conservative number is used and the disagreement is listed. Retrieved 2026-11-19. VERIFY against the live vendor pages before ordering: they are revised often (the JLC3DP guide itself shows 0.5 mm and 0.8 mm emboss figures in different revisions).",
+  "sources": {
+    "jlc3dp_guide": "https://jlc3dp.com/help/article/3d-printing-design-guideline (last updated Nov 04, 2026): wall table (sec. 2), emboss/engrave (sec. 3), threads (sec. 4), clearance (sec. 5), escape holes (sec. 6), hole table (sec. 7), pin table (sec. 8), tolerance (sec. 10). Nylon rows are 'Nylon (MJF)' and do not name PA12 specifically.",
+    "jlc3dp_mjf": "https://jlc3dp.com/3d-printing/multi-jet-fusion (min wall 1.0, min hole 1.5, escape hole 2.5, column 2.0, emboss 0.8 x 0.8, clearance 0.2-0.4 / 0.6, tolerance +-0.3 mm or 0.4 %, thread pitch 0.6)",
+    "jlc3dp_sla": "https://jlc3dp.com/capabilities/3d-printing-service and the SLA page (older revision lists emboss 0.5 x 0.5 mm for 8000/9000R-type resins; hole accuracy +-0.3 mm)",
+    "jlccnc_guide": "https://jlccnc.com/help/article/CNC-Machining-Design-Guideline (updated Aug 20, 2025): plastics wall 1.5 mm recommended / 1 mm absolute minimum; internal radius R >= H/10 + 0.5 mm with tool D = H/5; cavity depth best at 2-3 x tool diameter, >= 5 x needs special tools; standard tolerance +-0.1 mm. PCBWay's own CNC numbers were NOT found on a public page: the JLCCNC sheet is used as the stand-in, mark PCBWay as VERIFY.",
+    "mjf_wall_other": "Other MJF PA12 guides disagree on the minimum wall: Materialise 1 mm min (2-3 mm recommended), Xometry 0.7 mm, Eureka 0.5 mm, Avid 0.3 mm (XY) / 0.5 mm (Z). 0.5 mm is used as the hard floor, JLC3DP's table as the vendor value.",
+    "project": "mechanical/out/bench/fab/README.md (+-0.1 SLA / +-0.2 MJF order tolerances), mechanical/sim/a3_tolerance.py (SLA 0.05, MJF 0.10 as 3 sigma), docs/REVIEW-2026-11-19.md finding 7.2 (no vendor source for '0.4 mm printable floor')"
+  },
+  "processes": {
+    "SLA": {
+      "label": "JLC3DP SLA resin (8001/9000-type tough, clear)",
+      "wall": {"table_by_footprint_mm": [[5, 0.5], [10, 0.8], [50, 1.0], [100, 1.5], [200, 2.0]], "snap_positioning_fastener_min": 1.5,
+               "hard_floor": 0.4, "hard_floor_source": "weak: project's own 0.4 mm floor, JLC3DP table starts at 0.5 mm for 5x5 mm parts",
+               "footprint_rule": "footprint = geometric mean of the two largest bounding-box dimensions of the part"},
+      "hole": {"vendor_min_dia": 1.0, "depth_max_ratio": 3.0, "table": "dia 1.0: depth 1-3, dia 1.5: 1.5-4.5, dia 2.0: 2-6 mm", "hard_floor_dia": 0.5,
+               "escape_hole_min": 2.5, "enclosed_cavity_needs_two_escape_holes_below_dia": 3.0},
+      "pin": {"vendor_min_dia": 1.0, "table": "dia 1.0: h 1 mm, dia 2.0: 2-4, dia 3.0: 3-6 mm"},
+      "emboss": {"min_width": 0.8, "min_height": 0.8, "older_revision_min": 0.5},
+      "clearance": {"assembled": 0.2, "moving": 0.5},
+      "tolerance": {"size_within_100mm": 0.2, "size_above_100mm_pct": 0.3, "hole": 0.3, "drift_3_7_days": 0.2, "note": "holes generally shrink (vendor)"},
+      "thread": "no printed thread below M6 recommended (vendor); use thread-forming screws in pilot holes or inserts",
+      "press_fit": "no vendor press-fit guidance; clearance table applies",
+      "snap_strain_allow": 0.02
+    },
+    "MJF": {
+      "label": "JLC3DP MJF Nylon (PA12-HP)",
+      "wall": {"table_by_footprint_mm": [[5, 1.0], [10, 1.2], [50, 1.5], [100, 2.0], [200, 2.0]], "snap_positioning_fastener_min": 1.5,
+               "hard_floor": 0.5, "hard_floor_source": "Eureka / Avid style guides (0.5 mm); JLC3DP MJF page recommends 1.0 mm",
+               "footprint_rule": "footprint = geometric mean of the two largest bounding-box dimensions of the part"},
+      "hole": {"vendor_min_dia": 1.5, "depth_max_ratio": 3.0, "table": "dia 1.5: depth 1.5-4.5, dia 2.0: 2-6 mm; dia 1.0 not offered", "hard_floor_dia": 0.8,
+               "escape_hole_min": 2.5, "enclosed_cavity_needs_two_escape_holes_below_dia": 3.0, "note": "powder removal: holes below ~1 mm clog"},
+      "pin": {"vendor_min_dia": 2.0, "table": "dia 2.0: h 2-4, dia 3.0: h 3-6 mm"},
+      "emboss": {"min_width": 0.8, "min_height": 0.8},
+      "clearance": {"assembled": 0.2, "assembled_max": 0.4, "moving": 0.6},
+      "tolerance": {"size_within_100mm": 0.3, "size_above_100mm_pct": 0.4, "hole": 0.3, "note": "holes generally shrink, thick-walled holes shrink more (vendor)"},
+      "thread": "thread pitch 0.6 mm min (vendor MJF page); M1.2 thread-forming screws into drilled pilot holes only",
+      "press_fit": "no vendor press-fit guidance",
+      "snap_strain_allow": 0.03
+    },
+    "CNC_PP": {
+      "label": "CNC polypropylene (PCBWay in the order sheet; JLCCNC guide used as stand-in)",
+      "wall": {"table_by_footprint_mm": [[1, 1.5], [1000, 1.5]], "recommended": 1.5, "hard_floor": 1.0, "hard_floor_source": "JLCCNC: 1.5 mm recommended, 1 mm absolute minimum for plastics"},
+      "hole": {"vendor_min_dia": 1.0, "hard_floor_dia": 1.0, "depth_max_ratio": 5.0, "note": "no hole table on the JLCCNC page; drill rule of thumb 5 x D"},
+      "corner": {"min_radius_formula": "R >= H/10 + 0.5 mm (H = cavity depth), tool D = H/5", "tool_dia_available": 5.0, "tool_depth_best": 3.0, "tool_depth_special": 5.0},
+      "tolerance": {"size": 0.1, "hole": 0.1, "note": "standard +-0.1 mm; the frozen drawing asks bore +0.05/-0 and port H7 (+0.012/0): needs an inspection report"},
+      "emboss": {"min_width": 0.5, "min_height": 0.5},
+      "clearance": {"assembled": 0.05, "moving": 0.1},
+      "snap_strain_allow": 0.05
+    }
+  },
+  "materials": {
+    "PA12_MJF": {"E_GPa": 1.7, "snap_strain_allow": 0.03, "hoop_strain_allow_press": 0.015, "note": "project limit 3 % (check.py); hoop 1.5 % assumed for long-term press fits (creep). datasheet-typical, VERIFY"},
+    "SLA_TOUGH": {"E_GPa": 2.0, "snap_strain_allow": 0.02, "hoop_strain_allow_press": 0.010, "note": "assumption: tough resins are brittle after UV post-cure/ageing; 2 % / 1 %. VERIFY with the vendor datasheet of the chosen resin"},
+    "SLA_CLEAR": {"snap_strain_allow": 0.01, "hoop_strain_allow_press": 0.005, "note": "assumption: clear standard resin is more brittle"},
+    "PP_CNC": {"snap_strain_allow": 0.05, "hoop_strain_allow_press": 0.03},
+    "SILICONE_A40": {"stretch_allow": 1.0, "note": "assembly stretch of cast/cut rings up to 100 % is routine for platinum-cure Shore A 40 (break elongation several hundred %); datasheet-typical, VERIFY"}
+  },
+  "tolerance_scenarios": {
+    "_comment": "Monte Carlo inputs. size_tol / hole_tol are +- values read as k sigma (normal). 'project' = what the CAD and sim assume; 'vendor' = the vendor guide numbers. hole_bias = systematic shrink of printed holes (vendor: 'holes generally shrink'; the magnitude is an ASSUMPTION - calibrate with the dock coupon / a bore coupon). shaft_bias = growth of printed outside features (assumption).",
+    "project": {"k_sigma": 3.0,
+                "SLA": {"size_tol": 0.05, "hole_tol": 0.05, "hole_bias": -0.03, "shaft_bias": 0.0},
+                "MJF": {"size_tol": 0.10, "hole_tol": 0.10, "hole_bias": -0.05, "shaft_bias": 0.0},
+                "CNC_PP": {"size_tol": 0.05, "hole_tol": 0.012, "hole_bias": 0.0, "shaft_bias": 0.0}},
+    "vendor": {"k_sigma": 2.0,
+               "SLA": {"size_tol": 0.2, "hole_tol": 0.3, "hole_bias": -0.08, "shaft_bias": 0.0},
+               "MJF": {"size_tol": 0.3, "hole_tol": 0.3, "hole_bias": -0.12, "shaft_bias": 0.0},
+               "CNC_PP": {"size_tol": 0.1, "hole_tol": 0.1, "hole_bias": 0.0, "shaft_bias": 0.0}},
+    "purchased": {"_comment": "+- on the outside diameter / width of bought parts (k=3)",
+                  "steel_rod": 0.01, "brass_tube": 0.02, "ptfe": 0.05, "silicone_punched": 0.10, "magnet": 0.05, "nut_AF": 0.09, "needle": 0.01, "duckbill": 0.10, "gear_bore": 0.01, "bush_od": 0.02, "shim": 0.03}
+  },
+  "fit_classes": {
+    "_comment": "acceptance window of the nominal diametral gap g = hole - shaft (mm); negative = interference. press: g in [-(hoop_allow x D), -0.02]; windows below are defaults, a fit entry may override.",
+    "press": {"gap_min": null, "gap_max": -0.02, "hoop": true},
+    "slip": {"gap_min": 0.02, "gap_max": 0.25},
+    "running": {"gap_min": 0.05, "gap_max": 0.40},
+    "float": {"gap_min": 0.10, "gap_max": 0.80},
+    "squeeze": {"gap_min": -0.40, "gap_max": -0.05},
+    "transition": {"gap_min": -0.05, "gap_max": 0.10, "note": "friction-retained location (bush in bore, spigot in port): holds by hand without force"},
+    "glued": {"gap_min": -0.02, "gap_max": 0.15, "note": "retained with Loctite 638 / CA: bond line up to ~0.15 mm (638 data sheet gap fill 0.25 mm, weaker above 0.1)"},
+    "clearance": {"gap_min": 0.10, "gap_max": 0.60},
+    "pilot": {"abs_min": 0.95, "abs_max": 1.10, "note": "pilot for an M1.2 thread-forming screw in PA12: 0.8-0.9 x major diameter"}
+  },
+  "thresholds": {
+    "p_fail_warn": 0.05,
+    "p_fail_postprocess": 0.10,
+    "p_fail_error": 0.25,
+    "snap_strain_margin": 1.0,
+    "min_free_tilt_driver_deg": 10,
+    "tweezer_cone_half_angle_deg": 15
+  }
+}

@@ -4,6 +4,7 @@
   python3 check.py                 # all sizes in out/
   python3 check.py --outdir out
   python3 check.py --ignore-length # length > target only as WARN
+  python3 check.py --variant bench --assembly   # + assembly paths / tool access / DFM / fit classes (check_assembly.py)
 
 Exit code 1 on: height > max, width/length > target, solid interference (exclude list in op_build.py),
 open bodies, spring-contact stack outside 0..spring_h_max, metal inside the antenna keep-out,
@@ -367,6 +368,7 @@ def main() -> None:
     ap.add_argument("--sizes", nargs="*")
     ap.add_argument("--ignore-length", action="store_true")
     ap.add_argument("-v", "--verbose", action="store_true")
+    ap.add_argument("--assembly", action="store_true", help="bench only: also run check_assembly.py (assembly paths, tool access, DFM, fit classes; see ASSEMBLY-CHECK.md)")
     args = ap.parse_args()
     out = Path(args.outdir or (HERE / "out" / "bench" if args.variant == "bench" else HERE / "out"))
     p = load_params(out / "params.used.json") if (out / "params.used.json").exists() else load_params()
@@ -385,6 +387,13 @@ def main() -> None:
             print(f"    FAIL: {m}")
         for m in r["warns"]:
             print(f"    WARN: {m}")
+    if args.assembly:
+        if args.variant != "bench":
+            print("--assembly applies to --variant bench only")
+        else:
+            import check_assembly
+            print("\n== assembly feasibility / DFM (check_assembly.py) ==")
+            failed |= bool(check_assembly.run_from_check(out, args.sizes[:1] if args.sizes else None))
     sys.exit(1 if failed else 0)
 
 
