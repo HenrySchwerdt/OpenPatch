@@ -1,0 +1,16 @@
+{
+  "_comment": "Fallback metadata for the generated CAD parts (mechanical/out). Used only while mechanical/components/catalog.json does not exist. 'lock' refers to the row number in docs/PARTS-LOCK.md. These are generated envelope models, not vendor-accurate geometry.",
+  "order": ["bottom", "reservoir", "plunger_core", "plunger_seal", "carriage", "end_cap", "cannula_adapter", "gasket", "coupler", "top"],
+  "parts": {
+    "bottom": { "name": "Base shell", "category": "housing", "process": "3D print, MJF PA12 or SLA resin (spec section 2: 0.9 mm wall)", "lock": null, "note": "Carries the reservoir seat, leadscrew bearings, gear and motor pockets and the cannula dock." },
+    "top": { "name": "Lid shell", "category": "housing", "process": "3D print, MJF PA12 or SLA resin", "lock": null, "note": "Fill window with U scale, screw bosses. Height budget 8.5 mm total." },
+    "reservoir": { "name": "Reservoir, stadium bore 16 x 5 mm", "category": "fluid", "process": "CNC polypropylene (PCBWay), frozen interface (spec section 3a)", "lock": 6, "note": "Ordered once per size, never changed. No septum, valve or needle in this part." },
+    "plunger_core": { "name": "Plunger core", "category": "fluid", "process": "3D print (water tests) or CNC PP", "lock": null, "note": "Stadium-shaped, anti-rotation feature. Carries the cast lip seal." },
+    "plunger_seal": { "name": "Plunger lip seal", "category": "fluid", "process": "Cast platinum-cure silicone, Shore A 40, in the printed mould", "lock": 19, "note": "Biggest development risk (spec section 3). Medical-grade silicone for insulin bench tests." },
+    "carriage": { "name": "Carriage with nut pocket", "category": "drive", "process": "3D print", "lock": 5, "note": "Hex pocket for the DIN 934 M1.6 brass nut; arm pushes the plunger." },
+    "end_cap": { "name": "End cap (septum, duckbill, needle hub)", "category": "fluid", "process": "3D print, pressed onto the reservoir port", "lock": 16, "note": "Holds the fill septum (lock 18), the duckbill check valve (lock 16) and the 30G needle (lock 17)." },
+    "cannula_adapter": { "name": "Cannula dock adapter", "category": "interface", "process": "3D print (PA12)", "lock": 1, "note": "Horizontal slide-on dock for the Insight Flex head, two snap arms. Dimensions of the head are not public: fit-test coupon first." },
+    "gasket": { "name": "Gasket", "category": "housing", "process": "Printed or cast, see mechanical/", "lock": null, "note": "Generated part, see mechanical/parts.md." },
+    "coupler": { "name": "Sleeve coupler (coaxial layout option)", "category": "drive", "process": "Brass tube or SLA", "lock": null, "note": "Only used in the coaxial layout. The default bench layout uses the gear pair instead." }
+  }
+}
