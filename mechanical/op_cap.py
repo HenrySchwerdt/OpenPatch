@@ -1,11 +1,15 @@
-"""End cap (separate cheap part, SLA for water, later PP) pressed onto the single press port of the frozen CNC reservoir.
+"""Minimal fluid module (spec 3c, pressure fill, NO check valve): reservoir port -> septum chamber -> outlet needle.
 
-The cap carries everything that may still change: fill septum (side, through a hole in the -Y shell wall), duckbill check valve pocket,
-needle-hub guard tube, and all internal d0.7 channels.  The reservoir itself has only the d2.0 H7 port.
-
-Channels (all d0.7): port -> +X at the port height to a jog at x_r1 + jog_x -> down to the needle-axis height -> junction;
-junction -> +Y/-Y side branch to the septum chamber (fill/draw path, upstream of the valve);
-junction -> duckbill valve (flow +X) -> needle hub bore.
+Clamped two-part sandwich (microfluidic-manifold style), split on the reservoir-port plane z = z_port:
+  end_cap       lower half (printed): locating spigot half-pin, O-ring half groove, gasket recess, septum pocket (axis Z, open from the top), fill-needle hole
+                down through the base and the pod floor, via + needle bore on the needle axis, shroud tube + hub bore
+  cap_gasket    0.5 mm silicone sheet in a 0.4 mm recess (20 % squeeze on hard lands): the port path is one slot in the sheet (open while the module is open)
+  end_cap_lid   upper half: flat underside on the lands, septum chamber recess + short spur groove, O-ring half groove, spigot half pin, 2 x M1.2 clamp screws
+Soft parts are DROPPED into open pockets: O-ring (face seal to the reservoir port), septum disc (compressed axially 15 % between the pocket floor and the lid face, set
+by the lands), gasket.  The needle is UV-glued into the hub seat with a printed jig.  The fill septum is on the UNDERSIDE: the fill needle enters through a hole in the pod
+floor (accessible when undocked).
+Path: spigot half-grooves d prime_d -> gasket port slot (y = y_c) -> via d via_d down to the needle axis -> needle bore d prime_d -> hub / needle;
+the septum chamber (lid recess over the disc) hangs on the junction through a short lid groove (spur).  Parametric: septum d / len (a bought septum or port), needle mount.
 """
 from __future__ import annotations
 
@@ -15,44 +19,125 @@ from op_cmds import Script
 def cap_geometry(p: dict, L: dict) -> dict:
     dk, cp, D = p["dock"], p["dock"]["cap"], L["dock"]
     xr = L["x_r1"]
-    return {"x_block": [xr, xr + dk["block_len"]], "y_block": [cp["block_y0"], D["y_c"] + cp["block_up_y"]],
-            "z_block": [L["wall"], D["z_n"] + dk["block_up"]], "x_jog": xr + cp["jog_x"], "x_sept": xr + cp["septum_x"],
-            "valve_x": [xr + dk["valve_x0"], xr + dk["valve_x0"] + p["coax"]["valve_len"]], "z_port": L["z_axis"]}
+    sw = cp["sandwich"]
+    zs = L["z_axis"]
+    yc = D["y_c"]
+    return {"x_block": [xr, xr + dk["block_len"]], "y_block": [yc + sw["block_y_rel"][0], yc + sw["block_y_rel"][1]],
+            "z_block": [L["wall"], D["z_n"] + cp.get("block_up", dk["block_up"])], "z_split": zs,
+            "x_sept": xr + cp["septum_x"], "y_sept": yc - cp["septum_dy"], "z_port": zs, "sandwich": sw}
+
+
+def oring_squeeze(p: dict) -> dict:
+    og = p["dock"]["cap"]["oring"]
+    stretch = og["groove_inner_d"] / og["id"]
+    cs_eff = og["cs"] * (1.0 / stretch) ** 0.5            # constant-volume ring: cross-section shrinks with stretch
+    return {"stretch": stretch - 1.0, "cs_eff": cs_eff, "squeeze": (cs_eff - og["groove_depth"]) / cs_eff}
+
+
+def _half(s: Script, name: str, cyl_args: tuple, xlim: tuple, ylim: tuple, zlim: tuple) -> str:
+    """Cylinder ∩ box (lower or upper half of a pin)."""
+    s.cyl(name, *cyl_args)
+    s.box(name + "_hb", xlim, ylim, zlim)
+    s.add("solid.combine", target=name, tools=[name + "_hb"], operation="intersect", name=f"half {name}")
+    return name
 
 
 def build_cap(s: Script, p: dict, L: dict) -> dict:
-    nd, cn, dk, cp, D, cx = p["needle"], p["cannula"], p["dock"], p["dock"]["cap"], L["dock"], p["coax"]
+    cn, dk, cp, D = p["cannula"], p["dock"], p["dock"]["cap"], L["dock"]
+    sw = cp["sandwich"]
     G = cap_geometry(p, L)
     xr, yc, zn, zp = L["x_r1"], D["y_c"], D["z_n"], G["z_port"]
-    s.box("end_cap", tuple(G["x_block"]), tuple(G["y_block"]), tuple(G["z_block"]))
-    j = [s.cyl("t_cap_spigot", "X", (0, yc, zp), cp["spigot_d"], xr - cp["spigot_len"], xr + 0.01),
-         s.cyl("t_cap_shroud", "X", (0, yc, zn), cn["O_cyl_od"], xr + dk["block_len"] - 0.05, D["shroud_end"])]
+    zs = G["z_split"]
+    x0, x1 = G["x_block"]
+    y0, y1 = G["y_block"]
+    z0, zt = G["z_block"]
+    ws, gt, rec = sw["slot_w"], sw["gasket"]["t"], sw["gasket"]["recess"]
+    gx0, gx1, gm = sw["gasket"]["x"][0], sw["gasket"]["x"][1], sw["gasket"]["y_margin"]
+    og = cp["oring"]
+    dp = cp["prime_d"]
+    xd, yd = G["x_sept"], G["y_sept"]
+    sdia, slen = p["septum"]["d"], p["septum"]["len"]
+    scomp, sfl = sw["septum"]["compress"], sw["septum"]["float"]
+    zf = zs - slen * (1.0 - scomp)                        # septum pocket floor: the disc is compressed to slen*(1-c) between it and the lid face
+    gy1 = yc + sw["gasket"]["y_max_rel"]
+    nsh = 2.8
+    # ------------------------------------------------------------------ base
+    s.box("end_cap", (x0, x1), (y0, y1), (z0, zs))
+    j = [_half(s, "t_spg_l", ("X", (0, yc, zp), cp["spigot_d"], xr - cp["spigot_len"], xr + 0.01), (xr - cp["spigot_len"] - 0.1, xr + 0.1), (yc - 2, yc + 2), (zp - 2, zs)),
+         s.cyl("t_cap_shroud", "X", (0, yc, zn), cn["O_cyl_od"], x1 - 0.05, D["shroud_end"])]
     s.join("end_cap", j)
-    d = nd["channel_d"]
-    ya = yc - 2.0                                   # side branch lane (beside the valve pocket)
+    s.tube("t_og_b", "X", (0, yc, zp), og["groove_inner_d"] + 2 * og["groove_w"], og["groove_inner_d"], xr - 0.1, xr + og["groove_depth"])
     cuts = [
-        s.cyl("t_cap_p", "X", (0, yc, zp), d, xr - cp["spigot_len"] - 0.1, G["x_jog"] + 0.2),       # port channel
-        s.cyl("t_cap_d", "Z", (G["x_jog"], yc, 0), d, zn - 0.2, zp + 0.2),                             # jog to the needle axis
-        s.cyl("t_cap_e", "X", (0, yc, zn), d, G["x_jog"] - 0.2, G["valve_x"][0] + 0.1),                # junction -> valve
-        s.cyl("t_cap_c", "Y", (G["x_jog"], 0, zn), d, ya - 0.2, yc + 0.2),                             # junction -> side lane
-        s.cyl("t_cap_b", "X", (0, ya, zn), d, G["x_jog"] - 0.2, G["x_sept"] + 0.2),                    # side lane -> septum x
-        s.cyl("t_cap_a", "Y", (G["x_sept"], 0, zn), d, G["y_block"][0] + 3.5, ya + 0.2),               # septum chamber -> side lane
-        s.cyl("t_cap_ch", "Y", (G["x_sept"], 0, zn), 1.0, G["y_block"][0] + 3.0, G["y_block"][0] + 3.8),
-        s.cyl("t_cap_sb", "Y", (G["x_sept"], 0, zn), p["septum"]["d"] + 2 * p["septum"]["bore_clr"], G["y_block"][0] - 0.1, G["y_block"][0] + 3.1),
-        s.cyl("t_cap_f", "X", (0, yc, zn), d, G["valve_x"][1] - 0.1, D["x_h0"] + 0.1),                  # valve -> hub bore
-        s.cyl("t_cap_hb", "X", (0, yc, zn), dk["hub_d"] + dk["hub_clr"], D["x_h0"], D["shroud_end"] + 0.1),
+        "t_og_b",
+        s.box("t_g_rec", (xr + gx0, xr + gx1), (y0 + gm, gy1), (zs - rec, zs + 0.1)),                                  # gasket recess (0.4 deep)
+        s.cyl("t_cap_p", "X", (0, yc, zp), dp, xr - cp["spigot_len"] - 0.1, xr + gx0 + 0.1),                          # port channel (half groove in the spigot)
+        s.cyl("t_cap_via", "Z", (xd, yc, 0), sw["via_d"], zn - 0.3, zs - rec + 0.1),                                  # via: slot layer -> needle axis
+        s.cyl("t_cap_nb", "X", (0, yc, zn), dp, xd - 0.3, D["x_h0"] + 0.1),                                           # needle bore: junction -> hub
+        s.cyl("t_cap_hb", "X", (0, yc, zn), dk["hub_d"] - cp["hub_press"], D["x_h0"], D["shroud_end"] + 0.1),         # hub seat (needle UV-glued, jig)
+        s.cyl("t_cap_sp", "Z", (xd, yd, 0), sdia + sfl, zf, zs + 0.05),                                                # septum pocket (axis Z, open top)
+        s.cyl("t_cap_fh", "Z", (xd, yd, 0), cp["fill_hole_d"], z0 - 0.1, zf + 0.1),                                    # fill-needle hole down to the pod floor hole
     ]
+    for k, (sx, sy) in enumerate(sw["screws"]["pos"]):
+        cuts.append(s.cyl(f"t_cap_pil{k}", "Z", (xr + sx, yc + sy, 0), sw["screws"]["pilot"], zs - nsh, zs + 0.1))
     s.cut("end_cap", cuts)
-    s.cut("end_cap", [s.cyl("t_cap_vb", "X", (0, yc, zn), cx["valve_d"] - (p["bench"]["valve"]["bore_interference"] if "bench" in p else -0.05), G["valve_x"][0], G["valve_x"][1]),
-                      s.box("t_cap_vs", tuple(G["valve_x"]), (yc - cx["valve_d"] / 2 - 0.02, yc + cx["valve_d"] / 2 + 0.02), (zn, G["z_block"][1] + 0.1))])
+    # ------------------------------------------------------------------ lid
+    s.box("end_cap_lid", (x0, x1), (y0, y1), (zs, zt))
+    s.join("end_cap_lid", [_half(s, "t_spg_u", ("X", (0, yc, zp), cp["spigot_d"], xr - cp["spigot_len"], xr + 0.01), (xr - cp["spigot_len"] - 0.1, xr + 0.1), (yc - 2, yc + 2), (zs, zp + 2))])
+    s.tube("t_og_u", "X", (0, yc, zp), og["groove_inner_d"] + 2 * og["groove_w"], og["groove_inner_d"], xr - 0.1, xr + og["groove_depth"])
+    lcuts = [
+        "t_og_u",
+        s.cyl("t_cap_pu", "X", (0, yc, zp), dp, xr - cp["spigot_len"] - 0.1, xr + gx0 + 0.1),
+        s.cyl("t_cap_ch", "Z", (xd, yd, 0), sw["chamber_d"], zs - 0.05, zs + sw["chamber_h"]),                         # septum chamber over the disc
+        s.box("t_cap_spur", (xd - sw["spur_w"] / 2, xd + sw["spur_w"] / 2), (yd, yc + 0.3), (zs - 0.05, zs + sw["spur_depth"])),   # spur groove chamber -> junction
+    ]
+    sc = sw["screws"]
+    for k, (sx, sy) in enumerate(sc["pos"]):
+        lcuts.append(s.cyl(f"t_cap_cl{k}", "Z", (xr + sx, yc + sy, 0), sc["clear"], zs - 0.1, zt + 0.1))
+        lcuts.append(s.cyl(f"t_cap_hd{k}", "Z", (xr + sx, yc + sy, 0), sc["head_d"], zt - sc["head_depth"], zt + 0.1))
+    s.cut("end_cap_lid", lcuts)
+    # ------------------------------------------------------------------ gasket (silicone sheet, the port path = one slot)
+    s.box("cap_gasket", (xr + gx0, xr + gx1), (y0 + gm, gy1), (zs - rec, zs - rec + gt))
+    gc = [
+        s.box("t_gs_p", (xr + gx0 - 0.1, xd + ws / 2), (yc - ws / 2, yc + ws / 2), (zs - 1, zs + 1)),                  # port slot
+        s.cyl("t_gs_s", "Z", (xd, yd, 0), sdia + sfl, zs - 1, zs + 1),                                                 # septum pocket opening
+    ]
+    s.cut("cap_gasket", gc)
     return G
 
 
-def build_valve_plug(s: Script, p: dict, L: dict) -> None:
-    """Printed plug that closes the valve insertion slot to the pod interior (press fit, 0.04 mm interference per side)."""
-    cx, bv = p["coax"], p["bench"]["valve"]
+def build_oring(s: Script, p: dict, L: dict) -> None:
+    """The face O-ring in assembly state (axial squeeze overlaps the reservoir end face by design: interference exclude pair)."""
+    og = p["dock"]["cap"]["oring"]
     G = cap_geometry(p, L)
-    yc, zn = L["dock"]["y_c"], L["dock"]["z_n"]
-    e = bv["plug_interference"]
-    s.box("valve_plug", (G["valve_x"][0] - e, G["valve_x"][1] + e), (yc - cx["valve_d"] / 2 - 0.02 - e, yc + cx["valve_d"] / 2 + 0.02 + e),
-          (zn + cx["valve_d"] / 2 + bv["plug_gap"], G["z_block"][1]))
+    q = oring_squeeze(p)
+    xr = G["x_block"][0]
+    D = L["dock"]
+    s.tube("cap_oring", "X", (0, D["y_c"], G["z_port"]), og["groove_inner_d"] + 2 * q["cs_eff"], og["groove_inner_d"], xr - (q["cs_eff"] - og["groove_depth"]), xr + og["groove_depth"])
+
+
+def build_septum(s: Script, p: dict, L: dict) -> None:
+    """Septum disc in assembly state: compressed height slen*(1-c), between the pocket floor and the lid face (axis Z)."""
+    G = cap_geometry(p, L)
+    sw = G["sandwich"]
+    zs = G["z_split"]
+    h = p["septum"]["len"] * (1.0 - sw["septum"]["compress"])
+    s.cyl("septum", "Z", (G["x_sept"], G["y_sept"], 0), p["septum"]["d"], zs - h, zs)
+
+
+def cap_interfaces(p: dict, L: dict) -> list[dict]:
+    """Every sealing interface of the wetted module: gap (mm, > 0 clearance, 0 touching, < 0 interference / compression) and the seal element that closes it."""
+    fz, cp, sp, dk = p["reservoir_frozen"], p["dock"]["cap"], p["septum"], p["dock"]
+    sw = cp["sandwich"]
+    og = cp.get("oring")
+    q = oring_squeeze(p) if og else None
+    seal_o = ("face O-ring %.1f x %.1f in the clamped halves, axial squeeze %.0f %%" % (og["id"], og["cs"], 100 * q["squeeze"])) if og else None
+    gk = sw["gasket"]
+    gsq = (gk["t"] - gk["recess"]) / gk["t"]
+    return [
+        {"name": "cap spigot d%.2f in reservoir port d%.2f H7 (locating only)" % (cp["spigot_d"], fz["port_d"]), "gap": fz["port_d"] - cp["spigot_d"], "seal": seal_o, "squeeze": q["squeeze"] if q else None},
+        {"name": "module rear face on the reservoir end face", "gap": 0.0, "seal": seal_o, "squeeze": q["squeeze"] if q else None},
+        {"name": "base / lid split plane (port slot)", "gap": 0.0, "seal": "silicone sheet gasket %.1f mm, %.0f %% squeeze on hard lands" % (gk["t"], 100 * gsq), "squeeze": gsq},
+        {"name": "septum disc d%.1f x %.1f (axial)" % (sp["d"], sp["len"]), "gap": -sp["len"] * sw["septum"]["compress"], "seal": "%.0f %% axial compression between pocket floor and lid face (lands)" % (100 * sw["septum"]["compress"]), "squeeze": sw["septum"]["compress"]},
+        {"name": "needle in hub seat", "gap": -cp.get("hub_press", 0.0) / 2 if cp.get("hub_press") else dk["hub_clr"],
+         "seal": "UV-resin bond in a printed jig + press fit %.2f per side" % (cp["hub_press"] / 2) if cp.get("hub_press") else None, "squeeze": None},
+    ]

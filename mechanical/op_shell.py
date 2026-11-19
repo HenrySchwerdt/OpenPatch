@@ -84,8 +84,9 @@ def build_bottom(s: Script, p: dict, L: dict) -> None:
     if L["mode"] != "bench":
         cut.append(s.cyl("t_sb", "Y", (L["x_s"], 0, sp["z"]), sp["d"] + 2 * sp["bore_clr"], -0.1, sp["len"] + 0.3))
         cut.append(s.cyl("t_sc", "Y", (L["x_s"], 0, sp["z"]), sp["port_d"], sp["len"] + 0.2, L["y_r0"] + 0.01))
-    else:       # fill-needle access hole in the -Y wall in front of the cap septum
-        cut.append(s.cyl("t_fillacc", "Y", (L["x_r1"] + p["dock"]["cap"]["septum_x"], 0, L["dock"]["z_n"]), p["dock"]["cap"]["wall_hole_d"], -0.1, wall + 0.1))
+    else:       # fill-needle access hole through the FLOOR under the cap septum (underside fill, spec 3c; accessible when undocked)
+        _sw = p["dock"]["cap"]
+        cut.append(s.cyl("t_fillacc", "Z", (L["x_r1"] + _sw["septum_x"], L["dock"]["y_c"] - _sw["septum_dy"], 0), _sw["fill_hole_d"], -0.1, wall + 0.1))
     # Lager-Bohrungen
     bb = dr["bush_od"] + dr["bush_bore_clr"]
     if not L["coax"]:
@@ -108,7 +109,8 @@ def build_bottom(s: Script, p: dict, L: dict) -> None:
         if L["coax"]:
             from op_coax import build_coax_cuts
             cut.extend(build_coax_cuts(s, p, L))
-    cut.append(s.rrect("t_vel", (L["x_r0"] + vc["margin_x"], L["x_r1"] - 1.5), (vc["y0"], vc["y1"]), vc["r"], (-0.1, vc["depth"])))
+    _vx1 = L["x_r1"] + p["dock"]["cover"]["x_end_u"] if (bench and p["dock"].get("cover")) else L["x_r1"] - 1.5     # bench: the Velcro patch also covers the fill hole (H14)
+    cut.append(s.rrect("t_vel", (L["x_r0"] + vc["margin_x"], _vx1), (vc["y0"], vc["y1"]), vc["r"], (-0.1, vc["depth"])))
     n = L["nfp_term"]
     if bench and n and not L["coax"]:       # side-by-side motor: terminal block pocket (pins point down), lead channel to the +X wall slot
         ld = p["bench"]["lead"]
@@ -177,16 +179,18 @@ def build_top(s: Script, p: dict, L: dict) -> None:
             cuts.append(s.box("t_ffcslot", (w - wall - 0.2, w + 0.1), (fl["v"] - fl["slot_w"] / 2, fl["v"] + fl["slot_w"] / 2),
                               tuple(fl["slot_z"])))
         cuts.extend(build_mouth_cut(s, p, L, "t_kmouth_top", top_part=True))
-        # fill window over the carriage lane + scale (tick every 10 U delivered, long every 50 U; 1 U = 10 mm3)
+        # fill scale = shallow ENGRAVING (0.15 mm) on the lid inner face above the plunger travel (clear lid, spec 2a: no window slot, wall stays closed);
+        # tick every 10 U delivered, long every 50 U, measured from the full position (1 U = 10 mm3)
         ys_, mm10 = (L["y_r"] if L.get("inline") else L["y_s"]), 100.0 / 74.63
-        if not p.get("v010_active"):       # v0.1.0 (spec 2a): clear lid, no fill-window slot
-            cuts.append(s.box("t_fillwin", (L["xrear_full"] + 0.5, L["xrear_empty"] + 3.5), (ys_ - 1.0, ys_ + 1.0), (zt - wall - 0.1, zt + 0.1)))
+        zi = zt - wall                                   # lid inner face
+        eg = 0.15
         k = 0
         while k * mm10 <= L["stroke"] + 1e-6:
             x = L["xrear_full"] + k * mm10
-            ln = 1.0 if k % 5 == 0 else 0.5
-            cuts.append(s.box(f"t_tick{k}", (x - 0.12, x + 0.12), (ys_ + 1.3, ys_ + 1.3 + ln), (zt - 0.3, zt + 0.1)))
+            ln = 1.5 if k % 5 == 0 else 0.8
+            cuts.append(s.box(f"t_tick{k}", (x - 0.12, x + 0.12), (ys_ - ln / 2 - 1.8, ys_ + ln / 2 - 1.8), (zi - 0.1, zi + eg)))
             k += 1
+        cuts.append(s.box("t_tickbase", (L["xrear_full"], L["xrear_empty"] + 0.12), (ys_ - 1.8 - 0.1, ys_ - 1.8 + 0.1), (zi - 0.1, zi + eg)))
         if L.get("inline"):
             from op_inline import top_extra_cuts
             cuts += top_extra_cuts(s, p, L)

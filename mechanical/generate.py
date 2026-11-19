@@ -58,7 +58,7 @@ BENCH_EXPLODE = {
     "cannula_adapter": (0, 0, -12), "dock_insert": (0, 0, -9), "bottom": (0, 0, -6),
     "gearbox": (0, 0, 10), "motor_can": (0, 0, 10), "front_boss": (0, 0, 10), "shaft": (0, 0, 10), "rear_boss": (0, 0, 10), "term_block": (0, 0, 10),
     "pin1": (0, 0, 10), "pin2": (0, 0, 10), "pin3": (0, 0, 10), "pin4": (0, 0, 10), "gear": (0, 0, 13), "gear (2)": (0, 0, 9), "rod": (0, 0, 8),
-    "S_half": (0, 0, 8), "N_half": (0, 0, 8), "sleeve": (0, 0, 12), "thrust_sleeve": (0, 0, 11), "thrust_collar": (0, 0, 11), "valve_plug": (0, 0, 16),
+    "S_half": (0, 0, 8), "N_half": (0, 0, 8), "sleeve": (0, 0, 12), "thrust_sleeve": (0, 0, 11), "thrust_collar": (0, 0, 11), "end_cap_lid": (0, 0, 16), "cap_gasket": (0, 0, 8), "cap_oring": (-3, 0, 4),
     "plunger_nose": (0, 0, 10), "tongue_shim": (0, 0, 16),
 }
 BENCH_COLORS = ["--body", "top:opacity=0.18,color=#9fb3c8", "--body", "bottom:opacity=0.55,color=#c9d3dd",
@@ -69,7 +69,7 @@ BENCH_COLORS = ["--body", "top:opacity=0.18,color=#9fb3c8", "--body", "bottom:op
 
 
 REAL_NAMES = ["gearbox", "motor_can", "front_boss", "shaft", "rear_boss", "term_block", "pin1", "pin2", "pin3", "pin4", "gear", "gear (2)",
-              "rod", "nut", "S_half", "N_half", "needle", "sleeve"]
+              "rod", "nut", "S_half", "N_half", "needle"]
 
 
 def run_cli(*args: str) -> subprocess.CompletedProcess:
@@ -167,8 +167,9 @@ def generate_size(p: dict, variant: str, outdir: Path, snapshots: bool) -> dict:
         run_cli("run", str(cj), "--quiet")
         cj.unlink()
     # mould files (size independent) copied per size
-    for f in ("mould_lower.step", "mould_upper.step", "mould_lower.stl", "mould_upper.stl"):
-        shutil.copy(outdir / f, outdir / f"{tag}_{f}")
+    for pre in ("mould", "mould_s2", "mould_t"):
+        for f in (f"{pre}_lower.step", f"{pre}_upper.step", f"{pre}_lower.stl", f"{pre}_upper.stl"):
+            shutil.copy(outdir / f, outdir / f"{tag}_{f}")
     if snapshots:
         shots(real_sc or sc, outdir, tag, L, created)
     return L

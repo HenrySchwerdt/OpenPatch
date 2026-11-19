@@ -5,6 +5,7 @@ import math
 
 import numpy as np
 
+from seal_model import SealDesign, gent_E, monte_carlo  # noqa: E402
 from common import CONST as C, GF_CM, PI, PALETTE, Ctx, Result, Row, fmt, perim_stadium, status, table
 
 I_RATED_mA = C["motor_V"] / C["motor_R"] * 1000.0
@@ -54,34 +55,24 @@ def thrust(ctx, zm, zs, I_mA=None, f_pps=None, gh_eff=None, pair_eff=None, mu_t=
     return T / (thread_coeff(ctx, mu_t) + collar_coeff(ctx, mu_c, rm)), T
 
 
-def gent_E(shore):
-    """Young's modulus [MPa] from Shore A (Gent 1958)."""
-    return 0.0981 * (56 + 7.62336 * shore) / (0.137505 * (254 - 2.54 * shore))
+_DES: dict = {}
 
 
-def seal_friction(ctx: Ctx, dbore=0.0, mu=None, shore=None, n_rings=None, b_c=None, oversize=None):
-    """Kinetic friction of the two cast silicone lip rings in the stadium bore [N] (squeeze x contact area x mu)."""
-    P = ctx.P
-    sl, rs = P["seal"], P["reservoir"]
-    mu = C["mu_seal"][1] if mu is None else mu
-    shore = C["shore_A"][1] if shore is None else shore
-    widths = [sl["ring_a"][1] - sl["ring_a"][0], sl["ring_b"][1] - sl["ring_b"][0]]
-    n = len(widths) if n_rings is None else n_rings
-    b = sum(widths) / len(widths) if b_c is None else b_c
-    over = sl["free_oversize"] if oversize is None else oversize
-    over_eff = over - C["silicone_shrink"] * ctx.w_in
-    wc = rs["w_in"] - 2 * rs["plunger_clr"]
-    wg = wc - 2 * sl["groove_depth"]                       # groove floor width = ring inner width
-    t_free = (ctx.w_in + over_eff - wg) / 2.0               # free radial thickness of the cast ring
-    delta = (over_eff - dbore) / 2.0                        # radial interference per side in the bore
-    eps = max(delta, 0.0) / t_free
-    E = gent_E(shore)
-    S = b / (2 * t_free)                                    # shape factor (loaded / bulge area)
-    Ec = E * (1 + 2 * S * S)
-    p = Ec * eps
-    perim = perim_stadium(ctx.w_in + dbore, ctx.h_in + dbore)
-    N = p * b * perim * n
-    return {"F": mu * N, "N": N, "p": p, "eps": eps, "delta": delta, "E": E, "t_free": t_free, "perim": perim, "b": b, "n": n}
+def design(ctx, key=None, legacy=False):
+    k = (key or ctx.P["seal"]["active_variant"], legacy)
+    if k not in _DES:
+        _DES[k] = SealDesign(ctx.P, key, legacy=legacy, shrink=C["silicone_shrink"])
+    return _DES[k]
+
+
+def seal_friction(ctx: Ctx, dbore=None, mu=None, shore=None, variant=None, mu_g=None, legacy=False):
+    """Kinetic force at the plunger [N] for the active seal variant (FE bead model, seal_model.py).  'F' includes the eccentric-push amplification."""
+    d = design(ctx, variant, legacy)
+    mu = C["mu_seal_design"][1] if mu is None else mu
+    mu_g = C["mu_guide"][1] if mu_g is None else mu_g
+    r = d.friction(mu, shore=shore, dbore=dbore, mu_g=mu_g)
+    return {"F": float(r["F_push"]), "F_seal": float(r["F_seal"]), "N": float(r["N"]), "p": float(r["p_mean"]), "delta": float(r["delta"]), "E": r["E"],
+            "perim": r["perim"], "b": float(r["b"]), "n": r["n"], "f_cock": r["f_cock"], "e": r["e"], "L_g": r["L_g"], "key": d.key}
 
 
 def duckbill_force(ctx, kPa=None):
@@ -99,7 +90,7 @@ def run(ctx: Ctx) -> Result:
         "efficiency x gear-pair ratio z_screw/z_motor x pair efficiency gives the **screw torque**; the axial force follows from the power-screw "
         "formula T = F*[ (d2/2)(tan(lam)+mu/cos(30deg))/(1-mu*tan(lam)/cos(30deg)) + mu_c*r_collar ] with d2 = 1.373 mm, lead angle %.2f deg and a "
         "thrust collar at the bush end face (r_m = %.2f mm; the dry-end bush face takes the delivery thrust).  Required force = plunger seal "
-        "friction (squeeze x contact area x mu, Gent E(Shore A)) x breakaway factor + duckbill/needle back-pressure x bore area %.2f mm2.  "
+        "friction (squeeze x contact area x mu, Gent E(Shore A)) x breakaway factor + needle back-pressure x bore area %.2f mm2.  "
         "Hagen-Poiseuille is used for needle and cannula.\n" % (I_RATED_mA, ctx.gh, math.degrees(math.atan(ctx.pitch / (PI * (1.6 - 0.6495 * ctx.pitch)))),
                                                                 collar_coeff(ctx, 1.0), A))
     md.append("Sources / assumptions: motor point [DS vendor page]; current limit 105 mA is what the **controller board is designed for** "
@@ -133,35 +124,24 @@ def run(ctx: Ctx) -> Result:
               % (be, sf["F"], F_back, F_req_static, 100 * thread_eff(ctx, C["mu_thread"][1]), C["mu_thread"][1]))
 
     # ---------- seal friction detail ---------------------------------------------------------------------------
-    md.append("### 1.2 Plunger seal friction model (the dominant unknown)\n")
-    md.append("Geometry from `params.json`: 2 rings x %.1f mm wide, bore perimeter %.1f mm, cast oversize %.2f mm (diametral) minus %.1f %% shrink, free ring thickness "
-              "%.2f mm -> radial squeeze %.3f mm per side = %.1f %% -> contact pressure %.2f MPa (Shore A %.0f, E = %.2f MPa, shape factor %.2f) -> normal force %.1f N -> "
-              "kinetic friction **%.1f N** at mu = %.2f (range below).  Cross-check: the same formula for a 1 ml insulin syringe stopper (perimeter 15 mm, 2 ribs of 0.5 mm, "
-              "0.1 mm squeeze, siliconised mu 0.2) gives 1-2 N, in line with usual syringe glide forces of a few N [LIT, order of magnitude].  "
-              "Our seal has about 4x the contact area of that stopper and is not siliconised.\n"
-              % (sf["b"], sf["perim"], P["seal"]["free_oversize"], 100 * C["silicone_shrink"], sf["t_free"], sf["delta"], 100 * sf["eps"], sf["p"], C["shore_A"][1],
-                 sf["E"], sf["b"] / (2 * sf["t_free"]), sf["N"], sf["F"], C["mu_seal"][1]))
+    md.append("### 1.2 Plunger seal friction model (the dominant unknown; details and variants in `SEAL-AND-DEAD-VOLUME.md` and analysis 6)\n")
+    dsg = design(ctx)
+    old = design(ctx, legacy=True)
+    so = seal_friction(ctx, dbore=0.0, mu=C["mu_seal"][1], mu_g=C["mu_guide"][1], legacy=True)
+    md.append("Active variant **%s** (%d bead(s), land %.2f mm, cast oversize %.2f mm, Shore A %.0f): net squeeze %.3f mm per side, FE line load %.3f N/mm over a %.1f mm perimeter -> normal force %.1f N, "
+              "mean contact pressure %.2f MPa.  Kinetic friction at mu %.2f (oil-wetted): seal alone **%.2f N**, with the cocking factor %.2f (eccentric push e = %.1f mm over a %.1f mm guide span, guide mu %.2f) "
+              "**%.2f N at the plunger**.  Superseded design (2 full-width 0.8 mm bands, 0.3 oversize, Shore 40): FE %.1f N seal alone at mu 0.40 (the earlier block model said 9.6 N; the FE with the groove walls is stiffer), "
+              "cocking x%.1f.\n" % (dsg.key, dsg.n, dsg.land, dsg.oversize, dsg.shore, sf["delta"], sf["N"] / sf["perim"] / sf["n"], sf["perim"], sf["N"], sf["p"], C["mu_seal_design"][1],
+                                   sf["F_seal"], sf["f_cock"], sf["e"], sf["L_g"], C["mu_guide"][1], sf["F"], so["F_seal"], so["f_cock"]))
     rows = []
-    for mu in C["mu_seal"]:
+    for mu in (C["mu_seal_design"][0], C["mu_seal_design"][1], C["mu_seal_design"][2], C["mu_seal"][2]):
         for db in (0.0, 0.05):
             s2 = seal_friction(ctx, dbore=db, mu=mu)
-            rows.append([f"{mu:.2f}", f"+{db:.2f}", f"{s2['delta']:.3f}", f"{s2['F']:.1f}", f"{be * s2['F']:.1f}"])
-    md.append(table(["mu seal", "CNC bore oversize (frozen tol +0.05/0)", "squeeze/side mm", "F kinetic N", "F breakaway N"], rows))
-
-    # design sweep for the seal: what squeeze / width / rings give friction <= budget
+            rows.append([f"{mu:.2f}", f"+{db:.2f}", f"{s2['delta']:.3f}", f"{s2['F_seal']:.2f}", f"{s2['F']:.2f}", f"{be * s2['F']:.2f}"])
+    md.append(table(["mu seal", "CNC bore oversize (frozen tol +0.05/0)", "squeeze/side mm", "F seal alone N", "F kinetic at plunger N (guide mu 0.15)", "F breakaway N"], rows))
     Fa_nom, _ = thrust(ctx, zm0, zs0)
     budget = (Fa_nom - F_back) / be / 1.5          # keep 1.5 margin on breakaway
-    rows = []
-    sweep = {}
-    for n_r in (2, 1):
-        for b in (0.8, 0.4):
-            for over in (0.3, 0.2, 0.1):
-                s2 = seal_friction(ctx, n_rings=n_r, b_c=b, oversize=over, mu=0.25, dbore=0.025)
-                sweep[(n_r, b, over)] = s2["F"]
-                rows.append([n_r, b, over, f"{s2['delta']:.3f}", f"{s2['F']:.1f}", "ok" if s2["F"] <= budget else "too high"])
-    md.append("Design sweep (mu 0.25 i.e. wetted + a little silicone oil, bore +0.025 mean).  Friction budget at the CAD gear pair, %.0f mA: "
-              "(F avail - back-pressure)/breakaway/1.5 = **%.1f N** kinetic.\n" % (C["I_set_mA"], budget))
-    md.append(table(["rings", "contact width mm", "cast oversize mm (diam.)", "squeeze/side mm", "F kinetic N", "vs budget"], rows))
+    md.append("Friction budget at the CAD gear pair, %.0f mA: (F avail - back-pressure)/breakaway/1.5 = **%.1f N** kinetic.\n" % (C["I_set_mA"], budget))
 
     # ---------- sensitivity (tornado) on F available -----------------------------------------------------------------
     base, _ = thrust(ctx, zm0, zs0)
@@ -198,22 +178,11 @@ def run(ctx: Ctx) -> Result:
         cth = d2 / 2 * (math.tan(lam) + mt / ca) / (1 - mt * math.tan(lam) / ca)
         cc = mc * collar_coeff(ctx, 1.0)
         Fa = T / (cth + cc)
-        mu_s = rng.uniform(C["mu_seal"][0], C["mu_seal"][2], N)
-        shore = rng.uniform(C["shore_A"][0], C["shore_A"][2], N)
-        db = rng.uniform(0, ctx.P["reservoir_frozen"]["bore_tol_plus"], N)
-        brk = tri(rng, *C["breakaway"], N)
-        over = P["seal"]["free_oversize"] - C["silicone_shrink"] * ctx.w_in
-        wc = P["reservoir"]["w_in"] - 2 * P["reservoir"]["plunger_clr"]
-        wg = wc - 2 * P["seal"]["groove_depth"]
-        tf = (ctx.w_in + over - wg) / 2
-        eps = np.maximum((over - db) / 2, 0) / tf
-        Es = 0.0981 * (56 + 7.62336 * shore) / (0.137505 * (254 - 2.54 * shore))
-        S = sf["b"] / (2 * tf)
-        pc = Es * (1 + 2 * S * S) * eps
-        per = perim_stadium(ctx.w_in + db, ctx.h_in + db)
-        Fs = mu_s * pc * sf["b"] * per * sf["n"]
+        mcr = monte_carlo(dsg, C, rng, N)
+        Fs = mcr["F_push"]
+        brk = mcr["F_break"] / np.maximum(mcr["F_push"], 1e-9)
         Pb = rng.uniform(1.0, 5.0, N) * 1e-3 * A
-        Freq = brk * Fs + Pb
+        Freq = mcr['F_break'] + Pb
         out[tag] = {"Fa": Fa, "Freq": Freq, "Fs": Fs, "p_stall": float(np.mean(Fa < Freq)), "p_margin15": float(np.mean(Fa < 1.5 * Freq))}
     md.append("### 1.4 Monte Carlo: can the motor break the plunger loose? (N = %d, uniform/triangular over all ranges above)\n" % N)
     rows = []
@@ -221,7 +190,7 @@ def run(ctx: Ctx) -> Result:
         rows.append([tag, f"{np.median(o['Fa']):.2f} ({np.percentile(o['Fa'], 5):.2f}..{np.percentile(o['Fa'], 95):.2f})",
                      f"{np.median(o['Fs']):.1f} ({np.percentile(o['Fs'], 5):.1f}..{np.percentile(o['Fs'], 95):.1f})",
                      f"{100 * o['p_stall']:.0f} %", f"{100 * o['p_margin15']:.0f} %"])
-    md.append(table(["current limit", "F avail N median (5..95 %)", "seal kinetic friction N median (5..95 %)", "P(F avail < F req static)", "P(margin < 1.5)"], rows))
+    md.append(table(["current limit", "F avail N median (5..95 %)", "kinetic force at the plunger N median (5..95 %), oil-wetted", "P(F avail < F req static)", "P(margin < 1.5)"], rows))
 
     # ---------- draw mode -----------------------------------------------------------------------------------------
     md.append("### 1.5 Reverse (draw) mode: suction through the fill needle\n")
@@ -264,7 +233,7 @@ def run(ctx: Ctx) -> Result:
     P_stall = max(Fa_nom - sf["F"], 0.0) / A * 1e3          # kPa
     md.append("### 1.6 Pressure the pump can build (occlusion)\n")
     md.append("P_stall = (F avail - kinetic seal friction) / A = (%.2f - %.1f) N / %.1f mm2 = **%.0f kPa** (CAD pair, %.0f mA, nominal).  Stall thrust incl. holding torque "
-              "x%.1f = %.2f N.  Cracking pressure of a duckbill (1-5 kPa) is only %.2f-%.2f N, i.e. small compared to the seal.\n"
+              "x%.1f = %.2f N.  A back-pressure of 1-5 kPa is only %.2f-%.2f N, i.e. small compared to the seal.\n"
               % (Fa_nom, sf["F"], A, P_stall, C["I_set_mA"], C["hold_over_pullout"], Fh_nom, duckbill_force(ctx, 1), duckbill_force(ctx, 5)))
 
     # ---------- thermal one-liner -----------------------------------------------------------------------------------

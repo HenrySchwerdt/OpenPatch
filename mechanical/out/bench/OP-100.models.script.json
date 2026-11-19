@@ -15,8 +15,7 @@
     "leadscrew",
     "nut",
     "magnet",
-    "needle",
-    "duckbill_valve"
+    "needle"
    ]
   }
  },
@@ -388,28 +387,6 @@
    ],
    "operation": "cut",
    "name": "cut needle"
-  }
- },
- {
-  "command": "file.insert_step",
-  "params": {
-   "path": "components/out/duckbill_valve_generic.step",
-   "flatten": true,
-   "name": "dbv",
-   "matrix": [
-    0,
-    0,
-    1,
-    26.4,
-    1.0,
-    -0.0,
-    0,
-    11.2,
-    0.0,
-    1.0,
-    0,
-    3.0
-   ]
   }
  },
  {

@@ -94,13 +94,13 @@ cycles.
 
 EXPERIMENTAL bench test sample: **water only, never connect to a person.** The integrated sequence above (battery, main PCB, coil, Qi, gears) does **not** apply.
 Files: `python3 generate.py --variant bench` -> `out/bench/` (`OP-xx.layout.json` = pod board layout, `OP-xx.mech.json` = full mechanical layout), upload package `out/bench/fab/`
-(printed parts, mould, `dock-coupon/`). Refill: `REFILL.md` (automatic draw mode).
+(printed parts, mould, `dock-coupon/`). Refill: `REFILL.md` (assisted pressure fill, no check valve).
 
 Tools: **tweezers, small screwdriver (PH000 / 1.5 mm slotted)**, 0.5 / 1.0 / 2.0 mm drills in a pin vise, deburring tool, cyanoacrylate (thread-locker 638 optional), 4 mm + 2 mm biopsy punches,
 razor blade. **No soldering iron:** the pod sensor board arrives assembled (JLC PCBA); the motor keeps its factory lead with the JST 1.25 plug (soldered by the manufacturer).
 
 Parts per pod: printed bottom, top, carriage, plunger core, cannula adapter, sleeve coupler, **end cap** (SLA); **CNC PP reservoir** (`fab/reservoir-cnc`; SLA copy for water); cast lip seals + gasket; NFP-608-26.45-SGM motor with lead; M1.6 leadscrew + M1.6 nut;
-duckbill check valve (OD <= 3 mm); pod sensor board (OP-100, same for all sizes); magnets d2x1: spindle (diametric), dock (axial, goes into the adapter); 10-pin FFC cable; 30G needle with press-fit hub;
+pod sensor board (OP-100, same for all sizes); magnets d2x1: spindle (diametric), dock (axial, goes into the adapter); 10-pin FFC cable; 30G needle with press-fit hub;
 4 mm fill septum; M1.2 screws (4 x 6 mm lid, 1 x 4 mm board).
 
 ## B0. Dock fit test (once per cannula head design, before ordering pods)
@@ -122,16 +122,15 @@ Cast the lip seals in `mould/`, assemble plunger core + seals, push into the res
 4. Thread the leadscrew through the dry bush (x = 0.9), the carriage nut and the far bearing; put the spindle magnet (diametric, d2 x 1) on the wet end. Turn it by hand: the carriage runs between the rear stop and the far block.
 (Coaxial option, `bench.drive_layout=coaxial`: sleeve coupler on the shaft and screw, lead to the dry-end wall slot, see parts.md.)
 
-## B4. Duckbill valve and needle
-1. Drop the **duckbill valve** into the open slot of the end cap (flow direction toward the needle, i.e. toward +X), press it into the d2.9 bore (0.1 mm interference, silicone), then press the **valve plug** into the slot (flush with the cap top; closes the slot to the pod interior).
-2. Needle in its hub (tip protruding 4.8 mm), hub into the bore of the guard tube from the dock mouth, until it bottoms. Check the tip position as in section B7 of the coupon notes.
+## B4. Fluid module and needle
+See **B5 (fluid module)** at the end of this file for the drop-in order of the clamped sandwich (O-ring, gasket, septum, needle); there is no valve (spec 3c).
 
 ## B5. Pod sensor board
 1. Seat the board over the 2 locating pins and the support posts; the leg overhangs the dock channel. The TMAG5273 must sit under the spindle magnet end.
 2. One **M1.2 x 4 screw** into the board boss. FFC cable into the ZIF connector (flip-lock), cable leaving toward the +X end wall.
 
 ## B6. Closing
-Gasket on the bottom tongue, lower the lid (the hold-down pads touch the board, the FFC leaves through its slot, the fill window sits over the carriage lane), 4 lid screws (M1.2 x 6).
+Gasket on the bottom tongue, lower the lid (the hold-down pads touch the board, the FFC leaves through its slot, the clear lid's engraved fill scale sits beside the carriage lane), 4 lid screws (M1.2 x 6).
 
 ## B7. Cannula adapter and dock
 Magnet d2x1 axial into the rear lug pocket (CA drop), punched d2 silicone plug into the septum bore, 1/16" ID silicone tubing on the d1.6 barb. **Dock:** push the pod flat, mouth first, onto the adapter along
@@ -143,10 +142,25 @@ the table: the dome enters the channel, the arms spread (under 1 N), snap behind
 3. Occlusion: pinch the hose; the current/angle monitor must alarm.
 
 ## B9. Disassembly
-Reverse order. Reusable: motor, sensor board, magnets, FFC, screws, coupler (brass), duckbill valve (check). Consumed: lip seals, gasket, septum plugs, needle hubs after 3-5 cycles.
+Reverse order. Reusable: motor, sensor board, magnets, FFC, screws, coupler (brass). Consumed: lip seals, gasket, septum plugs, needle hubs after 3-5 cycles.
 
 
 ## B4. Dock insert, tongue shim, plunger nose (2026-11-19)
 * **Dock insert** (`out/bench/fab/dock-inserts/insert_vNN`): slide the insert into the dock window from the +X mouth (arms toward you) until its front face meets the rear dock face and the two detent bumps click into the flange holes. Swap: push it out with a pin from the open end. Same fit on a bare `dock_fixture` for fit tests (permissive, CERN-OHL-P-2.0). The needle stays in the end cap.
 * **Tongue shim:** glue a 0.5 x 1.4 mm stainless strip (about 4 mm long) into the carriage pocket (open face toward the reservoir) with one drop of cyanoacrylate; the free end enters the plunger socket. Do not bend it.
-* **Plunger nose:** glue the printed 0.7 mm nose disc onto the plunger front face (dead layer in front of the plunger becomes 0.3 mm). Water test only.
+* **Plunger (2026-11-19 seal study):** there is no separate nose any more; the core reaches the end face (dead layer 0.04 mm). Cast the bead seal (variants S1/S2/T, `SEAL-AND-DEAD-VOLUME.md`), oil it with 350 cSt silicone oil, optionally wrap the two flanges with one turn of 0.1 mm PTFE tape. Water test only.
+
+
+## B5. Fluid module (clamped sandwich, no check valve), drop-in order (2026-11-19, spec 3c)
+
+Water only, bench pod, never on a person. Parts: `end_cap` (base), `end_cap_lid`, `cap_gasket` (0.5 mm silicone sheet), O-ring 2.0 x 0.5, septum disc d4.0 x 2.0, 30G blunt needle cut from its hub, 2 x M1.2 x 6 screws, UV resin. Tools: tweezers, calipers, syringe with IPA, printed needle jig. There is **no valve**.
+
+1. Print base and lid (SLA), wash, UV-cure; flush the d0.5 spigot grooves, the via and the needle bore with IPA while the module is OPEN (the port slot is an open slot in the gasket layer). Check the lands are flat (0.05 feeler on a glass plate).
+2. Cut the gasket from 0.5 mm silicone sheet (cutting plotter or the printed template; one 0.6 mm slot and one round opening) and test-fit it in the base recess.
+3. Drop the **O-ring** into the base half groove at the rear face (it stays by the 10 % stretch on the d2.2 inner wall).
+4. Lay the **gasket** into the recess (it stands 0.1 proud).
+5. Drop the **septum disc** into its pocket (axis Z, bottom = fill side, the pocket floor has the d2.0 fill-needle hole).
+6. Put the **lid** on (it takes the O-ring top half and closes the chamber over the disc), insert the two M1.2 screws and tighten until the lid sits on the lands (hard stop: do not over-tighten, the lands set 20 % gasket and 15 % septum squeeze).
+7. Glue the **needle** (cut from its hub, 4.8 mm free) into the hub seat with UV resin in the printed jig (needle on the axis, bore end flush), cure.
+8. Seat the module on the reservoir port (spigot into the d2.0 port, O-ring against the PP end face) and place it in the bottom shell with the fill hole over the floor hole; hold it with the housing (open item: crush rib / clamp).
+9. Test: 30 kPa pressure and 40 kPa vacuum hold at the septum (see REFILL.md bench tests), then the assisted fill with the plunger homed.

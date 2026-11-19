@@ -133,9 +133,9 @@ magnet turn per screw turn). 100 U needs 13.4 mm = 38 300 full steps at ratio 5.
 | reservoir (16.0 x 5.0 stadium bore, 0.8 mm wall, dry end open) | **SLA clear resin** from JLC3DP/PCBWay (single piece, `*_reservoir.stl`) | clear resin ("BioMed Clear"-class if offered) | **water ONLY** - never insulin, not sterile |
 | reservoir, optional material preparation (never filled with insulin) | **CNC PP halves** (`*_reservoir_cnc_lower/upper.step`, PCBWay CNC, ~25+ USD each), bond halves; later COC/COP injection-moulded | polypropylene (USP VI grade) | preparation for a future manufacturer only; never filled with insulin; leachables/extractables NOT evaluated |
 | plunger core | SLA tough resin (`*_plunger_core.stl`); later PP/PEEK CNC | resin | water test only |
-| plunger lip seals | **cast silicone** around the core: print `mould/mould_lower` + `mould_upper` (SLA), cast two rings per plunger in the core grooves | 2-part platinum-cure silicone **Shore A 40** (e.g. Smooth-On Smooth-Sil 940 class; later USP Class VI / ISO 10993 grade from NuSil/Elkem/Wacker) | water only; never insulin |
+| plunger lip seals | **cast silicone** around the core: print `mould/mould_lower` + `mould_upper` (SLA), cast two rings per plunger in the core grooves | 2-part platinum-cure silicone **Shore A ~30** (Sylgard 184 15:1-20:1 or Mold Star 30; see SEAL-AND-DEAD-VOLUME.md; three mould variants S1/S2/T) (e.g. Smooth-On Smooth-Sil 940 class; later USP Class VI / ISO 10993 grade from NuSil/Elkem/Wacker) | water only; never insulin |
 | lubricant | silicone oil 350 cSt (Rev A: any; later "medical fluid" grade, e.g. DOW 360 Medical Fluid 350 cSt class) - thin film in bore and on the lips | | |
-| mould details | split plane through bore centre, 4 pins dia 2.0 / holes 2.2, sprue dia 0.7 (22G syringe) + vent dia 0.5 per ring; free ring size = bore + 0.3 (compressed to bore in the assembly = 0.15/side) | | |
+| mould details | split plane through bore centre, 4 pins dia 2.0 / holes 2.2, sprue dia 0.8 (22G syringe) + vent dia 0.5 per ring; free ring size = bore + 0.3 (compressed to bore in the assembly = 0.15/side) | | |
 
 Rule: **this pump is never filled with insulin or any other drug, and nothing printed or cast in Rev A is ever connected to a person: water only.** The documents and CAD are for
 mechanical development only.
@@ -179,7 +179,7 @@ A standard **module 0.1 spur gear (about 56 teeth, pitch dia 5.6, OD 5.8, bore 1
 
 The reservoir is ONE CNC PP piece per size (`out/bench/fab/reservoir-cnc/`, README with the PCBWay order settings): blind stadium bore 16.00 x 5.00 (R2.5 = d5 end mill), wall 0.8, closed end wall 2.5 with a single
 d2.0 H7 port, arm slot in the +Y wall; nothing else. Frozen numbers: `params.json -> reservoir_frozen`. The **end cap** (`end_cap`, SLA for water; PP later) presses onto the port (d1.98 spigot) and carries the fill septum
-(through a d2.0 hole in the -Y wall), the duckbill valve pocket and the needle-hub guard tube; valve/septum/dock changes only touch the cap. Seal: platinum-cure medical silicone lip seals (mould as before) or a bromobutyl stopper
+(through a d2.0 hole in the -Y wall), the minimal clamped fluid sandwich (septum chamber, needle-hub guard tube; no valve, spec 3c); septum/needle/dock changes only touch the cap. Seal: platinum-cure medical silicone lip seals (mould as before) or a bromobutyl stopper
 cut to the stadium shape; see the CNC README. Tests with water only, never a person.
 
 
@@ -187,3 +187,16 @@ cut to the stadium shape; see the CNC README. Tests with water only, never a per
 The Hirose FH12-10S-0.5SH(55) is **2.0 mm high** (datasheet, `components/catalog.json`), not 1.0 mm. Free height above the 0.6 mm pod board under the 8.4 mm lid is 1.6 mm, so it does not fit. The CAD
 keeps a 1.0 mm envelope (`bench.ffc.conn`) for a **<= 1.2 mm bottom-contact ZIF, 10 pos, 0.5 mm pitch**; candidate class Hirose FH19C/FH19SC (0.9 mm per the series data; 10-pin bottom-contact variant and LCSC number NOT verified).
 Do not order the FH12 for the pod board until a low-profile part is confirmed.
+
+
+## Fluid module soft parts (clamped sandwich, no check valve, 2026-11-19, spec 3c)
+
+| part | spec / catalogue source | note |
+|---|---|---|
+| module O-ring | **2.0 x 0.5 mm (ID x CS)**, NBR 70 or silicone 50-70, 2 per pod (+ spares); SEARCH-TERM "O-ring 2x0.5" (any metric O-ring catalogue) | stretch 10 % on d2.2, squeeze 16 % |
+| gasket sheet | **silicone sheet 0.5 mm**, Shore A 40-50 (the same sheet as the housing gasket); cutting plotter or printed template | one 0.6 mm slot |
+| septum | **4 mm disc punched with a 4 mm biopsy punch** from a PTFE/silicone vial septum 2 mm thick (mz-at.de vial septa) or from 2 mm silicone sheet | 15 % axial compression by the lid lands; underside fill |
+| needle | 30G blunt dispensing needle (EFD type), cut from its luer hub, UV resin (Loctite 4310 class) in a printed alignment jig | bench only |
+| screws | 2 x M1.2 x 6 (as the housing) | clamp the halves |
+
+The duckbill / check valve, its pocket, plug and variants (Lee CCPI, Beswick CKV-M3, Qosina 80105) are **dropped** (spec 3c); `docs/FLUID-PARTS-RESEARCH.md` stays as research.

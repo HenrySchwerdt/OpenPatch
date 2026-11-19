@@ -51,13 +51,14 @@
   "w_in": 16.0,
   "h_in": 5.0,
   "wall": 0.8,
-  "dead": 1.0,
-  "plunger_len": 3.8,
-  "plunger_clr": 0.2,
+  "dead": 0.04,
+  "plunger_len": 4.76,
+  "plunger_clr": 0.1,
   "plunger_gap": 0.2,
   "fill_fraction": 1.0,
   "cnc_split": true,
-  "nose_len": 0.7
+  "nose_len": 0.0,
+  "_comment_seal_study": "2026-11-19 SEAL-AND-DEAD-VOLUME.md: plunger core is now 4.76 long with the front flange 0.46 behind the front bead, dead layer 0.04 (dead + plunger_len = 4.80 as before, so the CNC reservoir length is unchanged); core clearance 0.1 per side; the separate printed nose is gone (nose_len 0)."
  },
  "septum": {
   "d": 4.0,
@@ -249,19 +250,20 @@
   "recess_depth": 0.2
  },
  "seal": {
-  "ring_w": 0.8,
-  "flange": 0.6,
-  "groove_depth": 0.5,
-  "free_oversize": 0.3,
+  "_comment": "Cast silicone bead seal, three mould variants (op_seal.py, op_mould.py, SEAL-AND-DEAD-VOLUME.md). free_oversize = cavity tip diameter minus 16.0 (before cast shrink ~0.1-0.2 %).",
+  "ring_w": 0.6,
+  "flange": 0.4,
+  "groove_depth": 0.55,
+  "free_oversize": 0.15,
   "assembly_gap": 0.02,
   "socket_clr": 0.1,
   "ring_a": [
-   0.6,
-   1.4
+   0.4,
+   1.0
   ],
   "ring_b": [
-   2.3,
-   3.1
+   3.65,
+   4.25
   ],
   "socket_x": [
    1.45,
@@ -271,7 +273,49 @@
    1.55,
    2.15
   ],
-  "socket_depth": 1.6
+  "socket_depth": 1.6,
+  "land": 0.2,
+  "active_variant": "S2",
+  "variants": {
+   "S1": {
+    "rings": [
+     "b"
+    ],
+    "free_oversize": 0.15,
+    "land": 0.2,
+    "shore_target": 30,
+    "role": "fall-back: more squeeze (~0.047 mm per side), single front bead, land 0.20; use if S2 leaks"
+   },
+   "S2": {
+    "rings": [
+     "b"
+    ],
+    "free_oversize": 0.12,
+    "land": 0.15,
+    "shore_target": 30,
+    "role": "ACTIVE (CAD) / lowest friction: land 0.15, net squeeze ~0.03 mm per side; leak margin thinner"
+   },
+   "T": {
+    "rings": [
+     "a",
+     "b"
+    ],
+    "free_oversize": 0.14,
+    "land": 0.2,
+    "shore_target": 30,
+    "role": "twin bead (redundant seal, longer guide), about 1.7x the friction of S1 (use if S1 leaks)"
+   }
+  },
+  "purge": {
+   "groove_w": 0.4,
+   "groove_d": 0.1,
+   "centre_d": 1.8
+  },
+  "guide": {
+   "mu_g": 0.15,
+   "_note": "[ASM] mu_g = core flange vs PP bore, silicone-oil wetted. tape_recess: both core flanges are turned down by this much per side so that one wrap of 0.1 mm PTFE thread-seal tape (optional) restores the 0.1 mm clearance and lowers the guide friction to ~0.10 (see SEAL-AND-DEAD-VOLUME.md, cocking).",
+   "tape_recess": 0.1
+  }
  },
  "mould": {
   "margin": 6.0,
@@ -279,7 +323,7 @@
   "pin_d": 2.0,
   "pin_clr": 0.1,
   "pin_h": 2.5,
-  "sprue_d": 0.7,
+  "sprue_d": 0.8,
   "vent_d": 0.5,
   "core_clr": 0.03
  },
@@ -569,11 +613,6 @@
     "OP-200": 38.5
    }
   },
-  "valve": {
-   "bore_interference": 0.1,
-   "plug_interference": 0.04,
-   "plug_gap": 0.02
-  },
   "carriage": {
    "rear_wall": 0.6,
    "nut_rear_wall": 0.45,
@@ -637,20 +676,82 @@
   "mouth_over": 0.6,
   "arm_gap_clr": 0.2,
   "hook_ramp": 0.5,
-  "valve_x0": 0.6,
+  "valve_x0": 1.4,
   "cap": {
    "septum_x": 2.2,
-   "spigot_len": 2.0,
+   "spigot_len": 2.4,
    "spigot_d": 1.98,
-   "block_y0": 1.0,
-   "block_up_y": 3.0,
-   "jog_x": 0.3,
-   "wall_hole_d": 2.0
+   "prime_d": 0.5,
+   "oring": {
+    "id": 2.0,
+    "cs": 0.5,
+    "groove_inner_d": 2.2,
+    "groove_w": 0.6,
+    "groove_depth": 0.4,
+    "_note": "catalogue O-ring 2.0 x 0.5 (NBR/silicone) in a face groove of the cap, sealing against the flat PP end face of the reservoir around the port: stretched 10 % on d2.2, cross-section 0.477, axial squeeze (0.477-0.40)/0.477 = 16 %. The d1.98 spigot only locates (clearance fit, NOT a seal)."
+   },
+   "block_up": 3.4,
+   "hub_press": 0.08,
+   "_note_2026_11_19_review": "septum bore = disc d x (1 - septum_compress) = 3.4 (radial compression 15 %), cavity 1.8 deep for a 2.0 disc (0.2 protrudes: the shell wall compresses it 0.1 axially, no air pocket behind it); needle hub bore = hub_d - hub_press (0.04 interference per side); main path channels d0.6 (L/D <= 5.3, flushable from both ends), fill branch d0.8 (drill/print straight legs).",
+   "sandwich": {
+    "_comment": "clamped two-part sandwich (op_cap.py), spec 3c minimal fluid module. septum: disc (septum.d / len) or a bought septum (change d / len); needle: hub seat with UV-glued needle (dock.hub_d, cap.hub_press) or bare needle.",
+    "slot_w": 0.6,
+    "via_d": 0.6,
+    "plenum_d": 1.2,
+    "gasket": {
+     "t": 0.5,
+     "recess": 0.4,
+     "x": [
+      0.25,
+      4.3
+     ],
+     "y_margin": 0.3,
+     "y_max_rel": 0.9
+    },
+    "septum": {
+     "type": "disc",
+     "compress": 0.15,
+     "float": 0.1
+    },
+    "screws": {
+     "d": 1.2,
+     "pilot": 1.0,
+     "clear": 1.4,
+     "head_d": 2.4,
+     "head_depth": 0.5,
+     "pos": [
+      [
+       1.0,
+       2.2
+      ],
+      [
+       3.4,
+       2.2
+      ]
+     ]
+    },
+    "chamber_d": 1.2,
+    "chamber_h": 0.4,
+    "spur_w": 0.6,
+    "spur_depth": 0.3,
+    "block_y_rel": [
+     -5.9,
+     3.4
+    ]
+   },
+   "septum_dy": 3.2,
+   "fill_hole_d": 2.0,
+   "_note_3c": "2026-11-19 spec 3c: NO check valve, pressure fill. Minimal module: reservoir port -> septum chamber -> outlet needle. Septum on the UNDERSIDE (axis Z) at (x_r1 + septum_x, y_c - septum_dy), fill needle through cap.fill_hole_d and a hole in the pod floor; one gasket slot, no branches."
   },
-  "guard_lead_in": 0.4
+  "guard_lead_in": 0.4,
+  "cover": {
+   "_comment": "Hazard H14 (spec 3e): no check valve, so the fill septum must be physically unreachable while docked. Omnipod-style: the septum is on the pod UNDERSIDE inside the Velcro patch footprint (the floor recess `velcro`, extended forward to x_r1 + x_end_u), so the patch covers the underside, and therefore the fill-needle hole, whenever the pod sits on it (docked); the pod must be removed and turned over to fill. check.py: the hole footprint (septum x, y, hole d + needle radius) must lie inside the patch footprint; a plate directly under the floor blocks every ray (any angle) through the hole.",
+   "x_end_u": 4.0,
+   "needle_d": 0.4
+  }
  },
  "coax": {
-  "_comment": "Coaxial NFP motor + sleeve coupler (see op_coax.py). All lengths VERIFY with the real motor.",
+  "_comment": "Coaxial NFP motor + sleeve coupler (see op_coax.py). All lengths VERIFY with the real motor. valve_d/valve_len/dock.valve_x0 are LEGACY (coaxial layout only): the bench pod has no check valve since spec 3c.",
   "rear_gap": 1.9,
   "shaft_engage": 3.0,
   "len": 5.6,
@@ -658,7 +759,7 @@
   "screw_gap": 0.2,
   "carriage_gap": 0.3,
   "valve_d": 3.0,
-  "valve_len": 3.4,
+  "valve_len": 2.8,
   "post_d": 0.8,
   "slot_w": 3.0,
   "slot_z": [

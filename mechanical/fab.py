@@ -48,7 +48,7 @@ PARTS = {
                             "Half of the reservoir (split at bore centre plane). Bond halves after machining. Only for the later "
                             "optional material preparation (never filled with insulin); not part of the cheap monthly loop.", False),
     "reservoir_cnc_upper": ("CNC (PCBWay CNC; polypropylene) - OPTIONAL", "PP natural", "natural", "as machined", 1, "see lower half", False),
-    "plunger_seal": ("DO NOT ORDER - cast in the mould (silicone, Shore A 40-50)", "-", "-", "-", 0,
+    "plunger_seal": ("DO NOT ORDER - cast in the mould (silicone bead seal, Shore A 30, S1/S2/T)", "-", "-", "-", 0,
                      "Reference geometry (assembly state). Cast with mould_lower/upper.", False),
     "gasket": ("DO NOT ORDER - die-cut / laser-cut 0.5 mm silicone sheet, Shore A 40-50, ring 0.4 mm wide, or dispense a 0.5 mm bead", "-", "-", "-", 0,
                "Reference geometry (compressed state 0.45 mm). A 0.4 mm wide ring is fragile: cut it from 0.5 mm sheet with ~0.8 mm webs or use FIPG.", False),
@@ -59,18 +59,18 @@ BENCH_PARTS["bottom"] = (PARTS["bottom"][0], "PA12", "grey (natural)", "bead-bla
                          "+-0.2 mm. Contains the dock: two snap arms 0.8 mm thick x 9.5 mm free length (hook travel 1.8 mm, ~2.4 % strain). "
                          "ORDER THE DOCK COUPON FIRST. Post-drill by hand: M1.2 pilot dia 1.0 (x5), hub bore dia 2.0 (test-fit), fluid channel dia 0.7. "
                          "FFC exit slot is in the lid. Porous: NOT watertight.", True)
-BENCH_PARTS["top"] = (PARTS["top"][0], "PA12", "grey (natural)", "bead-blasted standard", 1,
-                      "+-0.2 mm. FFC slot 8.0 x 1.1 mm in the +X wall, dome mouth in the lap. Screw holes dia 1.4 may need a drill.", True)
+BENCH_PARTS["top"] = ("SLA clear resin (JLC3DP clear, spec 2a)", "clear resin", "clear (polish / clear-coat the outside)", "wash + UV; no window slot: the wall is closed", 1,
+                      "+-0.1 mm. CLEAR LID: reservoir, water level and drive are visible through it. Fill scale = 0.15 mm engraving on the inner face (tick / 10 U, long / 50 U). FFC slot 8.0 x 1.1 mm in the +X wall, dome mouth in the lap. Screw holes dia 1.4 may need a drill. WATER ONLY.", True)
 BENCH_PARTS["end_cap"] = ("SLA (tough resin; later PP / CNC)", "tough resin", "any", "no coating; clear internal channels d0.7 with a 0.5 mm wire", 2,
-                          "+-0.05 mm. End cap pressed onto the d2.0 H7 port of the CNC reservoir (spigot d1.98 x 2.0): fill septum bore d4.2 (side), duckbill pocket d3.05 with open slot, needle guard tube d3.2 / bore d2.0, "
-                          "internal channels d0.7. WATER ONLY in SLA resin.", True)
+                          "+-0.05 mm. End cap pressed onto the d2.0 H7 port of the CNC reservoir (spigot d1.98 x 2.4, locating only; sealed by a face O-ring 2.0 x 0.5 in the cap groove): septum pocket (axis Z, 15 % axial compression on the d4.0 x 2.0 disc, underside fill), no check valve, needle guard tube d3.2 / bore d2.0, "
+                          "channels d0.5 (short, flushable while open), one gasket slot; needle UV-glued in the hub seat with a printed jig. WATER ONLY in SLA resin.", True)
 BENCH_PARTS["coupler"] = ("SLA (tough resin) - or turned brass tube (preferred)", "tough resin / brass", "any", "no coating", 2,
                           "+-0.05 mm. Sleeve coupler d3.0 x 6.0: D-bore d2.04 / flat 1.5 (3.2 deep) for the NFP shaft, M1.6 bore d1.64 (2.8 deep) for the leadscrew; "
                           "retain with one drop of cyanoacrylate / Loctite 638. VERIFY the shaft D-flat on the real motor.", True)
 BENCH_PARTS["plunger_nose"] = ("SLA (JLC3DP resin 8001-type)", "tough resin", "any", "no coating", 2,
                                "+-0.1 mm. 0.7 mm stadium disc (14.6 x 3.6) glued (CA) onto the plunger front: dead layer 0.3 mm. WATER ONLY.", True)
-BENCH_PARTS["valve_plug"] = ("SLA (JLC3DP resin 8001-type)", "tough resin", "any", "no coating", 2,
-                             "+-0.05 mm. Press-fit plug (0.04 mm interference per side) that closes the duckbill insertion slot in the end cap; flush with the cap top.", True)
+BENCH_PARTS["end_cap_lid"] = ("SLA (JLC3DP resin 8001-type)", "tough resin", "any", "no coating", 2,
+                              "+-0.05 mm. Upper half of the clamped fluid sandwich: flat underside on the lands, septum chamber recess + spur groove, O-ring half groove, 2 x M1.2 x 6 clamp screws. WATER ONLY.", True)
 BENCH_PARTS["thrust_sleeve"] = ("SLA, or brass tube d2.0 x d1.6 x 2.05 (cut + deburr)", "tough resin / brass", "any", "no coating", 2,
                                 "+-0.05 mm. Gear carrier and rear thrust shoulder: slides on the rod, rear face on the dry bush, GHW 753020 (bore 2.0) glued on it (Loctite 638). "
                                 "Printed d2.0 walls are thin: brass tube recommended.", True)
@@ -83,8 +83,8 @@ BENCH_PARTS["cannula_adapter"] = ("SLA (JLC3DP resin 8001-type; PCBWay SLA)", "t
                                   2, "+-0.1 mm. Dummy cannula head (dome d 10, base plate, side septum recess d 3.6, two latch notches, hose barb d 1.6, magnet "
                                      "pocket d 2.1 x 1.05 in the rear lug). Glue a d2x1 N52 magnet (CA drop) and press a punched d2 silicone plug "
                                      "into the septum bore. Dimensions follow cannula.* placeholders (TODO-MEASURE).", True)
-MOULD = ("SLA (high detail, e.g. JLC3DP 8001 / PCBWay SLA)", "tough resin", "any", "wash + UV cure; drill sprue dia 0.7 / vent dia 0.5 clear", 1,
-         "One set for ALL sizes. +-0.05..0.1 mm. Check the 4 pin/hole fits (pin dia 2.0 / hole 2.2).")
+MOULD = ("SLA (high detail, e.g. JLC3DP 8001 / PCBWay SLA)", "tough resin", "any", "print each half standing on its short end (cavity axis vertical), wash + UV cure; clear sprue dia 0.8 / vent dia 0.5", 1,
+         "THREE seal variants (S1, S2, T) = 3 sets for ALL sizes (SEAL-AND-DEAD-VOLUME.md). +-0.05 mm. Check the 4 pin/hole fits (pin dia 2.0 / hole 2.2).")
 
 # --- price model (ESTIMATES, USD) ------------------------------------------------------------
 MJF_PER_G, MJF_MIN_PART, MJF_BILL_FACTOR, PA12_DENSITY = 0.28, 1.5, 1.6, 1.0
@@ -111,7 +111,7 @@ def write_bench_readme(p: dict, vols: dict, sizes: list, PARTS: dict) -> None:
         if PARTS[part][0].startswith("MJF"):
             return qty * max(MJF_MIN_PART, vol * PA12_DENSITY * MJF_BILL_FACTOR * MJF_PER_G)
         return qty * max(SLA_MIN_PART, vol * SLA_BILL_FACTOR * SLA_PER_CM3 * 4)
-    cols = [("bottom", 1), ("top", 1), ("carriage", 2), ("plunger_core", 2), ("plunger_nose", 2), ("reservoir", 1), ("cannula_adapter", 2), ("end_cap", 2), ("valve_plug", 2), ("thrust_sleeve", 2), ("thrust_collar", 2)]
+    cols = [("bottom", 1), ("top", 1), ("carriage", 2), ("plunger_core", 2), ("reservoir", 1), ("cannula_adapter", 2), ("end_cap", 2), ("end_cap_lid", 2), ("thrust_sleeve", 2), ("thrust_collar", 2)]
     lines = ["| size | " + " | ".join(f"{c} x{q}" for c, q in cols) + " | subtotal |", "|---|" + "---|" * (len(cols) + 1)]
     tot = 0.0
     sub = {}
@@ -120,14 +120,14 @@ def write_bench_readme(p: dict, vols: dict, sizes: list, PARTS: dict) -> None:
         sub[sz] = sum(c)
         tot += sub[sz]
         lines.append(f"| {sz} | " + " | ".join(f"${x:.1f}" for x in c) + f" | ${sum(c):.1f} |")
-    mould = 2 * max(SLA_MIN_PART, 14.0 * SLA_BILL_FACTOR * SLA_PER_CM3 * 4)
+    mould = 6 * max(SLA_MIN_PART, 14.0 * SLA_BILL_FACTOR * SLA_PER_CM3 * 4)
     coupon = SLA_MIN_PART * 12 + MJF_MIN_PART
     single = min(sub.values())
     readme = f"""# OpenPatch bench pod - fabrication folder (`out/bench/fab/`)
 
 EXPERIMENTAL bench test sample (Rev A bench split, spec 4a): water only, NEVER on a person. No battery, Qi coil, RF module or
 main PCB: the pod carries only the 2-layer pod sensor board (ordered separately as PCBA, see `electronics/`) and an FFC cable
-to the bench controller. Folders: `OP-70/`, `OP-100/`, `OP-200/` (upload), `mould/` (one set for all sizes), `dock-inserts/`
+to the bench controller. Folders: `OP-70/`, `OP-100/`, `OP-200/` (upload), `mould/` (three seal-variant sets, valid for all sizes), `dock-inserts/`
 (12 swappable dock insert variants + pod-less fixture, order FIRST), `reservoir-sla-water-only/` (print copy of the frozen reservoir, WATER ONLY), `MANIFEST.csv`. Units mm; STEP is master, STL (fine) for the quote tool.
 
 ## Order sheet (every size)
@@ -135,7 +135,7 @@ to the bench controller. Folders: `OP-70/`, `OP-100/`, `OP-200/` (upload), `moul
 | file | process | material | colour | finish | qty / size | tolerance, notes |
 |---|---|---|---|---|---|---|
 """ + "\n".join(f"| `<SIZE>/{k}.stl` | {v[0]} | {v[1]} | {v[2]} | {v[3]} | {v[4]} | {v[5]} |" for k, v in PARTS.items() if v[6]) + f"""
-| `mould/mould_lower.stl`, `mould_upper.stl` | {MOULD[0]} | {MOULD[1]} | {MOULD[2]} | {MOULD[3]} | {MOULD[4]} set (all sizes) | {MOULD[5]} |
+| `mould/mould*_lower.stl`, `mould*_upper.stl` (3 variants S1, S2, T) | {MOULD[0]} | {MOULD[1]} | {MOULD[2]} | {MOULD[3]} | 3 sets (all sizes) | {MOULD[5]} |
 | `dock-inserts/insert_v01..v12.stl` | SLA tough resin (or MJF PA12) | tough resin / PA12 | any | support marks off arms | 12 (shared by all sizes) | swappable dock insert variants (ID on the -Y arm), see `variants.csv` |
 | `dock-inserts/dock_fixture.stl` | MJF PA12 or SLA | PA12 / tough resin | any | standard | 1 | pod-less fixture with the frozen dock interface: fit the inserts to a real cannula head without a pod |
 | `reservoir-sla-water-only/<SIZE>_reservoir_WATER-ONLY_sla.stl` | SLA clear resin | clear | clear | wash + UV | 1 per size | **WATER ONLY - never insulin or any drug** (printed resin is not validated for any drug). Print copy of the frozen reservoir geometry; the CNC PP part in `reservoir-cnc/` is an optional material preparation, also never filled with insulin |
@@ -215,7 +215,7 @@ def main() -> None:
     for sz in sizes:
         d = FAB / sz
         d.mkdir()
-        v = volumes(OUT / f"{sz}.sc", ["bottom", "top", "carriage", "plunger_core", "plunger_nose", "reservoir", "cannula_adapter", "end_cap", "valve_plug", "thrust_sleeve", "thrust_collar"])
+        v = volumes(OUT / f"{sz}.sc", ["bottom", "top", "carriage", "plunger_core", "reservoir", "cannula_adapter", "end_cap", "end_cap_lid", "thrust_sleeve", "thrust_collar"])
         vols[sz] = v
         for part, (proc, mat, col, fin, qty, tol, upload) in PARTS.items():
             if not upload:
@@ -234,7 +234,7 @@ def main() -> None:
         shutil.copy(OUT / f"{sz}_assembly.step", d / "assembly_reference.step")
     md = FAB / "mould"
     md.mkdir()
-    for n in ("mould_lower", "mould_upper"):
+    for n in ("mould_lower", "mould_upper", "mould_s2_lower", "mould_s2_upper", "mould_t_lower", "mould_t_upper"):
         for ext in ("stl", "step"):
             shutil.copy(OUT / f"{n}.{ext}", md / f"{n}.{ext}")
         rows.append([f"mould/{n}.stl", *MOULD[:5], MOULD[5], ""])
@@ -305,11 +305,11 @@ def main() -> None:
         lines.append(f"| {sz} (vol cm3: " + "/".join(f"{vols[sz].get(k,0):.2f}" for k in ("bottom", "top", "carriage", "plunger_core", "reservoir"))
                      + ") | " + " | ".join(f"${x:.1f}" for x in c) + f" | ${sum(c):.1f} |")
     spare = part_cost("OP-100", "bottom", 1) + part_cost("OP-100", "top", 1)
-    mould = 2 * max(SLA_MIN_PART, 14.0 * SLA_BILL_FACTOR * SLA_PER_CM3 * 4)
+    mould = 6 * max(SLA_MIN_PART, 14.0 * SLA_BILL_FACTOR * SLA_PER_CM3 * 4)
     readme = f"""# OpenPatch Rev A - fabrication folder (`out/fab/`)
 
 EXPERIMENTAL DIY device, not a medical device. Everything here is for bench/water testing.
-Folders: `OP-70/`, `OP-100/`, `OP-200/` (upload these), `mould/` (one set for all sizes), `MANIFEST.csv`
+Folders: `OP-70/`, `OP-100/`, `OP-200/` (upload these), `mould/` (three seal-variant sets, valid for all sizes), `MANIFEST.csv`
 (machine-readable version of the table below). Units: mm. STEP is the master, STL (fine tessellation) is for the
 quote tool; `assembly_reference.step` and `reference_not_ordered/` are NOT to be uploaded.
 
@@ -318,7 +318,7 @@ quote tool; `assembly_reference.step` and `reference_not_ordered/` are NOT to be
 | file | process | material | colour | finish | qty / size | tolerance, notes |
 |---|---|---|---|---|---|---|
 """ + "\n".join(f"| `<SIZE>/{k}.stl` | {v[0]} | {v[1]} | {v[2]} | {v[3]} | {v[4]} | {v[5]} |" for k, v in PARTS.items() if v[6]) + f"""
-| `mould/mould_lower.stl`, `mould_upper.stl` | {MOULD[0]} | {MOULD[1]} | {MOULD[2]} | {MOULD[3]} | {MOULD[4]} set (all sizes) | {MOULD[5]} |
+| `mould/mould*_lower.stl`, `mould*_upper.stl` (3 variants S1, S2, T) | {MOULD[0]} | {MOULD[1]} | {MOULD[2]} | {MOULD[3]} | 3 sets (all sizes) | {MOULD[5]} |
 
 Not uploaded (reference geometry in `reference_not_ordered/`): `plunger_seal` (cast in the mould) and `gasket`
 (die/laser-cut from silicone sheet). CNC reservoir halves (`reservoir_cnc_*`) are in `out/` only; they are the

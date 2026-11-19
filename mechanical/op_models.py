@@ -2,7 +2,7 @@
 
 The pod design (`OP-xx.sc`) is built with simple envelopes for the bought-in parts (fast, used by check.py).  This module
 makes a second design `OP-xx_real.sc`: it removes the envelopes of the parts that exist in the component library
-(NFP motor, two GHW gears, M1.6 rod, DIN 934 nut, spindle magnet, 30G needle, duckbill valve) and inserts the vendor-accurate STEP
+(NFP motor, two GHW gears, M1.6 rod, DIN 934 nut, spindle magnet, 30G needle) and inserts the vendor-accurate STEP
 models at the same poses.  Used for the renders, the exploded view, the glTF/GLB for the website and the real-part
 interference check (`check.py`).
 
@@ -17,14 +17,14 @@ COMP = "components/out"          # relative to mechanical/ (the CLI runs with cw
 
 # envelope bodies that are replaced by library models
 REPLACED = ["gearhead", "motor", "motor_boss", "motor_shaft", "motor_rear_boss", "motor_term", "motor_pins",
-            "gear_a", "gear_b", "leadscrew", "nut", "magnet", "needle", "duckbill_valve"]
+            "gear_a", "gear_b", "leadscrew", "nut", "magnet", "needle"]
 
 NFP_BODIES = ["gearbox", "motor_can", "front_boss", "shaft", "rear_boss", "term_block", "pin1", "pin2", "pin3", "pin4"]
 # the motor library model is a one-piece assembly of overlapping solids (shaft through the boss, pins in the terminal block, ...)
 NFP_INTERNAL = [[a, b] for i, a in enumerate(NFP_BODIES) for b in NFP_BODIES[i + 1:]]
 
 # interference pairs that are intentional between real models (bores sized to the shaft, thread in the nut, press fits)
-REAL_EXCLUDE = [["gear", "shaft"], ["gear (2)", "thrust_sleeve"], ["rod", "nut"], ["sleeve", "end_cap"], ["needle", "end_cap"],
+REAL_EXCLUDE = [["gear", "shaft"], ["gear (2)", "thrust_sleeve"], ["rod", "nut"], ["needle", "end_cap"], ["needle", "end_cap_lid"],
                 ["needle", "needle_hub"], ["gear", "gear (2)"]] + NFP_INTERNAL
 
 
@@ -89,8 +89,6 @@ def real_model_cmds(p: dict, L: dict, size: str) -> list[dict]:
     cmds.append(_ins("needle_30g_efd_14in", "ndl", _along_x((D["x_tip"] - 6.35, D["y_c"], D["z_n"]))))
     cmds += [{"command": "solid.remove", "params": {"bodies": ["hub"]}},
              _box("t_trim_n", (D["x_tip"] - 12, D["x_h0"]), (D["y_c"] - 2, D["y_c"] + 2), (D["z_n"] - 2, D["z_n"] + 2)), _cut("needle", "t_trim_n")]
-    # duckbill valve in its cap pocket (inlet at valve_x0)
-    cmds.append(_ins("duckbill_valve_generic", "dbv", _along_x((L["x_r1"] + p["dock"]["valve_x0"], D["y_c"], D["z_n"]))))
     return cmds
 
 

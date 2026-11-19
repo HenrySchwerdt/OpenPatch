@@ -217,7 +217,7 @@
   "size_mm": [
    3.0,
    3.0,
-   4.2
+   2.8
   ],
   "bbox_mm": {
    "min": [
@@ -228,10 +228,10 @@
    "max": [
     1.5,
     1.5,
-    4.2
+    2.8
    ]
   },
-  "mass_g_estimate": 0.0139,
+  "mass_g_estimate": 0.0092,
   "material": "silicone (translucent)",
   "colour": "translucent clear/blue-white",
   "bodies": {
@@ -240,7 +240,7 @@
   "frame": "Z axis; sleeve inlet z=0, bills (outlet) toward +Z",
   "source": "PARTS-LOCK #16 CANDIDATE: 'miniature silicone duckbill OD <= 3 mm, cracking 1-5 kPa'. Shape generic (Minivalve/Vernay style); no vendor drawing yet",
   "confidence": "placeholder",
-  "notes": "Every dimension except OD<=3 is invented (sleeve ID 2.0 x 2.0 long, bills 2.2 long, slit closed to 0.08). Replace when a part is sourced.",
+  "notes": "Every dimension except OD<=3 is invented (sleeve ID 2.0 x 1.3 long, bills 1.5 long, slit closed to 0.08). Replace when a part is sourced.",
   "used_for": "outlet check valve (PARTS-LOCK #16)"
  },
  "ebyte_e73_2g4m08s1c": {
