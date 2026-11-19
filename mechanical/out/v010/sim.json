@@ -40,15 +40,15 @@
  },
  "angle_deg_per_U": 88.63217094791995,
  "dead": {
-  "prime_path_U": 0.3101954823178804,
-  "purge_grooves_U": 0.14544690049407735,
+  "prime_path_U": 0.3684216978815826,
+  "purge_grooves_U": 0.17544690049407735,
   "dead_layer_U": 0.4641977817177986,
   "items_mm3": {
-   "port channel (spigot half grooves d0.5 x 2.05)": 0.403,
-   "gasket slot 0.6 x 0.5 x 2.25": 0.675,
+   "port channel (spigot half grooves d0.5 x 2.80)": 0.55,
+   "gasket slot 0.6 x 0.5 x 1.50": 0.45,
    "via d0.6 x 1.25": 0.353,
    "needle bore d0.5 x 2.90": 0.569,
-   "septum chamber d1.2 x 0.4 + spur": 0.992,
+   "septum chamber d1.2 x 0.4 + spur": 1.652,
    "needle ID 0.159 x 5.5": 0.109
   }
  }
