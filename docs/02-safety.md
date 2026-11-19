@@ -39,3 +39,7 @@
 5. Leak tightness: 30 min under water at 1 m depth (IPX7-like).
 6. Insulin bench tests (into a vial on a balance, never a person): delivery accuracy with real insulin viscosity, bubble behaviour, material compatibility (insulin-contact parts only from PP/COC, medical silicone, stainless steel — never printed resin), insulin stability in the reservoir over 48 h at 37 °C (visual/fibrillation check). Start with a standard 1 ml U100 insulin syringe as the reservoir (syringe bench rig), then the CNC-PP stadium reservoir.
 7. There is **no** step 7. The project never proceeds to use on a person.
+
+## 4. Diagnostics and hardware independence
+
+The hardware layer (interlock of section 2, TPL5010, dock gate) must stay correct when the software is wrong, and a failing component must be named so that it can be replaced. The design for this is in [06-diagnostics.md](06-diagnostics.md): which hazards hardware covers alone (section 1.2 there), the continuous proofs that each interlock gate can still cut the motor supply, a 32-bit diagnostic code catalogue (layer, component, fault, severity, field-replaceable unit, action) that is passed through every layer into Trio, and the test plan with a hazard-to-code-to-test matrix. It proposes three further hazards (H11 undetected degradation of a protection element, H12 diagnostic false positive, H13 diagnostics lost or wrong) that are not yet in the table of section 1.
