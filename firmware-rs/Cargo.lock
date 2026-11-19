@@ -459,6 +459,7 @@ dependencies = [
  "defmt 0.3.101",
  "heapless",
  "openpatch-core",
+ "openpatch-diag",
  "openpatch-proto",
  "proptest",
 ]

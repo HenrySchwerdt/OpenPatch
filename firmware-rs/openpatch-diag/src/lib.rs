@@ -385,3 +385,76 @@ impl DiagRecord {
         self.flags & flags::CLEARED != 0
     }
 }
+
+/// Health of one FRU, 2 bits each in the `FRU_HEALTH` tag (5.4).
+pub mod health {
+    pub const UNKNOWN: u8 = 0;
+    pub const OK: u8 = 1;
+    /// A W record is active.
+    pub const DEGRADED: u8 = 2;
+    /// An F or L record is active.
+    pub const FAILED: u8 = 3;
+
+    /// 2 bit state of FRU `id` (0..31) in the packed `u64`.
+    pub const fn get(packed: u64, id: u8) -> u8 {
+        ((packed >> (2 * (id as u32 & 31))) & 3) as u8
+    }
+    pub const fn set(packed: u64, id: u8, state: u8) -> u64 {
+        let sh = 2 * (id as u32 & 31);
+        (packed & !(3u64 << sh)) | (((state & 3) as u64) << sh)
+    }
+}
+
+/// `DIAG_SUMMARY` (tag 0x27, 14 bytes, 5.4): the headline of a pod's diagnostic state.
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
+pub struct DiagSummary {
+    /// Root code of the most severe active record, 0 = none.
+    pub top_code: u32,
+    pub top_sev: u8,
+    pub top_action: u8,
+    pub top_fru: u8,
+    pub n_latched: u8,
+    /// Active W/F/L records.
+    pub n_active: u8,
+    /// 0 not run, 1 S passed, 2 A passed, 3 S failed, 4 A failed, 5 running.
+    pub post_state: u8,
+    pub next_rec_id_lo: u16,
+    /// Catalogue version ([`SCHEMA_VERSION`]).
+    pub schema: u16,
+}
+
+impl DiagSummary {
+    pub const LEN: usize = 14;
+
+    pub fn to_bytes(&self) -> [u8; Self::LEN] {
+        let mut b = [0u8; Self::LEN];
+        b[0..4].copy_from_slice(&self.top_code.to_le_bytes());
+        b[4] = self.top_sev;
+        b[5] = self.top_action;
+        b[6] = self.top_fru;
+        b[7] = self.n_latched;
+        b[8] = self.n_active;
+        b[9] = self.post_state;
+        b[10..12].copy_from_slice(&self.next_rec_id_lo.to_le_bytes());
+        b[12..14].copy_from_slice(&self.schema.to_le_bytes());
+        b
+    }
+
+    pub fn from_bytes(b: &[u8]) -> Option<DiagSummary> {
+        if b.len() != Self::LEN {
+            return None;
+        }
+        Some(DiagSummary {
+            top_code: u32::from_le_bytes([b[0], b[1], b[2], b[3]]),
+            top_sev: b[4],
+            top_action: b[5],
+            top_fru: b[6],
+            n_latched: b[7],
+            n_active: b[8],
+            post_state: b[9],
+            next_rec_id_lo: u16::from_le_bytes([b[10], b[11]]),
+            schema: u16::from_le_bytes([b[12], b[13]]),
+        })
+    }
+}

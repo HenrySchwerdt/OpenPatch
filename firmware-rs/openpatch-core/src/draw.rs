@@ -6,7 +6,7 @@
 //! The reservoir level is set from the steps the angle sensor confirmed (conservative minimum of
 //! commanded and measured), mandatory priming follows.
 
-use crate::faults::Faults;
+use crate::diag::{codes, Raise};
 use crate::hal::{Buzzer, Hal, MotorDir};
 use crate::limits::*;
 use crate::log::EventType;
@@ -76,7 +76,7 @@ impl<H: Hal> Pump<H> {
             return;
         }
         let Some(a0) = self.hal.angle_read() else {
-            self.sv.latch(Faults::INTERNAL);
+            self.sv.raise(Raise::new(codes::ANGLE_CHANNEL_LOST));
             self.draw_finish(draw_state::ABORTED);
             return;
         };
@@ -88,14 +88,14 @@ impl<H: Hal> Pump<H> {
         let executed = Pulses(n.0.min(steps.0));
         if let Some(f) = self.hal.motor_fault() {
             self.last_motor_fault = Some(f);
-            self.sv.latch(Faults::INTERNAL);
+            self.raise_motor_fault(f, executed);
             self.draw.executed_steps += executed.0;
             self.draw_finish(draw_state::ABORTED);
             return;
         }
         let peak = self.hal.motor_current_peak_ma();
         let Some(a1) = self.hal.angle_read() else {
-            self.sv.latch(Faults::INTERNAL);
+            self.sv.raise(Raise::new(codes::ANGLE_CHANNEL_LOST));
             self.draw_finish(draw_state::ABORTED);
             return;
         };

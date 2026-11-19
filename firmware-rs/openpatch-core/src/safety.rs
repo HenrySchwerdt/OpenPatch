@@ -13,6 +13,7 @@
 //! * hard preconditions for every step: calibrated, docked, active pod, no latched fault
 
 use crate::delivery::BasalSchedule;
+use crate::diag::{codes, DiagCode, DiagState, Raise};
 use crate::faults::Faults;
 use crate::limits::*;
 use crate::units::*;
@@ -42,8 +43,10 @@ pub struct SafetySupervisor {
     wear_expired: bool,
     minute_steps: [u16; WINDOW_MIN],
     last_minute: u64,
+    /// Derived projection of `diag` (the active F/L records), recomputed after every change.
     faults: Faults,
     last_new_faults: Faults,
+    diag: DiagState,
     // angle tracking (counts)
     cmd_steps: u64,
     cmd_counts: i64,
@@ -81,6 +84,7 @@ impl SafetySupervisor {
             last_minute: now.0 / MINUTE_MS,
             faults: Faults::NONE,
             last_new_faults: Faults::NONE,
+            diag: DiagState::new(),
             cmd_steps: 0,
             cmd_counts: 0,
             enc_base: 0,
@@ -100,8 +104,10 @@ impl SafetySupervisor {
             sv.calibrated = true;
             sv.max_steps_per_min = cal.mu_to_pulses(MAX_PER_MIN).0;
         } else {
-            sv.faults = Faults::NO_CALIBRATION;
-            sv.last_new_faults = Faults::NO_CALIBRATION;
+            sv.diag.set_time_s((now.0 / 1000) as u32);
+            // inst 1 = no calibration at all, 3 = outside the plausible range
+            let inst = if cal.is_none() { 1 } else { 3 };
+            sv.raise(Raise::new(codes::CAL_RECORD_INVALID).inst(inst).a(cal.micro_u_floor() as i32));
         }
         sv.rebaseline(angle);
         sv
@@ -122,6 +128,7 @@ impl SafetySupervisor {
 
     // ---- rolling window ------------------------------------------------------------
     fn roll(&mut self, now: Millis) {
+        self.set_time(now);
         let m = now.0 / MINUTE_MS;
         if m <= self.last_minute {
             return; // time never goes backwards
@@ -156,13 +163,14 @@ impl SafetySupervisor {
             return;
         }
         self.wear_expired = true;
-        self.latch(Faults::WEAR_EXPIRED);
+        self.raise(Raise::new(codes::WEAR_EXPIRED).a((wear.0 / 60_000) as i32));
     }
 
     /// New activation: the wear timer restarts and the wear fault is released.
     pub fn reset_wear(&mut self) {
         self.wear_expired = false;
-        self.faults = self.faults & !Faults::WEAR_EXPIRED;
+        self.diag.clear(codes::WEAR_EXPIRED);
+        self.sync_faults_cache();
     }
 
     // ---- command validation --------------------------------------------------------------
@@ -225,10 +233,47 @@ impl SafetySupervisor {
     }
 
     // ---- step veto -------------------------------------------------------------------------
-    /// Latch faults detected by the caller (e.g. motor did not execute approved steps).
+    /// Latch legacy fault bits detected by a caller that has no more specific diagnostic code.
+    /// Each bit is raised as the catalogue code that projects to it (INTERNAL: `7-7C-003`, an
+    /// unattributed internal fault). New call sites should use [`SafetySupervisor::raise`].
     pub fn latch(&mut self, mask: Faults) {
-        self.last_new_faults |= (mask & !self.faults);
-        self.faults |= mask;
+        for (bit, code) in LEGACY_CODES {
+            if mask.contains(Faults(1 << bit)) {
+                self.raise(Raise::new(code).a(mask.bits() as i32));
+            }
+        }
+    }
+
+    /// Records a diagnostic anomaly (the single entry point of the core) and refreshes the derived
+    /// legacy fault bits. Returns the id of the record.
+    pub fn raise(&mut self, r: Raise) -> u32 {
+        let id = self.diag.raise(r);
+        self.sync_faults_cache();
+        id
+    }
+
+    /// Like [`SafetySupervisor::raise`], linked to the record that caused it (cause chain).
+    pub fn raise_caused_by(&mut self, r: Raise, cause_rec: u32) -> u32 {
+        self.raise(r.caused_by(cause_rec))
+    }
+
+    fn sync_faults_cache(&mut self) {
+        let now = self.diag.legacy_faults();
+        self.last_new_faults |= now & !self.faults;
+        self.faults = now;
+    }
+
+    /// Time base for the record timestamps (seconds since boot).
+    pub fn set_time(&mut self, now: Millis) {
+        self.diag.set_time_s((now.0 / 1000) as u32);
+    }
+
+    /// The diagnostic engine (records, active and latched sets, projections).
+    pub fn diag(&self) -> &DiagState {
+        &self.diag
+    }
+    pub fn diag_mut(&mut self) -> &mut DiagState {
+        &mut self.diag
     }
 
     /// Veto point for EVERY step: how many of `requested` may run. Trimming below `requested`
@@ -238,6 +283,7 @@ impl SafetySupervisor {
         if requested.0 == 0 {
             return Pulses(0);
         }
+        self.set_time(now);
         if !self.faults.is_empty() || !self.calibrated || self.wear_expired {
             return Pulses(0);
         }
@@ -249,21 +295,21 @@ impl SafetySupervisor {
         let res_steps = self.cal.mu_to_pulses(reservoir).0;
         if res_steps < allowed {
             allowed = res_steps;
-            self.latch(Faults::RESERVOIR_EMPTY);
+            self.raise(Raise::new(codes::RESERVOIR_EMPTY).a(reservoir.0 as i32));
         }
         let used = self.hourly_steps(now).0;
         let cap = self.cal.mu_to_pulses(MAX_HOURLY).0;
         let room = cap.saturating_sub(used);
         if room < allowed {
             allowed = room;
-            self.latch(Faults::LIMIT_EXCEEDED);
+            self.raise(Raise::new(codes::HOURLY_LIMIT_VETO).a(used as i32).b(cap as i32).c(requested.0));
         }
         let bucket = (self.last_minute % WINDOW_MIN as u64) as usize;
         let minute_used = (self.minute_steps[bucket] as u32).min(self.max_steps_per_min);
         let minute_room = self.max_steps_per_min - minute_used;
         if minute_room < allowed {
             allowed = minute_room;
-            self.latch(Faults::LIMIT_EXCEEDED);
+            self.raise(Raise::new(codes::PER_MINUTE_LIMIT_VETO).a(minute_used as i32).b(self.max_steps_per_min as i32).c(requested.0));
         }
         self.minute_steps[bucket] = u16_sat(self.minute_steps[bucket] as u32 + allowed);
         self.cmd_steps += allowed as u64;
@@ -293,7 +339,7 @@ impl SafetySupervisor {
         let travelled = enc - self.enc_base;
         let undelivered = self.cmd_counts - travelled;
         if undelivered > self.cal.mu_to_angle(OCCLUSION).0 {
-            self.latch(Faults::OCCLUSION);
+            self.raise(Raise::new(codes::OCCLUSION_SHORTFALL).a((undelivered * OCCLUSION.0 as i64 / self.cal.mu_to_angle(OCCLUSION).0.max(1)) as i32).b(OCCLUSION.0 as i32).c(self.cmd_steps.min(u32::MAX as u64) as u32));
         }
 
         let cmd_win = self.cmd_counts - self.win_cmd0;
@@ -301,10 +347,12 @@ impl SafetySupervisor {
             let enc_win = enc - self.win_enc0;
             let err = (cmd_win - enc_win).abs();
             if err * 100 > cmd_win * ENCODER_TOLERANCE_PCT {
-                self.latch(Faults::ENCODER_DEVIATION);
+                let permille = (err * 1000 / cmd_win.max(1)) as i32;
+                let steps = self.cmd_steps.min(u32::MAX as u64) as u32;
+                let id = self.raise(Raise::new(codes::ENC_WINDOW_DEVIATION).a(permille).b(ENCODER_TOLERANCE_PCT as i32 * 10).c(steps));
                 // "no travel despite steps": the spindle barely moved at all
                 if enc_win * 10 < cmd_win {
-                    self.latch(Faults::OCCLUSION);
+                    self.raise_caused_by(Raise::new(codes::CARRIAGE_JAM_FWD).a(enc_win as i32).b(cmd_win as i32).c(steps), id);
                 }
             }
             self.win_cmd0 = self.cmd_counts;
@@ -318,7 +366,7 @@ impl SafetySupervisor {
             let exact = self.cal.expected_angle(Pulses((self.cmd_steps - self.rev_steps0).min(u32::MAX as u64) as u32)).0;
             let measured = enc - self.rev_enc0;
             if (measured - exact).abs() * 100 > exact * REV_TOLERANCE_PCT {
-                self.latch(Faults::ENCODER_DEVIATION);
+                self.raise(Raise::new(codes::ENC_REV_DEVIATION).a(measured as i32).b(exact as i32).c(self.cmd_steps.min(u32::MAX as u64) as u32));
             }
             self.rev_steps0 = self.cmd_steps;
             self.rev_enc0 = enc;
@@ -326,16 +374,18 @@ impl SafetySupervisor {
     }
 
     /// Periodic monitor: call after motor activity. Returns the newly latched faults.
-    pub fn observe(&mut self, _now: Millis, o: &Observation) -> Faults {
+    pub fn observe(&mut self, now: Millis, o: &Observation) -> Faults {
+        self.set_time(now);
         self.last_new_faults = Faults::NONE;
         self.last_battery_mv = o.battery_mv;
         self.last_reservoir = o.reservoir;
         self.battery_low = o.battery_mv < BATTERY_LOW_MV;
         if o.battery_mv < BATTERY_CRITICAL_MV {
-            self.latch(Faults::BATTERY_CRITICAL);
+            // inst 1 = bench VBUS source
+            self.raise(Raise::new(codes::BATTERY_CRITICAL).inst(1).a(o.battery_mv as i32).b(BATTERY_CRITICAL_MV as i32));
         }
         if o.reservoir == Some(MilliUnits(0)) {
-            self.latch(Faults::RESERVOIR_EMPTY);
+            self.raise(Raise::new(codes::RESERVOIR_EMPTY).a(0));
         }
         self.check_encoder(o.angle.0);
         self.last_new_faults
@@ -371,7 +421,7 @@ impl SafetySupervisor {
         }
         self.high_current_bursts = self.high_current_bursts.saturating_add(1);
         if self.high_current_bursts >= OCCLUSION_CURRENT_BURSTS && !self.faults.contains(Faults::OCCLUSION) {
-            self.latch(Faults::OCCLUSION);
+            self.raise(Raise::new(codes::OCCLUSION_CURRENT_RISE).a(ma as i32).b(self.occlusion_ma as i32).c(self.cmd_steps.min(u32::MAX as u64) as u32));
             return true;
         }
         false
@@ -397,8 +447,11 @@ impl SafetySupervisor {
             blocked |= Faults::RESERVOIR_EMPTY;
         }
         let clear = target & !blocked;
-        self.faults = self.faults & !clear;
-        if clear.intersects(Faults::OCCLUSION | Faults::ENCODER_DEVIATION | Faults::INTERNAL) {
+        // latched (L) records stay: they are cleared only by their verification test (ClearDiag)
+        let cleared = self.diag.clear_legacy(clear);
+        self.sync_faults_cache();
+        blocked |= clear & self.faults;
+        if cleared.intersects(Faults::OCCLUSION | Faults::ENCODER_DEVIATION | Faults::INTERNAL) {
             self.rebaseline(AngleCounts(self.last_enc));
         }
         if blocked.is_empty() {
@@ -460,7 +513,20 @@ impl SafetySupervisor {
     /// old wear fault must not hide schedule errors).
     pub fn fault_free_probe(&self) -> SafetySupervisor {
         let mut p = self.clone();
+        p.diag.clear_all_silent();
         p.faults = Faults::NONE;
         p
     }
 }
+
+/// Legacy bit -> the catalogue code a bare `latch(Faults::X)` raises (docs/06-diagnostics.md 2.7).
+const LEGACY_CODES: [(u8, DiagCode); 8] = [
+    (0, codes::OCCLUSION_SHORTFALL),
+    (1, codes::ENC_WINDOW_DEVIATION),
+    (2, codes::RESERVOIR_EMPTY),
+    (3, DiagCode(codes::BATTERY_CRITICAL.0 | 1)),
+    (4, codes::HOURLY_LIMIT_VETO),
+    (5, codes::UNKNOWN_CODE_RAISED),
+    (6, codes::CAL_RECORD_INVALID),
+    (7, codes::WEAR_EXPIRED),
+];

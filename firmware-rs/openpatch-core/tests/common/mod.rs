@@ -45,6 +45,8 @@ pub struct MockState {
     pub enable_dirs: Vec<MotorDir>,
     /// Returned (once) by `motor_fault`.
     pub fault: Option<MotorFault>,
+    /// Drained one by one by `take_diag` (HAL-detected faults, as data).
+    pub diag_events: Vec<openpatch_core::hal::DiagEvent>,
 }
 
 impl Default for MockState {
@@ -74,6 +76,7 @@ impl Default for MockState {
             reverse_calls: Vec::new(),
             enable_dirs: Vec::new(),
             fault: None,
+            diag_events: Vec::new(),
         }
     }
 }
@@ -170,6 +173,14 @@ impl Hal for MockHal {
     }
     fn motor_current_peak_ma(&mut self) -> Option<u16> {
         self.0.borrow().current_ma
+    }
+    fn take_diag(&mut self) -> Option<openpatch_core::hal::DiagEvent> {
+        let mut m = self.0.borrow_mut();
+        if m.diag_events.is_empty() {
+            None
+        } else {
+            Some(m.diag_events.remove(0))
+        }
     }
 }
 

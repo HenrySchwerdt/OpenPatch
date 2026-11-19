@@ -3,9 +3,10 @@
 //! the others. Behaviour is identical to `firmware/core/src/pump_controller.c` (differential tests).
 
 use crate::delivery::{BasalSchedule, BasalSeg, DeliveryEngine, EngineEvents};
+use crate::diag::{codes, DiagCode, DiagNote, Raise};
 use crate::drive_cal::DriveCal;
 use crate::faults::Faults;
-use crate::hal::{Buzzer, Hal};
+use crate::hal::{Buzzer, Hal, MotorFault};
 use crate::limits::*;
 use crate::log::{EventLog, EventType, REL_CHARGER, REL_COMMAND};
 use crate::pod::{ActivateArgs, DeliveryState, PodState, Role};
@@ -81,6 +82,9 @@ pub struct Pump<H: Hal> {
     pub(crate) notify_seq: u16,
     pub(crate) last_motor_fault: Option<crate::hal::MotorFault>,
     pub(crate) peak_ma: Option<u16>,
+    /// Record id of the HAL-level cause raised by the burst in progress (0 = none): the core's own
+    /// record (for example `7-70-005`) links to it (cause chain).
+    pub(crate) hal_rec: u32,
 }
 
 impl<H: Hal> Pump<H> {
@@ -116,6 +120,7 @@ impl<H: Hal> Pump<H> {
             notify_seq: 0,
             last_motor_fault: None,
             peak_ma: None,
+            hal_rec: 0,
             hal,
         };
         p.pod.docked = p.hal_docked(); // no event for the boot state
@@ -123,6 +128,7 @@ impl<H: Hal> Pump<H> {
         p.hal.motor_enable(false);
         p.hal.buzzer(Buzzer::Off);
         p.log_ev(EventType::Boot, 0, 0);
+        p.sv.raise(Raise::new(codes::BOOT).a(FW_VERSION as i32));
         p.observe();
         if !p.sv.faults().is_empty() {
             p.sync_faults(Faults::NONE); // e.g. NO_CALIBRATION: log + alarm, driver stays off
@@ -225,7 +231,9 @@ impl<H: Hal> Pump<H> {
 
     // ---- helpers -----------------------------------------------------------------
     pub(crate) fn now(&mut self) -> Millis {
-        self.hal.time_ms()
+        let t = self.hal.time_ms();
+        self.sv.set_time(t);
+        t
     }
     fn now_s(&mut self) -> u32 {
         (self.now().0 / 1000) as u32
@@ -258,7 +266,7 @@ impl<H: Hal> Pump<H> {
             None => {
                 // angle sensor lost: nothing can be verified any more
                 if self.pod.active && !self.de.is_suspended() {
-                    self.sv.latch(Faults::INTERNAL);
+                    self.sv.raise(Raise::new(codes::ANGLE_CHANNEL_LOST));
                 }
                 self.sv.last_angle()
             }
@@ -281,29 +289,79 @@ impl<H: Hal> Pump<H> {
     /// Supervisor approval, plus: never step without the angle sensor (latches INTERNAL instead).
     fn approve_blind_safe(&mut self, now: Millis, requested: Pulses) -> Pulses {
         if requested.0 > 0 && self.hal.angle_read().is_none() {
-            self.sv.latch(Faults::INTERNAL);
+            self.sv.raise(Raise::new(codes::ANGLE_CHANNEL_LOST).c(requested.0));
             return Pulses(0);
         }
         self.sv.approve_steps(now, requested, self.res.remaining())
     }
 
     fn run_motor(&mut self, steps: Pulses) -> Pulses {
+        self.hal_rec = 0;
         self.hal.motor_enable_dir(crate::hal::MotorDir::Forward);
-        let n = self.hal.motor_step(steps);
+        let r = self.hal.motor_step_ex(steps);
         self.hal.motor_enable(false);
-        let done = Pulses(n.0.min(steps.0));
+        let done = Pulses(r.executed.0.min(steps.0));
         self.res.consume(done);
+        if r.drv_fault {
+            self.hal_rec = self.sv.raise(Raise::new(codes::DRIVER_FAULT_IN_BURST).a(r.peak_ma.unwrap_or(0) as i32).c(done.0));
+        }
+        if !r.vmot_ok {
+            self.hal_rec = self.sv.raise(Raise::new(codes::VMOT_NOT_PRESENT).c(done.0));
+        }
         if let Some(f) = self.hal.motor_fault() {
             // The HAL knows why the burst failed: remember it (precise cause for logs / alarm).
             self.last_motor_fault = Some(f);
-            self.sv.latch(Faults::INTERNAL);
+            self.raise_motor_fault(f, done);
         }
-        let peak = self.hal.motor_current_peak_ma();
+        self.drain_hal_diag();
+        let peak = r.peak_ma.or_else(|| self.hal.motor_current_peak_ma());
         if let Some(p) = peak {
             self.peak_ma = Some(self.peak_ma.map_or(p, |q| q.max(p)));
         }
         self.sv.observe_motor_burst(done, peak);
         done
+    }
+
+    /// Raises the catalogue code of a HAL motor fault (the HAL reports, the core decides policy).
+    /// Refused requests (forward while undocked, reverse while docked) have no hardware cause: the
+    /// core's own `7-70-005` follows from the burst that did not run.
+    pub(crate) fn raise_motor_fault(&mut self, f: MotorFault, executed: Pulses) {
+        let code: Option<DiagCode> = match f {
+            MotorFault::Driver => Some(codes::DRIVER_FAULT_IN_BURST),
+            MotorFault::SupplyMissing => Some(codes::VMOT_NOT_PRESENT),
+            MotorFault::SupplyUnexpected => Some(codes::VMOT_STUCK_ON),
+            MotorFault::InterlockFailed => Some(codes::INTERLOCK_FAILED_LATCH),
+            MotorFault::Timeout => Some(codes::STEP_COUNT_SHORT),
+            MotorFault::ForwardWhileUndocked | MotorFault::ReverseWhileDocked => None,
+        };
+        match code {
+            Some(c) => self.hal_rec = self.sv.raise(Raise::new(c).c(executed.0)),
+            None => {
+                // no hardware cause: the burst simply did not run, the engine record says so
+                let kind = if f == MotorFault::ForwardWhileUndocked { 1 } else { 2 };
+                self.hal_rec = self.sv.raise(Raise::new(codes::STEPS_SHORT_OF_APPROVAL).a(executed.0 as i32).inst(kind));
+            }
+        }
+    }
+
+    /// The burst executed fewer steps than the supervisor approved: raise `7-70-005`, linked to
+    /// the HAL-level cause when there is one.
+    pub(crate) fn raise_steps_short(&mut self, executed: Pulses, approved: Pulses) {
+        let r = Raise::new(codes::STEPS_SHORT_OF_APPROVAL).a(executed.0 as i32).b(approved.0 as i32);
+        let cause = self.hal_rec;
+        self.sv.raise(if cause != 0 { r.caused_by(cause) } else { r });
+    }
+
+    /// Events the HAL detected on its own (as data): raised with the HAL's own code.
+    pub(crate) fn drain_hal_diag(&mut self) {
+        while let Some(e) = self.hal.take_diag() {
+            self.hal_rec = self.sv.raise(Raise::new(e.code).a(e.ctx_a).b(e.ctx_b).c(e.ctx_c));
+        }
+    }
+
+    /// Next pending diagnostic notification (record raised / cleared) for the Alert characteristic.
+    pub fn take_diag_note(&mut self) -> Option<DiagNote> {
+        self.sv.diag_mut().take_note()
     }
 
     // ---- two-pod helpers ---------------------------------------------------------------
@@ -385,13 +443,14 @@ impl<H: Hal> Pump<H> {
             self.release_now(REL_CHARGER); // on a charger: forced released
         }
         self.wear_step(wear_dt);
+        self.drain_hal_diag();
 
         let requested = self.de.tick(dt);
         let approved = self.approve_blind_safe(t, requested);
         let executed = if approved.0 > 0 { self.run_motor(approved) } else { Pulses(0) };
         self.de.commit(executed);
         if executed < approved {
-            self.sv.latch(Faults::INTERNAL);
+            self.raise_steps_short(executed, approved);
         }
         self.draw_step();
 
@@ -411,6 +470,7 @@ impl<H: Hal> Pump<H> {
             let rem = self.res.remaining().0 as i32;
             self.log_ev(EventType::LowReservoir, rem, 0);
         }
+        self.drain_hal_diag();
         self.observe();
         self.sync_faults(before);
         self.hal.watchdog_kick();
@@ -566,7 +626,7 @@ impl<H: Hal> Pump<H> {
         let approved = self.approve_blind_safe(t, steps);
         let executed = if approved.0 > 0 { self.run_motor(approved) } else { Pulses(0) };
         if executed < approved {
-            self.sv.latch(Faults::INTERNAL);
+            self.raise_steps_short(executed, approved);
         }
         if executed == steps {
             self.log_ev(EventType::Prime, steps.0 as i32, 0);
