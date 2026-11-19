@@ -11,6 +11,9 @@
 
 **State at handoff (2026-11-19, agents stopped mid-task; everything is on `main`):**
 
+> ⚠️ **Gear-ratio mismatch to resolve first:** the last (unverified) CAD snapshot `mechanical/out/bench/OP-100_layout_annotated.png` uses a **z18 : z18** gear pair (1:1, centre 5.40, envelope 44.9 × 32.0 × 8.5 mm), while spec §4 and the firmware default feature `drive-nfp-608-26-45-g15-12` assume **15 : 12**. Pick one, update spec §4, `mechanical/parts.md` and the firmware build default (`drive-nfp-608-26-45-g1-1` for 18:18) together — a mismatch means a 25 % dosing error.
+
+
 | Area | State | Verified | What the next agent must do |
 |---|---|---|---|
 | `firmware-rs/` | **Done** | 343 host tests incl. 32 differential tests vs C pass; builds for bench (E73), DK, syringe rig | Open items in `firmware-rs/docs/stubs.md`: session key agreement, TMAG5273 register map vs datasheet, DFU transport. Default drive feature: `drive-nfp-608-26-45-g15-12`. |
