@@ -38,6 +38,13 @@
 - Qi coil: trace coil on the board or assembled by PCBWay.
 - Housing: screws/snap hooks; tools: tweezers, small screwdriver, UV lamp.
 
+## 1d. Cost target (decision 2026-11-19, user)
+
+- **One complete bench pump (pod + controller, Rev A) costs ≤ 200 € all-in**, sourced AliExpress-first (LCSC/JLCPCB for PCBA, JLC3DP for prints, PCBWay only where unavoidable): all parts, PCBs/PCBA, prints, reservoir, consumables for one fill, shipping and import VAT/duty to Germany included.
+- Excluded: one-time tools (calipers, scale, programmer/nRF52840-DK, screwdrivers) — listed separately in `docs/SHOPPING.md`.
+- Minimum-order overhead (e.g. 5 PCBs, CNC setup) is allocated to the first pump; the marginal cost of further pumps is reported separately.
+- Safety-relevant parts (interlock, watchdog, hall/angle sensors, insulin-contact materials) are never downgraded to meet the cost target.
+
 ## 2. Envelope dimensions (targets)
 
 | Size | Volume U100 | Target L × W × H (mm) | Omnipod DASH for comparison |
