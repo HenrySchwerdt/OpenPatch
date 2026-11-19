@@ -19,6 +19,7 @@ mod draw;
 pub mod pump;
 pub mod reservoir;
 pub mod safety;
+pub mod tmag5273;
 pub mod units;
 
 pub use delivery::{BasalSchedule, BasalSeg, DeliveryEngine, EngineEvents, EngineReport};

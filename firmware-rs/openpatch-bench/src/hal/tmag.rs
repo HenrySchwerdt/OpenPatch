@@ -5,10 +5,12 @@
 //! the I2C pins; without them the sensor never answers, `angle_read` returns `None` and the core
 //! refuses to deliver. Use `angle-qdec-fallback` to run on a bench without the sensor.
 //!
-//! TODO(verify-on-hardware): the register map below is from memory of the TMAG5273 datasheet and
-//! has not been checked against it or against a device: DEVICE_CONFIG_2 0x01 (OPERATING_MODE 2 =
-//! continuous), SENSOR_CONFIG_1 0x02 (MAG_CH_EN = X,Y), SENSOR_CONFIG_2 0x03 (ANGLE_EN = XY),
-//! MANUFACTURER_ID 0x0E/0x0F = 0x49 0x54, ANGLE_RESULT 0x19/0x1A (13 bit, 4 fractional bits of a degree).
+//! Register map, angle decoding, CRC and configuration come from `openpatch_core::tmag5273`, which is
+//! checked on the host against TI datasheet SLYS045C (section numbers in that module). Verified against
+//! the DATASHEET only: TODO(verify-on-hardware) remains for the real device (I2C timing on the FFC,
+//! first-conversion behaviour, CRC coverage of the 4-byte read, magnet/magnitude range).
+//! Read frame: CONV_STATUS, ANGLE_MSB, ANGLE_LSB, MAGNITUDE (0x18..0x1B, one auto-increment read),
+//! CONV_STATUS again to detect a torn read (section 7.3), POR / DIAG bits reject the sample.
 use embassy_futures::block_on;
 use embassy_futures::select::{select, Either};
 use embassy_nrf::gpio::AnyPin;
@@ -23,25 +25,12 @@ use crate::irqs::Irqs;
 use crate::shared::TMAG_PRESENT;
 use core::sync::atomic::Ordering;
 
-const REG_DEVICE_CONFIG_2: u8 = 0x01;
-const REG_SENSOR_CONFIG_1: u8 = 0x02;
-const REG_SENSOR_CONFIG_2: u8 = 0x03;
-const REG_MANUFACTURER_ID_LSB: u8 = 0x0E;
-const REG_ANGLE_RESULT_MSB: u8 = 0x19;
-/// "TI": 0x49 (LSB), 0x54 (MSB).
-const MANUFACTURER_ID: [u8; 2] = [0x49, 0x54];
-/// 360 degrees in 1/16 degree units.
-const ANGLE_FULL_SCALE: u32 = 360 * 16;
+use openpatch_core::tmag5273 as t;
+const _: () = assert!(ANGLE_COUNTS_PER_TURN as u32 == t::COUNTS_PER_TURN);
 
 pub struct Tmag {
     twim: Twim<'static>,
     fails: u8,
-}
-
-/// 13 bit angle (MSB = angle[12:5], LSB bits 7:3 = angle[4:0]) to 12 bit counts.
-pub fn decode_angle(msb: u8, lsb: u8) -> u16 {
-    let a13 = ((msb as u32) << 5) | ((lsb as u32) >> 3);
-    ((a13 * ANGLE_COUNTS_PER_TURN as u32) / ANGLE_FULL_SCALE).min(ANGLE_COUNTS_PER_TURN as u32 - 1) as u16
 }
 
 impl Tmag {
@@ -52,14 +41,23 @@ impl Tmag {
         cfg.frequency = twim::Frequency::K400;
         let mut t = Twim::new(twi, Irqs, sda, scl, cfg, TXBUF.init([0; 8]));
         let mut id = [0u8; 2];
-        let r = select(t.write_read(TMAG_ADDR, &[REG_MANUFACTURER_ID_LSB], &mut id), Timer::after_millis(30)).await;
-        let present = matches!(r, Either::First(Ok(()))) && id == MANUFACTURER_ID;
+        // tstart_power_up is 270 us (datasheet electrical table); the board has been powered for ages here.
+        let r = select(t.write_read(TMAG_ADDR, &[t::REG_MANUFACTURER_ID_LSB], &mut id), Timer::after_millis(30)).await;
+        let present = matches!(r, Either::First(Ok(()))) && id == t::MANUFACTURER_ID;
         TMAG_PRESENT.store(present, Ordering::Relaxed);
         if !present {
             defmt::warn!("TMAG5273 not found at 0x35: angle_read will return None (core refuses to deliver)");
             return None;
         }
-        for (reg, val) in [(REG_SENSOR_CONFIG_1, 0x30u8), (REG_SENSOR_CONFIG_2, 0x04), (REG_DEVICE_CONFIG_2, 0x02)] {
+        // DEVICE_ID.VER must be the +-40 mT part (TMAG5273x1): the angle range is configured for it.
+        let mut ver = [0u8; 1];
+        let r = select(t.write_read(TMAG_ADDR, &[t::REG_DEVICE_ID], &mut ver), Timer::after_millis(30)).await;
+        if !matches!(r, Either::First(Ok(()))) || ver[0] & 0x03 != t::DEVICE_VER_40MT {
+            defmt::warn!("TMAG5273 DEVICE_ID version {} is not the +-40 mT part: refusing", ver[0]);
+            TMAG_PRESENT.store(false, Ordering::Relaxed);
+            return None;
+        }
+        for (reg, val) in t::config_writes(TMAG_CRC_EN) {
             let w = select(t.write(TMAG_ADDR, &[reg, val]), Timer::after_millis(30)).await;
             if !matches!(w, Either::First(Ok(()))) {
                 defmt::warn!("TMAG5273 configuration write failed");
@@ -67,29 +65,55 @@ impl Tmag {
                 return None;
             }
         }
-        defmt::info!("TMAG5273 found and configured (angle XY, continuous)");
+        // Clear the power-on-reset flag (CONV_STATUS.POR is write-1-to-clear): a LATER POR means the
+        // sensor reset and lost its configuration, `read_raw` then fails.
+        let w = select(t.write(TMAG_ADDR, &[t::REG_CONV_STATUS, t::CONV_POR]), Timer::after_millis(30)).await;
+        if !matches!(w, Either::First(Ok(()))) {
+            defmt::warn!("TMAG5273 POR clear failed");
+            TMAG_PRESENT.store(false, Ordering::Relaxed);
+            return None;
+        }
+        Timer::after_millis(2).await; // tstart_measure 70 us, first conversion well below 1 ms
+        defmt::info!("TMAG5273 found and configured (angle XY, continuous, crc={})", TMAG_CRC_EN);
         Some(Tmag { twim: t, fails: 0 })
     }
 
     /// One raw angle sample (0..4095). `None` after `TMAG_FAIL_LIMIT` consecutive failures.
     pub fn read_raw(&mut self) -> Result<u16, ()> {
-        let mut b = [0u8; 2];
-        let t = embassy_time::Duration::from_millis(TMAG_TIMEOUT_MS);
-        let r = block_on(embassy_time::with_timeout(t, self.twim.write_read(TMAG_ADDR, &[REG_ANGLE_RESULT_MSB], &mut b)));
+        let r = self.read_frame().or_else(|_| self.read_frame()); // one retry (torn read / glitch)
         match r {
-            Ok(Ok(())) => {
+            Ok(s) => {
                 self.fails = 0;
-                Ok(decode_angle(b[0], b[1]))
+                Ok(s.counts)
             }
-            _ => {
+            Err(()) => {
                 self.fails = self.fails.saturating_add(1);
                 if self.fails == TMAG_FAIL_LIMIT {
-                    defmt::error!("TMAG5273 stopped answering");
+                    defmt::error!("TMAG5273 stopped answering or reports errors (POR/DIAG/CRC/angle)");
                     TMAG_PRESENT.store(false, Ordering::Relaxed);
                 }
                 Err(())
             }
         }
+    }
+
+    fn read_frame(&mut self) -> Result<t::Sample, ()> {
+        let to = embassy_time::Duration::from_millis(TMAG_TIMEOUT_MS);
+        let mut buf = [0u8; t::FRAME_LEN + 1];
+        let n = if TMAG_CRC_EN { t::FRAME_LEN + 1 } else { t::FRAME_LEN };
+        let r = block_on(embassy_time::with_timeout(to, self.twim.write_read(TMAG_ADDR, &[t::REG_CONV_STATUS], &mut buf[..n])));
+        if !matches!(r, Ok(Ok(()))) {
+            return Err(());
+        }
+        let mut st = [0u8; 1];
+        let r = block_on(embassy_time::with_timeout(to, self.twim.write_read(TMAG_ADDR, &[t::REG_CONV_STATUS], &mut st)));
+        if !matches!(r, Ok(Ok(()))) || t::torn(buf[0], st[0]) {
+            return Err(());
+        }
+        let regs = [buf[0], buf[1], buf[2], buf[3]];
+        t::decode_frame(&regs, TMAG_CRC_EN.then_some(buf[4])).map_err(|e| {
+            defmt::warn!("TMAG5273 frame rejected: {}", defmt::Debug2Format(&e));
+        })
     }
 
     pub fn missing(&self) -> bool {

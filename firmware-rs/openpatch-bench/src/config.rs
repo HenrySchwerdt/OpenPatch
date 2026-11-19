@@ -141,6 +141,9 @@ pub const TMAG_ADDR: u8 = 0x35;
 /// 500 ms, so 20 ms sampling leaves a factor of about 20 margin; the smallest turn_x100 preset
 /// (Faulhaber 20 x 16 = 320 steps/turn: 1.9 turns/s) still leaves a factor of about 12.
 pub const ANGLE_POLL_MS: u64 = 20;
+/// TMAG5273 I2C CRC (datasheet 6.5.1.3.6). Off by default: the CRC coverage of the standard 4 byte read
+/// is taken from the datasheet text and untested on a device; enable it on the bench once verified.
+pub const TMAG_CRC_EN: bool = false;
 /// I2C transaction timeout.
 pub const TMAG_TIMEOUT_MS: u64 = 5;
 /// Consecutive failed reads before the sensor is declared missing (`angle_read` -> None).
