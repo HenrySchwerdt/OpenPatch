@@ -1,0 +1,274 @@
+[
+ {
+  "ref": "U10T",
+  "value": "TMAG5273A1QDBVR",
+  "fp": [
+   "Package_TO_SOT_SMD",
+   "SOT-23-6"
+  ],
+  "pins": {
+   "1": "I2C_SCL",
+   "2": "GND",
+   "3": "GND",
+   "4": "3V3",
+   "5": null,
+   "6": "I2C_SDA"
+  },
+  "lcsc": "C3716049",
+  "mpn": "TMAG5273A1QDBVR",
+  "side": "F",
+  "bom": true,
+  "note": "0.5 mm from the gear-B magnet (mechanics ko_tmag_board)",
+  "group": "rear",
+  "board": "REAR",
+  "dnp": false
+ },
+ {
+  "ref": "C41",
+  "value": "100nF",
+  "fp": [
+   "Capacitor_SMD",
+   "C_0402_1005Metric"
+  ],
+  "pins": {
+   "1": "3V3",
+   "2": "GND"
+  },
+  "lcsc": "C1525",
+  "mpn": "CL05B104KO5NNNC",
+  "side": "F",
+  "bom": true,
+  "note": "",
+  "group": "rear",
+  "board": "REAR",
+  "dnp": false
+ },
+ {
+  "ref": "MT1",
+  "value": "motor tab pad MOT_B2",
+  "fp": [
+   "V010",
+   "FPC_Pad_1.2x0.6"
+  ],
+  "pins": {
+   "1": "MOT_B2"
+  },
+  "lcsc": null,
+  "mpn": null,
+  "side": "F",
+  "bom": false,
+  "note": "motor solder tab pad (NFP-608 tab, z 0.45-1.25): VERIFY tab geometry",
+  "group": "rear",
+  "board": "REAR",
+  "dnp": false
+ },
+ {
+  "ref": "MT2",
+  "value": "motor tab pad MOT_A2",
+  "fp": [
+   "V010",
+   "FPC_Pad_1.2x0.6"
+  ],
+  "pins": {
+   "1": "MOT_A2"
+  },
+  "lcsc": null,
+  "mpn": null,
+  "side": "F",
+  "bom": false,
+  "note": "motor solder tab pad (NFP-608 tab, z 0.45-1.25): VERIFY tab geometry",
+  "group": "rear",
+  "board": "REAR",
+  "dnp": false
+ },
+ {
+  "ref": "MT3",
+  "value": "motor tab pad MOT_B1",
+  "fp": [
+   "V010",
+   "FPC_Pad_1.2x0.6"
+  ],
+  "pins": {
+   "1": "MOT_B1"
+  },
+  "lcsc": null,
+  "mpn": null,
+  "side": "F",
+  "bom": false,
+  "note": "motor solder tab pad (NFP-608 tab, z 0.45-1.25): VERIFY tab geometry",
+  "group": "rear",
+  "board": "REAR",
+  "dnp": false
+ },
+ {
+  "ref": "MT4",
+  "value": "motor tab pad MOT_A1",
+  "fp": [
+   "V010",
+   "FPC_Pad_1.2x0.6"
+  ],
+  "pins": {
+   "1": "MOT_A1"
+  },
+  "lcsc": null,
+  "mpn": null,
+  "side": "F",
+  "bom": false,
+  "note": "motor solder tab pad (NFP-608 tab, z 0.45-1.25): VERIFY tab geometry",
+  "group": "rear",
+  "board": "REAR",
+  "dnp": false
+ },
+ {
+  "ref": "TR1",
+  "value": "strip pad 3V3",
+  "fp": [
+   "V010",
+   "FPC_Pad_1.2x0.6"
+  ],
+  "pins": {
+   "1": "3V3"
+  },
+  "lcsc": null,
+  "mpn": null,
+  "side": "F",
+  "bom": false,
+  "note": "",
+  "group": "rear",
+  "board": "REAR",
+  "dnp": false
+ },
+ {
+  "ref": "TR2",
+  "value": "strip pad GND",
+  "fp": [
+   "V010",
+   "FPC_Pad_1.2x0.6"
+  ],
+  "pins": {
+   "1": "GND"
+  },
+  "lcsc": null,
+  "mpn": null,
+  "side": "F",
+  "bom": false,
+  "note": "",
+  "group": "rear",
+  "board": "REAR",
+  "dnp": false
+ },
+ {
+  "ref": "TR3",
+  "value": "strip pad I2C_SDA",
+  "fp": [
+   "V010",
+   "FPC_Pad_1.2x0.6"
+  ],
+  "pins": {
+   "1": "I2C_SDA"
+  },
+  "lcsc": null,
+  "mpn": null,
+  "side": "F",
+  "bom": false,
+  "note": "",
+  "group": "rear",
+  "board": "REAR",
+  "dnp": false
+ },
+ {
+  "ref": "TR4",
+  "value": "strip pad I2C_SCL",
+  "fp": [
+   "V010",
+   "FPC_Pad_1.2x0.6"
+  ],
+  "pins": {
+   "1": "I2C_SCL"
+  },
+  "lcsc": null,
+  "mpn": null,
+  "side": "F",
+  "bom": false,
+  "note": "",
+  "group": "rear",
+  "board": "REAR",
+  "dnp": false
+ },
+ {
+  "ref": "MR1",
+  "value": "strip pad MOT_B2",
+  "fp": [
+   "V010",
+   "FPC_Pad_1.2x0.6"
+  ],
+  "pins": {
+   "1": "MOT_B2"
+  },
+  "lcsc": null,
+  "mpn": null,
+  "side": "F",
+  "bom": false,
+  "note": "",
+  "group": "rear",
+  "board": "REAR",
+  "dnp": false
+ },
+ {
+  "ref": "MR2",
+  "value": "strip pad MOT_A2",
+  "fp": [
+   "V010",
+   "FPC_Pad_1.2x0.6"
+  ],
+  "pins": {
+   "1": "MOT_A2"
+  },
+  "lcsc": null,
+  "mpn": null,
+  "side": "F",
+  "bom": false,
+  "note": "",
+  "group": "rear",
+  "board": "REAR",
+  "dnp": false
+ },
+ {
+  "ref": "MR3",
+  "value": "strip pad MOT_B1",
+  "fp": [
+   "V010",
+   "FPC_Pad_1.2x0.6"
+  ],
+  "pins": {
+   "1": "MOT_B1"
+  },
+  "lcsc": null,
+  "mpn": null,
+  "side": "F",
+  "bom": false,
+  "note": "",
+  "group": "rear",
+  "board": "REAR",
+  "dnp": false
+ },
+ {
+  "ref": "MR4",
+  "value": "strip pad MOT_A1",
+  "fp": [
+   "V010",
+   "FPC_Pad_1.2x0.6"
+  ],
+  "pins": {
+   "1": "MOT_A1"
+  },
+  "lcsc": null,
+  "mpn": null,
+  "side": "F",
+  "bom": false,
+  "note": "",
+  "group": "rear",
+  "board": "REAR",
+  "dnp": false
+ }
+]

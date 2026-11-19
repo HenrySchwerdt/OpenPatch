@@ -22,7 +22,7 @@ def pad(n, x, y, w, h, shape="rect", extra=""):
 
 def ufqfpn20():
     L = head("UFQFPN-20_3x3_P0.5", "ST UFQFPN20 3x3x0.55 mm P0.5, EP 1.6x1.6 (pin 21). Land pattern derived from the usual 0.25x0.6 / 3.0 mm QFN rule: VERIFY against ST DS13866 package drawing")
-    c, ln, wd = 1.3, 0.6, 0.25
+    c, ln, wd = 1.45, 0.5, 0.22   # corner pads of the 0.6 mm version overlapped (DRC shorting); inner end 1.2 mm: >= 0.1 mm diagonal clearance
     # pin 1 top-left, counter-clockwise: left side top->bottom 1-5, bottom left->right 6-10, right bottom->top 11-15, top right->left 16-20
     ys = [-1.0, -0.5, 0, 0.5, 1.0]
     for i in range(5):

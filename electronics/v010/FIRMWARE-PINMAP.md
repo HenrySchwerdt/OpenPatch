@@ -175,3 +175,67 @@ Notes (v3):
 * Spare module pads: all pads not listed (about 15 GPIO of the P1.xx grid) are unconnected; they are inner-grid pads that would need via-in-pad.
 * Via-in-pad (0.20 / 0.40 mm, filled and capped) is placed on every connected module pad of the second row and the inner grid (pads 3, 5, 8-19 odd/even rows, 21, 23, 24, 27, 29, 33-47 odd, 49-53): 27 vias.
 * The cross-board nets (MAIN <-> POWER, 32 pads, 26 unique nets): `design/netlist_v3.py` `B2B_A` / `B2B_B`; `netlist_v3_cross.json`.
+
+
+---
+
+# v0.1.0 CUP pod v4 (single board `cup/`, `design/netlist_v4.py`): ISP1807 pad table
+
+Changes against the v3 table above: no `OC_TEST`, `SENSE_EN`, `NTC`, `PGATE_MON`, `TMAG_INT`; pad 4 is now `LATCH_Q`; **new RGB LED** on pads 53/6/42; battery sense is always on (no switch). GND pads 1, 7, 14, 16, 18, 21, 23, 24, 25, 31. **All pad numbers are the ISP1807 land pads of the `V010:ISP1807` footprint; the nRF pin behind each pad comes from the v3 table, the PWM capability of P0.xx pins must be checked by the firmware owner (every nRF52840 GPIO can be routed to a PWM channel).** NFC pins P0.09/P0.10 as GPIO (UICR `NFCPINS`), P0.18 as reset.
+
+| ISP1807 pad | Net | Function |
+|---|---|---|
+| 2 | `OC_OK` | in: over-current comparator, low = tripped (hardware cleared the latch) |
+| 3 | `DOCK_N` | in: dock hall output (low = docked) |
+| 4 | `LATCH_Q` | in: interlock latch Q readback (RB6) (was PGATE_MON) |
+| 5 | `SUP_OK` | in: supervisor healthy |
+| 6 | `LED_G` | out PWM, active low: RGB LED green (470 R) |
+| 8 | `USB_DP` | USB D+ |
+| 10 | `USB_DM` | USB D- |
+| 12 | `VBUS_P` | USB VBUS |
+| 13 | `NRST` | reset (P0.18), pulled low by the supervisor |
+| 20 | `RF_BRIDGE` | copper bridge pad 20-22 |
+| 22 | `RF_BRIDGE` | copper bridge pad 20-22 |
+| 26 | `3V3` | supply |
+| 27 | `SUP_TXD` | in: UART RX from the supervisor |
+| 28 | `SWDIO` | SWD pad |
+| 29 | `SUP_RXD` | out: UART TX to the supervisor |
+| 30 | `SWDCLK` | SWD pad |
+| 32 | `MOT_STBY` | out: STSPIN220 STBY, 100 k pull-down |
+| 33 | `MOT_DIR` | out: STSPIN220 DIR and interlock reverse leg, high = reverse, 100 k pull-down |
+| 34 | `STCK_MCU` | out PWM: step clock into the step gate U31 (STCK_DRV = STCK_MCU AND SUP_STCK_EN) |
+| 35 | `MOT_EN_FAULT` | io: STSPIN220 EN/FAULT |
+| 36 | `VBAT_SENSE` | ain: cell voltage, 4.7 M/4.7 M always on (x2), sample with long acquisition |
+| 37 | `BTN_N` | in: button, internal pull-up (no external resistor) |
+| 38 | `I_SENSE` | ain: INA180 output after 10 k + 10 nF, 4.4 mV/mA (saturates at the supply) |
+| 39 | `I2C_SCL` | io: TMAG5273 (on the REAR strip), 4.7 k pull-up |
+| 40 | `VMOT_SENSE` | ain: motor supply after the switch, 100 k/100 k (x2) |
+| 41 | `I2C_SDA` | io: TMAG5273, 4.7 k pull-up |
+| 42 | `LED_B` | out PWM, active low: RGB LED blue (470 R) |
+| 43 | `ARM_CLK` | out: rising edge sets the latch U6 and arms the supervisor, 100 k pull-down |
+| 44 | `DOCKED_H` | in: dock hall level (high = docked), single hall |
+| 45 | `MCU_EN` | out: own leg QE, 100 k pull-down |
+| 46 | `VBUS_SENSE` | in/ain: VBUS 100 k/100 k (x2), high = cable present (pause delivery) |
+| 48 | `CHG_STAT` | in: MCP73832 STAT (low = charging, high = done, high-Z = no VBUS); also diode-ORed to the red LED cathode |
+| 50 | `DOCK_TEST` | out: high forces DOCKED_H low (POST) |
+| 51 | `BUZ_A` | out: piezo bridge leg A (NFET gate, 100 k pull-down) |
+| 52 | `BUZ_B` | out: piezo bridge leg B |
+| 53 | `LED_R` | out PWM, active low: RGB LED red (1 k, also driven low by CHG_STAT through D5) |
+
+## Status LED (RGB, top-facing under the clear lid, `LD1`, SZYY1615RGB-B, common anode on VBAT)
+
+| Pad | Net | Series R | Channel | Idle |
+|---|---|---|---|---|
+| 53 | `LED_R` | 1 k (R74) | red, also lit by `CHG_STAT` low through D5 (diode-OR, works while the MCU sleeps) | GPIO high or high-Z = off, no current |
+| 6 | `LED_G` | 470 R (R75) | green | off |
+| 42 | `LED_B` | 470 R (R76) | blue | off |
+
+Pins are **active low** (sink current); the anode is on VBAT (3.0 to 4.2 V), so a GPIO at 3.3 V never lights a channel (red needs more than 1.8 V across the LED, green/blue more than 2.7 V). About 1.5 to 2 mA per channel at 3.7 V (red about 1.7 mA); run PWM at 20 to 50 percent for indication. `CHG_STAT` (pad 48) is also an MCU input: low = charging, high = done, high-Z = no VBUS (read with internal pull-down then pull-up, as before). **Pad order and common-anode polarity of the LED are unverified (vendor drawing)**: check the first board before programming.
+
+Firmware behaviour to implement:
+* default: all three pins high-Z / high, no PWM, the PWM peripheral off between indications (idle current stays negligible);
+* **charging** (`CHG_STAT` low): red pulses (breathing, about 1 Hz); the diode-OR lights red steadily even if the MCU sleeps, the MCU may overlay the pulse;
+* **charge complete** (`CHG_STAT` high with `VBUS_SENSE` high): steady green;
+* **low battery** (below the firmware limit, default 3.5 V open circuit, `VBAT_SENSE`): red blink 1 short flash every 4 s while not charging; critical (below the motor-start limit 3.4 V): double flash;
+* normal state: LED off, short blue/green flash on a button press with the battery state (green above 3.8 V, orange = red + green around 3.5 to 3.8 V, red below);
+* faults from the supervisor / diagnostics: fast red blink (4 Hz) until acknowledged.

@@ -123,3 +123,29 @@ Codes with **NEW** do not exist in the catalogue yet: they are requests (rule 2.
 | `1-0F-004` | HWA_FULL_STUCK | HWA_FULL high while WIN low at idle | F | CTRL | H2 |
 
 Proof-test additions (POST-A, docked, water only): **A12** HW-A budget (arm, 40 forward pulses, expect `HWA_FULL`=1 and 32 steps of TMAG motion; no arm, 8 pulses, expect 0), **A09** over-current latch with `OC_TEST`.
+
+---
+
+# v4 CUP pod (single board) delta
+
+Reference designators of `netlist_v4_cup.json`. Replaces the rows of the v1 to v3 tables for the parts listed here; parts not mentioned (driver, charger, USB, TMAG) keep their rows. Safe = a single failure cannot cause forward delivery the firmware did not authorise.
+
+| FM id | Ref | Failure mode | Effect | Single-fault safe? | Readback | Detection | Code | FRU |
+|---|---|---|---|---|---|---|---|---|
+| FM4-QL-1 | QD1 (QL half) | D-S short | latch leg lost; `MCU_EN`, dock leg and Q15 remain | yes | RB6 `LATCH_Q` vs VMOT after `SUP_NRST` low | A01 | 1-07-002 | CTRL |
+| FM4-QE-1 | QD2 (QE half) | D-S short | `MCU_EN` leg lost; latch, dock leg, Q15 remain | yes | VMOT after `MCU_EN` low | A01 | 1-07-001 | CTRL |
+| FM4-QD-1 | QD3 (QD half), Q7, R21 | QD shorted or Q7 stuck off | dock branch always true: **undocked forward not blocked by the dock leg** | NO if main firmware and supervisor also command it | `DOCKED_H`, `DOCK_TEST` | A02 | 1-07-003 | CTRL |
+| FM4-QR-1 | QD4 (QR half) | D-S short | reverse branch always true: same as FM4-QD-1 | NO if main firmware and supervisor also command it | `MOT_DIR` readback, A02 | A02 | 1-07-004 | CTRL |
+| FM4-U4A-1 | U4A | hall stuck asserted | dock leg passes undocked forward (2oo2 dropped); latch, `MCU_EN`, Q15 remain; the stuck hall is not detected by hardware (needs a firmware plausibility check: OPEN) | NO if main firmware and supervisor also command it | `DOCK_N`, `DOCKED_H`, `DOCK_TEST`, TMAG | A10, A02b | 2-21-001 | DOCK |
+| FM4-U4A-2 | U4A, R19 | stuck not asserted / open | forward blocked, pod never docks | yes (fail-safe) | `DOCK_N` | A10 | 2-21-002 | DOCK |
+| FM4-H15-1 | firmware, supervisor | docked + reverse commanded | hardware passes (OR), supervisor withholds `SUP_PERMIT`; if the supervisor also fails, aspiration through the cannula | NO if the supervisor is wrong in the permitting direction | A02a (docked, DIR reverse: VMOT stays below 0.3 V) | A02a | 1-07-008 NEW | CTRL |
+| FM4-U5-1 | U5 (TPL5010) | no WAKE / RSTn stuck high | supervisor watchdog dead (its IWDG remains); latch not cleared on supervisor hang | yes (protection reduced) | `SUP_WAKE` count | continuous | 1-04-001 | CTRL |
+| FM4-U5-2 | U5, U32 | RSTn stuck low | latch cleared continuously: no motion | yes (fail-safe) | `SUP_NRST` low | S05 | 1-04-002 | CTRL |
+| FM4-U6-1 | U6 | Q stuck 1 | latch cannot cut; `MCU_EN`, dock leg, Q15 and the over-current clear (also dead) | yes (three legs remain) | RB6 after `SUP_NRST` low | S05, A01 | 1-05-003 | CTRL |
+| FM4-U32-1 | U32 | output stuck high | latch is not cleared by over-current or supervisor reset | yes (Q15, `MCU_EN`, dock leg; supervisor `FAULT` on `OC_OK`) | RB (`LATCH_Q` after `SUP_NRST` low) | A01, A09 | 1-05-001 | CTRL |
+| FM4-U11-1 | U11, U9, R44, R49-R51 | comparator stuck high / INA open | no hardware over-current trip (chopper limit 160 mA per phase, supervisor sees nothing) | yes (chopper limit) | `I_SENSE` vs commanded steps | A03 | 1-0D-001 NEW | CTRL |
+| FM4-U11-2 | U11 | comparator stuck low | trips at once, `LATCH_Q` cleared forever: no motion | yes (fail-safe) | `OC_OK` low | A09 | 1-0D-002 NEW | CTRL |
+| FM4-MP-1 | MP1-4, REAR strip | pad / strip open or intermittent | winding open | yes | `I_SENSE`, EN/FAULT | S06 | 3-31-001, 3-31-004 | MOTOR / STRIP |
+| FM4-TL-1 | TL1-4, REAR strip, U10T | strip open | TMAG no ACK: firmware refuses delivery | yes | I2C ACK | S08 | 2-20-001, 3-30-003 | STRIP |
+
+Removed rows (parts gone): Q13/Q14/U12 over-current latch and `OC_TEST`, XOR network (Q10, Q20, Q21, Q22, Q11, R13/R14), 2oo2 (U4B, Q7B), boost (U8), battery-sense switch and NTC (Q1, Q2, RT1), PGATE_MON, board-to-board pads, SENSOR FFC. New proof-test: **A02a** (docked + reverse must not move VMOT) is now the only barrier against H15 besides the supervisor.
