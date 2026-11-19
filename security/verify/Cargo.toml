@@ -1,0 +1,29 @@
+# Verification harnesses for the OpenPatch core and protocol (see security/verify/README.md).
+# New standalone crate: it is NOT a member of firmware-rs/Cargo.toml and changes no existing source.
+# TEST PROJECT, not a medical device.
+[package]
+name = "openpatch-security-verify"
+version = "0.1.0"
+edition = "2021"
+publish = false
+license = "GPL-3.0-or-later"
+description = "proptest + Kani harnesses and regression demonstrators for the OpenPatch core / proto"
+
+[workspace]
+
+[features]
+default = []
+# Needs the protocol v1.1 handshake (firmware-rs/openpatch-proto/src/handshake.rs, feature key-agreement).
+handshake = ["openpatch-proto/key-agreement", "dep:rand_core"]
+
+[dependencies]
+openpatch-proto = { path = "../../firmware-rs/openpatch-proto", features = ["aes-ccm", "std"] }
+openpatch-core = { path = "../../firmware-rs/openpatch-core" }
+rand_core = { version = "0.6.4", optional = true, default-features = false }
+
+[dev-dependencies]
+openpatch-core = { path = "../../firmware-rs/openpatch-core", features = ["test-calibrations"] }
+proptest = "1.5.0"
+
+[lints.rust]
+unexpected_cfgs = { level = "warn", check-cfg = ["cfg(kani)"] }

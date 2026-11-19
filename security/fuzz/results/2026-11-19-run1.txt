@@ -1,0 +1,49 @@
+frame_tlv: Done 6015506 runs in 301 second(s)
+frame_tlv: stat::number_of_executed_units: 6015506
+frame_tlv: stat::average_exec_per_sec:     19985
+frame_tlv: stat::new_units_added:          3918
+frame_tlv: stat::slowest_unit_time_sec:    0
+frame_tlv: stat::peak_rss_mb:              449
+frame_tlv: exit=0
+session_open: Done 3223550 runs in 301 second(s)
+session_open: stat::number_of_executed_units: 3223550
+session_open: stat::average_exec_per_sec:     10709
+session_open: stat::new_units_added:          401
+session_open: stat::slowest_unit_time_sec:    0
+session_open: stat::peak_rss_mb:              470
+session_open: exit=0
+ccm_open: Done 1680941 runs in 301 second(s)
+ccm_open: stat::number_of_executed_units: 1680941
+ccm_open: stat::average_exec_per_sec:     5584
+ccm_open: stat::new_units_added:          174
+ccm_open: stat::slowest_unit_time_sec:    0
+ccm_open: stat::peak_rss_mb:              490
+ccm_open: exit=0
+dfu_manifest: Done 219412 runs in 301 second(s)
+dfu_manifest: stat::number_of_executed_units: 219412
+dfu_manifest: stat::average_exec_per_sec:     728
+dfu_manifest: stat::new_units_added:          323
+dfu_manifest: stat::slowest_unit_time_sec:    0
+dfu_manifest: stat::peak_rss_mb:              181
+dfu_manifest: exit=0
+storage_records: Done 12776716 runs in 301 second(s)
+storage_records: stat::number_of_executed_units: 12776716
+storage_records: stat::average_exec_per_sec:     42447
+storage_records: stat::new_units_added:          20
+storage_records: stat::slowest_unit_time_sec:    0
+storage_records: stat::peak_rss_mb:              515
+storage_records: exit=0
+handshake_responder: Done 2574030 runs in 301 second(s)
+handshake_responder: stat::number_of_executed_units: 2574030
+handshake_responder: stat::average_exec_per_sec:     8551
+handshake_responder: stat::new_units_added:          554
+handshake_responder: stat::slowest_unit_time_sec:    0
+handshake_responder: stat::peak_rss_mb:              467
+handshake_responder: exit=0
+handshake_mutate: Done 45301 runs in 301 second(s)
+handshake_mutate: stat::number_of_executed_units: 45301
+handshake_mutate: stat::average_exec_per_sec:     150
+handshake_mutate: stat::new_units_added:          42
+handshake_mutate: stat::slowest_unit_time_sec:    0
+handshake_mutate: stat::peak_rss_mb:              62
+handshake_mutate: exit=0

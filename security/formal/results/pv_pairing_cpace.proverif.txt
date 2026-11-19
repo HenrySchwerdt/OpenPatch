@@ -1,0 +1,132 @@
+Linear part:
+exp(exp(gen(w),x),y) = exp(exp(gen(w),y),x)
+Completing equations...
+Completed equations:
+exp(exp(gen(w),x),y) = exp(exp(gen(w),y),x)
+Convergent part: No equation.
+Process 0 (that is, the initial process):
+(
+    {1}!
+    {2}in(c, (pubA: G,nA: bitstring));
+    {3}new b: exponent;
+    {4}new nB: bitstring;
+    {5}let pubB: G = exp(gen(oob),b) in
+    {6}let dh: G = exp(pubA,b) in
+    {7}let th: bitstring = h((pubA,pubB,nA,nB)) in
+    {8}let ps: bitstring = h((L1,dh,h(L0),th)) in
+    {9}let ck: bitstring = h((L2,dh,h(L0),th)) in
+    {10}event PodInit(th);
+    {11}out(c, (pubB,nB,hmac(ck,(L3,th))));
+    {12}in(c, cApp: bitstring);
+    {13}if (cApp = hmac(ck,(L4,th))) then
+    {14}event PodPaired(ps,th)
+) | (
+    {15}!
+    {16}new a: exponent;
+    {17}new nA_1: bitstring;
+    {18}let pubA_1: G = exp(gen(oob),a) in
+    {19}out(c, (pubA_1,nA_1));
+    {20}in(c, (pubB_1: G,nB_1: bitstring,conf: bitstring));
+    {21}let dh_1: G = exp(pubB_1,a) in
+    {22}let th_1: bitstring = h((pubA_1,pubB_1,nA_1,nB_1)) in
+    {23}let ps_1: bitstring = h((L1,dh_1,h(L0),th_1)) in
+    {24}let ck_1: bitstring = h((L2,dh_1,h(L0),th_1)) in
+    {25}if (conf = hmac(ck_1,(L3,th_1))) then
+    {26}event AppPaired(ps_1,th_1);
+    {27}out(c, hmac(ck_1,(L4,th_1)))
+)
+
+--  Process 1 (that is, process 0, with let moved downwards):
+(
+    {1}!
+    {2}in(c, (pubA: G,nA: bitstring));
+    {3}new b: exponent;
+    {4}new nB: bitstring;
+    {5}let pubB: G = exp(gen(oob),b) in
+    {7}let th: bitstring = h((pubA,pubB,nA,nB)) in
+    {10}event PodInit(th);
+    {6}let dh: G = exp(pubA,b) in
+    {9}let ck: bitstring = h((L2,dh,h(L0),th)) in
+    {11}out(c, (pubB,nB,hmac(ck,(L3,th))));
+    {12}in(c, cApp: bitstring);
+    {13}if (cApp = hmac(ck,(L4,th))) then
+    {8}let ps: bitstring = h((L1,dh,h(L0),th)) in
+    {14}event PodPaired(ps,th)
+) | (
+    {15}!
+    {16}new a: exponent;
+    {17}new nA_1: bitstring;
+    {18}let pubA_1: G = exp(gen(oob),a) in
+    {19}out(c, (pubA_1,nA_1));
+    {20}in(c, (pubB_1: G,nB_1: bitstring,conf: bitstring));
+    {22}let th_1: bitstring = h((pubA_1,pubB_1,nA_1,nB_1)) in
+    {21}let dh_1: G = exp(pubB_1,a) in
+    {24}let ck_1: bitstring = h((L2,dh_1,h(L0),th_1)) in
+    {25}if (conf = hmac(ck_1,(L3,th_1))) then
+    {23}let ps_1: bitstring = h((L1,dh_1,h(L0),th_1)) in
+    {26}event AppPaired(ps_1,th_1);
+    {27}out(c, hmac(ck_1,(L4,th_1)))
+)
+
+-- Weak secret oob in process 1.
+Translating the process into Horn clauses...
+Termination warning: v ≠ v_1 && attacker_guess(v_2,v) && attacker_guess(v_2,v_1) -> bad
+Selecting 0
+Termination warning: v ≠ v_1 && attacker_guess(v,v_2) && attacker_guess(v_1,v_2) -> bad
+Selecting 0
+Completing...
+Termination warning: v ≠ v_1 && attacker_guess(v_2,v) && attacker_guess(v_2,v_1) -> bad
+Selecting 0
+Termination warning: v ≠ v_1 && attacker_guess(v,v_2) && attacker_guess(v_1,v_2) -> bad
+Selecting 0
+Termination warning: v ≠ v_1 && attacker(v) && attacker_guess(v,v_1) -> bad
+Selecting 1
+Termination warning: v ≠ v_1 && attacker(v) && attacker_guess(v_1,v) -> bad
+Selecting 1
+200 rules inserted. Base: 195 rules (65 with conclusion selected). Queue: 96 rules.
+400 rules inserted. Base: 354 rules (67 with conclusion selected). Queue: 64 rules.
+RESULT Weak secret oob is true.
+-- Query not (event(AppPaired(ps_2,th_2)) && attacker(ps_2)) in process 1.
+Translating the process into Horn clauses...
+Completing...
+Starting query not (event(AppPaired(ps_2,th_2)) && attacker(ps_2))
+RESULT not (event(AppPaired(ps_2,th_2)) && attacker(ps_2)) is true.
+-- Query inj-event(PodPaired(ps_2,th_2)) ==> inj-event(AppPaired(ps_2,th_2)) in process 1.
+Translating the process into Horn clauses...
+Completing...
+Starting query inj-event(PodPaired(ps_2,th_2)) ==> inj-event(AppPaired(ps_2,th_2))
+goal reachable: b-inj-event(AppPaired(h((L1,exp(exp(gen(oob[]),b_1),a_1),h(L0),h((exp(gen(oob[]),a_1),exp(gen(oob[]),b_1),nA_2,nB_2)))),h((exp(gen(oob[]),a_1),exp(gen(oob[]),b_1),nA_2,nB_2))),@occ26_1) -> inj-event(PodPaired(h((L1,exp(exp(gen(oob[]),b_1),a_1),h(L0),h((exp(gen(oob[]),a_1),exp(gen(oob[]),b_1),nA_2,nB_2)))),h((exp(gen(oob[]),a_1),exp(gen(oob[]),b_1),nA_2,nB_2))),@occ14_1)
+The hypothesis occurs strictly before the conclusion.
+Abbreviations:
+nA_2 = nA_1[!1 = @sid]
+a_1 = a[!1 = @sid]
+b_1 = b[nA = nA_2,pubA = exp(gen(oob[]),a_1),!1 = @sid_1]
+nB_2 = nB[nA = nA_2,pubA = exp(gen(oob[]),a_1),!1 = @sid_1]
+@occ14_1 = @occ14[cApp = hmac(h((L2,exp(exp(gen(oob[]),b_1),a_1),h(L0),h((exp(gen(oob[]),a_1),exp(gen(oob[]),b_1),nA_2,nB_2)))),(L4,h((exp(gen(oob[]),a_1),exp(gen(oob[]),b_1),nA_2,nB_2)))),nA = nA_2,pubA = exp(gen(oob[]),a_1),!1 = @sid_1]
+@occ26_1 = @occ26[conf = hmac(h((L2,exp(exp(gen(oob[]),b_1),a_1),h(L0),h((exp(gen(oob[]),a_1),exp(gen(oob[]),b_1),nA_2,nB_2)))),(L3,h((exp(gen(oob[]),a_1),exp(gen(oob[]),b_1),nA_2,nB_2)))),nB_1 = nB_2,pubB_1 = exp(gen(oob[]),b_1),!1 = @sid]
+RESULT inj-event(PodPaired(ps_2,th_2)) ==> inj-event(AppPaired(ps_2,th_2)) is true.
+-- Query event(AppPaired(ps_2,th_2)) ==> event(PodInit(th_2)) in process 1.
+Translating the process into Horn clauses...
+Completing...
+Starting query event(AppPaired(ps_2,th_2)) ==> event(PodInit(th_2))
+goal reachable: b-event(PodInit(h((exp(gen(oob[]),a_1),exp(gen(oob[]),b_1),nA_2,nB_2)))) -> event(AppPaired(h((L1,exp(exp(gen(oob[]),b_1),a_1),h(L0),h((exp(gen(oob[]),a_1),exp(gen(oob[]),b_1),nA_2,nB_2)))),h((exp(gen(oob[]),a_1),exp(gen(oob[]),b_1),nA_2,nB_2))))
+Abbreviations:
+nA_2 = nA_1[!1 = @sid]
+a_1 = a[!1 = @sid]
+b_1 = b[nA = nA_2,pubA = exp(gen(oob[]),a_1),!1 = @sid_1]
+nB_2 = nB[nA = nA_2,pubA = exp(gen(oob[]),a_1),!1 = @sid_1]
+RESULT event(AppPaired(ps_2,th_2)) ==> event(PodInit(th_2)) is true.
+
+--------------------------------------------------------------
+Verification summary:
+
+Weak secret oob is true.
+
+Query not (event(AppPaired(ps_2,th_2)) && attacker(ps_2)) is true.
+
+Query inj-event(PodPaired(ps_2,th_2)) ==> inj-event(AppPaired(ps_2,th_2)) is true.
+
+Query event(AppPaired(ps_2,th_2)) ==> event(PodInit(th_2)) is true.
+
+--------------------------------------------------------------
+
