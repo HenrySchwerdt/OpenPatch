@@ -50,7 +50,8 @@ def run(ctx: Ctx) -> Result:
         # backlash model: j_t = j0 + 2 da tan(alpha), j0 triangular 0.015..0.045 (DIN 58405 q8 thinning), da = centre error
         j0 = rng.triangular(*C["gear_j0"], N)
         da = sum(uni(rng, tt, N) for _, tt in items)
-        j_ct = j0 + 2 * da * tan_a                      # at CAD centre = theoretical centre (offset 0)
+        c_add = P.get('bench', {}).get('gears', {}).get('centre_add', 0.0)   # built centre = theoretical + centre_add (CAD)
+        j_ct = j0 + 2 * (da + c_add) * tan_a
         p_bind = float(np.mean(j_ct < 0.0))
         j_wc_min = C["gear_j0"][0] - 2 * wc * tan_a
         off_wc = (j_target - j_wc_min) / (2 * tan_a)    # centre offset needed so that WC backlash >= j_target
@@ -95,8 +96,10 @@ def run(ctx: Ctx) -> Result:
     E_pa = C["PA12_MJF"]["E"]
     to = P["seal"]["tongue_off"]
     lever = ctx.shared["a4"]["lever"]
-    Iz = (to[1] - to[0]) * dr["arm_t"] ** 3 / 12
-    k_tz = 3 * E_pa * Iz / lever ** 3
+    SHIM = P.get("bench", {}).get("shim")
+    Iz = ((SHIM["t"], SHIM["h"]) if SHIM else (to[1] - to[0], dr["arm_t"]))
+    Iz = Iz[0] * Iz[1] ** 3 / 12
+    k_tz = 3 * (193000.0 if SHIM else E_pa) * Iz / lever ** 3
     k_lat = 1 / (1 / k_scr + 1 / k_tz)
     thread_clr = 0.03
     nut_float = dr["nut_hex_clr"] / 2
@@ -181,7 +184,8 @@ def run(ctx: Ctx) -> Result:
     lid_depth = H - z_stop
     z_inner = H - wall
     res_h = P["reservoir_frozen"]["outer_h"]
-    gap_nom = z_inner - (wall + res_h)
+    recess = P.get("bench", {}).get("lid_recess", {}).get("over_reservoir", 0.0)     # local lid recess over the reservoir (CAD)
+    gap_nom = z_inner + recess - (wall + res_h)
     rows = []
     out35 = {}
     for proc, t in PROC.items():
@@ -206,6 +210,9 @@ def run(ctx: Ctx) -> Result:
         top_free = lay["stack_z_pod"]["top_free_mm"]
         tops = [k["top_max_mm"] for k in lay.get("keepout_heights_mm", []) if "top_max_mm" in k]
         c_max = max(tops) if tops else 1.3
+        bn = P.get("bench")
+        if bn:         # actual tallest top-side part (the keep-out heights are limits, not parts)
+            c_max = max(bn["ffc"]["conn"][2], bn["drv_top"]["pkg"][2])
         its = [("board seat height (posts/pins)", PROC["MJF"]), ("board thickness +-10 %", 0.08), ("lid inner depth", PROC["MJF"]), ("bottom stop", PROC["MJF"]), ("component height", 0.1)]
         wc, rss = stack(its)
         gap_c = top_free - c_max

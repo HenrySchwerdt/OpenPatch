@@ -1,0 +1,432 @@
+Linear part:
+exp(exp(g,x),y) = exp(exp(g,y),x)
+Completing equations...
+Completed equations:
+exp(exp(g,x),y) = exp(exp(g,y),x)
+Convergent part: No equation.
+Process 0 (that is, the initial process):
+(
+    {1}!
+    {2}in(c, (pubA: G,nA: bitstring,psid: bitstring));
+    {3}if (psid = h((Lpsid,ps))) then
+    {4}new xb: exponent;
+    {5}new nB: bitstring;
+    {6}let pubB: G = exp(g,xb) in
+    {7}let dh: G = exp(pubA,xb) in
+    {8}let th: bitstring = h((Lth,psid,pubA,pubB,nA,nB)) in
+    {9}let prk: bitstring = h((Lprk,ps,dh)) in
+    {10}let kc: bitstring = h((Lc2p,prk,th)) in
+    {11}let kp: bitstring = h((Lp2c,prk,th)) in
+    {12}let ck: bitstring = h((Lck,prk,th)) in
+    {13}event PodInit(th,kc,kp);
+    {14}out(c, (pubB,nB,hmac(ck,(Lpod,th))));
+    {15}in(c, cApp: bitstring);
+    {16}if (cApp = hmac(ck,(Lapp,th))) then
+    {17}event PodUp(th,kc,kp);
+    {18}new m: bitstring;
+    {19}event PodSecret(m);
+    {20}out(c, senc(m,kp));
+    (
+        {21}!
+        {22}in(c, w: bitstring);
+        {23}let (=Lcmd,sq: bitstring,cmd: bitstring) = sdec(w,kc) in
+        {24}event CmdExec(th,sq);
+        {25}event RspSent(th,sq);
+        {26}out(c, senc((Lrsp,sq,h(cmd)),kp))
+    ) | (
+        {27}!
+        {28}in(c, w_1: bitstring);
+        {29}let (=Lrsp,sq_1: bitstring,r: bitstring) = sdec(w_1,kp) in
+        {30}event ReflectedAccepted(th,sq_1)
+    )
+) | (
+    {31}!
+    {32}new xa: exponent;
+    {33}new nA_1: bitstring;
+    {34}let pubA_1: G = exp(g,xa) in
+    {35}let psid_1: bitstring = h((Lpsid,ps)) in
+    {36}out(c, (pubA_1,nA_1,psid_1));
+    {37}in(c, (pubB_1: G,nB_1: bitstring,conf: bitstring));
+    {38}let dh_1: G = exp(pubB_1,xa) in
+    {39}let th_1: bitstring = h((Lth,psid_1,pubA_1,pubB_1,nA_1,nB_1)) in
+    {40}let prk_1: bitstring = h((Lprk,ps,dh_1)) in
+    {41}let kc_1: bitstring = h((Lc2p,prk_1,th_1)) in
+    {42}let kp_1: bitstring = h((Lp2c,prk_1,th_1)) in
+    {43}let ck_1: bitstring = h((Lck,prk_1,th_1)) in
+    {44}if (conf = hmac(ck_1,(Lpod,th_1))) then
+    {45}event AppUp(th_1,kc_1,kp_1);
+    {46}out(c, hmac(ck_1,(Lapp,th_1)));
+    {47}new m_1: bitstring;
+    {48}event AppSecret(m_1);
+    {49}out(c, senc(m_1,kc_1));
+    (
+        {50}new sq_2: bitstring;
+        {51}new cmd_1: bitstring;
+        {52}event CmdSent(th_1,sq_2);
+        {53}out(c, senc((Lcmd,sq_2,cmd_1),kc_1))
+    ) | (
+        {54}in(c, w_2: bitstring);
+        {55}let (=Lrsp,sq_3: bitstring,r_1: bitstring) = sdec(w_2,kp_1) in
+        {56}event RspAccepted(th_1,sq_3)
+    )
+) | (
+    {57}phase 1;
+    {58}out(c, ps)
+)
+
+--  Process 1 (that is, process 0, with let moved downwards):
+(
+    {1}!
+    {2}in(c, (pubA: G,nA: bitstring,psid: bitstring));
+    {3}if (psid = h((Lpsid,ps))) then
+    {4}new xb: exponent;
+    {5}new nB: bitstring;
+    {7}let dh: G = exp(pubA,xb) in
+    {9}let prk: bitstring = h((Lprk,ps,dh)) in
+    {6}let pubB: G = exp(g,xb) in
+    {8}let th: bitstring = h((Lth,psid,pubA,pubB,nA,nB)) in
+    {11}let kp: bitstring = h((Lp2c,prk,th)) in
+    {10}let kc: bitstring = h((Lc2p,prk,th)) in
+    {13}event PodInit(th,kc,kp);
+    {12}let ck: bitstring = h((Lck,prk,th)) in
+    {14}out(c, (pubB,nB,hmac(ck,(Lpod,th))));
+    {15}in(c, cApp: bitstring);
+    {16}if (cApp = hmac(ck,(Lapp,th))) then
+    {17}event PodUp(th,kc,kp);
+    {18}new m: bitstring;
+    {19}event PodSecret(m);
+    {20}out(c, senc(m,kp));
+    (
+        {21}!
+        {22}in(c, w: bitstring);
+        {23}let (=Lcmd,sq: bitstring,cmd: bitstring) = sdec(w,kc) in
+        {24}event CmdExec(th,sq);
+        {25}event RspSent(th,sq);
+        {26}out(c, senc((Lrsp,sq,h(cmd)),kp))
+    ) | (
+        {27}!
+        {28}in(c, w_1: bitstring);
+        {29}let (=Lrsp,sq_1: bitstring,r: bitstring) = sdec(w_1,kp) in
+        {30}event ReflectedAccepted(th,sq_1)
+    )
+) | (
+    {31}!
+    {32}new xa: exponent;
+    {33}new nA_1: bitstring;
+    {35}let psid_1: bitstring = h((Lpsid,ps)) in
+    {34}let pubA_1: G = exp(g,xa) in
+    {36}out(c, (pubA_1,nA_1,psid_1));
+    {37}in(c, (pubB_1: G,nB_1: bitstring,conf: bitstring));
+    {38}let dh_1: G = exp(pubB_1,xa) in
+    {40}let prk_1: bitstring = h((Lprk,ps,dh_1)) in
+    {39}let th_1: bitstring = h((Lth,psid_1,pubA_1,pubB_1,nA_1,nB_1)) in
+    {43}let ck_1: bitstring = h((Lck,prk_1,th_1)) in
+    {44}if (conf = hmac(ck_1,(Lpod,th_1))) then
+    {42}let kp_1: bitstring = h((Lp2c,prk_1,th_1)) in
+    {41}let kc_1: bitstring = h((Lc2p,prk_1,th_1)) in
+    {45}event AppUp(th_1,kc_1,kp_1);
+    {46}out(c, hmac(ck_1,(Lapp,th_1)));
+    {47}new m_1: bitstring;
+    {48}event AppSecret(m_1);
+    {49}out(c, senc(m_1,kc_1));
+    (
+        {50}new sq_2: bitstring;
+        {51}new cmd_1: bitstring;
+        {52}event CmdSent(th_1,sq_2);
+        {53}out(c, senc((Lcmd,sq_2,cmd_1),kc_1))
+    ) | (
+        {54}in(c, w_2: bitstring);
+        {55}let (=Lrsp,sq_3: bitstring,r_1: bitstring) = sdec(w_2,kp_1) in
+        {56}event RspAccepted(th_1,sq_3)
+    )
+) | (
+    {57}phase 1;
+    {58}out(c, ps)
+)
+
+-- Query not (event(AppSecret(m_2)) && attacker_p1(m_2)) in process 1.
+Translating the process into Horn clauses...
+Completing...
+200 rules inserted. Base: 165 rules (67 with conclusion selected). Queue: 32 rules.
+400 rules inserted. Base: 273 rules (76 with conclusion selected). Queue: 48 rules.
+600 rules inserted. Base: 378 rules (79 with conclusion selected). Queue: 84 rules.
+800 rules inserted. Base: 461 rules (79 with conclusion selected). Queue: 66 rules.
+1000 rules inserted. Base: 521 rules (79 with conclusion selected). Queue: 21 rules.
+Starting query not (event(AppSecret(m_2)) && attacker_p1(m_2))
+RESULT not (event(AppSecret(m_2)) && attacker_p1(m_2)) is true.
+-- Query not (event(PodSecret(m_2)) && attacker_p1(m_2)) in process 1.
+Translating the process into Horn clauses...
+Completing...
+200 rules inserted. Base: 160 rules (67 with conclusion selected). Queue: 32 rules.
+400 rules inserted. Base: 277 rules (75 with conclusion selected). Queue: 50 rules.
+600 rules inserted. Base: 380 rules (79 with conclusion selected). Queue: 82 rules.
+800 rules inserted. Base: 462 rules (79 with conclusion selected). Queue: 65 rules.
+1000 rules inserted. Base: 521 rules (79 with conclusion selected). Queue: 19 rules.
+Starting query not (event(PodSecret(m_2)) && attacker_p1(m_2))
+RESULT not (event(PodSecret(m_2)) && attacker_p1(m_2)) is true.
+-- Query inj-event(PodUp(th_2,kc_2,kp_2)) ==> inj-event(AppUp(th_2,kc_2,kp_2)) in process 1.
+Translating the process into Horn clauses...
+Completing...
+200 rules inserted. Base: 160 rules (67 with conclusion selected). Queue: 32 rules.
+400 rules inserted. Base: 277 rules (75 with conclusion selected). Queue: 50 rules.
+600 rules inserted. Base: 380 rules (79 with conclusion selected). Queue: 82 rules.
+800 rules inserted. Base: 462 rules (79 with conclusion selected). Queue: 65 rules.
+1000 rules inserted. Base: 521 rules (79 with conclusion selected). Queue: 19 rules.
+Starting query inj-event(PodUp(th_2,kc_2,kp_2)) ==> inj-event(AppUp(th_2,kc_2,kp_2))
+goal reachable: b-inj-event(AppUp(h((Lth,h((Lpsid,ps[])),exp(g,xa_1),exp(g,xb_1),nA_2,nB_2)),h((Lc2p,h((Lprk,ps[],exp(exp(g,xb_1),xa_1))),h((Lth,h((Lpsid,ps[])),exp(g,xa_1),exp(g,xb_1),nA_2,nB_2)))),h((Lp2c,h((Lprk,ps[],exp(exp(g,xb_1),xa_1))),h((Lth,h((Lpsid,ps[])),exp(g,xa_1),exp(g,xb_1),nA_2,nB_2))))),@occ45_1) -> inj-event(PodUp(h((Lth,h((Lpsid,ps[])),exp(g,xa_1),exp(g,xb_1),nA_2,nB_2)),h((Lc2p,h((Lprk,ps[],exp(exp(g,xb_1),xa_1))),h((Lth,h((Lpsid,ps[])),exp(g,xa_1),exp(g,xb_1),nA_2,nB_2)))),h((Lp2c,h((Lprk,ps[],exp(exp(g,xb_1),xa_1))),h((Lth,h((Lpsid,ps[])),exp(g,xa_1),exp(g,xb_1),nA_2,nB_2))))),@occ17_1)
+The hypothesis occurs strictly before the conclusion.
+Abbreviations:
+xa_1 = xa[!1 = @sid]
+nA_2 = nA_1[!1 = @sid]
+xb_1 = xb[psid = h((Lpsid,ps[])),nA = nA_2,pubA = exp(g,xa_1),!1 = @sid_1]
+nB_2 = nB[psid = h((Lpsid,ps[])),nA = nA_2,pubA = exp(g,xa_1),!1 = @sid_1]
+@occ17_1 = @occ17[cApp = hmac(h((Lck,h((Lprk,ps[],exp(exp(g,xb_1),xa_1))),h((Lth,h((Lpsid,ps[])),exp(g,xa_1),exp(g,xb_1),nA_2,nB_2)))),(Lapp,h((Lth,h((Lpsid,ps[])),exp(g,xa_1),exp(g,xb_1),nA_2,nB_2)))),psid = h((Lpsid,ps[])),nA = nA_2,pubA = exp(g,xa_1),!1 = @sid_1]
+@occ45_1 = @occ45[conf = hmac(h((Lck,h((Lprk,ps[],exp(exp(g,xb_1),xa_1))),h((Lth,h((Lpsid,ps[])),exp(g,xa_1),exp(g,xb_1),nA_2,nB_2)))),(Lpod,h((Lth,h((Lpsid,ps[])),exp(g,xa_1),exp(g,xb_1),nA_2,nB_2)))),nB_1 = nB_2,pubB_1 = exp(g,xb_1),!1 = @sid]
+RESULT inj-event(PodUp(th_2,kc_2,kp_2)) ==> inj-event(AppUp(th_2,kc_2,kp_2)) is true.
+-- Query inj-event(AppUp(th_2,kc_2,kp_2)) ==> inj-event(PodInit(th_2,kc_2,kp_2)) in process 1.
+Translating the process into Horn clauses...
+Completing...
+select attacker(exp(g,x))/-5000
+200 rules inserted. Base: 171 rules (75 with conclusion selected). Queue: 35 rules.
+400 rules inserted. Base: 270 rules (83 with conclusion selected). Queue: 34 rules.
+600 rules inserted. Base: 382 rules (87 with conclusion selected). Queue: 81 rules.
+800 rules inserted. Base: 468 rules (87 with conclusion selected). Queue: 61 rules.
+1000 rules inserted. Base: 537 rules (87 with conclusion selected). Queue: 28 rules.
+Starting query inj-event(AppUp(th_2,kc_2,kp_2)) ==> inj-event(PodInit(th_2,kc_2,kp_2))
+goal reachable: b-inj-event(PodInit(h((Lth,h((Lpsid,ps[])),exp(g,xa_1),exp(g,xb_1),nA_2,nB_2)),h((Lc2p,h((Lprk,ps[],exp(exp(g,xb_1),xa_1))),h((Lth,h((Lpsid,ps[])),exp(g,xa_1),exp(g,xb_1),nA_2,nB_2)))),h((Lp2c,h((Lprk,ps[],exp(exp(g,xb_1),xa_1))),h((Lth,h((Lpsid,ps[])),exp(g,xa_1),exp(g,xb_1),nA_2,nB_2))))),@occ13_1) -> inj-event(AppUp(h((Lth,h((Lpsid,ps[])),exp(g,xa_1),exp(g,xb_1),nA_2,nB_2)),h((Lc2p,h((Lprk,ps[],exp(exp(g,xb_1),xa_1))),h((Lth,h((Lpsid,ps[])),exp(g,xa_1),exp(g,xb_1),nA_2,nB_2)))),h((Lp2c,h((Lprk,ps[],exp(exp(g,xb_1),xa_1))),h((Lth,h((Lpsid,ps[])),exp(g,xa_1),exp(g,xb_1),nA_2,nB_2))))),@occ45_2)
+The hypothesis occurs strictly before the conclusion.
+Abbreviations:
+xa_1 = xa[!1 = @sid]
+nA_2 = nA_1[!1 = @sid]
+xb_1 = xb[psid = h((Lpsid,ps[])),nA = nA_2,pubA = exp(g,xa_1),!1 = @sid_1]
+nB_2 = nB[psid = h((Lpsid,ps[])),nA = nA_2,pubA = exp(g,xa_1),!1 = @sid_1]
+@occ45_2 = @occ45_1[conf = hmac(h((Lck,h((Lprk,ps[],exp(exp(g,xb_1),xa_1))),h((Lth,h((Lpsid,ps[])),exp(g,xa_1),exp(g,xb_1),nA_2,nB_2)))),(Lpod,h((Lth,h((Lpsid,ps[])),exp(g,xa_1),exp(g,xb_1),nA_2,nB_2)))),nB_1 = nB_2,pubB_1 = exp(g,xb_1),!1 = @sid]
+@occ13_1 = @occ13[psid = h((Lpsid,ps[])),nA = nA_2,pubA = exp(g,xa_1),!1 = @sid_1]
+RESULT inj-event(AppUp(th_2,kc_2,kp_2)) ==> inj-event(PodInit(th_2,kc_2,kp_2)) is true.
+-- Query event(CmdExec(th_2,sq_4)) ==> event(CmdSent(th_2,sq_4)) in process 1.
+Translating the process into Horn clauses...
+Completing...
+200 rules inserted. Base: 158 rules (67 with conclusion selected). Queue: 28 rules.
+400 rules inserted. Base: 277 rules (74 with conclusion selected). Queue: 52 rules.
+600 rules inserted. Base: 381 rules (79 with conclusion selected). Queue: 84 rules.
+800 rules inserted. Base: 464 rules (79 with conclusion selected). Queue: 66 rules.
+1000 rules inserted. Base: 525 rules (79 with conclusion selected). Queue: 21 rules.
+Starting query event(CmdExec(th_2,sq_4)) ==> event(CmdSent(th_2,sq_4))
+goal reachable: b-event(CmdSent(h((Lth,h((Lpsid,ps[])),exp(g,xa_1),exp(g,xb_1),nA_2,nB_2)),sq_4)) -> event(CmdExec(h((Lth,h((Lpsid,ps[])),exp(g,xa_1),exp(g,xb_1),nA_2,nB_2)),sq_4))
+Abbreviations:
+xa_1 = xa[!1 = @sid]
+nA_2 = nA_1[!1 = @sid]
+xb_1 = xb[psid = h((Lpsid,ps[])),nA = nA_2,pubA = exp(g,xa_1),!1 = @sid_1]
+nB_2 = nB[psid = h((Lpsid,ps[])),nA = nA_2,pubA = exp(g,xa_1),!1 = @sid_1]
+sq_4 = sq_2[conf = hmac(h((Lck,h((Lprk,ps[],exp(exp(g,xb_1),xa_1))),h((Lth,h((Lpsid,ps[])),exp(g,xa_1),exp(g,xb_1),nA_2,nB_2)))),(Lpod,h((Lth,h((Lpsid,ps[])),exp(g,xa_1),exp(g,xb_1),nA_2,nB_2)))),nB_1 = nB_2,pubB_1 = exp(g,xb_1),!1 = @sid]
+RESULT event(CmdExec(th_2,sq_4)) ==> event(CmdSent(th_2,sq_4)) is true.
+-- Query event(RspAccepted(th_2,sq_4)) ==> event(RspSent(th_2,sq_4)) in process 1.
+Translating the process into Horn clauses...
+Completing...
+200 rules inserted. Base: 162 rules (67 with conclusion selected). Queue: 28 rules.
+400 rules inserted. Base: 280 rules (74 with conclusion selected). Queue: 50 rules.
+600 rules inserted. Base: 384 rules (77 with conclusion selected). Queue: 85 rules.
+800 rules inserted. Base: 464 rules (78 with conclusion selected). Queue: 65 rules.
+1000 rules inserted. Base: 525 rules (79 with conclusion selected). Queue: 24 rules.
+Starting query event(RspAccepted(th_2,sq_4)) ==> event(RspSent(th_2,sq_4))
+goal reachable: b-event(RspSent(h((Lth,h((Lpsid,ps[])),exp(g,xa_1),exp(g,xb_1),nA_2,nB_2)),sq_4)) -> event(RspAccepted(h((Lth,h((Lpsid,ps[])),exp(g,xa_1),exp(g,xb_1),nA_2,nB_2)),sq_4))
+Abbreviations:
+xa_1 = xa[!1 = @sid]
+nA_2 = nA_1[!1 = @sid]
+xb_1 = xb[psid = h((Lpsid,ps[])),nA = nA_2,pubA = exp(g,xa_1),!1 = @sid_1]
+nB_2 = nB[psid = h((Lpsid,ps[])),nA = nA_2,pubA = exp(g,xa_1),!1 = @sid_1]
+sq_4 = sq_2[conf = hmac(h((Lck,h((Lprk,ps[],exp(exp(g,xb_1),xa_1))),h((Lth,h((Lpsid,ps[])),exp(g,xa_1),exp(g,xb_1),nA_2,nB_2)))),(Lpod,h((Lth,h((Lpsid,ps[])),exp(g,xa_1),exp(g,xb_1),nA_2,nB_2)))),nB_1 = nB_2,pubB_1 = exp(g,xb_1),!1 = @sid]
+RESULT event(RspAccepted(th_2,sq_4)) ==> event(RspSent(th_2,sq_4)) is true.
+-- Query not event(ReflectedAccepted(th_2,sq_4)) in process 1.
+Translating the process into Horn clauses...
+Completing...
+200 rules inserted. Base: 158 rules (67 with conclusion selected). Queue: 28 rules.
+400 rules inserted. Base: 281 rules (74 with conclusion selected). Queue: 48 rules.
+600 rules inserted. Base: 384 rules (77 with conclusion selected). Queue: 83 rules.
+800 rules inserted. Base: 464 rules (78 with conclusion selected). Queue: 66 rules.
+1000 rules inserted. Base: 525 rules (79 with conclusion selected). Queue: 20 rules.
+Starting query not event(ReflectedAccepted(th_2,sq_4))
+goal reachable: event(ReflectedAccepted(h((Lth,h((Lpsid,ps[])),exp(g,xa_1),exp(g,xb_1),nA_2,nB_2)),sq_4))
+Abbreviations:
+xa_1 = xa[!1 = @sid]
+nA_2 = nA_1[!1 = @sid]
+xb_1 = xb[psid = h((Lpsid,ps[])),nA = nA_2,pubA = exp(g,xa_1),!1 = @sid_1]
+nB_2 = nB[psid = h((Lpsid,ps[])),nA = nA_2,pubA = exp(g,xa_1),!1 = @sid_1]
+sq_4 = sq_2[conf = hmac(h((Lck,h((Lprk,ps[],exp(exp(g,xb_1),xa_1))),h((Lth,h((Lpsid,ps[])),exp(g,xa_1),exp(g,xb_1),nA_2,nB_2)))),(Lpod,h((Lth,h((Lpsid,ps[])),exp(g,xa_1),exp(g,xb_1),nA_2,nB_2)))),nB_1 = nB_2,pubB_1 = exp(g,xb_1),!1 = @sid]
+
+Derivation:
+Abbreviations:
+xa_1 = xa[!1 = @sid]
+nA_2 = nA_1[!1 = @sid]
+xb_1 = xb[psid = h((Lpsid,ps[])),nA = nA_2,pubA = exp(g,xa_1),!1 = @sid_1]
+nB_2 = nB[psid = h((Lpsid,ps[])),nA = nA_2,pubA = exp(g,xa_1),!1 = @sid_1]
+sq_4 = sq_2[conf = hmac(h((Lck,h((Lprk,ps[],exp(exp(g,xb_1),xa_1))),h((Lth,h((Lpsid,ps[])),exp(g,xa_1),exp(g,xb_1),nA_2,nB_2)))),(Lpod,h((Lth,h((Lpsid,ps[])),exp(g,xa_1),exp(g,xb_1),nA_2,nB_2)))),nB_1 = nB_2,pubB_1 = exp(g,xb_1),!1 = @sid]
+cmd_2 = cmd_1[conf = hmac(h((Lck,h((Lprk,ps[],exp(exp(g,xb_1),xa_1))),h((Lth,h((Lpsid,ps[])),exp(g,xa_1),exp(g,xb_1),nA_2,nB_2)))),(Lpod,h((Lth,h((Lpsid,ps[])),exp(g,xa_1),exp(g,xb_1),nA_2,nB_2)))),nB_1 = nB_2,pubB_1 = exp(g,xb_1),!1 = @sid]
+xa_2 = xa[!1 = @sid_2]
+nA_3 = nA_1[!1 = @sid_2]
+
+1. The message (exp(g,xa_2),nA_3,h((Lpsid,ps[]))) may be sent to the attacker at output {36}.
+attacker((exp(g,xa_2),nA_3,h((Lpsid,ps[])))).
+
+2. By 1, the attacker may know (exp(g,xa_2),nA_3,h((Lpsid,ps[]))).
+Using the function 3-proj-3-tuple the attacker may obtain h((Lpsid,ps[])).
+attacker(h((Lpsid,ps[]))).
+
+3. The message (exp(g,xa_1),nA_2,h((Lpsid,ps[]))) may be sent to the attacker at output {36}.
+attacker((exp(g,xa_1),nA_2,h((Lpsid,ps[])))).
+
+4. By 3, the attacker may know (exp(g,xa_1),nA_2,h((Lpsid,ps[]))).
+Using the function 2-proj-3-tuple the attacker may obtain nA_2.
+attacker(nA_2).
+
+5. By 3, the attacker may know (exp(g,xa_1),nA_2,h((Lpsid,ps[]))).
+Using the function 1-proj-3-tuple the attacker may obtain exp(g,xa_1).
+attacker(exp(g,xa_1)).
+
+6. By 5, the attacker may know exp(g,xa_1).
+By 4, the attacker may know nA_2.
+By 2, the attacker may know h((Lpsid,ps[])).
+Using the function 3-tuple the attacker may obtain (exp(g,xa_1),nA_2,h((Lpsid,ps[]))).
+attacker((exp(g,xa_1),nA_2,h((Lpsid,ps[])))).
+
+7. The message (exp(g,xa_1),nA_2,h((Lpsid,ps[]))) that the attacker may have by 6 may be received at input {2}.
+So the message (exp(g,xb_1),nB_2,hmac(h((Lck,h((Lprk,ps[],exp(exp(g,xb_1),xa_1))),h((Lth,h((Lpsid,ps[])),exp(g,xa_1),exp(g,xb_1),nA_2,nB_2)))),(Lpod,h((Lth,h((Lpsid,ps[])),exp(g,xa_1),exp(g,xb_1),nA_2,nB_2))))) may be sent to the attacker at output {14}.
+attacker((exp(g,xb_1),nB_2,hmac(h((Lck,h((Lprk,ps[],exp(exp(g,xb_1),xa_1))),h((Lth,h((Lpsid,ps[])),exp(g,xa_1),exp(g,xb_1),nA_2,nB_2)))),(Lpod,h((Lth,h((Lpsid,ps[])),exp(g,xa_1),exp(g,xb_1),nA_2,nB_2)))))).
+
+8. By 7, the attacker may know (exp(g,xb_1),nB_2,hmac(h((Lck,h((Lprk,ps[],exp(exp(g,xb_1),xa_1))),h((Lth,h((Lpsid,ps[])),exp(g,xa_1),exp(g,xb_1),nA_2,nB_2)))),(Lpod,h((Lth,h((Lpsid,ps[])),exp(g,xa_1),exp(g,xb_1),nA_2,nB_2))))).
+Using the function 3-proj-3-tuple the attacker may obtain hmac(h((Lck,h((Lprk,ps[],exp(exp(g,xb_1),xa_1))),h((Lth,h((Lpsid,ps[])),exp(g,xa_1),exp(g,xb_1),nA_2,nB_2)))),(Lpod,h((Lth,h((Lpsid,ps[])),exp(g,xa_1),exp(g,xb_1),nA_2,nB_2)))).
+attacker(hmac(h((Lck,h((Lprk,ps[],exp(exp(g,xb_1),xa_1))),h((Lth,h((Lpsid,ps[])),exp(g,xa_1),exp(g,xb_1),nA_2,nB_2)))),(Lpod,h((Lth,h((Lpsid,ps[])),exp(g,xa_1),exp(g,xb_1),nA_2,nB_2))))).
+
+9. The message (exp(g,xa_1),nA_2,h((Lpsid,ps[]))) that the attacker may have by 6 may be received at input {2}.
+So the message (exp(g,xb_1),nB_2,hmac(h((Lck,h((Lprk,ps[],exp(exp(g,xa_1),xb_1))),h((Lth,h((Lpsid,ps[])),exp(g,xa_1),exp(g,xb_1),nA_2,nB_2)))),(Lpod,h((Lth,h((Lpsid,ps[])),exp(g,xa_1),exp(g,xb_1),nA_2,nB_2))))) may be sent to the attacker at output {14}.
+attacker((exp(g,xb_1),nB_2,hmac(h((Lck,h((Lprk,ps[],exp(exp(g,xa_1),xb_1))),h((Lth,h((Lpsid,ps[])),exp(g,xa_1),exp(g,xb_1),nA_2,nB_2)))),(Lpod,h((Lth,h((Lpsid,ps[])),exp(g,xa_1),exp(g,xb_1),nA_2,nB_2)))))).
+
+10. By 9, the attacker may know (exp(g,xb_1),nB_2,hmac(h((Lck,h((Lprk,ps[],exp(exp(g,xa_1),xb_1))),h((Lth,h((Lpsid,ps[])),exp(g,xa_1),exp(g,xb_1),nA_2,nB_2)))),(Lpod,h((Lth,h((Lpsid,ps[])),exp(g,xa_1),exp(g,xb_1),nA_2,nB_2))))).
+Using the function 2-proj-3-tuple the attacker may obtain nB_2.
+attacker(nB_2).
+
+11. By 9, the attacker may know (exp(g,xb_1),nB_2,hmac(h((Lck,h((Lprk,ps[],exp(exp(g,xa_1),xb_1))),h((Lth,h((Lpsid,ps[])),exp(g,xa_1),exp(g,xb_1),nA_2,nB_2)))),(Lpod,h((Lth,h((Lpsid,ps[])),exp(g,xa_1),exp(g,xb_1),nA_2,nB_2))))).
+Using the function 1-proj-3-tuple the attacker may obtain exp(g,xb_1).
+attacker(exp(g,xb_1)).
+
+12. By 11, the attacker may know exp(g,xb_1).
+By 10, the attacker may know nB_2.
+By 8, the attacker may know hmac(h((Lck,h((Lprk,ps[],exp(exp(g,xb_1),xa_1))),h((Lth,h((Lpsid,ps[])),exp(g,xa_1),exp(g,xb_1),nA_2,nB_2)))),(Lpod,h((Lth,h((Lpsid,ps[])),exp(g,xa_1),exp(g,xb_1),nA_2,nB_2)))).
+Using the function 3-tuple the attacker may obtain (exp(g,xb_1),nB_2,hmac(h((Lck,h((Lprk,ps[],exp(exp(g,xb_1),xa_1))),h((Lth,h((Lpsid,ps[])),exp(g,xa_1),exp(g,xb_1),nA_2,nB_2)))),(Lpod,h((Lth,h((Lpsid,ps[])),exp(g,xa_1),exp(g,xb_1),nA_2,nB_2))))).
+attacker((exp(g,xb_1),nB_2,hmac(h((Lck,h((Lprk,ps[],exp(exp(g,xb_1),xa_1))),h((Lth,h((Lpsid,ps[])),exp(g,xa_1),exp(g,xb_1),nA_2,nB_2)))),(Lpod,h((Lth,h((Lpsid,ps[])),exp(g,xa_1),exp(g,xb_1),nA_2,nB_2)))))).
+
+13. The message (exp(g,xb_1),nB_2,hmac(h((Lck,h((Lprk,ps[],exp(exp(g,xb_1),xa_1))),h((Lth,h((Lpsid,ps[])),exp(g,xa_1),exp(g,xb_1),nA_2,nB_2)))),(Lpod,h((Lth,h((Lpsid,ps[])),exp(g,xa_1),exp(g,xb_1),nA_2,nB_2))))) that the attacker may have by 12 may be received at input {37}.
+So the message hmac(h((Lck,h((Lprk,ps[],exp(exp(g,xb_1),xa_1))),h((Lth,h((Lpsid,ps[])),exp(g,xa_1),exp(g,xb_1),nA_2,nB_2)))),(Lapp,h((Lth,h((Lpsid,ps[])),exp(g,xa_1),exp(g,xb_1),nA_2,nB_2)))) may be sent to the attacker at output {46}.
+attacker(hmac(h((Lck,h((Lprk,ps[],exp(exp(g,xb_1),xa_1))),h((Lth,h((Lpsid,ps[])),exp(g,xa_1),exp(g,xb_1),nA_2,nB_2)))),(Lapp,h((Lth,h((Lpsid,ps[])),exp(g,xa_1),exp(g,xb_1),nA_2,nB_2))))).
+
+14. The message (exp(g,xb_1),nB_2,hmac(h((Lck,h((Lprk,ps[],exp(exp(g,xb_1),xa_1))),h((Lth,h((Lpsid,ps[])),exp(g,xa_1),exp(g,xb_1),nA_2,nB_2)))),(Lpod,h((Lth,h((Lpsid,ps[])),exp(g,xa_1),exp(g,xb_1),nA_2,nB_2))))) that the attacker may have by 12 may be received at input {37}.
+So the message senc((Lcmd,sq_4,cmd_2),h((Lc2p,h((Lprk,ps[],exp(exp(g,xb_1),xa_1))),h((Lth,h((Lpsid,ps[])),exp(g,xa_1),exp(g,xb_1),nA_2,nB_2))))) may be sent to the attacker at output {53}.
+attacker(senc((Lcmd,sq_4,cmd_2),h((Lc2p,h((Lprk,ps[],exp(exp(g,xb_1),xa_1))),h((Lth,h((Lpsid,ps[])),exp(g,xa_1),exp(g,xb_1),nA_2,nB_2)))))).
+
+15. The message (exp(g,xa_1),nA_2,h((Lpsid,ps[]))) that the attacker may have by 6 may be received at input {2}.
+The message hmac(h((Lck,h((Lprk,ps[],exp(exp(g,xb_1),xa_1))),h((Lth,h((Lpsid,ps[])),exp(g,xa_1),exp(g,xb_1),nA_2,nB_2)))),(Lapp,h((Lth,h((Lpsid,ps[])),exp(g,xa_1),exp(g,xb_1),nA_2,nB_2)))) that the attacker may have by 13 may be received at input {15}.
+The message senc((Lcmd,sq_4,cmd_2),h((Lc2p,h((Lprk,ps[],exp(exp(g,xb_1),xa_1))),h((Lth,h((Lpsid,ps[])),exp(g,xa_1),exp(g,xb_1),nA_2,nB_2))))) that the attacker may have by 14 may be received at input {22}.
+So the message senc((Lrsp,sq_4,h(cmd_2)),h((Lp2c,h((Lprk,ps[],exp(exp(g,xb_1),xa_1))),h((Lth,h((Lpsid,ps[])),exp(g,xa_1),exp(g,xb_1),nA_2,nB_2))))) may be sent to the attacker at output {26}.
+attacker(senc((Lrsp,sq_4,h(cmd_2)),h((Lp2c,h((Lprk,ps[],exp(exp(g,xb_1),xa_1))),h((Lth,h((Lpsid,ps[])),exp(g,xa_1),exp(g,xb_1),nA_2,nB_2)))))).
+
+16. The message (exp(g,xa_1),nA_2,h((Lpsid,ps[]))) that the attacker may have by 6 may be received at input {2}.
+The message hmac(h((Lck,h((Lprk,ps[],exp(exp(g,xb_1),xa_1))),h((Lth,h((Lpsid,ps[])),exp(g,xa_1),exp(g,xb_1),nA_2,nB_2)))),(Lapp,h((Lth,h((Lpsid,ps[])),exp(g,xa_1),exp(g,xb_1),nA_2,nB_2)))) that the attacker may have by 13 may be received at input {15}.
+The message senc((Lrsp,sq_4,h(cmd_2)),h((Lp2c,h((Lprk,ps[],exp(exp(g,xb_1),xa_1))),h((Lth,h((Lpsid,ps[])),exp(g,xa_1),exp(g,xb_1),nA_2,nB_2))))) that the attacker may have by 15 may be received at input {28}.
+So event ReflectedAccepted(h((Lth,h((Lpsid,ps[])),exp(g,xa_1),exp(g,xb_1),nA_2,nB_2)),sq_4) may be executed at {30}.
+event(ReflectedAccepted(h((Lth,h((Lpsid,ps[])),exp(g,xa_1),exp(g,xb_1),nA_2,nB_2)),sq_4)).
+
+17. By 16, event(ReflectedAccepted(h((Lth,h((Lpsid,ps[])),exp(g,xa_1),exp(g,xb_1),nA_2,nB_2)),sq_4)).
+The goal is reached, represented in the following fact:
+event(ReflectedAccepted(h((Lth,h((Lpsid,ps[])),exp(g,xa_1),exp(g,xb_1),nA_2,nB_2)),sq_4)).
+
+
+A more detailed output of the traces is available with
+  set traceDisplay = long.
+
+new xa: exponent creating xa_3 at {32} in copy a
+
+new nA_1: bitstring creating nA_4 at {33} in copy a
+
+out(c, (~M,~M_1,~M_2)) with ~M = exp(g,xa_3), ~M_1 = nA_4, ~M_2 = h((Lpsid,ps)) at {36} in copy a
+
+new xa: exponent creating xa_4 at {32} in copy a_1
+
+new nA_1: bitstring creating nA_5 at {33} in copy a_1
+
+out(c, (~M_3,~M_4,~M_5)) with ~M_3 = exp(g,xa_4), ~M_4 = nA_5, ~M_5 = h((Lpsid,ps)) at {36} in copy a_1
+
+in(c, (~M_3,~M_4,~M_2)) with ~M_3 = exp(g,xa_4), ~M_4 = nA_5, ~M_2 = h((Lpsid,ps)) at {2} in copy a_2
+
+new xb: exponent creating xb_2 at {4} in copy a_2
+
+new nB: bitstring creating nB_3 at {5} in copy a_2
+
+event PodInit(h((Lth,h((Lpsid,ps)),exp(g,xa_4),exp(g,xb_2),nA_5,nB_3)),h((Lc2p,h((Lprk,ps,exp(exp(g,xa_4),xb_2))),h((Lth,h((Lpsid,ps)),exp(g,xa_4),exp(g,xb_2),nA_5,nB_3)))),h((Lp2c,h((Lprk,ps,exp(exp(g,xa_4),xb_2))),h((Lth,h((Lpsid,ps)),exp(g,xa_4),exp(g,xb_2),nA_5,nB_3))))) at {13} in copy a_2
+
+out(c, (~M_6,~M_7,~M_8)) with ~M_6 = exp(g,xb_2), ~M_7 = nB_3, ~M_8 = hmac(h((Lck,h((Lprk,ps,exp(exp(g,xa_4),xb_2))),h((Lth,h((Lpsid,ps)),exp(g,xa_4),exp(g,xb_2),nA_5,nB_3)))),(Lpod,h((Lth,h((Lpsid,ps)),exp(g,xa_4),exp(g,xb_2),nA_5,nB_3)))) at {14} in copy a_2
+
+in(c, (~M_6,~M_7,~M_8)) with ~M_6 = exp(g,xb_2), ~M_7 = nB_3, ~M_8 = hmac(h((Lck,h((Lprk,ps,exp(exp(g,xb_2),xa_4))),h((Lth,h((Lpsid,ps)),exp(g,xa_4),exp(g,xb_2),nA_5,nB_3)))),(Lpod,h((Lth,h((Lpsid,ps)),exp(g,xa_4),exp(g,xb_2),nA_5,nB_3)))) at {37} in copy a_1
+
+event AppUp(h((Lth,h((Lpsid,ps)),exp(g,xa_4),exp(g,xb_2),nA_5,nB_3)),h((Lc2p,h((Lprk,ps,exp(exp(g,xb_2),xa_4))),h((Lth,h((Lpsid,ps)),exp(g,xa_4),exp(g,xb_2),nA_5,nB_3)))),h((Lp2c,h((Lprk,ps,exp(exp(g,xb_2),xa_4))),h((Lth,h((Lpsid,ps)),exp(g,xa_4),exp(g,xb_2),nA_5,nB_3))))) at {45} in copy a_1
+
+out(c, ~M_9) with ~M_9 = hmac(h((Lck,h((Lprk,ps,exp(exp(g,xb_2),xa_4))),h((Lth,h((Lpsid,ps)),exp(g,xa_4),exp(g,xb_2),nA_5,nB_3)))),(Lapp,h((Lth,h((Lpsid,ps)),exp(g,xa_4),exp(g,xb_2),nA_5,nB_3)))) at {46} in copy a_1
+
+new m_1: bitstring creating m_2 at {47} in copy a_1
+
+event AppSecret(m_2) at {48} in copy a_1
+
+out(c, ~M_10) with ~M_10 = senc(m_2,h((Lc2p,h((Lprk,ps,exp(exp(g,xb_2),xa_4))),h((Lth,h((Lpsid,ps)),exp(g,xa_4),exp(g,xb_2),nA_5,nB_3))))) at {49} in copy a_1
+
+new sq_2: bitstring creating sq_5 at {50} in copy a_1
+
+new cmd_1: bitstring creating cmd_3 at {51} in copy a_1
+
+event CmdSent(h((Lth,h((Lpsid,ps)),exp(g,xa_4),exp(g,xb_2),nA_5,nB_3)),sq_5) at {52} in copy a_1
+
+out(c, ~M_11) with ~M_11 = senc((Lcmd,sq_5,cmd_3),h((Lc2p,h((Lprk,ps,exp(exp(g,xb_2),xa_4))),h((Lth,h((Lpsid,ps)),exp(g,xa_4),exp(g,xb_2),nA_5,nB_3))))) at {53} in copy a_1
+
+in(c, ~M_9) with ~M_9 = hmac(h((Lck,h((Lprk,ps,exp(exp(g,xb_2),xa_4))),h((Lth,h((Lpsid,ps)),exp(g,xa_4),exp(g,xb_2),nA_5,nB_3)))),(Lapp,h((Lth,h((Lpsid,ps)),exp(g,xa_4),exp(g,xb_2),nA_5,nB_3)))) at {15} in copy a_2
+
+event PodUp(h((Lth,h((Lpsid,ps)),exp(g,xa_4),exp(g,xb_2),nA_5,nB_3)),h((Lc2p,h((Lprk,ps,exp(exp(g,xa_4),xb_2))),h((Lth,h((Lpsid,ps)),exp(g,xa_4),exp(g,xb_2),nA_5,nB_3)))),h((Lp2c,h((Lprk,ps,exp(exp(g,xa_4),xb_2))),h((Lth,h((Lpsid,ps)),exp(g,xa_4),exp(g,xb_2),nA_5,nB_3))))) at {17} in copy a_2
+
+new m: bitstring creating m_3 at {18} in copy a_2
+
+event PodSecret(m_3) at {19} in copy a_2
+
+out(c, ~M_12) with ~M_12 = senc(m_3,h((Lp2c,h((Lprk,ps,exp(exp(g,xa_4),xb_2))),h((Lth,h((Lpsid,ps)),exp(g,xa_4),exp(g,xb_2),nA_5,nB_3))))) at {20} in copy a_2
+
+in(c, ~M_11) with ~M_11 = senc((Lcmd,sq_5,cmd_3),h((Lc2p,h((Lprk,ps,exp(exp(g,xb_2),xa_4))),h((Lth,h((Lpsid,ps)),exp(g,xa_4),exp(g,xb_2),nA_5,nB_3))))) at {22} in copy a_2, a_3
+
+event CmdExec(h((Lth,h((Lpsid,ps)),exp(g,xa_4),exp(g,xb_2),nA_5,nB_3)),sq_5) at {24} in copy a_2, a_3
+
+event RspSent(h((Lth,h((Lpsid,ps)),exp(g,xa_4),exp(g,xb_2),nA_5,nB_3)),sq_5) at {25} in copy a_2, a_3
+
+out(c, ~M_13) with ~M_13 = senc((Lrsp,sq_5,h(cmd_3)),h((Lp2c,h((Lprk,ps,exp(exp(g,xa_4),xb_2))),h((Lth,h((Lpsid,ps)),exp(g,xa_4),exp(g,xb_2),nA_5,nB_3))))) at {26} in copy a_2, a_3
+
+in(c, ~M_13) with ~M_13 = senc((Lrsp,sq_5,h(cmd_3)),h((Lp2c,h((Lprk,ps,exp(exp(g,xb_2),xa_4))),h((Lth,h((Lpsid,ps)),exp(g,xa_4),exp(g,xb_2),nA_5,nB_3))))) at {28} in copy a_2, a_4
+
+event ReflectedAccepted(h((Lth,h((Lpsid,ps)),exp(g,xa_4),exp(g,xb_2),nA_5,nB_3)),sq_5) at {30} in copy a_2, a_4 (goal)
+
+The event ReflectedAccepted(h((Lth,h((Lpsid,ps)),exp(g,xa_4),exp(g,xb_2),nA_5,nB_3)),sq_5) is executed at {30} in copy a_2, a_4.
+A trace has been found.
+RESULT not event(ReflectedAccepted(th_2,sq_4)) is false.
+
+--------------------------------------------------------------
+Verification summary:
+
+Query not (event(AppSecret(m_2)) && attacker_p1(m_2)) is true.
+
+Query not (event(PodSecret(m_2)) && attacker_p1(m_2)) is true.
+
+Query inj-event(PodUp(th_2,kc_2,kp_2)) ==> inj-event(AppUp(th_2,kc_2,kp_2)) is true.
+
+Query inj-event(AppUp(th_2,kc_2,kp_2)) ==> inj-event(PodInit(th_2,kc_2,kp_2)) is true.
+
+Query event(CmdExec(th_2,sq_4)) ==> event(CmdSent(th_2,sq_4)) is true.
+
+Query event(RspAccepted(th_2,sq_4)) ==> event(RspSent(th_2,sq_4)) is true.
+
+Query not event(ReflectedAccepted(th_2,sq_4)) is false.
+
+--------------------------------------------------------------
+

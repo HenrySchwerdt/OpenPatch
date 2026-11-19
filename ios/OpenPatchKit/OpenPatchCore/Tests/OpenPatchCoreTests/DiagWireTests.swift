@@ -206,16 +206,44 @@ final class DiagWireTests: XCTestCase {
     // MARK: Constants and tolerance
 
     func testWireConstants() {
-        XCTAssertEqual([V1.CommandID.getFaultLog, .runSelfTest, .clearDiag].map(\.rawValue), [0x10, 0x11, 0x12])
+        XCTAssertEqual([V1.CommandID.getFaultLog, .runSelfTest, .clearDiag].map(\.rawValue), [0x20, 0x21, 0x22])
         XCTAssertEqual([V1.Tag.diagSummary, .fruHealth, .diagRecord, .nextDiagID, .oldestDiagID, .diagLatched, .selftestState, .diagCode, .podUID].map(\.rawValue),
                        Array(0x27...0x2F))
-        XCTAssertEqual([V1.Result.selfTestRefused, .latched, .notClearable].map(\.rawValue), [28, 29, 30])
+        XCTAssertEqual([V1.Result.selfTestRefused, .latched, .notClearable, .noSchedule].map(\.rawValue), [28, 29, 30, 31])
+        XCTAssertEqual(V1Transport.nack(for: .noSchedule, command: .resume), .noSchedule)
         XCTAssertEqual(V1.StateFlags.diagActive.rawValue, 1 << 13)
         XCTAssertEqual(V1.StateFlags.latched.rawValue, 1 << 14)
         XCTAssertEqual(V1.HistoryType.diag.rawValue, 31)
         XCTAssertEqual(V1Transport.nack(for: .selfTestRefused, command: .getStatus), .selfTestRefused)
         XCTAssertEqual(V1Transport.nack(for: .latched, command: .resume), .latched)
         XCTAssertEqual(V1Transport.nack(for: .notClearable, command: .getStatus), .notClearable)
+    }
+
+    /// A response frame carries `id | 0x80`: no response type may equal another frame type (the notification type 0x90 in particular).
+    func testNoResponseTypeCollidesWithAnyOtherFrameType() {
+        let ids: [UInt8] = [0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F, 0x20, 0x21, 0x22]
+        XCTAssertEqual(ids.count, Set(ids).count)
+        XCTAssertTrue(ids.allSatisfy { V1.CommandID(rawValue: $0) != nil })
+        XCTAssertTrue(ids.allSatisfy { $0 & V1.responseFlag == 0 })
+        let responses = ids.map { $0 | V1.responseFlag }
+        XCTAssertEqual(responses.count, Set(responses).count)
+        let others = Set(ids + V1.handshakeTypes + V1.handshakeTypes.map { $0 | V1.responseFlag })
+        XCTAssertTrue(Set(responses).isDisjoint(with: others))
+        XCTAssertFalse(responses.contains(V1.notificationType))
+        XCTAssertFalse(others.contains(V1.notificationType))
+        XCTAssertEqual(V1.notificationType, SecureChannel.notificationType)
+    }
+
+    func testTheCurrentCadDriveIsKnownAndMatchesTheFirmwarePreset() {
+        let d = DriveCalibration.nfp608_26_45_g16_20
+        XCTAssertTrue(d.isKnown)
+        XCTAssertEqual(d.driveID, 0x25)
+        // 0.35 mm x 74.6 mm^2 / 10 / (20 x 26.45 x 20/16) = 0.0039486 U per step
+        XCTAssertEqual(d.unitsPerStep, 0.0039486, accuracy: 1e-6) // the pod reports the floor in uU
+        XCTAssertEqual(d.micrometresPerStep, 0.5293, accuracy: 1e-4)
+        XCTAssertNil(CalibrationProblem.check(d))
+        // the older pairs are NOT accepted: 15:12 would dose +56 %, 18:18 +25 %
+        XCTAssertTrue(DriveCalibration(driveID: 0x24, microUnitsPerStep: 6_169, stepsPerRevolution: 20, gearRatioTimes100: 2_116).isKnown == false)
     }
 
     func testWrongSizedDiagnosticTLVsAreSkippedNeverFatal() {

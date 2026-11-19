@@ -8,6 +8,7 @@ A reusable, very flat pod (target ≤ 8.5 mm, Omnipod DASH: 14.5 mm). It plugs d
 |---|---|
 | [spec/design-parameters.md](spec/design-parameters.md) | **Single source of truth**: all dimensions, components, limits |
 | [docs/](docs/) | Architecture, safety, patents |
+| [docs/build-guide/](docs/build-guide/) | Step-by-step **bench build guide** for the OP-100 pod (water-only tests, never worn): parts, prints, assembly images, flashing, bench tests, troubleshooting |
 | [mechanical/](mechanical/) | 3D housing (SolidCraft), STEP/STL, measurement sheet for the cannula |
 | [electronics/](electronics/) | Circuit as code, BOM, board outline (DXF → CADCraft), PCBWay costs |
 | [firmware/](firmware/) | C core (delivery, safety, protocol) with host tests, Zephyr skeleton, DASH compatibility plan |

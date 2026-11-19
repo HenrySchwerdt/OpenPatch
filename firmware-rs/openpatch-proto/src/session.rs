@@ -52,7 +52,19 @@ impl Ccm for NoCrypto {
     }
 }
 
+/// Which end of the link a [`Session`] is. The receive direction is FIXED by the role, never taken from
+/// the (attacker-controlled) frame header: a pod only accepts phone->pod command frames (nonce direction
+/// 0), a phone only accepts pod->phone responses (1) and notifications (2). A frame of the wrong
+/// direction is refused before decryption, replay state or any heartbeat is touched (FINDING-001: a
+/// reflected pod response used to authenticate on the pod and caused AES-CCM nonce reuse).
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum LinkRole {
+    Pod,
+    Phone,
+}
+
 pub struct Session<C: Ccm> {
+    role: LinkRole,
     ccm: C,
     has_crypto: bool,
     allow_plaintext: bool,
@@ -71,9 +83,20 @@ pub struct Opened<'a> {
 }
 
 impl<C: Ccm> Session<C> {
-    /// `has_crypto = false` behaves like a NULL `ccm` in the C reference (encrypted frames: `Auth`).
+    /// A POD-side session (the default: all firmware uses it). `has_crypto = false` behaves like a NULL
+    /// `ccm` in the C reference (encrypted frames: `Auth`). The phone side uses [`Session::with_role`].
     pub fn new(ccm: C, has_crypto: bool, salt: [u8; 4], allow_plaintext: bool) -> Self {
-        Self { ccm, has_crypto, allow_plaintext, salt, rx_seen: false, last_rx_seq: 0 }
+        Self { role: LinkRole::Pod, ccm, has_crypto, allow_plaintext, salt, rx_seen: false, last_rx_seq: 0 }
+    }
+
+    /// The same session for the other end of the link.
+    pub fn with_role(mut self, role: LinkRole) -> Self {
+        self.role = role;
+        self
+    }
+
+    pub fn role(&self) -> LinkRole {
+        self.role
     }
 
     pub fn ccm(&self) -> &C {
@@ -111,12 +134,27 @@ impl<C: Ccm> Session<C> {
         n
     }
 
-    /// Validate, replay-check and decrypt a command frame. The payload borrows from `plain`
+    /// Validate, replay-check and decrypt an inbound frame. The payload borrows from `plain`
     /// (encrypted) or `input` (plaintext). Sequence state advances only on success.
+    ///
+    /// The direction is decided by the ROLE: a pod accepts only command frames (no RESPONSE flag,
+    /// nonce direction 0, strict replay check), a phone only responses (direction 1) and notifications
+    /// (type [`notify::FRAME_TYPE`], direction 2). Anything else is `Error::Frame`, before the key is used.
     pub fn open<'a>(&mut self, input: &'a [u8], plain: &'a mut [u8]) -> Result<Opened<'a>, Error> {
         let f = decode_frame(input)?;
         let is_response = f.flags & FLAG_RESPONSE != 0;
-        
+        let dir = match (self.role, is_response) {
+            (LinkRole::Pod, false) => 0u8,
+            (LinkRole::Phone, true) => {
+                if f.type_ == notify::FRAME_TYPE {
+                    2
+                } else {
+                    1
+                }
+            }
+            _ => return Err(Error::Frame), // wrong direction for this end: refused before anything else
+        };
+
         let payload: &'a [u8] = if f.flags & FLAG_ENCRYPTED != 0 {
             if !self.has_crypto {
                 return Err(Error::Auth);
@@ -128,7 +166,7 @@ impl<C: Ccm> Session<C> {
             if ct_len > plain.len() {
                 return Err(Error::TooLarge);
             }
-            let nonce = self.nonce(is_response, f.seq);
+            let nonce = self.nonce_dir(dir, f.seq);
             let mut tag = [0u8; CCM_TAG_LEN];
             tag.copy_from_slice(&f.payload[ct_len..]);
             self.ccm
@@ -141,7 +179,7 @@ impl<C: Ccm> Session<C> {
             f.payload
         };
 
-        if !is_response {
+        if self.role == LinkRole::Pod {
             if self.rx_seen && f.seq <= self.last_rx_seq {
                 return Err(Error::Replay);
             }

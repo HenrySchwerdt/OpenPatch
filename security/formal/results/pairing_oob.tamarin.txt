@@ -1,0 +1,530 @@
+maude tool: 'maude'
+ checking version: WARNING:
+
+ 'maude --version' returned unsupported version '3.2'
+ Please install one of the following versions of Maude: 2.7.1, 3.0, 3.1, 3.2.1, 3.2.2, 3.3, 3.3.1, 3.4, 3.5
+
+Detailed results from testing 'maude'
+ command: maude --version
+ stdin:   
+ stdout:  3.2
+
+ stderr:  
+ checking installation: OK.
+[Theory OpenPatch_Pairing] Theory loaded
+[Theory OpenPatch_Pairing] Theory translated
+[Theory OpenPatch_Pairing] Derivation checks started
+[Theory OpenPatch_Pairing] Derivation checks ended
+[Theory OpenPatch_Pairing] Theory closed
+[Saturating Sources] Step 1 (Max 5)
+[Saturating Sources] Done
+theory OpenPatch_Pairing begin
+
+// Function signature and definition of the equational theory E
+
+builtins: diffie-hellman
+functions: fst/1, h/1, hmac/2, pair/2, snd/1
+equations: fst(<x.1, x.2>) = x.1, snd(<x.1, x.2>) = x.2
+
+
+
+
+
+
+
+
+
+restriction Equality:
+  "∀ x y #i. (Eq( x, y ) @ #i) ⇒ (x = y)"
+  // safety formula
+
+rule (modulo E) Oob_Provision:
+   [ Fr( ~oob ) ]
+  --[ OobProvisioned( $B, ~oob ) ]->
+   [ !OobPod( $B, ~oob ), !OobApp( $B, ~oob ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) Oob_Reveal:
+   [ !OobPod( $B, oob ) ] --[ OobRevealed( $B ) ]-> [ Out( oob ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) Button_Press:
+   [ ] --[ Button( $B ) ]-> [ Window( $B ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) Pod_PairInit:
+   [
+   In( <pubA, nA> ), Window( $B ), Fr( ~xb ), Fr( ~nB ), !OobPod( $B, oob )
+   ]
+  --[ PodPairInit( $B, h(<'th', 'pair', pubA, 'g'^~xb, nA, ~nB>) ) ]->
+   [
+   Window( $B ),
+   Out( <'g'^~xb, ~nB, 
+         hmac(h(<'ck', pubA^~xb, h(<'oob', oob>), 
+                 h(<'th', 'pair', pubA, 'g'^~xb, nA, ~nB>)>),
+              <'pod', h(<'th', 'pair', pubA, 'g'^~xb, nA, ~nB>)>)
+        >
+   ),
+   PodPend( $B,
+            h(<'ps', pubA^~xb, h(<'oob', oob>), 
+               h(<'th', 'pair', pubA, 'g'^~xb, nA, ~nB>)>),
+            h(<'ck', pubA^~xb, h(<'oob', oob>), 
+               h(<'th', 'pair', pubA, 'g'^~xb, nA, ~nB>)>),
+            h(<'th', 'pair', pubA, 'g'^~xb, nA, ~nB>)
+   )
+   ]
+
+  // loop breaker: [1]
+  /*
+  rule (modulo AC) Pod_PairInit:
+     [
+     In( <pubA, nA> ), Window( $B ), Fr( ~xb ), Fr( ~nB ), !OobPod( $B, oob )
+     ]
+    --[ PodPairInit( $B, h(<'th', 'pair', pubA, 'g'^~xb, nA, ~nB>) ) ]->
+     [
+     Window( $B ),
+     Out( <'g'^~xb, ~nB, 
+           hmac(h(<'ck', z, h(<'oob', oob>), 
+                   h(<'th', 'pair', pubA, 'g'^~xb, nA, ~nB>)>),
+                <'pod', h(<'th', 'pair', pubA, 'g'^~xb, nA, ~nB>)>)
+          >
+     ),
+     PodPend( $B,
+              h(<'ps', z, h(<'oob', oob>), h(<'th', 'pair', pubA, 'g'^~xb, nA, ~nB>)>),
+              h(<'ck', z, h(<'oob', oob>), h(<'th', 'pair', pubA, 'g'^~xb, nA, ~nB>)>),
+              h(<'th', 'pair', pubA, 'g'^~xb, nA, ~nB>)
+     )
+     ]
+    variants (modulo AC)
+    1. ~xb   = ~xb.14
+       pubA  = pubA.17
+       z     = pubA.17^~xb.14
+    
+    2. ~xb   = ~xb.17
+       pubA  = z.23^inv(~xb.17)
+       z     = z.23
+    
+    3. ~xb   = ~xb.135
+       pubA  = x.265^x.266
+       z     = x.265^(~xb.135*x.266)
+    
+    4. ~xb   = ~xb.138
+       pubA  = x.271^inv((~xb.138*x.272))
+       z     = x.271^inv(x.272)
+    
+    5. ~xb   = ~xb.138
+       pubA  = x.271^(x.272*inv(~xb.138))
+       z     = x.271^x.272
+    
+    6. ~xb   = ~xb.139
+       pubA  = x.272^(x.273*inv((~xb.139*x.274)))
+       z     = x.272^(x.273*inv(x.274))
+    
+    7. pubA  = DH_neutral
+       z     = DH_neutral
+    // loop breaker: [1]
+  */
+
+rule (modulo E) Pod_PairFinish:
+   [ In( cApp ), PodPend( $B, ps, ck, th ), Window( $B ) ]
+  --[ Eq( cApp, hmac(ck, <'app', th>) ), PodPaired( $B, ps, th ) ]->
+   [ !PodPS( $B, ps ), Out( 'ok' ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) App_PairStart:
+   [ Fr( ~xa ), Fr( ~nA ), !OobApp( $B, oob ) ]
+  --[ AppPairStart( $A, $B ) ]->
+   [
+   Out( <'g'^~xa, ~nA> ), AppInit( $A, $B, ~xa, ~nA ), AppOob( $A, $B, oob )
+   ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) App_PairFinish:
+   [
+   AppInit( $A, $B, ~xa, ~nA ), In( <pubB, nB, conf> ),
+   AppOob( $A, $B, oob )
+   ]
+  --[
+  Eq( conf,
+      hmac(h(<'ck', pubB^~xa, h(<'oob', oob>), 
+              h(<'th', 'pair', 'g'^~xa, pubB, ~nA, nB>)>),
+           <'pod', h(<'th', 'pair', 'g'^~xa, pubB, ~nA, nB>)>)
+  ),
+  AppPaired( $A, $B,
+             h(<'ps', pubB^~xa, h(<'oob', oob>), 
+                h(<'th', 'pair', 'g'^~xa, pubB, ~nA, nB>)>),
+             h(<'th', 'pair', 'g'^~xa, pubB, ~nA, nB>)
+  )
+  ]->
+   [
+   Out( hmac(h(<'ck', pubB^~xa, h(<'oob', oob>), 
+                h(<'th', 'pair', 'g'^~xa, pubB, ~nA, nB>)>),
+             <'app', h(<'th', 'pair', 'g'^~xa, pubB, ~nA, nB>)>)
+   ),
+   !AppPS( $A, $B,
+           h(<'ps', pubB^~xa, h(<'oob', oob>), 
+              h(<'th', 'pair', 'g'^~xa, pubB, ~nA, nB>)>)
+   )
+   ]
+
+  /*
+  rule (modulo AC) App_PairFinish:
+     [
+     AppInit( $A, $B, ~xa, ~nA ), In( <pubB, nB, conf> ),
+     AppOob( $A, $B, oob )
+     ]
+    --[
+    Eq( conf,
+        hmac(h(<'ck', z, h(<'oob', oob>), 
+                h(<'th', 'pair', 'g'^~xa, pubB, ~nA, nB>)>),
+             <'pod', h(<'th', 'pair', 'g'^~xa, pubB, ~nA, nB>)>)
+    ),
+    AppPaired( $A, $B,
+               h(<'ps', z, h(<'oob', oob>), h(<'th', 'pair', 'g'^~xa, pubB, ~nA, nB>)>),
+               h(<'th', 'pair', 'g'^~xa, pubB, ~nA, nB>)
+    )
+    ]->
+     [
+     Out( hmac(h(<'ck', z, h(<'oob', oob>), 
+                  h(<'th', 'pair', 'g'^~xa, pubB, ~nA, nB>)>),
+               <'app', h(<'th', 'pair', 'g'^~xa, pubB, ~nA, nB>)>)
+     ),
+     !AppPS( $A, $B,
+             h(<'ps', z, h(<'oob', oob>), h(<'th', 'pair', 'g'^~xa, pubB, ~nA, nB>)>)
+     )
+     ]
+    variants (modulo AC)
+    1. ~xa   = ~xa.16
+       pubB  = pubB.20
+       z     = pubB.20^~xa.16
+    
+    2. ~xa   = ~xa.18
+       pubB  = z.24^inv(~xa.18)
+       z     = z.24
+    
+    3. ~xa   = ~xa.169
+       pubB  = x.332^x.333
+       z     = x.332^(~xa.169*x.333)
+    
+    4. ~xa   = ~xa.173
+       pubB  = x.340^inv((~xa.173*x.341))
+       z     = x.340^inv(x.341)
+    
+    5. ~xa   = ~xa.173
+       pubB  = x.340^(x.341*inv(~xa.173))
+       z     = x.340^x.341
+    
+    6. ~xa   = ~xa.174
+       pubB  = x.341^(x.342*inv((~xa.174*x.343)))
+       z     = x.341^(x.342*inv(x.343))
+    
+    7. pubB  = DH_neutral
+       z     = DH_neutral
+  */
+
+lemma executable_pairing:
+  exists-trace
+  "∃ A B ps th #i #j.
+    (AppPaired( A, B, ps, th ) @ #i) ∧ (PodPaired( B, ps, th ) @ #j)"
+/*
+guarded formula characterizing all satisfying traces:
+"∃ A B ps th #i #j.
+  (AppPaired( A, B, ps, th ) @ #i) ∧ (PodPaired( B, ps, th ) @ #j)"
+*/
+simplify
+solve( AppInit( $A, $B, ~xa, ~nA ) ▶₀ #i )
+  case App_PairStart
+  solve( AppOob( $A, $B, oob ) ▶₂ #i )
+    case App_PairStart
+    solve( PodPend( $B,
+                    h(<'ps', z, h(<'oob', ~oob>), h(<'th', 'pair', 'g'^~xa, pubB, ~nA, nB>)
+                      >),
+                    ck, h(<'th', 'pair', 'g'^~xa, pubB, ~nA, nB>)
+           ) ▶₁ #j )
+      case Pod_PairInit
+      solve( Window( $B ) ▶₂ #j )
+        case Button_Press
+        solve( Window( $B ) ▶₁ #vr.4 )
+          case Button_Press
+          solve( !KU( ~nA ) @ #vk.8 )
+            case App_PairStart
+            solve( !KU( ~nB ) @ #vk.4 )
+              case Pod_PairInit
+              solve( !KU( hmac(h(<'ck', 'g'^(~xa*~xb), h(<'oob', ~oob>), 
+                                  h(<'th', 'pair', 'g'^~xa, 'g'^~xb, ~nA, ~nB>)>),
+                               <'pod', h(<'th', 'pair', 'g'^~xa, 'g'^~xb, ~nA, ~nB>)>)
+                     ) @ #vk.6 )
+                case Pod_PairInit
+                solve( !KU( hmac(h(<'ck', 'g'^(~xa*~xb), h(<'oob', ~oob>), 
+                                    h(<'th', 'pair', 'g'^~xa, 'g'^~xb, ~nA, ~nB>)>),
+                                 <'app', h(<'th', 'pair', 'g'^~xa, 'g'^~xb, ~nA, ~nB>)>)
+                       ) @ #vk.7 )
+                  case App_PairFinish
+                  solve( !KU( 'g'^~xa ) @ #vk.8 )
+                    case App_PairStart
+                    solve( !KU( 'g'^~xb ) @ #vk.8 )
+                      case Pod_PairInit
+                      SOLVED // trace found
+                    qed
+                  qed
+                qed
+              qed
+            qed
+          qed
+        qed
+      qed
+    qed
+  qed
+qed
+
+lemma pairing_secret_ps:
+  all-traces
+  "∀ A B ps th #i.
+    (AppPaired( A, B, ps, th ) @ #i) ⇒
+    ((¬(∃ #k. K( ps ) @ #k)) ∨ (∃ #r. OobRevealed( B ) @ #r))"
+/*
+guarded formula characterizing all counter-examples:
+"∃ A B ps th #i.
+  (AppPaired( A, B, ps, th ) @ #i)
+ ∧
+  (∃ #k. (K( ps ) @ #k)) ∧ (∀ #r. (OobRevealed( B ) @ #r) ⇒ ⊥)"
+*/
+simplify
+solve( AppInit( $A, $B, ~xa, ~nA ) ▶₀ #i )
+  case App_PairStart
+  solve( AppOob( $A, $B, oob ) ▶₂ #i )
+    case App_PairStart
+    solve( !KU( h(<'ps', z, h(<'oob', ~oob>), 
+                   h(<'th', 'pair', 'g'^~xa, pubB, ~nA, nB>)>)
+           ) @ #vk.5 )
+      case c_h
+      solve( !KU( h(<'oob', ~oob>) ) @ #vk.11 )
+        case c_h
+        solve( !KU( ~oob ) @ #vk.15 )
+          case Oob_Reveal
+          by contradiction /* from formulas */
+        qed
+      qed
+    qed
+  qed
+qed
+
+lemma pairing_agreement_app:
+  all-traces
+  "∀ A B ps th #i.
+    (AppPaired( A, B, ps, th ) @ #i) ⇒
+    ((∃ #j. (PodPairInit( B, th ) @ #j) ∧ (#j < #i)) ∨
+     (∃ #r. OobRevealed( B ) @ #r))"
+/*
+guarded formula characterizing all counter-examples:
+"∃ A B ps th #i.
+  (AppPaired( A, B, ps, th ) @ #i)
+ ∧
+  (∀ #j. (PodPairInit( B, th ) @ #j) ⇒ ¬(#j < #i)) ∧
+  (∀ #r. (OobRevealed( B ) @ #r) ⇒ ⊥)"
+*/
+simplify
+solve( AppInit( $A, $B, ~xa, ~nA ) ▶₀ #i )
+  case App_PairStart
+  solve( AppOob( $A, $B, oob ) ▶₂ #i )
+    case App_PairStart
+    solve( !KU( hmac(h(<'ck', z, h(<'oob', ~oob>), 
+                        h(<'th', 'pair', 'g'^~xa, pubB, ~nA, nB>)>),
+                     <'pod', h(<'th', 'pair', 'g'^~xa, pubB, ~nA, nB>)>)
+           ) @ #vk.4 )
+      case Pod_PairInit
+      by contradiction /* from formulas */
+    next
+      case c_hmac
+      solve( !KU( h(<'ck', z, h(<'oob', ~oob>), 
+                     h(<'th', 'pair', 'g'^~xa, pubB, ~nA, nB>)>)
+             ) @ #vk.5 )
+        case c_h
+        solve( !KU( h(<'th', 'pair', 'g'^~xa, pubB, ~nA, nB>) ) @ #vk.8 )
+          case c_h
+          solve( !KU( h(<'oob', ~oob>) ) @ #vk.16 )
+            case c_h
+            solve( !KU( ~oob ) @ #vk.26 )
+              case Oob_Reveal
+              by contradiction /* from formulas */
+            qed
+          qed
+        qed
+      qed
+    qed
+  qed
+qed
+
+lemma pairing_agreement_pod_injective:
+  all-traces
+  "∀ B ps th #i.
+    (PodPaired( B, ps, th ) @ #i) ⇒
+    (((∃ A #j. (AppPaired( A, B, ps, th ) @ #j) ∧ (#j < #i)) ∧
+      (¬(∃ #i2. (PodPaired( B, ps, th ) @ #i2) ∧ (¬(#i2 = #i))))) ∨
+     (∃ #r. OobRevealed( B ) @ #r))"
+/*
+guarded formula characterizing all counter-examples:
+"∃ B ps th #i.
+  (PodPaired( B, ps, th ) @ #i)
+ ∧
+  (((∀ A #j. (AppPaired( A, B, ps, th ) @ #j) ⇒ ¬(#j < #i)) ∨
+    (∃ #i2. (PodPaired( B, ps, th ) @ #i2) ∧ ¬(#i2 = #i)))) ∧
+  (∀ #r. (OobRevealed( B ) @ #r) ⇒ ⊥)"
+*/
+simplify
+solve( (∀ A #j. (AppPaired( A, $B, ps, th ) @ #j) ⇒ ¬(#j < #i))  ∥
+       (∃ #i2. (PodPaired( $B, ps, th ) @ #i2) ∧ ¬(#i2 = #i)) )
+  case case_1
+  solve( PodPend( $B, ps, ck, th ) ▶₁ #i )
+    case Pod_PairInit
+    solve( Window( $B ) ▶₂ #i )
+      case Button_Press
+      solve( !KU( hmac(h(<'ck', z, h(<'oob', ~oob>), 
+                          h(<'th', 'pair', pubA, 'g'^~xb, nA, ~nB>)>),
+                       <'app', h(<'th', 'pair', pubA, 'g'^~xb, nA, ~nB>)>)
+             ) @ #vk )
+        case App_PairFinish
+        by contradiction /* from formulas */
+      next
+        case c_hmac
+        solve( !KU( h(<'ck', z, h(<'oob', ~oob>), 
+                       h(<'th', 'pair', pubA, 'g'^~xb, nA, ~nB>)>)
+               ) @ #vk.4 )
+          case c_h
+          solve( !KU( h(<'th', 'pair', pubA, 'g'^~xb, nA, ~nB>) ) @ #vk.7 )
+            case c_h
+            solve( !KU( h(<'oob', ~oob>) ) @ #vk.15 )
+              case c_h
+              solve( !KU( ~oob ) @ #vk.25 )
+                case Oob_Reveal
+                by contradiction /* from formulas */
+              qed
+            qed
+          qed
+        qed
+      qed
+    next
+      case Pod_PairInit
+      solve( !KU( hmac(h(<'ck', z, h(<'oob', ~oob>), 
+                          h(<'th', 'pair', pubA, 'g'^~xb, nA, ~nB>)>),
+                       <'app', h(<'th', 'pair', pubA, 'g'^~xb, nA, ~nB>)>)
+             ) @ #vk )
+        case App_PairFinish
+        by contradiction /* from formulas */
+      next
+        case c_hmac
+        solve( !KU( h(<'ck', z, h(<'oob', ~oob>), 
+                       h(<'th', 'pair', pubA, 'g'^~xb, nA, ~nB>)>)
+               ) @ #vk.7 )
+          case c_h
+          solve( !KU( h(<'th', 'pair', pubA, 'g'^~xb, nA, ~nB>) ) @ #vk.10 )
+            case c_h
+            solve( !KU( h(<'oob', ~oob>) ) @ #vk.18 )
+              case c_h
+              solve( !KU( ~oob ) @ #vk.28 )
+                case Oob_Reveal
+                by contradiction /* from formulas */
+              qed
+            qed
+          qed
+        qed
+      qed
+    qed
+  qed
+next
+  case case_2
+  solve( (#i2 < #i)  ∥ (#i < #i2) )
+    case case_1
+    solve( PodPend( $B, ps, ck, th ) ▶₁ #i )
+      case Pod_PairInit
+      solve( Window( $B ) ▶₂ #i )
+        case Button_Press
+        solve( PodPend( $B,
+                        h(<'ps', z, h(<'oob', ~oob>), h(<'th', 'pair', pubA, 'g'^~xb, nA, ~nB>)
+                          >),
+                        ck, h(<'th', 'pair', pubA, 'g'^~xb, nA, ~nB>)
+               ) ▶₁ #i2 )
+          case Pod_PairInit
+          by contradiction /* cyclic */
+        qed
+      next
+        case Pod_PairInit
+        solve( PodPend( $B,
+                        h(<'ps', z, h(<'oob', ~oob>), h(<'th', 'pair', pubA, 'g'^~xb, nA, ~nB>)
+                          >),
+                        ck, h(<'th', 'pair', pubA, 'g'^~xb, nA, ~nB>)
+               ) ▶₁ #i2 )
+          case Pod_PairInit
+          by contradiction /* cyclic */
+        qed
+      qed
+    qed
+  next
+    case case_2
+    solve( PodPend( $B, ps, ck, th ) ▶₁ #i )
+      case Pod_PairInit
+      solve( Window( $B ) ▶₂ #i )
+        case Button_Press
+        solve( PodPend( $B,
+                        h(<'ps', z, h(<'oob', ~oob>), h(<'th', 'pair', pubA, 'g'^~xb, nA, ~nB>)
+                          >),
+                        ck, h(<'th', 'pair', pubA, 'g'^~xb, nA, ~nB>)
+               ) ▶₁ #i2 )
+          case Pod_PairInit
+          by contradiction /* cyclic */
+        qed
+      next
+        case Pod_PairInit
+        solve( PodPend( $B,
+                        h(<'ps', z, h(<'oob', ~oob>), h(<'th', 'pair', pubA, 'g'^~xb, nA, ~nB>)
+                          >),
+                        ck, h(<'th', 'pair', pubA, 'g'^~xb, nA, ~nB>)
+               ) ▶₁ #i2 )
+          case Pod_PairInit
+          by contradiction /* cyclic */
+        qed
+      qed
+    qed
+  qed
+qed
+
+
+
+
+
+
+
+
+
+
+
+/* All wellformedness checks were successful. */
+
+/*
+Generated from:
+Tamarin version 1.10.0
+Maude version 3.2 (unsupported)
+Git revision: cb62c305f8c8b8c1e664152aa33c95b7b8d5ef32, branch: master
+Compiled at: 2024-10-30 11:11:02.432289291 UTC
+*/
+
+end
+
+==============================================================================
+summary of summaries:
+
+analyzed: /tmp/tmp.Q7Wa1BdzoA/pairing_oob.spthy
+
+  processing time: 2.15s
+  
+  executable_pairing (exists-trace): verified (13 steps)
+  pairing_secret_ps (all-traces): verified (7 steps)
+  pairing_agreement_app (all-traces): verified (10 steps)
+  pairing_agreement_pod_injective (all-traces): verified (31 steps)
+
+==============================================================================

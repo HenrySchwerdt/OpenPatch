@@ -13,6 +13,7 @@ use core::sync::atomic::Ordering;
 use embassy_futures::select::{select4, Either4};
 use embassy_time::{with_timeout, Duration, Instant, Ticker};
 use openpatch_core::units::{Millis, MilliUnits, Pulses};
+use openpatch_core::persist::{ReservoirPolicy, SchedRec, TempRec};
 use openpatch_core::{Pump, Role};
 use openpatch_proto::ccm_impl::AesCcm;
 use openpatch_proto::{decode_frame, Session, FRAME_MAX, SEQ_MAX};
@@ -28,10 +29,13 @@ struct Policy {
     seq_ceiling: u16,
     last_ceiling_write: Instant,
     evt_ceiling: u32,
-    res_fill: u32,
-    res_persisted_consumed: u32,
+    /// Reservoir snapshot policy (core logic, F3: the margin is not re-added on every boot).
+    res: ReservoirPolicy,
     pod: Option<PodRec>,
     ticks_since_pod_write: u32,
+    /// Last schedule / temp basal records handed to the flash task (F2).
+    sched: SchedRec,
+    temp: TempRec,
 }
 
 impl Policy {
@@ -42,18 +46,21 @@ impl Policy {
             self.evt_ceiling += EVT_CEILING_STEP;
             let _ = PERSIST.try_send(PersistMsg::EvtCeiling(self.evt_ceiling));
         }
-        // reservoir: persisted value >= reality, so the model after a power loss can only be LOWER
-        let res = pump.reservoir();
-        if res.is_filled() {
-            let fill = res.fill_level().0;
-            let consumed = res.consumed().0;
-            if fill != self.res_fill || consumed + RES_TRIGGER_STEPS >= self.res_persisted_consumed {
-                let stored = consumed.saturating_add(RES_MARGIN_STEPS);
-                if PERSIST.try_send(PersistMsg::Reservoir { fill_mu: fill, consumed_steps: stored }).is_ok() {
-                    self.res_fill = fill;
-                    self.res_persisted_consumed = stored;
-                }
+        // reservoir: persisted value >= reality, so the model after a power loss can only be LOWER; the margin is added once
+        // per run that consumed insulin, not on every boot (`ReservoirPolicy`)
+        if let Some((fill_mu, stored)) = self.res.next_write(pump.reservoir()) {
+            if PERSIST.try_send(PersistMsg::Reservoir { fill_mu, consumed_steps: stored }).is_ok() {
+                self.res.written(fill_mu, stored);
             }
+        }
+        // basal schedule and temp basal: only when they change
+        let sr = pump.schedule_record();
+        if sr != self.sched && PERSIST.try_send(PersistMsg::Schedule(sr)).is_ok() {
+            self.sched = sr;
+        }
+        let tr = pump.temp_record();
+        if tr != self.temp && PERSIST.try_send(PersistMsg::Temp(tr)).is_ok() {
+            self.temp = tr;
         }
         // pod state (wear stored as an upper bound)
         let p = pump.pod();
@@ -118,6 +125,8 @@ pub struct BootState {
     pub evt_ceiling: u32,
     pub reservoir: Option<(u32, u32)>,
     pub pod: Option<PodRec>,
+    pub sched: Option<SchedRec>,
+    pub temp: Option<TempRec>,
 }
 
 /// Restore everything the platform persisted into a fresh `Pump` and `Session`.
@@ -129,6 +138,16 @@ pub fn restore(pump: &mut Pump<BenchHal>, session: &mut Session<AesCcm>, b: &Boo
         if Role::from_u8(p.role).is_ok() || p.pair_id == 0 {
             pump.restore_pod(p.pair_id, p.role, p.active, p.activation_id, Millis(p.wear_s as u64 * 1000));
         }
+    }
+    // F2: the basal schedule and a running temp basal come back; if the schedule is missing or invalid the pod stays
+    // without one and `Resume` is refused with `NoSchedule`
+    if let Some(s) = b.sched.and_then(|r| SchedRec::decode(r.as_bytes())) {
+        if pump.restore_schedule(&s).is_err() {
+            defmt::warn!("stored basal schedule is outside the limits: not restored");
+        }
+    }
+    if let Some(t) = b.temp {
+        pump.restore_temp(t);
     }
     if let Some(c) = b.seq_ceiling {
         // seqs below the ceiling may have been accepted before the reset
@@ -144,10 +163,11 @@ pub async fn safety_task(mut pump: Pump<BenchHal>, mut session: Session<AesCcm>,
         // `Pump::new` was given `boot.evt_ceiling` as the next id: ids from there on are above the
         // persisted ceiling until the extension below is durable, so extend right away.
         evt_ceiling: boot.evt_ceiling + EVT_CEILING_STEP,
-        res_fill: boot.reservoir.map_or(0, |r| r.0),
-        res_persisted_consumed: boot.reservoir.map_or(0, |r| r.1),
+        res: ReservoirPolicy::at_boot(RES_MARGIN_STEPS, RES_TRIGGER_STEPS, boot.reservoir),
         pod: boot.pod,
         ticks_since_pod_write: 0,
+        sched: boot.sched.unwrap_or(SchedRec::NONE),
+        temp: boot.temp.unwrap_or(TempRec::NONE),
     };
     let _ = PERSIST.try_send(PersistMsg::EvtCeiling(policy.evt_ceiling));
 

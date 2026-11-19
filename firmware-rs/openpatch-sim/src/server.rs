@@ -239,9 +239,10 @@ mod tests {
         let r = s.handle(r#"{"cmd":"run","seconds":120}"#);
         assert_eq!(r["state"]["pod"]["bolus_remaining_mu"], 0, "{r}");
         let out = r["state"]["plant"]["needle_out_mu"].as_f64().unwrap();
-        assert!(out > 400.0 && out < 1100.0, "needle out {out}"); // the first bolus after a draw loses the lost motion
+        assert!(out > 900.0 && out < 1600.0, "needle out {out}"); // the 1 U bolus plus the water the take-up and prime pushed out
         let r = s.handle(r#"{"cmd":"status"}"#);
-        assert!(r["state"]["pod"]["delivered_mu"].as_u64().unwrap() >= 1000);
+        // 1 U = 253 steps of 3.9486 mU = 999 mU (the engine floors to whole steps)
+        assert!(r["state"]["pod"]["delivered_mu"].as_u64().unwrap() >= 990, "{r}");
     }
 
     #[test]

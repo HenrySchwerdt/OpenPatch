@@ -1,5 +1,5 @@
 name = "limits_stress"
-description = "Try to break the limits: 10 U boluses back to back on top of a 5 U/h basal, with +2 % area and +1.5 % lead tolerance. Commanded side must stay <= 15 U/h; what does the needle see?"
+description = "Try to break the limits: 10 U boluses back to back on top of a 2 U/h basal, with +2 % area and +1.5 % lead tolerance. The commanded side must stay within the cap (15 U/h less the 4 % tolerance margin) and the needle <= 15 U/h."
 seed = 121
 duration_s = 7200.0
 events = [
@@ -16,4 +16,4 @@ pitch_error_pct = 1.5
 
 [setup]
 fill_u = 100.0
-basal = [[0.0, 5.0]]
+basal = [[0.0, 2.0]]

@@ -18,6 +18,7 @@
 |---|---|---|
 | 26 | PrimeRequired | `Resume` refused until a prime completed after a fill / draw (`PumpConfig::STRICT`) |
 | 27 | Docked | `FillDraw` while docked |
+| 31 | NoSchedule | `Resume` refused: no basal schedule held (e.g. not restorable after a reset); send `SetBasalSchedule` first (`PumpConfig::STRICT`) |
 
 (25 is unused/removed.)
 
@@ -29,7 +30,7 @@
 | 0x22 | DRAW_REQUESTED_MU | u32 | requested volume |
 | 0x23 | DRAW_DONE_MU | u32 | volume actually drawn (also partial for stalled / aborted) |
 
-`STATE_FLAGS`: bit 11 `DRAWING`, bit 12 `PRIME_REQUIRED`. `FW_VERSION` = 0x0200. `DRIVE_CAL` carries the preset id (0x24 NFP G15/12, 0x20 NFP coaxial, 0x30 syringe rig, 0x21 / 0x22 Zhaowei,
+`STATE_FLAGS`: bit 11 `DRAWING`, bit 12 `PRIME_REQUIRED`. `FW_VERSION` = 0x0200. `DRIVE_CAL` carries the preset id (0x25 NFP + GHW 16:20 primary, 0x24 NFP G15/12, 0x20 NFP coaxial, 0x30 syringe rig, 0x21 / 0x22 Zhaowei,
 0x23 Faulhaber), floor uU per step, steps/rev and gear ratio x 100 (the exact rational stays in the pump).
 
 ## Notifications on the Alert characteristic (`...0004`, notify)
@@ -62,9 +63,9 @@ release that bundles the diagnostics firmware; the design doc's 0x0210 is not us
 
 | Cmd | Name | Request | Response after `RESULT` |
 |---|---|---|---|
-| 0x10 | GetFaultLog | `FROM_ID`, `MAX_EVENTS` (0 or above 4 gives 4) | `NEXT_DIAG_ID`, `OLDEST_DIAG_ID`, `DIAG_LATCHED` (if any), 0..4 x `DIAG_RECORD` (worst case 217 B of payload) |
-| 0x11 | RunSelfTest | `SUB_OP` 1 POST-S, 2 POST-A, 3 watchdog proof | `SELFTEST_STATE`; ends with record `7-74-006`; a proof the board cannot do stays UNKNOWN |
-| 0x12 | ClearDiag | `DIAG_CODE` (0 = all clearable W/F records) | `DIAG_SUMMARY` |
+| 0x20 (rsp 0xA0) | GetFaultLog | `FROM_ID`, `MAX_EVENTS` (0 or above 4 gives 4) | `NEXT_DIAG_ID`, `OLDEST_DIAG_ID`, `DIAG_LATCHED` (if any), 0..4 x `DIAG_RECORD` (worst case 217 B of payload) |
+| 0x21 (rsp 0xA1) | RunSelfTest | `SUB_OP` 1 POST-S, 2 POST-A, 3 watchdog proof | `SELFTEST_STATE`; ends with record `7-74-006`; a proof the board cannot do stays UNKNOWN |
+| 0x22 (rsp 0xA2) | ClearDiag | `DIAG_CODE` (0 = all clearable W/F records) | `DIAG_SUMMARY` |
 
 Result codes: 28 `SelfTestRefused` (not suspended, draw running, test running), 29 `Latched` (`Resume` / `Activate` refused, `DIAG_CODE` = root latched code), 30 `NotClearable`
 (latched and its verification test has not passed, or the cause persists). `Acknowledge` keeps its legacy meaning (never clears a latched record).
@@ -77,7 +78,7 @@ pull: `next_rec_id_lo` moves, the app calls `GetFaultLog(from = last + 1)`. Hist
 Decoders are tolerant: a diagnostic TLV with an unexpected size is skipped (never a frame error), more than 4 records in one response is a frame error.
 Worked example (`1-06-001`, little endian `00 01 60 10`): `27 0E 00 01 60 10 03 08 01 01 01 03 06 00 01 00` is a `DIAG_SUMMARY`; golden frames with real CRC and AES-CCM are in
 `docs/vectors/diag-frames.json` (written by `openpatch-proto/tests/diag_vectors.rs`, verified by Rust and Swift; regenerate with `OPENPATCH_WRITE_VECTORS=1`).
-The C reference never emits these tags and answers `UNSUPPORTED` to 0x10..0x12; the differential tests compare only the legacy projection and normalise tags 0x27, 0x28, 0x2F
+The C reference never emits these tags and answers `UNSUPPORTED` to 0x20..0x22; the differential tests compare only the legacy projection and normalise tags 0x27, 0x28, 0x2F
 and flag bits 13/14 (`differential-tests/tests/diag_compat.rs` pins that the C parser skips them).
 
 ## Unchanged

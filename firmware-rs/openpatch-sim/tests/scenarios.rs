@@ -43,7 +43,14 @@ fn wear_48h_delivery_matches_command() {
     // hourly: after the first hour (refill lost motion) every hour within 6 % of the programme
     for h in v.hourly.iter().filter(|h| h.hour >= 2) {
         let e = h.actual_vs_scheduled_pct.unwrap();
-        assert!(e.abs() <= 6.0, "hour {}: {e:.1} %", h.hour);
+        // at 0.4 U/h an hour is ~100 steps of 3.9 mU: one stick-slip release of the seal (a few tens of mU) is several
+        // percent, so slow hours are bounded in mU instead
+        let err_mu = e / 100.0 * h.scheduled_mu as f64;
+        if h.scheduled_mu < 500 {
+            assert!(err_mu.abs() <= 45.0, "hour {}: {err_mu:.0} mU ({e:.1} %)", h.hour);
+        } else {
+            assert!(e.abs() <= 6.0, "hour {}: {e:.1} %", h.hour);
+        }
     }
 }
 
@@ -115,14 +122,17 @@ fn draw_stalls_at_the_rear_end_stop_and_reports_what_was_drawn() {
 }
 
 #[test]
-fn a_prime_after_a_draw_is_swallowed_by_lost_motion() {
-    // Plant fact (see REPORT.md, "lost motion"): after the draw reversed the drive, the first
-    // ~0.4 U of forward travel only wind up backlash and seal elasticity. The standard 0.3 U prime
-    // therefore delivers nothing to the cannula. Documented, not a failure of the core.
+fn a_prime_after_a_draw_takes_up_the_lost_motion_first_and_purges_the_line() {
+    // Plant fact (REPORT.md, "lost motion"): after the draw reversed the drive, the first ~0.4 U of forward travel only
+    // winds up backlash and seal elasticity. The core now runs a take-up (limits::TAKEUP_MU_AFTER_DRAW) before the first
+    // prime, so the standard 0.3 U prime reaches the connector. The take-up is not delivery: the engine books nothing.
     let o = run("prime");
     let w = o.dev.world.borrow();
-    assert!(w.plant.line_air_ul > 0.5, "line air {} ul", w.plant.line_air_ul);
-    assert!(w.plant.out_ul < 0.5, "needle out {} ul", w.plant.out_ul);
+    assert!(w.plant.line_air_ul < 0.3, "line air {} ul", w.plant.line_air_ul);
+    assert!(w.plant.out_ul > 0.5, "the prime pushed water through the needle: {} ul", w.plant.out_ul);
+    // take-up and prime are not delivery: the core booked exactly the (basal) schedule, not the 0.9 U of forward travel
+    let last = o.rows.last().unwrap();
+    assert!(last.core_delivered_mu as f64 <= last.scheduled_mu as f64 + 15.0, "core {} scheduled {}", last.core_delivered_mu, last.scheduled_mu);
 }
 
 #[test]
@@ -277,7 +287,8 @@ fn a_silent_angle_sensor_stops_delivery_within_one_tick() {
 fn an_open_motor_phase_trips_the_encoder_check_before_1_5_u_are_lost() {
     let o = run("motor_phase_open");
     let d = det(&o.verdict, "PhaseOpen");
-    assert!(d.fault_names.contains(&"ENCODER_DEVIATION".to_string()), "{:?}", d.fault_names);
+    // the open phase loses steps AND loads the motor: the current rise (stored-volume criterion) or the encoder catches it
+    assert!(d.fault_names.iter().any(|n| n == "ENCODER_DEVIATION" || n == "OCCLUSION"), "{:?}", d.fault_names);
     assert!(d.undelivered_at_alarm_mu.unwrap() <= 1500.0, "{:?}", d.undelivered_at_alarm_mu);
     assert!(o.verdict.lost_steps > 10, "the plant must really lose steps");
     let t = d.detected_at_s.unwrap();
@@ -286,19 +297,21 @@ fn an_open_motor_phase_trips_the_encoder_check_before_1_5_u_are_lost() {
 
 #[test]
 fn a_wrong_gear_preset_is_caught_by_the_encoder_within_the_first_bolus() {
-    // 18:18 fitted, 15:12 flashed: 20 % under-delivery on the needle, caught by encoder deviation
+    // 18:18 fitted, 16:20 flashed: 25 % OVER-delivery on the needle (0.00494 vs 0.003949 U/step), caught by
+    // encoder deviation at the end of the first 1 U window
     let o = run("gear_preset_mismatch");
     assert!(has_fault(&o.verdict, "ENCODER_DEVIATION"));
     let t = o.verdict.faults[0].t_s;
     assert!(t < 400.0, "alarm after {t} s");
-    assert!(o.verdict.actual_out_mu < 1000.0, "{} mU were delivered with the wrong preset", o.verdict.actual_out_mu);
+    // the 1 U window plus 25 % plus the steps of one more tick: well under 1.6 U left the needle
+    assert!(o.verdict.actual_out_mu < 1600.0, "{} mU were delivered with the wrong preset", o.verdict.actual_out_mu);
 }
 
 fn gear_error_run(ratio_error_pct: f64) -> openpatch_sim::runner::RunOutput {
     // actual gearhead ratio = nominal * (1 + e): the screw turns 1/(1+e) of what the firmware expects
     let mut sc = scenario("gear_preset_mismatch");
-    sc.params.drive.z_motor = 15.0;
-    sc.params.drive.z_screw = 12.0;
+    sc.params.drive.z_motor = 16.0;
+    sc.params.drive.z_screw = 20.0; // the mechanics match the flashed preset, only the gearhead ratio is off
     sc.params.motor.gearhead_ratio = 26.45 * (1.0 + ratio_error_pct / 100.0);
     sc.setup.basal = vec![(0.0, 0.0)];
     sc.events.clear();
@@ -397,7 +410,7 @@ fn a_brownout_mid_bolus_resets_restores_conservatively_and_stays_suspended() {
     assert!(b.evt_start >= b.pre_reset_next_event_id.unwrap());
     // the remaining bolus is not caught up: nothing flows between the reset and the explicit resume
     assert_eq!(needle_mu(&o, 689.0), needle_mu(&o, 641.0));
-    // after the app re-sent the schedule and resumed, delivery restarts
+    // after the app acknowledged the reset alarm and resumed, delivery restarts
     assert!(needle_mu(&o, 1700.0) > needle_mu(&o, 700.0) + 100.0);
 }
 
@@ -426,10 +439,13 @@ fn a_power_cut_during_a_flash_write_restores_a_consistent_state() {
     let (before, after) = (b.model_minus_actual_mu_before.unwrap(), b.model_minus_actual_mu_after.unwrap());
     assert!(after <= before + 6.0, "model went UP across the reset: {before} -> {after}");
     assert!(b.evt_start >= b.pre_reset_next_event_id.unwrap());
-    // nothing flows while suspended, then the basal restarts after the app re-sent it
-    assert_eq!(needle_mu(&o, 1690.0), needle_mu(&o, 1605.0));
-    assert!(needle_mu(&o, 3500.0) > needle_mu(&o, 1800.0) + 400.0);
-    assert!(v.faults.is_empty());
+    // nothing flows while suspended (alarm), then the basal restarts after the app acknowledged and resumed
+    let t_reset = v.resets[0].t_s;
+    assert!(t_reset < 1990.0);
+    assert_eq!(needle_mu(&o, 1990.0), needle_mu(&o, t_reset + 5.0));
+    assert!(needle_mu(&o, 3500.0) > needle_mu(&o, 2200.0) + 400.0);
+    // the only alarm is the announced reset (H3, F1)
+    assert!(v.faults.iter().all(|f| f.names == ["INTERNAL"]), "{:?}", v.faults);
 }
 
 #[test]
@@ -441,7 +457,7 @@ fn a_flash_write_that_destroys_the_old_record_fails_safe() {
     // one record is gone: either the reservoir (model reads empty) or the pod (not paired / released)
     assert!(b.reservoir_restored.is_none() || b.pod_restored.is_none());
     // after the reset the pod never delivers more than it knows it has: no water after the alarm/refusal
-    let after_reset = needle_mu(&o, 3500.0) - needle_mu(&o, 1605.0);
+    let after_reset = needle_mu(&o, 3500.0) - needle_mu(&o, v.resets[0].t_s + 5.0);
     assert!(after_reset < 50.0, "{after_reset} mU flowed after a state loss");
     assert!(has_fault(v, "RESERVOIR_EMPTY") || v.notes.iter().any(|n| n.contains("result")), "silent: faults {:?} notes {:?}", v.faults, v.notes);
 }

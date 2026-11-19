@@ -8,7 +8,7 @@ use crate::msg::*;
 use crate::tlv::{rd16, rd32, TlvReader, TlvWriter};
 
 fn known_cmd(t: u8) -> bool {
-    (cmd::GET_STATUS..=cmd::CLEAR_DIAG).contains(&t)
+    COMMAND_IDS.contains(&t)
 }
 
 fn put_segs(w: &mut TlvWriter<'_>, segs: &BasalSegs) {

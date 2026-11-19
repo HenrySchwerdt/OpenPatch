@@ -224,8 +224,8 @@ public final class SecureChannel {
     }
 
     /// Which characteristic a frame came from. The nonce direction depends on it: responses are dir 1, notifications dir 2.
-    /// Frame type 0x90 is ambiguous (the response to `GetFaultLog` 0x10 is 0x10 | 0x80, and notifications are type 0x90), so callers that
-    /// know the characteristic pass it; without it the type decides (0x90 = notification), as before.
+    /// Frame type 0x90 belongs to notifications alone (no command's response type equals it: `V1.CommandID` ids never collide),
+    /// so the type decides; callers that know the characteristic may still pass it.
     public enum Origin: Equatable { case response, notification }
 
     /// Opens a response (RESPONSE flag, dir 1) or a notification (type 0x90, dir 2). Commands are not accepted here.

@@ -3681,11 +3681,11 @@
  {
   "command": "solid.box",
   "params": {
-   "length": 4.0,
+   "length": 4.6,
    "width": 4.799999999999997,
    "height": 6.200000000000001,
    "corner": [
-    5.1,
+    4.5,
     20.1,
     1.1
    ],
@@ -3697,9 +3697,9 @@
   "command": "solid.cylinder",
   "params": {
    "diameter": 1.9,
-   "height": 4.199999999999999,
+   "height": 4.799999999999999,
    "base": [
-    5.0,
+    4.4,
     22.5,
     4.2
    ],
@@ -3712,7 +3712,7 @@
   "command": "sketch.create",
   "params": {
    "plane": "YZ",
-   "offset": 5.0
+   "offset": 4.95
   }
  },
  {
@@ -3734,7 +3734,7 @@
  {
   "command": "solid.extrude",
   "params": {
-   "distance": 1.4999999999999991,
+   "distance": 1.5,
    "body_name": "t_hexp",
    "name": "t_hexp"
   }
@@ -3742,16 +3742,31 @@
  {
   "command": "solid.box",
   "params": {
-   "length": 4.199999999999999,
+   "length": 4.799999999999999,
    "width": 1.2000000000000028,
    "height": 0.40000000000000013,
    "corner": [
-    5.0,
+    4.4,
     21.9,
     1.0
    ],
    "body_name": "t_groove",
    "name": "t_groove"
+  }
+ },
+ {
+  "command": "solid.box",
+  "params": {
+   "length": 1.5,
+   "width": 3.799999999999997,
+   "height": 3.2,
+   "corner": [
+    4.95,
+    20.6,
+    4.2
+   ],
+   "body_name": "t_nutslot",
+   "name": "t_nutslot"
   }
  },
  {
@@ -3777,6 +3792,7 @@
     "t_chole",
     "t_hexp",
     "t_groove",
+    "t_nutslot",
     "t_shimpocket"
    ],
    "operation": "cut",
@@ -3802,7 +3818,7 @@
   "command": "sketch.create",
   "params": {
    "plane": "YZ",
-   "offset": 5.1499999999999995
+   "offset": 5.05
   }
  },
  {
@@ -3833,9 +3849,9 @@
   "command": "solid.cylinder",
   "params": {
    "diameter": 1.6500000000000001,
-   "height": 2.0999999999999996,
+   "height": 1.4999999999999991,
    "base": [
-    5.0,
+    4.95,
     22.5,
     4.2
    ],
@@ -3944,7 +3960,7 @@
  {
   "command": "solid.cylinder",
   "params": {
-   "diameter": 1.6400000000000001,
+   "diameter": 2.04,
    "height": 1.5999999999999996,
    "base": [
     2.5,
@@ -3971,15 +3987,97 @@
   "command": "solid.cylinder",
   "params": {
    "diameter": 1.6,
-   "height": 24.949999999999996,
+   "height": 25.0,
    "base": [
-    1.0,
+    1.6499999999999986,
     22.5,
     4.2
    ],
    "axis": "X",
    "body_name": "leadscrew",
    "name": "leadscrew"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 2.0,
+   "height": 2.05,
+   "base": [
+    1.95,
+    22.5,
+    4.2
+   ],
+   "axis": "X",
+   "body_name": "thrust_sleeve",
+   "name": "thrust_sleeve"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 1.6400000000000001,
+   "height": 2.25,
+   "base": [
+    1.8499999999999999,
+    22.5,
+    4.2
+   ],
+   "axis": "X",
+   "body_name": "t_thrust_sleeve_bore",
+   "name": "t_thrust_sleeve_bore"
+  }
+ },
+ {
+  "command": "solid.combine",
+  "params": {
+   "target": "thrust_sleeve",
+   "tools": [
+    "t_thrust_sleeve_bore"
+   ],
+   "operation": "cut",
+   "name": "cut thrust_sleeve"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 2.4,
+   "height": 1.0,
+   "base": [
+    25.65,
+    22.5,
+    4.2
+   ],
+   "axis": "X",
+   "body_name": "thrust_collar",
+   "name": "thrust_collar"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 1.6400000000000001,
+   "height": 1.2000000000000028,
+   "base": [
+    25.549999999999997,
+    22.5,
+    4.2
+   ],
+   "axis": "X",
+   "body_name": "t_thrust_collar_bore",
+   "name": "t_thrust_collar_bore"
+  }
+ },
+ {
+  "command": "solid.combine",
+  "params": {
+   "target": "thrust_collar",
+   "tools": [
+    "t_thrust_collar_bore"
+   ],
+   "operation": "cut",
+   "name": "cut thrust_collar"
   }
  },
  {
@@ -4070,7 +4168,7 @@
    "diameter": 3.0,
    "height": 1.5,
    "base": [
-    25.949999999999996,
+    26.65,
     22.5,
     4.2
    ],
@@ -4157,11 +4255,11 @@
  {
   "command": "solid.box",
   "params": {
-   "length": 7.109999999999999,
+   "length": 6.409999999999997,
    "width": 4.5,
    "height": 0.5999999999999996,
    "corner": [
-    27.699999999999996,
+    28.4,
     20.2,
     5.3
    ],
@@ -4318,7 +4416,7 @@
    "width": 2.799999999999997,
    "height": 1.4499999999999997,
    "corner": [
-    28.05,
+    28.75,
     21.1,
     3.85
    ],
@@ -4333,7 +4431,7 @@
    "width": 1.1000000000000014,
    "height": 0.39999999999999947,
    "corner": [
-    27.900000000000002,
+    28.6,
     20.45,
     5.9
    ],
@@ -4348,7 +4446,7 @@
    "width": 1.1000000000000014,
    "height": 0.39999999999999947,
    "corner": [
-    27.900000000000002,
+    28.6,
     23.15,
     5.9
    ],
@@ -4841,7 +4939,7 @@
  {
   "command": "solid.cylinder",
   "params": {
-   "diameter": 3.05,
+   "diameter": 2.9,
    "height": 3.3999999999999986,
    "base": [
     26.4,
@@ -4969,6 +5067,21 @@
  {
   "command": "solid.box",
   "params": {
+   "length": 3.479999999999997,
+   "width": 3.1199999999999974,
+   "height": 0.6800000000000006,
+   "corner": [
+    26.36,
+    9.64,
+    4.52
+   ],
+   "body_name": "valve_plug",
+   "name": "valve_plug"
+  }
+ },
+ {
+  "command": "solid.box",
+  "params": {
    "length": 16.7,
    "width": 13.599999999999998,
    "height": 0.88,
@@ -5015,11 +5128,11 @@
   "command": "solid.box",
   "params": {
    "length": 0.75,
-   "width": 11.600000000000001,
+   "width": 11.899999999999999,
    "height": 4.42,
    "corner": [
     30.249999999999996,
-    5.3999999999999995,
+    5.249999999999999,
     0.78
    ],
    "body_name": "t_ibridge",
@@ -5030,11 +5143,11 @@
   "command": "solid.box",
   "params": {
    "length": 11.600000000000001,
-   "width": 0.5999999999999996,
+   "width": 0.75,
    "height": 3.6500000000000004,
    "corner": [
     30.699999999999996,
-    5.3999999999999995,
+    5.249999999999999,
     1.3
    ],
    "body_name": "t_iarm0",
@@ -5058,19 +5171,19 @@
     ],
     [
      40.8,
-     7.40812545754029
+     7.508125457540291
     ],
     [
      41.3,
-     7.90812545754029
+     8.008125457540292
     ],
     [
      41.5,
-     7.90812545754029
+     8.008125457540292
     ],
     [
      42.0,
-     7.40812545754029
+     7.508125457540291
     ],
     [
      42.0,
@@ -5096,7 +5209,7 @@
   "command": "solid.box",
   "params": {
    "length": 11.600000000000001,
-   "width": 0.6000000000000014,
+   "width": 0.75,
    "height": 3.6500000000000004,
    "corner": [
     30.699999999999996,
@@ -5124,19 +5237,19 @@
     ],
     [
      40.8,
-     14.991874542459708
+     14.891874542459707
     ],
     [
      41.3,
-     14.491874542459708
+     14.391874542459707
     ],
     [
      41.5,
-     14.491874542459708
+     14.391874542459707
     ],
     [
      42.0,
-     14.991874542459708
+     14.891874542459707
     ],
     [
      42.0,
@@ -5194,11 +5307,11 @@
   "command": "solid.box",
   "params": {
    "length": 16.099999999999998,
-   "width": 11.799999999999997,
+   "width": 12.100000000000001,
    "height": 1.4000000000000001,
    "corner": [
     30.999999999999996,
-    5.3,
+    5.1499999999999995,
     -0.1
    ],
    "body_name": "t_ifloor",
@@ -5262,6 +5375,9 @@
     "dock_insert",
     "plunger_core",
     "plunger_nose",
+    "thrust_sleeve",
+    "thrust_collar",
+    "valve_plug",
     "end_cap",
     "seal_a",
     "seal_b",
@@ -5444,6 +5560,63 @@
    "path": "out/bench/OP-100_plunger_nose.stl",
    "bodies": [
     "plunger_nose"
+   ],
+   "quality": "fine"
+  }
+ },
+ {
+  "command": "file.export_step",
+  "params": {
+   "path": "out/bench/OP-100_thrust_sleeve.step",
+   "bodies": [
+    "thrust_sleeve"
+   ]
+  }
+ },
+ {
+  "command": "file.export_stl",
+  "params": {
+   "path": "out/bench/OP-100_thrust_sleeve.stl",
+   "bodies": [
+    "thrust_sleeve"
+   ],
+   "quality": "fine"
+  }
+ },
+ {
+  "command": "file.export_step",
+  "params": {
+   "path": "out/bench/OP-100_thrust_collar.step",
+   "bodies": [
+    "thrust_collar"
+   ]
+  }
+ },
+ {
+  "command": "file.export_stl",
+  "params": {
+   "path": "out/bench/OP-100_thrust_collar.stl",
+   "bodies": [
+    "thrust_collar"
+   ],
+   "quality": "fine"
+  }
+ },
+ {
+  "command": "file.export_step",
+  "params": {
+   "path": "out/bench/OP-100_valve_plug.step",
+   "bodies": [
+    "valve_plug"
+   ]
+  }
+ },
+ {
+  "command": "file.export_stl",
+  "params": {
+   "path": "out/bench/OP-100_valve_plug.stl",
+   "bodies": [
+    "valve_plug"
    ],
    "quality": "fine"
   }

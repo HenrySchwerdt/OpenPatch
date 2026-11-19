@@ -409,7 +409,9 @@ impl Runner {
             if r != 0 {
                 return Err(format!("Prime refused: {r}"));
             }
-            self.run_s(5.0);
+            // The prime after a draw runs the backlash take-up first (0.63 U) and counts against the 1.7 U per minute
+            // backstop: the app's attach / confirm step takes more than a minute, so wait for the next minute before Resume.
+            self.run_s(62.0);
         }
         // 4. resume
         if self.sc.setup.resume {

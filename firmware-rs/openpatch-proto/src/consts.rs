@@ -46,13 +46,43 @@ pub mod cmd {
     /// Only suspended + undocked.
     pub const FILL_DRAW: u8 = 0x0F;
     // ---- diagnostics (docs/06-diagnostics.md 5.4), additive ----
+    // Ids 0x20..0x22 (responses 0xA0..0xA2): the first draft used 0x10..0x12, whose response types
+    // 0x90..0x92 collided with the Alert notification frame type 0x90 (`GetFaultLog` 0x10 | 0x80).
+    // `COMMAND_IDS` + the test `response_types_never_collide_with_any_other_frame_type` keep it that way.
     /// Records of the persistent fault log, `FROM_ID` / `MAX_EVENTS` (0 or above 4 gives 4).
-    pub const GET_FAULT_LOG: u8 = 0x10;
+    pub const GET_FAULT_LOG: u8 = 0x20;
     /// `SUB_OP`: 1 POST-S again, 2 POST-A, 3 watchdog proof (service). Suspended only.
-    pub const RUN_SELF_TEST: u8 = 0x11;
+    pub const RUN_SELF_TEST: u8 = 0x21;
     /// `DIAG_CODE` (0 = every clearable W/F record).
-    pub const CLEAR_DIAG: u8 = 0x12;
+    pub const CLEAR_DIAG: u8 = 0x22;
 }
+
+/// Every command id. A response frame carries `id | RSP_BIT`, so no id may have the high bit set and no
+/// response type may equal another frame type.
+pub const COMMAND_IDS: [u8; 18] = [
+    cmd::GET_STATUS,
+    cmd::SET_BASAL_SCHEDULE,
+    cmd::SET_TEMP_BASAL,
+    cmd::CANCEL_TEMP_BASAL,
+    cmd::BOLUS,
+    cmd::CANCEL_BOLUS,
+    cmd::SUSPEND,
+    cmd::RESUME,
+    cmd::FILL_PRIME,
+    cmd::ACKNOWLEDGE,
+    cmd::GET_HISTORY,
+    cmd::SET_PAIRING,
+    cmd::ACTIVATE,
+    cmd::RELEASE,
+    cmd::FILL_DRAW,
+    cmd::GET_FAULT_LOG,
+    cmd::RUN_SELF_TEST,
+    cmd::CLEAR_DIAG,
+];
+
+/// Handshake frame types (`handshake::htype`, feature `key-agreement`; a test keeps them equal): phone to pod, the response
+/// is `type | RSP_BIT` (0xC0..0xC3).
+pub const HANDSHAKE_TYPES: [u8; 4] = [0x40, 0x41, 0x42, 0x43];
 
 /// TLV tags.
 pub mod tag {

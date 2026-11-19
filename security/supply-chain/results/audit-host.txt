@@ -1,0 +1,4 @@
+URL:       https://rustsec.org/advisories/RUSTSEC-2026-0579
+Solution:  Upgrade to >=0.9.4 (patched)
+
+warning: 9 allowed warnings found

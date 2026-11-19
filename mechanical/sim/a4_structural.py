@@ -138,6 +138,11 @@ def run(ctx: Ctx) -> Result:
     to = sl["tongue_off"]
     t_x = to[1] - to[0]
     b_z = dr["arm_t"]
+    SHIM = P.get("bench", {}).get("shim")           # stainless tongue shim replaces the printed tongue (CAD 2026-11-19)
+    E_t = 193000.0 if SHIM else E
+    SIG_T = 200.0 if SHIM else C["PA12_MJF"]["sigma_flex"]     # annealed 1.4301 yield strength, no safety factor
+    if SHIM:
+        t_x, b_z = SHIM["t"], SHIM["h"]
     ys = (ctx.mech[ctx.sizes[0]]["y_s"] if ctx.sizes[0] in ctx.mech else 22.6)
     yr = (ctx.mech[ctx.sizes[0]]["y_r"] if ctx.sizes[0] in ctx.mech else 11.5)
     y_end = yr + (P["reservoir"]["w_in"] - 2 * P["reservoir"]["plunger_clr"]) / 2
@@ -147,13 +152,13 @@ def run(ctx: Ctx) -> Result:
     I_t = b_z * t_x ** 3 / 12
     c_t = t_x / 2
     sig_t_per_N = lever * c_t / I_t
-    k_t = 3 * E * I_t / lever ** 3
+    k_t = 3 * E_t * I_t / lever ** 3
     tau_t = 1.0 / (t_x * b_z)
     # thicker tongue alternative
     t_alt = 1.2
     I_alt = b_z * t_alt ** 3 / 12
     sig_alt = lever * (t_alt / 2) / I_alt
-    k_alt = 3 * E * I_alt / lever ** 3
+    k_alt = 3 * E_t * I_alt / lever ** 3
     # floor tension path
     k_floor = E * (wall * 12.0) / 20.0
     k_train = 1.0 / (1.0 / k_t + 1.0 / out_blk["block + end wall (merged)"][1] + 1.0 / k_floor)
@@ -161,14 +166,14 @@ def run(ctx: Ctx) -> Result:
     k_train_blk = 1.0 / (1.0 / k_t + 1.0 / out_blk["block only"][1] + 1.0 / k_floor)
     rows = [["dry-end bearing block, block only (%.2f mm thick x %.2f wide, load %.1f mm above floor)" % (blk_t, bh, h_load), f"{out_blk['block only'][0]:.0f}", f"{out_blk['block only'][1]:.0f}", "%.0f" % C["PA12_MJF"]["sigma_flex"]],
             ["same, merged with the 0.9 mm end wall", f"{out_blk['block + end wall (merged)'][0]:.0f}", f"{out_blk['block + end wall (merged)'][1]:.0f}", "%.0f" % C["PA12_MJF"]["sigma_flex"]],
-            ["carriage tongue as drawn: %.2f (x) x %.2f (z) mm, lever %.2f mm" % (t_x, b_z, lever), f"{F_max * sig_t_per_N:.0f}", f"{k_t:.0f}", "%.0f" % C["PA12_MJF"]["sigma_flex"]],
-            ["carriage tongue %.1f mm thick (proposal)" % t_alt, f"{F_max * sig_alt:.0f}", f"{k_alt:.0f}", "%.0f" % C["PA12_MJF"]["sigma_flex"]]]
+            ["carriage tongue as drawn: %.2f (x) x %.2f (z) mm, lever %.2f mm" % (t_x, b_z, lever), f"{F_max * sig_t_per_N:.0f}", f"{k_t:.0f}", "%.0f" % SIG_T],
+            ["carriage tongue %.1f mm thick (proposal)" % t_alt, f"{F_max * sig_alt:.0f}", f"{k_alt:.0f}", "%.0f" % SIG_T]]
     md.append("Bending stress at F_max = %.1f N, stiffness, and the PA12 flexural allowable.  The tongue carries the whole push force in its thin direction (0.6 mm in x), "
               "cantilevered %.2f mm out of the carriage, root stress %.1f MPa per newton (shear only %.1f MPa/N).\n" % (F_max, lever, sig_t_per_N, tau_t))
     md.append(table(["element", "stress at F_max MPa", "stiffness N/mm", "allowable MPa"], rows))
     md.append("Allowable thrust through the tongue as drawn: **%.1f N** (PA12) / %.1f N (SLA tough); with a %.1f mm tongue %.1f N.  Series stiffness of the whole train: "
               "%.0f N/mm (as drawn), %.0f N/mm (tongue %.1f mm), %.0f N/mm (block alone).  Elastic wind-up at 3 N: %.3f mm = %.2f U (as drawn).\n"
-              % (C["PA12_MJF"]["sigma_flex"] / sig_t_per_N, C["SLA_tough"]["sigma_flex"] / sig_t_per_N, t_alt, C["PA12_MJF"]["sigma_flex"] / sig_alt, k_train, k_train_alt, t_alt,
+              % (SIG_T / sig_t_per_N, C["SLA_tough"]["sigma_flex"] / sig_t_per_N, t_alt, SIG_T / sig_alt, k_train, k_train_alt, t_alt,
                  k_train_blk, 3 / k_train, 3 / k_train * A / 10))
 
     # rear/front stops
@@ -254,10 +259,10 @@ def run(ctx: Ctx) -> Result:
             status(sla[0] <= C["SLA_tough"]["eps_allow_snap"] * 0.8, sla[0] <= C["SLA_tough"]["eps_allow_snap"]), f"needs L >= {Lmin['SLA_tough']:.1f} mm; standard resin needs {Lmin['SLA_std']:.1f} mm"),
         Row("4.3", "Structural", "Pull-off force 1.5-10 N (stays on, removable by hand) [ASM], PA12", f"{2 * wedge * kk['PA12_MJF'] * overlap:.1f} N (pull-off), {2 * wedge * kk['PA12_MJF'] * trav:.1f} N (insertion)", "-",
             status(1.5 <= 2 * wedge * kk['PA12_MJF'] * overlap and 2 * wedge * kk['PA12_MJF'] * trav <= 10, True), f"hook overlap only {overlap:.2f} mm, P(no overlap) {100 * mc['PA12_MJF']['p_noret']:.1f} %"),
-        Row("4.4", "Structural", "Carriage tongue bending stress at F_max <= PA12 allowable", f"{F_max * sig_t_per_N:.0f} MPa vs {C['PA12_MJF']['sigma_flex']:.0f}", f"{C['PA12_MJF']['sigma_flex'] / (F_max * sig_t_per_N):.2f}x",
+        Row("4.4", "Structural", "Carriage tongue bending stress at F_max <= PA12 allowable", f"{F_max * sig_t_per_N:.0f} MPa vs {SIG_T:.0f}", f"{SIG_T / (F_max * sig_t_per_N):.2f}x",
             status(F_max * sig_t_per_N <= C["PA12_MJF"]["sigma_flex"], F_max * sig_t_per_N <= 1.5 * C["PA12_MJF"]["sigma_flex"]), f"tongue is {t_x:.1f} mm thick in the load direction; allowable thrust {C['PA12_MJF']['sigma_flex'] / sig_t_per_N:.1f} N"),
         Row("4.5", "Structural", "Tongue stress at the as-designed 105 mA thrust (F %.1f N)" % a1.thrust(ctx, zm0, zs0, hold=True)[0], f"{a1.thrust(ctx, zm0, zs0, hold=True)[0] * sig_t_per_N:.0f} MPa", "-",
-            status(a1.thrust(ctx, zm0, zs0, hold=True)[0] * sig_t_per_N <= C["PA12_MJF"]["sigma_flex"], a1.thrust(ctx, zm0, zs0, hold=True)[0] * sig_t_per_N <= 1.5 * C["PA12_MJF"]["sigma_flex"]), "stall (holding torque) load"),
+            status(a1.thrust(ctx, zm0, zs0, hold=True)[0] * sig_t_per_N <= SIG_T, a1.thrust(ctx, zm0, zs0, hold=True)[0] * sig_t_per_N <= 1.5 * SIG_T), "stall (holding torque) load"),
         Row("4.6", "Structural", "Thrust train stiffness >= 100 N/mm (wind-up <= 0.03 mm at 3 N)", f"{k_train:.0f} N/mm", f"{k_train / 100:.2f}x",
             status(k_train >= 100, k_train >= 50), "tongue dominates; feeds start-lag (A2) and occlusion stored volume (A5)"),
         Row("4.7", "Structural", "Dry-end block + wall bending stress at F_max (PA12)", f"{out_blk['block + end wall (merged)'][0]:.0f} / {out_blk['block only'][0]:.0f} MPa (merged / block only)", "-",
@@ -272,6 +277,6 @@ def run(ctx: Ctx) -> Result:
         Row("4.11", "Structural", "Hard stop bearing stress at F_max", f"{sig_stop:.1f} MPa vs ~40", f"{40 / sig_stop:.0f}x", status(sig_stop <= 20, sig_stop <= 40), ""),
     ]
     ctx.shared["a4"] = {"k_train": k_train, "k_train_alt": k_train_alt, "k_tongue": k_t, "F_max": F_max, "lever": lever, "sig_t_per_N": sig_t_per_N, "snap": snap,
-                        "F_allow_tongue": C["PA12_MJF"]["sigma_flex"] / sig_t_per_N, "Lmin": Lmin, "arm_L": L, "wedge": wedge, "overlap": overlap, "trav": trav}
+                        "F_allow_tongue": SIG_T / sig_t_per_N, "Lmin": Lmin, "arm_L": L, "wedge": wedge, "overlap": overlap, "trav": trav}
     res.md = "\n".join(md)
     return res

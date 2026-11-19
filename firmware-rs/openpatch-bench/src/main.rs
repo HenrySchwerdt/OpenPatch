@@ -75,6 +75,8 @@ async fn main(spawner: Spawner) {
         config::PRESET.id as u16
     );
     config::assert_no_test_calibrations();
+    // why did the MCU start? RESETREAS must be read before anything clears it; the HAL reports it to the core (H3)
+    shared::RESET_REASON.store(hal::read_and_clear_resetreas(), core::sync::atomic::Ordering::Relaxed);
     let p = embassy_nrf::init(irqs::embassy_config());
     board::uicr_setup();
     irqs::set_driver_priorities();
@@ -194,7 +196,14 @@ async fn main(spawner: Spawner) {
     let mut pump = Pump::new(hal, cal.as_ref(), RESERVOIR_CAPACITY, evt_start);
     let mut key_src = crypto::key_source();
     let mut session = crypto::make_session(&mut key_src);
-    let bs = safety::BootState { seq_ceiling: boot.seq_ceiling, evt_ceiling: evt_start, reservoir: boot.reservoir, pod: boot.pod };
+    let bs = safety::BootState {
+        seq_ceiling: boot.seq_ceiling,
+        evt_ceiling: evt_start,
+        reservoir: boot.reservoir,
+        pod: boot.pod,
+        sched: boot.sched,
+        temp: boot.temp,
+    };
     safety::restore(&mut pump, &mut session, &bs);
 
     // ---- safety task on its own interrupt executor ----

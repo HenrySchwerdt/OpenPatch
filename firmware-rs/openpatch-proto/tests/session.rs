@@ -180,3 +180,42 @@ fn session_restore_last_seq_blocks_replay_of_older_frames() {
     let n = make_cmd(&mut s, 11, false, &mut buf).unwrap();
     assert!(s.open(&buf[..n], &mut plain).is_ok());
 }
+
+// ---- direction is fixed by the role (FINDING-001) ----
+#[test]
+fn pod_refuses_response_and_notification_frames_before_anything_else() {
+    for (allow_plain, enc) in [(false, true), (true, true), (true, false)] {
+        let mut pod = fake(true, allow_plain);
+        let mut own = fake(true, allow_plain); // the pod's sealing side: its own output reflected back
+        let (mut buf, mut plain) = ([0u8; 96], [0u8; 96]);
+        let n = own.seal(true, cmd::BOLUS | RSP_BIT, 5, enc, &[tag::RESULT, 1, 0], &mut buf).unwrap();
+        assert_eq!(pod.open(&buf[..n], &mut plain).unwrap_err(), Error::Frame, "reflected response (enc {enc}, plain ok {allow_plain})");
+        let n = own.seal_notification(notify::FRAME_TYPE, 9, enc, &[tag::NOTIFY_KIND, 1, 2], &mut buf).unwrap();
+        assert_eq!(pod.open(&buf[..n], &mut plain).unwrap_err(), Error::Frame, "reflected notification");
+        // no state touched: not seen, no replay counter, the crypto hook never ran
+        assert!(!pod.rx_seen());
+        assert_eq!(pod.last_rx_seq(), 0);
+        assert_eq!(pod.ccm().accepted_calls, 0);
+        // a genuine command with a LOWER seq than the reflected frame is still accepted afterwards
+        let n = make_cmd(&mut own, 1, enc, &mut buf).unwrap();
+        assert!(pod.open(&buf[..n], &mut plain).is_ok(), "reflection must not advance the replay state");
+    }
+}
+
+#[test]
+fn phone_accepts_only_responses_and_notifications() {
+    let mut pod = fake(true, false);
+    let mut phone = fake(true, false).with_role(LinkRole::Phone);
+    let (mut buf, mut plain) = ([0u8; 96], [0u8; 96]);
+    let n = pod.seal(true, cmd::BOLUS | RSP_BIT, 5, true, &[tag::RESULT, 1, 0], &mut buf).unwrap();
+    assert_eq!(phone.open(&buf[..n], &mut plain).unwrap().seq, 5);
+    let n = pod.seal_notification(notify::FRAME_TYPE, 9, true, &[tag::NOTIFY_KIND, 1, 2], &mut buf).unwrap();
+    assert_eq!(phone.open(&buf[..n], &mut plain).unwrap().type_, notify::FRAME_TYPE);
+    // a command-direction frame (its own, or an attacker's) is not a valid inbound frame for the phone
+    let n = make_cmd(&mut phone, 3, true, &mut buf).unwrap();
+    assert_eq!(phone.open(&buf[..n], &mut plain).unwrap_err(), Error::Frame);
+    // responses are not replay-checked (they echo the command seq)
+    let n = pod.seal(true, cmd::BOLUS | RSP_BIT, 5, true, &[tag::RESULT, 1, 0], &mut buf).unwrap();
+    assert!(phone.open(&buf[..n], &mut plain).is_ok());
+    assert!(phone.open(&buf[..n], &mut plain).is_ok());
+}

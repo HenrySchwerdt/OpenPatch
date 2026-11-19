@@ -1,0 +1,117 @@
+/*
+ * OpenPatch protocol v1.1 -- SESSION handshake (docs/04-protocol.md sections 4.2, 4.3, 5.2).
+ * Implementation reference: firmware-rs/openpatch-proto/src/handshake.rs (Mode::Session).
+ *
+ * TEST PROJECT, not a medical device (see DISCLAIMER.md).
+ *
+ * Scope of THIS file: key secrecy, forward secrecy under PS and under ephemeral compromise, injective mutual agreement
+ * (= replay resistance of the handshake). The protected command channel (command/response authenticity, reflection,
+ * FINDING-001) is modelled in security/formal/proverif/openpatch_session.pv.in, which is much faster on that part.
+ *
+ * Starting point: phone and pod share a pairing secret PS (output of an AUTHENTICATED pairing, i.e. the OOB variant of
+ * openpatch_pairing.spthy.in; with TOFU pairing PS is attacker-known and nothing below holds).
+ *
+ * Abstractions: HKDF/HMAC/SHA-256 are independent random oracles; X25519 is an abstract DH group (low-order points not
+ * modelled, covered by unit tests); the compromise model is explicit: RevealPS (flash read-out) and RevealEph (leak of one
+ * side's ephemeral secret) can be applied to any session.
+ */
+theory OpenPatch_Session
+begin
+
+builtins: diffie-hellman, hashing
+functions: hmac/2
+
+restriction Equality: "All x y #i. Eq(x, y) @ #i ==> x = y"
+
+/* ---- setup and compromise model -------------------------------------------------------------------- */
+rule Setup_PS:                      // result of an authenticated pairing
+  [ Fr(~ps) ] --[ Setup(~ps) ]-> [ !PS(~ps) ]
+
+rule Reveal_PS:                     // long-term compromise of PS (flash read-out, phone compromise)
+  [ !PS(ps) ] --[ RevealPS(ps) ]-> [ Out(ps) ]
+
+rule Reveal_Eph_App:                // compromise of the phone's ephemeral X25519 secret
+  [ AppSt(ps, ~xa, ~nA) ] --[ RevealEph(~xa) ]-> [ Out(~xa) ]
+
+rule Reveal_Eph_Pod:                // compromise of the pod's ephemeral X25519 secret
+  [ PodSt(ps, ~xb, th, kc, kp, ck) ] --[ RevealEph(~xb) ]-> [ Out(~xb) ]
+
+/* ---- handshake ----------------------------------------------------------------------------------------- */
+rule App_Init:
+  let psid = h(<'psid', ps>)
+  in
+  [ !PS(ps), Fr(~xa), Fr(~nA) ]
+  --[ AppStart(ps) ]->
+  [ Out(<'g'^~xa, ~nA, psid>), AppSt(ps, ~xa, ~nA) ]
+
+rule Pod_Init:
+  let pubB = 'g'^~xb
+      dh   = pubA^~xb
+      psid = h(<'psid', ps>)
+      th   = h(<'th', 'sess', psid, pubA, pubB, nA, ~nB>)
+      prk  = h(<'prk', ps, dh>)
+      kc   = h(<'c2p', prk, th>)
+      kp   = h(<'p2c', prk, th>)
+      ck   = h(<'ck', prk, th>)
+      conf = hmac(ck, <'pod', th>)
+  in
+  [ !PS(ps), In(<pubA, nA, psid>), Fr(~xb), Fr(~nB) ]
+  --[ PodInit(ps, th, kc, kp), PodEph(th, ~xb) ]->
+  [ Out(<pubB, ~nB, conf>), PodSt(ps, ~xb, th, kc, kp, ck) ]
+
+rule App_Finish:
+  let pubA = 'g'^~xa
+      dh   = pubB^~xa
+      psid = h(<'psid', ps>)
+      th   = h(<'th', 'sess', psid, pubA, pubB, ~nA, nB>)
+      prk  = h(<'prk', ps, dh>)
+      kc   = h(<'c2p', prk, th>)
+      kp   = h(<'p2c', prk, th>)
+      ck   = h(<'ck', prk, th>)
+  in
+  [ AppSt(ps, ~xa, ~nA), In(<pubB, nB, conf>) ]
+  --[ Eq(conf, hmac(ck, <'pod', th>)), AppUp(ps, th, kc, kp), AppEph(th, ~xa) ]->
+  [ Out(hmac(ck, <'app', th>)) ]
+
+rule Pod_Finish:                    // keys are installed ONLY after the phone's confirmation verifies
+  [ In(cApp), PodSt(ps, ~xb, th, kc, kp, ck) ]
+  --[ Eq(cApp, hmac(ck, <'app', th>)), PodUp(ps, th, kc, kp) ]->
+  [ Out('ok') ]
+
+/* ---- sanity -------------------------------------------------------------------------------------------- */
+lemma executable_session:
+  exists-trace
+  "Ex ps th kc kp #i #j. AppUp(ps, th, kc, kp) @ #i & PodUp(ps, th, kc, kp) @ #j"
+
+/* ---- security properties --------------------------------------------------------------------------- */
+
+// S1 secrecy of the session keys unless PS itself is ever revealed (holds even if EVERY ephemeral is revealed).
+lemma session_key_secrecy_ps_only:
+  "All ps th kc kp #i. AppUp(ps, th, kc, kp) @ #i ==>
+      (not (Ex #k. K(kc) @ #k) & not (Ex #k. K(kp) @ #k))
+      | (Ex #r. RevealPS(ps) @ #r)"
+
+// S2 forward secrecy: revealing PS AFTER the session was established does not reveal its keys, unless an
+//    ephemeral secret of that very session was revealed as well (both are needed to recompute the keys).
+lemma session_forward_secrecy:
+  "All ps th kc kp #i. AppUp(ps, th, kc, kp) @ #i ==>
+      (not (Ex #k. K(kc) @ #k) & not (Ex #k. K(kp) @ #k))
+      | (Ex #r. RevealPS(ps) @ #r & #r < #i)
+      | (Ex x #r #e. RevealEph(x) @ #r & PodEph(th, x) @ #e)
+      | (Ex x #r #e. RevealEph(x) @ #r & AppEph(th, x) @ #e)"
+
+// S3 injective agreement, pod side: every session the pod installs matches exactly one phone run
+//    (same transcript, same keys), so a recorded handshake cannot be replayed into a second session.
+lemma session_agreement_pod_injective:
+  "All ps th kc kp #i. PodUp(ps, th, kc, kp) @ #i ==>
+      ((Ex #j. AppUp(ps, th, kc, kp) @ #j & #j < #i)
+        & not (Ex #i2. PodUp(ps, th, kc, kp) @ #i2 & not (#i2 = #i)))
+      | (Ex #r. RevealPS(ps) @ #r)"
+
+// S4 agreement, phone side: the phone only accepts a pod that ran the same transcript (and derived the same keys).
+lemma session_agreement_app:
+  "All ps th kc kp #i. AppUp(ps, th, kc, kp) @ #i ==>
+      (Ex #j. PodInit(ps, th, kc, kp) @ #j & #j < #i)
+      | (Ex #r. RevealPS(ps) @ #r)"
+
+end

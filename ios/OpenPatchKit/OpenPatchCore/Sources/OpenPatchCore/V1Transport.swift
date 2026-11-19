@@ -376,6 +376,7 @@ public final class V1Transport: OpenPatchTransport {
         case .selfTestRefused: return .selfTestRefused
         case .latched: return .latched
         case .notClearable: return .notClearable
+        case .noSchedule: return .noSchedule
         }
     }
 

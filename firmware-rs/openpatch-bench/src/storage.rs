@@ -17,12 +17,15 @@
 //!  4 CAL   24 byte DriveCal image (magic + CRC), never silently overwritten
 //!  5 POD   u32 pair id, u8 role, u8 active, u32 activation id, u32 wear s (upper bound)
 //!  6 PS    32 byte application layer pairing secret (protocol v1.1 section 5.2)
+//!  7 SCHED basal schedule: u8 count, count x (u8 slot, u16 rate mU/h) (`openpatch_core::persist::SchedRec`; 1 byte = none)
+//!  8 TEMP  active temp basal: u16 rate mU/h, u16 remaining minutes rounded down to 30 (`TempRec`; 0 minutes = none)
 //!  16/17   BLE bond slots
 use embassy_embedded_hal::flash::partition::Partition;
 use embassy_sync::blocking_mutex::raw::CriticalSectionRawMutex;
 use embassy_sync::mutex::Mutex;
 use nrf_sdc::mpsl::Flash;
 use openpatch_core::drive_cal::DriveCal;
+use openpatch_core::persist::{SchedRec, TempRec};
 use sequential_storage::cache::{Cache, Uncached};
 use sequential_storage::map::{MapConfig, MapStorage};
 use trouble_host::prelude::{AddrKind, Address, BdAddr, BondInformation, Identity, IdentityResolvingKey, LongTermKey, SecurityLevel};
@@ -41,6 +44,8 @@ const KEY_RES: u8 = 3;
 const KEY_CAL: u8 = 4;
 const KEY_POD: u8 = 5;
 const KEY_PS: u8 = 6;
+const KEY_SCHED: u8 = 7;
+const KEY_TEMP: u8 = 8;
 const KEY_BOND0: u8 = 16;
 const REC_VERSION: u8 = 1;
 /// Longest record + item header, rounded up to the flash word size.
@@ -120,6 +125,10 @@ pub enum PersistMsg {
     Reservoir { fill_mu: u32, consumed_steps: u32 },
     Pod(PodRec),
     Bond(BondRec),
+    /// Basal schedule (F2): rewritten only when it changes.
+    Schedule(SchedRec),
+    /// Active temp basal (F2): rewritten only when it changes.
+    Temp(TempRec),
     /// Application layer pairing secret. Must not be lost: producers `send().await`.
     PairingSecret([u8; 32]),
 }
@@ -151,6 +160,8 @@ pub struct BootData {
     pub reservoir: Option<(u32, u32)>,
     pub cal: CalState,
     pub pod: Option<PodRec>,
+    pub sched: Option<SchedRec>,
+    pub temp: Option<TempRec>,
     pub pairing_secret: Option<[u8; 32]>,
     pub bonds: [Option<BondRec>; MAX_BONDS],
 }
@@ -173,10 +184,10 @@ impl Settings {
         Self { map: MapStorage::new(part, MapConfig::new(0..layout::STORAGE_SIZE), Cache::new_uncached()), buf: [0; BUF_LEN] }
     }
 
-    async fn get(&mut self, key: u8) -> Option<([u8; 48], usize)> {
+    async fn get(&mut self, key: u8) -> Option<([u8; 80], usize)> {
         match self.map.fetch_item::<&[u8]>(&mut self.buf, &key).await {
-            Ok(Some(v)) if !v.is_empty() && v[0] == REC_VERSION && v.len() <= 48 => {
-                let mut o = [0u8; 48];
+            Ok(Some(v)) if !v.is_empty() && v[0] == REC_VERSION && v.len() <= 80 => {
+                let mut o = [0u8; 80];
                 o[..v.len()].copy_from_slice(v);
                 Some((o, v.len()))
             }
@@ -212,6 +223,8 @@ impl Settings {
             activation_id: le32(&b[7..11]),
             wear_s: le32(&b[11..15]),
         });
+        let sched = self.get(KEY_SCHED).await.and_then(|(b, n)| SchedRec::from_slice(&b[1..n]));
+        let temp = self.get(KEY_TEMP).await.filter(|(_, n)| *n == 5).and_then(|(b, _)| TempRec::from_bytes(&b[1..5]));
         let pairing_secret = self.get(KEY_PS).await.filter(|(_, n)| *n == 33).map(|(b, _)| {
             let mut ps = [0u8; 32];
             ps.copy_from_slice(&b[1..33]);
@@ -258,7 +271,7 @@ impl Settings {
                 *slot = Some(BondRec(r));
             }
         }
-        BootData { seq_ceiling, evt_ceiling, reservoir, cal, pod, pairing_secret, bonds }
+        BootData { seq_ceiling, evt_ceiling, reservoir, cal, pod, sched, temp, pairing_secret, bonds }
     }
 
     async fn write_bond(&mut self, rec: BondRec) {
@@ -313,6 +326,18 @@ impl Settings {
                 self.put(KEY_POD, &r).await;
             }
             PersistMsg::Bond(b) => self.write_bond(b).await,
+            PersistMsg::Schedule(s) => {
+                let mut r = [0u8; 80];
+                r[0] = REC_VERSION;
+                let b = s.as_bytes();
+                r[1..1 + b.len()].copy_from_slice(b);
+                self.put(KEY_SCHED, &r[..1 + b.len()]).await;
+            }
+            PersistMsg::Temp(t) => {
+                let mut r = [REC_VERSION, 0, 0, 0, 0];
+                r[1..5].copy_from_slice(&t.to_bytes());
+                self.put(KEY_TEMP, &r).await;
+            }
             PersistMsg::PairingSecret(ps) => {
                 let mut r = [0u8; 33];
                 r[0] = REC_VERSION;
@@ -330,6 +355,8 @@ struct Pending {
     evt: Option<u32>,
     res: Option<(u32, u32)>,
     pod: Option<PodRec>,
+    sched: Option<SchedRec>,
+    temp: Option<TempRec>,
     ps: Option<[u8; 32]>,
     bonds: heapless_bonds::Bonds,
 }
@@ -357,6 +384,8 @@ impl Pending {
             PersistMsg::EvtCeiling(c) => self.evt = Some(self.evt.map_or(c, |o| o.max(c))),
             PersistMsg::Reservoir { fill_mu, consumed_steps } => self.res = Some((fill_mu, consumed_steps)),
             PersistMsg::Pod(p) => self.pod = Some(p),
+            PersistMsg::Schedule(s) => self.sched = Some(s),
+            PersistMsg::Temp(t) => self.temp = Some(t),
             PersistMsg::Bond(b) => self.bonds.push(b),
             PersistMsg::PairingSecret(ps) => self.ps = Some(ps),
         }
@@ -385,6 +414,12 @@ pub async fn persist_task(mut settings: Settings) -> ! {
         }
         if let Some(pod) = p.pod {
             settings.write(PersistMsg::Pod(pod)).await;
+        }
+        if let Some(s) = p.sched {
+            settings.write(PersistMsg::Schedule(s)).await;
+        }
+        if let Some(t) = p.temp {
+            settings.write(PersistMsg::Temp(t)).await;
         }
         if let Some(ps) = p.ps {
             settings.write(PersistMsg::PairingSecret(ps)).await;

@@ -54,13 +54,14 @@ distributions below are asserted loosely in `tests/montecarlo.rs`.
 
 | item | value | basis |
 |---|---|---|
-| reservoir, leadscrew, motor, gear ratio, efficiencies | spec 3, 4 (74.6 mm^2, M1.6 x 0.35, NFP-608-26.45, 15:12, 1.6 gf*cm, gearhead 0.64, screw 0.20) | spec |
+| reservoir, leadscrew, motor, gear ratio, efficiencies | spec 3, 4 (74.6 mm^2, M1.6 x 0.35, NFP-608-26.45, GHW 16:20 step-down pair = 0.003949 U/step, 1.6 gf*cm at the rated 181 mA, gearhead 0.64, screw 0.20) | spec |
 | pull-out torque vs step rate | spec value valid at 200 Hz, corner 500 Hz (0.69 x at the 600 Hz draw rate) | ASSUMPTION (back-EMF, `architecture.md`) |
 | supply | full torque >= 3.3 V, linear down to nothing at 1.8 V | ASSUMPTION (chopper current limit, STSPIN220 VS min) |
-| motor current sense | free 70 mA, stalled 175 mA, linear in load, noise 3 mA; core threshold 140 mA x 3 bursts | ASSUMPTION; the 140 mA is itself a "placeholder" in `limits.rs` |
+| run current | 160 mA peak per phase (VREF 0.160 V / 1.0 ohm, `limits::MOTOR_RUN_CURRENT_MA`); pull-out torque scales with run / rated (160 / 181) | electronics + ASSUMPTION (torque ~ current) |
+| motor current sense | free 107 mA, stalled 267 mA (2/3 and 5/3 of the run current), linear in load, noise 3 mA; core thresholds from `limits.rs`: forward 213 mA x 3 bursts, draw 253 mA, stored-volume rise 40 mA | ASSUMPTION (ratios of the old 105 mA model scaled to 160 mA); placeholders until the water bench |
 | seal friction | static 1.5 N, dynamic 0.8 N | ASSUMPTION (spec: "biggest development risk") |
 | carriage -> plunger stiffness | 40 N/mm | ASSUMPTION; dominates lost motion and the volume soaked up before an occlusion alarm |
-| backlash | 2.0 deg gear pair at the screw + 1.5 deg gearhead output | ASSUMPTION |
+| backlash | 2.0 deg gear pair at the screw + 1.5 deg gearhead output (x 16/20 into the screw domain) | ASSUMPTION |
 | lead error | 0 % nominal, +-0.2 um once per turn | ASSUMPTION (tolerance sampled by Monte Carlo) |
 | fluid compliance | 0.05 ul/kPa + isothermal air (bubble, connector air) | ASSUMPTION |
 | duckbill | cracks at 3 kPa (spec: 1 .. 5), closes at half of it | spec + ASSUMPTION |
@@ -72,7 +73,7 @@ distributions below are asserted loosely in `tests/montecarlo.rs`.
 | battery | 25 mAh, 1.5 ohm internal resistance, PCM cut-off 2.5 V, quiescent 100 uA | spec 1b / 5 + ASSUMPTION |
 | TPL5010 | resets 2.0 s after the last DONE; boot 300 ms | `architecture.md` |
 | flash | 90 ms per record write, A/B atomic (a torn write keeps the previous copy) | `architecture.md` + ASSUMPTION |
-| persistence policy | constants copied from `openpatch-bench/src/config.rs` (reservoir +64 steps, wear +600 s, event ceiling +64) | copy, keep in sync |
+| persistence policy | the SAME code as the firmware: `openpatch_core::persist` (reservoir margin +64 steps added once per run, schedule and temp basal records), constants copied from `openpatch-bench/src/config.rs` (wear +600 s, event ceiling +64) | shared code + copy, keep in sync |
 
 Not modelled: temperature, fluid viscosity and degradation, motor resonance and inertia, cannula
 kinking physics beyond a resistance factor, RF / BLE timing, Qi charging, the SMA drive.
@@ -82,7 +83,8 @@ Bench measurements that would replace the most influential assumptions, in order
 1. Force versus displacement of carriage + plunger + seal (static and dynamic break-away, stiffness).
    Sets lost motion, small-dose lumping and the water soaked up before an occlusion alarm.
 2. Motor current versus load at 200 Hz and 600 Hz (`CsvRow` has no current column yet: see
-   `architecture.md`). Sets whether the 140 mA threshold has margin for forward delivery AND draw.
+   `architecture.md`). Sets whether the 213 mA forward threshold, the 253 mA draw threshold and the 40 mA stored-volume
+   rise have margin at 160 mA run current.
 3. Thrust of the geared drive at 200 / 600 Hz and 3.3 .. 4.2 V.
 4. Pressure-volume curve of the closed reservoir (compliance, bubbles).
 5. TPL5010 timing on the scope (WAKE / DONE / RSTn) and the VMOT collapse time.
@@ -91,37 +93,38 @@ Bench measurements that would replace the most influential assumptions, in order
 
 All scenarios use the nominal plant (defaults) unless the description says otherwise. `needle` is the
 water that really left the outlet (gravimetric equivalent), `core` what the pod booked as delivered.
-The first hour of every scenario carries the lost motion after the refill's reversal (backlash plus
-seal and arm elasticity, about 0.4 U with the assumed stiffness), so a few percent of
-under-delivery there is expected.
+The standard set-up primes after the draw: the core first takes up the lost motion of the refill's reversal
+(backlash plus seal and arm elasticity, about 0.4 U with the assumed stiffness; 0.63 U take-up, not counted as
+delivery) and then primes, so the first dose is no longer short. The set-up waits one minute after the prime (the
+take-up counts against the 1.7 U/min backstop).
 
 | scenario | what happens | verdict | result |
 |---|---|---|---|
-| `wear_48h` | 48 h of wear: 5-segment basal profile, 9 boluses (0.05 .. 6 U), two temp basals, a phone dropout. Nominal plant. | ok | core 79.12 U, needle 78.80 U (-0.4 %); max 60 min: core 6.93 U, needle 6.96 U |
-| `refill_draw` | Mid-life automatic refill: suspend, undock, draw 50 U with the motor reversing (interlock path DIR_REVERSE), dock, prime, resume. | ok | core 1.94 U, needle 1.53 U (-20.9 %); draw 50.0 U requested, core 49.91 U, vial 49.23 U (state 2); max 60 min: core 1.01 U, needle 1.04 U |
-| `draw_endstop` | The housing stops the plunger at 60 U although the pod believes it holds 100 U: a draw of 50 U on top of 30 U stalls at the rear end-stop. | ok | core 0.02 U, needle 0.00 U (-100.0 %); draw 50.0 U requested, core 30.28 U, vial 30.04 U (state 3); max 60 min: core 0.02 U, needle 0.00 U |
-| `prime` | Standard bring-up with a 0.3 U prime. What does the prime really purge? | ok | core 0.17 U, needle 0.00 U (-100.0 %); max 60 min: core 0.17 U, needle 0.00 U |
-| `occlusion_basal` | Cannula blocked during a 1 U/h basal. Detection latency and the water that is not delivered when the alarm comes (spec: <= 2 U). | ok | core 1.34 U, needle 0.26 U (-80.7 %); Occlude: alarm OCCLUSION after 3019 s, 0.83 U undelivered; max 60 min: core 1.01 U, needle 0.19 U |
-| `occlusion_basal_high` | Cannula blocked during a 3 U/h basal (high-rate end of the range). | ok | core 2.30 U, needle 1.20 U (-47.9 %); Occlude: alarm OCCLUSION after 961 s, 0.80 U undelivered; max 60 min: core 2.30 U, needle 1.18 U |
-| `occlusion_bolus` | Cannula blocked 60 s into an 8 U bolus (1.5 U/min). | ok | core 2.43 U, needle 1.27 U (-47.9 %); Occlude: alarm OCCLUSION after 34 s, 0.85 U undelivered; max 60 min: core 2.43 U, needle 1.27 U |
-| `occlusion_bubble` | Occlusion with a 20 ul air bubble in the reservoir (compliance soaks up water before the pressure rises). | ok | core 2.39 U, needle 0.78 U (-67.2 %); Occlude: alarm OCCLUSION after 2508 s, 1.39 U undelivered; max 60 min: core 2.01 U, needle 0.71 U |
-| `dock_loss_mid_bolus` | Pod pulled off the cannula 60 s into a 5 U bolus. Delivery must stop, the remainder must not be caught up. | ok | core 1.70 U, needle 1.38 U (-19.0 %); max 60 min: core 1.70 U, needle 1.38 U |
-| `undocked_firmware_bug` | Firmware-bug injection: 200 forward pulses are issued straight on the HAL while the pod is undocked. Only the hardware interlock stands in the way. | ok | core 0.02 U, needle 0.00 U (-100.0 %); interlock refused 1 forward burst(s) undocked; max 60 min: core 0.02 U, needle 0.00 U |
-| `hall_stuck_docked` | Single-fault analysis: the dock hall switch sticks at DOCKED while the pod is off the cannula. The interlock gate AND the core trust the same signal. | ok | core 2.47 U, needle 2.16 U (-12.8 %); **397 forward steps while undocked** (hall forced); max 60 min: core 2.47 U, needle 2.16 U |
-| `magnet_falls_off` | The leadscrew magnet comes off in the middle of a 4 U bolus. The sensor now reads garbage; can the core still see that delivery is no longer verified? | ok | core 1.72 U, needle 1.38 U (-19.6 %); Magnet: alarm OCCLUSION+ENCODER_DEVIATION after 2 s, 0.00 U undelivered; max 60 min: core 1.72 U, needle 1.38 U |
-| `magnet_falls_off_basal` | The leadscrew magnet comes off during a 1 U/h basal. | ok | core 0.71 U, needle 0.40 U (-43.3 %); Magnet: alarm ENCODER_DEVIATION after 754 s, -0.02 U undelivered; max 60 min: core 0.71 U, needle 0.40 U |
-| `angle_sensor_nack` | The TMAG5273 stops answering on I2C during basal delivery. | ok | core 0.08 U, needle 0.00 U (-100.0 %); AngleNack: alarm INTERNAL after 1 s, 0.00 U undelivered; max 60 min: core 0.08 U, needle 0.00 U |
-| `motor_phase_open` | One motor winding opens (broken lead / solder joint) at t = 600 s; a 3 U bolus follows. | ok | core 0.73 U, needle 0.13 U (-82.5 %); PhaseOpen: alarm ENCODER_DEVIATION after 82 s, 0.44 U undelivered; max 60 min: core 0.73 U, needle 0.13 U |
-| `hang_runaway` | Worst case firmware crash: the safety task hangs mid-bolus with the driver armed and the step generator still running at 200 Hz. The TPL5010 must cut the motor supply. | ok | core 0.76 U, needle 2.92 U (+284.8 %); Hang: pod reset after 1.9 s; 1 reset(s); runaway before the watchdog cut: 389 steps; max 60 min: core 0.76 U, needle 2.92 U |
-| `hang_soft` | Software hang (no tick, no DONE) during a bolus, no runaway. Watchdog reset, pod comes back suspended. | ok | core 0.76 U, needle 0.44 U (-41.8 %); Hang: pod reset after 1.9 s; 1 reset(s); max 60 min: core 0.76 U, needle 0.44 U |
-| `watchdog_kick_stuck` | The DONE line is dead (hardware defect): the TPL5010 resets the MCU every period. The pod must never deliver in this state. | ok | core 0.06 U, needle 0.00 U (-100.0 %); KickStuck: pod reset after 1.9 s; 167 reset(s); max 60 min: core 0.06 U, needle 0.00 U |
-| `brownout_bolus` | A 50 ms supply dip (contact bounce) below the PCM cut-off 40 s into a 5 U bolus. Reset, restore from flash, come back suspended. | ok | core 1.23 U, needle 0.91 U (-25.8 %); Brownout: pod reset after 0.0 s; 1 reset(s); max 60 min: core 1.23 U, needle 0.91 U |
-| `battery_depletion` | Cell voltage collapses: LOW_BATTERY below 3.5 V, BATTERY_CRITICAL below 3.3 V stops delivery. | ok | core 0.50 U, needle 0.17 U (-66.6 %); BatteryOcv: alarm BATTERY_CRITICAL after 1 s, 0.00 U undelivered; max 60 min: core 0.50 U, needle 0.17 U |
-| `flash_power_loss` | Power cut in the middle of a flash write (reservoir / pod record) during basal; A/B atomic records. | ok | core 1.88 U, needle 1.57 U (-16.3 %); FlashPowerLoss: pod reset after 99.0 s; 1 reset(s); max 60 min: core 1.88 U, needle 1.57 U |
-| `flash_power_loss_worst` | Same, but the torn write also destroys the previous copy of the record (pessimistic flash model). The pod must fail safe. | ok | core 0.88 U, needle 0.56 U (-36.6 %); FlashPowerLoss: pod reset after 99.0 s; 1 reset(s); max 60 min: core 0.88 U, needle 0.56 U |
-| `comms_loss_temp` | A 3 U/h temp basal (6 h) is running when the phone disappears: after 30 min without a frame the pod falls back to the programmed 1 U/h. | ok | core 5.31 U, needle 4.98 U (-6.3 %); max 60 min: core 2.31 U, needle 2.21 U |
-| `gear_preset_mismatch` | The firmware preset says 15:12 (0.00617 U/step) but an 18:18 pair is fitted (0.00494 U/step): a 25 % dosing error unless the encoder catches it (see STATUS.md gear-ratio warning). | ok | core 0.73 U, needle 0.20 U (-73.0 %); max 60 min: core 0.73 U, needle 0.20 U |
-| `limits_stress` | Try to break the limits: 10 U boluses back to back on top of a 5 U/h basal, with +2 % area and +1.5 % lead tolerance. Commanded side must stay <= 15 U/h; what does the needle see? | ok | core 19.44 U, needle 19.79 U (+1.8 %); max 60 min: core 14.45 U, needle 14.98 U |
+| `wear_48h` | 48 h of wear: 5-segment basal profile, 9 boluses (0.05 .. 6 U), two temp basals, a phone dropout. Nominal plant. | ok | core 79.12 U, needle 79.46 U (+0.4 %); max 60 min: core 6.93 U, needle 6.95 U |
+| `refill_draw` | Mid-life automatic refill: suspend, undock, draw 50 U with the motor reversing (interlock path DIR_REVERSE), dock, prime, resume. | ok | core 1.94 U, needle 2.83 U (+46.2 %); draw 50.0 U requested, core 49.91 U, vial 49.50 U (state 2); max 60 min: core 1.00 U, needle 1.56 U |
+| `draw_endstop` | The housing stops the plunger at 60 U although the pod believes it holds 100 U: a draw of 50 U on top of 30 U stalls at the rear end-stop. | ok | core 0.03 U, needle 0.40 U (+1366.2 %); draw 50.0 U requested, core 30.91 U, vial 30.58 U (state 3); max 60 min: core 0.03 U, needle 0.00 U |
+| `prime` | Standard bring-up with a 0.3 U prime. What does the prime really purge? | ok | core 0.17 U, needle 0.48 U (+192.6 %); max 60 min: core 0.17 U, needle 0.08 U |
+| `occlusion_basal` | Cannula blocked during a 1 U/h basal. Detection latency and the water that is not delivered when the alarm comes (spec: <= 2 U). | ok | core 1.15 U, needle 0.85 U (-25.4 %); Occlude: alarm OCCLUSION after 2322 s, 0.64 U undelivered; max 60 min: core 1.00 U, needle 0.49 U |
+| `occlusion_basal_high` | Cannula blocked during a 3 U/h basal (high-rate end of the range). | ok | core 2.23 U, needle 1.83 U (-17.9 %); Occlude: alarm OCCLUSION after 881 s, 0.73 U undelivered; max 60 min: core 2.23 U, needle 1.51 U |
+| `occlusion_bolus` | Cannula blocked 60 s into an 8 U bolus (1.5 U/min). | ok | core 2.43 U, needle 1.90 U (-21.7 %); Occlude: alarm OCCLUSION after 34 s, 0.85 U undelivered; max 60 min: core 2.43 U, needle 1.61 U |
+| `occlusion_bubble` | Occlusion with a 20 ul air bubble in the reservoir (compliance soaks up water before the pressure rises). | ok | core 2.19 U, needle 1.37 U (-37.6 %); Occlude: alarm OCCLUSION after 2151 s, 1.19 U undelivered; max 60 min: core 2.00 U, needle 1.00 U |
+| `dock_loss_mid_bolus` | Pod pulled off the cannula 60 s into a 5 U bolus. Delivery must stop, the remainder must not be caught up. | ok | core 1.71 U, needle 2.01 U (+17.5 %); max 60 min: core 1.71 U, needle 1.61 U |
+| `undocked_firmware_bug` | Firmware-bug injection: 200 forward pulses are issued straight on the HAL while the pod is undocked. Only the hardware interlock stands in the way. | ok | core 0.03 U, needle 0.40 U (+1382.5 %); interlock refused 1 forward burst(s) undocked; max 60 min: core 0.03 U, needle 0.00 U |
+| `hall_stuck_docked` | Single-fault analysis: the dock hall switch sticks at DOCKED while the pod is off the cannula. The interlock gate AND the core trust the same signal. | ok | core 2.48 U, needle 2.79 U (+12.6 %); **620 forward steps while undocked** (hall forced); max 60 min: core 2.48 U, needle 2.39 U |
+| `magnet_falls_off` | The leadscrew magnet comes off in the middle of a 4 U bolus. The sensor now reads garbage; can the core still see that delivery is no longer verified? | ok | core 1.69 U, needle 2.01 U (+18.9 %); Magnet: alarm ENCODER_DEVIATION after 1 s, -0.02 U undelivered; max 60 min: core 1.69 U, needle 1.61 U |
+| `magnet_falls_off_basal` | The leadscrew magnet comes off during a 1 U/h basal. | ok | core 0.50 U, needle 0.79 U (+59.7 %); Magnet: alarm OCCLUSION after 4 s, 0.00 U undelivered; max 60 min: core 0.50 U, needle 0.39 U |
+| `angle_sensor_nack` | The TMAG5273 stops answering on I2C during basal delivery. | ok | core 0.08 U, needle 0.40 U (+388.1 %); AngleNack: alarm INTERNAL after 1 s, 0.00 U undelivered; max 60 min: core 0.08 U, needle 0.00 U |
+| `motor_phase_open` | One motor winding opens (broken lead / solder joint) at t = 600 s; a 3 U bolus follows. | ok | core 0.56 U, needle 0.68 U (+22.0 %); PhaseOpen: alarm OCCLUSION after 75 s, 0.20 U undelivered; max 60 min: core 0.56 U, needle 0.28 U |
+| `hang_runaway` | Worst case firmware crash: the safety task hangs mid-bolus with the driver armed and the step generator still running at 200 Hz. The TPL5010 must cut the motor supply. | ok | core 0.76 U, needle 1.99 U (+161.6 %); Hang: pod reset after 1.1 s; 1 reset(s); runaway before the watchdog cut: 210 steps; max 60 min: core 0.76 U, needle 1.59 U |
+| `hang_soft` | Software hang (no tick, no DONE) during a bolus, no runaway. Watchdog reset, pod comes back suspended. | ok | core 0.76 U, needle 1.07 U (+40.1 %); Hang: pod reset after 1.1 s; 1 reset(s); max 60 min: core 0.76 U, needle 0.67 U |
+| `watchdog_kick_stuck` | The DONE line is dead (hardware defect): the TPL5010 resets the MCU every period. The pod must never deliver in this state. | ok | core 0.06 U, needle 0.40 U (+627.8 %); KickStuck: pod reset after 1.0 s; 167 reset(s); max 60 min: core 0.06 U, needle 0.00 U |
+| `brownout_bolus` | A 50 ms supply dip (contact bounce) below the PCM cut-off 40 s into a 5 U bolus. Reset, restore from flash, come back suspended. | ok | core 1.23 U, needle 1.54 U (+24.9 %); Brownout: pod reset after 0.0 s; 1 reset(s); max 60 min: core 1.23 U, needle 1.14 U |
+| `battery_depletion` | Cell voltage collapses: LOW_BATTERY below 3.5 V, BATTERY_CRITICAL below 3.3 V stops delivery. | ok | core 0.50 U, needle 0.79 U (+59.7 %); BatteryOcv: alarm BATTERY_CRITICAL after 1 s, 0.00 U undelivered; max 60 min: core 0.50 U, needle 0.39 U |
+| `flash_power_loss` | Power cut in the middle of a flash write (reservoir / pod record) during basal; A/B atomic records. | ok | core 1.78 U, needle 2.09 U (+17.5 %); FlashPowerLoss: pod reset after 204.1 s; 1 reset(s); max 60 min: core 1.78 U, needle 1.69 U |
+| `flash_power_loss_worst` | Same, but the torn write also destroys the previous copy of the record (pessimistic flash model). The pod must fail safe. | ok | core 0.94 U, needle 1.26 U (+33.9 %); FlashPowerLoss: pod reset after 204.1 s; 1 reset(s); max 60 min: core 0.94 U, needle 0.86 U |
+| `comms_loss_temp` | A 3 U/h temp basal (6 h) is running when the phone disappears: after 30 min without a frame the pod falls back to the programmed 1 U/h. | ok | core 5.31 U, needle 5.62 U (+5.9 %); max 60 min: core 2.31 U, needle 2.31 U |
+| `gear_preset_mismatch` | The firmware preset says 16:20 (0.003949 U/step, the pair of the current CAD) but the older 18:18 pair is fitted (0.00494 U/step): the pod OVER-delivers by 25 % unless the encoder catches it. | ok | core 0.07 U, needle 0.62 U (+728.8 %); max 60 min: core 0.07 U, needle 0.00 U |
+| `limits_stress` | Try to break the limits: 10 U boluses back to back on top of a 2 U/h basal, with +2 % area and +1.5 % lead tolerance. The commanded side must stay within the cap (15 U/h less the 4 % tolerance margin) and the needle <= 15 U/h. | ok | core 13.78 U, needle 14.58 U (+5.9 %); max 60 min: core 11.78 U, needle 12.22 U |
 
 
 ## 5. Monte Carlo
@@ -158,17 +161,17 @@ Zero basal, a 1 U warm-up bolus (takes up the lost motion of the refill; reporte
 needle within the bolus time plus 60 s is compared with the command (the gravimetric test of
 `docs/02-safety.md` section 3 step 1 on a perfect balance).
 
-Runs: 1000 (seed 20261119), failed set-ups: 112 [("draw ended in state 3", 112)]. Mean seal static friction / screw efficiency / pull-out of failed vs good pods: 2.10 N / 0.170 / 1.52 gf*cm vs 1.51 N / 0.204 / 1.61 gf*cm.
+Runs: 1000 (seed 20261119), failed set-ups: 0 []. Faults latched during the nominal sequence (false alarms): [("OCCLUSION", 29)].
 
 | bolus | n | mean err % | sd % | 5th % | 50th % | 95th % | worst % | within +-5 % | within +-10 % | mean err mU | sd mU |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 0.05 U | 8880 | -0.18 | 50.74 | -100.00 | 1.23 | 76.93 | 301.8 | 13.2 % | 21.7 % | -0.09 | 25.37 |
-| 1 U | 5328 | -0.11 | 2.47 | -4.06 | -0.23 | 4.19 | 17.6 | 94.4 % | 99.9 % | -1.07 | 24.72 |
-| 10 U | 888 | 0.02 | 0.79 | -1.30 | 0.04 | 1.37 | 2.7 | 100.0 % | 100.0 % | 1.78 | 79.47 |
+| 0.05 U | 9728 | -1.17 | 52.03 | -100.00 | 2.26 | 78.52 | 312.3 | 11.7 % | 21.9 % | -0.59 | 26.01 |
+| 1 U | 5826 | 0.01 | 2.51 | -3.83 | -0.08 | 4.39 | 13.4 | 94.5 % | 99.8 % | 0.15 | 25.05 |
+| 10 U | 971 | -0.03 | 0.80 | -1.33 | -0.03 | 1.26 | -2.6 | 100.0 % | 100.0 % | -3.22 | 80.12 |
 
-Series: 10 x 0.05 U cumulative error -0.89 mU mean (sd 27.16, 5th..95th -39.1 .. 41.9); 6 x 1 U series -0.11 % mean (sd 0.86).
+Series: 10 x 0.05 U cumulative error -5.87 mU mean (sd 29.29, 5th..95th -49.0 .. 31.5); 6 x 1 U series 0.01 % mean (sd 0.84).
 
-First 1 U bolus after a refill + 0.3 U prime (lost motion of the draw reversal): mean error -348 mU, 5th..95th -725 .. -83 mU, worst -1000 mU.
+First 1 U bolus after a refill + 0.3 U prime (lost motion of the draw reversal): mean error -53 mU, 5th..95th -163 .. 34 mU, worst -1000 mU.
 
 
 Reading the table: the spec bench target is +-5 % from 1 U. A 0.05 U dose is 8 pulses; one pulse is
@@ -184,90 +187,90 @@ moment the alarm latches. Spec 7: alarm at <= 2 U undelivered.
 
 **Basal 1 U/h, current rise + encoder (the Rust core):**
 
-Runs: 1000 (seed 20261119), detected 888, not detected / set-up failed 112 [("draw ended in state 3", 112)].
+Runs: 1000 (seed 20261119), detected 989, not detected / set-up failed 11 [].
 
 | metric | mean | sd | 5th | median | 95th | 99th | max |
 |---|---|---|---|---|---|---|---|
-| detection latency (s) | 3642 | 1211 | 2094 | 3484 | 5903 | 7147 | 10288 |
-| undelivered at alarm (mU) | 1000 | 330 | 578 | 957 | 1621 | 1952 | 2810 |
+| detection latency (s) | 2624 | 963 | 1222 | 2514 | 4244 | 5361 | 8244 |
+| undelivered at alarm (mU) | 722 | 263 | 338 | 691 | 1165 | 1472 | 2254 |
 
-Runs above the 2 U spec: 9 of 888 (1.0 %). Smallest bubble among them: 0.2 ul.
+Runs above the 2 U spec: 2 of 989 (0.2 %). Smallest bubble among them: 9.2 ul.
 
 | reservoir air bubble | runs | median undelivered at alarm (mU) |
 |---|---|---|
-| 0 .. 1 ul | 234 | 843 |
-| 1 .. 3 ul | 309 | 952 |
-| 3 .. 6 ul | 221 | 961 |
-| 6 .. 10 ul | 91 | 1102 |
-| >= 10 ul | 33 | 1315 |
+| 0 .. 1 ul | 267 | 616 |
+| 1 .. 3 ul | 347 | 676 |
+| 3 .. 6 ul | 243 | 698 |
+| 6 .. 10 ul | 98 | 847 |
+| >= 10 ul | 34 | 1047 |
 
-Detected by: OCCLUSION 888
+Detected by: OCCLUSION 989
 
 
 **Basal 1 U/h, encoder only (what the C reference has; the board has no current sense):**
 
-Runs: 1000 (seed 20261119), detected 999, not detected / set-up failed 1 [("draw ended in state 3", 1)].
+Runs: 1000 (seed 20261119), detected 997, not detected / set-up failed 3 [].
 
 | metric | mean | sd | 5th | median | 95th | 99th | max |
 |---|---|---|---|---|---|---|---|
-| detection latency (s) | 7799 | 2512 | 4366 | 7971 | 12110 | 13983 | 20461 |
-| undelivered at alarm (mU) | 2106 | 670 | 1184 | 2147 | 3250 | 3764 | 5485 |
+| detection latency (s) | 10828 | 2663 | 6958 | 10650 | 15916 | 18668 | 20671 |
+| undelivered at alarm (mU) | 2884 | 698 | 1877 | 2835 | 4225 | 4936 | 5489 |
 
-Runs above the 2 U spec: 524 of 999 (52.5 %). Smallest bubble among them: 0.0 ul.
+Runs above the 2 U spec: 919 of 997 (92.2 %). Smallest bubble among them: 0.0 ul.
 
 | reservoir air bubble | runs | median undelivered at alarm (mU) |
 |---|---|---|
-| 0 .. 1 ul | 271 | 1758 |
-| 1 .. 3 ul | 351 | 2106 |
-| 3 .. 6 ul | 245 | 2124 |
-| 6 .. 10 ul | 98 | 2427 |
-| >= 10 ul | 34 | 2624 |
+| 0 .. 1 ul | 271 | 2717 |
+| 1 .. 3 ul | 351 | 2831 |
+| 3 .. 6 ul | 246 | 2864 |
+| 6 .. 10 ul | 96 | 3095 |
+| >= 10 ul | 33 | 3255 |
 
-Detected by: ENCODER_DEVIATION 995, OCCLUSION+ENCODER_DEVIATION 4
+Detected by: ENCODER_DEVIATION 996, OCCLUSION+ENCODER_DEVIATION 1
 
 
 **8 U bolus, current rise + encoder:**
 
-Runs: 1000 (seed 20261119), detected 869, not detected / set-up failed 131 [("draw ended in state 3", 112)].
+Runs: 1000 (seed 20261119), detected 969, not detected / set-up failed 31 [].
 
 | metric | mean | sd | 5th | median | 95th | 99th | max |
 |---|---|---|---|---|---|---|---|
-| detection latency (s) | 103 | 349 | 23 | 38 | 80 | 2246 | 2678 |
-| undelivered at alarm (mU) | 990 | 316 | 579 | 950 | 1573 | 1932 | 2726 |
+| detection latency (s) | 70 | 219 | 23 | 36 | 76 | 1051 | 2660 |
+| undelivered at alarm (mU) | 883 | 212 | 553 | 876 | 1252 | 1525 | 1876 |
 
-Runs above the 2 U spec: 8 of 869 (0.9 %). Smallest bubble among them: 1.2 ul.
+Runs above the 2 U spec: 0 of 969 (0.0 %).
 
 | reservoir air bubble | runs | median undelivered at alarm (mU) |
 |---|---|---|
-| 0 .. 1 ul | 231 | 852 |
-| 1 .. 3 ul | 302 | 926 |
-| 3 .. 6 ul | 217 | 950 |
-| 6 .. 10 ul | 88 | 1098 |
-| >= 10 ul | 31 | 1302 |
+| 0 .. 1 ul | 259 | 821 |
+| 1 .. 3 ul | 338 | 849 |
+| 3 .. 6 ul | 242 | 877 |
+| 6 .. 10 ul | 96 | 975 |
+| >= 10 ul | 34 | 1125 |
 
-Detected by: OCCLUSION 869
+Detected by: OCCLUSION 969
 
 
 **8 U bolus, encoder only:**
 
-Runs: 1000 (seed 20261119), detected 803, not detected / set-up failed 197 [("draw ended in state 3", 1)].
+Runs: 1000 (seed 20261119), detected 753, not detected / set-up failed 247 [].
 
 | metric | mean | sd | 5th | median | 95th | 99th | max |
 |---|---|---|---|---|---|---|---|
-| detection latency (s) | 82 | 23 | 50 | 80 | 125 | 142 | 177 |
-| undelivered at alarm (mU) | 2069 | 579 | 1277 | 2023 | 3127 | 3545 | 4446 |
+| detection latency (s) | 245 | 284 | 76 | 119 | 864 | 903 | 931 |
+| undelivered at alarm (mU) | 2822 | 717 | 1843 | 2751 | 4025 | 4747 | 5849 |
 
-Runs above the 2 U spec: 408 of 803 (50.8 %). Smallest bubble among them: 0.0 ul.
+Runs above the 2 U spec: 668 of 753 (88.7 %). Smallest bubble among them: 0.0 ul.
 
 | reservoir air bubble | runs | median undelivered at alarm (mU) |
 |---|---|---|
-| 0 .. 1 ul | 221 | 1875 |
-| 1 .. 3 ul | 281 | 1974 |
-| 3 .. 6 ul | 204 | 2072 |
-| 6 .. 10 ul | 71 | 2301 |
-| >= 10 ul | 26 | 2701 |
+| 0 .. 1 ul | 212 | 2522 |
+| 1 .. 3 ul | 266 | 2774 |
+| 3 .. 6 ul | 186 | 2775 |
+| 6 .. 10 ul | 64 | 3028 |
+| >= 10 ul | 25 | 3299 |
 
-Detected by: ENCODER_DEVIATION 788, OCCLUSION+ENCODER_DEVIATION 15
+Detected by: ENCODER_DEVIATION 749, OCCLUSION+ENCODER_DEVIATION 4
 
 
 ### 5.3 Sensitivity of the occlusion result to the carriage -> plunger stiffness
@@ -277,37 +280,36 @@ water the elastic parts soak up before the pressure is high enough to load the m
 
 | carriage -> plunger stiffness | detection | median undelivered at alarm | 95th percentile | runs above 2 U |
 |---|---|---|---|---|
-| 15 N/mm | current rise + encoder | 2227 mU | 4306 mU | 57.9 % (of 280 detected, 53 not detected) |
-| 15 N/mm | encoder only | 3813 mU | 5682 mU | 97.3 % (of 296 detected, 37 not detected) |
-| 40 N/mm | current rise + encoder | 955 mU | 1635 mU | 2.1 % (of 281 detected, 52 not detected) |
-| 40 N/mm | encoder only | 2170 mU | 3191 mU | 53.2 % (of 333 detected, 0 not detected) |
-| 150 N/mm | current rise + encoder | 532 mU | 942 mU | 0.0 % (of 281 detected, 52 not detected) |
-| 150 N/mm | encoder only | 1177 mU | 2111 mU | 5.4 % (of 333 detected, 0 not detected) |
-| 600 N/mm | current rise + encoder | 388 mU | 687 mU | 0.0 % (of 281 detected, 52 not detected) |
-| 600 N/mm | encoder only | 1004 mU | 1475 mU | 0.9 % (of 333 detected, 0 not detected) |
+| 15 N/mm | current rise + encoder | 1300 mU | 2702 mU | 17.2 % (of 331 detected, 2 not detected) |
+| 15 N/mm | encoder only | 4612 mU | 5627 mU | 100.0 % (of 207 detected, 126 not detected) |
+| 40 N/mm | current rise + encoder | 707 mU | 1226 mU | 0.0 % (of 330 detected, 3 not detected) |
+| 40 N/mm | encoder only | 2868 mU | 4325 mU | 92.1 % (of 331 detected, 2 not detected) |
+| 150 N/mm | current rise + encoder | 437 mU | 680 mU | 0.0 % (of 333 detected, 0 not detected) |
+| 150 N/mm | encoder only | 1800 mU | 2617 mU | 33.3 % (of 333 detected, 0 not detected) |
+| 600 N/mm | current rise + encoder | 332 mU | 571 mU | 0.0 % (of 333 detected, 0 not detected) |
+| 600 N/mm | encoder only | 1356 mU | 2195 mU | 13.5 % (of 333 detected, 0 not detected) |
 
 
-## 6. Findings
+## 6. Findings (all fixed)
 
-The simulator does not fix the core. Every behaviour that violates the safety concept is an
-`#[ignore]`d, currently failing test in `tests/findings.rs` with the description in its doc comment
-(`cargo test -p openpatch-sim --test findings -- --ignored`):
+The six findings the simulator raised against the core are fixed and their tests in `tests/findings.rs` are
+regression tests now (the fix is described in the doc comment of each):
 
-| test | topic |
-|---|---|
-| `unplanned_reset_of_an_active_pod_announces_itself` | F1: no alarm after a brown-out / watchdog reset (H3) |
-| `resume_after_a_reset_without_a_schedule_is_refused_or_delivers` | F2: schedule not persisted, Resume succeeds and delivers nothing |
-| `reservoir_margin_does_not_accumulate_across_reboots` | F3: reservoir margin re-added on every boot (platform policy) |
-| `a_standard_prime_after_a_draw_purges_the_connector` | F4: prime smaller than the lost motion after a draw |
-| `a_high_friction_pod_can_still_refill` | F5: draw current criterion has no tolerance margin |
-| `the_needle_never_sees_more_than_15_u_in_an_hour` | F6: the 15 U/h cap limits the commanded, not the delivered volume |
+| test | topic | fix |
+|---|---|---|
+| `unplanned_reset_of_an_active_pod_announces_itself` | F1: no alarm after a brown-out / watchdog reset (H3) | `Pump::restore_pod` raises `7-74-002` at FAULT severity for an active pod after any reset that was not commanded: ALARM flag, buzzer, notification, Resume refused until acknowledged |
+| `resume_after_a_reset_without_a_schedule_is_refused_or_delivers` | F2: schedule not persisted, Resume succeeds and delivers nothing | schedule and temp basal are persisted (`persist::SchedRec`, `TempRec`) and restored; without a schedule Resume is refused with the new result code 31 `NoSchedule` |
+| `reservoir_margin_does_not_accumulate_across_reboots` | F3: reservoir margin re-added on every boot | `persist::ReservoirPolicy`: nothing is rewritten after a boot until the reservoir moved |
+| `a_standard_prime_after_a_draw_purges_the_connector` | F4: prime smaller than the lost motion after a draw | take-up of `TAKEUP_MU_AFTER_DRAW` (632 mU = 160 steps) before the first prime after a draw, counted as non-delivery; one prime command stays 0.524 U, the 2.21 U connector path takes 5 commands |
+| `a_high_friction_pod_can_still_refill` | F5: draw current criterion has no tolerance margin | draw has its own stall threshold (`DRAW_STALL_CURRENT_MA`, within 5 % of the stalled current), the rate is capped by the fill needle gauge (29G: 841 pps) |
+| `the_needle_never_sees_more_than_15_u_in_an_hour` | F6: the 15 U/h cap limits the commanded, not the delivered volume | the cap is 15 U less `HOURLY_CAL_MARGIN_PCT` = 4 % (14.42 U) and a true rolling 60 minute window |
 
 ## 7. Reproduce
 
 ```sh
 cd firmware-rs
 cargo test -p openpatch-sim                       # all scenarios, hardware, physics, Monte Carlo
-cargo test -p openpatch-sim --test findings -- --ignored   # the open findings (they fail)
+cargo test -p openpatch-sim --test findings      # the six former findings, now regression tests
 cargo run --release -p openpatch-sim --bin opsim -- all --outdir /tmp/opsim
 cargo run --release -p openpatch-sim --bin opsim -- run wear_48h --csv wear.csv
 cargo run --release -p openpatch-sim --bin opsim -- mc accuracy --runs 1000 --seed 1

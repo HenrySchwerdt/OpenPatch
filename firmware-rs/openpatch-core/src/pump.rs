@@ -25,11 +25,44 @@ use openpatch_proto::{
 pub struct PumpConfig {
     /// After every fill / draw, `Resume` is refused until a prime has completed.
     pub require_prime_after_fill: bool,
+    /// Hourly cap = true rolling 60 minutes reduced by the calibration tolerance margin
+    /// ([`HOURLY_CAL_MARGIN_PCT`]). `false` = the frozen C reference's 60 wall-clock minute buckets without margin
+    /// (differential tests only).
+    pub strict_hourly: bool,
+    /// Backlash / lost-motion take-up volume (mU) run before the first prime after a draw
+    /// (`limits::TAKEUP_MU_AFTER_DRAW`); 0 = none (C reference). With a take-up the prime runs in watchdog-safe chunks.
+    pub takeup_mu: u32,
+    /// Draw mode: own current stall threshold (`DRAW_STALL_CURRENT_MA`), rate capped by the fill needle gauge, chunk
+    /// length bound to 0.8 s. `false` = the C-compatible fixed chunks and the occlusion current threshold.
+    pub strict_draw: bool,
+    /// Fill needle of the refill syringe / vial (caps the draw rate, `limits::FillNeedle`). Default 29G.
+    pub fill_needle: FillNeedle,
+    /// `Resume` is refused with `NoSchedule` while no basal schedule is held (never silently deliver 0 U/h).
+    pub require_schedule_on_resume: bool,
+    /// An active pod that restarts unexpectedly (anything but a commanded reset) raises a FAULT-severity
+    /// `7-74-002` record: ALARM flag, buzzer, notification, `Resume` refused until acknowledged (H3).
+    pub alarm_on_unplanned_reset: bool,
 }
 
 impl PumpConfig {
-    pub const STRICT: PumpConfig = PumpConfig { require_prime_after_fill: true };
-    pub const RELAXED: PumpConfig = PumpConfig { require_prime_after_fill: false };
+    pub const STRICT: PumpConfig = PumpConfig {
+        require_prime_after_fill: true,
+        strict_hourly: true,
+        takeup_mu: TAKEUP_MU_AFTER_DRAW,
+        strict_draw: true,
+        fill_needle: FillNeedle::G29,
+        require_schedule_on_resume: true,
+        alarm_on_unplanned_reset: true,
+    };
+    pub const RELAXED: PumpConfig = PumpConfig {
+        require_prime_after_fill: false,
+        strict_hourly: false,
+        takeup_mu: 0,
+        strict_draw: false,
+        fill_needle: FillNeedle::G29,
+        require_schedule_on_resume: false,
+        alarm_on_unplanned_reset: false,
+    };
 }
 
 /// Unsolicited notification for the Alert characteristic.
@@ -59,6 +92,8 @@ pub(crate) struct DrawJob {
     pub(crate) confirmed_steps: u32,
     pub(crate) high_current: u8,
     pub(crate) drawn_mu: u32,
+    /// Reverse step rate of this job (pulses per second).
+    pub(crate) pps: u32,
 }
 
 pub struct Pump<H: Hal> {
@@ -93,6 +128,12 @@ pub struct Pump<H: Hal> {
     pub(crate) diag_history: bool,
     /// Next record id not yet written as event 31.
     pub(crate) diag_hist_next: u32,
+    /// Forward take-up steps still owed before the next prime (set by a draw that moved the plunger back).
+    pub(crate) takeup_pending: u32,
+    /// Why the MCU started this boot.
+    pub(crate) boot_cause: crate::hal::ResetCause,
+    /// Draw-mode stall threshold in force (mA).
+    pub(crate) draw_stall_ma: u16,
 }
 
 impl<H: Hal> Pump<H> {
@@ -133,6 +174,9 @@ impl<H: Hal> Pump<H> {
             selftest_note: None,
             diag_history: false,
             diag_hist_next: 0,
+            takeup_pending: 0,
+            boot_cause: crate::hal::ResetCause::PowerOn,
+            draw_stall_ma: DRAW_STALL_CURRENT_MA,
             hal,
         };
         p.pod.docked = p.hal_docked(); // no event for the boot state
@@ -151,6 +195,7 @@ impl<H: Hal> Pump<H> {
 
     pub fn set_config(&mut self, cfg: PumpConfig) {
         self.cfg = cfg;
+        self.sv.set_c_compat(!cfg.strict_hourly);
     }
     pub fn config(&self) -> PumpConfig {
         self.cfg
@@ -390,6 +435,7 @@ impl<H: Hal> Pump<H> {
     fn raise_reset_cause(&mut self) {
         use crate::hal::ResetCause;
         let cause = self.hal.reset_cause();
+        self.boot_cause = cause;
         let crumb = self.hal.breadcrumb();
         let code = match cause {
             ResetCause::PowerOn | ResetCause::Commanded => return,
@@ -745,6 +791,9 @@ impl<H: Hal> Pump<H> {
         if self.draw_running() {
             return Err(Error::Busy);
         }
+        if self.cfg.require_schedule_on_resume && !self.de.has_schedule() {
+            return Err(Error::NoSchedule); // e.g. after a reset whose schedule could not be restored: never 0 U/h silently
+        }
         if self.prime_required {
             return Err(Error::PrimeRequired);
         }
@@ -806,13 +855,50 @@ impl<H: Hal> Pump<H> {
             return Err(Error::Busy);
         }
         let before = self.sv.faults();
-        let t = self.now();
-        let approved = self.approve_blind_safe(t, steps);
-        let executed = if approved.0 > 0 { self.run_motor(approved) } else { Pulses(0) };
-        if executed < approved {
-            self.raise_steps_short(executed, approved);
+        // After a draw the first forward travel only takes up backlash and elasticity: run the take-up first. It goes
+        // through the supervisor like every forward step but is NOT delivery (engine totals are untouched).
+        let takeup = if self.cfg.takeup_mu > 0 { self.takeup_pending } else { 0 };
+        if takeup > 0 {
+            let t = self.now();
+            let rem = self.res.remaining();
+            if self.sv.step_room(t, rem).0 < takeup + steps.0 {
+                return Err(Error::Hourly); // would trim against the per-minute / hourly cap: refuse, do not latch
+            }
         }
-        if executed == steps {
+        // RELAXED (C parity): one burst. Otherwise watchdog-safe chunks, verified and followed by a DONE pulse.
+        let chunk = if self.cfg.takeup_mu > 0 { PRIME_CHUNK_STEPS } else { u32::MAX };
+        let (mut left_takeup, mut left) = (takeup, steps.0);
+        let mut ok = true;
+        while left_takeup + left > 0 {
+            let in_takeup = left_takeup > 0;
+            let n = if in_takeup { left_takeup.min(chunk) } else { left.min(chunk) };
+            let t = self.now();
+            let approved = self.approve_blind_safe(t, Pulses(n));
+            let executed = if approved.0 > 0 { self.run_motor(approved) } else { Pulses(0) };
+            if executed < approved {
+                self.raise_steps_short(executed, approved);
+            }
+            if executed.0 != n {
+                ok = false;
+                break;
+            }
+            if in_takeup {
+                left_takeup -= n;
+            } else {
+                left -= n;
+            }
+            if left_takeup + left > 0 {
+                self.observe();
+                if self.sv.faults() != before {
+                    ok = false;
+                    break;
+                }
+                self.hal.watchdog_kick(); // between verified chunks, so a long prime never starves the TPL5010
+            }
+        }
+        let executed = if ok { steps } else { Pulses(0) };
+        if ok {
+            self.takeup_pending = 0;
             self.log_ev(EventType::Prime, steps.0 as i32, 0);
             self.observe(); // the angle sensor verifies the prime like any other delivery
         }
@@ -1036,6 +1122,65 @@ impl<H: Hal> Pump<H> {
             if !self.sv.faults().is_empty() {
                 self.sync_faults(Faults::NONE);
             }
+            self.alarm_unplanned_reset();
+        }
+    }
+
+    /// H3 (docs/02-safety.md): an ACTIVE pod that restarts for any reason other than a commanded reset announces itself.
+    /// The pod comes up SUSPENDED anyway; without this it looked like a normal suspended pod until the app asked (F1).
+    /// A `7-74-002 UNEXPECTED_RESET` record of FAULT severity (the catalogue severity of a released pod is W) sets the
+    /// ALARM flag and the buzzer, notifies the phone and refuses `Resume` until acknowledged. `ctx_a` = reset cause
+    /// (0 power-on, 1 watchdog, 2 brown-out, 3 lockup, 4 other).
+    fn alarm_unplanned_reset(&mut self) {
+        use crate::hal::ResetCause;
+        use openpatch_diag::Severity;
+        if !self.cfg.alarm_on_unplanned_reset || self.boot_cause == ResetCause::Commanded {
+            return;
+        }
+        let code = match self.boot_cause {
+            ResetCause::PowerOn | ResetCause::Commanded => 0,
+            ResetCause::Watchdog => 1,
+            ResetCause::Brownout => 2,
+            ResetCause::Lockup => 3,
+            ResetCause::Other => 4,
+        };
+        let crumb = self.hal.breadcrumb();
+        let before = self.sv.faults();
+        self.sv.raise(Raise::new(codes::UNEXPECTED_RESET).a(code).c(crumb).severity(Severity::Fault));
+        self.sync_faults(before);
+    }
+
+    // ---- persistence records (platform stores / loads the bytes, `persist.rs`) ----------------------
+    /// The held basal schedule as a flash record (`SchedRec::NONE` when there is none).
+    pub fn schedule_record(&self) -> crate::persist::SchedRec {
+        if self.de.has_schedule() {
+            crate::persist::SchedRec::encode(self.de.schedule())
+        } else {
+            crate::persist::SchedRec::NONE
+        }
+    }
+
+    /// The active temp basal as a flash record: remaining minutes rounded DOWN to 30 (a restored temp can only be shorter).
+    pub fn temp_record(&self) -> crate::persist::TempRec {
+        crate::persist::TempRec::from_engine(self.de.temp_active(), self.de.temp_rate(), self.de.temp_remaining().0)
+    }
+
+    /// Boot: restore the basal schedule. Checked against the pure limits like a command; `Err` = not restorable (the
+    /// pod then refuses `Resume` with `NoSchedule` under the STRICT config).
+    pub fn restore_schedule(&mut self, s: &BasalSchedule) -> Result<(), Error> {
+        self.sv.fault_free_probe().check_basal_schedule(s)?;
+        self.de.set_schedule(s)
+    }
+
+    /// Boot: a temp basal that was running is handed to the next `Resume` like the temp basal of an `Activate`.
+    pub fn restore_temp(&mut self, t: crate::persist::TempRec) {
+        if t.is_none() || !self.pod.active {
+            return;
+        }
+        let rate = MilliUnitsPerHour(t.rate_mu_h as u32);
+        let min = Minutes(t.remaining_min as u32);
+        if self.sv.check_temp_basal(rate, min).is_ok() {
+            self.pod.pending_temp = Some((rate, min));
         }
     }
 

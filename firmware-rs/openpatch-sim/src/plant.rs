@@ -88,7 +88,8 @@ impl Plant {
             fill_needle: false,
             steps_per_turn,
             backlash_rad: backlash_deg.to_radians(),
-            torque_po: p.motor.pullout_gf_cm * GF_CM_TO_N_MM,
+            // pull-out torque at the run current (torque ~ phase current; the datasheet figure is at the rated current)
+            torque_po: p.motor.pullout_gf_cm * GF_CM_TO_N_MM * (p.motor.run_current_ma / p.motor.rated_current_ma).min(1.0),
             lead_eff,
             stroke,
             gap: backlash_deg.to_radians() / 2.0, // loaded forward at assembly
@@ -423,7 +424,7 @@ mod tests {
         let n = run_steps(&mut pl, 3000, -1, 600.0, &mut rng);
         assert_eq!(n, 3000);
         pl.relax(5.0);
-        // plunger travel x area = drawn volume (the first ~4.5 steps only take up the backlash)
+        // plunger travel x area = drawn volume (the first ~6 steps only take up the backlash)
         let want = pl.plunger_x * pl.p.drive.area_mm2;
         assert!((pl.drawn_ul - want).abs() / want < 0.02, "drawn {} vs travel {}", pl.drawn_ul, want);
         assert!((pl.drawn_ul / 10.0 - 3000.0 * pl.p.true_u_per_step()).abs() < 0.4, "{}", pl.drawn_ul);
@@ -440,7 +441,7 @@ mod tests {
         assert!(n > 900, "{n}");
         assert!(pl.plunger_x > 5.0);
         pl.relax(5.0);
-        assert!(pl.drawn_ul > 50.0, "drawn {}", pl.drawn_ul);
+        assert!(pl.drawn_ul > 30.0, "drawn {}", pl.drawn_ul); // 1000 steps x 3.95 mU = 39 ul
     }
 
     #[test]
@@ -490,8 +491,8 @@ mod tests {
         run_steps(&mut pl, 100, 1, 200.0, &mut rng);
         let moved_steps = (pl.theta_s - th0) / (2.0 * PI) * pl.steps_per_turn;
         let lost = 100.0 - moved_steps;
-        // backlash 2 + 1.5*15/12 = 3.875 deg at 0.851 deg/step ~ 4.5 steps
-        assert!(lost > 3.0 && lost < 6.0, "lost {lost}");
+        // backlash 2 + 1.5*16/20 = 3.2 deg (screw domain) at 0.544 deg/step ~ 5.9 steps
+        assert!(lost > 4.5 && lost < 7.5, "lost {lost}");
     }
 
     #[test]

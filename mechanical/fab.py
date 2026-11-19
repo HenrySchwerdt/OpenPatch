@@ -37,7 +37,7 @@ PARTS = {
             "Acoustic port dia 1.2 and screw holes dia 1.4 may need a drill.", True),
     "carriage": ("SLA (JLC3DP: resin 8001 / 9000-type tough; PCBWay: SLA Somos/8000-type)", "tough resin", "any (white/grey)",
                  "support marks on the outside only; do not sand the hex pocket", 2,
-                 "+-0.1 mm (hex pocket AF 3.3 for DIN 934 M1.6 nut, dia 1.9 screw bore, rail groove 1.2 x 0.5). Order 2: nut fit is the first test.", True),
+                 "+-0.1 mm (hex pocket AF 3.8 = DIN 934 M1.6 AF 3.2 + 0.6 clearance (0.3 mm radial float), closed rear wall + top drop-in slot, dia 1.9 screw bore, rail groove 1.2 x 0.5). Order 2: nut fit is the first test.", True),
     "plunger_core": ("SLA", "tough or clear resin", "any", "no coating", 2,
                      "+-0.1 mm. Seal grooves (0.8 mm wide) + socket for carriage tongue. Water test only.", True),
     "reservoir": ("SLA (clear resin preferred, 'BioMed Clear'-class if offered, else standard clear)", "clear resin",
@@ -67,6 +67,15 @@ BENCH_PARTS["end_cap"] = ("SLA (tough resin; later PP / CNC)", "tough resin", "a
 BENCH_PARTS["coupler"] = ("SLA (tough resin) - or turned brass tube (preferred)", "tough resin / brass", "any", "no coating", 2,
                           "+-0.05 mm. Sleeve coupler d3.0 x 6.0: D-bore d2.04 / flat 1.5 (3.2 deep) for the NFP shaft, M1.6 bore d1.64 (2.8 deep) for the leadscrew; "
                           "retain with one drop of cyanoacrylate / Loctite 638. VERIFY the shaft D-flat on the real motor.", True)
+BENCH_PARTS["plunger_nose"] = ("SLA (JLC3DP resin 8001-type)", "tough resin", "any", "no coating", 2,
+                               "+-0.1 mm. 0.7 mm stadium disc (14.6 x 3.6) glued (CA) onto the plunger front: dead layer 0.3 mm. WATER ONLY.", True)
+BENCH_PARTS["valve_plug"] = ("SLA (JLC3DP resin 8001-type)", "tough resin", "any", "no coating", 2,
+                             "+-0.05 mm. Press-fit plug (0.04 mm interference per side) that closes the duckbill insertion slot in the end cap; flush with the cap top.", True)
+BENCH_PARTS["thrust_sleeve"] = ("SLA, or brass tube d2.0 x d1.6 x 2.05 (cut + deburr)", "tough resin / brass", "any", "no coating", 2,
+                                "+-0.05 mm. Gear carrier and rear thrust shoulder: slides on the rod, rear face on the dry bush, GHW 753020 (bore 2.0) glued on it (Loctite 638). "
+                                "Printed d2.0 walls are thin: brass tube recommended.", True)
+BENCH_PARTS["thrust_collar"] = ("SLA, or brass tube d2.4 x d1.6 x 1.0", "tough resin / brass", "any", "no coating", 2,
+                                "+-0.05 mm. Front thrust shoulder at the rod end: bears on the far bush face; the magnet is glued to the rod end behind it and carries no thrust.", True)
 BENCH_PARTS["dock_insert"] = ("SLA (JLC3DP resin 8001-type) or MJF PA12", "tough resin / PA12", "any", "support marks off the arms", 12,
                               "SHARED by all sizes, shipped from dock-inserts/ (12 variants + fixture). +-0.1 mm. Swappable cannula interface (spec 8a): "
                               "frozen interface dock_interface_frozen in params.json.", False)
@@ -102,7 +111,7 @@ def write_bench_readme(p: dict, vols: dict, sizes: list, PARTS: dict) -> None:
         if PARTS[part][0].startswith("MJF"):
             return qty * max(MJF_MIN_PART, vol * PA12_DENSITY * MJF_BILL_FACTOR * MJF_PER_G)
         return qty * max(SLA_MIN_PART, vol * SLA_BILL_FACTOR * SLA_PER_CM3 * 4)
-    cols = [("bottom", 1), ("top", 1), ("carriage", 2), ("plunger_core", 2), ("reservoir", 1), ("cannula_adapter", 2), ("coupler", 2), ("end_cap", 2)]
+    cols = [("bottom", 1), ("top", 1), ("carriage", 2), ("plunger_core", 2), ("plunger_nose", 2), ("reservoir", 1), ("cannula_adapter", 2), ("end_cap", 2), ("valve_plug", 2), ("thrust_sleeve", 2), ("thrust_collar", 2)]
     lines = ["| size | " + " | ".join(f"{c} x{q}" for c, q in cols) + " | subtotal |", "|---|" + "---|" * (len(cols) + 1)]
     tot = 0.0
     sub = {}
@@ -157,12 +166,45 @@ Price model identical to the integrated variant (MJF {MJF_PER_G:.2f} USD/g x {MJ
     print(f"bench fab folder written: {FAB}; one size about {single:.0f} USD printed parts (estimate)")
 
 
+def write_shim(p: dict, out: Path, fab: Path, rows: list) -> None:
+    """Stainless tongue shim (purchased/laser-cut): DXF + SVG drawing, 0.5 x 1.4 mm strip."""
+    import ezdxf
+    sh, sl, dr = p["bench"]["shim"], p["seal"], p["drive"]
+    L = json.loads((out / "OP-100.mech.json").read_text())
+    y_end = L["y_r"] + (p["reservoir"]["w_in"] - 2 * p["reservoir"]["plunger_clr"]) / 2
+    y_face = L["y_s"] - dr["carriage_bw"] / 2
+    length = (y_face + sh["pocket_depth"] - 0.1) - (y_end - sl["socket_depth"] + 0.1)
+    d = fab / "tongue-shim"
+    d.mkdir(exist_ok=True)
+    h, c = sh["h"], 0.15
+    pts = [(c, 0), (length - c, 0), (length, c), (length, h - c), (length - c, h), (c, h), (0, h - c), (0, c)]
+    doc = ezdxf.new("R2010", setup=True)
+    doc.units = ezdxf.units.MM
+    msp = doc.modelspace()
+    msp.add_lwpolyline(pts, close=True)
+    msp.add_text(f"OpenPatch tongue shim, stainless 1.4301 (304), t = {sh['t']} mm, laser cut or hand cut from 0.5 mm strip", height=0.5, dxfattribs={"insert": (0, -2.0)})
+    msp.add_text(f"{length:.2f} x {h:.2f} mm, corners C0.15, burr-free. Glued (CA) into the carriage pocket. WATER ONLY bench pump.", height=0.5, dxfattribs={"insert": (0, -3.0)})
+    doc.saveas(d / "tongue_shim.dxf")
+    s = 20.0
+    poly = " ".join(f"{20 + x * s:.1f},{60 - y * s:.1f}" for x, y in pts)
+    svg = (f'<svg xmlns="http://www.w3.org/2000/svg" width="{int(length * s + 80)}" height="130" viewBox="0 0 {int(length * s + 80)} 130">'
+           f'<rect width="100%" height="100%" fill="white"/><polygon points="{poly}" fill="#dddddd" stroke="#222" stroke-width="1.2"/>'
+           f'<text x="20" y="20" font-size="12" font-family="sans-serif">Tongue shim, stainless 1.4301, thickness {sh["t"]} mm (purchase / laser cut)</text>'
+           f'<text x="20" y="100" font-size="12" font-family="sans-serif">length {length:.2f}   width {h:.2f}   (to scale x20)   corners C0.15</text>'
+           f'<text x="20" y="116" font-size="11" font-family="sans-serif">Glued (CA) into the carriage pocket; free end enters the plunger socket. Water-only bench pump.</text></svg>')
+    (d / "tongue_shim.svg").write_text(svg, encoding="utf-8")
+    (d / "README.md").write_text(f"# Tongue shim (stainless 0.5 x {h} x {length:.2f} mm)\n\nLaser-cut or hand-cut from 0.5 mm stainless strip (feeler gauge stock works). `tongue_shim.dxf` / `.svg`. "
+                                 f"Replaces the printed carriage tongue (sim 4.4-4.6). Water-only bench pump, never on a person.\n", encoding="utf-8")
+    rows.append(["tongue-shim/tongue_shim.dxf", "laser cut / hand cut (stainless 1.4301 strip, 0.5 mm)", "stainless 304", "-", "deburr", 2,
+                 f"{length:.2f} x {h:.2f} x {sh['t']} mm, +-0.05; glued into the carriage pocket", ""])
+
+
 def main() -> None:
     p = load_params(OUT / "params.used.json") if (OUT / "params.used.json").exists() else load_params()
     PARTS = BENCH_PARTS if BENCH else globals()["PARTS"]
     if FAB.exists():
         for child in FAB.iterdir():          # keep dock-coupon/ (built by generate.py --coupon)
-            if child.name not in ("dock-coupon", "dock-inserts", "stencil", "reservoir-cnc", "reservoir-sla-water-only"):
+            if child.name not in ("dock-coupon", "dock-inserts", "stencil", "reservoir-cnc", "reservoir-sla-water-only", "tongue-shim"):
                 shutil.rmtree(child) if child.is_dir() else child.unlink()
     FAB.mkdir(parents=True, exist_ok=True)
     rows, vols = [], {}
@@ -170,7 +212,7 @@ def main() -> None:
     for sz in sizes:
         d = FAB / sz
         d.mkdir()
-        v = volumes(OUT / f"{sz}.sc", ["bottom", "top", "carriage", "plunger_core", "reservoir", "cannula_adapter", "coupler", "end_cap"])
+        v = volumes(OUT / f"{sz}.sc", ["bottom", "top", "carriage", "plunger_core", "plunger_nose", "reservoir", "cannula_adapter", "end_cap", "valve_plug", "thrust_sleeve", "thrust_collar"])
         vols[sz] = v
         for part, (proc, mat, col, fin, qty, tol, upload) in PARTS.items():
             if not upload:
@@ -202,6 +244,7 @@ def main() -> None:
                          "support marks off the arms", 12, note, ""])
             rows.append(["dock-inserts/dock_fixture.stl", "MJF PA12 or SLA", "PA12 / tough resin", "any", "standard", 1,
                          "Pod-less fixture carrying the frozen dock interface (window, ledge, detent bumps, rear stop).", ""])
+        write_shim(p, OUT, FAB, rows)
         wo = FAB / "reservoir-sla-water-only"
         wo.mkdir(exist_ok=True)
         for sz in sizes:
@@ -228,6 +271,17 @@ def main() -> None:
         w.writerow(["file", "process", "material", "colour", "finish", "qty", "tolerance_notes", "volume_cm3"])
         w.writerows(rows)
 
+    if BENCH:      # BOM check: every manufactured part of the model has a fab file (or is a documented reference/cast part)
+        from op_build import BENCH_MFG_PARTS
+        reference = {"plunger_seal": "cast in the mould/", "gasket": "cut from silicone sheet", "dock_insert": "dock-inserts/ (12 variants)"}
+        missing = []
+        for part in BENCH_MFG_PARTS:
+            if part in reference:
+                continue
+            for sz in sizes:
+                if not (FAB / sz / f"{part}.stl").exists():
+                    missing.append(f"{sz}/{part}.stl")
+        print("BOM check:", "all manufactured parts have fab files" if not missing else f"MISSING {missing}")
     # ---- cost estimate -------------------------------------------------------------------------
     if BENCH:
         write_bench_readme(p, vols, sizes, PARTS)

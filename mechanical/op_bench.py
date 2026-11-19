@@ -168,8 +168,11 @@ def bench_geometry(p: dict, L: dict) -> dict:
     conn_front_u = cu + f["conn"][0] / 2
     wall_in_x = L["x_end"]
     ffc = {
-        "part": "Hirose FH12-10S-0.5SH(55) (LCSC C506791, 10 pos, 0.5 mm pitch, ~1.0 mm high, ZIF flip-lock)",
-        "alt_part": "generic FPC-05F-10PH20 (XUNPU C2856798) is 2.0 mm high: too tall; keep Hirose",
+        "part": "OPEN POINT: a 10-pos 0.5 mm pitch bottom-contact ZIF FPC connector <= 1.2 mm high (CAD envelope 1.0 mm, bench.ffc.conn). "
+                "Candidate class: Hirose FH19C/FH19SC (0.9 mm height per Hirose series data; 10-pin bottom-contact variant and LCSC number NOT verified).",
+        "alt_part": "Hirose FH12-10S-0.5SH(55) (LCSC C506791) is 2.0 mm HIGH per its datasheet (components/catalog.json): it does NOT fit under the lid "
+                    "(1.6 mm free above the board). Generic FPC-05F-10PH20 (C2856798) is also 2.0 mm. If no <= 1.2 mm part is found: mount the connector on the board "
+                    "bottom side outside the dock arms (needs a layout change) or recess the lid locally (wall would drop below 0.4 mm: not acceptable).",
         "pins": 10, "pitch_mm": 0.5, "side": "top",
         "contact_side_note": "bottom-contact vs top-contact: verify on the Hirose drawing; if it is the other type order the cable "
                              "with the matching contact side (type A same-side / D opposite-side)",

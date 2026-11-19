@@ -96,6 +96,8 @@ pub static UI_CMD: Channel<Raw, UiCmd, 4> = Channel::new();
 pub static BENCH_CMD: Channel<Raw, BenchCmd, 2> = Channel::new();
 /// Safety / BLE -> persistence task. Producers use `try_send` except for the seq ceiling.
 pub static PERSIST: Channel<Raw, PersistMsg, 16> = Channel::new();
+/// `POWER.RESETREAS` as read at the very start of `main` (before anything clears it); see `hal::classify_resetreas`.
+pub static RESET_REASON: core::sync::atomic::AtomicU32 = core::sync::atomic::AtomicU32::new(0);
 /// Persistence -> safety: the seq ceiling that is now durable.
 pub static SEQ_ACK: Signal<Raw, u16> = Signal::new();
 /// Safety -> DFU task: the safety task ran N good ticks, confirm the image.

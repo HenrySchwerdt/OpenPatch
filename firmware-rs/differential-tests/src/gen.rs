@@ -264,7 +264,7 @@ impl Gen {
             }
         }
         if crate::rust_only_cmd(ty) {
-            ty = cmd::GET_STATUS; // 0x0F..0x12 are Rust-only (documented)
+            ty = cmd::GET_STATUS; // 0x0F and 0x20..0x22 are Rust-only (documented)
         }
         let mut f = build_frame(ver, ty, flags, seq, &payload);
         if bad_crc {
