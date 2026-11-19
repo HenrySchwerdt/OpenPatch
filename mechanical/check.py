@@ -4,6 +4,7 @@
   python3 check.py                 # all sizes in out/
   python3 check.py --outdir out
   python3 check.py --ignore-length # length > target only as WARN
+  python3 check.py --variant bench --assembly   # + assembly paths / tool access / DFM / fit classes (check_assembly.py)
 
 Exit code 1 on: height > max, width/length > target, solid interference (exclude list in op_build.py),
 open bodies, spring-contact stack outside 0..spring_h_max, metal inside the antenna keep-out,
@@ -452,6 +453,7 @@ def main() -> None:
     ap.add_argument("--drive", choices=["standard", "inline", "coaxial"], default="standard", help="inline / coaxial: check out/bench-inline / out/bench-coaxial (sealed on-axis drives)")
     ap.add_argument("-v", "--verbose", action="store_true")
     ap.add_argument("--strict", action="store_true", help="the known-failing fluid-boundary check (slotted reservoir) also fails the exit code")
+    ap.add_argument("--assembly", action="store_true", help="bench only: also run check_assembly.py (assembly paths, tool access, DFM, fit classes; see ASSEMBLY-CHECK.md)")
     args = ap.parse_args()
     if args.variant == "v010":          # additive variant (v010_check.py)
         import v010_check
@@ -479,6 +481,13 @@ def main() -> None:
             kfail = True
     if kfail:
         print("\nKNOWN-FAIL: the fluid-boundary check fails on the slotted reservoir; NOT solved, see SEAL-AND-DEAD-VOLUME.md")
+    if args.assembly:
+        if args.variant != "bench":
+            print("--assembly applies to --variant bench only")
+        else:
+            import check_assembly
+            print("\n== assembly feasibility / DFM (check_assembly.py) ==")
+            failed |= bool(check_assembly.run_from_check(out, args.sizes[:1] if args.sizes else None))
     sys.exit(1 if (failed or (kfail and args.strict)) else 0)
 
 
