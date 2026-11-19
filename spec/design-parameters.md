@@ -118,6 +118,7 @@
 
 ## 3e. Fill port inaccessible while docked (hazard H14, 2026-11-19)
 
+- **Decision (user, 2026-11-19): Omnipod-style — the fill septum is on the pod underside, inside the footprint that lies on the Velcro patch / dock**, so it is covered while docked and only reachable with the pod removed and turned over.
 - Because the fill septum sits upstream of the outlet without a valve, a syringe pushed into it while the pod is docked would deliver directly into the cannula. The septum must therefore be **physically unreachable while docked** (e.g. on the underside, covered by the dock insert / cannula base, as Omnipod places its fill port inside the adhesive area). `check.py` must prove that no straight needle path reaches the septum with the pod docked.
 
 ## 4. Drive — geared micro stepper + direct leadscrew, automatic refill (decision 2026-11-19)
