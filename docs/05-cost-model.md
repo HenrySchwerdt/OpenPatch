@@ -48,6 +48,22 @@ Once per size (frozen): PCBWay CNC PP reservoir x2, **30-60 [E]** per size (90-1
 
 Open price risks: no verified source for a diametric Ø2 x 1 magnet, a duckbill valve <= 3 mm OD and EU-stocked medical silicone (see `PARTS-LOCK.md`); nfpshop shipping/VAT to Germany not stated.
 
+
+## Rev A bench pump all-in budget (requirement <= 200 EUR, 2026-11-19)
+
+Full line-item tables, sources and assumptions: **`docs/SHOPPING.md` §0**. All numbers are ESTIMATES in EUR incl. shipping, 19 % German VAT and the EU 3 EUR/tariff-line duty (since 2026-07-01); only JLCPCB fee schedule, PCBWay CNC minimum order (25 USD), GHW and supermagnete prices were read on live pages.
+
+| Case | First pump | Marginal pump |
+|---|---|---|
+| A. Design as frozen (2 PCBA projects, CNC PP reservoir x2) | 358 - 607 | 95 - 150 |
+| B. Recommended (sensor tab on controller panel, <= 6 extended parts, one JLC cart, water-only printed reservoir) | 223 - 366 (central ~295) | 65 - 95 |
+| B+. Stretch (verified AliExpress motor, 5 parcels, trimmed BOM) | 176 - 288 (central ~232) | 60 - 90 |
+| C. B + PCBWay CNC PP reservoir (insulin tests) | 273 - 456 | 85 - 130 |
+
+**The <= 200 EUR first-pump target is not reliably reachable**; it is reachable for each further pump. Top drivers (A): JLCPCB PCBA fixed/extended fees + shipping (130 - 193), PCBWay CNC PP reservoir (55 - 96), JLC3DP prints + coupon (39 - 71), motor shipping (31 - 53), duty lines on many AliExpress parcels (25 - 45). Cuts and the smallest design changes are in SHOPPING.md §0.5 - §0.6. The older "one bench iteration" figure below (130 - 150 USD) is **superseded** for budgeting: it omitted shipping, VAT/duty, PCBA fees and minimum orders.
+
+Reference fee data (verified 2026-11-19): JLCPCB economic PCBA setup 8.18 USD, stencil 1.53 USD, extended part 3.07 USD each (preferred extended free), joint 0.0016 USD; standard setup 25.56 / 51.12 USD. PCBWay CNC: PP available, minimum order value 25 USD excl. shipping. JLCCNC: no PP. GHW module 0.3 gears: 15 Z B 3.00, 12 Z B 2.95, 18 Z 16.15 EUR each incl. VAT.
+
 ## Price log (fill in after each order)
 
 | Date | Vendor | What | Qty | Price paid | Notes |
