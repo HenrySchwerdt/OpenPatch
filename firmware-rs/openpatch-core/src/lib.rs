@@ -9,6 +9,7 @@
 
 pub mod bench;
 pub mod delivery;
+pub mod diag;
 pub mod drive_cal;
 pub mod faults;
 pub mod hal;

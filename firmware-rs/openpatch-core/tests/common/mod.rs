@@ -45,6 +45,15 @@ pub struct MockState {
     pub enable_dirs: Vec<MotorDir>,
     /// Returned (once) by `motor_fault`.
     pub fault: Option<MotorFault>,
+    /// Drained one by one by `take_diag` (HAL-detected faults, as data).
+    pub diag_events: Vec<openpatch_core::hal::DiagEvent>,
+    /// FaultyHal injectors (docs/06-diagnostics.md 6.1): why the MCU started, the retained-RAM breadcrumb, and what
+    /// `motor_step_ex` reports about the burst.
+    pub reset_cause: openpatch_core::hal::ResetCause,
+    pub breadcrumb: u32,
+    pub ex_drv_fault: bool,
+    pub ex_vmot_missing: bool,
+    pub ex_peak: Option<u16>,
 }
 
 impl Default for MockState {
@@ -74,6 +83,12 @@ impl Default for MockState {
             reverse_calls: Vec::new(),
             enable_dirs: Vec::new(),
             fault: None,
+            diag_events: Vec::new(),
+            reset_cause: openpatch_core::hal::ResetCause::PowerOn,
+            breadcrumb: 0,
+            ex_drv_fault: false,
+            ex_vmot_missing: false,
+            ex_peak: None,
         }
     }
 }
@@ -170,6 +185,25 @@ impl Hal for MockHal {
     }
     fn motor_current_peak_ma(&mut self) -> Option<u16> {
         self.0.borrow().current_ma
+    }
+    fn motor_step_ex(&mut self, steps: Pulses) -> openpatch_core::hal::StepResult {
+        let executed = self.motor_step(steps);
+        let m = self.0.borrow();
+        openpatch_core::hal::StepResult { executed, drv_fault: m.ex_drv_fault, peak_ma: m.ex_peak, vmot_ok: !m.ex_vmot_missing }
+    }
+    fn reset_cause(&mut self) -> openpatch_core::hal::ResetCause {
+        self.0.borrow().reset_cause
+    }
+    fn breadcrumb(&mut self) -> u32 {
+        self.0.borrow().breadcrumb
+    }
+    fn take_diag(&mut self) -> Option<openpatch_core::hal::DiagEvent> {
+        let mut m = self.0.borrow_mut();
+        if m.diag_events.is_empty() {
+            None
+        } else {
+            Some(m.diag_events.remove(0))
+        }
     }
 }
 

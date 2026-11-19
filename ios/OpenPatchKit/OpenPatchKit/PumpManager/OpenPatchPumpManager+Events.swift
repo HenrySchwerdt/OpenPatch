@@ -69,6 +69,8 @@ extension OpenPatchPumpManager {
             raisedPairAlerts.insert("wearExpired")
             mutateState { $0.faultCode = .wearExpired; $0.phase = .faulted }
             issue(.podWearExpired, body: NSLocalizedString("The pod reached its maximum wear time and stopped delivering insulin. Swap pods now.", bundle: .openPatchKit, comment: "Alert body"))
+        case .diag, .diagCleared, .selfTest:
+            break   // WP-6: per-code alerts, retraction, health view (docs/06-diagnostics.md 5.6); the legacy `.fault` event still drives `podFault`
         case .released(_, let reason):
             // The pod stopped on its own (charger / wear / a Release we did not see answered): never keep showing "active".
             if let bolus = state.unfinalizedBolus { finalize(bolus: bolus.cancelled(at: now)) }

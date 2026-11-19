@@ -69,6 +69,13 @@ pub const DRAW_STALL_PCT: i64 = 50;
 
 pub const FW_VERSION: u16 = 0x0200;
 
+/// `7-7B-001 TICK_OVERRUN`: a safety tick later than this (nominal 1 s) raises a warning.
+pub const TICK_OVERRUN_MS: u64 = 2_500;
+/// `4-40-003 DIR_INVERTED`: a reverse burst of at least this many steps whose angle moved FORWARD by more than
+/// this percentage of the expected reverse travel proves a wrong direction polarity.
+pub const DIR_INVERTED_MIN_STEPS: u32 = 16;
+pub const DIR_INVERTED_PCT: i64 = 50;
+
 /// Sane calibration check.
 #[inline]
 pub const fn cal_in_range(c: PulseCal) -> bool {

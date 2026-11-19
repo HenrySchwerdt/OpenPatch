@@ -5,7 +5,7 @@
 //! Documented intentional differences (see docs/differential-testing.md) are normalised here:
 //!  * status: DRIVE_CAL (id / steps-per-rev / ratio differ between C presets and Rust test
 //!    calibrations; only the uU floor is compared), FW_VERSION, Rust-only tags 0x21..0x23,
-//!    flags bits 11/12;
+//!    flags bits 11/12 and the diagnostics extension (flags 13/14, tags 0x27, 0x28, 0x2F);
 //!  * command 0x0F and error codes 26/27 never occur in shared streams.
 
 use crate::ffi::*;
@@ -241,7 +241,7 @@ pub fn rust_snapshot(p: &mut Pump<MockHal>) -> [u64; SNAP_LEN] {
     o[40] = p.log().oldest_id() as u64;
     o[42] = p.calibration().is_some() as u64;
     let st = p.get_status();
-    o[100] = (st.flags & !((1 << 11) | (1 << 12))) as u64;
+    o[100] = (st.flags & !((1 << 11) | (1 << 12) | (1 << 13) | (1 << 14))) as u64;
     o[101] = st.faults as u64;
     o[102] = st.reservoir_mu as u64;
     o[103] = st.battery_mv as u64;
@@ -276,11 +276,16 @@ fn parse_response(bytes: &[u8], who: &str) -> Result<(u8, u8, u16, Tlvs, bool), 
     }
     let has_status = tlvs.iter().any(|t| t.0 == tag::STATE_FLAGS);
     // normalise the documented differences
-    tlvs.retain(|t| !matches!(t.0, tag::DRAW_STATE | tag::DRAW_REQUESTED_MU | tag::DRAW_DONE_MU | tag::FW_VERSION));
+    tlvs.retain(|t| {
+        !matches!(
+            t.0,
+            tag::DRAW_STATE | tag::DRAW_REQUESTED_MU | tag::DRAW_DONE_MU | tag::FW_VERSION | tag::DIAG_SUMMARY | tag::FRU_HEALTH | tag::POD_UID
+        )
+    });
     for t in tlvs.iter_mut() {
         match t.0 {
             tag::STATE_FLAGS if t.1.len() == 2 => {
-                let v = u16::from_le_bytes([t.1[0], t.1[1]]) & !((1 << 11) | (1 << 12));
+                let v = u16::from_le_bytes([t.1[0], t.1[1]]) & !((1 << 11) | (1 << 12) | (1 << 13) | (1 << 14));
                 t.1 = v.to_le_bytes().to_vec();
             }
             tag::DRIVE_CAL if t.1.len() == 10 => t.1 = t.1[2..6].to_vec(), // uU floor only

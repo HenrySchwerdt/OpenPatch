@@ -3,9 +3,10 @@
 //! the others. Behaviour is identical to `firmware/core/src/pump_controller.c` (differential tests).
 
 use crate::delivery::{BasalSchedule, BasalSeg, DeliveryEngine, EngineEvents};
+use crate::diag::{codes, DiagCode, DiagNote, Raise};
 use crate::drive_cal::DriveCal;
 use crate::faults::Faults;
-use crate::hal::{Buzzer, Hal};
+use crate::hal::{Buzzer, Hal, MotorFault};
 use crate::limits::*;
 use crate::log::{EventLog, EventType, REL_CHARGER, REL_COMMAND};
 use crate::pod::{ActivateArgs, DeliveryState, PodState, Role};
@@ -81,6 +82,17 @@ pub struct Pump<H: Hal> {
     pub(crate) notify_seq: u16,
     pub(crate) last_motor_fault: Option<crate::hal::MotorFault>,
     pub(crate) peak_ma: Option<u16>,
+    /// Record id of the HAL-level cause raised by the burst in progress (0 = none): the core's own
+    /// record (for example `7-70-005`) links to it (cause chain).
+    pub(crate) hal_rec: u32,
+    /// Last self-test (`SELFTEST_STATE`).
+    pub(crate) selftest: proto::SelfTestState,
+    /// Pending `SELFTEST_PROGRESS` notification argument.
+    pub(crate) selftest_note: Option<u32>,
+    /// Write event type 31 for new diagnostic records (off by default, see [`Pump::set_diag_history`]).
+    pub(crate) diag_history: bool,
+    /// Next record id not yet written as event 31.
+    pub(crate) diag_hist_next: u32,
 }
 
 impl<H: Hal> Pump<H> {
@@ -116,6 +128,11 @@ impl<H: Hal> Pump<H> {
             notify_seq: 0,
             last_motor_fault: None,
             peak_ma: None,
+            hal_rec: 0,
+            selftest: proto::SelfTestState::default(),
+            selftest_note: None,
+            diag_history: false,
+            diag_hist_next: 0,
             hal,
         };
         p.pod.docked = p.hal_docked(); // no event for the boot state
@@ -123,6 +140,8 @@ impl<H: Hal> Pump<H> {
         p.hal.motor_enable(false);
         p.hal.buzzer(Buzzer::Off);
         p.log_ev(EventType::Boot, 0, 0);
+        p.sv.raise(Raise::new(codes::BOOT).a(FW_VERSION as i32));
+        p.raise_reset_cause();
         p.observe();
         if !p.sv.faults().is_empty() {
             p.sync_faults(Faults::NONE); // e.g. NO_CALIBRATION: log + alarm, driver stays off
@@ -165,15 +184,30 @@ impl<H: Hal> Pump<H> {
 
     /// Encode + seal the next pending notification as a frame (type 0x90, own nonce direction).
     pub fn notification_frame<C: Ccm>(&mut self, session: &mut Session<C>, encrypt: bool, out: &mut [u8]) -> Option<Result<usize, Error>> {
-        let n = self.take_notification()?;
-        let (kind, arg) = match n {
-            Notification::DrawProgress(v) => (proto::notify::DRAW_PROGRESS, v),
-            Notification::DrawDone(v) => (proto::notify::DRAW_DONE, v),
-            Notification::DrawStalled(v) => (proto::notify::DRAW_STALLED, v),
-            Notification::Fault(b) => (proto::notify::FAULT, b as u32),
+        // legacy notifications first, then the diagnostic ones (kinds 5 to 7)
+        let mut record: Option<crate::diag::DiagRecord> = None;
+        let (kind, arg) = if let Some(n) = self.take_notification() {
+            match n {
+                Notification::DrawProgress(v) => (proto::notify::DRAW_PROGRESS, v),
+                Notification::DrawDone(v) => (proto::notify::DRAW_DONE, v),
+                Notification::DrawStalled(v) => (proto::notify::DRAW_STALLED, v),
+                Notification::Fault(b) => (proto::notify::FAULT, b as u32),
+            }
+        } else if let Some(d) = self.take_diag_note() {
+            match d {
+                DiagNote::Raised(r) => {
+                    record = Some(r);
+                    (proto::notify::DIAG_RAISED, r.code.0)
+                }
+                DiagNote::Cleared(c) => (proto::notify::DIAG_CLEARED, c.0),
+            }
+        } else if let Some(p) = self.selftest_note.take() {
+            (proto::notify::SELFTEST_PROGRESS, p)
+        } else {
+            return None;
         };
-        let mut body = [0u8; 16];
-        let r = proto::encode_notification_payload(kind, arg, &mut body).and_then(|l| {
+        let mut body = [0u8; 64];
+        let r = proto::encode_notification_payload_ex(kind, arg, record.as_ref(), &mut body).and_then(|l| {
             let seq = self.notify_seq;
             self.notify_seq = if seq >= proto::SEQ_MAX { 0 } else { seq + 1 };
             session.seal_notification(proto::notify::FRAME_TYPE, seq, encrypt, &body[..l], out)
@@ -225,7 +259,9 @@ impl<H: Hal> Pump<H> {
 
     // ---- helpers -----------------------------------------------------------------
     pub(crate) fn now(&mut self) -> Millis {
-        self.hal.time_ms()
+        let t = self.hal.time_ms();
+        self.sv.set_time(t);
+        t
     }
     fn now_s(&mut self) -> u32 {
         (self.now().0 / 1000) as u32
@@ -258,7 +294,7 @@ impl<H: Hal> Pump<H> {
             None => {
                 // angle sensor lost: nothing can be verified any more
                 if self.pod.active && !self.de.is_suspended() {
-                    self.sv.latch(Faults::INTERNAL);
+                    self.sv.raise(Raise::new(codes::ANGLE_CHANNEL_LOST));
                 }
                 self.sv.last_angle()
             }
@@ -268,8 +304,13 @@ impl<H: Hal> Pump<H> {
             self.low_batt_reported = true;
             let mv = self.hal.battery_mv();
             self.log_ev(EventType::LowBattery, mv as i32, 0);
+            // inst 1 = bench VBUS source
+            self.sv.raise(Raise::new(codes::BATTERY_LOW).inst(1).a(mv as i32).b(BATTERY_LOW_MV as i32));
         } else if !self.sv.battery_low() {
             self.low_batt_reported = false;
+        }
+        if battery_mv >= BATTERY_LOW_MV + BATTERY_HYSTERESIS_MV {
+            self.sv.diag_mut().clear(codes::BATTERY_LOW); // condition gone, with the 100 mV hysteresis
         }
     }
 
@@ -281,29 +322,219 @@ impl<H: Hal> Pump<H> {
     /// Supervisor approval, plus: never step without the angle sensor (latches INTERNAL instead).
     fn approve_blind_safe(&mut self, now: Millis, requested: Pulses) -> Pulses {
         if requested.0 > 0 && self.hal.angle_read().is_none() {
-            self.sv.latch(Faults::INTERNAL);
+            self.sv.raise(Raise::new(codes::ANGLE_CHANNEL_LOST).c(requested.0));
             return Pulses(0);
         }
         self.sv.approve_steps(now, requested, self.res.remaining())
     }
 
     fn run_motor(&mut self, steps: Pulses) -> Pulses {
+        self.hal_rec = 0;
         self.hal.motor_enable_dir(crate::hal::MotorDir::Forward);
-        let n = self.hal.motor_step(steps);
+        let r = self.hal.motor_step_ex(steps);
         self.hal.motor_enable(false);
-        let done = Pulses(n.0.min(steps.0));
+        let done = Pulses(r.executed.0.min(steps.0));
         self.res.consume(done);
+        if r.drv_fault {
+            self.hal_rec = self.sv.raise(Raise::new(codes::DRIVER_FAULT_IN_BURST).a(r.peak_ma.unwrap_or(0) as i32).c(done.0));
+        }
+        if !r.vmot_ok {
+            self.hal_rec = self.sv.raise(Raise::new(codes::VMOT_NOT_PRESENT).c(done.0));
+        }
         if let Some(f) = self.hal.motor_fault() {
             // The HAL knows why the burst failed: remember it (precise cause for logs / alarm).
             self.last_motor_fault = Some(f);
-            self.sv.latch(Faults::INTERNAL);
+            self.raise_motor_fault(f, done);
         }
-        let peak = self.hal.motor_current_peak_ma();
+        self.drain_hal_diag();
+        let peak = r.peak_ma.or_else(|| self.hal.motor_current_peak_ma());
         if let Some(p) = peak {
             self.peak_ma = Some(self.peak_ma.map_or(p, |q| q.max(p)));
         }
         self.sv.observe_motor_burst(done, peak);
         done
+    }
+
+    /// Raises the catalogue code of a HAL motor fault (the HAL reports, the core decides policy).
+    /// Refused requests (forward while undocked, reverse while docked) have no hardware cause: the
+    /// core's own `7-70-005` follows from the burst that did not run.
+    pub(crate) fn raise_motor_fault(&mut self, f: MotorFault, executed: Pulses) {
+        let code: Option<DiagCode> = match f {
+            MotorFault::Driver => Some(codes::DRIVER_FAULT_IN_BURST),
+            MotorFault::SupplyMissing => Some(codes::VMOT_NOT_PRESENT),
+            MotorFault::SupplyUnexpected => Some(codes::VMOT_STUCK_ON),
+            MotorFault::InterlockFailed => Some(codes::INTERLOCK_FAILED_LATCH),
+            MotorFault::Timeout => Some(codes::STEP_COUNT_SHORT),
+            MotorFault::ForwardWhileUndocked | MotorFault::ReverseWhileDocked => None,
+        };
+        match code {
+            Some(c) => self.hal_rec = self.sv.raise(Raise::new(c).c(executed.0)),
+            None => {
+                // no hardware cause: the burst simply did not run, the engine record says so
+                let kind = if f == MotorFault::ForwardWhileUndocked { 1 } else { 2 };
+                self.hal_rec = self.sv.raise(Raise::new(codes::STEPS_SHORT_OF_APPROVAL).a(executed.0 as i32).inst(kind));
+            }
+        }
+    }
+
+    /// The burst executed fewer steps than the supervisor approved: raise `7-70-005`, linked to
+    /// the HAL-level cause when there is one.
+    pub(crate) fn raise_steps_short(&mut self, executed: Pulses, approved: Pulses) {
+        let r = Raise::new(codes::STEPS_SHORT_OF_APPROVAL).a(executed.0 as i32).b(approved.0 as i32);
+        let cause = self.hal_rec;
+        self.sv.raise(if cause != 0 { r.caused_by(cause) } else { r });
+    }
+
+    /// Boot: why did the MCU start? Anything other than power-on or a commanded reset is an unexpected
+    /// reset (`7-74-002`; a brown-out also `1-01-002`, its root). The pod boots SUSPENDED anyway.
+    fn raise_reset_cause(&mut self) {
+        use crate::hal::ResetCause;
+        let cause = self.hal.reset_cause();
+        let crumb = self.hal.breadcrumb();
+        let code = match cause {
+            ResetCause::PowerOn | ResetCause::Commanded => return,
+            ResetCause::Watchdog => 1,
+            ResetCause::Brownout => 2,
+            ResetCause::Lockup => 3,
+            ResetCause::Other => 4,
+        };
+        let mut root = 0;
+        if cause == ResetCause::Brownout {
+            let mv = self.hal.battery_mv();
+            root = self.sv.raise(Raise::new(codes::BROWNOUT_RESET).a(mv as i32));
+        }
+        let r = Raise::new(codes::UNEXPECTED_RESET).a(code).c(crumb);
+        self.sv.raise(if root != 0 { r.caused_by(root) } else { r });
+    }
+
+    /// Events the HAL detected on its own (as data): raised with the HAL's own code.
+    pub(crate) fn drain_hal_diag(&mut self) {
+        while let Some(e) = self.hal.take_diag() {
+            self.hal_rec = self.sv.raise(Raise::new(e.code).a(e.ctx_a).b(e.ctx_b).c(e.ctx_c));
+        }
+    }
+
+    /// Next pending diagnostic notification (record raised / cleared) for the Alert characteristic.
+    pub fn take_diag_note(&mut self) -> Option<DiagNote> {
+        self.sv.diag_mut().take_note()
+    }
+
+    /// Also write event type 31 `DIAG` (a = code, b = `ctx_a`) to the event log for every new
+    /// diagnostic record, so a v1-only history reader sees that a record exists. Off by default:
+    /// the C reference never writes it and the differential tests compare the event log.
+    pub fn set_diag_history(&mut self, on: bool) {
+        self.diag_history = on;
+        if on {
+            self.diag_hist_next = self.sv.diag().next_id();
+        }
+    }
+
+    fn log_diag_history(&mut self) {
+        if !self.diag_history {
+            return;
+        }
+        let end = self.sv.diag().next_id();
+        let mut id = self.diag_hist_next.max(self.sv.diag().oldest_id());
+        while id != end {
+            if let Some(r) = self.sv.diag().record(id) {
+                if r.flags & openpatch_diag::flags::CLEARED == 0 {
+                    self.log_ev(EventType::Diag, r.code.0 as i32, r.ctx_a);
+                }
+            }
+            id = id.wrapping_add(1);
+            if id == 0 {
+                id = 1;
+            }
+        }
+        self.diag_hist_next = end;
+    }
+
+    /// Diagnostic summary for `DIAG_SUMMARY`.
+    pub fn diag_summary(&self) -> proto::DiagSummary {
+        self.sv.diag().summary()
+    }
+
+    /// `ClearDiag`. `NotFound` when the code is not active, `NotClearable` when it is latched and
+    /// its verification test has not passed, or when the cause persists (battery, calibration,
+    /// wear, empty reservoir). Returns the number of cleared records.
+    pub fn clear_diag(&mut self, code: DiagCode) -> Result<usize, Error> {
+        let before = self.sv.faults();
+        // verification tests of latched codes (A01/A02, S04..S06, ...) are WP-3: nothing is verified yet
+        let r = {
+            let persist_bits = self.sv.persisting(Faults::ALL);
+            self.sv.diag_mut().clear_diag(code, false, |a| {
+                crate::diag::legacy_bit(a.code, a.severity).is_some_and(|b| persist_bits.bits() & (1 << b) != 0)
+            })
+        };
+        self.sv.resync_faults();
+        let cleared = before & !self.sv.faults();
+        if !cleared.is_empty() {
+            self.log_ev(EventType::Ack, cleared.bits() as i32, 0);
+        }
+        if self.sv.faults().is_empty() {
+            self.hal.buzzer(Buzzer::Off);
+        }
+        self.log_diag_history();
+        r.map_err(|e| match e {
+            crate::diag::ClearError::NotFound => Error::NotFound,
+            crate::diag::ClearError::NotClearable => Error::NotClearable,
+        })
+    }
+
+    /// `RunSelfTest`: refused while not suspended, while a draw runs, or while a test runs. The
+    /// core sequences the steps; the pin-level proofs are the HAL's (`Hal::selftest`). A proof the
+    /// HAL cannot do stays UNKNOWN (neither passed nor failed). Ends with `7-74-006 POST_RESULT`
+    /// (`ctx_a` = steps passed mask, `ctx_b` = steps failed mask).
+    pub fn run_self_test(&mut self, sub_op: u8) -> Result<(), Error> {
+        use crate::hal::{SelfTestOutcome, SelfTestStep};
+        if !(proto::selftest::SUBOP_POST_S..=proto::selftest::SUBOP_WATCHDOG).contains(&sub_op) {
+            return Err(Error::BadArg);
+        }
+        if !self.de.is_suspended() || self.draw_running() || self.selftest.state == proto::selftest::RUNNING {
+            return Err(Error::SelfTestRefused);
+        }
+        self.selftest = proto::SelfTestState { state: proto::selftest::RUNNING, kind: sub_op, ..Default::default() };
+        let steps: &[SelfTestStep] = match sub_op {
+            proto::selftest::SUBOP_POST_A => &[SelfTestStep::GateCut, SelfTestStep::DockGateBlock],
+            proto::selftest::SUBOP_WATCHDOG => &[SelfTestStep::WatchdogProof],
+            _ => &[],
+        };
+        let faults_before = self.sv.faults();
+        let (mut passed, mut failed) = (0u16, 0u16);
+        for (i, step) in steps.iter().enumerate() {
+            match self.hal.selftest(*step) {
+                SelfTestOutcome::Unsupported => {}
+                SelfTestOutcome::Passed => passed |= 1 << i,
+                SelfTestOutcome::Failed(code) => {
+                    failed |= 1 << i;
+                    self.hal_rec = self.sv.raise(Raise::new(code).during_post());
+                }
+            }
+        }
+        self.selftest = proto::SelfTestState { state: proto::selftest::DONE, kind: sub_op, steps_passed: passed, steps_failed: failed };
+        self.sv.raise(Raise::new(codes::POST_RESULT).a(passed as i32).b(failed as i32).inst(sub_op).during_post());
+        // a proof that was not performed is UNKNOWN, never "passed": only a complete pass counts
+        let all_passed = !steps.is_empty() && passed.count_ones() as usize == steps.len();
+        let post = match (sub_op, failed != 0, all_passed) {
+            (proto::selftest::SUBOP_POST_S, true, _) => 3,
+            (proto::selftest::SUBOP_POST_A, true, _) => 4,
+            (proto::selftest::SUBOP_POST_S, false, true) => 1,
+            (proto::selftest::SUBOP_POST_A, false, true) => 2,
+            _ => self.sv.diag().post_state(),
+        };
+        self.sv.diag_mut().set_post_state(post);
+        self.selftest_note = Some(((passed as u32) << 16) | failed as u32);
+        self.sv.resync_faults();
+        self.sync_faults(faults_before);
+        self.log_diag_history();
+        Ok(())
+    }
+
+    /// Latched code that makes `Resume` / `Activate` refuse (`Latched`), if any.
+    fn latched_root(&self) -> Option<u32> {
+        let l = self.sv.diag().latched().first()?;
+        let root = self.sv.diag().record(l.rec_id).map(|r| self.sv.diag().root_of(&r).code.0);
+        Some(root.unwrap_or(l.code.0))
     }
 
     // ---- two-pod helpers ---------------------------------------------------------------
@@ -355,6 +586,7 @@ impl<H: Hal> Pump<H> {
         if !self.pod.wear_warned && self.pod.wear >= WEAR_WARN {
             self.pod.wear_warned = true;
             self.log_ev(EventType::WearWarning, minutes, 0);
+            self.sv.raise(Raise::new(codes::WEAR_WARNING).a(minutes));
             if self.sv.faults().is_empty() {
                 self.hal.buzzer(Buzzer::Beep);
             }
@@ -379,19 +611,26 @@ impl<H: Hal> Pump<H> {
             self.tick_overruns += 1;
         }
         let before = self.sv.faults();
+        if wear_dt.0 > TICK_OVERRUN_MS {
+            // warning only: `7-7B-002` (F at 5 s) would add a fault bit the C reference does not have
+            self.sv.raise(Raise::new(codes::TICK_OVERRUN).a(wear_dt.0 as i32).b(TICK_OVERRUN_MS as i32));
+        } else {
+            self.sv.diag_mut().clear(codes::TICK_OVERRUN);
+        }
 
         self.refresh_dock();
         if self.pod.active && self.hal_charger() {
             self.release_now(REL_CHARGER); // on a charger: forced released
         }
         self.wear_step(wear_dt);
+        self.drain_hal_diag();
 
         let requested = self.de.tick(dt);
         let approved = self.approve_blind_safe(t, requested);
         let executed = if approved.0 > 0 { self.run_motor(approved) } else { Pulses(0) };
         self.de.commit(executed);
         if executed < approved {
-            self.sv.latch(Faults::INTERNAL);
+            self.raise_steps_short(executed, approved);
         }
         self.draw_step();
 
@@ -410,9 +649,14 @@ impl<H: Hal> Pump<H> {
             self.low_res_reported = true;
             let rem = self.res.remaining().0 as i32;
             self.log_ev(EventType::LowReservoir, rem, 0);
+            self.sv.raise(Raise::new(codes::RESERVOIR_LOW).a(rem));
+        } else if !self.res.is_low() {
+            self.sv.diag_mut().clear(codes::RESERVOIR_LOW); // refilled
         }
+        self.drain_hal_diag();
         self.observe();
         self.sync_faults(before);
+        self.log_diag_history();
         self.hal.watchdog_kick();
     }
 
@@ -566,7 +810,7 @@ impl<H: Hal> Pump<H> {
         let approved = self.approve_blind_safe(t, steps);
         let executed = if approved.0 > 0 { self.run_motor(approved) } else { Pulses(0) };
         if executed < approved {
-            self.sv.latch(Faults::INTERNAL);
+            self.raise_steps_short(executed, approved);
         }
         if executed == steps {
             self.log_ev(EventType::Prime, steps.0 as i32, 0);
@@ -678,6 +922,17 @@ impl<H: Hal> Pump<H> {
         s.draw_state = self.draw.state;
         s.draw_requested_mu = self.draw.requested_mu;
         s.draw_done_mu = self.draw.drawn_mu;
+        // diagnostics: the presence of DIAG_SUMMARY is the feature test for the app
+        s.diag = Some(self.sv.diag().summary());
+        s.fru_health = Some(self.sv.diag().fru_health());
+        let uid = self.hal.pod_uid();
+        s.pod_uid = (uid != 0).then_some(uid);
+        if !self.sv.diag().active().is_empty() {
+            s.flags |= st::DIAG_ACTIVE;
+        }
+        if !self.sv.diag().latched().is_empty() {
+            s.flags |= st::LATCHED;
+        }
         s
     }
 
@@ -740,6 +995,7 @@ impl<H: Hal> Pump<H> {
         self.de.suspend(); // stays suspended until Resume, so the connector can be primed first
         self.pod.pending_temp = a.temp;
         self.sv.reset_wear();
+        self.sv.diag_mut().clear(codes::WEAR_WARNING);
         self.pod.wear = Millis(0);
         self.pod.wear_warned = false;
         self.pod.activation_id = a.activation_id;
@@ -816,7 +1072,13 @@ impl<H: Hal> Pump<H> {
             CommandBody::Bolus { amount_mu } => self.bolus(MilliUnits(*amount_mu)),
             CommandBody::CancelBolus => self.cancel_bolus(),
             CommandBody::Suspend => self.suspend(),
-            CommandBody::Resume => self.resume(),
+            CommandBody::Resume => match self.latched_root() {
+                Some(root) => {
+                    rsp.diag_code = Some(root);
+                    Err(Error::Latched)
+                }
+                None => self.resume(),
+            },
             CommandBody::FillPrime { sub_op, fill_mu, prime_steps } => match *sub_op {
                 SUBOP_FILL => self.fill(MilliUnits(*fill_mu)),
                 SUBOP_PRIME => self.prime(Pulses(*prime_steps as u32)),
@@ -825,7 +1087,12 @@ impl<H: Hal> Pump<H> {
             CommandBody::Acknowledge { fault_mask } => self.acknowledge(Faults(*fault_mask)),
             CommandBody::SetPairing { pair_id, role } => self.set_pairing(*pair_id, *role),
             CommandBody::Activate { pair_id, activation_id, schedule, temp } => {
+                let latched = self.latched_root();
                 let r = match Self::schedule_from_wire(schedule) {
+                    Ok(_) if latched.is_some() => {
+                        rsp.diag_code = latched;
+                        Err(Error::Latched)
+                    }
                     Ok(s) => {
                         let a = ActivateArgs {
                             pair_id: *pair_id,
@@ -867,7 +1134,42 @@ impl<H: Hal> Pump<H> {
                 rsp.history = Some(h);
                 Ok(())
             }
+            CommandBody::GetFaultLog { from_id, max_events } => {
+                let mut max = *max_events as usize;
+                if max == 0 || max > proto::DIAG_RECORDS_PER_RESPONSE {
+                    max = proto::DIAG_RECORDS_PER_RESPONSE;
+                }
+                let mut buf = [proto::DiagRecord::default(); proto::DIAG_RECORDS_PER_RESPONSE];
+                let n = self.sv.diag().records_from(*from_id, &mut buf[..max]);
+                let mut f = proto::FaultLog {
+                    next_id: self.sv.diag().next_id(),
+                    oldest_id: self.sv.diag().oldest_id(),
+                    ..Default::default()
+                };
+                for l in self.sv.diag().latched().iter().take(proto::DIAG_LATCHED_MAX) {
+                    let _ = f.latched.push(l.code.0);
+                }
+                for r in &buf[..n] {
+                    let _ = f.records.push(*r);
+                }
+                rsp.fault_log = Some(f);
+                Ok(())
+            }
+            CommandBody::RunSelfTest { sub_op } => {
+                let r = self.run_self_test(*sub_op);
+                rsp.selftest = Some(self.selftest);
+                r
+            }
+            CommandBody::ClearDiag { code } => {
+                let r = self.clear_diag(DiagCode(*code));
+                if r.is_err() {
+                    rsp.diag_code = Some(*code);
+                }
+                rsp.diag = Some(self.sv.diag().summary());
+                r.map(|_| ())
+            }
         };
+        self.log_diag_history();
         rsp.result = Error::result_code(&r);
         rsp
     }

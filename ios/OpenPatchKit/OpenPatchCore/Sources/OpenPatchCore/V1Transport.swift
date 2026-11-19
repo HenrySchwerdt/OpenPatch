@@ -26,16 +26,19 @@ public protocol FrameLink: AnyObject {
 ///
 /// The pod reports no lifecycle phase and no bolus id: both are tracked here (`phaseHint`, `lastBolus`).
 public final class V1Transport: OpenPatchTransport {
-    private let link: FrameLink
+    let link: FrameLink
     private let clock: () -> Date
     private let timeOfDayMilliseconds: () -> UInt32
-    private let lock = NSLock()
+    let lock = NSLock()
 
     private var sequence: UInt16
     private var phaseHint: PodPhase
     private var lastBolus: (id: UInt16, pulses: UInt16)?
     private var historyCursor: UInt32?
     private var wasFaulted = false
+    /// Id of the next diagnostic record to fetch (`nil` = never synced) and the pod's `next_rec_id_lo` at that time.
+    var diagCursor: UInt32?
+    var diagNextLow: UInt16?
     /// Drive calibration from the last status. `prime` is refused without a known one (no assumed volume per step).
     private var calibration: DriveCalibration?
     private var lastReleaseDeliveredMU: UInt32?
@@ -43,7 +46,7 @@ public final class V1Transport: OpenPatchTransport {
     /// handshake and all commands / responses are AES-CCM protected; without one the transport speaks plaintext
     /// (simulator, `dev-plaintext` pods only).
     private var pairingSecret: [UInt8]?
-    private var channel: SecureChannel?
+    var channel: SecureChannel?
     private var sessionWaiters: [(Result<Void, TransportError>) -> Void] = []
     private let random: (Int) -> [UInt8]
 
@@ -179,7 +182,7 @@ public final class V1Transport: OpenPatchTransport {
     }
 
     /// With a pairing secret every command needs a session: run the handshake once, however many sends wait for it.
-    private func ensureSession(_ done: @escaping (Result<Void, TransportError>) -> Void) {
+    func ensureSession(_ done: @escaping (Result<Void, TransportError>) -> Void) {
         lock.lock()
         if pairingSecret == nil || channel != nil { lock.unlock(); return done(.success(())) }
         sessionWaiters.append(done)
@@ -326,7 +329,7 @@ public final class V1Transport: OpenPatchTransport {
 
     // MARK: Exchange
 
-    private func perform(_ id: V1.CommandID, _ tlvs: [V1.TLV], completion: @escaping (Result<V1.Message, TransportError>) -> Void) {
+    func perform(_ id: V1.CommandID, _ tlvs: [V1.TLV], completion: @escaping (Result<V1.Message, TransportError>) -> Void) {
         lock.lock()
         let seq = sequence
         sequence = sequence >= 0xFFFE ? 0xFFFE : sequence + 1   // 0xFFFF reserved; at the end a new session is needed
@@ -342,7 +345,7 @@ public final class V1Transport: OpenPatchTransport {
             case .failure(let error): completion(.failure(error))
             case .success(let data):
                 // With a session only authenticated, decrypted responses count: a plaintext reply is refused.
-                let decoded: V1.Message? = secure != nil ? try? secure?.open(data) : try? V1.decode(data)
+                let decoded: V1.Message? = secure != nil ? try? secure?.open(data, as: .response) : try? V1.decode(data)
                 guard let message = decoded, message.isResponse, message.seq == seq,
                       message.type == (id.rawValue | V1.responseFlag) else { return completion(.failure(.malformedResponse)) }
                 completion(.success(message))
@@ -370,6 +373,9 @@ public final class V1Transport: OpenPatchTransport {
         case .pair: return .pairMismatch
         case .charging: return .charging
         case .wearExpired: return .invalidState
+        case .selfTestRefused: return .selfTestRefused
+        case .latched: return .latched
+        case .notClearable: return .notClearable
         }
     }
 
@@ -383,8 +389,10 @@ public final class V1Transport: OpenPatchTransport {
             case .success(let message):
                 guard message.result == .ok else { return completion(.success(.rejected(.invalidState))) }
                 let status = self.parseStatus(message)
-                self.pollHistory(upTo: message.u32(.nextEventID)) {
-                    completion(.success(.ok(status)))
+                self.pollDiag(status.diag) {
+                    self.pollHistory(upTo: message.u32(.nextEventID)) {
+                        completion(.success(.ok(status)))
+                    }
                 }
             }
         }
@@ -449,7 +457,8 @@ public final class V1Transport: OpenPatchTransport {
                          podTime: clock(),
                          totalDeliveredPulses: (m.u32(.deliveredMU) ?? 0) / 50,
                          bolus: bolus, tempBasal: temp, faultCode: Self.faultCode(mask: faultMask),
-                         driveCalibration: cal, pairing: pairing, releaseReport: releaseReport(m))
+                         driveCalibration: cal, pairing: pairing, releaseReport: releaseReport(m),
+                         diag: m.diagSummary, fruHealth: m.fruHealth, uid: m.podUID)
     }
 
     /// Crude linear Li-Po estimate: 3.3 V (critical) = 0 %, 4.2 V = 100 %. Replace with the measured discharge curve.
@@ -528,6 +537,8 @@ public final class V1Transport: OpenPatchTransport {
         case .release:
             let reason: ReleaseReason = event.b == 1 ? .charger : (event.b == 2 ? .wear : .command)
             return .released(deliveredUnits: Double(max(event.a, 0)) / 1000, reason: reason)
+        case .diag:
+            return nil    // history event 31 only tells a v1 reader that something happened: records come from the pull path
         default: return nil
         }
     }

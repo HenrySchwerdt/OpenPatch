@@ -2,9 +2,9 @@
 name: firmware-rs
 on:
   push:
-    paths: ["firmware-rs/**", "firmware/core/**"]
+    paths: ["firmware-rs/**", "firmware/core/**", "spec/diag-codes.csv", "tools/gen_diag.py", "docs/06-diagnostics.md", "ios/OpenPatchKit/OpenPatchCore/Sources/OpenPatchCore/DiagCatalogue.swift"]
   pull_request:
-    paths: ["firmware-rs/**", "firmware/core/**"]
+    paths: ["firmware-rs/**", "firmware/core/**", "spec/diag-codes.csv", "tools/gen_diag.py", "docs/06-diagnostics.md", "ios/OpenPatchKit/OpenPatchCore/Sources/OpenPatchCore/DiagCatalogue.swift"]
 defaults:
   run:
     working-directory: firmware-rs
@@ -17,6 +17,7 @@ jobs:
         with: { components: "clippy, llvm-tools-preview" }
       - uses: Swatinem/rust-cache@v2
         with: { workspaces: firmware-rs }
+      - run: python3 ../tools/gen_diag.py --check   # catalogue drift: CSV vs doc tables vs generated Rust, Swift, trace report
       - run: cargo fmt --all -- --check
       - run: cargo clippy --workspace --all-targets -- -D warnings
       - run: cargo test --workspace            # unit + property + differential tests against the C core

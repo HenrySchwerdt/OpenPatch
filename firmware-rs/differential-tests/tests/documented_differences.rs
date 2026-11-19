@@ -58,7 +58,7 @@ fn status_differences_are_exactly_the_documented_ones() {
     // everything else identical byte for byte
     let strip = |t: &[(u8, Vec<u8>)]| -> Vec<(u8, Vec<u8>)> {
         t.iter()
-            .filter(|x| !matches!(x.0, tag::FW_VERSION | tag::DRIVE_CAL | tag::DRAW_STATE | tag::DRAW_REQUESTED_MU | tag::DRAW_DONE_MU | tag::LAST_SEQ))
+            .filter(|x| !matches!(x.0, tag::FW_VERSION | tag::DRIVE_CAL | tag::DRAW_STATE | tag::DRAW_REQUESTED_MU | tag::DRAW_DONE_MU | tag::LAST_SEQ | tag::DIAG_SUMMARY | tag::FRU_HEALTH | tag::POD_UID))
             .cloned()
             .collect()
     };
