@@ -124,7 +124,7 @@ def reservoir_cnc_script(p: dict, L: dict, tag: str, outdir: Path) -> Script:
 
 def generate_size(p: dict, variant: str, outdir: Path, snapshots: bool) -> dict:
     outdir.mkdir(parents=True, exist_ok=True)
-    if p.get("drive_mode") == "inline":
+    if p.get("drive_mode") in ("inline", "coaxial"):
         from op_inline import apply_variant
         apply_variant(p, variant)
     s, L = build_model(p, variant)
@@ -255,7 +255,7 @@ def main() -> None:
     ap.add_argument("--coil-d", type=float)
     ap.add_argument("--set", action="append", default=[], metavar="group.key=value")
     ap.add_argument("--no-snapshots", action="store_true")
-    ap.add_argument("--drive", choices=["standard", "inline"], default="standard",
+    ap.add_argument("--drive", choices=["standard", "inline", "coaxial"], default="standard",
                     help="inline = sealed on-axis 'cup' drive (op_inline.py, studies/drive/SEALED-DRIVE-STUDY.md), bench only, default outdir out/bench-inline")
     ap.add_argument("--coupon", action="store_true", help="only build the dock insert variant set + fit-test fixture (out/bench/fab/dock-inserts/)")
     args = ap.parse_args()
@@ -264,17 +264,17 @@ def main() -> None:
     p["mode"] = args.variant
     if args.variant == "bench":
         p["shell"]["width"] = p["bench"]["width_by_layout"][p["bench"]["drive_layout"]]
-    if args.drive == "inline":
-        assert args.variant == "bench", "--drive inline is a bench-pod option"
+    if args.drive in ("inline", "coaxial"):
+        assert args.variant == "bench", "--drive inline/coaxial is a bench-pod option"
         from op_inline import apply_inline
-        apply_inline(p)
-        args.outdir = args.outdir or str(HERE / "out" / "bench-inline")
-    if args.coupon and args.drive == "inline":
+        apply_inline(p, args.drive)
+        args.outdir = args.outdir or str(HERE / "out" / ("bench-inline" if args.drive == "inline" else "bench-coaxial"))
+    if args.coupon and args.drive in ("inline", "coaxial"):
         from op_inline_coupon import build_coupon
-        d = HERE / "studies" / "drive" / "coupon"
+        d = HERE / "studies" / "drive" / ("coupon" if args.drive == "inline" else "coupon-coaxial")
         d.mkdir(parents=True, exist_ok=True)
         s = Script()
-        info = build_coupon(s, p)
+        info = build_coupon(s, p, mode=args.drive)
         for nm in info["printed"]:
             s.export_step(str(d / f"{nm}.step"), [nm])
             s.export_stl(str(d / f"{nm}.stl"), [nm])

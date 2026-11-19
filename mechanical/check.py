@@ -312,7 +312,7 @@ def check_real_models(outdir: Path, variant: str) -> tuple[list, list]:
 def check_size(outdir: Path, variant: str, p: dict, ignore_length: bool, with_variants: bool = False) -> dict:
     mode = p.get("mode", "integrated")
     MFG_PARTS, _, EXCLUDE_PAIRS = part_sets(mode)
-    if p.get("drive_mode") == "inline":
+    if p.get("drive_mode") in ("inline", "coaxial"):
         from op_inline import INLINE_EXCLUDE
         EXCLUDE_PAIRS = EXCLUDE_PAIRS + INLINE_EXCLUDE
     results = eval_design(outdir / f"{variant}.sc", EXCLUDE_PAIRS)
@@ -363,7 +363,7 @@ def check_size(outdir: Path, variant: str, p: dict, ignore_length: bool, with_va
         problems += pv
         warns += wv
     exports = ["bottom", "top"] + ([] if L.get("inline") else ["carriage"]) + ["reservoir", "plunger_core", "plunger_seal", "gasket", "mould_lower", "mould_upper"]
-    exports += (["cannula_adapter", "dock_insert", "plunger_nose", "valve_plug", "thrust_sleeve", "thrust_collar"] + (["plunger_plate", "thrust_sleeve2"] if L.get("inline") else [])) if mode == "bench" else ["reservoir_cnc_lower", "reservoir_cnc_upper"]
+    exports += (["cannula_adapter", "dock_insert", "plunger_nose", "valve_plug", "thrust_sleeve", "thrust_collar"] + ((["plunger_plate"] if L["inline"].get("variant") != "coaxial" else []) + ["thrust_sleeve2"] if L.get("inline") else [])) if mode == "bench" else ["reservoir_cnc_lower", "reservoir_cnc_upper"]
     for part in exports:
         for ext in ("step", "stl"):
             if not (outdir / f"{variant}_{part}.{ext}").exists():
@@ -378,10 +378,10 @@ def main() -> None:
     ap.add_argument("--outdir")
     ap.add_argument("--sizes", nargs="*")
     ap.add_argument("--ignore-length", action="store_true")
-    ap.add_argument("--drive", choices=["standard", "inline"], default="standard", help="inline: check out/bench-inline (sealed on-axis cup drive)")
+    ap.add_argument("--drive", choices=["standard", "inline", "coaxial"], default="standard", help="inline / coaxial: check out/bench-inline / out/bench-coaxial (sealed on-axis drives)")
     ap.add_argument("-v", "--verbose", action="store_true")
     args = ap.parse_args()
-    out = Path(args.outdir or (HERE / "out" / ("bench-inline" if args.drive == "inline" else "bench") if args.variant == "bench" else HERE / "out"))
+    out = Path(args.outdir or (HERE / "out" / ({"inline": "bench-inline", "coaxial": "bench-coaxial"}.get(args.drive, "bench")) if args.variant == "bench" else HERE / "out"))
     p = load_params(out / "params.used.json") if (out / "params.used.json").exists() else load_params()
     p["mode"] = args.variant
     sizes = args.sizes or list(p["variants"])

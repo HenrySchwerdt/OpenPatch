@@ -15,11 +15,97 @@ bench test coupon: `op_inline_coupon.py` (`--drive inline --coupon`, files in `c
    new CNC reservoir, a thrust margin of only 1.7 (breakaway basis, 105 mA), the encoder lane replaced and the sensor board wing moved: **a second design round, estimated not built** (section 5).
 3. The two physical ways to avoid the length are either a sealed *moving slot* (rodless-cylinder band, slit elastomer: unproven at 5 mm, not easy) or a *flexible push element*
    (tape spring, chain, band: rejected by the owner as too hard to build).  I found no third way; section 4 lists every candidate with numbers.
-4. **Decision:** build the **cup drive** (section 6): leadscrew on the reservoir axis, nut at the plunger, screw enters a dry hypodermic tube inside the plunger, motor
-   unchanged beside the reservoir, 3-mesh gear chain with an idler.  No slot, no tongue, no carriage; reservoir volume equals the closed-bore model to 0.000 mm3.
+4. **Decision (updated, section 0b): main candidate = coaxial translating screw** (`--drive coaxial`): the M1.6 screw sits on the reservoir axis and pushes the plunger centre; a rotating nut glued to the
+   front face of gear_d drives it; the gear / sleeve / bush stack overlaps the screw tail, so the rear zone is only `s + 2.2` long.  The cup drive of section 6 (`--drive inline`, nut in the plunger)
+   is the alternative: 3 mm longer.  No slot, no tongue, no carriage; reservoir volume equals the closed-bore model to 0.000 mm3 in both.
+   **Against the hard targets of the integrated v0.1.0 (OP-100 <= 45, OP-200 <= 52):** OP-100 is reachable (43.7 mm at f = 4, 44.7 at f = 3) only with a 22.4 x 5 bore, all squeezes of section 0b and
+   the sensor/CNC/cap changes; **OP-200 <= 52 is not reachable by any rigid sealed drive** (62.4 mm best case; about 144 U fit in 52 mm).
 5. **Push-only relaxation (decision 3c: pressure fill, no pull strength needed)** makes the cup drive simpler (section 6a): no glued nut, the plunger stack can be loose parts, the retract is
    done by the fluid pressure against a nut that only follows the screw.  It does *not* shorten the drive: the length comes from the dry cup / tail, not from the pull.
 6. Open decision for the owner: accept +14.6 mm for OP-100 (drop or re-think OP-200) with the existing 16 x 5 reservoir, or fund the wide-bore round to get OP-70 and OP-100 back into 43 / 47 mm.
+
+## 0b. Update: coaxial translating screw (main candidate) and the 45 / 52 mm targets
+
+**Mechanism (`op_inline.py`, mode `coaxial`; the CLI name `--drive coaxial` is unrelated to the older `bench.drive_layout = coaxial` motor layout):**
+motor + z16 (unchanged, beside the reservoir) -> gear_b z20 (old lane axis: encoder shaft + spindle magnet, only while the 16 x 5 bore keeps the lane) -> idler z17 on a fixed pin -> gear_d z20 on the bore axis.
+A DIN 934 M1.6 nut is glued to the front face of gear_d; gear_d sits on a thrust sleeve that bears on a dry bush; the **M1.6 screw does not rotate, it translates** through bush, sleeve, gear and nut and its
+tip pushes the bottom of a socket in the plunger centre (push contact, no pull).  Anti-rotation of the screw: a hacksaw slot across the tip (0.4 wide) engages a 0.3 mm tab in the plunger socket; the plunger
+itself cannot turn (stadium bore).  Retract by pressure fill: the fluid pushes the plunger and the screw back, the nut turns back with the motor (limits the speed).  Push is exactly on the axis: eccentricity 0,
+no yaw lever (the old carriage had 11.3 mm).
+
+**Why the rear zone is only `s + 2.2` (not `s + gear stack`):** the screw tail lies behind the nut; the gear (1.4), sleeve and bush are *around the tail*, so they cost no extra length.  At full the screw rear end
+is at x 1.2, at empty it is s further forward and still 1.8 mm (nut 1.3 + 0.5) behind the nut front; nut front x = s + 3.0, plunger rear x_r0 + 1.0 = s + 3.2.
+
+**CAD (built, 16 x 5 bore = the lane/encoder stays so the board and sensors are unchanged):** `python3 generate.py --variant bench --drive coaxial [--sizes OP-100 OP-200]`, `python3 check.py --variant bench --drive coaxial`,
+outputs in `out/bench-coaxial/`.  OP-100: **58.5 x 32.0 x 8.4 mm, check PASS** (46 solids, no interference, fluid boundary: reservoir 876.97 mm3 = closed-bore model, diff 0.000).  OP-200: **85.3 x 32.0 x 8.4 mm, check PASS** (46 solids, fluid boundary: reservoir 1308.15 mm3 = closed-bore model, diff 0.000).
+OP-70 is dropped and was not generated for this mode.  Lengths: `2 s + 31.7` = 50.5 / 58.5 / 85.3 mm for OP-70 / 100 / 200 (cup drive: 53.6 / 61.6 / 88.4).
+
+**Variant comparison (a) translating screw vs (b) cup (nut in the plunger):**
+
+| | (a) coaxial translating screw | (b) cup drive |
+|---|---|---|
+| length (16 x 5, CAD) 70 / 100 / 200 | 50.5 / 58.5 / 85.3 | 53.6 / 61.6 / 88.4 (3.1 mm longer) |
+| plunger | plain 3.8 piston + socket + tab | piston + tube + plate + nut pocket |
+| screw | translating, slotted tip, no thrust collar on it | rotating, existing thrust stack |
+| nut | glued to gear_d (torque only) | loose in the plate (push-only) |
+| rotating parts at the pump end | gear_d + nut + sleeve | screw + gear_d + sleeve |
+| parts to buy / make | + hacksaw slot, + printed tab in the socket | + 13G tube, + printed plate |
+| thrust path | nut -> gear -> sleeve -> dry bush face | same |
+
+**Hard targets (spec 2b / 2c: OP-100 <= 45, OP-200 <= 52 mm; drive + reservoir + front + dock only), `drive_envelope.py` 2c.**  Width budget: cavity 30.2 - motor lane 6.2 = 24.0 outer -> **bore <= 22.4 x 5**
+(106.6 mm2).  U/step = 0.00395 x 106.6 / 74.6 = **0.00564 U/step** at the 16:20-equivalent ratio (the coordinator's 0.0054 corresponds to 101.6 mm2).  Squeezes assumed (inside the re-ordered CNC reservoir and the rear
+stack, total 2.8 mm): screw rear clearance 1.2 -> 0.5, rear dry strip 1.0 -> 0.3, dead layer 1.0 -> 0.8 (nose 0.5), plunger core 3.8 -> 3.2, plunger gap 0.2 -> 0.1, end wall 2.5 -> 2.0.
+
+| size | architecture | bore | f | squeeze | stroke | length | vs target | max volume in the target length |
+|---|---|---|---|---|---|---|---|---|
+| OP-100 | coaxial screw | 22.4 x 5 | 3 | 2.8 | 9.38 | 44.7 | -0.3 | 102 U |
+| OP-100 | coaxial screw | 22.4 x 5 | 4 | 0 | 9.38 | 46.5 | +1.5 | 92 U |
+| OP-100 | coaxial screw | 22.4 x 5 | 4 | 2.8 | 9.38 | **43.7** | **-1.3** | 107 U |
+| OP-100 | coaxial screw | 22.4 x 5 | 5 | 2.8 | 9.38 | 42.7 | -2.3 | 112 U |
+| OP-100 | coaxial screw | 16 x 5 | 4 | 2.8 | 13.4 | 51.7 | +6.7 | 75 U |
+| OP-200 | coaxial screw | 22.4 x 5 | 4 | 2.8 | 18.76 | **62.4** | **+10.4** | 144 U |
+| OP-200 | coaxial screw | 22.4 x 5 | 5 | 2.8 | 18.76 | 61.4 | +9.4 | 150 U |
+| OP-200 | slot + tongue (leaks, reference) | 17.5 x 5 | 4 | 2.8 | 24.35 | 51.2 | -0.8 | 207 U |
+
+* **OP-100 <= 45: feasible** at 43.7 mm (f = 4) with margin 1.3 mm; needs f >= 3 and *every* squeeze (without squeezes 46.5, over).  Requirements: new CNC reservoir (22.4 x 5, thinner end wall,
+  port off-centre by 1.7 mm because the needle axis y 11.2 is fixed and the 24.0 mm outer reservoir centres at y 12.9), end-cap/front module of decision 3c, encoder lane removed -> the sensor board wing must move to
+  the motor axis (magnet on the motor rear boss), z17/z20 gear chain re-centred (idler z17 + gear_d z20: centres 5.65).  **Motor overhang:** the motor stack (gear plane to tail 19.1 mm incl. bosses) ends flush with
+  the reservoir end at 22.4 x 5 without squeezes; with the 2.8 mm squeezes the motor tail reaches about 2.7 mm past x_r1 into the board / dock zone (y 25 ... 31), so the board outline needs a notch there or
+  the motor boss/terminal must be trimmed - an open geometry item.  Thrust
+  margin only 1.8 / 2.8 / 3.2 at 105 / 160 / 181 mA (breakaway basis, S2 seal scaled by perimeter 49.7 mm).  Not built (the CAD is the 16 x 5 proof of the mechanism).
+* **OP-200 <= 52: not feasible** with a rigid sealed drive.  The pusher tail costs s (18.8 mm at 22.4 x 5) on top of a 2 ml reservoir; even a zero-cost pusher gives 46.4 mm, a coaxial one 62.4 mm.  What fits 52 mm
+  is about **144 U** (22.4 x 5, f = 4, all squeezes).  Options for 200 U: (1) accept a longer OP-200 (62-65 mm), (2) the old slot + tongue architecture (51.2 mm, 17.5 x 5 bore) *with a sealed slot or sealed
+  band* (unproven, not easy), (3) re-scope OP-200 to about 140 U.
+* **Lost motion:** thread backlash 0.08 mm = 0.85 U at 22.4 x 5 (0.60 U at 16 x 5), removed by the firmware take-up after each fill (sim A2.2); no socket, no tongue (old: 2.2 U + 0.10 U per 3 N).  Compliance of the
+  screw (1.07 mm2 root area, 18 mm): 0.5 um/7 N plus nut/thread ~5 um = 0.06 U.
+* **Force budget (sim A1 constants):** thrust 3.45 / 5.26 / 5.95 N at 105 / 160 / 181 mA (3 gear meshes); required S2 breakaway 1.58 N at 22.4 x 5 (perimeter-scaled) + back-pressure; **margin 1.8 / 2.8 / 3.2** (breakaway +
+  duckbill 0.3 N), 0.57 / 0.86 / 0.98 against a 40 kPa occlusion pressure; a z12 motor gear gives x1.33 thrust.  Eccentricity 0 (push on the axis).  Push-only needs no pull budget.
+* **Free volume for v0.1.0 (rough):** the lane beside the reservoir (4.9 mm) is absorbed by the wider bore; the freed area is at the **rear**: behind the bearing blocks (x 0.9 ... 7.9 at OP-100, 22.4 x 5) a pocket of
+  about 7 x 8 mm (y 0.9 ... 9) and 7 x 17 mm (y 13.4 ... 31) of full cavity height (6.6 mm) remains beside the screw tail = **about 180 mm2** (a 25 mAh class cell, 12 x 11 x 3.2, fits), and the front is f = 4 mm
+  shorter x 32 = 128 mm2.  With the electronics stacked above the dock tunnel (decision) the rear pocket is the natural battery place.
+
+### 0c. Motor variants (spec 4b, `docs/MOTOR-RESEARCH-2026-11-19.md`): NFP-608 d6 vs Zhaowei d3.4 stepper gearbox
+
+Coaxial translating screw, f = 4, all squeezes (`drive_envelope.py` 2d).  Zhaowei ZWBMD004004-36 / -216: d3.4 x 13.3 / 14.8 mm, 3 V / 50 mA, gearbox limit 13.7 mN*m, motor torque / resistance **unverified**.
+
+| motor | placement | bore | OP-100 length (vs 45) | OP-200 length (vs 52) | max U in 45 / 52 mm | U/step |
+|---|---|---|---|---|---|---|
+| NFP-608 d6 (19.1 stack) | beside the reservoir, 3-mesh chain | 22.4 x 5 | 43.7 (-1.3) | 62.4 (+10.4) | 107 / 144 | 0.0056 |
+| Zhaowei 36:1 | beside the reservoir (3.6 mm lane), 3-mesh chain 1:1 | 25.0 x 5 | **41.6 (-3.4)** | 58.3 (+6.3) | 120 / 162 | 0.0058 |
+| Zhaowei 216:1 | same, 14.8 mm | 25.0 x 5 | 41.6 (-3.4) | 58.3 (+6.3) | 120 / 162 | 0.0010 |
+| Zhaowei 36:1 | **in the rear zone parallel to the screw tail**, reservoir full width, gear plane at the front of the rear zone | 28.6 x 5 | 46.2 (+1.2) | **54.0 (+2.0)** | 84 / 180 | 0.0067 |
+| Zhaowei coaxial *direct* (screw rotating, cup) | motor in series behind the screw | 28.6 x 5 | 53.7 | - | - | - |
+
+* **Closest to the targets:** OP-100 <= 45: Zhaowei beside the reservoir, 41.6 mm (margin 3.4; NFP 43.7).  OP-200 <= 52: Zhaowei in the rear zone, **54.0 mm = 2.0 over** (the 14.8 mm motor lies beside the 14.5 mm screw tail, so
+  it costs no length and the reservoir can be 28.6 wide); 52 mm needs f = 6 or a further 2 mm of squeezes; **180 U fit into 52 mm**.  NFP cannot reach 52 (62.4).  The translating screw cannot sit directly on a motor shaft
+  (the tail needs the axis); a "direct" coaxial drive means the cup variant with the motor in series (53.7 mm for OP-100): rejected.  Both Zhaowei layouts still need a 3-mesh gear chain (1:1) to bring the motor to the bore
+  axis; with a 28.6 bore the port is 4.8 mm off the needle axis (cap jog), with 25.0 it is 2.9 mm.
+* Thrust: the 28.6 bore has A = 137.6 mm2 and an S2 seal of 2.0 N breakaway (perimeter 62.9 mm); 7 N push needs 3.2 mN*m at the screw = 0.12 mN*m motor torque at 36:1 (eta 0.73) or 0.023 mN*m at 216:1 (eta 0.65);
+  the gearbox limit (13.7 mN*m) is >4x that.  Whether a d3.4 motor delivers it, and at 3 V, is the open question (samples needed; resolution 0.49 um/step at 36:1 = 0.0058-0.0067 U/step, 216:1 is 6x finer than needed).
+* **NFP thrust chain recomputed from the datasheet point** (`drive_envelope.py` 2e): 1.6 gf*cm = 0.157 N*mm; x 26.45 = 4.15; x 0.64 gearhead efficiency = 2.66; x 1.25 x 0.95 pair = 3.15 N*mm at the screw; screw torque per
+  newton 0.235 (thread, efficiency 24 %) + 0.217 (thrust-collar friction 0.18 x 1.2 mm) = 0.452 N*mm/N, overall screw efficiency 12 %.  Thrust **4.0 N at 105 mA, 6.2 N at 160 mA, 7.0 N at 181 mA**.  The 'more than 6 N'
+  puzzle of the motor research is the missing collar friction and gearhead efficiency: ideal gears with thread efficiency 0.25 would give 23 N.  So the sim chain reconciles with the 1.6 gf*cm point; "~6 N" is the
+  160 mA value of the full chain.  (A coaxial translating screw keeps the bush-face friction; a ball thrust washer, mu ~0.02, would raise the overall efficiency to ~21 % and the thrust to ~12 N at 181 mA - estimate.)
 
 ## 1. Physics: why one stroke
 
@@ -206,7 +292,15 @@ for this variant, thread and tooth detail, the glue joints.
 7. Leak of the piston seal into the dry tube would reach the gears: add a bench leak indicator or accept visual inspection.
 8. Tube/screw radial clearance 0.1 mm: the screw tip is free in the tube; side loads are tiny but measure drag torque.
 
-## 8. Bench test coupon (build this first, about EUR 10 of printing + parts)
+## 8a. Bench test coupon of the main candidate (coaxial translating screw): `coupon-coaxial/`
+
+`python3 mechanical/generate.py --variant bench --drive coaxial --coupon` writes `coupon-coaxial/*.stl|step` (`drive_coupon.sc`, no interference over 12 solids).  Parts: bore block (16 x 5, 19.4 mm, open both ends),
+rear block with a d8.2 bore, **hand knob** (printed, d8 body + d12 flange, hex pocket for the DIN 934 nut: the knob replaces gear_d), front pad / front plug with port, plunger core with socket + tab, 2 cast lip
+rings, nose, M1.6 screw 18.55 mm with the hacksaw slot (0.4 wide, 1.0 deep) in the tip.  Tests 1-6 below apply unchanged (replace "tube/plate" by "tab/slot"); test 2 turns the knob with a torque screwdriver
+on the flange (thrust N per N*mm), test 4 counts knob turns until the screw moves; add **test 7: anti-rotation** - turn the knob under 7 N load and check the slot/tab holds the screw without wear (0.4 mm slot,
+0.3 mm tab).  Eccentricity check: the push is on the axis by construction.
+
+## 8. Bench test coupon of the cup drive (build this first, about EUR 10 of printing + parts)
 
 `python3 mechanical/generate.py --variant bench --drive inline --coupon` writes `coupon/*.stl|step` (`drive_coupon.sc` opens in SolidCraft).  Parts: bore block (16 x 5, open at both ends, 32.6 mm,
 printed SLA/PA12 or a short length of the real PP reservoir), rear block with the bush seat and a 8 mm access hole, flat front pad, front plug with the d2.0 port, plunger plate, piston core, nose,
