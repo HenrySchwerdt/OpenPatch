@@ -58,22 +58,26 @@
 - Fill septum: silicone Ø 4 mm × 2 mm, on the side, with a fill channel into the reservoir.
 - Outlet: channel → stainless-steel hollow needle 30G (Ø 0.31 mm) that pierces the septum of the Insight Flex cannula head.
 
-## 4. Drive
+## 4. Drive — SMA ratchet (decision 2026-11-19: SMA only, no motor)
 
-- Micro stepper motor **Ø 6 mm** (ref.: Faulhaber ADM0620 / FDM0620, 2-phase, 20 steps/rev, 3 V) transverse next to the reservoir.
-- Rev A motor (2026-11-19, see `mechanical/motor-selection.md`): primary **NFP-608-26.45-SGM** (Ø6 mm, 20 steps/rev, 2-stage ratio 26.45, 4.8 V / 26.5 Ω, nfpshop.com ~$6.60, in stock) → **0.00494 U/step**; length/shaft/terminals UNVERIFIED (drawing requested). Backup Zhaowei ZWBPD006006-6 (exact ratio **6.43**, not 5:1; also -5 = 4.8) → 0.0203 U/step. The former "5:1" assumption was wrong. Firmware has NO default drive: the preset must be selected explicitly.
-- Threaded spindle **M1.6 × 0.35** (brass/stainless steel) **in a dedicated track NEXT TO the reservoir**; nut carriage with an arm that pushes the piston through a slot at the reservoir end (inline would be ~2× stroke length → 48/56/83 mm).
-- Resolution: U/step = 0.35 mm / (20 × ratio) × 74.6 mm² / 10 → NFP 26.45: 0.00494; ZW 6.43: 0.0203; ZW 4.8: 0.0272; Faulhaber 16: 0.0082 U/step.
-- Smallest bolus/basal pulse: **0.05 U** (NFP: ~10 steps; ZW 6.43: ~2.5 steps); firmware accumulates the exact remainder (ratio stored as an exact rational).
-- Spindle encoder: magnet on the spindle + Hall sensor (e.g. TMAG5273 / AS5600L class) for **independent delivery verification**.
-- Occlusion detection: motor current/back-EMF rise + encoder slip (no travel despite steps).
+- **Actuator:** nitinol SMA wire (Flexinol-class, Ø0.10 mm baseline, ~150 gf pull, ~4 % contraction; Ø0.076 mm alternative), length ≥ 12 mm (lever may amplify stroke), ends in **crimp ferrules clamped by screws/spring terminals** on the pod board (no soldering, no cable).
+- **Ratchet wheel:** an off-the-shelf catalogue spur gear (module 0.1–0.2, OD ≤ 6 mm) fixed on the leadscrew; selection in `mechanical/gear-selection.md`. Teeth geometry follows DIN 867 from module + tooth count, so only the bore must be adapted.
+- **Pawls:** drive pawl on a lever pulled by the SMA wire + return spring; **anti-backdrive pawl**; optionally **two drive pawls offset by half a tooth** to halve the step. Pawls/springs laser-cut from stainless sheet via a PCB **stencil** service (JLCPCB/PCBWay) or etched.
+- **Leadscrew/carriage/reservoir:** unchanged (M1.6 × 0.35 in its own lane, carriage arm pushes the stadium plunger).
+- **Dose per pulse:** U/pulse = 0.35 mm / (z × k) × 74.6 mm² / 10, k = 1 (single pawl) or 2 (half-tooth pawls). Target ≈ 0.05 U (e.g. z = 56 single pawl → 0.0466 U; z = 28 with two offset pawls → 0.0466 U). Exact value comes from the chosen gear; firmware stores it as an exact rational and has no default.
+- **Refill:** a release lifts both pawls so the leadscrew can be wound back (thumb wheel/hex through the shell, or a 2nd SMA channel); anti-siphon: leadscrew stays self-locking.
+- **Pulse control:** PWM current-controlled heating pulse (~150–200 mA for Ø0.10 mm, 50–200 ms) + cool-down; max rate ≈ 1 pulse/s (bolus 1.5 U/min ≈ 0.54 pulses/s at 0.047 U). Wire resistance measured during the pulse as contraction/temperature feedback.
+- **Hardware safety:** SMA current only via the interlock (MCU enable AND TPL5010 latch AND DOCKED) **plus a hardware pulse-width limiter** (monostable/RC gate) so a stuck MCU output cannot heat the wire continuously; one tooth per pulse is a mechanical over-delivery limit.
+- **Verification:** each pulse must produce exactly one (half-)tooth of leadscrew rotation = 360°/(z × k) (≈ 6.4° for z = 56): measured by **TMAG5273 angle readout** on the diametric spindle magnet (12-bit angle; the DRV5032 quadrature pair is too coarse for per-pulse checks and stays as a coarse second channel).
+- **Occlusion detection:** pulse without the expected angle increment (wire contracts but the wheel does not advance) + rising required pulse energy.
+- Superseded: stepper motor drive (NFP-608-26.45 research kept in `mechanical/motor-selection.md` for reference only).
 
 ## 4a. Rev A = bench split (decision 2026-11-19)
 
 The fully integrated pod board does not route on 17.1 × 29 mm (see `electronics/fab/STATUS.md`). Rev A is a bench test sample anyway, so it is split in two:
 
-1. **Bench pod** (same housing envelope, same drive/reservoir/cannula pocket as §2–§4): contains only mechanics and a small **pod sensor board** (2-layer, 0.6–0.8 mm, or flex): motor spring contacts, 2× DRV5032 quadrature hall switches facing the spindle magnet, 1× dock hall switch, optional TMAG5273 (SOT-23-6) if it fits, and a **0.5 mm-pitch FPC/FFC connector** (bottom-contact, ZIF, ≤ 1.2 mm high). No battery, no Qi coil, no RF module in the bench pod. An FFC cable leaves the housing through a slot (sealing not required for bench use).
-2. **Bench controller board** (≈ 40 × 50 mm, 4-layer 1.6 mm standard, JLCPCB economic/standard PCBA, prefer JLC Basic parts): nRF52840 module **stocked at LCSC** (no consignment), STSPIN220 motor driver, the full **hardware interlock** (MCU enable AND TPL5010 latch AND DOCKED → motor supply), USB-C 5 V power + LDO (no battery, no charger for bench), SWD (Tag-Connect + 10-pin 1.27 mm header), test points, a buzzer (space is not an issue here), button, status LED, motor-current sense for occlusion tests, FFC connector to the pod.
+1. **Bench pod** (same housing envelope, same drive/reservoir/cannula pocket as §2–§4): contains only mechanics and a small **pod sensor board** (2-layer, 0.6–0.8 mm, or flex): SMA wire clamp terminals, TMAG5273 angle sensor on the spindle magnet (mandatory), 2× DRV5032 coarse quadrature, 1× dock hall switch, and a **0.5 mm-pitch FPC/FFC connector** (bottom-contact, ZIF, ≤ 1.2 mm high). No battery, no Qi coil, no RF module in the bench pod. An FFC cable leaves the housing through a slot (sealing not required for bench use).
+2. **Bench controller board** (≈ 40 × 50 mm, 4-layer 1.6 mm standard, JLCPCB economic/standard PCBA, prefer JLC Basic parts): nRF52840 module **stocked at LCSC** (no consignment), **SMA driver (logic-level MOSFET, current-controlled PWM, current + wire-voltage sense for resistance feedback, hardware pulse-width limiter; 2 channels: drive + refill release)**, the full **hardware interlock** (MCU enable AND TPL5010 latch AND DOCKED → motor supply), USB-C 5 V power + LDO (no battery, no charger for bench), SWD (Tag-Connect + 10-pin 1.27 mm header), test points, a buzzer (space is not an issue here), button, status LED, motor-current sense for occlusion tests, FFC connector to the pod.
 3. Target **≤ $80 per iteration** (5 controller PCBs with 2 assembled + 5 pod sensor boards assembled) so that at least one iteration per month is affordable.
 4. The integrated single-board pod is postponed to Rev B (with SMA drive freeing space).
 
