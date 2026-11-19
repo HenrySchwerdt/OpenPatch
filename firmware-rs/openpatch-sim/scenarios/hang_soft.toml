@@ -1,0 +1,12 @@
+name = "hang_soft"
+description = "Software hang (no tick, no DONE) during a bolus, no runaway. Watchdog reset, pod comes back suspended."
+seed = 72
+duration_s = 900.0
+events = [
+  { at_s = 100.0, action = "bolus", units = 5.0 },
+  { at_s = 130.0, action = "hang" },
+]
+
+[setup]
+fill_u = 40.0
+basal = [[0.0, 0.5]]

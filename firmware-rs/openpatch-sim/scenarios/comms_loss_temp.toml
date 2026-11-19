@@ -1,0 +1,12 @@
+name = "comms_loss_temp"
+description = "A 3 U/h temp basal (6 h) is running when the phone disappears: after 30 min without a frame the pod falls back to the programmed 1 U/h."
+seed = 101
+duration_s = 14400.0
+events = [
+  { at_s = 600.0, action = "temp_basal", u_per_h = 3.0, minutes = 360 },
+  { at_s = 1200.0, action = "phone_connected", on = false },
+]
+
+[setup]
+fill_u = 60.0
+basal = [[0.0, 1.0]]

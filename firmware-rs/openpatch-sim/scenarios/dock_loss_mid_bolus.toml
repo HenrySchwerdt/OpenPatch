@@ -1,0 +1,13 @@
+name = "dock_loss_mid_bolus"
+description = "Pod pulled off the cannula 60 s into a 5 U bolus. Delivery must stop, the remainder must not be caught up."
+seed = 41
+duration_s = 1800.0
+events = [
+  { at_s = 600.0, action = "bolus", units = 5.0 },
+  { at_s = 660.0, action = "dock", on = false },
+  { at_s = 900.0, action = "dock", on = true },
+]
+
+[setup]
+fill_u = 40.0
+basal = [[0.0, 0.5]]

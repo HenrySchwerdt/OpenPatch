@@ -1,0 +1,12 @@
+name = "motor_phase_open"
+description = "One motor winding opens (broken lead / solder joint) at t = 600 s; a 3 U bolus follows."
+seed = 61
+duration_s = 3600.0
+events = [
+  { at_s = 600.0, action = "phase_open", on = true },
+  { at_s = 660.0, action = "bolus", units = 3.0 },
+]
+
+[setup]
+fill_u = 40.0
+basal = [[0.0, 1.0]]

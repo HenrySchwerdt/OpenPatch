@@ -1,0 +1,26 @@
+name = "wear_48h"
+description = "48 h of wear: 5-segment basal profile, 9 boluses (0.05 .. 6 U), two temp basals, a phone dropout. Nominal plant."
+seed = 11
+duration_s = 172800.0
+log_interval_s = 300.0
+events = [
+  { at_s = 600.0,    action = "bolus", units = 4.5 },
+  { at_s = 16200.0,  action = "bolus", units = 5.0 },
+  { at_s = 21600.0,  action = "bolus", units = 1.5 },
+  { at_s = 37800.0,  action = "bolus", units = 6.0 },
+  { at_s = 50400.0,  action = "bolus", units = 1.05 },
+  { at_s = 54000.0,  action = "temp_basal", u_per_h = 0.4, minutes = 120 },
+  { at_s = 72000.0,  action = "bolus", units = 0.05 },
+  { at_s = 87000.0,  action = "bolus", units = 4.5 },
+  { at_s = 102600.0, action = "bolus", units = 5.0 },
+  { at_s = 108000.0, action = "temp_basal", u_per_h = 1.8, minutes = 120 },
+  { at_s = 124200.0, action = "bolus", units = 6.0 },
+  { at_s = 136800.0, action = "bolus", units = 0.35 },
+  { at_s = 140000.0, action = "phone_connected", on = false },
+  { at_s = 147000.0, action = "phone_connected", on = true },
+  { at_s = 158400.0, action = "bolus", units = 0.05 },
+]
+
+[setup]
+fill_u = 95.0
+basal = [[0.0, 0.8], [6.0, 1.1], [12.0, 0.9], [18.0, 1.0], [22.0, 0.7]]
