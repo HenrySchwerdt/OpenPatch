@@ -1,9 +1,24 @@
 # Project status & handover
 
 > This file is the **entry point for every new session** (another machine, another Claude subscription, another person).
-> It is updated on every push. Last updated: **2026-11-18**.
+> It is updated on every push. Last updated: **2026-11-19 (cloud session, milestone 1 merged)**.
 
-## HANDOFF (2026-11-19) — read this first
+## MILESTONE 1 (2026-11-19, cloud session) — what changed since the handoff below
+
+Done and verified (merged to `main`):
+- **Parts & cost:** `docs/PARTS-LOCK.md` rows verified against live listings (nothing promoted to LOCKED), `docs/SHOPPING.md` (AliExpress-first ≤ 200 € build + detailed iteration list), `docs/05-cost-model.md`. Verdict: first bench pump (pod + controller) ≈ 230–300 € with all cuts, marginal pump 65–95 €; the integrated v0.1.0 pod removes the second board.
+- **Spec:** §1d cost target, §7a diagnostics & hardware independence (incl. HW step budget HW-A, no service override for latched codes), §8a modular dock insert on a frozen pod interface, §6 DASH mode = clean-room only.
+- **firmware-rs:** 371 host tests green (+28). TMAG5273 verified against TI SLYS045C — **real angle-decode bug fixed**, CRC/torn-read/ID checks. Draw mode on `board-bench-e73` with the new gate `VMOT = MCU_EN AND LATCH AND (DOCKED OR DIR_REVERSE)`; forward-while-undocked refused. Drive-feature guard. Occlusion setter (lower only), `Hal::motor_fault`, peak-current CSV column. Open: STSPIN220 MODE/DIR latch at STBY rise (electronics to confirm).
+- **Protocol v1.1 §5.2 session key agreement** (`docs/04-protocol.md`): X25519 pairing secret + per-connection ephemeral X25519/HKDF, key confirmation; Rust (feature `key-agreement`, 364 tests) + Swift (167 tests, runs on Linux with Swift 6.0.3), shared vectors `docs/vectors/`. Kit/UI wiring still open.
+- **Diagnostics design** `docs/06-diagnostics.md`: 150 codes, 32-bit structure, FRU + action, propagation, protocol additions, work packages WP-0…WP-8 (implementation in progress).
+- **v0.1.0 integrated pod architecture** `docs/v010/ARCHITECTURE.md` (+ calc scripts): E73 module, 4-layer 0.8 mm board in a 22 mm tail, charge pads instead of Qi, 40 mAh cell, buzzer fits; OP-100 ≈ 66.9 × 32 × 8.5 mm. Spec changes proposed there are **not yet applied**.
+- **Mechanical simulation suite** `mechanical/sim/` (`python3 mechanical/sim/run_all.py` → REPORT.md): 14 PASS / 9 WARN / 20 FAIL on the current CAD — thrust 3.2 N at 105 mA (< 5 N), carriage tongue too thin, lid touches reservoir, gear centre without backlash, dead volume 2.2 U, duckbill bypass, occlusion undelivered 2.5–5.2 U. Fixes handed to the mechanical owner; **gear ratio decision: drop 15:12, use 16:20 step-down if orderable, else 18:18**.
+- **Licensing:** dual licence (`LICENSE.md`): CC BY-NC-SA 4.0 hardware/docs, PolyForm Noncommercial software, ios/ GPL-3.0, dock insert CERN-OHL-P-2.0; draft commercial Fair-Price licence (`COMMERCIAL-LICENSE.md`: price ≤ cost + 30 %, 5 % trial levy, sponsor recoupment + 20 % capped return), `CLA.md`, `CONTRIBUTING.md`. Needs legal review.
+- **Tooling on Linux:** SolidCraft 0.44.1 (AppImage, `solidcraft-cli`), KiCad 10.0.8, Swift 6.0.3 all work in the cloud container (see `docs/SETUP.md`).
+
+In progress (next milestones, each merged separately when green): mechanics (parallel-motor layout, sim fixes, modular dock insert, `check.py`), bench controller board (interlock incl. readbacks, over-current cut, DRC 0), diagnostics implementation (WP-0/1/4/5), virtual-pod simulator (`firmware-rs/openpatch-sim`), vendor-accurate component models (`mechanical/components/`), website redesign (engineering-notebook style, licence page, fault-code explorer), regulatory technical file (`regulatory/`), security programme (`security/`: threat model, formal handshake proof, fuzzing, supply chain).
+
+## HANDOFF (2026-11-19) — previous handoff (partly superseded by milestone 1)
 
 **Setup:** see `docs/SETUP.md` (all tools, macOS/Linux/Windows).
 
@@ -11,7 +26,7 @@
 
 **State at handoff (2026-11-19, agents stopped mid-task; everything is on `main`):**
 
-> ⚠️ **Gear-ratio mismatch to resolve first:** the last (unverified) CAD snapshot `mechanical/out/bench/OP-100_layout_annotated.png` uses a **z18 : z18** gear pair (1:1, centre 5.40, envelope 44.9 × 32.0 × 8.5 mm), while spec §4 and the firmware default feature `drive-nfp-608-26-45-g15-12` assume **15 : 12**. Pick one, update spec §4, `mechanical/parts.md` and the firmware build default (`drive-nfp-608-26-45-g1-1` for 18:18) together — a mismatch means a 25 % dosing error.
+> ⚠️ **Gear-ratio mismatch (being resolved in milestone 2: 16:20 or 18:18, firmware preset follows):** the last (unverified) CAD snapshot `mechanical/out/bench/OP-100_layout_annotated.png` uses a **z18 : z18** gear pair (1:1, centre 5.40, envelope 44.9 × 32.0 × 8.5 mm), while spec §4 and the firmware default feature `drive-nfp-608-26-45-g15-12` assume **15 : 12**. Pick one, update spec §4, `mechanical/parts.md` and the firmware build default (`drive-nfp-608-26-45-g1-1` for 18:18) together — a mismatch means a 25 % dosing error.
 
 
 | Area | State | Verified | What the next agent must do |
@@ -68,6 +83,9 @@ All dimensions and components are in [spec/design-parameters.md](../spec/design-
 
 ## Decision log (user)
 
+- 2026-11-19: **Goal v0.1.0 beta = integrated pod without the bench controller board**, parts ~98 % final before ordering, as much verification as possible in simulation (virtual pod, mechanical calcs, SPICE), then one order and bench tests only (still a test sample, never worn). The bench controller board stays as an optional test fixture.
+- 2026-11-19: **Cost target ≤ 200 € all-in per complete pump, AliExpress-first** (spec §1d).
+- 2026-11-19: **Hardware safety independent of software + component-level diagnostics**: discrete interlock, over-current cut, readbacks for every safety element, structured fault codes forwarded through every layer, Trio shows the faulty component and asks to replace it (`docs/06-diagnostics.md`, in progress).
 - 2026-11-19: **Drive = geared stepper NFP-608-26.45 + sleeve coupler + leadscrew, refill = automatic draw mode** (app selects amount, motor retracts and draws insulin through the septum; duckbill check valve in the outlet). SMA ratchet and half-nut dropped for buildability.
 
 - 2026-11-19: **Buildability beats minimal size**: builders are not watchmakers. If an off-the-shelf micro linear stepper actuator (motor + gearhead + leadscrew + slider, ideally FPC/ZIF) with a full drawing, ≥ 5 N and ≤ 0.03 U/step is found, it replaces the SMA ratchet (SMA stays a later option for minimal size). Research: `mechanical/linear-actuator-selection.md`.

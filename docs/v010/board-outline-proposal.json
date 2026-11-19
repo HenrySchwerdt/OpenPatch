@@ -1,0 +1,145 @@
+{
+ "schema": "openpatch-v010-board-proposal/1",
+ "status": "PROPOSAL from docs/v010/calc/envelope.py - the mechanical owner refines it (keepouts copied from mechanical/out/bench/OP-100.layout.json)",
+ "units": "mm",
+ "frame": "board frame as the bench pod board: x_pod = x_r1 + 1.7 + bx ; y_pod = 1.5 + by ; F.Cu = lid side",
+ "one_board_for_all_sizes": true,
+ "per_size": {
+  "OP-70": {
+   "x_r1": 21.0,
+   "board_origin_in_pod": [
+    22.7,
+    1.5
+   ],
+   "pod_length": 62.9,
+   "pod_width": 32.0,
+   "pod_height": 8.5
+  },
+  "OP-100": {
+   "x_r1": 25.0,
+   "board_origin_in_pod": [
+    26.7,
+    1.5
+   ],
+   "pod_length": 66.9,
+   "pod_width": 32.0,
+   "pod_height": 8.5
+  },
+  "OP-200": {
+   "x_r1": 38.4,
+   "board_origin_in_pod": [
+    40.1,
+    1.5
+   ],
+   "pod_length": 80.3,
+   "pod_width": 32.0,
+   "pod_height": 8.5
+  }
+ },
+ "board": {
+  "thickness": 0.8,
+  "layers": 4,
+  "stackup": "JLC04081H-3313-class 0.8 mm",
+  "bottom_z_pod": 5.3,
+  "top_z_pod": 6.1,
+  "outline_rect": [
+   0,
+   0,
+   38.7,
+   29.0
+  ],
+  "corner_r": 2.5,
+  "note": "rectangle; notches for snap-arm roots / screw bosses to be copied from the bench polygon"
+ },
+ "zones_board_frame": {
+  "dock_insert_reserve": {
+   "rect": [
+    3.1,
+    3.7,
+    16.3,
+    16.3
+   ],
+   "bottom_max_height": 0.4,
+   "note": "only the dock hall may be below the board here; insert envelope 13.6x13.6x5.0 mm"
+  },
+  "battery_bay": {
+   "rect": [
+    0.0,
+    17.6,
+    16.0,
+    28.6
+   ],
+   "bottom_max_height": 0.8,
+   "note": "cell ~15x10x3.2, spring contacts at the -x edge"
+  },
+  "tail_free_air": {
+   "rect": [
+    16.7,
+    0,
+    38.7,
+    29.0
+   ],
+   "bottom_max_height": 4.2,
+   "note": "module, buzzer, PicoBlade, boost, bulk caps hang here"
+  },
+  "antenna_keepout": {
+   "rect": [
+    33.7,
+    17.0,
+    38.7,
+    27.5
+   ],
+   "all_layers_copper_free": true,
+   "note": "VERIFY against the MDBT50Q datasheet keep-out drawing; antenna at the +x end, away from the battery and the motor"
+  }
+ },
+ "heights_mm": {
+  "top_max": 1.5,
+  "bottom_over_dock": 0.4,
+  "bottom_over_battery": 0.8,
+  "bottom_free_air": 4.2
+ },
+ "keepout_circles_copied_from_bench": "see mechanical/out/bench/OP-100.layout.json keepout_circles (pins, screw, posts, hold-downs)",
+ "frozen_interface_items": {
+  "needle_exit": {
+   "x_pod_OP100": 30.5,
+   "u_from_x_r1": 5.5,
+   "y_pod": 11.5,
+   "z_pod": 3.0,
+   "note": "axis +x; fixed in the pod (end cap), spec 8a"
+  },
+  "dock_hall": {
+   "side": "bottom",
+   "center_board_mm": [
+    15.0,
+    6.9
+   ],
+   "center_pod_mm_OP100": [
+    41.7,
+    11.5
+   ],
+   "u_from_x_r1": 16.7,
+   "body_mm": [
+    1.1,
+    1.4,
+    0.4
+   ],
+   "z_body_pod": [
+    4.9,
+    5.3
+   ],
+   "note": "as bench HALL_DOCK; FIXED in the pod, the insert only carries the magnet",
+   "magnet_in_insert": {
+    "d": 2.0,
+    "t": 1.0,
+    "axis": "Z",
+    "top_face_z_pod": 4.3
+   }
+  },
+  "insert_envelope_xyz": [
+   13.6,
+   13.6,
+   5.0
+  ]
+ }
+}

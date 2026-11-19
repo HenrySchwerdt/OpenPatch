@@ -7,6 +7,8 @@ public enum TransportError: Error, Equatable {
     case bluetoothUnavailable
     case malformedResponse
     case mtuTooSmall        // protocol v1 needs an ATT MTU >= 247 (no fragmentation)
+    case notPaired          // the pod has no pairing secret or another one (docs/04-protocol.md): pair again with the button
+    case sessionFailed      // key agreement failed (wrong secret, altered exchange, pairing window closed)
 }
 
 /// Abstraction between the PumpManager and the radio. Speaks the app's domain `Command` / `Response`;

@@ -14,7 +14,7 @@ use openpatch_proto::Error;
 /// Fixed pair id of the bench controller (it pairs with itself, no phone needed).
 pub const BENCH_PAIR_ID: u32 = 0x0BE7_C001;
 pub const BENCH_ACTIVATION_ID: u32 = 1;
-pub const CSV_HEADER: &str = "t_ms,pulse,cmd_mu,delivered_pulses,delivered_mu,angle_counts,faults";
+pub const CSV_HEADER: &str = "t_ms,pulse,cmd_mu,delivered_pulses,delivered_mu,angle_counts,faults,peak_ma";
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct BenchConfig {
@@ -45,15 +45,21 @@ pub struct CsvRow {
     pub delivered_mu: u32,
     pub angle_counts: i64,
     pub faults: u16,
+    /// Largest motor-current peak (mA) of this pulse's bursts; `None` = no current sensor.
+    pub peak_ma: Option<u16>,
 }
 
 impl CsvRow {
     pub fn write_csv<W: Write>(&self, w: &mut W) -> core::fmt::Result {
         write!(
             w,
-            "{},{},{},{},{},{},{}",
+            "{},{},{},{},{},{},{},",
             self.t_ms, self.pulse, self.cmd_mu, self.delivered_steps, self.delivered_mu, self.angle_counts, self.faults
-        )
+        )?;
+        match self.peak_ma {
+            Some(ma) => write!(w, "{ma}"),
+            None => Ok(()), // empty field: no sensor
+        }
     }
 }
 
@@ -151,6 +157,7 @@ impl BenchRunner {
                     delivered_mu: rep.delivered.0,
                     angle_counts: pump.supervisor().last_angle().0,
                     faults: pump.supervisor().faults().bits(),
+                    peak_ma: pump.take_peak_ma(),
                 };
                 self.state = BenchState::Pausing { pulse, until: Millis(now.0 + self.cfg.pause.0) };
                 BenchEvent::Row(row)

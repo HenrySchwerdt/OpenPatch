@@ -38,6 +38,13 @@
 - Qi coil: trace coil on the board or assembled by PCBWay.
 - Housing: screws/snap hooks; tools: tweezers, small screwdriver, UV lamp.
 
+## 1d. Cost target (decision 2026-11-19, user)
+
+- **One complete bench pump (pod + controller, Rev A) costs ≤ 200 € all-in**, sourced AliExpress-first (LCSC/JLCPCB for PCBA, JLC3DP for prints, PCBWay only where unavoidable): all parts, PCBs/PCBA, prints, reservoir, consumables for one fill, shipping and import VAT/duty to Germany included.
+- Excluded: one-time tools (calipers, scale, programmer/nRF52840-DK, screwdrivers) — listed separately in `docs/SHOPPING.md`.
+- Minimum-order overhead (e.g. 5 PCBs, CNC setup) is allocated to the first pump; the marginal cost of further pumps is reported separately.
+- Safety-relevant parts (interlock, watchdog, hall/angle sensors, insulin-contact materials) are never downgraded to meet the cost target.
+
 ## 2. Envelope dimensions (targets)
 
 | Size | Volume U100 | Target L × W × H (mm) | Omnipod DASH for comparison |
@@ -106,7 +113,7 @@ The fully integrated pod board does not route on 17.1 × 29 mm (see `electronics
 ## 6. Radio / protocols
 
 1. **OpenPatch protocol (native)** – dedicated BLE GATT profile, openly documented in `docs/04-protocol.md`, Trio integration via the dedicated LoopKit PumpManager kit `OpenPatchKit`.
-2. **DASH compatibility mode** – pod-side emulation of the Omnipod DASH BLE protocol, so that Trio talks through the existing `OmnipodKit` (loopandlearn). Reference implementation: `nightscout/ESP-Sim` (GPL-3.0 → firmware part is then GPL-3.0).
+2. **DASH compatibility mode** – pod-side emulation of the Omnipod DASH BLE protocol, so that Trio talks through the existing `OmnipodKit` (loopandlearn). Behavioural reference only: `nightscout/ESP-Sim` (GPL-3.0). **Licensing note:** the DASH mode must be an independent clean-room implementation of the protocol; no GPL code from nightscout/ESP-Sim may be copied, otherwise it cannot be combined with the PolyForm Noncommercial firmware (see `LICENSE.md`).
 3. **Omnipod 5**: is NOT emulated – O5 pairing uses P-256/ECDSA-signed transcripts and an external key manager with App Attest; DASH mode covers Trio.
 
 Note: In DASH mode Trio "sees" a 200 U pod with 80 h lifetime; reservoir display from < 50 U, as with DASH. Native mode shows real values, battery, reusability.
@@ -121,9 +128,26 @@ Note: In DASH mode Trio "sees" a 200 U pod with 80 h lifetime; reservoir display
 - Communication loss: temp basal continues for max. 30 min, then falls back to the programmed basal rate (DASH semantics)
 - Encoder deviation > 10 % over 1 U → delivery stop + alarm
 
+## 7a. Diagnostics and hardware independence (requirement, 2026-11-19)
+
+- **Hardware independence:** the motor supply is gated in hardware (`MCU_EN AND watchdog latch AND (DOCKED OR DIR_REV)`, TPL5010, hardware over-current cut that clears the latch) so that a firmware fault cannot hold the motor on beyond one watchdog interval, and an undocked pod cannot deliver forward. **Hardware step budget (HW-A, decided 2026-11-19):** an arm window + pulse budget in discrete logic bounds a runaway inside the watchdog window to ≈ 1.6 U; Rev B adds an independent monitor for the hourly limit. Firmware must **prove at runtime** that each gate can still cut the supply (rotating single-gate disarm, POST-A). A proven-stuck gate or a dead watchdog latches the pod; no delivery with a degraded protection layer. The dose limits of §7 are additionally enforced by the firmware supervisor.
+- **Diagnostic codes:** every anomaly gets a 32-bit code (layer, component, fault, instance) with severity (info, warning, fault, latched), field-replaceable unit (FRU) and recommended action; the catalogue (`docs/06-diagnostics.md`, generated source `spec/diag-codes.csv`) is the single source for firmware, protocol and app. Codes are never reused. Unknown codes are treated as faults. Latched codes have **no service override**; they clear only when their verification test passes.
+- **Propagation:** no layer may swallow a code. A layer that acts on a lower-layer fault raises its own record with a cause pointer. Records persist in a pod fault log, are readable with `GetFaultLog`, and are pushed as alerts. The 8 legacy fault bits remain as a derived projection.
+- **Presentation:** Trio shows the pod (A/B), the faulty part and the action ("Replace the controller board"), and a component health view (green/yellow/red per FRU). A part is green only after a passing proof; unproven is grey.
+- **Rule for changes:** adding a failure mode requires a catalogue row with hazard link and test; relaxing a severity or a threshold requires an entry in `docs/STATUS.md`.
+
 ## 8. Cannula interface (Insight Flex)
 
 - According to the Roche IFU: tubing is pushed onto the connector plate of the cannula head, release by squeezing two side wings → **two-wing snap hook**, not Luer.
 - Exact geometry is **not public** → must be measured by the user with calipers (measurement sheet: `mechanical/cannula-measurement.md`). Until then a parametric placeholder in the CAD:
   - Connector plate (assumption): 14 × 10 × 3.0 mm, needle entry in the center, snap groove 1.0 mm on both sides.
 - The pod has a receiving pocket on the underside into which the cannula head latches; the 30G needle pierces the cannula septum.
+
+## 8a. Modular dock insert (decision 2026-11-19, user)
+
+The Insight Flex fit is the slowest thing to get right, so it is isolated in **one small, cheap, swappable part**:
+- **Dock insert** (printed, e.g. JLC3DP SLA or PA12): contains *all* cannula-specific geometry — pocket, snap arms/latch, needle guide/centring onto the cannula septum, and the dock magnet seat. It is the only part iterated for the fit.
+- **Frozen dock interface on the pod** (`mechanical/params.json` → `dock_interface_frozen`, like `reservoir_frozen`): mechanical mount (e.g. dovetail/rail + one M1.2 screw or a snap, tool-free swap), datum faces, needle exit position and axis, dock-hall sensor position (fixed in the pod), magnet-to-sensor geometry. Changing it requires a decision in `docs/STATUS.md`.
+- The 30G needle stays in the pod (end cap); the insert only guides/centres the cannula onto it. Needle length is set per insert variant via an insert-side stop, not by changing the pod.
+- Every order contains a **variant set of inserts** (parameter sweep, e.g. 8–12 variants, labelled by embossed ID) so the fit can be iterated without rebuying the pump; a pod-less **fit-test coupon** uses the same interface.
+- A dummy cannula head (`cannula_adapter`) with the same interface lets the dock be tested on the bench without a real cannula.

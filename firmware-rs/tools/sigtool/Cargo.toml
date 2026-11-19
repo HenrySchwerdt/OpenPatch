@@ -2,7 +2,7 @@
 name = "sigtool"
 version = "0.1.0"
 edition = "2021"
-license = "GPL-3.0-or-later"
+license = "PolyForm-Noncommercial-1.0.0"
 publish = false
 description = "Host tool: ed25519 key generation and image signing for the OpenPatch bootloader (embassy-boot scheme: Ed25519 over the SHA-512 digest of the image)."
 

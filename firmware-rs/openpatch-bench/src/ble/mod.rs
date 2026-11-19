@@ -11,10 +11,17 @@
 //! * All characteristics require an encrypted link. Pairing is Just Works LE Secure Connections with
 //!   bonding and is only possible inside the pairing window (button). Outside the window unbonded
 //!   peers are disconnected (policy task).
+//! * Application layer key agreement (protocol v1.1 section 5.2): frames of type 0x40..=0x43 are not
+//!   passed to the safety task. [`Security`] answers them here (thread executor, so the X25519
+//!   work never delays the safety task), persists a new pairing secret and hands the session keys
+//!   over through `SESSION_EVT`. The BLE task never sees a command in plaintext or the pump.
 use core::sync::atomic::Ordering;
 use embassy_futures::select::{select, select3, Either3};
 use embassy_time::{Duration, Timer};
 use nrf_sdc::SoftdeviceController;
+use openpatch_proto::handshake::{self, Event as HsEvent, Responder};
+use rand_chacha::rand_core::SeedableRng;
+use rand_chacha::ChaCha20Rng;
 use trouble_host::prelude::*;
 
 use crate::config::*;
@@ -61,6 +68,53 @@ struct BenchService {
     log: [u8; CSV_LINE_MAX],
 }
 
+/// Pod side of the application layer key agreement, owned by the BLE task.
+struct Security {
+    responder: Responder,
+    /// ChaCha20 seeded once per boot from the nRF52840 TRNG (see `main.rs`).
+    rng: ChaCha20Rng,
+    /// A session of this connection was handed to the safety task (so it must be reset at the end).
+    session_up: bool,
+}
+
+impl Security {
+    /// One handshake frame: do the work, persist a new pairing secret, hand over keys, answer.
+    async fn handle(&mut self, frame: &Frame) {
+        let mut out = [0u8; FRAME_BUF];
+        let Some(o) = self.responder.handle(frame.bytes(), pairing::app_is_open(), &mut self.rng, &mut out) else {
+            return;
+        };
+        match o.event {
+            HsEvent::None => {}
+            HsEvent::Paired(ps) => {
+                PERSIST.send(PersistMsg::PairingSecret(ps)).await; // before the phone is told OK
+                pairing::app_close(); // one pairing per button press
+                defmt::info!("BLE: application layer pairing secret stored");
+            }
+            HsEvent::SessionUp(keys) => {
+                SESSION_EVT.signal(SessionEvent::Up(keys)); // before the response, so before the first command
+                self.session_up = true;
+            }
+        }
+        if o.reply_len > 0 {
+            if let Some(f) = Frame::from_slice(&out[..o.reply_len]) {
+                if FRAME_OUT.try_send(f).is_err() {
+                    defmt::warn!("handshake response dropped (queue full)");
+                }
+            }
+        }
+    }
+
+    /// Link closed (or opened): half-open handshakes die, session keys are erased.
+    fn link_reset(&mut self) {
+        self.responder.reset();
+        if self.session_up {
+            SESSION_EVT.signal(SessionEvent::Reset);
+            self.session_up = false;
+        }
+    }
+}
+
 /// Static random address from FICR DEVICEADDR; name `OpenPatch-XXXX` = last 4 hex digits.
 pub fn device_address() -> (Address, [u8; 14]) {
     let ficr = embassy_nrf::pac::FICR;
@@ -81,11 +135,26 @@ pub fn device_address() -> (Address, [u8; 14]) {
 }
 
 #[embassy_executor::task]
-pub async fn ble_task(sdc: SoftdeviceController<'static>, bonds: [Option<BondRec>; MAX_BONDS], address: Address, name: &'static str) -> ! {
-    run(sdc, bonds, address, name).await
+pub async fn ble_task(
+    sdc: SoftdeviceController<'static>,
+    bonds: [Option<BondRec>; MAX_BONDS],
+    address: Address,
+    name: &'static str,
+    pairing_secret: Option<[u8; 32]>,
+    rng_seed: [u8; 32],
+) -> ! {
+    run(sdc, bonds, address, name, pairing_secret, rng_seed).await
 }
 
-async fn run<C: Controller>(controller: C, bonds: [Option<BondRec>; MAX_BONDS], address: Address, name: &'static str) -> ! {
+async fn run<C: Controller>(
+    controller: C,
+    bonds: [Option<BondRec>; MAX_BONDS],
+    address: Address,
+    name: &'static str,
+    pairing_secret: Option<[u8; 32]>,
+    rng_seed: [u8; 32],
+) -> ! {
+    let mut security = Security { responder: Responder::new(pairing_secret), rng: ChaCha20Rng::from_seed(rng_seed), session_up: false };
     let mut resources: HostResources<DefaultPacketPool, CONNECTIONS_MAX, L2CAP_CHANNELS_MAX> = HostResources::new();
     let stack = trouble_host::new(controller, &mut resources)
         .set_random_address(address)
@@ -130,10 +199,12 @@ async fn run<C: Controller>(controller: C, bonds: [Option<BondRec>; MAX_BONDS], 
                     ALERT_OUT.clear();
                     CSV_OUT.clear();
                     apply_pairing_policy(&conn);
-                    let a = gatt_events(&server, &conn);
+                    security.link_reset();
+                    let a = gatt_events(&server, &conn, &mut security);
                     let b = notify_loop(&server, &conn);
                     let c = policy_loop(&conn);
                     select3(a, b, c).await;
+                    security.link_reset();
                     BLE_CONNECTED.store(false, Ordering::Relaxed);
                     defmt::info!("BLE: disconnected");
                 }
@@ -169,7 +240,7 @@ async fn policy_loop<P: PacketPool>(conn: &GattConnection<'_, '_, P>) {
     }
 }
 
-async fn gatt_events<P: PacketPool>(server: &Server<'_>, conn: &GattConnection<'_, '_, P>) {
+async fn gatt_events<P: PacketPool>(server: &Server<'_>, conn: &GattConnection<'_, '_, P>, security: &mut Security) {
     let cmd_handle = server.openpatch.command.handle;
     let bench_ctl_handle = server.bench.control.handle;
     loop {
@@ -190,6 +261,7 @@ async fn gatt_events<P: PacketPool>(server: &Server<'_>, conn: &GattConnection<'
             GattConnectionEvent::Gatt { event } => {
                 let encrypted = conn.raw().security_level().map(|l| l.encrypted()).unwrap_or(false);
                 let mut reject = None;
+                let mut handshake_frame: Option<Frame> = None;
                 if let GattEvent::Write(w) = &event {
                     let h = w.handle();
                     if h == cmd_handle || h == bench_ctl_handle {
@@ -197,6 +269,7 @@ async fn gatt_events<P: PacketPool>(server: &Server<'_>, conn: &GattConnection<'
                             reject = Some(AttErrorCode::INSUFFICIENT_ENCRYPTION);
                         } else if h == cmd_handle {
                             w.with_data(|_, d| match Frame::from_slice(d) {
+                                Some(f) if handshake::is_handshake_frame(d) => handshake_frame = Some(f),
                                 Some(f) => {
                                     if FRAME_IN.try_send(f).is_err() {
                                         defmt::warn!("BLE: frame dropped, safety queue full");
@@ -216,6 +289,9 @@ async fn gatt_events<P: PacketPool>(server: &Server<'_>, conn: &GattConnection<'
                 match reply {
                     Ok(r) => r.send().await,
                     Err(e) => defmt::warn!("BLE: reply error {}", defmt::Debug2Format(&e)),
+                }
+                if let Some(f) = handshake_frame {
+                    security.handle(&f).await;
                 }
             }
             _ => {}

@@ -41,6 +41,10 @@ pub struct MockState {
     pub current_ma: Option<u16>,
     pub step_calls: Vec<u32>,
     pub reverse_calls: Vec<u32>,
+    /// Directions passed to `motor_enable_dir`, in order.
+    pub enable_dirs: Vec<MotorDir>,
+    /// Returned (once) by `motor_fault`.
+    pub fault: Option<MotorFault>,
 }
 
 impl Default for MockState {
@@ -68,6 +72,8 @@ impl Default for MockState {
             current_ma: None,
             step_calls: Vec::new(),
             reverse_calls: Vec::new(),
+            enable_dirs: Vec::new(),
+            fault: None,
         }
     }
 }
@@ -126,6 +132,13 @@ impl Hal for MockHal {
         let mut m = self.0.borrow_mut();
         m.enabled = e;
         m.enable_calls += 1;
+    }
+    fn motor_enable_dir(&mut self, dir: MotorDir) {
+        self.0.borrow_mut().enable_dirs.push(dir);
+        self.motor_enable(true);
+    }
+    fn motor_fault(&mut self) -> Option<MotorFault> {
+        self.0.borrow_mut().fault.take()
     }
     fn angle_read(&mut self) -> Option<AngleCounts> {
         let m = self.0.borrow();

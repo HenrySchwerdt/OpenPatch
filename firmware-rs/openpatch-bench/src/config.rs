@@ -18,6 +18,16 @@ const _: () = assert!(
     "select EXACTLY ONE drive feature (no default): drive-nfp-608-26-45-g15-12 | drive-nfp-608-26-45-g1-1 | drive-syringe-rig-1ml | drive-zwbpd006006-6-43 | drive-zwbpd006006-4-8 | drive-faulhaber-adm0620-16"
 );
 
+#[cfg(not(any(
+    feature = "drive-nfp-608-26-45-g15-12",
+    feature = "drive-nfp-608-26-45-g1-1",
+    feature = "drive-syringe-rig-1ml",
+    feature = "drive-zwbpd006006-6-43",
+    feature = "drive-zwbpd006006-4-8",
+    feature = "drive-faulhaber-adm0620-16"
+)))]
+compile_error!("select EXACTLY ONE drive feature (no default); the project default is drive-nfp-608-26-45-g15-12 (scripts/build.sh)");
+
 #[cfg(all(feature = "dock-simulated", feature = "board-bench-e73", not(feature = "unsafe-bench-override")))]
 compile_error!("dock-simulated is refused on board-bench-e73 (hardware interlock board): add `unsafe-bench-override` only if you know the interlock gate still needs the real DOCKED");
 
@@ -141,6 +151,9 @@ pub const TMAG_ADDR: u8 = 0x35;
 /// 500 ms, so 20 ms sampling leaves a factor of about 20 margin; the smallest turn_x100 preset
 /// (Faulhaber 20 x 16 = 320 steps/turn: 1.9 turns/s) still leaves a factor of about 12.
 pub const ANGLE_POLL_MS: u64 = 20;
+/// TMAG5273 I2C CRC (datasheet 6.5.1.3.6). Off by default: the CRC coverage of the standard 4 byte read
+/// is taken from the datasheet text and untested on a device; enable it on the bench once verified.
+pub const TMAG_CRC_EN: bool = false;
 /// I2C transaction timeout.
 pub const TMAG_TIMEOUT_MS: u64 = 5;
 /// Consecutive failed reads before the sensor is declared missing (`angle_read` -> None).

@@ -22,6 +22,8 @@ pub mod tlv;
 
 #[cfg(feature = "aes-ccm")]
 pub mod ccm_impl;
+#[cfg(feature = "key-agreement")]
+pub mod handshake;
 
 pub use codec_cmd::{decode_command, encode_command_payload};
 pub use codec_rsp::{decode_response, encode_notification_payload, encode_response_payload};

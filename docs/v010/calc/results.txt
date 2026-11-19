@@ -1,0 +1,192 @@
+######## envelope.py
+demand (placed mm^2): top 471 | bottom-free-air 375 | bottom-low 16 | dock-hall 3.8 ; pads 299, parts cost 17.94 USD
+top free height 1.5 mm; bottom free air 4.4 mm; tallest bottom-free part 3.3 mm (buzzer 3.0 / module 2.2 / PicoBlade 3.3) -> fits 4.4
+top-side tallest part 1.50 mm vs free 1.50 mm
+
+Rule (estimate): both sides together <= 0.60 fill (4-layer autoroute; calibration: failed integrated board ~0.9-1.1, routed bench controller ~0.5 (estimate)), top <= 0.85, free-air bottom <= 0.85 occupancy
+Lt   board LxW      area  | top use/avail | botfree use/avail | botlow use/avail | both sides | verdict
+  0   16.7 x 29.0    484 |  471/ 384=1.23 |  375/  93=4.05 |  16/106=0.15 | 1.48 | too dense
+  4   20.7 x 29.0    600 |  471/ 500=0.94 |  375/ 185=2.02 |  16/106=0.15 | 1.09 | too dense
+  8   24.7 x 29.0    716 |  471/ 616=0.77 |  375/ 278=1.35 |  16/106=0.15 | 0.86 | too dense
+ 10   26.7 x 29.0    774 |  471/ 674=0.70 |  375/ 325=1.15 |  16/106=0.15 | 0.78 | too dense
+ 12   28.7 x 29.0    832 |  471/ 732=0.64 |  375/ 371=1.01 |  16/106=0.15 | 0.71 | too dense
+ 16   32.7 x 29.0    948 |  471/ 848=0.56 |  375/ 464=0.81 |  16/106=0.15 | 0.61 | too dense
+ 20   36.7 x 29.0   1064 |  471/ 964=0.49 |  375/ 557=0.67 |  16/106=0.15 | 0.53 | OK (4L)
+
+smallest tail that passes the 4-layer density rule: Lt = 20 mm -> recommended Lt = 22 mm (+2 mm margin)
+
+Pod outline per size (width 32.0 as bench; length = x_r1 + 19.9 + Lt; 18:18 gear pair as in the CAD snapshot; a 15:12 pair would save 1.35 mm width but loses thrust/resolution, see ARCHITECTURE.md)
+size    stroke  x_r1   bench(Lt=0)   v0.1.0 (Lt=22)   volume cm3 (L*W*8.5)
+OP-70     9.4   21.0    40.9 x 32.0    62.9 x 32.0    17.1
+OP-100   13.4   25.0    44.9 x 32.0    66.9 x 32.0    18.2
+OP-200   26.8   38.4    58.3 x 32.0    80.3 x 32.0    21.8
+(Omnipod DASH 52 x 39 x 14.5 = 29.4 cm3)
+
+wrote docs/v010/board-outline-proposal.json
+
+######## routability.py
+v0.1.0 candidate: pads 299, nets ~72, connections ~227, parts lines 35, placed area T 471 B 375 L 16 mm2
+(pads include the 43 E73 castellated pads; about 30 of them are connected)
+
+failed integrated (17.1x29, 4L)    parts 125 conn  212 | usable   400+ 100 mm2, conn/mm2 0.424, placed-area fill 0.99 | track util 0.27 | 81 % routed, 63 DRC errors (measured)
+failed, if bottom were not limited parts 125 conn  212 | usable   454+ 454 mm2, conn/mm2 0.233, placed-area fill 0.54 | track util 0.25 | (what would help: 2nd full side)
+v0.1.0 Lt= 8 (4L 0.8 mm)           parts  76 conn  227 | usable   616+ 384 mm2, conn/mm2 0.227, placed-area fill 0.86 | track util 0.23 | 
+v0.1.0 Lt=12 (4L 0.8 mm)           parts  76 conn  227 | usable   732+ 477 mm2, conn/mm2 0.188, placed-area fill 0.71 | track util 0.21 | 
+v0.1.0 Lt=16 (4L 0.8 mm)           parts  76 conn  227 | usable   848+ 569 mm2, conn/mm2 0.160, placed-area fill 0.61 | track util 0.19 | 
+v0.1.0 Lt=20 (4L 0.8 mm)           parts  76 conn  227 | usable   964+ 662 mm2, conn/mm2 0.140, placed-area fill 0.53 | track util 0.18 | 
+v0.1.0 Lt=12 (6L 0.8 mm)           parts  76 conn  227 | usable   732+ 477 mm2, conn/mm2 0.188, placed-area fill 0.71 | track util 0.13 | 6L only if Lt must stay <= 12
+
+Note: the track-utilisation heuristic does NOT separate the failed board (0.27) from the new one (0.19): the failed board died of local congestion
+(pad escape under the ISP1807, keep-outs, 0.5 mm height limit), not of global track capacity. The discriminating numbers are the placed-area fill and the
+via-in-pad / keep-out situation below.
+
+Why the new board routes (or what must hold):
+  1. Area: both sides usable (module, buzzer, motor connector, TMAG hang in free air under the board) -> placed-area fill ~0.50 at Lt=22 (0.53 at Lt=20) vs ~1.0 for the failed board.
+  2. No via-in-pad: the E73 has castellated edge pads (43, escape on the outer layer, bench-routed) ; the failed ISP1807 needed VIP on every inner pad.
+  3. No Qi front end (RECT/AC1/AC2/COM/CLAMP/FOD/TS_CTRL/COIL nets, 1206 C0G caps) -> ~20 nets and the most crowded part of the old board disappear.
+  4. No 0.5 mm bottom height limit (battery 3.2 mm leaves 1.05 mm; tall parts live in the tail), no dock-tower no-component zone on the bottom (hall only).
+  5. Antenna keep-out is at the +x end of the tail, no longer fighting the battery/dock for the same corner.
+  6. Same 4-layer 0.8 mm, 0402, 3.5 mil class JLC process as the routed bench controller; no HDI, no 0201.
+  Must hold: gate = 100 % routed + DRC 0 in simulation; interlock + driver + sense loops placed by hand, the rest autorouted.
+
+######## power.py
+== drive resolution
+  gear 18:18: 0.00494 U/step  -> 0.05 U = 10.1 steps; 50 U/day = 10130 steps
+  gear 15:12: 0.00617 U/step  -> 0.05 U = 8.1 steps; 50 U/day = 8104 steps
+
+== thrust at the leadscrew vs motor voltage (>= 5 N required, spec 4; estimate: V/R scaling, 20 % screw efficiency)
+  V_motor   18:18    15:12
+   4.8 V    9.1 N    7.3 N
+   4.2 V    7.9 N    6.3 N
+   3.7 V    7.0 N    5.6 N
+   3.3 V    6.2 N    5.0 N
+   3.1 V    5.9 N    4.7 N
+   2.8 V    5.3 N    4.2 N
+  -> 15:12 needs >= ~3.3 V at the motor for 5 N and has no margin on a sagging Li-Po; 18:18 keeps >= 5.9 N at 3.1 V and has 25 % finer resolution
+
+== daily charge (mAh/day), TDD 50 U, 288 basal pulses + 6 boluses
+  config                         steps/d  motor s/d  motor  events  idle+BLE  total/day  48 h   72 h (=2 d + 50 %)
+  18:18 direct 3.1 V   conn   1 s    10130       68    3.00   0.01     0.40      3.42    6.8   10.3
+  18:18 direct 3.1 V   conn   4 s    10130       68    3.00   0.01     0.24      3.26    6.5    9.8
+  15:12 direct         conn   1 s     8104       54    2.40   0.01     0.40      2.82    5.6    8.5
+  15:12 direct         conn   4 s     8104       54    2.40   0.01     0.24      2.66    5.3    8.0
+  15:12 via 5 V boost  conn   1 s     8104       54    5.70   0.01     0.40      6.12   12.2   18.4
+  15:12 via 5 V boost  conn   4 s     8104       54    5.70   0.01     0.24      5.96   11.9   17.9
+  18:18 via 5 V boost  conn   1 s    10130       68    7.13   0.01     0.40      7.55   15.1   22.6
+  18:18 via 5 V boost  conn   4 s    10130       68    7.13   0.01     0.24      7.39   14.8   22.2
+
+== idle detail (uA): nRF52840 System ON + RTC 3.0; TPL5010 + MCU wake every 2 s for the watchdog 0.2; LDO XC6206 quiescent 1.0; DRV5032 dock hall 0.6; TMAG5273 sleep + comparator/amp 0.5; MCP73832 no input / leakage + dividers 1.0; battery PCM + self-discharge 1.7; BLE @1 s 8.7, @4 s 2.2
+  average idle incl. BLE (1 s interval) = 16.7 uA (spec 1b assumed ~100 uA average -> margin x6.0, but estimates!)
+
+== fill (draw mode, on the charger cradle): 100 U
+  18:18 direct 3.1 V  :  20260 steps,   135 s,  6.00 mAh
+  15:12 direct        :  16208 steps,   108 s,  4.80 mAh
+  15:12 via 5 V boost :  16208 steps,   108 s, 11.41 mAh
+
+== battery sizing: required charge for 72 h incl. 100 U fill margin; usable = 85 % of nominal x 0.8 end-of-life (spec 1b: 2 d + 50 %)
+  need (18:18 direct) 10.3 mAh ; (18:18 boost) 22.6 mAh
+  cell 25 mAh -> usable 17.0 mAh -> life 5.0 d direct / 2.3 d boost ; peak 160-380 mA = 6.4-15.2 C
+  cell 40 mAh -> usable 27.2 mAh -> life 8.0 d direct / 3.6 d boost ; peak 160-380 mA = 4.0-9.5 C
+  cell 60 mAh -> usable 40.8 mAh -> life 11.9 d direct / 5.4 d boost ; peak 160-380 mA = 2.7-6.3 C
+
+== peak current / sag (burst):
+  R_int 1 ohm, direct 160 mA: battery terminal 3.54 V, VMOT_SW 3.50 V
+  R_int 1 ohm, boost  380 mA: battery terminal 3.32 V, VMOT_SW 3.22 V
+  R_int 2 ohm, direct 160 mA: battery terminal 3.38 V, VMOT_SW 3.34 V
+  R_int 2 ohm, boost  380 mA: battery terminal 2.94 V, VMOT_SW 2.84 V  <- below 3.0 V: brown-out risk for the 3V3 LDO input (module min 1.7 V OK, but motor torque low)
+  R_int 4 ohm, direct 160 mA: battery terminal 3.06 V, VMOT_SW 3.02 V
+  R_int 4 ohm, boost  380 mA: battery terminal 2.18 V, VMOT_SW 2.08 V  <- below 3.0 V: brown-out risk for the 3V3 LDO input (module min 1.7 V OK, but motor torque low)
+  mitigation: 2x47 uF bulk on VMOT (sag ride-through ~ 94 uF * 0.5 V / 0.19 A = 0.29 ms), UVLO policy: no motor start below 3.4 V open-circuit, boost keeps the motor at 5 V.
+  LDO XC6206 max 200 mA: radio TX 0 dBm 4.8 mA + CPU -> fine; the motor path does not go through the LDO.
+
+######## cost.py
+Per-pod marginal BOM (electronics components only, x1.0): 15.44 USD
+
+== A. minimum first pump (2 boards assembled, 1 pod, 12 inserts)
+      26.0 USD  PCB 4L 0.8 mm ENIG ~33x63 mm (5 pcs MOQ)
+      28.0 USD  PCBA setup + stencil (2-sided, standard)
+      24.0 USD  extended-part loading (8 unique x 3 USD)
+       5.0 USD  SMT work
+      40.1 USD  electronic components (2 boards x BOM x 1.3 overbuy)
+      30.0 USD  shipping JLC/LCSC
+      15.5 USD  Li-Po cells: 3 candidate types (AliExpress)
+      15.0 USD  housings/lids/carriages/caps (JLC3DP PA12/SLA)
+      14.4 USD  dock inserts x12 (small prints, 8a)
+      60.0 USD  CNC PP reservoir OP-100, qty 2 (PCBWay)
+      23.2 USD  NFP motors (+1 spare) + shipping
+      23.0 USD  GHW gear pairs + shipping from DE
+      29.0 USD  rod, nuts, screws, magnets, needles, duckbills (sets)
+      30.0 USD  silicone cast kit + septum sheet
+       8.0 USD  Velcro, misc
+   total incl. 19 % VAT: 369 / 406 / 482 EUR (low/mid/high);  per pod: 369 / 406 / 482 EUR
+
+== B. recommended ONE order (5 boards, 4 pods, 12 inserts)
+      26.0 USD  PCB 4L 0.8 mm ENIG ~33x63 mm (5 pcs MOQ)
+      28.0 USD  PCBA setup + stencil (2-sided, standard)
+      24.0 USD  extended-part loading (8 unique x 3 USD)
+       8.0 USD  SMT work
+     100.4 USD  electronic components (5 boards x BOM x 1.3 overbuy)
+      30.0 USD  shipping JLC/LCSC
+      23.0 USD  Li-Po cells: 3 candidate types (AliExpress)
+      60.0 USD  housings/lids/carriages/caps (JLC3DP PA12/SLA)
+      14.4 USD  dock inserts x12 (small prints, 8a)
+      60.0 USD  CNC PP reservoir OP-100, qty 2 (PCBWay)
+      43.0 USD  NFP motors (+1 spare) + shipping
+      44.1 USD  GHW gear pairs + shipping from DE
+      41.0 USD  rod, nuts, screws, magnets, needles, duckbills (sets)
+      30.0 USD  silicone cast kit + septum sheet
+       8.0 USD  Velcro, misc
+   total incl. 19 % VAT: 543 / 591 / 687 EUR (low/mid/high);  per pod: 136 / 148 / 172 EUR
+
+== marginal pod (everything above that scales per pod): 77 USD = 84 EUR incl. VAT
+
+Verdict vs spec 1d (<= 200 EUR first pump with MOQ overhead allocated to it): scenario A FAILS (see numbers); scenario B passes only as an average over 4 pods;
+the marginal pod is well below 200 EUR. One-time tools (programmer, balance, calipers) are excluded as in spec 1d.
+
+######## interlock_sim.py
+fault-free: no hazard reachable (all 128 input combinations)
+
+single faults (hardware only, firmware adversarial):
+  MCU_EN           sa0: safe
+  MCU_EN           sa1: safe
+  LATCH_Q          sa0: safe
+  LATCH_Q          sa1: HAZARD: H1 runaway (watchdog expired), H2 over-current
+  DOCK_TERM        sa0: safe
+  DOCK_TERM        sa1: HAZARD: H3 forward motion undocked
+  DIRREV_TERM      sa0: safe
+  DIRREV_TERM      sa1: HAZARD: H3 forward motion undocked
+  WDT_CLR_PATH     sa0: HAZARD: H1 runaway (watchdog expired)
+  WDT_CLR_PATH     sa1: safe
+  OC_CLR_PATH      sa0: HAZARD: H2 over-current
+  OC_CLR_PATH      sa1: safe
+  PFET_GATE_DRIVE  sa0: safe
+  PFET_GATE_DRIVE  sa1: HAZARD: H1 runaway (watchdog expired), H2 over-current, H3 forward motion undocked
+  -> 6 of 14 single faults reach a hazard
+
+double faults: 37 of 84 reach a hazard; by hazard: {'H2 over-current': 27, 'H3 forward motion undocked': 23, 'H1 runaway (watchdog expired)': 27}
+
+Reading: with firmware adversarial, every hazard needs at least one HARDWARE fault. The single points are: LATCH_Q stuck high, WDT/OC clear path open, PFET stuck on
+(H1/H2), and DOCK_TERM / DIRREV_TERM stuck high (H3). Redundancy does not cover them (one AND chain), so they are covered by diagnostics = proof tests:
+  - latch proof test (boot + every 24 h): pulse LATCH_CLR_N and read the latch/MOT_ALLOW read-back: must fall (catches LATCH_Q stuck high and a dead clear path).
+  - proof test at boot and every 24 h: with VMOT sense ADC, try to power the motor with exactly ONE term de-asserted at a time (MCU_EN=0 / no ARM / undocked+forward) and read VMOT_SENSE and I_MOT: must stay 0.
+  - watchdog proof test: skip one TPL5010 DONE on purpose and read SMA/MOT_ALLOW read-back low within 2.2 s (done in a safe state, motor idle).
+  - OC proof test: pulse the reference (OC_REF test injection resistor) and check LATCH_Q drops.
+  - PFET-stuck-on detection: VMOT_SENSE > 0.3 V while MOT_ALLOW=0 -> alarm + MCU holds STBY low + (v0.2: series fuse/second PFET).
+
+######## dose_mc.py
+nominal 0.00494 U/step at 18:18; N=20000 pods per row
+dose     steps  | uncalibrated: mean  sd   p95|err|  | after 5 U gravimetric calibration: mean  sd   p95|err|   (percent)
+ 0.05 U     10 |         -1.24  0.55   2.13        |         -1.28  0.30   1.77
+ 0.10 U     20 |         -1.24  0.57   2.14        |         -1.28  0.31   1.77
+ 0.50 U    101 |         -0.26  0.57   1.19        |         -0.29  0.31   0.78
+ 1.00 U    203 |          0.24  0.58   1.20        |          0.20  0.32   0.70
+ 5.00 U   1013 |          0.05  0.56   1.10        |         -0.00  0.31   0.59
+
+after a direction reversal (first dose after a refill draw, backlash 0.03 mm not yet taken up):
+ 0.05 U  uncal mean -95.57 sd 16.46 p95 100.00 | cal mean -95.57 sd 16.46 p95 100.00
+ 0.50 U  uncal mean -46.16 sd 26.12 p95  93.90 | cal mean -46.18 sd 26.11 p95  93.90
+ 1.00 U  uncal mean -23.04 sd 13.59 p95  46.85 | cal mean -23.07 sd 13.58 p95  46.83
+
+Reading: the quantisation (10 steps = 0.0494 U for a 0.05 U command) and the backlash after reversal dominate below 0.5 U -> firmware must (a) take up the backlash with a
+priming run of >= 0.2 mm after every refill, (b) keep exact rational U/step with carry, (c) report encoder-verified steps. Step-loss tail comes from seal drag vs thrust (seal-hardness variants in the order).
+

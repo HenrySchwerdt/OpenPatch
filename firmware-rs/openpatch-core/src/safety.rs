@@ -57,6 +57,7 @@ pub struct SafetySupervisor {
     last_reservoir: Option<MilliUnits>,
     battery_low: bool,
     high_current_bursts: u8,
+    occlusion_ma: u16,
 }
 
 fn u16_sat(v: u32) -> u16 {
@@ -92,6 +93,7 @@ impl SafetySupervisor {
             last_reservoir: None,
             battery_low: false,
             high_current_bursts: 0,
+            occlusion_ma: OCCLUSION_CURRENT_MA,
         };
         if cal_in_range(cal) {
             sv.cal = cal;
@@ -339,6 +341,21 @@ impl SafetySupervisor {
         self.last_new_faults
     }
 
+    /// Occlusion current threshold in force (mA); starts at the hard limit.
+    pub fn occlusion_current_ma(&self) -> u16 {
+        self.occlusion_ma
+    }
+
+    /// Tune the occlusion current threshold on the bench. Only LOWERING is possible: values above
+    /// [`OCCLUSION_CURRENT_MA`] (the hard limit) or 0 are refused with `Err(Limit)`.
+    pub fn set_occlusion_current_ma(&mut self, ma: u16) -> Result<(), openpatch_proto::Error> {
+        if ma == 0 || ma > OCCLUSION_CURRENT_MA {
+            return Err(openpatch_proto::Error::Limit);
+        }
+        self.occlusion_ma = ma;
+        Ok(())
+    }
+
     /// Motor-current occlusion input. Call after every forward step burst with the peak supply
     /// current measured during the burst. [`OCCLUSION_CURRENT_BURSTS`] consecutive bursts above
     /// [`OCCLUSION_CURRENT_MA`] latch `OCCLUSION`; a sub-threshold burst resets the count; `None`
@@ -348,7 +365,7 @@ impl SafetySupervisor {
         if steps.0 == 0 {
             return false;
         }
-        if ma <= OCCLUSION_CURRENT_MA {
+        if ma <= self.occlusion_ma {
             self.high_current_bursts = 0;
             return false;
         }

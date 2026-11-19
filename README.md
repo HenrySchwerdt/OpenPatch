@@ -16,3 +16,12 @@ A reusable, very flat pod (target ≤ 8.5 mm, Omnipod DASH: 14.5 mm). It plugs d
 ## Tools
 - **SolidCraft** (3D, MCP server: `solidcraft-cli mcp`) for the housing
 - **CADCraft** (2D DWG/DXF) for drawings and the board outline
+
+## License
+
+Dual licensing, source-available (not OSI "open source"):
+- **Community licence (free, non-commercial, research, education, bench self-build):** hardware and documentation CC-BY-NC-SA-4.0; software PolyForm-Noncommercial-1.0.0; `ios/` (OpenPatchKit, compiled into Trio/AGPL) stays GPL-3.0-or-later.
+- **Commercial "Fair-Price" licence (draft):** required for any commercial manufacture, sale or service; price cap cost + 30 %, 5 % clinical-trial levy, safety obligations — see [COMMERCIAL-LICENSE.md](COMMERCIAL-LICENSE.md).
+- Contributing: [CONTRIBUTING.md](CONTRIBUTING.md), [CLA.md](CLA.md).
+
+Details: [LICENSE.md](LICENSE.md). Not a medical device; see [DISCLAIMER.md](DISCLAIMER.md).

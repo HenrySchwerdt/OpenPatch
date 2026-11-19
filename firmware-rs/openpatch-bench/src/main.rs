@@ -120,6 +120,10 @@ async fn main(spawner: Spawner) {
     static RNG: StaticCell<rng::Rng<'static, embassy_nrf::mode::Async>> = StaticCell::new();
     static SDC_MEM_CELL: StaticCell<sdc::Mem<SDC_MEM>> = StaticCell::new();
     let rng = RNG.init(rng::Rng::new(common.rng, Irqs));
+    // 256 bit TRNG seed of the ChaCha20 DRBG that draws the key agreement's ephemeral keys and nonces
+    // (docs/04-protocol.md section 5.2); fresh at every boot, the SDC keeps the TRNG afterwards.
+    let mut rng_seed = [0u8; 32];
+    rng.blocking_fill_bytes(&mut rng_seed);
     let sdc_mem = SDC_MEM_CELL.init(sdc::Mem::<SDC_MEM>::new());
     let sdc = sdc::Builder::new()
         .and_then(|b| b.support_adv().support_peripheral().peripheral_count(1))
@@ -212,7 +216,7 @@ async fn main(spawner: Spawner) {
             static NAME: StaticCell<[u8; 14]> = StaticCell::new();
             let name_bytes: &'static [u8; 14] = NAME.init(name_bytes);
             let name = core::str::from_utf8(name_bytes).unwrap_or("OpenPatch");
-            spawner.spawn(ble::ble_task(sdc, boot.bonds, address, name).unwrap());
+            spawner.spawn(ble::ble_task(sdc, boot.bonds, address, name, boot.pairing_secret, rng_seed).unwrap());
         }
         Err(e) => defmt::error!("SDC init failed ({}): BLE disabled, the safety task keeps running", defmt::Debug2Format(&e)),
     }
