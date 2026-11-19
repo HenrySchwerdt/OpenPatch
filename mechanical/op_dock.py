@@ -54,7 +54,7 @@ def dock_geometry(p: dict, xr: float, wall: float) -> dict:
 
 def build_dock_joins(s: Script, p: dict, L: dict) -> list[str]:
     """Shell part of the dock: bridge bar behind the end cap + two snap arms with ramped hooks.
-    (The cap with septum, duckbill, needle guard is a separate part: op_cap.py.)"""
+    (The cap with septum, needle guard is a separate part: op_cap.py.)"""
     cn, dk, D = p["cannula"], p["dock"], L["dock"]
     xr, yc, zn, wall = L["x_r1"], D["y_c"], D["z_n"], L["wall"]
     za, zb = dk["arm_z"]

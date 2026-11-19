@@ -62,15 +62,15 @@ BENCH_PARTS["bottom"] = (PARTS["bottom"][0], "PA12", "grey (natural)", "bead-bla
 BENCH_PARTS["top"] = ("SLA clear resin (JLC3DP clear, spec 2a)", "clear resin", "clear (polish / clear-coat the outside)", "wash + UV; no window slot: the wall is closed", 1,
                       "+-0.1 mm. CLEAR LID: reservoir, water level and drive are visible through it. Fill scale = 0.15 mm engraving on the inner face (tick / 10 U, long / 50 U). FFC slot 8.0 x 1.1 mm in the +X wall, dome mouth in the lap. Screw holes dia 1.4 may need a drill. WATER ONLY.", True)
 BENCH_PARTS["end_cap"] = ("SLA (tough resin; later PP / CNC)", "tough resin", "any", "no coating; clear internal channels d0.7 with a 0.5 mm wire", 2,
-                          "+-0.05 mm. End cap pressed onto the d2.0 H7 port of the CNC reservoir (spigot d1.98 x 2.4, locating only; sealed by a face O-ring 2.0 x 0.5 in the cap groove): fill septum bore d3.4 (15 % radial compression on the d4.0 disc, side), duckbill pocket d3.05 with open slot, needle guard tube d3.2 / bore d2.0, "
-                          "main channels d0.6 (short), fill branch d0.8; needle hub bore d1.92 (press fit). WATER ONLY in SLA resin.", True)
+                          "+-0.05 mm. End cap pressed onto the d2.0 H7 port of the CNC reservoir (spigot d1.98 x 2.4, locating only; sealed by a face O-ring 2.0 x 0.5 in the cap groove): septum pocket (axis Z, 15 % axial compression on the d4.0 x 2.0 disc, underside fill), no check valve, needle guard tube d3.2 / bore d2.0, "
+                          "channels d0.5 (short, flushable while open), one gasket slot; needle UV-glued in the hub seat with a printed jig. WATER ONLY in SLA resin.", True)
 BENCH_PARTS["coupler"] = ("SLA (tough resin) - or turned brass tube (preferred)", "tough resin / brass", "any", "no coating", 2,
                           "+-0.05 mm. Sleeve coupler d3.0 x 6.0: D-bore d2.04 / flat 1.5 (3.2 deep) for the NFP shaft, M1.6 bore d1.64 (2.8 deep) for the leadscrew; "
                           "retain with one drop of cyanoacrylate / Loctite 638. VERIFY the shaft D-flat on the real motor.", True)
 BENCH_PARTS["plunger_nose"] = ("SLA (JLC3DP resin 8001-type)", "tough resin", "any", "no coating", 2,
                                "+-0.1 mm. 0.7 mm stadium disc (14.6 x 3.6) glued (CA) onto the plunger front: dead layer 0.3 mm. WATER ONLY.", True)
 BENCH_PARTS["end_cap_lid"] = ("SLA (JLC3DP resin 8001-type)", "tough resin", "any", "no coating", 2,
-                              "+-0.05 mm. Upper half of the clamped fluid sandwich: flat underside on the lands, valve / septum ceiling recesses, O-ring half groove, 2 x M1.2 x 6 clamp screws. WATER ONLY.", True)
+                              "+-0.05 mm. Upper half of the clamped fluid sandwich: flat underside on the lands, septum chamber recess + spur groove, O-ring half groove, 2 x M1.2 x 6 clamp screws. WATER ONLY.", True)
 BENCH_PARTS["thrust_sleeve"] = ("SLA, or brass tube d2.0 x d1.6 x 2.05 (cut + deburr)", "tough resin / brass", "any", "no coating", 2,
                                 "+-0.05 mm. Gear carrier and rear thrust shoulder: slides on the rod, rear face on the dry bush, GHW 753020 (bore 2.0) glued on it (Loctite 638). "
                                 "Printed d2.0 walls are thin: brass tube recommended.", True)

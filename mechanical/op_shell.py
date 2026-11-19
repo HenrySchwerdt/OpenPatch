@@ -83,8 +83,9 @@ def build_bottom(s: Script, p: dict, L: dict) -> None:
     if L["mode"] != "bench":
         cut.append(s.cyl("t_sb", "Y", (L["x_s"], 0, sp["z"]), sp["d"] + 2 * sp["bore_clr"], -0.1, sp["len"] + 0.3))
         cut.append(s.cyl("t_sc", "Y", (L["x_s"], 0, sp["z"]), sp["port_d"], sp["len"] + 0.2, L["y_r0"] + 0.01))
-    else:       # fill-needle access hole in the -Y wall in front of the cap septum
-        cut.append(s.cyl("t_fillacc", "Y", (L["x_r1"] + p["dock"]["cap"]["septum_x"], 0, L["dock"]["z_n"]), p["dock"]["cap"]["wall_hole_d"], -0.1, wall + 0.1))
+    else:       # fill-needle access hole through the FLOOR under the cap septum (underside fill, spec 3c; accessible when undocked)
+        _sw = p["dock"]["cap"]
+        cut.append(s.cyl("t_fillacc", "Z", (L["x_r1"] + _sw["septum_x"], L["dock"]["y_c"] - _sw["septum_dy"], 0), _sw["fill_hole_d"], -0.1, wall + 0.1))
     # Lager-Bohrungen
     bb = dr["bush_od"] + dr["bush_bore_clr"]
     if not L["coax"]:

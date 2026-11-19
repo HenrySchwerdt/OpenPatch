@@ -119,10 +119,10 @@ FLUID_WARNS: list = []
 def check_fluid_boundary(p: dict, L: dict) -> tuple[list, list]:
     """Fluid-boundary check at both plunger extremes (full = plunger at the rear stop, empty = at the front stop).
 
-    Wetted zone = bore in front of the front seal contact line (x from the land of the front bead to the end face) + port + cap channels + valve + needle.
-    It must be bounded only by reservoir / cap / seal / valve / needle surfaces: every opening through the reservoir wall (op_drive.wall_openings) whose
+    Wetted zone = bore in front of the front seal contact line (x from the land of the front bead to the end face) + port + cap channels + septum chamber + needle (no check valve, spec 3c).
+    It must be bounded only by reservoir / cap / seal / septum / needle surfaces: every opening through the reservoir wall (op_drive.wall_openings) whose
     x-range reaches in front of the seal contact line is a leak into the pod.  Also: the front seal contact stays inside the bore for the whole stroke,
-    the plunger front stays behind the end face, and the cap's valve insertion slot is closed by the plug.  Returns (problems, known_failing).
+    the plunger front stays behind the end face, and every cap interface (O-ring, gasket, septum, needle) has a defined seal element.  Returns (problems, known_failing).
     """
     from op_drive import wall_openings
     from op_seal import ring_range, variant
@@ -143,18 +143,6 @@ def check_fluid_boundary(p: dict, L: dict) -> tuple[list, list]:
                 known.append(f"fluid boundary: wall opening '{op['name']}' x {op['x'][0]:.1f}..{op['x'][1]:.1f} reaches {op['x'][1] - line:.1f} mm in front of the "
                              f"front seal contact line (x={line:.1f}) at the {tag} position: the wetted zone leaks into the pod through it")
     if p.get("mode") == "bench":
-        vv = p["coax"].get("valve_variants", {})
-        sw = p["dock"]["cap"]["sandwich"]
-        x_room = p["dock"]["block_len"] - p["dock"]["valve_x0"] - 0.2
-        d_room = 2 * (L["dock"]["z_n"] - L["wall"] - 0.4) / (1.0 - sw["valve"]["compress"])
-        for nm, v in vv.items():
-            if nm.startswith("_"):
-                continue
-            fits = v["d"] <= d_room + 1e-9 and v["len"] <= x_room + 1e-9
-            known.append(f"INFO valve variant '{nm}' d{v['d']} x {v['len']}{'' if v['len_verified'] else ' [len UNVERIFIED]'}: "
-                         f"{'fits the sandwich pocket' if fits else 'DOES NOT FIT the current block (room d <= %.1f, len <= %.1f)' % (d_room, x_room)}") if False else None
-            if not fits:
-                warns_valve.append(f"valve variant '{nm}' (d{v['d']} x {v['len']}) does not fit the sandwich on the needle axis (room d <= {d_room:.1f}, len <= {x_room:.1f}): needs a bigger block / axis shift (dock datum is frozen)")
         from op_cap import cap_interfaces
         for itf in cap_interfaces(p, L):
             if itf["gap"] >= 0.0 and not itf["seal"]:
@@ -167,13 +155,31 @@ def check_fluid_boundary(p: dict, L: dict) -> tuple[list, list]:
     return problems, known
 
 
+def check_fill_unreachable(p: dict, L: dict) -> tuple[list, list]:
+    """Hazard H14: with the pod docked no straight needle path (needle d0.4, any direction from outside) may reach the fill septum.
+    The septum is on the underside; its fill-needle hole (cap.fill_hole_d through the pod floor and the base) is the only opening, so a ray reaches the septum only if it passes
+    through that hole.  The docked cover plate (dock.cover footprint, directly under the floor) blocks every such ray iff the hole footprint lies inside the plate footprint
+    shrunk by the needle radius.  Returns (problems, known_failing)."""
+    cp, cv = p["dock"]["cap"], p["dock"].get("cover")
+    if not cv:
+        return ["fluid: no docked cover defined (dock.cover): fill septum reachable while docked (H14)"], []
+    r = cp["fill_hole_d"] / 2 + cv["needle_d"] / 2
+    x, y = cp["septum_x"], -cp["septum_dy"]
+    ok = (cv["x_u"][0] + cv["needle_d"] / 2 <= x - r + 1e-9 and x + r <= cv["x_u"][1] - cv["needle_d"] / 2 + 1e-9
+          and cv["y_rel"][0] + cv["needle_d"] / 2 <= y - r + 1e-9 and y + r <= cv["y_rel"][1] - cv["needle_d"] / 2 + 1e-9)
+    if ok:
+        return [], []
+    return [], [f"H14 fill septum reachable while docked: underside fill hole at x_u {x - r:.1f}..{x + r:.1f}, y {y - r:.1f}..{y + r:.1f} is NOT under the docked cover plate "
+               f"(x_u {cv['x_u'][0]}..{cv['x_u'][1]}, y {cv['y_rel'][0]}..{cv['y_rel'][1]}): a needle can enter the hole while docked and inject through the outlet (no check valve)"]
+
+
 def check_bench(p: dict, L: dict, bodies: list) -> tuple[list, list]:
     """Bench-pod checks: board inside the cavity, clearances, sensor-magnet gaps, contact compression, FFC slot, adapter."""
     problems, warns = [], []
     b, B = p["bench"], L["bench"]
     by = {x["name"]: x for x in bodies}
     for need in ("pod_board", "hall_tmag", "hall_drv0", "hall_drv1", "hall_dock", "ffc_conn", "ffc_cable",
-                 "cannula_adapter", "dock_magnet", "motor", "gearhead", "motor_shaft", "motor_pins", "duckbill_valve", "end_cap", "end_cap_lid", "cap_gasket", "dock_insert", "tongue_shim", "cap_oring") + (("coupler",) if L["coax"] else ("gear_a", "gear_b", "thrust_sleeve", "thrust_collar")):
+                 "cannula_adapter", "dock_magnet", "motor", "gearhead", "motor_shaft", "motor_pins", "end_cap", "end_cap_lid", "cap_gasket", "dock_insert", "tongue_shim", "cap_oring") + (("coupler",) if L["coax"] else ("gear_a", "gear_b", "thrust_sleeve", "thrust_collar")):
         if need not in by:
             problems.append(f"bench body missing: {need}")
     for gone in ("battery", "qi_coil", "rf_module", "pcb", "buzzer", "ratchet_wheel", "sma_slider"):
@@ -235,8 +241,6 @@ def check_bench(p: dict, L: dict, bodies: list) -> tuple[list, list]:
             problems.append("nut not captured between the carriage rear and front walls")
         warns.append(f"axial stack: rod x {rd['min'][0]:.2f}..{rd['max'][0]:.2f} ({rd['max'][0]-rd['min'][0]:.2f} mm), sleeve {sl['min'][0]:.2f}..{sl['max'][0]:.2f} "
                      f"({sl['max'][0]-sl['min'][0]:.2f} mm), collar {co_['min'][0]:.2f}..{co_['max'][0]:.2f}, magnet from {mg['min'][0]:.2f}")
-    if by["duckbill_valve"]["bbox"]["max"][0] > L["x_r1"] + p["dock"]["block_len"]:
-        problems.append("duckbill valve pocket outside the end cap")
     ec, rv = by["end_cap"]["bbox"], by["reservoir"]["bbox"]
     if abs(ec["min"][0] - rv["max"][0]) > 0.011 and ec["min"][0] > rv["max"][0] - 1.9:
         problems.append("end cap spigot position vs reservoir port")
@@ -344,7 +348,7 @@ def check_real_models(outdir: Path, variant: str) -> tuple[list, list]:
         return [], [f"{variant}_real.sc missing (real-model check skipped)"]
     from generate import REAL_NAMES
     gone = {"gearhead", "motor", "motor_boss", "motor_shaft", "motor_rear_boss", "motor_term", "motor_pins", "gear_a", "gear_b",
-            "leadscrew", "magnet", "duckbill_valve"}
+            "leadscrew", "magnet"}
     ex = [pr for pr in BENCH_EXCLUDE_PAIRS + REAL_EXCLUDE if not (set(pr) & gone)]
     results = eval_design(real, ex)
     interf = next(r for r in results if "interferences" in r)
@@ -403,6 +407,9 @@ def check_size(outdir: Path, variant: str, p: dict, ignore_length: bool, with_va
     if mode == "bench":
         pf, known = check_fluid_boundary(p, L)
         problems += pf
+        pu, ku = check_fill_unreachable(p, L)
+        problems += pu
+        known = known + ku
         warns += list(FLUID_WARNS)
     if mode == "bench" and not L["coax"]:
         pr_, wr_ = check_real_models(outdir, variant)

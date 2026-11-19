@@ -179,7 +179,7 @@ A standard **module 0.1 spur gear (about 56 teeth, pitch dia 5.6, OD 5.8, bore 1
 
 The reservoir is ONE CNC PP piece per size (`out/bench/fab/reservoir-cnc/`, README with the PCBWay order settings): blind stadium bore 16.00 x 5.00 (R2.5 = d5 end mill), wall 0.8, closed end wall 2.5 with a single
 d2.0 H7 port, arm slot in the +Y wall; nothing else. Frozen numbers: `params.json -> reservoir_frozen`. The **end cap** (`end_cap`, SLA for water; PP later) presses onto the port (d1.98 spigot) and carries the fill septum
-(through a d2.0 hole in the -Y wall), the duckbill valve pocket and the needle-hub guard tube; valve/septum/dock changes only touch the cap. Seal: platinum-cure medical silicone lip seals (mould as before) or a bromobutyl stopper
+(through a d2.0 hole in the -Y wall), the minimal clamped fluid sandwich (septum chamber, needle-hub guard tube; no valve, spec 3c); septum/needle/dock changes only touch the cap. Seal: platinum-cure medical silicone lip seals (mould as before) or a bromobutyl stopper
 cut to the stadium shape; see the CNC README. Tests with water only, never a person.
 
 
@@ -189,14 +189,14 @@ keeps a 1.0 mm envelope (`bench.ffc.conn`) for a **<= 1.2 mm bottom-contact ZIF,
 Do not order the FH12 for the pod board until a low-profile part is confirmed.
 
 
-## Fluid module soft parts (clamped sandwich, 2026-11-19)
+## Fluid module soft parts (clamped sandwich, no check valve, 2026-11-19, spec 3c)
 
 | part | spec / catalogue source | note |
 |---|---|---|
 | module O-ring | **2.0 x 0.5 mm (ID x CS)**, NBR 70 or silicone 50-70, 2 per pod (+ spares); SEARCH-TERM "O-ring 2x0.5" (any metric O-ring catalogue) | stretch 10 % on d2.2, squeeze 16 % |
-| gasket sheet | **silicone sheet 0.5 mm**, Shore A 40-50, e.g. AliExpress / Amazon "silicone rubber sheet 0.5 mm" (the same sheet as the housing gasket); cut with a cutting plotter or a printed template | channels are slots 0.8 wide |
-| septum | **4 mm disc punched with a 4 mm biopsy punch** from a PTFE/silicone vial septum, 2 mm thick (mz-at.de vial septa, or 2 mm silicone sheet); biopsy punch 4 mm | 15 % compression by the pocket ceiling |
-| check valve (default) | silicone duckbill ~3.0-3.2 mm x ~2.8-3.0 mm (marketplace "silicone duckbill check valve 3 mm") or Qosina 80105 with tube stubs | length UNVERIFIED |
-| check valve (alternatives) | The Lee Company CCPI4510004S (0.6 psid, OD 4.69, reamed bore 4.54), Beswick CKV-M3 (5 mm hex, < 0.5 psig) | do not fit the current block, see SEAL-AND-DEAD-VOLUME.md |
-| needle | 30G blunt dispensing needle (EFD type), cut from its luer hub, UV resin (e.g. Loctite 4310 class) in a printed alignment jig | bench only |
+| gasket sheet | **silicone sheet 0.5 mm**, Shore A 40-50 (the same sheet as the housing gasket); cutting plotter or printed template | one 0.6 mm slot |
+| septum | **4 mm disc punched with a 4 mm biopsy punch** from a PTFE/silicone vial septum 2 mm thick (mz-at.de vial septa) or from 2 mm silicone sheet | 15 % axial compression by the lid lands; underside fill |
+| needle | 30G blunt dispensing needle (EFD type), cut from its luer hub, UV resin (Loctite 4310 class) in a printed alignment jig | bench only |
 | screws | 2 x M1.2 x 6 (as the housing) | clamp the halves |
+
+The duckbill / check valve, its pocket, plug and variants (Lee CCPI, Beswick CKV-M3, Qosina 80105) are **dropped** (spec 3c); `docs/FLUID-PARTS-RESEARCH.md` stays as research.

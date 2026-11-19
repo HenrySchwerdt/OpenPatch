@@ -69,7 +69,7 @@ BENCH_COLORS = ["--body", "top:opacity=0.18,color=#9fb3c8", "--body", "bottom:op
 
 
 REAL_NAMES = ["gearbox", "motor_can", "front_boss", "shaft", "rear_boss", "term_block", "pin1", "pin2", "pin3", "pin4", "gear", "gear (2)",
-              "rod", "nut", "S_half", "N_half", "needle", "sleeve"]
+              "rod", "nut", "S_half", "N_half", "needle"]
 
 
 def run_cli(*args: str) -> subprocess.CompletedProcess:

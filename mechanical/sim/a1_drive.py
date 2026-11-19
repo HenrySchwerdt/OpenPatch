@@ -90,7 +90,7 @@ def run(ctx: Ctx) -> Result:
         "efficiency x gear-pair ratio z_screw/z_motor x pair efficiency gives the **screw torque**; the axial force follows from the power-screw "
         "formula T = F*[ (d2/2)(tan(lam)+mu/cos(30deg))/(1-mu*tan(lam)/cos(30deg)) + mu_c*r_collar ] with d2 = 1.373 mm, lead angle %.2f deg and a "
         "thrust collar at the bush end face (r_m = %.2f mm; the dry-end bush face takes the delivery thrust).  Required force = plunger seal "
-        "friction (squeeze x contact area x mu, Gent E(Shore A)) x breakaway factor + duckbill/needle back-pressure x bore area %.2f mm2.  "
+        "friction (squeeze x contact area x mu, Gent E(Shore A)) x breakaway factor + needle back-pressure x bore area %.2f mm2.  "
         "Hagen-Poiseuille is used for needle and cannula.\n" % (I_RATED_mA, ctx.gh, math.degrees(math.atan(ctx.pitch / (PI * (1.6 - 0.6495 * ctx.pitch)))),
                                                                 collar_coeff(ctx, 1.0), A))
     md.append("Sources / assumptions: motor point [DS vendor page]; current limit 105 mA is what the **controller board is designed for** "
@@ -233,7 +233,7 @@ def run(ctx: Ctx) -> Result:
     P_stall = max(Fa_nom - sf["F"], 0.0) / A * 1e3          # kPa
     md.append("### 1.6 Pressure the pump can build (occlusion)\n")
     md.append("P_stall = (F avail - kinetic seal friction) / A = (%.2f - %.1f) N / %.1f mm2 = **%.0f kPa** (CAD pair, %.0f mA, nominal).  Stall thrust incl. holding torque "
-              "x%.1f = %.2f N.  Cracking pressure of a duckbill (1-5 kPa) is only %.2f-%.2f N, i.e. small compared to the seal.\n"
+              "x%.1f = %.2f N.  A back-pressure of 1-5 kPa is only %.2f-%.2f N, i.e. small compared to the seal.\n"
               % (Fa_nom, sf["F"], A, P_stall, C["I_set_mA"], C["hold_over_pullout"], Fh_nom, duckbill_force(ctx, 1), duckbill_force(ctx, 5)))
 
     # ---------- thermal one-liner -----------------------------------------------------------------------------------

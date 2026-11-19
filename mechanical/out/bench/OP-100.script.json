@@ -2141,10 +2141,10 @@
    "height": 1.1,
    "base": [
     27.999999999999996,
-    -0.1,
-    3.0
+    7.999999999999999,
+    -0.1
    ],
-   "axis": "Y",
+   "axis": "Z",
    "body_name": "t_fillacc",
    "name": "t_fillacc"
   }
@@ -5007,11 +5007,11 @@
   "command": "solid.box",
   "params": {
    "length": 4.399999999999999,
-   "width": 13.2,
-   "height": 5.5,
+   "width": 9.3,
+   "height": 3.3000000000000003,
    "corner": [
     25.799999999999997,
-    1.0,
+    5.299999999999999,
     0.9
    ],
    "body_name": "end_cap",
@@ -5029,8 +5029,34 @@
     4.2
    ],
    "axis": "X",
-   "body_name": "t_cap_spigot",
-   "name": "t_cap_spigot"
+   "body_name": "t_spg_l",
+   "name": "t_spg_l"
+  }
+ },
+ {
+  "command": "solid.box",
+  "params": {
+   "length": 2.6000000000000014,
+   "width": 4.0,
+   "height": 2.0,
+   "corner": [
+    23.299999999999997,
+    9.2,
+    2.2
+   ],
+   "body_name": "t_spg_l_hb",
+   "name": "t_spg_l_hb"
+  }
+ },
+ {
+  "command": "solid.combine",
+  "params": {
+   "target": "t_spg_l",
+   "tools": [
+    "t_spg_l_hb"
+   ],
+   "operation": "intersect",
+   "name": "half t_spg_l"
   }
  },
  {
@@ -5053,7 +5079,7 @@
   "params": {
    "target": "end_cap",
    "tools": [
-    "t_cap_spigot",
+    "t_spg_l",
     "t_cap_shroud"
    ],
    "operation": "join",
@@ -5063,8 +5089,64 @@
  {
   "command": "solid.cylinder",
   "params": {
-   "diameter": 0.6,
-   "height": 3.1499999999999986,
+   "diameter": 3.4000000000000004,
+   "height": 0.5,
+   "base": [
+    25.699999999999996,
+    11.2,
+    4.2
+   ],
+   "axis": "X",
+   "body_name": "t_og_b",
+   "name": "t_og_b"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 2.2,
+   "height": 0.7000000000000028,
+   "base": [
+    25.599999999999994,
+    11.2,
+    4.2
+   ],
+   "axis": "X",
+   "body_name": "t_t_og_b_bore",
+   "name": "t_t_og_b_bore"
+  }
+ },
+ {
+  "command": "solid.combine",
+  "params": {
+   "target": "t_og_b",
+   "tools": [
+    "t_t_og_b_bore"
+   ],
+   "operation": "cut",
+   "name": "cut t_og_b"
+  }
+ },
+ {
+  "command": "solid.box",
+  "params": {
+   "length": 4.050000000000001,
+   "width": 6.500000000000001,
+   "height": 0.49999999999999956,
+   "corner": [
+    26.049999999999997,
+    5.599999999999999,
+    3.8000000000000003
+   ],
+   "body_name": "t_g_rec",
+   "name": "t_g_rec"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 0.5,
+   "height": 2.8500000000000014,
    "base": [
     23.299999999999997,
     11.2,
@@ -5079,105 +5161,30 @@
   "command": "solid.cylinder",
   "params": {
    "diameter": 0.6,
-   "height": 1.6000000000000005,
+   "height": 1.2000000000000002,
    "base": [
-    26.249999999999996,
+    27.999999999999996,
     11.2,
-    2.8
+    2.7
    ],
    "axis": "Z",
-   "body_name": "t_cap_d",
-   "name": "t_cap_d"
+   "body_name": "t_cap_via",
+   "name": "t_cap_via"
   }
  },
  {
   "command": "solid.cylinder",
   "params": {
-   "diameter": 0.6,
-   "height": 0.45000000000000284,
+   "diameter": 0.5,
+   "height": 3.0000000000000036,
    "base": [
-    26.049999999999997,
+    27.699999999999996,
     11.2,
     3.0
    ],
    "axis": "X",
-   "body_name": "t_cap_e",
-   "name": "t_cap_e"
-  }
- },
- {
-  "command": "solid.cylinder",
-  "params": {
-   "diameter": 0.8,
-   "height": 2.8999999999999986,
-   "base": [
-    26.249999999999996,
-    8.5,
-    3.0
-   ],
-   "axis": "Y",
-   "body_name": "t_cap_c",
-   "name": "t_cap_c"
-  }
- },
- {
-  "command": "solid.cylinder",
-  "params": {
-   "diameter": 0.8,
-   "height": 2.1499999999999986,
-   "base": [
-    26.049999999999997,
-    8.7,
-    3.0
-   ],
-   "axis": "X",
-   "body_name": "t_cap_b",
-   "name": "t_cap_b"
-  }
- },
- {
-  "command": "solid.cylinder",
-  "params": {
-   "diameter": 0.8,
-   "height": 6.199999999999999,
-   "base": [
-    27.999999999999996,
-    2.6999999999999997,
-    3.0
-   ],
-   "axis": "Y",
-   "body_name": "t_cap_a",
-   "name": "t_cap_a"
-  }
- },
- {
-  "command": "solid.cylinder",
-  "params": {
-   "diameter": 3.4,
-   "height": 1.9,
-   "base": [
-    27.999999999999996,
-    0.9,
-    3.0
-   ],
-   "axis": "Y",
-   "body_name": "t_cap_sb",
-   "name": "t_cap_sb"
-  }
- },
- {
-  "command": "solid.cylinder",
-  "params": {
-   "diameter": 0.6,
-   "height": 1.0000000000000036,
-   "base": [
-    29.699999999999996,
-    11.2,
-    3.0
-   ],
-   "axis": "X",
-   "body_name": "t_cap_f",
-   "name": "t_cap_f"
+   "body_name": "t_cap_nb",
+   "name": "t_cap_nb"
   }
  },
  {
@@ -5196,22 +5203,150 @@
   }
  },
  {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 4.1,
+   "height": 1.75,
+   "base": [
+    27.999999999999996,
+    7.999999999999999,
+    2.5
+   ],
+   "axis": "Z",
+   "body_name": "t_cap_sp",
+   "name": "t_cap_sp"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 2.0,
+   "height": 1.8,
+   "base": [
+    27.999999999999996,
+    7.999999999999999,
+    0.8
+   ],
+   "axis": "Z",
+   "body_name": "t_cap_fh",
+   "name": "t_cap_fh"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 1.0,
+   "height": 2.8999999999999995,
+   "base": [
+    26.799999999999997,
+    13.399999999999999,
+    1.4000000000000004
+   ],
+   "axis": "Z",
+   "body_name": "t_cap_pil0",
+   "name": "t_cap_pil0"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 1.0,
+   "height": 2.8999999999999995,
+   "base": [
+    29.199999999999996,
+    13.399999999999999,
+    1.4000000000000004
+   ],
+   "axis": "Z",
+   "body_name": "t_cap_pil1",
+   "name": "t_cap_pil1"
+  }
+ },
+ {
   "command": "solid.combine",
   "params": {
    "target": "end_cap",
    "tools": [
+    "t_og_b",
+    "t_g_rec",
     "t_cap_p",
-    "t_cap_d",
-    "t_cap_e",
-    "t_cap_c",
-    "t_cap_b",
-    "t_cap_a",
-    "t_cap_sb",
-    "t_cap_f",
-    "t_cap_hb"
+    "t_cap_via",
+    "t_cap_nb",
+    "t_cap_hb",
+    "t_cap_sp",
+    "t_cap_fh",
+    "t_cap_pil0",
+    "t_cap_pil1"
    ],
    "operation": "cut",
    "name": "cut end_cap"
+  }
+ },
+ {
+  "command": "solid.box",
+  "params": {
+   "length": 4.399999999999999,
+   "width": 9.3,
+   "height": 2.2,
+   "corner": [
+    25.799999999999997,
+    5.299999999999999,
+    4.2
+   ],
+   "body_name": "end_cap_lid",
+   "name": "end_cap_lid"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 1.98,
+   "height": 2.41,
+   "base": [
+    23.4,
+    11.2,
+    4.2
+   ],
+   "axis": "X",
+   "body_name": "t_spg_u",
+   "name": "t_spg_u"
+  }
+ },
+ {
+  "command": "solid.box",
+  "params": {
+   "length": 2.6000000000000014,
+   "width": 4.0,
+   "height": 2.0,
+   "corner": [
+    23.299999999999997,
+    9.2,
+    4.2
+   ],
+   "body_name": "t_spg_u_hb",
+   "name": "t_spg_u_hb"
+  }
+ },
+ {
+  "command": "solid.combine",
+  "params": {
+   "target": "t_spg_u",
+   "tools": [
+    "t_spg_u_hb"
+   ],
+   "operation": "intersect",
+   "name": "half t_spg_u"
+  }
+ },
+ {
+  "command": "solid.combine",
+  "params": {
+   "target": "end_cap_lid",
+   "tools": [
+    "t_spg_u"
+   ],
+   "operation": "join",
+   "name": "join end_cap_lid"
   }
  },
  {
@@ -5225,8 +5360,8 @@
     4.2
    ],
    "axis": "X",
-   "body_name": "t_cap_og",
-   "name": "t_cap_og"
+   "body_name": "t_og_u",
+   "name": "t_og_u"
   }
  },
  {
@@ -5240,85 +5375,212 @@
     4.2
    ],
    "axis": "X",
-   "body_name": "t_t_cap_og_bore",
-   "name": "t_t_cap_og_bore"
+   "body_name": "t_t_og_u_bore",
+   "name": "t_t_og_u_bore"
   }
  },
  {
   "command": "solid.combine",
   "params": {
-   "target": "t_cap_og",
+   "target": "t_og_u",
    "tools": [
-    "t_t_cap_og_bore"
+    "t_t_og_u_bore"
    ],
    "operation": "cut",
-   "name": "cut t_cap_og"
-  }
- },
- {
-  "command": "solid.combine",
-  "params": {
-   "target": "end_cap",
-   "tools": [
-    "t_cap_og"
-   ],
-   "operation": "cut",
-   "name": "cut end_cap"
+   "name": "cut t_og_u"
   }
  },
  {
   "command": "solid.cylinder",
   "params": {
-   "diameter": 2.9,
-   "height": 3.3999999999999986,
+   "diameter": 0.5,
+   "height": 2.8500000000000014,
    "base": [
-    26.4,
+    23.299999999999997,
     11.2,
-    3.0
+    4.2
    ],
    "axis": "X",
-   "body_name": "t_cap_vb",
-   "name": "t_cap_vb"
+   "body_name": "t_cap_pu",
+   "name": "t_cap_pu"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 1.2,
+   "height": 0.4500000000000002,
+   "base": [
+    27.999999999999996,
+    7.999999999999999,
+    4.15
+   ],
+   "axis": "Z",
+   "body_name": "t_cap_ch",
+   "name": "t_cap_ch"
   }
  },
  {
   "command": "solid.box",
   "params": {
-   "length": 3.3999999999999986,
-   "width": 3.039999999999999,
-   "height": 3.5,
+   "length": 0.6000000000000014,
+   "width": 3.500000000000001,
+   "height": 0.34999999999999964,
    "corner": [
-    26.4,
-    9.68,
-    3.0
+    27.699999999999996,
+    7.999999999999999,
+    4.15
    ],
-   "body_name": "t_cap_vs",
-   "name": "t_cap_vs"
+   "body_name": "t_cap_spur",
+   "name": "t_cap_spur"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 1.4,
+   "height": 2.3999999999999995,
+   "base": [
+    26.799999999999997,
+    13.399999999999999,
+    4.1000000000000005
+   ],
+   "axis": "Z",
+   "body_name": "t_cap_cl0",
+   "name": "t_cap_cl0"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 2.4,
+   "height": 0.5999999999999996,
+   "base": [
+    26.799999999999997,
+    13.399999999999999,
+    5.9
+   ],
+   "axis": "Z",
+   "body_name": "t_cap_hd0",
+   "name": "t_cap_hd0"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 1.4,
+   "height": 2.3999999999999995,
+   "base": [
+    29.199999999999996,
+    13.399999999999999,
+    4.1000000000000005
+   ],
+   "axis": "Z",
+   "body_name": "t_cap_cl1",
+   "name": "t_cap_cl1"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 2.4,
+   "height": 0.5999999999999996,
+   "base": [
+    29.199999999999996,
+    13.399999999999999,
+    5.9
+   ],
+   "axis": "Z",
+   "body_name": "t_cap_hd1",
+   "name": "t_cap_hd1"
   }
  },
  {
   "command": "solid.combine",
   "params": {
-   "target": "end_cap",
+   "target": "end_cap_lid",
    "tools": [
-    "t_cap_vb",
-    "t_cap_vs"
+    "t_og_u",
+    "t_cap_pu",
+    "t_cap_ch",
+    "t_cap_spur",
+    "t_cap_cl0",
+    "t_cap_hd0",
+    "t_cap_cl1",
+    "t_cap_hd1"
    ],
    "operation": "cut",
-   "name": "cut end_cap"
+   "name": "cut end_cap_lid"
+  }
+ },
+ {
+  "command": "solid.box",
+  "params": {
+   "length": 4.050000000000001,
+   "width": 6.500000000000001,
+   "height": 0.5000000000000004,
+   "corner": [
+    26.049999999999997,
+    5.599999999999999,
+    3.8000000000000003
+   ],
+   "body_name": "cap_gasket",
+   "name": "cap_gasket"
+  }
+ },
+ {
+  "command": "solid.box",
+  "params": {
+   "length": 2.3500000000000014,
+   "width": 0.6000000000000014,
+   "height": 2.0,
+   "corner": [
+    25.949999999999996,
+    10.899999999999999,
+    3.2
+   ],
+   "body_name": "t_gs_p",
+   "name": "t_gs_p"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 4.1,
+   "height": 2.0,
+   "base": [
+    27.999999999999996,
+    7.999999999999999,
+    3.2
+   ],
+   "axis": "Z",
+   "body_name": "t_gs_s",
+   "name": "t_gs_s"
+  }
+ },
+ {
+  "command": "solid.combine",
+  "params": {
+   "target": "cap_gasket",
+   "tools": [
+    "t_gs_p",
+    "t_gs_s"
+   ],
+   "operation": "cut",
+   "name": "cut cap_gasket"
   }
  },
  {
   "command": "solid.cylinder",
   "params": {
    "diameter": 4.0,
-   "height": 2.0,
+   "height": 1.7000000000000002,
    "base": [
     27.999999999999996,
-    0.7999999999999998,
-    3.0
+    7.999999999999999,
+    2.5
    ],
-   "axis": "Y",
+   "axis": "Z",
    "body_name": "septum",
    "name": "septum"
   }
@@ -5362,21 +5624,6 @@
    ],
    "operation": "cut",
    "name": "cut cap_oring"
-  }
- },
- {
-  "command": "solid.cylinder",
-  "params": {
-   "diameter": 3.0,
-   "height": 3.3999999999999986,
-   "base": [
-    26.4,
-    11.2,
-    3.0
-   ],
-   "axis": "X",
-   "body_name": "duckbill_valve",
-   "name": "duckbill_valve"
   }
  },
  {
@@ -5433,21 +5680,6 @@
    ],
    "operation": "cut",
    "name": "cut needle_hub"
-  }
- },
- {
-  "command": "solid.box",
-  "params": {
-   "length": 3.479999999999997,
-   "width": 3.1199999999999974,
-   "height": 1.8800000000000008,
-   "corner": [
-    26.36,
-    9.64,
-    4.52
-   ],
-   "body_name": "valve_plug",
-   "name": "valve_plug"
   }
  },
  {
@@ -5747,10 +5979,11 @@
     "plunger_core",
     "thrust_sleeve",
     "thrust_collar",
-    "valve_plug",
+    "end_cap_lid",
     "end_cap",
     "seal_b",
     "gasket",
+    "cap_gasket",
     "cap_oring",
     "tongue_shim",
     "leadscrew",
@@ -5775,7 +6008,6 @@
     "motor_rear_boss",
     "motor_term",
     "motor_pins",
-    "duckbill_valve",
     "gear_a",
     "gear_b",
     "bush_dry"
@@ -5956,18 +6188,18 @@
  {
   "command": "file.export_step",
   "params": {
-   "path": "out/bench/OP-100_valve_plug.step",
+   "path": "out/bench/OP-100_end_cap_lid.step",
    "bodies": [
-    "valve_plug"
+    "end_cap_lid"
    ]
   }
  },
  {
   "command": "file.export_stl",
   "params": {
-   "path": "out/bench/OP-100_valve_plug.stl",
+   "path": "out/bench/OP-100_end_cap_lid.stl",
    "bodies": [
-    "valve_plug"
+    "end_cap_lid"
    ],
    "quality": "fine"
   }

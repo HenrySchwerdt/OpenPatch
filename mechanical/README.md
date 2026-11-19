@@ -123,7 +123,7 @@ plunger_seal,gasket}.step/.stl`, `{mould_lower,mould_upper}.step/.stl`, `{reserv
 * The **integrated variant does not pass `check.py` with the new dock**: the dome channel (12 x 18 mm footprint, 5.0 mm high) takes most of the old battery / PCB / RF area. It is
   postponed to Rev B together with the SMA drive; `out/OP-xx*` files are the pre-dock state.
 
-* **Drive (final 2026-11-19): NFP-608-26.45-SGM geared stepper, coaxial with the leadscrew via a sleeve coupler** (`op_coax.py`), fixed nut, duckbill check valve (`REFILL.md`: automatic draw mode, water only).
+* **Drive (final 2026-11-19): NFP-608-26.45-SGM geared stepper, coaxial with the leadscrew via a sleeve coupler** (`op_coax.py`), fixed nut, **no check valve** (spec 3c; `REFILL.md`: assisted pressure fill, water only).
   
 * **Layout switch (2026-11-19):** `params.json -> bench.drive_layout`: `side_gears` (default: NFP motor beside the leadscrew, purchased gear pair z16:z20 (U/step 0.00395), built centre 5.51, pod **43.0 / 47.0 / 60.4 x 32.0 x 8.4 mm**) or `coaxial` (sleeve coupler, 65 / 69 / 83 x 27). Gear pair and centre distance: `bench.gears` (check.py rejects centres < 5.5 mm).
   The frozen CNC reservoir (`reservoir-cnc/`) and the end cap are identical in both layouts.
@@ -140,7 +140,7 @@ plunger_seal,gasket}.step/.stl`, `{mould_lower,mould_upper}.step/.stl`, `{reserv
 * **Axial stack of the leadscrew:** rear thrust sleeve 2.05 mm (gear carrier, bears on the dry bush face), front thrust collar 1.0 mm (bears on the far bush face), magnet glued to the rod end behind the collar
   (reverse/draw thrust never loads the magnet). `check.py` verifies the seats and the gaps. Rod lengths 21.0 / 25.0 / 38.5 mm.
 * **Nut retention:** carriage nut pocket closed at the rear (0.45 mm wall) and front, drop-in slot from the top, 0.3 mm radial float; carriage 4.8 mm wide, rail top 1.4 / groove 0.3.
-* **Duckbill:** 0.1 mm interference bore, printed `valve_plug` press-fit closes the insertion slot.
+* **Fluid module (spec 3c):** minimal clamped sandwich (base + 0.5 mm gasket + lid, O-ring face seal, underside septum, UV-glued needle); the duckbill pocket and `valve_plug` are gone. See `SEAL-AND-DEAD-VOLUME.md` 2b.
 * **Snap arms:** 0.75 mm thick, hook clearance 0.05 (arm force 1.1 N), free length 10.4 mm; the 12 inserts are regenerated.
 * **Real component models** (`mechanical/components/`, `op_models.py`): `OP-xx_real.sc` replaces the envelopes of motor, gears, rod, nut, magnet, needle and duckbill by the library STEP models;
   renders/exploded views use it, `check.py` runs an interference check on it, `out/bench/OP-xx_assembly.glb` (metres, Y up) is the website asset. The rod STEPs are gitignored: `python3 components/build_all.py --only rod_m1p6_21,rod_m1p6_25,rod_m1p6_38.5 --no-boards` (about 3 min each).
@@ -151,8 +151,8 @@ plunger_seal,gasket}.step/.stl`, `{mould_lower,mould_upper}.step/.stl`, `{reserv
 ## Fluid-boundary check (check.py, bench variant, every size)
 
 `check_fluid_boundary` runs at both plunger extremes (full = rear stop, empty = front stop). The wetted zone is the bore in front of the front seal contact line (centre of the land of the
-front-most bead of the active seal variant) up to the end face, plus the port, the end-cap channels, the valve and the needle bore. Every opening through the reservoir wall is defined once in
+front-most bead of the active seal variant) up to the end face, plus the port, the end-cap channels, the septum chamber and the needle bore. Every opening through the reservoir wall is defined once in
 `op_drive.wall_openings` (the CAD cut uses the same numbers). Checks: (1) any wall opening whose x-range reaches in front of the seal contact line is a leak into the pod; (2) the front seal contact
-line stays inside the bore for the whole stroke; (3) the plunger front stays behind the chamber end; (4) the cap's valve slot is closed (valve plug body present). Item (1) currently
+line stays inside the bore for the whole stroke; (3) the plunger front stays behind the chamber end; (4) every cap interface (O-ring face seal, gasket, septum, needle) has a defined seal element with its squeeze inside the limits (gap >= 0 without a seal = FAIL). Item (1) currently
 **FAILS on the slotted design and is reported as `KNOWN-FAIL` (known open: reservoir slot) with an explicit message** (exit code 0 unless `python3 check.py --variant bench --strict`); it is removed from the known list only
 when the coupling no longer opens the wetted zone. Do not read an interference PASS as a sealing PASS.

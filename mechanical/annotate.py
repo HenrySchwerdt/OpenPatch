@@ -94,10 +94,10 @@ def draw(variant: str) -> Path:
     D, dk = L["dock"], p["dock"]
     xr = L["x_r1"]
     cp = dk["cap"]
-    rect(xr, cp["block_y0"], xr + dk["block_len"], D["y_c"] + cp["block_up_y"], "#d8dde3", "#555")                 # end cap (septum, valve, guard)
+    sw = cp["sandwich"]
+    rect(xr, D["y_c"] + sw["block_y_rel"][0], xr + dk["block_len"], D["y_c"] + sw["block_y_rel"][1], "#d8dde3", "#555")                 # fluid sandwich (septum, needle guard)
     rect(xr + dk["block_len"], D["y_c"] - D["arm_in"] - dk["arm_t"], xr + dk["block_len"] + dk["root_len"], D["y_c"] + D["arm_in"] + dk["arm_t"], "#9fb3c8", "#445")
-    rect(xr + cp["septum_x"] - 2.0, cp["block_y0"], xr + cp["septum_x"] + 2.0, cp["block_y0"] + 2.0, "#f2c6a0", "#a05020")
-    rect(xr + dk["valve_x0"], D["y_c"] - 1.5, xr + dk["valve_x0"] + p["coax"]["valve_len"], D["y_c"] + 1.5, "#5ec8e8", "#1a6a85")
+    rect(xr + cp["septum_x"] - 2.0, D["y_c"] - cp["septum_dy"] - 2.0, xr + cp["septum_x"] + 2.0, D["y_c"] - cp["septum_dy"] + 2.0, "#f2c6a0", "#a05020")   # septum disc (underside)
     line(D["x_h0"], D["y_c"], D["x_tip"], D["y_c"], "#111", 1.2)
     rect(xr + dk["block_len"], D["y_c"] - D["floor_half"], Ln, D["y_c"] + D["floor_half"], "#ffffff", "#aaa", op=0.0, dash="5,4")
     for sg in (-1, 1):
@@ -129,8 +129,7 @@ def draw(variant: str) -> Path:
         (L["xrear_full"] + 6, ys, "M1.6 leadscrew (thread side)", 0, 0),
         (L["xrear_full"] + 2, ys + 2.2, "Carriage + fixed nut (full position)", 0, 0),
         ((L["x_r0"] + L["x_r1"]) / 2, yr, "Reservoir (stadium 16 x 5 inside)", 0, 0),
-        (xr + dk["valve_x0"] + 1.7, D["y_c"] + 1.5, "Duckbill check valve (in the end cap)", 0, 0),
-        (xr + 2.2, cp["block_y0"] + 1.0, "Fill septum (end cap, needle through the -Y wall hole)", 0, 0),
+        (xr + 2.2, D["y_c"] - cp["septum_dy"], "Fill septum (underside, fill needle through the floor hole)", 0, 0),
         (D["x_d"], D["y_c"], "Cannula dome (latched) + snap arms", 0, 0),
         (tm[0], tm[1], "TMAG5273 (under board)", 0, 0),
         (dh[0], dh[1], "Dock hall (above adapter magnet)", 0, 0),

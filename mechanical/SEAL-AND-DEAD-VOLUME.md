@@ -57,45 +57,44 @@ Material: 2-part platinum-cure silicone, low viscosity (Sylgard 184 class, 3.5 P
 Wetted channels 22.1 mm3 = 2.21 U (prime path 1.77 U) against MAX_PRIME 0.52 U; 0.3 mm dead layer (nose 0.7 of 1.0) + 0.2 mm core clearance around a 0.7 mm nose = about 2.2 U + 0.7 U of air in front of the plunger.
 
 ### 2.2 Changes (`op_cap.py`, `op_drive.py`, `params.json`)
-1. **Spigot 2.0 -> 2.4 mm** (`cap.spigot_len`): the pressed-in spigot fills the port (end wall 2.5), only 0.1 mm of d2.0 is left (0.31 mm3 instead of 7.85).
-2. **Main path channels d0.7 -> d0.6** (`cap.prime_d`; fill branch and hub stay 0.7); jog moved to x = 0.45 (tangent to the block face at d0.6 broke the boolean).
-3. **Valve pocket**: bore with interference (round 2) and printed valve plug close the slot, so the annulus void is zero; the duckbill's own cavity is assumed 12 % of its envelope [ASM] (2.9 mm3, the biggest item left; weigh a wetted valve).
-4. **Plunger nose replaced by an integral front**: the core reaches to `dead` = 0.04 mm in front of the end face (nominal), front flange 0.51 mm behind the bead, so the annulus in front of the bead is only 1.9 mm3 (with tape). The plunger is **homed by motor stall against the end face** (the plunger, not the carriage block, is the first hard stop: carriage block gap is about 2 mm), so the real gap is the surface flatness, not the stack of tolerances.
-5. **Purge grooves** in the front face (0.4 wide x 0.10 deep: long-axis, cross, centre spot, 1.0 mm3) connect the whole face and the flange annulus to the port.
-6. Air purge: stand the pod on its outlet end (X up, septum side down), inject through the septum with the plunger homed (water follows the shortest path to the needle, the check valve opens at 1-5 kPa), then draw. The fill branch is a dead end with a high point at the septum; it is flushed by flow, not by buoyancy.
+1. **Spigot 2.0 -> 2.4 mm** (`cap.spigot_len`): the locating spigot fills the port (end wall 2.5), only 0.1 mm of d2.0 is left open (0.31 mm3 instead of 7.85).
+2. **Minimal module (spec 3c, no valve):** one path port -> via -> needle; channels d0.5 (spigot half grooves, needle bore), one 0.6 mm gasket slot, via d0.6; the septum chamber (d1.2 x 0.4) and a 3 mm spur groove hang on the junction (dead end, filled by the fill). The old duckbill pocket (7.4 mm3), plenum, 3-leg fill branch (4.7 mm3) and the 1.05 mm3 air pocket behind the septum are gone.
+3. **Plunger nose replaced by an integral front**: the core reaches to `dead` = 0.04 mm in front of the end face (nominal), front flange 0.51 mm behind the bead, annulus in front of the bead 1.9 mm3 (with the PTFE guide tape; coupling-dependent). The plunger is **homed by motor stall against the end face** (the plunger, not the carriage block, is the first hard stop), so the real gap is the surface flatness, not a tolerance stack.
+4. **Purge grooves** in the front face (0.4 wide x 0.10 deep, 1.0 mm3) connect the face and the flange annulus to the port.
+5. Air purge (assisted fill, REFILL.md): stand the pod on its outlet end, push water through the septum while the plunger retracts; surplus leaves at the needle tip and primes it.
 
 ### 2.3 Numbers (sim 5.1 / 5.2)
 
 | item | before | after |
 |---|---|---|
 | frozen port wetted | 7.85 mm3 | 0.31 mm3 |
-| main path channels (port channel, jog, junction, valve->hub) | 2.3 (d0.7) | 1.75 (d0.6) |
-| duckbill pocket void | 7.4 (30 % + annulus) | 2.9 (cavity only) |
-| fill side branch + septum port | 4.4 | 4.4 (not in the prime path) |
-| **prime path chamber -> needle tip** | **1.77 U** | **0.50 U** (MAX_PRIME 0.524 U) |
-| all wetted channels | 2.21 U | 0.95 U |
-| unpurgeable air at the plunger stop | about 2.9 U | **0.47 U** (gap film 3.0 mm3 + annulus 1.9 mm3, with PTFE tape; without tape the annulus is 4 mm3 = 0.7 U total) |
+| path chamber -> needle (spigot grooves, slot, via, needle bore, lumen) | 5.4 mm3 | 2.2 mm3 |
+| check valve pocket / cavity | 7.4 mm3 | none |
+| fill branch + septum (chamber + spur) | 4.4 mm3 (+ 14.5 mm3 air pocket behind the old septum) | 1.0 mm3 |
+| **prime path chamber -> needle tip** | **1.77 U** | **0.25 U** (target <= 0.3 U; MAX_PRIME 0.524 U) |
+| all wetted channels | 2.21 U | **0.34 U** |
+| unpurgeable air at the plunger stop | about 2.9 U | **0.47 U** (gap film 3.0 mm3 + annulus 1.9 mm3, with the guide tape) |
 
-Occlusion / thrust (sim 1.3-1.6, 5.4-5.5): thrust margin over static friction at 105 mA rises from 0.28x to **2.9x** (4.0 N vs 1.4 N), P(motor cannot break the plunger loose) from 100 % to **7 %** at 105 mA and **0 %** at 181 mA, budget row 1.6 passes (0.8 N vs 1.7 N). The pressure the pump can build is now real (P_stall 27 kPa at F_kin 2 N, higher with the lower friction), so the compliance-stored volume at the alarm is 0.7-1.7 U on top of the 2 U threshold (sim 5.4/5.5, 2.7-3.7 U total, unchanged compliance model: PP walls + printed train + bubble). The dead-layer air that was a 75 mm3 compliance (0.37 U start-of-flow lag) is now 3 mm3 (0.01 U). The firmware occlusion threshold still has to be lowered by V_st (0.3 U at 181 mA) or a current/pressure criterion added.
+Occlusion / thrust (sim 1.3-1.6, 5.4-5.5): thrust margin over static friction at 105 mA rises from 0.28x to **2.9x** (4.0 N vs 1.4 N), P(motor cannot break the plunger loose) from 100 % to **7 %** at 105 mA and **0 %** at 181 mA, budget row 1.6 passes (0.8 N vs 1.7 N). The stored volume at the alarm is 0.7-1.7 U on top of the 2 U threshold (sim 5.4/5.5); the firmware threshold still has to be lowered by V_st or a current/pressure criterion added. The dead-layer air that was a 75 mm3 compliance is now 3 mm3.
 
+## 2b. Minimal fluid module (spec 3c: no check valve), clamped sandwich
 
-## 2b. Fluid module = clamped two-part sandwich (after the independent review, coupling-agnostic)
-
-The pressed-on end cap with blind pockets is replaced by a **clamped sandwich** (`op_cap.py`, params `dock.cap.sandwich`): lower half `end_cap` + 0.5 mm silicone sheet `cap_gasket` + upper half `end_cap_lid`, split on the reservoir-port plane (z = 4.2), closed by two M1.2 x 6 screws. All soft parts are **dropped into open pockets**; the halves close on hard lands, so every squeeze is set by geometry, not by print tolerance. Block 4.4 x 13 x (0.9..6.4) mm, inside the current envelope; dock datum untouched.
+The fluid module is now the minimum: **reservoir port -> septum chamber -> outlet needle** (`op_cap.py`, params `dock.cap.sandwich`). No valve, no valve pocket / plug, no branching channels. Two printed halves split on the port plane (z = 4.2) close on hard lands with two M1.2 x 6 screws; every soft part is **dropped into an open pocket**; the squeezes are set by the lands, not by print tolerance. Fill septum on the **underside** (axis Z), fill needle through a d2.0 hole in the base and the pod floor (accessible when undocked).
 
 | interface | seal element | squeeze (set by) | check |
 |---|---|---|---|
-| module to reservoir port | **O-ring 2.0 x 0.5** in a groove (half in each half, inner d2.2, width 0.6, depth 0.4) against the flat PP end face; the d1.98 spigot only locates (clearance fit, not a seal) | axial 16 % (groove depth vs stretched cross-section 0.477) | `cap_interfaces` |
-| base / lid split plane (channels) | **silicone sheet gasket 0.5 mm** in a 0.4 mm recess, the channels are **slots in the gasket** (open while the module is open: inspectable and flushable) | 20 % (lands) | same |
-| septum disc d4.0 | dropped into an open pocket, vertical compression by the lid ceiling | 15 % (limit 10-20 %) | same |
-| check valve | dropped into an open pocket (duckbill) or press-fit cartridge (Lee), ceiling sets the compression | 8 % (duckbill) | same |
-| needle | hub press fit in the shroud bore (bore d1.92, 0.04 per side); needle UV-bonded in the hub with a printed jig | defined interference | same |
+| module to reservoir port | **O-ring 2.0 x 0.5** in a groove (half in each half; inner d2.2, width 0.6, depth 0.4) against the flat PP end face; the d1.98 spigot only locates | axial 16 % (groove depth vs stretched cross-section 0.477) | `cap_interfaces` |
+| base / lid split plane (port slot) | **silicone sheet gasket 0.5 mm** in a 0.4 mm recess; the port path is one 0.6 mm slot (open while the module is open) | 20 % (lands) | same |
+| septum disc d4.0 x 2.0 | dropped into a pocket, compressed axially between the pocket floor and the lid face | 15 % (limit 10-20 %) | same |
+| needle | UV resin in the hub seat with a printed jig (+ 0.04 per side press) | defined bond | same |
 
-`check_fluid_boundary` walks every interface: gap >= 0 without a seal element, O-ring squeeze outside 8-30 %, septum compression outside 10-20 % are FAILs. Cap retention against the O-ring reaction (about 1-3 N) is carried by the two clamp screws only for the halves; **holding the module against the reservoir face (crush rib / clamp) is still an open item**.
+`check_fluid_boundary` fails any interface with gap >= 0 and no seal element, an O-ring squeeze outside 8-30 % and a septum compression outside 10-20 %.
 
-**Channels:** port side = half-round grooves d0.6 in the locating spigot (L/D 4.4, both ends open), via d0.8 (1.2 mm), valve inlet plenum d1.2 x 0.9; fill branch = three straight 0.8 mm gasket slots (2.5 + 1.7 + 5.9 mm), all visible from the top. Prime path and dead volume: see sim 5.1/5.2.
+**Path and dead volume (sim 5.1):** spigot half grooves d0.5 (2.65 mm), gasket slot 0.6 x 0.5 x 2.1, via d0.6 (1.2), needle bore d0.5 (2.5), needle lumen; septum chamber d1.2 x 0.4 + 3 mm spur groove on the fill side. Channels are open slots / half grooves while the module is open (flushable, inspectable). **Free length:** none. The 4 mm septum disc needs about 4.2 mm of module length and the dock insert datum (x0_u = 4.4) is frozen, so the block stays 4.4 mm; a 3 mm septum would free about 1.2 mm only if the dock datum were allowed to move. The module is 1.2 mm taller than before at the O-ring (block top 6.4) but inside the 7.6 lid underside.
 
-**Swappable valve seat** (`coax.valve_variants`, parametric): generic duckbill d3.0 x 2.8 (CAD default), marketplace silicone duckbill 3.2 mm (fits), Qosina 80105 (too long), **Lee CCPI4510004S** (OD 4.69, press-in reamed bore 4.54 mm, length UNVERIFIED, metal seat: not zero-leak in reverse), Beswick CKV-M3 (5 mm hex). `check.py` prints which variants fit the pocket: the Lee and Beswick cartridges do **not** fit on the needle axis (z 3.0 leaves 2.1 mm below the axis, they need d4.7-5.8, and the block is 4.4 mm long with the frozen dock datum) and need either an axis shift to the port height plus a taller module (lid underside 7.6) or a longer dock. **Septum:** 4 mm disc punched from a PTFE/silicone lab septum (mz-at.de vial septa), compressed by the pocket ceiling (parameters `septum.d/len`, `sandwich.septum`). **Needle:** chosen = 30G blunt needle cut from its hub, UV-glued into the hub seat in a printed jig (alternative: silicone grommet clamp).
+**Needle:** chosen = 30G blunt needle cut from its hub and UV-glued in the hub seat with a printed jig (alternative: a clamped silicone grommet). **Septum:** 4 mm disc punched from a PTFE/silicone lab septum, parameters `septum.d / len` (a bought septum or port can replace it).
+
+Retention of the module against the reservoir face (O-ring reaction about 1-3 N) is **not designed yet** (crush rib or clamp, open item).
 
 ## 3. Risks
 * mu_seal and the breakaway factor are assumptions; an unoiled or dried-out bead (mu 0.4-0.9) is 2-4x over budget. Re-oil before every test series.
@@ -103,7 +102,6 @@ The pressed-on end cap with blind pockets is replaced by a **clamped sandwich** 
 * Cast tolerance: printed cavity +-0.05 mm is of the order of the squeeze (0.064 mm diametral for S2); measure the cast OD, keep S1/T as fall-backs.
 * Tape seam and creep (option). Silicone oil swells PDMS slightly (lowers Shore) and migrates; bench only.
 * Plunger core in SLA only (PA12 MJF +-0.1 mm would touch the bore at 0.1 clearance); sand/ream the core to slide freely in the CNC bore before casting.
-* Bubble in the duckbill cavity (2.9 mm3) can still exceed the 0.5 U target if the real valve is bigger; measure by weighing.
 * Homing by stall presses the core front against the PP end face at up to the stall thrust: fine for water tests, add a stall-current threshold in the firmware.
 
 ## 4. Bench tests

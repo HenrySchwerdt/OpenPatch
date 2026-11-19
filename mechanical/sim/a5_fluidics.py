@@ -17,37 +17,31 @@ def cyl(d, l):
 
 
 def path_volume(ctx: Ctx):
-    """Wetted volume downstream of the reservoir chamber for the clamped sandwich module (op_cap.py) and the frozen port (mm3).
-    Returns {name: (volume, group)}; 'prime' = main path chamber -> needle tip (air to expel at the prime), 'fill' = dead-end fill branch (filled by the draw)."""
+    """Wetted volume downstream of the reservoir chamber for the minimal module of spec 3c (no valve): port -> junction -> needle, septum chamber on a short spur.
+    {name: (volume mm3, group)}; 'prime' = main path chamber -> needle tip, 'fill' = septum chamber + spur (dead end, filled by the fill)."""
     P = ctx.P
-    fz, nd, dk, cp, cx = P["reservoir_frozen"], P["needle"], P["dock"], P["dock"]["cap"], P["coax"]
+    fz, dk, cp = P["reservoir_frozen"], P["dock"], P["dock"]["cap"]
     sw = cp["sandwich"]
-    dp = cp["prime_d"]
-    ws, gt = sw["slot_w"], sw["gasket"]["t"]
+    dp, ws, gt = cp["prime_d"], sw["slot_w"], sw["gasket"]["t"]
     zn = P["cannula"]["C_septum_axis_z"]
     zp = ctx.mech[ctx.sizes[0]]["z_axis"] if ctx.sizes[0] in ctx.mech else 4.2
-    rem = max(fz["end_wall"] - cp["spigot_len"], 0.0)               # open port bore left in front of the locating spigot
-    env_v = cyl(cx["valve_d"], cx["valve_len"])
-    vx0 = dk["valve_x0"]
-    jx = cp["jog_x"]
-    y0 = cp["block_y0"]
-    yc = P["dock"]["y_c"]
-    lane = cp["lane_off"]
-    sd = sw["septum"]["depth"]
-    ya_len = (yc - lane + ws / 2) - (y0 + sd - 0.1)
-    L_fill = (lane + ws) + ((cp["septum_x"] - jx) + ws) + ya_len
+    xd = cp["septum_x"]
+    rem = max(fz["end_wall"] - cp["spigot_len"], 0.0)
+    L_sp = cp["spigot_len"] + sw["gasket"]["x"][0]
+    L_slot = xd + ws / 2 - sw["gasket"]["x"][0]
     via_L = zp - sw["gasket"]["recess"] - zn + 0.3
-    plen = vx0 + 0.05 - (jx - 0.4)
+    x_h0 = dk["hub_x0"]
+    L_nb = x_h0 - (xd - 0.3)
+    spur_L = cp["septum_dy"] - sw["chamber_d"] / 2 + 0.3
     return {
         "frozen port d%.1f, %.2f mm left in front of the spigot" % (fz["port_d"], rem): (cyl(fz["port_d"], rem), "prime"),
-        "O-ring face recess + spigot half grooves d%.2f x %.2f" % (dp, cp["spigot_len"] + sw["gasket"]["x"][0]): (cyl(dp, cp["spigot_len"] + sw["gasket"]["x"][0]), "prime"),
-        "gasket port slot %.1f x %.1f x %.2f" % (ws, jx + ws / 2 - sw["gasket"]["x"][0], gt): (ws * gt * (jx + ws / 2 - sw["gasket"]["x"][0]), "prime"),
+        "spigot half grooves d%.2f x %.2f" % (dp, L_sp): (cyl(dp, L_sp), "prime"),
+        "gasket port slot %.1f x %.1f x %.2f" % (ws, L_slot, gt): (ws * gt * L_slot, "prime"),
         "via d%.1f x %.1f" % (sw["via_d"], via_L): (cyl(sw["via_d"], via_L), "prime"),
-        "valve inlet plenum d%.1f x %.1f" % (sw["plenum_d"], plen): (cyl(sw["plenum_d"], plen), "prime"),
-        "check valve internal cavity, %.0f %% of the envelope [ASM] (compressed in its pocket, no annulus)" % (100 * C["valve_void_frac"]): (C["valve_void_frac"] * env_v, "prime"),
-        "valve outlet -> hub d%.2f x 0.7" % dp: (cyl(dp, 0.7), "prime"),
+        "needle bore d%.2f x %.1f" % (dp, L_nb): (cyl(dp, L_nb), "prime"),
         "needle lumen d0.159 x 4.2": (cyl(0.159, 4.2), "prime"),
-        "fill branch: 3 gasket slots %.1f x %.1f, total length %.1f" % (ws, gt, L_fill): (ws * gt * L_fill, "fill"),
+        "septum chamber d%.1f x %.1f" % (sw["chamber_d"], sw["chamber_h"]): (cyl(sw["chamber_d"], sw["chamber_h"]), "fill"),
+        "spur groove %.1f x %.1f x %.1f" % (sw["spur_w"], sw["spur_depth"], spur_L): (sw["spur_w"] * sw["spur_depth"] * spur_L, "fill"),
     }
 
 
@@ -103,7 +97,7 @@ def run(ctx: Ctx) -> Result:
             Q = Qu * 10e-9                                        # m3/s
             dP = 128 * mu * L_mm * 1e-3 * Q / (PI * (d_mm * 1e-3) ** 4)
             rows.append([tag, tag2, f"{dP:.2f} Pa" if dP < 1000 else f"{dP / 1e3:.2f} kPa"])
-    md.append("Viscosity %.1f mPa*s (10 C worst case).  The outlet is not a restriction at delivery rates (tens of pascal); only the duckbill cracking pressure (1-5 kPa [ASM]) and, on a body, tissue back-pressure "
+    md.append("Viscosity %.1f mPa*s (10 C worst case).  The outlet is not a restriction at delivery rates (tens of pascal); only tissue/needle back-pressure (no valve cracking pressure since spec 3c) and, on a body, tissue back-pressure "
               "would matter (bench: containers, ~0).\n" % (1e3 * mu))
     md.append(table(["element", "flow", "pressure drop"], rows))
 
@@ -123,7 +117,7 @@ def run(ctx: Ctx) -> Result:
         C_train_asdrawn = A * (A * 1e-3 / a4r["k_train"])
         C_train_fix = A * (A * 1e-3 / a4r["k_train_alt"])
         C_bub = Vb / C["P_atm_kPa"]
-        C_sil = 0.05          # duckbill + septum + cap [ASM]
+        C_sil = 0.05          # septum + gasket + O-ring [ASM]
         C_liq = 4.6e-7 * (L * A)                # liquid compressibility 4.6e-10 /Pa = 4.6e-7 per kPa, times volume
         comp[s] = dict(wall=C_wall, train=C_train_asdrawn, train_fix=C_train_fix, bub=C_bub, sil=C_sil, liq=C_liq)
         tot = C_wall + C_train_asdrawn + C_bub + C_sil + C_liq
@@ -131,7 +125,7 @@ def run(ctx: Ctx) -> Result:
         comp[s]["tot"], comp[s]["tot_fix"] = tot, tot_fix
         rows.append([s, f"{C_wall:.3f}", f"{C_train_asdrawn:.3f} ({C_train_fix:.3f})", f"{C_bub:.3f}", f"{C_sil:.3f}", f"{C_liq:.4f}", f"{tot:.2f} ({tot_fix:.2f})"])
     md.append("PP reservoir flat walls (strip %.0f mm, t %.1f mm, clamped, no support from the housing = upper bound), thrust-train wind-up (A^2/k_train, from 4.2; value in brackets with the 1.2 mm tongue), a "
-              "10 mm3 air bubble (isothermal, V/p_atm), silicone duckbill/septum/cap [ASM], liquid compressibility.\n" % (b, t_w))
+              "10 mm3 air bubble (isothermal, V/p_atm), silicone septum/gasket/O-ring [ASM], liquid compressibility.\n" % (b, t_w))
     md.append(table(["size", "PP walls", "train wind-up (tongue 1.2)", "bubble 10 mm3", "silicone parts", "liquid", "total mm3/kPa (tongue 1.2)"], rows))
 
     # ---------------- 5.4 occlusion ---------------------------------------------------------------------------
@@ -198,9 +192,9 @@ def run(ctx: Ctx) -> Result:
     md.append("A bubble acts as a spring: it delays the start of flow by V_b x P_crack / P_atm, expands when pressure drops (altitude, 75 kPa) or temperature rises and pushes that volume out "
               "(into the container) without a motor step, and adds compliance to the occlusion path.\n")
     md.append(table(["trapped air", "start lag at 5 kPa crack U", "expansion at 75 kPa cabin U", "expansion 20 -> 37 C U", "compliance"], rows))
-    md.append("Draw mode adds air through the vacuum: dissolved gas nucleates above roughly 30 kPa suction (1.5); the check valve prevents air from the outlet only if it seals against that suction "
-              "(the REFILL.md test pressure of 20 kPa is below the 25-35 kPa of a 29G fill needle at full speed).  The duckbill pocket in the cap is bored d%.2f for a d%.1f valve and has an open slot to the pod interior "
-              "(`t_cap_vs`): unless the valve has its own sealing flange / interference fit, flow can bypass the valve around its outer diameter and leak into the pod.\n" % (P["coax"]["valve_d"] + 0.05, P["coax"]["valve_d"]))
+    md.append("Spec 3c: no check valve and no suction draw; the fill is an assisted pressure fill (syringe pushes through the underside septum while the motor retracts the plunger at a fixed rate, the reservoir stays at a small positive pressure, "
+              "the self-locking drive prevents free flow).  Air can then only enter through a leaking septum, O-ring or gasket when the reservoir is under vacuum (syringe slower than the plunger): `check.py` checks that every interface has a seal element, "
+              "the bench tests hold 30 kPa positive and 40 kPa vacuum.\n")
     md.append("![fluidics](%s)\n" % figp)
 
     o = occ[("181 mA", 2.0, "tongue 1.2")]
