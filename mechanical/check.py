@@ -362,12 +362,15 @@ def check_size(outdir: Path, variant: str, p: dict, ignore_length: bool, with_va
 
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--variant", choices=["integrated", "bench"], default="integrated")
+    ap.add_argument("--variant", choices=["integrated", "bench", "v010"], default="integrated")
     ap.add_argument("--outdir")
     ap.add_argument("--sizes", nargs="*")
     ap.add_argument("--ignore-length", action="store_true")
     ap.add_argument("-v", "--verbose", action="store_true")
     args = ap.parse_args()
+    if args.variant == "v010":          # additive variant (v010_check.py)
+        import v010_check
+        sys.exit(v010_check.main(args))
     out = Path(args.outdir or (HERE / "out" / "bench" if args.variant == "bench" else HERE / "out"))
     p = load_params(out / "params.used.json") if (out / "params.used.json").exists() else load_params()
     p["mode"] = args.variant
