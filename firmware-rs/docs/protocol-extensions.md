@@ -3,7 +3,7 @@
 > TEST PROJECT, never to be worn. Source of truth: `openpatch-proto/src/{consts,msg,codec_*,session}.rs`. Everything below is additive:
 > v1 receivers skip unknown tags, frame layout, CRC, TLV encoding, AAD / nonce rules, `seq` rules and all v1 command ids and tags are unchanged.
 
-## Command 0x0F FillDraw
+## Command 0x0F AssistedFill
 
 * Payload: `FILL_MU` (tag 0x06, u32 mU). **`0` cancels** a running draw.
 * Only while the pump is **suspended AND undocked**. Results: `Docked` (27) if docked, `NotSuspended`, `Busy` while a draw runs,
@@ -17,7 +17,7 @@
 | Code | Name | Meaning |
 |---|---|---|
 | 26 | PrimeRequired | `Resume` refused until a prime completed after a fill / draw (`PumpConfig::STRICT`) |
-| 27 | Docked | `FillDraw` while docked |
+| 27 | Docked | `AssistedFill` while docked |
 | 31 | NoSchedule | `Resume` refused: no basal schedule held (e.g. not restorable after a reset); send `SetBasalSchedule` first (`PumpConfig::STRICT`) |
 
 (25 is unused/removed.)

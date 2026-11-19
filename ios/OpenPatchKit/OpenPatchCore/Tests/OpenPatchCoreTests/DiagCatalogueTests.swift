@@ -5,10 +5,10 @@ import XCTest
 final class DiagCatalogueTests: XCTestCase {
     func testCatalogueHas150CodesWithTheDocumentedSeveritySplit() {
         let entries = DiagCatalogue.entries
-        XCTAssertEqual(entries.count, 150)
+        XCTAssertEqual(entries.count, 153)
         func count(_ s: DiagSeverity) -> Int { entries.filter { $0.severity == s }.count }
         XCTAssertEqual([count(.info), count(.warning), count(.fault), count(.latched)], [2, 54, 68, 26])
-        XCTAssertEqual(DiagCatalogue.schemaVersion, 1)
+        XCTAssertEqual(DiagCatalogue.schemaVersion, 2)
     }
 
     func testSortedUniqueAndInstanceFree() {

@@ -44,7 +44,7 @@ by `steps / rate` and returns the pulses produced, 0 if the interlock does not g
 `motor_step_reverse`, `motor_enable`, `angle_read` (13 bit TMAG5273 sample decimated to 12 bit and
 unwrapped exactly like `hal/angle.rs`, polled every 20 ms during a burst), `motor_current_peak_ma`,
 `docked`, `battery_mv`, `watchdog_kick`, `time_ms`, `buzzer`.
-The interlock is `VMOT = MCU_EN AND watchdog latch AND (DOCKED OR DIR_REVERSE)`; the TPL5010 clears
+The interlock is `VMOT = MCU_EN AND watchdog latch AND (DOCKED XOR DIR_REVERSE)`; the TPL5010 clears
 the latch and resets the MCU when no DONE arrives within its period (2 s).
 
 Each scenario in `scenarios/*.toml` is also a `cargo test` (`tests/scenarios.rs`); the Monte Carlo

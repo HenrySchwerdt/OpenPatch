@@ -66,12 +66,12 @@ fn status_differences_are_exactly_the_documented_ones() {
 }
 
 #[test]
-fn fill_draw_command_is_rust_only_and_new_error_codes_exist_only_in_rust() {
+fn assisted_fill_command_is_rust_only_and_new_error_codes_exist_only_in_rust() {
     let mut p = Pair::new(&setup());
     // C: unsupported (result 9, type echoed)
-    let mut fd = CmdDesc::new(cmd::FILL_DRAW);
+    let mut fd = CmdDesc::new(cmd::ASSISTED_FILL);
     fd.fill_mu = 5000;
-    let f = build_frame(PROTO_VERSION, cmd::FILL_DRAW, 0, 1, &[tag::FILL_MU, 4, 0x88, 0x13, 0, 0]);
+    let f = build_frame(PROTO_VERSION, cmd::ASSISTED_FILL, 0, 1, &[tag::FILL_MU, 4, 0x88, 0x13, 0, 0]);
     let _ = fd;
     let c = p.c.handle_frame(&f).expect("C answers");
     assert_eq!(find(&tlvs(&c), tag::RESULT).unwrap(), &vec![9u8]);

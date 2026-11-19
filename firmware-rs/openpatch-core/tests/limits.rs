@@ -34,8 +34,9 @@ fn draw_rate_is_capped_by_the_fill_needle_gauge() {
     // the rate really used: the default 600 pps unless the needle is finer
     assert_eq!(draw_pps(FillNeedle::G29, cal), DRAW_DEFAULT_PPS);
     assert_eq!(draw_pps(FillNeedle::G27, cal), DRAW_DEFAULT_PPS);
-    assert_eq!(draw_pps(FillNeedle::G31, cal), FillNeedle::G31.max_pps(cal));
-    assert!(draw_pps(FillNeedle::G31, cal) < DRAW_DEFAULT_PPS);
+    // the fixed assisted-fill rate (200 pps) is below even the 31G cap (229 pps): the gauge can only lower it
+    assert_eq!(draw_pps(FillNeedle::G31, cal), FillNeedle::G31.max_pps(cal).min(DRAW_DEFAULT_PPS));
+    assert!(draw_pps(FillNeedle::G31, cal) <= DRAW_DEFAULT_PPS);
     // never above the hard cap
     assert!(DRAW_DEFAULT_PPS <= DRAW_MAX_PPS);
     // a chunk never blocks the safety task longer than 0.8 s at the rate in use
@@ -48,15 +49,18 @@ fn draw_rate_is_capped_by_the_fill_needle_gauge() {
 }
 
 #[test]
-fn takeup_covers_the_measured_lost_motion_and_the_prime_path_needs_several_primes() {
-    // mechanical sim 2.9 / recommendation 11: backlash take-up of >= 152 steps after every draw
+fn takeup_covers_the_lost_motion_of_the_current_mechanics_and_the_prime_path_needs_several_primes() {
+    // independent review 2026-11-19 item 5: socket play 0.30 mm + nut play 0.03 mm at 0.53 um per step
     let cal = NFP_608_2645_G16_20.cal();
+    assert_eq!(LOST_MOTION_SOCKET_UM, 300);
+    assert_eq!(plunger_um_to_mu(LOST_MOTION_SOCKET_UM), 2_238, "0.3 mm x 74.63 mm^2 = 22.4 mm^3 = 2.24 U");
     let takeup = cal.mu_to_pulses(MilliUnits(TAKEUP_MU_AFTER_DRAW)).0;
-    assert_eq!(takeup, 160);
-    assert!(takeup >= 152);
-    // the take-up fits one minute of the 1.7 U/min backstop together with a maximum prime
+    assert!(takeup >= 567, "the socket play alone is 567 steps, got {takeup}");
+    assert_eq!(TAKEUP_MU_AFTER_DRAW, plunger_um_to_mu(LOST_MOTION_SOCKET_UM + LOST_MOTION_NUT_UM));
+    // it does NOT fit one minute of the 1.7 U/min backstop together with a prime: recovered over two commands, the caps stay
     let minute = cal.mu_to_pulses(MAX_PER_MIN).0;
-    assert!(takeup + cal.mu_to_pulses(MAX_PRIME).0 <= minute);
+    assert!(takeup + cal.mu_to_pulses(MAX_PRIME).0 > minute);
+    assert!(takeup <= 2 * minute);
     // the connector path of the mechanical report (2.21 U) is purged by a few prime commands, never by one
     assert_eq!(PRIME_PATH_MU.0, 2_210);
     assert!(MAX_PRIME.0 < PRIME_PATH_MU.0);

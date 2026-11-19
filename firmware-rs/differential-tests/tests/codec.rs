@@ -1,6 +1,6 @@
 //! A. Frame / TLV / CRC codec differential (C `op_frame_*`, `op_session_open`, `op_cmd_decode`,
 //! `op_cmd_encode_payload`, `op_rsp_encode_payload` vs the Rust `openpatch-proto` codec).
-//! Command 0x0F (FillDraw) exists only in Rust (C answers UNSUPPORTED): pinned separately, never
+//! Command 0x0F (AssistedFill) exists only in Rust (C answers UNSUPPORTED): pinned separately, never
 //! part of the shared streams.
 
 use differential_tests::desc::*;
@@ -284,13 +284,13 @@ fn strip_rust_only_tags(bytes: &[u8]) -> Vec<u8> {
 }
 
 #[test]
-fn documented_difference_fill_draw_is_rust_only() {
+fn documented_difference_assisted_fill_is_rust_only() {
     // C answers 0x0F with UNSUPPORTED at decode time; Rust decodes it (FILL_MU tag).
     let payload = [tag::FILL_MU, 4, 0x10, 0x27, 0, 0];
-    let frame = build_frame(PROTO_VERSION, cmd::FILL_DRAW, 0, 1, &payload);
+    let frame = build_frame(PROTO_VERSION, cmd::ASSISTED_FILL, 0, 1, &payload);
     assert_eq!(CSession::new().decode(&frame), Err(9));
-    let c = decode_command(cmd::FILL_DRAW, 1, &payload).expect("Rust decodes FillDraw");
-    assert_eq!(c.body, CommandBody::FillDraw { amount_mu: 10_000 });
+    let c = decode_command(cmd::ASSISTED_FILL, 1, &payload).expect("Rust decodes AssistedFill");
+    assert_eq!(c.body, CommandBody::AssistedFill { amount_mu: 10_000 });
 }
 
 #[test]

@@ -61,12 +61,33 @@ pub const REV_TOLERANCE_PCT: i64 = 3;
 // ---------------------------------------------------------------------------------------------
 // Motor current (STSPIN220 + current sense). One run current, everything else derived from it.
 // ---------------------------------------------------------------------------------------------
+// ---- motor supply current sense, Rev A bench controller (electronics/bench/INTERLOCK.md, controller/parts.json) ----
+/// Shunt resistors in parallel in the motor supply (R31, R39, R47).
+pub const SHUNT_PARALLEL_N: u32 = 3;
+/// Resistance of EACH shunt resistor in milliohm (1.0 ohm, RS-03L1R00FT). The total is 1000 / 3 = 0.333 ohm.
+pub const SHUNT_EACH_MOHM: u32 = 1_000;
+/// INA180A1 gain, V/V.
+pub const INA180A1_GAIN: u32 = 20;
+/// Output of the sense chain per mA of motor supply current, in uV: `gain x R_total`
+/// = 20 x 0.3333 ohm = 6.667 mV per mA (a 1.0 ohm shunt would give 20 mV per mA: the old, wrong constant).
+/// Full scale of the SAADC (3.6 V) is 540 mA; the INA saturates at about 3.25 V (490 mA); the hardware over-current
+/// comparator trips at 3.0 V = 450 mA.
+pub const I_SENSE_UV_PER_MA: u32 = INA180A1_GAIN * SHUNT_EACH_MOHM / SHUNT_PARALLEL_N;
+/// `I_SENSE_UV_PER_MA` x 100 / 1000, i.e. mV x 100 per mA (667): lets integer maths divide by 6.67.
+pub const I_SENSE_MV_X100_PER_MA: u32 = (I_SENSE_UV_PER_MA + 5) / 10;
+/// Motor supply current in mA from an `I_SENSE` reading in mV (rounded down).
+pub const fn isense_mv_to_ma(mv: u32) -> u32 {
+    mv * SHUNT_PARALLEL_N * 1_000 / (INA180A1_GAIN * SHUNT_EACH_MOHM)
+}
+/// Hardware over-current trip (comparator reference 3.0 V), mA.
+pub const HW_OVERCURRENT_MA: u32 = isense_mv_to_ma(3_000);
+
 /// STSPIN220 peak phase current: `VREF 0.160 V / 1.0 ohm` sense (electronics/bench/pin-assignment.md, R24 100k/5.1k;
 /// raised from 105 mA for thrust, mechanical sim 1.1: 4.0 N at 105 mA, 7.0 N at the rated current).
 pub const MOTOR_RUN_CURRENT_MA: u16 = 160;
 /// NFP-608-26.45 rating: 4.8 V / 26.5 ohm = 181 mA per phase. The run current must never exceed it.
 pub const MOTOR_RATED_CURRENT_MA: u16 = 181;
-/// Supply-side `I_SENSE` (20 V/V x 1.0 ohm in the motor supply) relative to the run current, in percent. PLACEHOLDERS,
+/// Supply-side `I_SENSE` (INA180A1 20 V/V on the 0.333 ohm shunt R31 / R39 / R47, see [`I_SENSE_UV_PER_MA`]) relative to the run current, in percent. PLACEHOLDERS,
 /// calibrate on the water bench (docs/bench-testing.md): a free-running stage at 200 pps draws about 2/3 of the
 /// chopper limit (back-EMF), a stalled rotor about 5/3 (two windings at the limit, no back-EMF, supply above the
 /// winding drop). The same ratios the simulator always used at 105 mA (70 / 175 mA), scaled to 160 mA.
@@ -122,7 +143,11 @@ pub const OCC_BASELINE_CREEP_BURSTS: u16 = 64;
 // ---------------------------------------------------------------------------------------------
 pub const DRAW_MAX_PPS: u32 = 1_000;
 /// Default draw rate (the bench `REVERSE_RATE_HZ`): lower than the cap, keeps torque margin.
-pub const DRAW_DEFAULT_PPS: u32 = 600;
+pub const DRAW_DEFAULT_PPS: u32 = ASSISTED_FILL_PPS;
+/// ASSISTED (PRESSURE) FILL, spec 3c: the user pushes water through the septum with a syringe while the motor retracts the
+/// plunger at this FIXED rate. 200 pps = 0.79 U/s on the 16:20 drive (100 U in about 2 minutes): what a hand can push through a
+/// small septum, and the rate at which the motor has its full torque (the suction draw at 600 pps had only 0.69 of it).
+pub const ASSISTED_FILL_PPS: u32 = 200;
 /// Largest number of steps in one tick-chunk of a draw job (0.5 s at 1000 pps). The chunk is also limited to
 /// 0.8 s of motion at the rate in use ([`draw_chunk_steps`]) so that a slow draw never starves the watchdog.
 pub const DRAW_CHUNK_STEPS: u32 = 500;
@@ -184,14 +209,28 @@ pub const fn draw_chunk_steps(pps: u32) -> u32 {
 // ---------------------------------------------------------------------------------------------
 // Backlash take-up and priming
 // ---------------------------------------------------------------------------------------------
+/// Lost motion at a reversal of the CURRENT mechanics (side-slot carriage with a shim in the plunger socket), from the
+/// mechanical design and the independent review 2026-11-19 (item 5, "Lost motion"): carriage-to-plunger socket play
+/// (0.8 mm slot minus 0.5 mm shim) = 0.30 mm, plus nut play 0.03 to 0.08 mm (the low end is taken here, the rest is
+/// absorbed by the bench calibration). It is a property of the MECHANICS, not of the drive: it WILL change with the new
+/// drive (push rod with a captured, play-free link: the socket play disappears and this takes the value of the new train).
+pub const LOST_MOTION_SOCKET_UM: u32 = 300;
+pub const LOST_MOTION_NUT_UM: u32 = 30;
+/// Plunger face area of the reservoir: 5 x 11 mm stadium bore + two 2.5 mm radius ends = 74.63 mm^2, in 0.01 mm^2.
+pub const PLUNGER_AREA_MM2_X100: u32 = 7_463;
+/// Volume swept by a plunger travel of `um` micrometre, mU (1 U = 10 mm^3 = 1000 mU, so mU = um x mm^2 x 0.1).
+pub const fn plunger_um_to_mu(um: u32) -> u32 {
+    (um as u64 * PLUNGER_AREA_MM2_X100 as u64 / 1000) as u32
+}
 /// Forward travel (as a volume, so it scales with the drive) run BEFORE the first prime after a draw: after the reversal
-/// the first forward travel only takes up the gear backlash and the elasticity of carriage, seal and tongue (mechanical
-/// sim 2.9: first 1 U after a draw -22 ... -60 % without it; recommendation 11: >= 152 steps = 0.6 U; simulator: about
-/// 0.4 U nominal). 632 mU = 160 steps on the 16:20 drive. The steps go through the supervisor like every forward step
-/// (hourly / per-minute accounting, docked, interlock) but are NOT counted as delivery (engine totals, `delivered_mu`);
-/// the reservoir model consumes them (a draw credits steps whose first part never moved the plunger, so this corrects
-/// the model). Configurable: `PumpConfig::takeup_mu` (0 = none).
-pub const TAKEUP_MU_AFTER_DRAW: u32 = 632;
+/// the first forward travel only takes up the free motion of the socket and the nut and the elasticity of carriage,
+/// seal and tongue (mechanical sim 2.9: first 1 U after a draw -22 ... -60 % without it). It is the lost motion above
+/// ([`LOST_MOTION_SOCKET_UM`] + [`LOST_MOTION_NUT_UM`] = 0.33 mm = 2 463 mU = 623 steps on the 16:20 drive; the old
+/// value, 632 mU = 160 steps, was the simulator recommendation and covered only a quarter of the socket play). The steps
+/// go through the supervisor like every forward step (hourly / per-minute accounting, docked, interlock) but are NOT
+/// counted as delivery (engine totals, `delivered_mu`); the reservoir model consumes them (a draw credits steps whose
+/// first part never moved the plunger, so this corrects the model). Configurable: `PumpConfig::takeup_mu` (0 = none).
+pub const TAKEUP_MU_AFTER_DRAW: u32 = plunger_um_to_mu(LOST_MOTION_SOCKET_UM + LOST_MOTION_NUT_UM);
 /// Volume of the fluid path from the reservoir port to the needle tip (mechanical report 5.1: 22.1 mm^3), mU. This
 /// is what a complete purge must push through; the 1.0 mm dead layer in front of the plunger (7.5 U of air) is not
 /// reachable by priming.
@@ -219,3 +258,8 @@ pub const fn cal_in_range(c: PulseCal) -> bool {
     let f = c.micro_u_floor();
     !c.is_none() && f >= CAL_UU_MIN && f <= CAL_UU_MAX
 }
+
+/// `5-54-001 PRESSURE_ANOMALY_WHILE_DOCKED` (H15): an uncommanded leadscrew move of more than this many counts between two
+/// ticks while docked. 300 counts = 0.073 turn = 48 steps = 0.19 U on the 16:20 drive: far above the sensor noise (a few
+/// counts), far below anything a manual injection through the cannula would move.
+pub const PRESSURE_ANOMALY_ANGLE_COUNTS: i64 = 300;

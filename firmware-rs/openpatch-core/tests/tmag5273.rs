@@ -73,15 +73,29 @@ fn crc_examples_from_section_6_5_1_3_6() {
 
 #[test]
 fn config_matches_register_fields() {
+    // the pod board as designed: the leadscrew magnet rotates in the pod Y-Z plane, +-80 mT
     let w = config_writes(false);
     assert_eq!(w[0], (0x00, 0x00));
-    // MAG_CH_EN (7:4) = 3 (X, Y)
-    assert_eq!(w[1], (0x02, 3 << 4));
-    // ANGLE_EN (3:2) = 1 (X first, Y second); X_Y_RANGE = 0
-    assert_eq!(w[2], (0x03, 1 << 2));
+    // MAG_CH_EN (7:4) = 6 (Y, Z)
+    assert_eq!(w[1], (0x02, 6 << 4));
+    // ANGLE_EN (3:2) = 2 (Y and Z); X_Y_RANGE (1) and Z_RANGE (0) = 1 (+-80 mT)
+    assert_eq!(w[2], (0x03, (2 << 2) | 0b11));
     // OPERATING_MODE (1:0) = 2 continuous, written last
     assert_eq!(w[3], (0x01, 0x02));
     assert_eq!(config_writes(true)[0], (0x00, 0x80));
+}
+
+#[test]
+fn every_plane_enables_exactly_its_two_channels_and_the_matching_angle_pair() {
+    for (plane, ch, angle) in [(AnglePlane::XY, 0x3u8, 1u8), (AnglePlane::YZ, 0x6, 2), (AnglePlane::XZ, 0x5, 3)] {
+        let w = config_writes_for(false, plane, false);
+        assert_eq!(w[1].1, ch << 4, "{plane:?}");
+        assert_eq!(w[2].1, angle << 2, "{plane:?}: +-40 mT");
+        assert_eq!(config_writes_for(false, plane, true)[2].1, (angle << 2) | 0b11, "{plane:?}: +-80 mT");
+    }
+    // the plane of a field that rotates around the pod X axis (leadscrew) is Y-Z; X-Y would read the constant axial part
+    assert_eq!(DEFAULT_PLANE, AnglePlane::YZ);
+    assert!(DEFAULT_RANGE_80MT, "34 to 41 mT estimated at the sensor: +-40 mT is marginal");
 }
 
 fn frame(status: u8, msb: u8, lsb: u8, mag: u8) -> [u8; FRAME_LEN] {

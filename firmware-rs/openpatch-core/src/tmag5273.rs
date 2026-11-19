@@ -33,10 +33,16 @@ pub const DEVICE_VER_40MT: u8 = 1;
 /// CRC off, no tempco, 1x averaging (10 kSPS 3-axis / 20 kSPS 1-axis), standard 3-byte read.
 pub const DEVICE_CONFIG_1_CRC_OFF: u8 = 0x00;
 pub const DEVICE_CONFIG_1_CRC_ON: u8 = 0x80;
-// Table 8-5 SENSOR_CONFIG_1: MAG_CH_EN 7:4 (3h = X and Y), SLEEPTIME 3:0 (unused in continuous mode).
+// Table 8-5 SENSOR_CONFIG_1: MAG_CH_EN 7:4 (1h X, 2h Y, 3h XY, 4h Z, 5h ZX, 6h YZ, 7h XYZ), SLEEPTIME 3:0 (unused in continuous mode).
 pub const SENSOR_CONFIG_1_XY: u8 = 0x30;
-// Table 8-6 SENSOR_CONFIG_2: ANGLE_EN 3:2 (1h = X first, Y second), X_Y_RANGE bit 1 = 0 (+-40 mT on A1).
+pub const SENSOR_CONFIG_1_ZX: u8 = 0x50;
+pub const SENSOR_CONFIG_1_YZ: u8 = 0x60;
+// Table 8-6 SENSOR_CONFIG_2: ANGLE_EN 3:2 (1h = X and Y, 2h = Y and Z, 3h = X and Z), X_Y_RANGE bit 1 and Z_RANGE bit 0
+// (0 = +-40 mT, 1 = +-80 mT on the x1 parts; both axes of the angle pair must use the same range).
 pub const SENSOR_CONFIG_2_ANGLE_XY: u8 = 0x04;
+pub const SENSOR_CONFIG_2_ANGLE_YZ: u8 = 0x08;
+pub const SENSOR_CONFIG_2_ANGLE_XZ: u8 = 0x0C;
+pub const SENSOR_CONFIG_2_RANGE_80MT: u8 = 0x03;
 // Table 8-4 DEVICE_CONFIG_2: OPERATING_MODE 1:0 (2h = continuous measure), TRIGGER_MODE bit 2 = 0.
 pub const DEVICE_CONFIG_2_CONTINUOUS: u8 = 0x02;
 
@@ -138,13 +144,54 @@ pub fn torn(frame_status: u8, status_after: u8) -> bool {
     (frame_status & CONV_SET_COUNT_MASK) != (status_after & CONV_SET_COUNT_MASK)
 }
 
-/// Register writes that put the sensor into angle mode (X/Y, continuous, 1x averaging), in order.
+/// The two sensor axes the angle is computed from. The spindle magnet (axis along the leadscrew = pod X, diametrically
+/// magnetised) rotates its field in the plane PERPENDICULAR to the leadscrew: pod Y-Z. The sensor lies flat on the pod
+/// board (package Z = pod Z), so which package axis points along pod Y decides the plane: if package X points along the
+/// leadscrew (the case the layout drawing states: package body length along pod X) the X channel sees only the constant
+/// axial component and the angle must come from Y and Z. Bench-verify with a hand-turned rod (docs/bench-testing.md T12).
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum AnglePlane {
+    XY,
+    YZ,
+    XZ,
+}
+
+/// MAG_CH_EN of the two channels (SENSOR_CONFIG_1).
+pub const fn sensor_config_1(plane: AnglePlane) -> u8 {
+    match plane {
+        AnglePlane::XY => SENSOR_CONFIG_1_XY,
+        AnglePlane::YZ => SENSOR_CONFIG_1_YZ,
+        AnglePlane::XZ => SENSOR_CONFIG_1_ZX,
+    }
+}
+
+/// ANGLE_EN plus the range bits (SENSOR_CONFIG_2). `range_80mt` selects +-80 mT on both axes: at 2.05 mm from an N52
+/// d3 x 1.5 magnet the field is estimated at 34 to 41 mT, marginal for +-40 mT (independent review 2026-11-19).
+pub const fn sensor_config_2(plane: AnglePlane, range_80mt: bool) -> u8 {
+    let angle = match plane {
+        AnglePlane::XY => SENSOR_CONFIG_2_ANGLE_XY,
+        AnglePlane::YZ => SENSOR_CONFIG_2_ANGLE_YZ,
+        AnglePlane::XZ => SENSOR_CONFIG_2_ANGLE_XZ,
+    };
+    angle | if range_80mt { SENSOR_CONFIG_2_RANGE_80MT } else { 0 }
+}
+
+/// The plane and range of the pod board as designed (see [`AnglePlane`]): Y-Z, +-80 mT.
+pub const DEFAULT_PLANE: AnglePlane = AnglePlane::YZ;
+pub const DEFAULT_RANGE_80MT: bool = true;
+
+/// Register writes that put the sensor into angle mode (continuous, 1x averaging), in order.
 /// DEVICE_CONFIG_1 first (CRC / read mode), the mode register LAST (it starts conversions).
-pub fn config_writes(crc: bool) -> [(u8, u8); 4] {
+pub fn config_writes_for(crc: bool, plane: AnglePlane, range_80mt: bool) -> [(u8, u8); 4] {
     [
         (REG_DEVICE_CONFIG_1, if crc { DEVICE_CONFIG_1_CRC_ON } else { DEVICE_CONFIG_1_CRC_OFF }),
-        (REG_SENSOR_CONFIG_1, SENSOR_CONFIG_1_XY),
-        (REG_SENSOR_CONFIG_2, SENSOR_CONFIG_2_ANGLE_XY),
+        (REG_SENSOR_CONFIG_1, sensor_config_1(plane)),
+        (REG_SENSOR_CONFIG_2, sensor_config_2(plane, range_80mt)),
         (REG_DEVICE_CONFIG_2, DEVICE_CONFIG_2_CONTINUOUS),
     ]
+}
+
+/// [`config_writes_for`] with the pod board's plane and range ([`DEFAULT_PLANE`], [`DEFAULT_RANGE_80MT`]).
+pub fn config_writes(crc: bool) -> [(u8, u8); 4] {
+    config_writes_for(crc, DEFAULT_PLANE, DEFAULT_RANGE_80MT)
 }

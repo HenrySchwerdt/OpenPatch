@@ -283,7 +283,7 @@ impl Rig {
                 let reverse_start = self.h.st().total_reverse_steps;
                 let mut ok = false;
                 self.run(Kind::Other, |r| {
-                    ok = r.p.fill_draw(MilliUnits(mu)).is_ok();
+                    ok = r.p.assisted_fill(MilliUnits(mu)).is_ok();
                 });
                 if ok {
                     let steps = self.p.pulse_cal().mu_to_pulses(MilliUnits(mu)).0;
@@ -323,7 +323,7 @@ impl Rig {
             Op::Dock(d) => self.h.st().docked = *d,
             Op::Charger(c) => self.h.st().charger = *c,
             Op::DrawCancel => {
-                let _ = self.p.fill_draw(MilliUnits(0));
+                let _ = self.p.assisted_fill(MilliUnits(0));
             }
             Op::Delivered(pct) => self.h.st().delivered_pct = *pct,
             Op::StepsLimit(l) => self.h.st().steps_limit = *l,

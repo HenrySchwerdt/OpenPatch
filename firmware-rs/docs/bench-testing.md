@@ -104,7 +104,7 @@ Draw pulls water INTO the reservoir by driving the leadscrew in reverse. Procedu
 
 1. Pump **suspended** (`Suspend` / fresh boot) and **UNDOCKED** (E73: remove the dock magnet from DRV5032; DK: BUTTON2 toggles the simulated DOCKED to off).
    Docked gives result `Docked` (27), not suspended `NotSuspended`, a latched fault or a missing angle sensor `Fault`.
-2. Send protocol command 0x0F `FillDraw` with `FILL_MU` = volume in mU (`0` cancels). `Limit` if it does not fit (`capacity - remaining`), `Busy` while running.
+2. Send protocol command 0x0F `AssistedFill` with `FILL_MU` = volume in mU (`0` cancels). `Limit` if it does not fit (`capacity - remaining`), `Busy` while running.
 3. Watch progress: Alert notifications (type 0x90: kind 1 progress, 3 done, 4 stalled, 2 fault) and `GetStatus` `DRAW_STATE` (1 drawing, 2 done, 3 stalled, 4 aborted),
    `DRAW_REQUESTED_MU`, `DRAW_DONE_MU`; flag `DRAWING`. Defmt shows each 500 step reverse chunk (`burst fwd=false`, peak current).
 4. **Stall / end stop:** a chunk that executed short, < 50 % angle-confirmed reverse travel, or 3 chunks above the current threshold end the draw as STALLED
@@ -135,7 +135,7 @@ Build/flash on the DK: `cargo run --release --no-default-features --features boa
 1. Syringe with water, tip over a balance (0.1 mg), plunger on the motor leadscrew. **Barrel area 17.94 mm^2 is assumed: verify first** (1.19 mU = 0.119 ul per pulse):
    run 100 pulses, weigh, compute ul/pulse; if it differs, the preset is wrong, fix it in the core, do not trust volumes.
 2. Delivery: as in the gravimetric procedure above (docked). Maximum 1 ml = 100 U; keep the fill within the syringe contents.
-3. Draw (refill the syringe from a water source): BUTTON2 once = undocked, suspend, `FillDraw` mU; the plunger retracts, the angle confirms. Dock again (BUTTON2) and prime
+3. Draw (refill the syringe from a water source): BUTTON2 once = undocked, suspend, `AssistedFill` mU; the plunger retracts, the angle confirms. Dock again (BUTTON2) and prime
    before delivery (`PrimeRequired`).
 4. Never connect a body, never use insulin. The software DOCKED means the dock safety gate is NOT tested on this rig.
 
@@ -145,3 +145,23 @@ Build/flash on the DK: `cargo run --release --no-default-features --features boa
 * `defmt` shows `settings: ... calibration FirstBoot|Match` (Mismatch = the flash holds another drive than the build: no delivery, the record is not overwritten; erase the settings page to re-provision).
 * Interlock (bench board): scope MCU_EN / ARM_CLK / VMOT around a pulse; kill the firmware (hold in debugger) and confirm VMOT drops within about 2 s
   (TPL5010). Never use a body.
+
+## Bench controller acceptance (Rev A, `electronics/bench/INTERLOCK.md` H) and the firmware checks that go with them
+
+Water only, motor free on the bench, USB power. Run `RunSelfTest` sub-op 1 (POST-S) and 2 (POST-A) from the app / bench console first: a healthy board passes every step (`7-74-006 POST_RESULT` with no failed step, no active diagnostic code). Then:
+
+| # | Test | Expected firmware behaviour |
+|---|---|---|
+| T1 | power up with no firmware | VMOT (TP4) 0 V (hardware only) |
+| T2 | arm, then stop servicing the watchdog (`bench` fault injection or halt the safety task) | the DONE permit lapses, VMOT falls within about 2.5 s and the MCU resets |
+| T3 / T4 | no dock magnet, `MCU_EN` and latch on, DIR forward / reverse level | forward: VMOT 0 V; reverse: about 4.8 V; POST A02 reports both |
+| T5 | **direction**: flip DIR to forward while undocked and stepping; then run a reverse burst and watch the angle | VMOT collapses within about 10 ms. **Confirm physically that the reverse level retracts the plunger**; if not, swap R96 for R97 and build with `--features dir-forward-high`. A wrong pairing shows as `4-40-003` (POST `DIR_REV` readback, or a reverse burst whose angle moves forward) |
+| T6 | magnet at the dock hall | VMOT on at both DIR levels; `DOCKED_H` readback high |
+| T7 | unplug the FFC with DIR = forward | VMOT 0 V; POST-S `3-30-001`; `POD_ID_N` high |
+| T8 | `MCU_EN` low with everything else true | VMOT 0 V; the rotating disarm reports `1-07-001` if `MCU_EN` does not cut |
+| T9 | 10 ohm across the motor header phase (about 500 mA), driver enabled | over-current latch trips, VMOT cut, `OC_OK` low; the burst reports a driver fault (`1-03-001`); the next power-up works (`MCU_EN` was cycled) |
+| T10 | drive `WDT_DONE` high permanently, then pulse it 100 ms after WAKE, then 5 ms after WAKE | stuck and late: TPL5010 resets; in window: accepted. (The firmware itself only ever pulses from the WAKE interrupt: `hal/wdt.rs`; `WAKE_COUNT` / `DONE_COUNT` in RTT) |
+| T11 | scope on `VMOT`, `PGATE_MON`, `MOT_DIR` during a normal power-down | the three disarm modes alternate burst by burst; each collapses `VMOT` below 1.8 V within about 10 ms |
+| T12 | **TMAG plane**: hand-turn the spindle with the pod board in place and read the raw angle (`coarse` log) with `tmag-plane-xy`, default Y-Z and `tmag-plane-xz` | exactly one plane gives a full 0 to 360 degrees per turn with constant magnitude; build with that feature. Check the +-80 mT range does not clip (`MAGNITUDE_RESULT`) |
+
+Firmware-side checks the POST can not do (known gaps, docs/stubs.md): dock hall stuck at "docked", Q4 shorted is only detected through `VMOT_SENSE`, the A08 watchdog service test.

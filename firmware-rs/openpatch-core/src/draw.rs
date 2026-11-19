@@ -1,4 +1,4 @@
-//! Draw mode (automatic refill): the app sends `FillDraw(amount)`, the motor reverses exactly that
+//! Draw mode (automatic refill): the app sends `AssistedFill(amount)`, the motor reverses exactly that
 //! volume at a limited rate (<= 1000 pps: 500 steps per ~1 s tick), the angle sensor and the motor
 //! current detect a stall / the rear end-stop, and the pump reports the volume actually drawn.
 //!
@@ -16,7 +16,7 @@ use openpatch_proto::Error;
 
 impl<H: Hal> Pump<H> {
     /// Start (or with `amount` 0 cancel) a draw of `amount` mU.
-    pub fn fill_draw(&mut self, amount: MilliUnits) -> Result<(), Error> {
+    pub fn assisted_fill(&mut self, amount: MilliUnits) -> Result<(), Error> {
         if amount.0 == 0 {
             if !self.draw_running() {
                 return Err(Error::NotFound);
@@ -88,6 +88,7 @@ impl<H: Hal> Pump<H> {
         let steps = Pulses(self.draw.remaining_steps.min(chunk));
         // DIR = reverse is set before the supply is requested (the bench gate needs it).
         self.hal.motor_enable_dir(MotorDir::Reverse);
+        self.moved = true;
         let n = self.hal.motor_step_reverse(steps);
         self.hal.motor_enable(false);
         let executed = Pulses(n.0.min(steps.0));

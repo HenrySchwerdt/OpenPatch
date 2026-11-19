@@ -49,7 +49,7 @@ pub fn encode_command_payload(c: &Command, out: &mut [u8]) -> Result<usize, Erro
             w.put_u8(tag::ROLE, *role);
         }
         CommandBody::Release { pair_id } => w.put_u32(tag::PAIR_ID, *pair_id),
-        CommandBody::FillDraw { amount_mu } => w.put_u32(tag::FILL_MU, *amount_mu),
+        CommandBody::AssistedFill { amount_mu } => w.put_u32(tag::FILL_MU, *amount_mu),
         CommandBody::GetFaultLog { from_id, max_events } => {
             w.put_u32(tag::FROM_ID, *from_id);
             w.put_u8(tag::MAX_EVENTS, *max_events);
@@ -182,7 +182,7 @@ fn take_tag(a: &mut Acc, ty: u8, t: u8, v: &[u8]) -> bool {
             true
         }
         tag::FILL_MU => {
-            if ty != cmd::FILL_PRIME && ty != cmd::FILL_DRAW {
+            if ty != cmd::FILL_PRIME && ty != cmd::ASSISTED_FILL {
                 return true;
             }
             if vl != 4 {
@@ -289,11 +289,11 @@ pub fn decode_command(type_: u8, seq: u16, payload: &[u8]) -> Result<Command, Er
             }
             CommandBody::SetPairing { pair_id: a.pair_id.ok_or(Error::Frame)?, role: a.role }
         }
-        cmd::FILL_DRAW => {
+        cmd::ASSISTED_FILL => {
             if !a.fill_seen {
                 return Err(Error::Frame);
             }
-            CommandBody::FillDraw { amount_mu: a.fill }
+            CommandBody::AssistedFill { amount_mu: a.fill }
         }
         cmd::GET_FAULT_LOG => CommandBody::GetFaultLog { from_id: a.from_id, max_events: a.max_events },
         cmd::RUN_SELF_TEST => CommandBody::RunSelfTest { sub_op: a.sub_op.ok_or(Error::Frame)? },

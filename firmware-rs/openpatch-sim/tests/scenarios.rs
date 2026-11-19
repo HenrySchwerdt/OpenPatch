@@ -88,8 +88,9 @@ fn refill_draw_delivers_requested_volume_through_the_reverse_interlock_path() {
     let d = &v.draws[0];
     assert_eq!(d.core_state, openpatch_proto::draw::DONE);
     assert!((d.core_drawn_mu as f64 - 50_000.0).abs() < 500.0, "core says {}", d.core_drawn_mu);
-    // the vial really gave 50 U within 2 % (backlash + seal elasticity cost ~0.3 .. 0.7 U)
-    assert!((d.actual_drawn_mu - 50_000.0).abs() / 50_000.0 < 0.02, "actual {}", d.actual_drawn_mu);
+    // the vial really gave 50 U less the lost motion of the first reversal (socket play 0.30 mm = 2.24 U, nut play, seal
+    // elasticity): the core books the travel, the post-draw take-up corrects its reservoir model afterwards
+    assert!(d.core_drawn_mu as f64 - d.actual_drawn_mu > 1_500.0 && d.core_drawn_mu as f64 - d.actual_drawn_mu < 3_500.0, "core {} actual {}", d.core_drawn_mu, d.actual_drawn_mu);
     // DIR_REVERSE lets VMOT come up undocked: no burst was refused, and nothing moved forward undocked
     assert_eq!(v.interlock.bursts_blocked_total, 0);
     assert!(!v.interlock.violated);
@@ -117,7 +118,9 @@ fn draw_stalls_at_the_rear_end_stop_and_reports_what_was_drawn() {
     assert_eq!(d.core_state, openpatch_proto::draw::STALLED);
     // 30 U fit behind the plunger, the pod was asked for 50 U
     assert!((d.actual_drawn_mu - 30_000.0).abs() < 1000.0, "actual {}", d.actual_drawn_mu);
-    assert!((d.core_drawn_mu as f64 - d.actual_drawn_mu).abs() < 1000.0, "core {} actual {}", d.core_drawn_mu, d.actual_drawn_mu);
+    // the core books the travel including the 0.30 mm lost motion of the reversal (2.24 U); the take-up corrects it
+    let over = d.core_drawn_mu as f64 - d.actual_drawn_mu;
+    assert!(over > 0.0 && over < 3_000.0, "core {} actual {}", d.core_drawn_mu, d.actual_drawn_mu);
     assert!(!o.verdict.interlock.violated);
 }
 
@@ -249,17 +252,21 @@ fn the_dock_hall_is_a_single_point_of_failure() {
 // ---- sensors ----------------------------------------------------------------------------------------------
 
 #[test]
-fn magnet_loss_during_a_bolus_is_detected_within_10_seconds() {
+fn magnet_loss_during_a_bolus_is_detected_within_the_one_unit_window() {
+    // The design bound is the spec 7 window, not 10 s: the per-revolution check completes once per 661 steps (100 s at the
+    // bolus rate) and the 10 % window check every 1 U (40 s at 1.5 U/min). The earlier "within 10 s" held only because the
+    // phase of the revolution counter after the setup prime happened to be right at the injection (1 s for every seed);
+    // the longer post-draw take-up moves the phase (5 to 33 s over seeds 51 to 56).
     let o = run("magnet_falls_off");
     let d = det(&o.verdict, "Magnet");
-    assert!(d.latency_s.expect("detected") <= 10.0, "latency {:?}", d.latency_s);
+    assert!(d.latency_s.expect("detected") <= 45.0, "latency {:?}", d.latency_s);
     assert!(d.fault_names.iter().any(|n| n == "ENCODER_DEVIATION" || n == "OCCLUSION" || n == "INTERNAL"));
     // after the alarm no more water is booked
     let t = d.detected_at_s.unwrap();
     assert_eq!(row_at(&o, t + 60.0).core_delivered_mu, o.rows.last().unwrap().core_delivered_mu);
     // unverified delivery between the loss and the alarm stays small
     let unverified = needle_mu(&o, t + 1.0) - needle_mu(&o, 660.0);
-    assert!(unverified < 150.0, "{unverified} mU delivered without verification");
+    assert!(unverified < 1_100.0, "{unverified} mU delivered without verification (spec 7: 1 U window)");
 }
 
 #[test]
@@ -299,12 +306,22 @@ fn an_open_motor_phase_trips_the_encoder_check_before_1_5_u_are_lost() {
 fn a_wrong_gear_preset_is_caught_by_the_encoder_within_the_first_bolus() {
     // 18:18 fitted, 16:20 flashed: 25 % OVER-delivery on the needle (0.00494 vs 0.003949 U/step), caught by
     // encoder deviation at the end of the first 1 U window
-    let o = run("gear_preset_mismatch");
-    assert!(has_fault(&o.verdict, "ENCODER_DEVIATION"));
-    let t = o.verdict.faults[0].t_s;
-    assert!(t < 400.0, "alarm after {t} s");
+    // Since the post-draw take-up covers the lost motion of the mechanics (623 steps, nearly one screw turn) the per-revolution
+    // check sees the wrong ratio DURING THE SETUP PRIME, before anything is delivered (refused with Fault = 4); the run itself
+    // never starts. Either way the encoder catches it.
+    let o = run_sc(scenario("gear_preset_mismatch"));
+    assert!(caught_by_encoder(&o), "setup {:?} faults {:?}", o.verdict.setup_note, o.verdict.faults);
+    if let Some(f) = o.verdict.faults.first() {
+        assert!(f.t_s < 400.0, "alarm after {} s", f.t_s);
+    }
     // the 1 U window plus 25 % plus the steps of one more tick: well under 1.6 U left the needle
     assert!(o.verdict.actual_out_mu < 1600.0, "{} mU were delivered with the wrong preset", o.verdict.actual_out_mu);
+}
+
+/// The encoder caught the wrong ratio: a latched ENCODER_DEVIATION in the run, or the setup prime (its take-up is nearly a
+/// full screw turn) refused with Fault before any delivery.
+fn caught_by_encoder(o: &openpatch_sim::runner::RunOutput) -> bool {
+    has_fault(&o.verdict, "ENCODER_DEVIATION") || (!o.verdict.setup_ok && o.verdict.setup_note.contains("Prime refused: 4"))
 }
 
 fn gear_error_run(ratio_error_pct: f64) -> openpatch_sim::runner::RunOutput {
@@ -333,7 +350,7 @@ fn encoder_threshold_1_percent_error_is_tolerated() {
 fn encoder_threshold_6_percent_error_is_caught_by_the_per_revolution_check() {
     // deficit 1 - 1/1.0638 = 6 %: below the 10 % window check, above the 3 % per-turn check
     let o = gear_error_run(6.4);
-    assert!(has_fault(&o.verdict, "ENCODER_DEVIATION"));
+    assert!(caught_by_encoder(&o));
     let commanded = o.verdict.core_delivered_mu as f64;
     assert!(commanded < 4000.0, "caught only after {commanded} mU");
 }
@@ -342,7 +359,7 @@ fn encoder_threshold_6_percent_error_is_caught_by_the_per_revolution_check() {
 fn encoder_threshold_over_10_percent_over_1_u_stops_delivery_with_alarm() {
     // spec 7: encoder deviation > 10 % over 1 U -> delivery stop + alarm (12 % deficit: ratio x 1.136)
     let o = gear_error_run(13.6);
-    assert!(has_fault(&o.verdict, "ENCODER_DEVIATION"));
+    assert!(caught_by_encoder(&o));
     let commanded = o.verdict.core_delivered_mu as f64;
     assert!(commanded < 1800.0, "caught only after {commanded} mU (window is 1 U)");
     // the supervisor really stopped the motor
@@ -525,7 +542,8 @@ fn the_core_never_exceeds_a_limit_in_any_scenario() {
         }
         let o = run_sc(scenario(name));
         assert!(o.verdict.limits.core_within_limits, "{name}: {:?}", o.verdict.limits);
-        assert!(o.verdict.setup_ok, "{name}: {}", o.verdict.setup_note);
+        // the wrong-preset scenario is caught by the encoder during the setup prime (take-up): setup does not complete
+        assert!(o.verdict.setup_ok || name == "gear_preset_mismatch", "{name}: {}", o.verdict.setup_note);
     }
 }
 
