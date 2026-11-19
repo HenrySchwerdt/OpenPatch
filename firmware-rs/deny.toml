@@ -67,6 +67,18 @@ name = "openpatch-core"
 [[licenses.exceptions]]
 allow = ["PolyForm-Noncommercial-1.0.0"]
 name = "openpatch-proto"
+[[licenses.exceptions]]
+allow = ["PolyForm-Noncommercial-1.0.0"]
+name = "openpatch-diag"
+[[licenses.exceptions]]
+allow = ["PolyForm-Noncommercial-1.0.0"]
+name = "openpatch-sim"
+[[licenses.exceptions]]
+allow = ["PolyForm-Noncommercial-1.0.0"]
+name = "openpatch-fuzz"
+[[licenses.exceptions]]
+allow = ["NCSA"]   # LLVM libFuzzer runtime, fuzzing harness only, never linked into firmware
+name = "libfuzzer-sys"
 # differential-tests has no licence field and publish is not false: run with `--exclude differential-tests` (or set publish = false).
 
 [bans]

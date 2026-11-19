@@ -48,15 +48,15 @@ jobs:
       - name: cargo deny (host workspace, fuzz, verify, bench, bootloader, sigtool)
         run: |
           set -e
-          cargo deny --manifest-path firmware-rs/Cargo.toml --exclude differential-tests check --config firmware-rs/deny.toml
+          cargo deny --config firmware-rs/deny.toml --manifest-path firmware-rs/Cargo.toml --exclude differential-tests check
           for m in firmware-rs/fuzz firmware-rs/openpatch-bench firmware-rs/openpatch-bootloader firmware-rs/tools/sigtool security/verify; do
-            echo "== $m"; cargo deny --manifest-path "$m/Cargo.toml" check advisories bans sources --config firmware-rs/deny.toml
+            echo "== $m"; cargo deny --config firmware-rs/deny.toml --manifest-path "$m/Cargo.toml" check advisories bans sources
           done
           # licences: the bench app links the proprietary Nordic MPSL/SDC binaries (FINDING-013), reported "unlicensed"
           for m in firmware-rs/fuzz firmware-rs/openpatch-bootloader firmware-rs/tools/sigtool security/verify; do
-            cargo deny --manifest-path "$m/Cargo.toml" check licenses --config firmware-rs/deny.toml
+            cargo deny --config firmware-rs/deny.toml --manifest-path "$m/Cargo.toml" check licenses
           done
-          cargo deny --manifest-path firmware-rs/openpatch-bench/Cargo.toml check licenses --config firmware-rs/deny.toml || echo "::warning::bench licences: nrf-mpsl-sys / nrf-sdc-sys are proprietary (FINDING-013)"
+          cargo deny --config firmware-rs/deny.toml --manifest-path firmware-rs/openpatch-bench/Cargo.toml check licenses || echo "::warning::bench licences: nrf-mpsl-sys / nrf-sdc-sys are proprietary (FINDING-013)"
       - name: cargo audit (RustSec, all lockfiles; fails on any advisory not triaged in deny.toml)
         run: |
           set -e
