@@ -44,6 +44,16 @@ def build_cap(s: Script, p: dict, L: dict) -> dict:
         s.cyl("t_cap_hb", "X", (0, yc, zn), dk["hub_d"] + dk["hub_clr"], D["x_h0"], D["shroud_end"] + 0.1),
     ]
     s.cut("end_cap", cuts)
-    s.cut("end_cap", [s.cyl("t_cap_vb", "X", (0, yc, zn), cx["valve_d"] + 0.05, G["valve_x"][0], G["valve_x"][1]),
+    s.cut("end_cap", [s.cyl("t_cap_vb", "X", (0, yc, zn), cx["valve_d"] - (p["bench"]["valve"]["bore_interference"] if "bench" in p else -0.05), G["valve_x"][0], G["valve_x"][1]),
                       s.box("t_cap_vs", tuple(G["valve_x"]), (yc - cx["valve_d"] / 2 - 0.02, yc + cx["valve_d"] / 2 + 0.02), (zn, G["z_block"][1] + 0.1))])
     return G
+
+
+def build_valve_plug(s: Script, p: dict, L: dict) -> None:
+    """Printed plug that closes the valve insertion slot to the pod interior (press fit, 0.04 mm interference per side)."""
+    cx, bv = p["coax"], p["bench"]["valve"]
+    G = cap_geometry(p, L)
+    yc, zn = L["dock"]["y_c"], L["dock"]["z_n"]
+    e = bv["plug_interference"]
+    s.box("valve_plug", (G["valve_x"][0] - e, G["valve_x"][1] + e), (yc - cx["valve_d"] / 2 - 0.02 - e, yc + cx["valve_d"] / 2 + 0.02 + e),
+          (zn + cx["valve_d"] / 2 + bv["plug_gap"], G["z_block"][1]))

@@ -119,7 +119,7 @@ def check_bench(p: dict, L: dict, bodies: list) -> tuple[list, list]:
     b, B = p["bench"], L["bench"]
     by = {x["name"]: x for x in bodies}
     for need in ("pod_board", "hall_tmag", "hall_drv0", "hall_drv1", "hall_dock", "ffc_conn", "ffc_cable",
-                 "cannula_adapter", "dock_magnet", "motor", "gearhead", "motor_shaft", "motor_pins", "duckbill_valve", "end_cap", "dock_insert") + (("coupler",) if L["coax"] else ("gear_a", "gear_b")):
+                 "cannula_adapter", "dock_magnet", "motor", "gearhead", "motor_shaft", "motor_pins", "duckbill_valve", "end_cap", "dock_insert", "valve_plug", "plunger_nose", "tongue_shim") + (("coupler",) if L["coax"] else ("gear_a", "gear_b", "thrust_sleeve", "thrust_collar")):
         if need not in by:
             problems.append(f"bench body missing: {need}")
     for gone in ("battery", "qi_coil", "rf_module", "pcb", "buzzer", "ratchet_wheel", "sma_slider"):
@@ -164,6 +164,23 @@ def check_bench(p: dict, L: dict, bodies: list) -> tuple[list, list]:
             problems.append("motor body closer than 0.1 mm to the carriage lane")
         if by["motor_pins"]["bbox"]["min"][2] < p["bench"]["lead"]["pocket_floor"] - 1e-6:
             problems.append("motor pin tabs below the floor pocket")
+    if not L["coax"]:
+        # axial stack of the leadscrew: thrust sleeve on the dry bush face, front collar on the far bush face, magnet behind the collar
+        sl, co_, bd, bf, mg, rd, nu, ca = (by[k]["bbox"] for k in ("thrust_sleeve", "thrust_collar", "bush_dry", "bush_far", "magnet", "leadscrew", "nut", "carriage"))
+        if not (0.0 <= sl["min"][0] - bd["max"][0] <= 0.15):
+            problems.append(f"thrust sleeve not seated on the dry bush face (gap {sl['min'][0] - bd['max'][0]:.2f} mm, want 0..0.15)")
+        if not (0.0 <= co_["min"][0] - bf["max"][0] <= 0.15):
+            problems.append(f"thrust collar not seated on the far bush face (gap {co_['min'][0] - bf['max'][0]:.2f} mm, want 0..0.15)")
+        if mg["min"][0] < co_["max"][0] - 1e-6:
+            problems.append("spindle magnet overlaps the thrust collar: reverse thrust would bear on the magnet")
+        if mg["min"][0] < bf["max"][0] + 0.5:
+            problems.append("spindle magnet closer than 0.5 mm to the far bush face (must not bear on the bush)")
+        if rd["min"][0] > sl["min"][0] or rd["max"][0] < co_["max"][0] - 1e-6:
+            problems.append("leadscrew does not span the thrust sleeve and collar")
+        if nu["min"][0] < ca["min"][0] + 0.2 or nu["max"][0] > by["carriage"]["bbox"]["max"][0] - 0.5:
+            problems.append("nut not captured between the carriage rear and front walls")
+        warns.append(f"axial stack: rod x {rd['min'][0]:.2f}..{rd['max'][0]:.2f} ({rd['max'][0]-rd['min'][0]:.2f} mm), sleeve {sl['min'][0]:.2f}..{sl['max'][0]:.2f} "
+                     f"({sl['max'][0]-sl['min'][0]:.2f} mm), collar {co_['min'][0]:.2f}..{co_['max'][0]:.2f}, magnet from {mg['min'][0]:.2f}")
     if by["duckbill_valve"]["bbox"]["max"][0] > L["x_r1"] + p["dock"]["block_len"]:
         problems.append("duckbill valve pocket outside the end cap")
     ec, rv = by["end_cap"]["bbox"], by["reservoir"]["bbox"]
@@ -264,6 +281,28 @@ def check_insert_variants(outdir: Path, variant: str, p: dict, L: dict) -> tuple
     return problems, warns
 
 
+def check_real_models(outdir: Path, variant: str) -> tuple[list, list]:
+    """Interference of the real component models (OP-xx_real.sc) with the printed parts and with each other."""
+    from op_build import BENCH_EXCLUDE_PAIRS
+    from op_models import REAL_EXCLUDE, REPLACED
+    real = outdir / f"{variant}_real.sc"
+    if not real.exists():
+        return [], [f"{variant}_real.sc missing (real-model check skipped)"]
+    from generate import REAL_NAMES
+    gone = {"gearhead", "motor", "motor_boss", "motor_shaft", "motor_rear_boss", "motor_term", "motor_pins", "gear_a", "gear_b",
+            "leadscrew", "magnet", "duckbill_valve"}
+    ex = [pr for pr in BENCH_EXCLUDE_PAIRS + REAL_EXCLUDE if not (set(pr) & gone)]
+    results = eval_design(real, ex)
+    interf = next(r for r in results if "interferences" in r)
+    problems = []
+    for i in interf["interferences"]:
+        if (i["a"] in REAL_NAMES or i["b"] in REAL_NAMES) and i.get("volume_mm3", 1) > MIN_OVERLAP_MM3:
+            problems.append(f"real-model interference {i['a']} x {i['b']}: {i['volume_mm3']:.4f} mm3")
+    for u in interf.get("unchecked", []):
+        problems.append(f"real-model pair not checked: {u['a']} x {u['b']}: {u['reason'][:80]}")
+    return problems, [f"real component models: {interf.get('checked')} solids interference-checked, {len(REAL_NAMES)} imported bodies"]
+
+
 def check_size(outdir: Path, variant: str, p: dict, ignore_length: bool, with_variants: bool = False) -> dict:
     mode = p.get("mode", "integrated")
     MFG_PARTS, _, EXCLUDE_PAIRS = part_sets(mode)
@@ -306,12 +345,16 @@ def check_size(outdir: Path, variant: str, p: dict, ignore_length: bool, with_va
     pr, wr = check_bench(p, L, bodies) if mode == "bench" else check_extra(p, L, bodies)
     problems += pr
     warns += wr
+    if mode == "bench" and not L["coax"]:
+        pr_, wr_ = check_real_models(outdir, variant)
+        problems += pr_
+        warns += wr_
     if mode == "bench" and with_variants:
         pv, wv = check_insert_variants(outdir, variant, p, L)
         problems += pv
         warns += wv
     exports = ["bottom", "top", "carriage", "reservoir", "plunger_core", "plunger_seal", "gasket", "mould_lower", "mould_upper"]
-    exports += ["cannula_adapter", "dock_insert"] if mode == "bench" else ["reservoir_cnc_lower", "reservoir_cnc_upper"]
+    exports += ["cannula_adapter", "dock_insert", "plunger_nose", "valve_plug", "thrust_sleeve", "thrust_collar"] if mode == "bench" else ["reservoir_cnc_lower", "reservoir_cnc_upper"]
     for part in exports:
         for ext in ("step", "stl"):
             if not (outdir / f"{variant}_{part}.{ext}").exists():

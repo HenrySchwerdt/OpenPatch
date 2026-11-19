@@ -1,0 +1,8 @@
+  ├ Advisory: https://rustsec.org/advisories/RUSTSEC-2026-0110
+  ├ Announcement: https://github.com/rust-embedded/bare-metal/pull/49
+  ├ ID: RUSTSEC-2026-0110
+  ├ The `bare-metal` crate has been deprecated and archived.
+  ├ bare-metal v0.2.5
+3 │ bare-metal 0.2.5 registry+https://github.com/rust-lang/crates.io-index
+advisories FAILED, bans ok, licenses ok, sources ok
+error[unmaintained]: bare-metal is deprecated

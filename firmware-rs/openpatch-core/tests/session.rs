@@ -108,7 +108,7 @@ fn replay_protection_survives_restore_of_last_seq() {
 #[test]
 fn encrypted_command_gets_encrypted_response() {
     let (mut p, _h) = running(50_000, 1000);
-    let mut phone = Session::new(FakeCcm, true, SALT, false);
+    let mut phone = Session::new(FakeCcm, true, SALT, false).with_role(proto::LinkRole::Phone);
     let mut pod = Session::new(FakeCcm, true, SALT, false);
     let frame = command_frame(&mut phone, true, 1, cmd::GET_STATUS, &[]);
     let mut out = [0u8; proto::FRAME_MAX];

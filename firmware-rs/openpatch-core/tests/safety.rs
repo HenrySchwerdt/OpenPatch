@@ -169,8 +169,10 @@ fn sv_hourly_cap_trims_and_latches() {
     let mut sv = mk();
     let mut t = 0u64;
     let mut total = 0;
-    let cap = cal().mu_to_pulses(MAX_HOURLY).0; // 574
-    assert_eq!(cap, 574);
+    // the cap carries the 4 % calibration tolerance margin: 14 423 mU / 26.1 = 552 steps (15 U would be 574)
+    let cap = sv.hourly_cap_steps().0;
+    assert_eq!(cal().mu_to_pulses(MAX_HOURLY).0, 574);
+    assert_eq!(cap, 552);
     for _ in 0..12 {
         // 60 steps/min is under the minute cap (65)
         total += approve(&mut sv, t, 60, 1_000_000);
@@ -188,7 +190,9 @@ fn sv_rolling_window_slides() {
     approve(&mut sv, 0, 60, 1_000_000);
     assert_eq!(sv.hourly_steps(Millis(30 * MIN)), Pulses(60));
     assert_eq!(sv.hourly_steps(Millis(59 * MIN)), Pulses(60));
-    assert_eq!(sv.hourly_steps(Millis(60 * MIN)), Pulses(0));
+    // true rolling window: 10 s buckets, a step stays counted for at least 60 minutes (and at most 60 min 10 s)
+    assert_eq!(sv.hourly_steps(Millis(60 * MIN)), Pulses(60));
+    assert_eq!(sv.hourly_steps(Millis(60 * MIN + 10_000)), Pulses(0));
     assert_eq!(sv.hourly_steps(Millis(500 * MIN)), Pulses(0));
 }
 

@@ -29,7 +29,37 @@ use stepper::Stepper;
 /// TPL5010 DONE. Pulsed by `watchdog_kick` (safety task) only.
 struct Done(Output<'static>);
 
+/// Read `POWER.RESETREAS` and clear it (write 1 to clear). Must run before anything else touches the peripheral.
+pub fn read_and_clear_resetreas() -> u32 {
+    let r = embassy_nrf::pac::POWER.resetreas().read().0;
+    embassy_nrf::pac::POWER.resetreas().write_value(embassy_nrf::pac::power::regs::Resetreas(0xFFFF_FFFF));
+    r
+}
+
+/// RESETREAS (nRF52840: RESETPIN bit 0, DOG bit 1, SREQ bit 2, LOCKUP bit 3, OFF bit 16, ... ; a power-on reset reads 0) as
+/// the cause the core reports (docs/06-diagnostics.md `7-74-002`). The TPL5010 resets the MCU through the RESET pin
+/// (UICR PSELRESET = P0.18), so a RESETPIN reset on the bench board IS the external watchdog; the internal WDT is not used.
+/// A soft reset (SREQ) is the commanded one (DFU, service). A cold power-up and a wake from System OFF are `PowerOn`.
+pub fn classify_resetreas(bits: u32) -> openpatch_core::hal::ResetCause {
+    use openpatch_core::hal::ResetCause;
+    const RESETPIN: u32 = 1 << 0;
+    const DOG: u32 = 1 << 1;
+    const SREQ: u32 = 1 << 2;
+    const LOCKUP: u32 = 1 << 3;
+    if bits & LOCKUP != 0 {
+        ResetCause::Lockup
+    } else if bits & DOG != 0 || bits & RESETPIN != 0 {
+        ResetCause::Watchdog
+    } else if bits & SREQ != 0 {
+        ResetCause::Commanded
+    } else {
+        ResetCause::PowerOn
+    }
+}
+
 pub struct BenchHal {
+    /// Reverse (draw) STCK period in PWM ticks; set from the fill needle gauge by `set_draw_rate_pps`.
+    reverse_period_ticks: u16,
     stepper: Stepper,
     adc: Adc,
     drv: Driver,
@@ -54,6 +84,7 @@ impl BenchHal {
         // DONE is an output that idles low. WAKE is handled by `wake_task`.
         let done = wdt_done.map(|p| Done(Output::new(p, Level::Low, OutputDrive::Standard)));
         Self {
+            reverse_period_ticks: REVERSE_PERIOD_TICKS,
             stepper,
             adc,
             drv,
@@ -131,7 +162,7 @@ impl BenchHal {
             const _: () = assert!(REVERSE_PERIOD_TICKS as u32 >= STEP_PWM_CLK_HZ / REVERSE_RATE_MAX_HZ);
             self.service_watchdog(); // chunks take up to ~0.9 s, keep the TPL5010 happy between them
         }
-        let period = if forward { STEP_PWM_PERIOD_TICKS } else { REVERSE_PERIOD_TICKS };
+        let period = if forward { STEP_PWM_PERIOD_TICKS } else { self.reverse_period_ticks };
         let mut peak_raw: u16 = 0;
         let mut samples: u32 = 0;
         let sense = board::HAS_CURRENT_SENSE;
@@ -209,6 +240,17 @@ impl BenchHal {
 impl Hal for BenchHal {
     fn motor_step(&mut self, steps: Pulses) -> Pulses {
         self.burst(steps, true)
+    }
+
+    /// Draw rate from the core (fill needle gauge): clamped to the hard cap `REVERSE_RATE_MAX_HZ` (period >= 1 ms) and to
+    /// what the 15 bit PWM countertop can express (>= 31 pps at the 1 MHz PWM clock).
+    fn set_draw_rate_pps(&mut self, pps: u32) {
+        let pps = pps.clamp(STEP_PWM_CLK_HZ / 32_767 + 1, REVERSE_RATE_MAX_HZ);
+        self.reverse_period_ticks = (STEP_PWM_CLK_HZ / pps) as u16;
+    }
+
+    fn reset_cause(&mut self) -> openpatch_core::hal::ResetCause {
+        classify_resetreas(RESET_REASON.load(Ordering::Relaxed))
     }
 
     /// Draw mode: DIR reversed, <= 1000 pps (600 Hz here). The core calls this undocked.

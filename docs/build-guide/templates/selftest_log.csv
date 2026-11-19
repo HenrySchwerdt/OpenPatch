@@ -1,0 +1,13 @@
+date,pod_id,firmware_commit,build_features,step_or_code,expected,observed,pass,notes
+,,,,boot log: calibration line,Match,,,
+,,,,boot log: TMAG5273 found at 0x35,"yes, field magnitude logged",,,
+,,,,fault bits at idle,none,,,
+,,,,7-74-001 BOOT (design),"I, once per boot",,,
+,,,,7-74-006 POST_RESULT ctx_b (design),0 (no failed step),,,
+,,,,A01 gates cut one at a time (design),pass,,,
+,,,,A02 dock and direction gates block (design),"pass, undocked",,,
+,,,,A04 direction polarity (design),reverse decreases the angle,,,
+,,,,A05 step ratio (design),6.19 counts per step within +-5 %,,,
+,,,,dock hall assert distance mm,record,,,
+,,,,dock hall release distance mm,record,,,
+,,,,VMOT collapse time after a firmware hang s,about 2 (model 1.9),,,

@@ -48,7 +48,10 @@ impl<H: Hal> Pump<H> {
         if self.hal.angle_read().is_none() {
             return Err(Error::Fault); // never move blind
         }
+        let pps = if self.cfg.strict_draw { draw_pps(self.cfg.fill_needle, self.pcal) } else { DRAW_DEFAULT_PPS };
+        self.hal.set_draw_rate_pps(pps);
         self.draw = crate::pump::DrawJob {
+            pps,
             state: draw_state::DRAWING,
             requested_mu: amount.0,
             remaining_steps: steps.0,
@@ -81,7 +84,8 @@ impl<H: Hal> Pump<H> {
             self.draw_finish(draw_state::ABORTED, 2);
             return;
         };
-        let steps = Pulses(self.draw.remaining_steps.min(DRAW_CHUNK_STEPS));
+        let chunk = if self.cfg.strict_draw { draw_chunk_steps(self.draw.pps) } else { DRAW_CHUNK_STEPS };
+        let steps = Pulses(self.draw.remaining_steps.min(chunk));
         // DIR = reverse is set before the supply is requested (the bench gate needs it).
         self.hal.motor_enable_dir(MotorDir::Reverse);
         let n = self.hal.motor_step_reverse(steps);
@@ -126,8 +130,10 @@ impl<H: Hal> Pump<H> {
         self.sv.rebaseline(a1); // reverse travel is not a forward-delivery deviation
 
         let slipped = steps.0 > 0 && (confirmed.0 as i64) * 100 < (steps.0 as i64) * DRAW_STALL_PCT;
+        // draw mode has its own stall threshold (F5): the reverse stroke at 600 pps legitimately loads the motor more
+        let stall_ma = if self.cfg.strict_draw { self.draw_stall_ma } else { self.sv.occlusion_current_ma() };
         match peak {
-            Some(ma) if ma > self.sv.occlusion_current_ma() => self.draw.high_current += 1,
+            Some(ma) if ma > stall_ma => self.draw.high_current += 1,
             Some(_) => self.draw.high_current = 0,
             None => {}
         }
@@ -155,6 +161,7 @@ impl<H: Hal> Pump<H> {
             if self.cfg.require_prime_after_fill {
                 self.prime_required = true;
             }
+            self.takeup_pending = self.pcal.mu_to_pulses(MilliUnits(self.cfg.takeup_mu)).0; // the drive reversed: backlash must be taken up before the prime
         }
         let (d, req) = (self.draw.drawn_mu as i32, self.draw.requested_mu as i32);
         match state {

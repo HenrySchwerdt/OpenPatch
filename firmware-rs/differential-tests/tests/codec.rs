@@ -30,6 +30,11 @@ fn compare_decode(cs: &mut CSession, rs: &mut Session<NoCrypto>, bytes: &[u8]) -
     if bytes.len() > 1 && differential_tests::rust_only_cmd(bytes[1]) {
         return Ok(false); // Rust-only command, documented
     }
+    if bytes.len() > 2 && bytes[2] & FLAG_RESPONSE != 0 {
+        // documented difference (FINDING-001): the C reference opens RESPONSE-flagged frames as if they were commands
+        // (no replay check); the Rust pod refuses every wrong-direction frame before doing anything else
+        return Ok(false);
+    }
     let c = cs.decode(bytes).map(|f| CmdDesc::from_flat(&f));
     let r = rust_decode(rs, bytes);
     if c != r {

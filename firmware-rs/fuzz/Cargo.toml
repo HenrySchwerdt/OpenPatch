@@ -1,0 +1,84 @@
+# cargo-fuzz targets for every OpenPatch parser (see security/fuzz/README.md). NOT a member of firmware-rs/Cargo.toml
+# (empty [workspace] below), needs nightly: `cargo +nightly fuzz run <target>` from firmware-rs/fuzz.
+# TEST PROJECT, not a medical device.
+[package]
+name = "openpatch-fuzz"
+version = "0.0.0"
+publish = false
+edition = "2021"
+license = "PolyForm-Noncommercial-1.0.0"
+
+[package.metadata]
+cargo-fuzz = true
+
+[workspace]
+
+[features]
+default = ["handshake"]
+# Handshake targets need protocol v1.1 (openpatch-proto feature `key-agreement`, docs/04-protocol.md).
+handshake = ["openpatch-proto/key-agreement", "dep:rand_core"]
+
+[dependencies]
+libfuzzer-sys = "0.4.9"
+arbitrary = { version = "1.4.1", features = ["derive"] }
+openpatch-proto = { path = "../openpatch-proto", features = ["aes-ccm", "std"] }
+openpatch-core = { path = "../openpatch-core" }
+rand_core = { version = "0.6.4", optional = true, default-features = false }
+ed25519-dalek = { version = "2.2.0", default-features = false, features = ["std"] }
+sha2 = "0.10.8"
+
+[[bin]]
+name = "frame_tlv"
+path = "fuzz_targets/frame_tlv.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "session_open"
+path = "fuzz_targets/session_open.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "ccm_open"
+path = "fuzz_targets/ccm_open.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "dfu_manifest"
+path = "fuzz_targets/dfu_manifest.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "storage_records"
+path = "fuzz_targets/storage_records.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "handshake_responder"
+path = "fuzz_targets/handshake_responder.rs"
+test = false
+doc = false
+bench = false
+required-features = ["handshake"]
+
+[[bin]]
+name = "handshake_mutate"
+path = "fuzz_targets/handshake_mutate.rs"
+test = false
+doc = false
+bench = false
+required-features = ["handshake"]
+
+[profile.release]
+debug = 1
+overflow-checks = true      # integer overflow is a finding in this code base, not wrapping
+debug-assertions = true

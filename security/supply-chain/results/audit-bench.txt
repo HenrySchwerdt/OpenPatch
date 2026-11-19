@@ -1,0 +1,58 @@
+    Scanning Cargo.lock for vulnerabilities (215 crate dependencies)
+Crate:     crypto-bigint
+Version:   0.5.5
+Title:     Multiple timing variability issues in operations intended to be constant-time
+ID:        RUSTSEC-2026-0387
+Solution:  Upgrade to >=0.7.6 (patched)
+Crate:     bare-metal
+Version:   0.2.5
+Title:     bare-metal is deprecated
+ID:        RUSTSEC-2026-0110
+Solution:  No fixed upgrade is available!
+Crate:     heapless
+Version:   0.8.0
+Title:     `SortedLinkedList::zeroize` lead to an inconsistent state
+ID:        RUSTSEC-2026-0578
+Solution:  Upgrade to >=0.9.4 (patched)
+Crate:     heapless
+Version:   0.8.0
+Title:     `IndexMap::truncate` could lead to an inconsistent state
+ID:        RUSTSEC-2026-0576
+Solution:  Upgrade to >=0.9.4 (patched)
+Crate:     heapless
+Version:   0.8.0
+Title:     `FindMutView::pop` after mutating the value would lead to a use after free
+ID:        RUSTSEC-2026-0574
+Solution:  Upgrade to >=0.9.4 (patched)
+Crate:     heapless
+Version:   0.8.0
+Title:     `Deque::make_contiguous` could lead to broken invariants
+ID:        RUSTSEC-2026-0581
+Solution:  Upgrade to >=0.9.4 (patched)
+Crate:     heapless
+Version:   0.8.0
+Title:     The treiber stack implementation in heapless had a race condition
+ID:        RUSTSEC-2026-0580
+Solution:  Upgrade to >=0.9.4 (patched)
+Crate:     heapless
+Version:   0.8.0
+Title:     `Spsc::peek` used `Relaxed` ordering where it should have use `Acquire`
+ID:        RUSTSEC-2026-0575
+Solution:  Upgrade to >=0.9.4 (patched)
+Crate:     heapless
+Version:   0.8.0
+Title:     On maps of `u16::MAX` elements, `IndexMap::insert` could lead to a broken invariant
+ID:        RUSTSEC-2026-0582
+Solution:  Upgrade to >=0.9.4 (patched)
+Crate:     heapless
+Version:   0.8.0
+Title:     Panicking `Drop` implementation could lead to UB
+ID:        RUSTSEC-2026-0577
+Solution:  Upgrade to >=0.9.4 (patched)
+Crate:     heapless
+Version:   0.8.0
+Title:     The `Deque` implementation from `TryFrom` was wrong when the `Deque` ended up full
+ID:        RUSTSEC-2026-0579
+Solution:  Upgrade to >=0.9.4 (patched)
+error: 1 vulnerability found!
+warning: 10 allowed warnings found

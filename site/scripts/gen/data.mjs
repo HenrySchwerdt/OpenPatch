@@ -91,7 +91,17 @@ export function parseStatus() {
   const nextSteps = handoffMd.split('\n').filter((l) => /^\d+\.\s/.test(l)).map((l) => l.replace(/^\d+\.\s+/, ''));
   const updated = /Last updated:\s*\*\*([^*]+)\*\*/.exec(src)?.[1] ?? '';
   const architecture = /\*\*Current architecture \(decided\):\*\*\s*([^\n]+)/.exec(handoffMd)?.[1] ?? '';
-  return { handoff: rowsOf(handoffT), perArea: rowsOf(perT), warnings, decisions, nextSteps, updated, architecture };
+  // latest milestone block ("MILESTONE n (...)": bullet list of what is done, then a paragraph "In progress ...")
+  const msHead = /^##\s+(MILESTONE[^\n]*)/m.exec(src)?.[1];
+  let milestone = null;
+  if (msHead) {
+    const body = section(src, /^MILESTONE/);
+    const done = body.split('\n').filter((l) => /^-\s/.test(l)).map((l) => l.replace(/^-\s+/, ''));
+    const inprogress = /^In progress[^:\n]*:\s*(.*)$/m.exec(body)?.[1] ?? '';
+    const mm = /MILESTONE\s+(\d+)\s*\((\d{4}-\d\d-\d\d)/.exec(msHead);
+    milestone = { title: mm ? `Milestone ${mm[1]}, ${mm[2]}` : 'Latest milestone', done, inprogress };
+  }
+  return { handoff: rowsOf(handoffT), perArea: rowsOf(perT), warnings, decisions, nextSteps, updated, architecture, milestone };
 }
 
 // ---------------------------------------------------------------- parts lock (docs/PARTS-LOCK.md)

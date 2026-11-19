@@ -33,4 +33,4 @@ pub use consts::*;
 pub use error::Error;
 pub use frame::{decode_frame, encode_frame, Frame};
 pub use msg::*;
-pub use session::{Ccm, CcmError, NoCrypto, Session};
+pub use session::{Ccm, CcmError, LinkRole, NoCrypto, Session};

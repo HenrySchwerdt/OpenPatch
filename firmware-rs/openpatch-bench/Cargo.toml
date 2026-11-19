@@ -18,8 +18,9 @@ board-bench-e73 = []        # electronics/bench/pin-assignment.md (Ebyte E73-2G4
 board-nrf52840-dk = []      # Nordic nRF52840-DK, no motor driver / interlock (docs/boards.md)
 
 # ---- drive calibration preset (exactly one, no default; stored on first boot, compared at every boot) ----
-drive-nfp-608-26-45-g15-12 = []   # primary: NFP-608-26.45, purchased gear pair 15T -> 12T, ratio 21.16 (id 0x24)
-drive-nfp-608-26-45-g1-1 = []     # NFP-608-26.45 coaxial (id 0x20)
+drive-nfp-608-26-45-g16-20 = []   # PRIMARY (scripts/build.sh default): NFP-608-26.45 + GHW 16T -> 20T step-down pair, total ratio 33.0625, 0.003949 U/step (id 0x25), matches the current CAD
+drive-nfp-608-26-45-g15-12 = []   # option, NOT the current CAD: NFP-608-26.45, gear pair 15T -> 12T, ratio 21.16 (id 0x24)
+drive-nfp-608-26-45-g1-1 = []     # option, NOT the current CAD: NFP-608-26.45 coaxial (id 0x20)
 drive-syringe-rig-1ml = []        # bench rig: NFP direct on a 1 ml U100 syringe plunger (id 0x30, area ASSUMED)
 drive-zwbpd006006-6-43 = []
 drive-zwbpd006006-4-8 = []

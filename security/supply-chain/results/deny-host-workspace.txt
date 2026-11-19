@@ -1,0 +1,3 @@
+     └── (dev) openpatch-core v0.1.0 (*)
+
+advisories ok, bans ok, licenses ok, sources ok

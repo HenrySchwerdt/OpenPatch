@@ -1,0 +1,724 @@
+maude tool: 'maude'
+ checking version: WARNING:
+
+ 'maude --version' returned unsupported version '3.2'
+ Please install one of the following versions of Maude: 2.7.1, 3.0, 3.1, 3.2.1, 3.2.2, 3.3, 3.3.1, 3.4, 3.5
+
+Detailed results from testing 'maude'
+ command: maude --version
+ stdin:   
+ stdout:  3.2
+
+ stderr:  
+ checking installation: OK.
+[Theory OpenPatch_Session] Theory loaded
+[Theory OpenPatch_Session] Theory translated
+[Theory OpenPatch_Session] Derivation checks started
+[Theory OpenPatch_Session] Derivation checks ended
+[Theory OpenPatch_Session] Theory closed
+[Saturating Sources] Step 1 (Max 5)
+[Saturating Sources] Done
+theory OpenPatch_Session begin
+
+// Function signature and definition of the equational theory E
+
+builtins: diffie-hellman
+functions: fst/1, h/1, hmac/2, pair/2, snd/1
+equations: fst(<x.1, x.2>) = x.1, snd(<x.1, x.2>) = x.2
+
+
+
+
+
+
+
+
+
+restriction Equality:
+  "∀ x y #i. (Eq( x, y ) @ #i) ⇒ (x = y)"
+  // safety formula
+
+rule (modulo E) Setup_PS:
+   [ Fr( ~ps ) ] --[ Setup( ~ps ) ]-> [ !PS( ~ps ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) Reveal_PS:
+   [ !PS( ps ) ] --[ RevealPS( ps ) ]-> [ Out( ps ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) Reveal_Eph_App:
+   [ AppSt( ps, ~xa, ~nA ) ] --[ RevealEph( ~xa ) ]-> [ Out( ~xa ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) Reveal_Eph_Pod:
+   [ PodSt( ps, ~xb, th, kc, kp, ck ) ]
+  --[ RevealEph( ~xb ) ]->
+   [ Out( ~xb ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) App_Init:
+   [ !PS( ps ), Fr( ~xa ), Fr( ~nA ) ]
+  --[ AppStart( ps ) ]->
+   [ Out( <'g'^~xa, ~nA, h(<'psid', ps>)> ), AppSt( ps, ~xa, ~nA ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) Pod_Init:
+   [ !PS( ps ), In( <pubA, nA, h(<'psid', ps>)> ), Fr( ~xb ), Fr( ~nB ) ]
+  --[
+  PodInit( ps, h(<'th', 'sess', h(<'psid', ps>), pubA, 'g'^~xb, nA, ~nB>),
+           h(<'c2p', h(<'prk', ps, pubA^~xb>), 
+              h(<'th', 'sess', h(<'psid', ps>), pubA, 'g'^~xb, nA, ~nB>)>),
+           h(<'p2c', h(<'prk', ps, pubA^~xb>), 
+              h(<'th', 'sess', h(<'psid', ps>), pubA, 'g'^~xb, nA, ~nB>)>)
+  ),
+  PodEph( h(<'th', 'sess', h(<'psid', ps>), pubA, 'g'^~xb, nA, ~nB>), ~xb )
+  ]->
+   [
+   Out( <'g'^~xb, ~nB, 
+         hmac(h(<'ck', h(<'prk', ps, pubA^~xb>), 
+                 h(<'th', 'sess', h(<'psid', ps>), pubA, 'g'^~xb, nA, ~nB>)>),
+              <'pod', h(<'th', 'sess', h(<'psid', ps>), pubA, 'g'^~xb, nA, ~nB>)>)
+        >
+   ),
+   PodSt( ps, ~xb,
+          h(<'th', 'sess', h(<'psid', ps>), pubA, 'g'^~xb, nA, ~nB>),
+          h(<'c2p', h(<'prk', ps, pubA^~xb>), 
+             h(<'th', 'sess', h(<'psid', ps>), pubA, 'g'^~xb, nA, ~nB>)>),
+          h(<'p2c', h(<'prk', ps, pubA^~xb>), 
+             h(<'th', 'sess', h(<'psid', ps>), pubA, 'g'^~xb, nA, ~nB>)>),
+          h(<'ck', h(<'prk', ps, pubA^~xb>), 
+             h(<'th', 'sess', h(<'psid', ps>), pubA, 'g'^~xb, nA, ~nB>)>)
+   )
+   ]
+
+  /*
+  rule (modulo AC) Pod_Init:
+     [ !PS( ps ), In( <pubA, nA, h(<'psid', ps>)> ), Fr( ~xb ), Fr( ~nB ) ]
+    --[
+    PodInit( ps, h(<'th', 'sess', h(<'psid', ps>), pubA, 'g'^~xb, nA, ~nB>),
+             h(<'c2p', h(<'prk', ps, z>), 
+                h(<'th', 'sess', h(<'psid', ps>), pubA, 'g'^~xb, nA, ~nB>)>),
+             h(<'p2c', h(<'prk', ps, z>), 
+                h(<'th', 'sess', h(<'psid', ps>), pubA, 'g'^~xb, nA, ~nB>)>)
+    ),
+    PodEph( h(<'th', 'sess', h(<'psid', ps>), pubA, 'g'^~xb, nA, ~nB>), ~xb )
+    ]->
+     [
+     Out( <'g'^~xb, ~nB, 
+           hmac(h(<'ck', h(<'prk', ps, z>), 
+                   h(<'th', 'sess', h(<'psid', ps>), pubA, 'g'^~xb, nA, ~nB>)>),
+                <'pod', h(<'th', 'sess', h(<'psid', ps>), pubA, 'g'^~xb, nA, ~nB>)>)
+          >
+     ),
+     PodSt( ps, ~xb,
+            h(<'th', 'sess', h(<'psid', ps>), pubA, 'g'^~xb, nA, ~nB>),
+            h(<'c2p', h(<'prk', ps, z>), 
+               h(<'th', 'sess', h(<'psid', ps>), pubA, 'g'^~xb, nA, ~nB>)>),
+            h(<'p2c', h(<'prk', ps, z>), 
+               h(<'th', 'sess', h(<'psid', ps>), pubA, 'g'^~xb, nA, ~nB>)>),
+            h(<'ck', h(<'prk', ps, z>), 
+               h(<'th', 'sess', h(<'psid', ps>), pubA, 'g'^~xb, nA, ~nB>)>)
+     )
+     ]
+    variants (modulo AC)
+    1. ~xb   = ~xb.15
+       pubA  = pubA.18
+       z     = pubA.18^~xb.15
+    
+    2. ~xb   = ~xb.20
+       pubA  = z.28^inv(~xb.20)
+       z     = z.28
+    
+    3. ~xb   = ~xb.184
+       pubA  = x.364^x.365
+       z     = x.364^(~xb.184*x.365)
+    
+    4. ~xb   = ~xb.187
+       pubA  = x.370^inv((~xb.187*x.371))
+       z     = x.370^inv(x.371)
+    
+    5. ~xb   = ~xb.187
+       pubA  = x.370^(x.371*inv(~xb.187))
+       z     = x.370^x.371
+    
+    6. ~xb   = ~xb.188
+       pubA  = x.371^(x.372*inv((~xb.188*x.373)))
+       z     = x.371^(x.372*inv(x.373))
+    
+    7. pubA  = DH_neutral
+       z     = DH_neutral
+  */
+
+rule (modulo E) App_Finish:
+   [ AppSt( ps, ~xa, ~nA ), In( <pubB, nB, conf> ) ]
+  --[
+  Eq( conf,
+      hmac(h(<'ck', h(<'prk', ps, pubB^~xa>), 
+              h(<'th', 'sess', h(<'psid', ps>), 'g'^~xa, pubB, ~nA, nB>)>),
+           <'pod', h(<'th', 'sess', h(<'psid', ps>), 'g'^~xa, pubB, ~nA, nB>)>)
+  ),
+  AppUp( ps, h(<'th', 'sess', h(<'psid', ps>), 'g'^~xa, pubB, ~nA, nB>),
+         h(<'c2p', h(<'prk', ps, pubB^~xa>), 
+            h(<'th', 'sess', h(<'psid', ps>), 'g'^~xa, pubB, ~nA, nB>)>),
+         h(<'p2c', h(<'prk', ps, pubB^~xa>), 
+            h(<'th', 'sess', h(<'psid', ps>), 'g'^~xa, pubB, ~nA, nB>)>)
+  ),
+  AppEph( h(<'th', 'sess', h(<'psid', ps>), 'g'^~xa, pubB, ~nA, nB>), ~xa )
+  ]->
+   [
+   Out( hmac(h(<'ck', h(<'prk', ps, pubB^~xa>), 
+                h(<'th', 'sess', h(<'psid', ps>), 'g'^~xa, pubB, ~nA, nB>)>),
+             <'app', h(<'th', 'sess', h(<'psid', ps>), 'g'^~xa, pubB, ~nA, nB>)>)
+   )
+   ]
+
+  /*
+  rule (modulo AC) App_Finish:
+     [ AppSt( ps, ~xa, ~nA ), In( <pubB, nB, conf> ) ]
+    --[
+    Eq( conf,
+        hmac(h(<'ck', h(<'prk', ps, z>), 
+                h(<'th', 'sess', h(<'psid', ps>), 'g'^~xa, pubB, ~nA, nB>)>),
+             <'pod', h(<'th', 'sess', h(<'psid', ps>), 'g'^~xa, pubB, ~nA, nB>)>)
+    ),
+    AppUp( ps, h(<'th', 'sess', h(<'psid', ps>), 'g'^~xa, pubB, ~nA, nB>),
+           h(<'c2p', h(<'prk', ps, z>), 
+              h(<'th', 'sess', h(<'psid', ps>), 'g'^~xa, pubB, ~nA, nB>)>),
+           h(<'p2c', h(<'prk', ps, z>), 
+              h(<'th', 'sess', h(<'psid', ps>), 'g'^~xa, pubB, ~nA, nB>)>)
+    ),
+    AppEph( h(<'th', 'sess', h(<'psid', ps>), 'g'^~xa, pubB, ~nA, nB>), ~xa )
+    ]->
+     [
+     Out( hmac(h(<'ck', h(<'prk', ps, z>), 
+                  h(<'th', 'sess', h(<'psid', ps>), 'g'^~xa, pubB, ~nA, nB>)>),
+               <'app', h(<'th', 'sess', h(<'psid', ps>), 'g'^~xa, pubB, ~nA, nB>)>)
+     )
+     ]
+    variants (modulo AC)
+    1. ~xa   = ~xa.15
+       pubB  = pubB.19
+       z     = pubB.19^~xa.15
+    
+    2. ~xa   = ~xa.18
+       pubB  = z.25^inv(~xa.18)
+       z     = z.25
+    
+    3. ~xa   = ~xa.222
+       pubB  = x.440^x.441
+       z     = x.440^(~xa.222*x.441)
+    
+    4. ~xa   = ~xa.226
+       pubB  = x.448^inv((~xa.226*x.449))
+       z     = x.448^inv(x.449)
+    
+    5. ~xa   = ~xa.226
+       pubB  = x.448^(x.449*inv(~xa.226))
+       z     = x.448^x.449
+    
+    6. ~xa   = ~xa.227
+       pubB  = x.449^(x.450*inv((~xa.227*x.451)))
+       z     = x.449^(x.450*inv(x.451))
+    
+    7. pubB  = DH_neutral
+       z     = DH_neutral
+  */
+
+rule (modulo E) Pod_Finish:
+   [ In( cApp ), PodSt( ps, ~xb, th, kc, kp, ck ) ]
+  --[ Eq( cApp, hmac(ck, <'app', th>) ), PodUp( ps, th, kc, kp ) ]->
+   [ Out( 'ok' ) ]
+
+  /* has exactly the trivial AC variant */
+
+lemma executable_session:
+  exists-trace
+  "∃ ps th kc kp #i #j.
+    (AppUp( ps, th, kc, kp ) @ #i) ∧ (PodUp( ps, th, kc, kp ) @ #j)"
+/*
+guarded formula characterizing all satisfying traces:
+"∃ ps th kc kp #i #j.
+  (AppUp( ps, th, kc, kp ) @ #i) ∧ (PodUp( ps, th, kc, kp ) @ #j)"
+*/
+simplify
+solve( AppSt( ps, ~xa, ~nA ) ▶₀ #i )
+  case App_Init
+  solve( PodSt( ~ps, ~xb,
+                h(<'th', 'sess', h(<'psid', ~ps>), 'g'^~xa, pubB, ~nA, nB>),
+                h(<'c2p', h(<'prk', ~ps, z>), 
+                   h(<'th', 'sess', h(<'psid', ~ps>), 'g'^~xa, pubB, ~nA, nB>)>),
+                h(<'p2c', h(<'prk', ~ps, z>), 
+                   h(<'th', 'sess', h(<'psid', ~ps>), 'g'^~xa, pubB, ~nA, nB>)>),
+                ck
+         ) ▶₁ #j )
+    case Pod_Init
+    solve( !KU( ~nA ) @ #vk.9 )
+      case App_Init
+      solve( !KU( ~nB ) @ #vk.4 )
+        case Pod_Init
+        solve( !KU( hmac(h(<'ck', h(<'prk', ~ps, 'g'^(~xa*~xb)>), 
+                            h(<'th', 'sess', h(<'psid', ~ps>), 'g'^~xa, 'g'^~xb, ~nA, ~nB>)>),
+                         <'pod', h(<'th', 'sess', h(<'psid', ~ps>), 'g'^~xa, 'g'^~xb, ~nA, ~nB>)>)
+               ) @ #vk.7 )
+          case Pod_Init
+          solve( !KU( hmac(h(<'ck', h(<'prk', ~ps, 'g'^(~xa*~xb)>), 
+                              h(<'th', 'sess', h(<'psid', ~ps>), 'g'^~xa, 'g'^~xb, ~nA, ~nB>)>),
+                           <'app', h(<'th', 'sess', h(<'psid', ~ps>), 'g'^~xa, 'g'^~xb, ~nA, ~nB>)>)
+                 ) @ #vk.8 )
+            case App_Finish
+            solve( !KU( 'g'^~xa ) @ #vk.9 )
+              case App_Init
+              solve( !KU( h(<'psid', ~ps>) ) @ #vk.10 )
+                case App_Init
+                solve( !KU( 'g'^~xb ) @ #vk.10 )
+                  case Pod_Init
+                  SOLVED // trace found
+                qed
+              qed
+            qed
+          qed
+        qed
+      qed
+    qed
+  qed
+qed
+
+lemma session_key_secrecy_ps_only:
+  all-traces
+  "∀ ps th kc kp #i.
+    (AppUp( ps, th, kc, kp ) @ #i) ⇒
+    (((¬(∃ #k. K( kc ) @ #k)) ∧ (¬(∃ #k. K( kp ) @ #k))) ∨
+     (∃ #r. RevealPS( ps ) @ #r))"
+/*
+guarded formula characterizing all counter-examples:
+"∃ ps th kc kp #i.
+  (AppUp( ps, th, kc, kp ) @ #i)
+ ∧
+  (((∃ #k. (K( kc ) @ #k)) ∨ (∃ #k. (K( kp ) @ #k)))) ∧
+  (∀ #r. (RevealPS( ps ) @ #r) ⇒ ⊥)"
+*/
+simplify
+solve( (∃ #k.
+         (K( h(<'c2p', h(<'prk', ps, z>), 
+                h(<'th', 'sess', h(<'psid', ps>), 'g'^~xa, pubB, ~nA, nB>)>)
+          ) @ #k))  ∥
+       (∃ #k.
+         (K( h(<'p2c', h(<'prk', ps, z>), 
+                h(<'th', 'sess', h(<'psid', ps>), 'g'^~xa, pubB, ~nA, nB>)>)
+          ) @ #k)) )
+  case case_1
+  solve( AppSt( ps, ~xa, ~nA ) ▶₀ #i )
+    case App_Init
+    solve( !KU( hmac(h(<'ck', h(<'prk', ~ps, z>), 
+                        h(<'th', 'sess', h(<'psid', ~ps>), 'g'^~xa, pubB, ~nA, nB>)>),
+                     <'pod', h(<'th', 'sess', h(<'psid', ~ps>), 'g'^~xa, pubB, ~nA, nB>)>)
+           ) @ #vk.4 )
+      case Pod_Init
+      solve( !KU( h(<'c2p', h(<'prk', ~ps, 'g'^(~xa*~xb)>), 
+                     h(<'th', 'sess', h(<'psid', ~ps>), 'g'^~xa, 'g'^~xb, ~nA, ~nB>)>)
+             ) @ #vk.5 )
+        case c_h
+        solve( !KU( h(<'prk', ~ps, 'g'^(~xa*~xb)>) ) @ #vk.14 )
+          case c_h
+          solve( !KU( ~ps ) @ #vk.19 )
+            case Reveal_PS
+            by contradiction /* from formulas */
+          qed
+        qed
+      qed
+    next
+      case c_hmac
+      solve( !KU( h(<'c2p', h(<'prk', ~ps, z>), 
+                     h(<'th', 'sess', h(<'psid', ~ps>), 'g'^~xa, pubB, ~nA, nB>)>)
+             ) @ #vk.5 )
+        case c_h
+        solve( !KU( h(<'ck', h(<'prk', ~ps, z>), 
+                       h(<'th', 'sess', h(<'psid', ~ps>), 'g'^~xa, pubB, ~nA, nB>)>)
+               ) @ #vk.6 )
+          case c_h
+          solve( !KU( h(<'th', 'sess', h(<'psid', ~ps>), 'g'^~xa, pubB, ~nA, nB>)
+                 ) @ #vk.9 )
+            case c_h
+            solve( !KU( h(<'prk', ~ps, z>) ) @ #vk.16 )
+              case c_h
+              solve( !KU( ~ps ) @ #vk.30 )
+                case Reveal_PS
+                by contradiction /* from formulas */
+              qed
+            qed
+          qed
+        qed
+      qed
+    qed
+  qed
+next
+  case case_2
+  solve( AppSt( ps, ~xa, ~nA ) ▶₀ #i )
+    case App_Init
+    solve( !KU( hmac(h(<'ck', h(<'prk', ~ps, z>), 
+                        h(<'th', 'sess', h(<'psid', ~ps>), 'g'^~xa, pubB, ~nA, nB>)>),
+                     <'pod', h(<'th', 'sess', h(<'psid', ~ps>), 'g'^~xa, pubB, ~nA, nB>)>)
+           ) @ #vk.4 )
+      case Pod_Init
+      solve( !KU( h(<'p2c', h(<'prk', ~ps, 'g'^(~xa*~xb)>), 
+                     h(<'th', 'sess', h(<'psid', ~ps>), 'g'^~xa, 'g'^~xb, ~nA, ~nB>)>)
+             ) @ #vk.5 )
+        case c_h
+        solve( !KU( h(<'prk', ~ps, 'g'^(~xa*~xb)>) ) @ #vk.14 )
+          case c_h
+          solve( !KU( ~ps ) @ #vk.19 )
+            case Reveal_PS
+            by contradiction /* from formulas */
+          qed
+        qed
+      qed
+    next
+      case c_hmac
+      solve( !KU( h(<'p2c', h(<'prk', ~ps, z>), 
+                     h(<'th', 'sess', h(<'psid', ~ps>), 'g'^~xa, pubB, ~nA, nB>)>)
+             ) @ #vk.5 )
+        case c_h
+        solve( !KU( h(<'ck', h(<'prk', ~ps, z>), 
+                       h(<'th', 'sess', h(<'psid', ~ps>), 'g'^~xa, pubB, ~nA, nB>)>)
+               ) @ #vk.6 )
+          case c_h
+          solve( !KU( h(<'th', 'sess', h(<'psid', ~ps>), 'g'^~xa, pubB, ~nA, nB>)
+                 ) @ #vk.9 )
+            case c_h
+            solve( !KU( h(<'prk', ~ps, z>) ) @ #vk.16 )
+              case c_h
+              solve( !KU( ~ps ) @ #vk.30 )
+                case Reveal_PS
+                by contradiction /* from formulas */
+              qed
+            qed
+          qed
+        qed
+      qed
+    qed
+  qed
+qed
+
+lemma session_forward_secrecy:
+  all-traces
+  "∀ ps th kc kp #i.
+    (AppUp( ps, th, kc, kp ) @ #i) ⇒
+    (((((¬(∃ #k. K( kc ) @ #k)) ∧ (¬(∃ #k. K( kp ) @ #k))) ∨
+       (∃ #r. (RevealPS( ps ) @ #r) ∧ (#r < #i))) ∨
+      (∃ x #r #e. (RevealEph( x ) @ #r) ∧ (PodEph( th, x ) @ #e))) ∨
+     (∃ x #r #e. (RevealEph( x ) @ #r) ∧ (AppEph( th, x ) @ #e)))"
+/*
+guarded formula characterizing all counter-examples:
+"∃ ps th kc kp #i.
+  (AppUp( ps, th, kc, kp ) @ #i)
+ ∧
+  (((∃ #k. (K( kc ) @ #k)) ∨ (∃ #k. (K( kp ) @ #k)))) ∧
+  (∀ #r. (RevealPS( ps ) @ #r) ⇒ ¬(#r < #i)) ∧
+  (∀ x #r #e. (RevealEph( x ) @ #r) ∧ (PodEph( th, x ) @ #e) ⇒ ⊥) ∧
+  (∀ x #r #e. (RevealEph( x ) @ #r) ∧ (AppEph( th, x ) @ #e) ⇒ ⊥)"
+*/
+simplify
+solve( (∃ #k.
+         (K( h(<'c2p', h(<'prk', ps, z>), 
+                h(<'th', 'sess', h(<'psid', ps>), 'g'^~xa, pubB, ~nA, nB>)>)
+          ) @ #k))  ∥
+       (∃ #k.
+         (K( h(<'p2c', h(<'prk', ps, z>), 
+                h(<'th', 'sess', h(<'psid', ps>), 'g'^~xa, pubB, ~nA, nB>)>)
+          ) @ #k)) )
+  case case_1
+  solve( AppSt( ps, ~xa, ~nA ) ▶₀ #i )
+    case App_Init
+    solve( !KU( hmac(h(<'ck', h(<'prk', ~ps, z>), 
+                        h(<'th', 'sess', h(<'psid', ~ps>), 'g'^~xa, pubB, ~nA, nB>)>),
+                     <'pod', h(<'th', 'sess', h(<'psid', ~ps>), 'g'^~xa, pubB, ~nA, nB>)>)
+           ) @ #vk.4 )
+      case Pod_Init
+      solve( !KU( h(<'c2p', h(<'prk', ~ps, 'g'^(~xa*~xb)>), 
+                     h(<'th', 'sess', h(<'psid', ~ps>), 'g'^~xa, 'g'^~xb, ~nA, ~nB>)>)
+             ) @ #vk.5 )
+        case c_h
+        solve( !KU( h(<'prk', ~ps, 'g'^(~xa*~xb)>) ) @ #vk.14 )
+          case c_h
+          solve( !KU( ~ps ) @ #vk.19 )
+            case Reveal_PS
+            solve( !KU( 'g'^(~xa*~xb) ) @ #vk.20 )
+              case App_Init
+              solve( !KU( ~xb ) @ #vk.21 )
+                case Reveal_Eph_Pod
+                by contradiction /* from formulas */
+              qed
+            next
+              case Pod_Init
+              by solve( !KU( ~xa ) @ #vk.21 )
+            next
+              case c_exp
+              by solve( !KU( ~xa ) @ #vk.23 )
+            qed
+          qed
+        qed
+      qed
+    next
+      case c_hmac
+      solve( !KU( h(<'c2p', h(<'prk', ~ps, z>), 
+                     h(<'th', 'sess', h(<'psid', ~ps>), 'g'^~xa, pubB, ~nA, nB>)>)
+             ) @ #vk.5 )
+        case c_h
+        solve( !KU( h(<'ck', h(<'prk', ~ps, z>), 
+                       h(<'th', 'sess', h(<'psid', ~ps>), 'g'^~xa, pubB, ~nA, nB>)>)
+               ) @ #vk.6 )
+          case c_h
+          solve( !KU( h(<'th', 'sess', h(<'psid', ~ps>), 'g'^~xa, pubB, ~nA, nB>)
+                 ) @ #vk.9 )
+            case c_h
+            solve( !KU( h(<'prk', ~ps, z>) ) @ #vk.16 )
+              case c_h
+              solve( !KU( ~ps ) @ #vk.30 )
+                case Reveal_PS
+                by contradiction /* from formulas */
+              qed
+            qed
+          qed
+        qed
+      qed
+    qed
+  qed
+next
+  case case_2
+  solve( AppSt( ps, ~xa, ~nA ) ▶₀ #i )
+    case App_Init
+    solve( !KU( hmac(h(<'ck', h(<'prk', ~ps, z>), 
+                        h(<'th', 'sess', h(<'psid', ~ps>), 'g'^~xa, pubB, ~nA, nB>)>),
+                     <'pod', h(<'th', 'sess', h(<'psid', ~ps>), 'g'^~xa, pubB, ~nA, nB>)>)
+           ) @ #vk.4 )
+      case Pod_Init
+      solve( !KU( h(<'p2c', h(<'prk', ~ps, 'g'^(~xa*~xb)>), 
+                     h(<'th', 'sess', h(<'psid', ~ps>), 'g'^~xa, 'g'^~xb, ~nA, ~nB>)>)
+             ) @ #vk.5 )
+        case c_h
+        solve( !KU( h(<'prk', ~ps, 'g'^(~xa*~xb)>) ) @ #vk.14 )
+          case c_h
+          solve( !KU( ~ps ) @ #vk.19 )
+            case Reveal_PS
+            solve( !KU( 'g'^(~xa*~xb) ) @ #vk.20 )
+              case App_Init
+              solve( !KU( ~xb ) @ #vk.21 )
+                case Reveal_Eph_Pod
+                by contradiction /* from formulas */
+              qed
+            next
+              case Pod_Init
+              by solve( !KU( ~xa ) @ #vk.21 )
+            next
+              case c_exp
+              by solve( !KU( ~xa ) @ #vk.23 )
+            qed
+          qed
+        qed
+      qed
+    next
+      case c_hmac
+      solve( !KU( h(<'p2c', h(<'prk', ~ps, z>), 
+                     h(<'th', 'sess', h(<'psid', ~ps>), 'g'^~xa, pubB, ~nA, nB>)>)
+             ) @ #vk.5 )
+        case c_h
+        solve( !KU( h(<'ck', h(<'prk', ~ps, z>), 
+                       h(<'th', 'sess', h(<'psid', ~ps>), 'g'^~xa, pubB, ~nA, nB>)>)
+               ) @ #vk.6 )
+          case c_h
+          solve( !KU( h(<'th', 'sess', h(<'psid', ~ps>), 'g'^~xa, pubB, ~nA, nB>)
+                 ) @ #vk.9 )
+            case c_h
+            solve( !KU( h(<'prk', ~ps, z>) ) @ #vk.16 )
+              case c_h
+              solve( !KU( ~ps ) @ #vk.30 )
+                case Reveal_PS
+                by contradiction /* from formulas */
+              qed
+            qed
+          qed
+        qed
+      qed
+    qed
+  qed
+qed
+
+lemma session_agreement_pod_injective:
+  all-traces
+  "∀ ps th kc kp #i.
+    (PodUp( ps, th, kc, kp ) @ #i) ⇒
+    (((∃ #j. (AppUp( ps, th, kc, kp ) @ #j) ∧ (#j < #i)) ∧
+      (¬(∃ #i2. (PodUp( ps, th, kc, kp ) @ #i2) ∧ (¬(#i2 = #i))))) ∨
+     (∃ #r. RevealPS( ps ) @ #r))"
+/*
+guarded formula characterizing all counter-examples:
+"∃ ps th kc kp #i.
+  (PodUp( ps, th, kc, kp ) @ #i)
+ ∧
+  (((∀ #j. (AppUp( ps, th, kc, kp ) @ #j) ⇒ ¬(#j < #i)) ∨
+    (∃ #i2. (PodUp( ps, th, kc, kp ) @ #i2) ∧ ¬(#i2 = #i)))) ∧
+  (∀ #r. (RevealPS( ps ) @ #r) ⇒ ⊥)"
+*/
+simplify
+solve( (∀ #j. (AppUp( ps, th, kc, kp ) @ #j) ⇒ ¬(#j < #i))  ∥
+       (∃ #i2. (PodUp( ps, th, kc, kp ) @ #i2) ∧ ¬(#i2 = #i)) )
+  case case_1
+  solve( PodSt( ps, ~xb, th, kc, kp, ck ) ▶₁ #i )
+    case Pod_Init
+    solve( !KU( hmac(h(<'ck', h(<'prk', ~ps, z>), 
+                        h(<'th', 'sess', h(<'psid', ~ps>), pubA, 'g'^~xb, nA, ~nB>)>),
+                     <'app', h(<'th', 'sess', h(<'psid', ~ps>), pubA, 'g'^~xb, nA, ~nB>)>)
+           ) @ #vk )
+      case App_Finish
+      by contradiction /* from formulas */
+    next
+      case c_hmac
+      solve( !KU( h(<'psid', ~ps>) ) @ #vk.5 )
+        case App_Init
+        solve( !KU( h(<'ck', h(<'prk', ~ps, z>), 
+                       h(<'th', 'sess', h(<'psid', ~ps>), pubA, 'g'^~xb, nA, ~nB>)>)
+               ) @ #vk.6 )
+          case c_h
+          solve( !KU( h(<'th', 'sess', h(<'psid', ~ps>), pubA, 'g'^~xb, nA, ~nB>)
+                 ) @ #vk.9 )
+            case c_h
+            solve( !KU( h(<'prk', ~ps, z>) ) @ #vk.16 )
+              case c_h
+              solve( !KU( ~ps ) @ #vk.27 )
+                case Reveal_PS
+                by contradiction /* from formulas */
+              qed
+            qed
+          qed
+        qed
+      next
+        case c_h
+        solve( !KU( ~ps ) @ #vk.12 )
+          case Reveal_PS
+          by contradiction /* from formulas */
+        qed
+      qed
+    qed
+  qed
+next
+  case case_2
+  solve( (#i2 < #i)  ∥ (#i < #i2) )
+    case case_1
+    solve( PodSt( ps, ~xb, th, kc, kp, ck ) ▶₁ #i )
+      case Pod_Init
+      solve( PodSt( ~ps, ~xb.1,
+                    h(<'th', 'sess', h(<'psid', ~ps>), pubA, 'g'^~xb, nA, ~nB>),
+                    h(<'c2p', h(<'prk', ~ps, z>), 
+                       h(<'th', 'sess', h(<'psid', ~ps>), pubA, 'g'^~xb, nA, ~nB>)>),
+                    h(<'p2c', h(<'prk', ~ps, z>), 
+                       h(<'th', 'sess', h(<'psid', ~ps>), pubA, 'g'^~xb, nA, ~nB>)>),
+                    ck
+             ) ▶₁ #i2 )
+        case Pod_Init
+        by contradiction /* cyclic */
+      qed
+    qed
+  next
+    case case_2
+    solve( PodSt( ps, ~xb, th, kc, kp, ck ) ▶₁ #i )
+      case Pod_Init
+      solve( PodSt( ~ps, ~xb.1,
+                    h(<'th', 'sess', h(<'psid', ~ps>), pubA, 'g'^~xb, nA, ~nB>),
+                    h(<'c2p', h(<'prk', ~ps, z>), 
+                       h(<'th', 'sess', h(<'psid', ~ps>), pubA, 'g'^~xb, nA, ~nB>)>),
+                    h(<'p2c', h(<'prk', ~ps, z>), 
+                       h(<'th', 'sess', h(<'psid', ~ps>), pubA, 'g'^~xb, nA, ~nB>)>),
+                    ck
+             ) ▶₁ #i2 )
+        case Pod_Init
+        by contradiction /* cyclic */
+      qed
+    qed
+  qed
+qed
+
+lemma session_agreement_app:
+  all-traces
+  "∀ ps th kc kp #i.
+    (AppUp( ps, th, kc, kp ) @ #i) ⇒
+    ((∃ #j. (PodInit( ps, th, kc, kp ) @ #j) ∧ (#j < #i)) ∨
+     (∃ #r. RevealPS( ps ) @ #r))"
+/*
+guarded formula characterizing all counter-examples:
+"∃ ps th kc kp #i.
+  (AppUp( ps, th, kc, kp ) @ #i)
+ ∧
+  (∀ #j. (PodInit( ps, th, kc, kp ) @ #j) ⇒ ¬(#j < #i)) ∧
+  (∀ #r. (RevealPS( ps ) @ #r) ⇒ ⊥)"
+*/
+simplify
+solve( AppSt( ps, ~xa, ~nA ) ▶₀ #i )
+  case App_Init
+  solve( !KU( hmac(h(<'ck', h(<'prk', ~ps, z>), 
+                      h(<'th', 'sess', h(<'psid', ~ps>), 'g'^~xa, pubB, ~nA, nB>)>),
+                   <'pod', h(<'th', 'sess', h(<'psid', ~ps>), 'g'^~xa, pubB, ~nA, nB>)>)
+         ) @ #vk.4 )
+    case Pod_Init
+    by contradiction /* from formulas */
+  next
+    case c_hmac
+    solve( !KU( h(<'ck', h(<'prk', ~ps, z>), 
+                   h(<'th', 'sess', h(<'psid', ~ps>), 'g'^~xa, pubB, ~nA, nB>)>)
+           ) @ #vk.5 )
+      case c_h
+      solve( !KU( h(<'th', 'sess', h(<'psid', ~ps>), 'g'^~xa, pubB, ~nA, nB>)
+             ) @ #vk.8 )
+        case c_h
+        solve( !KU( h(<'prk', ~ps, z>) ) @ #vk.14 )
+          case c_h
+          solve( !KU( ~ps ) @ #vk.27 )
+            case Reveal_PS
+            by contradiction /* from formulas */
+          qed
+        qed
+      qed
+    qed
+  qed
+qed
+
+
+
+
+
+
+
+
+
+
+
+/* All wellformedness checks were successful. */
+
+/*
+Generated from:
+Tamarin version 1.10.0
+Maude version 3.2 (unsupported)
+Git revision: cb62c305f8c8b8c1e664152aa33c95b7b8d5ef32, branch: master
+Compiled at: 2024-10-30 11:11:02.432289291 UTC
+*/
+
+end
+
+==============================================================================
+summary of summaries:
+
+analyzed: /tmp/tmp.Q7Wa1BdzoA/session.spthy
+
+  processing time: 3.40s
+  
+  executable_session (exists-trace): verified (11 steps)
+  session_key_secrecy_ps_only (all-traces): verified (26 steps)
+  session_forward_secrecy (all-traces): verified (34 steps)
+  session_agreement_pod_injective (all-traces): verified (20 steps)
+  session_agreement_app (all-traces): verified (9 steps)
+
+==============================================================================

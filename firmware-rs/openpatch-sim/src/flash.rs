@@ -25,6 +25,10 @@ pub enum Stored {
     Reservoir(u32, u32),
     EvtCeiling(u32),
     SeqCeiling(u16),
+    /// Basal schedule record (`openpatch_core::persist::SchedRec`, F2).
+    Sched(openpatch_core::persist::SchedRec),
+    /// Active temp basal (`openpatch_core::persist::TempRec`).
+    Temp(openpatch_core::persist::TempRec),
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
@@ -33,6 +37,8 @@ pub enum Key {
     Reservoir,
     EvtCeiling,
     SeqCeiling,
+    Sched,
+    Temp,
 }
 
 impl Stored {
@@ -42,6 +48,8 @@ impl Stored {
             Stored::Reservoir(..) => Key::Reservoir,
             Stored::EvtCeiling(_) => Key::EvtCeiling,
             Stored::SeqCeiling(_) => Key::SeqCeiling,
+            Stored::Sched(_) => Key::Sched,
+            Stored::Temp(_) => Key::Temp,
         }
     }
 }

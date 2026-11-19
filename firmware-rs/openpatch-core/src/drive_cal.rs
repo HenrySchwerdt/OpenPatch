@@ -9,9 +9,16 @@
 //!
 //! `U/step = 0.35 mm / (steps_per_rev * ratio) * 74.6 mm^2 / 10` (M1.6 x 0.35 leadscrew, 74.6 mm^2
 //! reservoir, U100: 1 U = 10 ul), i.e. `uU/step = 130 550 / ratio`:
-//! * `Nfp608_26_45G1_1` (coaxial): 20 x 26.45 = 529 steps/turn -> 2 611 000 / 529 uU = 4 935.5 uU/step
+//! * `Nfp608_26_45G1_1` (coaxial, NOT the current CAD): 20 x 26.45 = 529 steps/turn -> 2 611 000 / 529 uU
+//!   = 4 935.5 uU/step
+//! * `Nfp608_26_45G16_20` (**primary, matches the current CAD**: GHW module 0.3 step-down pair, 16 T on the
+//!   motor, 20 T on the screw, screw advance per motor turn 16/20 = 0.8, total ratio 26.45 / 0.8 = 33.0625 =
+//!   529/16): 661.25 steps/turn -> 2 088 800 / 529 uU = 3 948.6 uU/step (0.003949 U; the mechanical report
+//!   quotes 0.00395 / 0.003951 with a 74.63 mm^2 area). `gear_ratio_x100` is 3306 (33.0625 rounded to
+//!   0.01): it only feeds the angle plausibility check (0.0076 % off), the dose uses the exact rational.
 //! * `Nfp608_26_45G15_12` (purchased gear pair, 15 T on the motor, 12 T on the screw, effective ratio
-//!   26.45 x 12/15 = 21.16): 423.2 steps/turn -> 3 263 750 / 529 uU = 6 169.7 uU/step
+//!   26.45 x 12/15 = 21.16): 423.2 steps/turn -> 3 263 750 / 529 uU = 6 169.7 uU/step. NOT the pair in the
+//!   current CAD (it does not clear the carriage lane); kept as an option only
 //! * `SyringeRig1ml` (bench rig, NFP direct, plunger of a 1 ml U100 syringe, area VERIFY):
 //!   0.35 mm / 529 * 17.94 mm^2 / 10 -> 627 900 / 529 uU = 1 186.9 uU/step
 //! * `Zwbpd006006_6_43`: 20 x 6.43 -> 13 055 000 / 643 uU = 20 303.3 uU/step
@@ -36,8 +43,11 @@ pub enum DriveId {
     Zwbpd006006_4_8 = 0x22,
     /// Faulhaber ADM0620 + 16:1.
     FaulhaberAdm0620_16 = 0x23,
-    /// Primary: NFP-608-26.45 + purchased gear pair 15 T (motor) -> 12 T (screw).
+    /// NFP-608-26.45 + gear pair 15 T (motor) -> 12 T (screw). Not the pair of the current CAD: option only.
     Nfp608_26_45G15_12 = 0x24,
+    /// Primary: NFP-608-26.45 + GHW module 0.3 step-down pair 16 T (motor) -> 20 T (screw), total ratio
+    /// 33.0625 (matches the current CAD, `mechanical/params.json`).
+    Nfp608_26_45G16_20 = 0x25,
     /// Insulin BENCH RIG: NFP direct pushing a standard 1 ml U100 syringe plunger. The barrel area
     /// is an assumed 17.94 mm^2 (ID 4.78 mm): VERIFY against the measured barrel ID of the rig.
     SyringeRig1ml = 0x30,
@@ -73,9 +83,14 @@ impl Preset {
 
 pub const NFP_608_2645_G1_1: Preset =
     Preset { id: DriveId::Nfp608_26_45G1_1, steps_per_rev: 20, gear_ratio_x100: 2645, uu_num: 2_611_000, uu_den: 529 };
-/// Effective ratio 26.45 * 12/15 = 21.16 (x100 = 2116, exact); 0.35 * 12 / (20 * 26.45 * 15) * 7.46 U.
+/// NOT the pair of the current CAD (option only). Effective ratio 26.45 * 12/15 = 21.16 (x100 = 2116, exact);
+/// 0.35 * 12 / (20 * 26.45 * 15) * 7.46 U.
 pub const NFP_608_2645_G15_12: Preset =
     Preset { id: DriveId::Nfp608_26_45G15_12, steps_per_rev: 20, gear_ratio_x100: 2116, uu_num: 3_263_750, uu_den: 529 };
+/// PRIMARY. GHW 16 T (motor) : 20 T (screw): total ratio 26.45 / 0.8 = 33.0625 = 529/16 (x100 = 3306.25, stored
+/// rounded as 3306); uU/step = 130 550 / 33.0625 = 130 550 * 16 / 529 = 2 088 800 / 529 (exact).
+pub const NFP_608_2645_G16_20: Preset =
+    Preset { id: DriveId::Nfp608_26_45G16_20, steps_per_rev: 20, gear_ratio_x100: 3306, uu_num: 2_088_800, uu_den: 529 };
 /// VERIFY: barrel area 17.94 mm^2 is an assumption (BD-class 1 ml U100, ID 4.78 mm) until the
 /// mechanics agent publishes the measured value. uU/step = 0.35 / 529 * 17.94 / 10 * 1e6.
 pub const SYRINGE_RIG_1ML: Preset =
@@ -97,6 +112,7 @@ pub const TEST_8156: Preset =
 pub const PRESETS: &[Preset] = &[
     NFP_608_2645_G1_1,
     NFP_608_2645_G15_12,
+    NFP_608_2645_G16_20,
     SYRINGE_RIG_1ML,
     ZWBPD006006_6_43,
     ZWBPD006006_4_8,

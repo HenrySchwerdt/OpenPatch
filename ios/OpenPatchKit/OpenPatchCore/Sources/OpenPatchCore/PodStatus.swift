@@ -33,6 +33,7 @@ public enum NackReason: UInt8, Equatable {
     case selfTestRefused = 17  // not suspended, a draw or another self-test is running
     case latched = 18          // a latched diagnostic code refuses Resume / Activate until its verification test passes
     case notClearable = 19     // ClearDiag: latched and not verified, or the cause persists
+    case noSchedule = 20       // Resume refused: the pod holds no basal schedule (e.g. not restorable after a reset)
 }
 
 public struct BolusStatus: Equatable {

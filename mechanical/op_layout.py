@@ -110,7 +110,13 @@ def compute_layout(p: dict, variant: str) -> dict:
     far_bush = (x_r1 - 0.2 - bl, x_r1 - 0.2)
     far_block = (x_r1 - 0.3 - bl, x_r1 - 0.1)
     dry_bush = (wall, wall + bl)
-    screw_tip = x_r1 + 0.15
+    tc = p["bench"]["thrust"] if (bench and layout == "side_gears") else None
+    screw_tip = (far_bush[1] + tc["collar_gap"] + tc["collar_len"]) if tc else x_r1 + 0.15
+    thrust = None
+    if tc:
+        thrust = {"sleeve": [dry_bush[1] + tc["sleeve_gap"], gear_x1], "sleeve_od": tc["sleeve_od"],
+                  "collar": [far_bush[1] + tc["collar_gap"], screw_tip], "collar_od": tc["collar_od"],
+                  "rod_len": tc["rod_len"][variant], "rod_x": [screw_tip - tc["rod_len"][variant], screw_tip]}
     mag_x = (screw_tip, screw_tip + dr["mag_t"])
     pcb_z0 = pc["z0"]
     hall_x = mag_x[1] + hl["gap_x"] + hl["pkg_x"] / 2
@@ -211,7 +217,7 @@ def compute_layout(p: dict, variant: str) -> dict:
         "bat_vol_mm3": bat_x * bt["y"] * bt["t"],
         "gear_x0": gear_x0, "gear_x1": gear_x1, "gh_x": list(gh_x), "mo_x": list(mo_x), "mot_end": mot_end,
         "far_bush": list(far_bush), "far_block": list(far_block), "dry_bush": list(dry_bush),
-        "screw_tip": screw_tip, "mag_x": list(mag_x), "hall": hall, "drv5032": drv,
+        "screw_tip": screw_tip, "thrust": thrust, "mag_x": list(mag_x), "hall": hall, "drv5032": drv,
         "screws": screws, "c_x": c_x,
         "pcb": {"x": [pcb_x0, pcb_x1], "y": [pcb_y0, pcb_y1], "z": [pcb_z0, pcb_z0 + pc["t"]], "cutouts": cutouts},
         "rf_module": {"x": [mod_x0, mod_x1], "y": [mod_y0, mod_y1],

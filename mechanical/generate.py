@@ -56,12 +56,20 @@ BENCH_EXPLODE = {
     "motor_term": (0, 6, 10), "motor_pins": (0, 6, 10), "coupler": (0, 0, 14), "duckbill_valve": (0, 0, 12),
     "septum": (0, -8, 4), "needle": (0, 0, -6), "needle_hub": (0, 0, -3), "dock_magnet": (0, 0, -16),
     "cannula_adapter": (0, 0, -12), "dock_insert": (0, 0, -9), "bottom": (0, 0, -6),
+    "gearbox": (0, 0, 10), "motor_can": (0, 0, 10), "front_boss": (0, 0, 10), "shaft": (0, 0, 10), "rear_boss": (0, 0, 10), "term_block": (0, 0, 10),
+    "pin1": (0, 0, 10), "pin2": (0, 0, 10), "pin3": (0, 0, 10), "pin4": (0, 0, 10), "gear": (0, 0, 13), "gear (2)": (0, 0, 9), "rod": (0, 0, 8),
+    "S_half": (0, 0, 8), "N_half": (0, 0, 8), "sleeve": (0, 0, 12), "thrust_sleeve": (0, 0, 11), "thrust_collar": (0, 0, 11), "valve_plug": (0, 0, 16),
+    "plunger_nose": (0, 0, 10), "tongue_shim": (0, 0, 16),
 }
 BENCH_COLORS = ["--body", "top:opacity=0.18,color=#9fb3c8", "--body", "bottom:opacity=0.55,color=#c9d3dd",
                 "--body", "reservoir:opacity=0.5,color=#7fd0e0", "--body", "plunger_core:color=#e0803a",
                 "--body", "carriage:color=#f0c040", "--body", "pod_board:color=#2e8b57", "--body", "cannula_adapter:color=#7a5cc7", "--body", "dock_insert:color=#e07ac0",
                 "--body", "ffc_cable:color=#e8c36a", "--body", "ffc_conn:color=#222222", "--body", "motor:color=#888888", "--body", "gearhead:color=#aaaaaa", "--body", "coupler:color=#d4a017", "--body", "duckbill_valve:color=#5ec8e8",
                 "--body", "dock_magnet:color=#cc2222", "--body", "magnet:color=#cc2222", "--body", "gasket:color=#111111"]
+
+
+REAL_NAMES = ["gearbox", "motor_can", "front_boss", "shaft", "rear_boss", "term_block", "pin1", "pin2", "pin3", "pin4", "gear", "gear (2)",
+              "rod", "nut", "S_half", "N_half", "needle", "sleeve"]
 
 
 def run_cli(*args: str) -> subprocess.CompletedProcess:
@@ -132,6 +140,15 @@ def generate_size(p: dict, variant: str, outdir: Path, snapshots: bool) -> dict:
     script.write_text(json.dumps(s.dumps(), indent=1), encoding="utf-8")
     sc = outdir / f"{tag}.sc"
     run_cli("run", str(script), "--save", str(sc), "--quiet")
+    real_sc = None
+    if bench and not L["coax"]:
+        from op_models import REPLACED, glb_cmds, real_model_cmds
+        mcmds = real_model_cmds(p, L, variant) + glb_cmds(os.path.relpath(outdir / f"{tag}_assembly.glb", HERE))
+        mjson = outdir / f"{tag}.models.script.json"
+        mjson.write_text(json.dumps(mcmds, indent=1), encoding="utf-8")
+        real_sc = outdir / f"{tag}_real.sc"
+        run_cli("run", str(mjson), "--in", str(sc), "--save", str(real_sc), "--quiet")
+        created = (created - set(REPLACED)) | set(REAL_NAMES)
     L["envelope"] = envelope_info(p, L)
     if bench:
         from op_bench import layout_json
@@ -151,7 +168,7 @@ def generate_size(p: dict, variant: str, outdir: Path, snapshots: bool) -> dict:
         for f in (f"{pre}_lower.step", f"{pre}_upper.step", f"{pre}_lower.stl", f"{pre}_upper.stl"):
             shutil.copy(outdir / f, outdir / f"{tag}_{f}")
     if snapshots:
-        shots(sc, outdir, tag, L, created)
+        shots(real_sc or sc, outdir, tag, L, created)
     return L
 
 

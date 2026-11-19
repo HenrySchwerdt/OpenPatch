@@ -36,6 +36,7 @@ const LIST = [
   ['mechanical/motor-selection.md', 'Build and order'],
   ['mechanical/linear-actuator-selection.md', 'Build and order'],
   ['mechanical/README.md', 'Build and order'],
+  ['mechanical/sim/REPORT.md', 'Build and order'],
   ['firmware-rs/docs/bench-testing.md', 'Build and order'],
   ['electronics/bench/pin-assignment.md', 'Build and order'],
   ['electronics/bench/FOOTPRINT-VERIFICATION.md', 'Build and order'],

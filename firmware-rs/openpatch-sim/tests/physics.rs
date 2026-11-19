@@ -106,7 +106,8 @@ fn the_duckbill_cracking_pressure_does_not_change_the_steady_dose() {
         p.fluid.crack_kpa = 5.0;
         bolus_error(p)
     };
-    assert!((lo - hi).abs() < 1.0, "{lo} vs {hi}");
+    // (the stored volume of a 4 kPa higher cracking pressure is ~0.4 % of a 5 U dose, plus the stick-slip phase)
+    assert!((lo - hi).abs() < 1.6, "{lo} vs {hi}");
 }
 
 #[test]

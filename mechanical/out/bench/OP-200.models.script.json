@@ -1,0 +1,423 @@
+[
+ {
+  "command": "solid.remove",
+  "params": {
+   "bodies": [
+    "gearhead",
+    "motor",
+    "motor_boss",
+    "motor_shaft",
+    "motor_rear_boss",
+    "motor_term",
+    "motor_pins",
+    "gear_a",
+    "gear_b",
+    "leadscrew",
+    "nut",
+    "magnet",
+    "needle",
+    "duckbill_valve"
+   ]
+  }
+ },
+ {
+  "command": "file.insert_step",
+  "params": {
+   "path": "components/out/nfp_608_26_45.step",
+   "flatten": true,
+   "name": "nfp",
+   "matrix": [
+    0,
+    0,
+    -1,
+    4.9,
+    -1,
+    0,
+    0,
+    28.01,
+    0,
+    1,
+    0,
+    4.2
+   ]
+  }
+ },
+ {
+  "command": "solid.box",
+  "params": {
+   "length": 16.0,
+   "width": 16.0,
+   "height": 2.4,
+   "corner": [
+    4.8999999999999995,
+    20.009999999999998,
+    -2
+   ],
+   "body_name": "t_trim_pin1",
+   "name": "t_trim_pin1"
+  }
+ },
+ {
+  "command": "solid.combine",
+  "params": {
+   "target": "pin1",
+   "tools": [
+    "t_trim_pin1"
+   ],
+   "operation": "cut",
+   "name": "cut pin1"
+  }
+ },
+ {
+  "command": "solid.box",
+  "params": {
+   "length": 16.0,
+   "width": 16.0,
+   "height": 2.4,
+   "corner": [
+    4.8999999999999995,
+    20.009999999999998,
+    -2
+   ],
+   "body_name": "t_trim_pin2",
+   "name": "t_trim_pin2"
+  }
+ },
+ {
+  "command": "solid.combine",
+  "params": {
+   "target": "pin2",
+   "tools": [
+    "t_trim_pin2"
+   ],
+   "operation": "cut",
+   "name": "cut pin2"
+  }
+ },
+ {
+  "command": "solid.box",
+  "params": {
+   "length": 16.0,
+   "width": 16.0,
+   "height": 2.4,
+   "corner": [
+    4.8999999999999995,
+    20.009999999999998,
+    -2
+   ],
+   "body_name": "t_trim_pin3",
+   "name": "t_trim_pin3"
+  }
+ },
+ {
+  "command": "solid.combine",
+  "params": {
+   "target": "pin3",
+   "tools": [
+    "t_trim_pin3"
+   ],
+   "operation": "cut",
+   "name": "cut pin3"
+  }
+ },
+ {
+  "command": "solid.box",
+  "params": {
+   "length": 16.0,
+   "width": 16.0,
+   "height": 2.4,
+   "corner": [
+    4.8999999999999995,
+    20.009999999999998,
+    -2
+   ],
+   "body_name": "t_trim_pin4",
+   "name": "t_trim_pin4"
+  }
+ },
+ {
+  "command": "solid.combine",
+  "params": {
+   "target": "pin4",
+   "tools": [
+    "t_trim_pin4"
+   ],
+   "operation": "cut",
+   "name": "cut pin4"
+  }
+ },
+ {
+  "command": "solid.box",
+  "params": {
+   "length": 7.4,
+   "width": 6.0,
+   "height": 6.0,
+   "corner": [
+    -5,
+    25.009999999999998,
+    1.2000000000000002
+   ],
+   "body_name": "t_trim_shaft",
+   "name": "t_trim_shaft"
+  }
+ },
+ {
+  "command": "solid.combine",
+  "params": {
+   "target": "shaft",
+   "tools": [
+    "t_trim_shaft"
+   ],
+   "operation": "cut",
+   "name": "cut shaft"
+  }
+ },
+ {
+  "command": "file.insert_step",
+  "params": {
+   "path": "components/out/gear_m03_z16_390754.step",
+   "flatten": true,
+   "name": "gearA",
+   "matrix": [
+    0,
+    0,
+    1,
+    2.6,
+    1.0,
+    -0.0,
+    0,
+    28.01,
+    0.0,
+    1.0,
+    0,
+    4.2
+   ]
+  }
+ },
+ {
+  "command": "solid.box",
+  "params": {
+   "length": 6.0,
+   "width": 8.0,
+   "height": 7.999999999999999,
+   "corner": [
+    4.0,
+    24.009999999999998,
+    0.20000000000000018
+   ],
+   "body_name": "t_trim_a",
+   "name": "t_trim_a"
+  }
+ },
+ {
+  "command": "solid.combine",
+  "params": {
+   "target": "gear",
+   "tools": [
+    "t_trim_a"
+   ],
+   "operation": "cut",
+   "name": "cut gear"
+  }
+ },
+ {
+  "command": "file.insert_step",
+  "params": {
+   "path": "components/out/gear_m03_z20_753020.step",
+   "flatten": true,
+   "name": "gearB",
+   "matrix": [
+    0,
+    0,
+    1,
+    2.6,
+    0.987688340595,
+    -0.15643446504,
+    0,
+    22.5,
+    0.15643446504,
+    0.987688340595,
+    0,
+    4.2
+   ]
+  }
+ },
+ {
+  "command": "solid.box",
+  "params": {
+   "length": 4.0,
+   "width": 8.0,
+   "height": 7.999999999999999,
+   "corner": [
+    -1.4,
+    18.5,
+    0.20000000000000018
+   ],
+   "body_name": "t_trim_b",
+   "name": "t_trim_b"
+  }
+ },
+ {
+  "command": "solid.combine",
+  "params": {
+   "target": "gear (2)",
+   "tools": [
+    "t_trim_b"
+   ],
+   "operation": "cut",
+   "name": "cut gear (2)"
+  }
+ },
+ {
+  "command": "file.insert_step",
+  "params": {
+   "path": "components/out/rod_m1p6_38.5.step",
+   "flatten": true,
+   "name": "rod",
+   "matrix": [
+    0,
+    0,
+    1,
+    1.55,
+    1.0,
+    -0.0,
+    0,
+    22.5,
+    0.0,
+    1.0,
+    0,
+    4.2
+   ]
+  }
+ },
+ {
+  "command": "file.insert_step",
+  "params": {
+   "path": "components/out/nut_din934_m1p6_brass.step",
+   "flatten": true,
+   "name": "nutM",
+   "matrix": [
+    0,
+    0,
+    1,
+    5.05,
+    1.0,
+    -0.0,
+    0,
+    22.5,
+    0.0,
+    1.0,
+    0,
+    4.2
+   ]
+  }
+ },
+ {
+  "command": "file.insert_step",
+  "params": {
+   "path": "components/out/magnet_d3x1p5_diametric.step",
+   "flatten": true,
+   "name": "magM",
+   "matrix": [
+    0,
+    0,
+    1,
+    40.05,
+    1.0,
+    -0.0,
+    0,
+    22.5,
+    0.0,
+    1.0,
+    0,
+    4.2
+   ]
+  }
+ },
+ {
+  "command": "file.insert_step",
+  "params": {
+   "path": "components/out/needle_30g_efd_14in.step",
+   "flatten": true,
+   "name": "ndl",
+   "matrix": [
+    0,
+    0,
+    1,
+    43.15,
+    1.0,
+    -0.0,
+    0,
+    11.2,
+    0.0,
+    1.0,
+    0,
+    3.0
+   ]
+  }
+ },
+ {
+  "command": "solid.remove",
+  "params": {
+   "bodies": [
+    "hub"
+   ]
+  }
+ },
+ {
+  "command": "solid.box",
+  "params": {
+   "length": 6.5,
+   "width": 4.0,
+   "height": 4.0,
+   "corner": [
+    37.5,
+    9.2,
+    1.0
+   ],
+   "body_name": "t_trim_n",
+   "name": "t_trim_n"
+  }
+ },
+ {
+  "command": "solid.combine",
+  "params": {
+   "target": "needle",
+   "tools": [
+    "t_trim_n"
+   ],
+   "operation": "cut",
+   "name": "cut needle"
+  }
+ },
+ {
+  "command": "file.insert_step",
+  "params": {
+   "path": "components/out/duckbill_valve_generic.step",
+   "flatten": true,
+   "name": "dbv",
+   "matrix": [
+    0,
+    0,
+    1,
+    39.8,
+    1.0,
+    -0.0,
+    0,
+    11.2,
+    0.0,
+    1.0,
+    0,
+    3.0
+   ]
+  }
+ },
+ {
+  "command": "file.export",
+  "params": {
+   "path": "out/bench/OP-200_assembly.glb",
+   "format": "glb",
+   "quality": "standard"
+  }
+ }
+]

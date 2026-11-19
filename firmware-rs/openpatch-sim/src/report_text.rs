@@ -57,13 +57,14 @@ distributions below are asserted loosely in `tests/montecarlo.rs`.
 
 | item | value | basis |
 |---|---|---|
-| reservoir, leadscrew, motor, gear ratio, efficiencies | spec 3, 4 (74.6 mm^2, M1.6 x 0.35, NFP-608-26.45, 15:12, 1.6 gf*cm, gearhead 0.64, screw 0.20) | spec |
+| reservoir, leadscrew, motor, gear ratio, efficiencies | spec 3, 4 (74.6 mm^2, M1.6 x 0.35, NFP-608-26.45, GHW 16:20 step-down pair = 0.003949 U/step, 1.6 gf*cm at the rated 181 mA, gearhead 0.64, screw 0.20) | spec |
 | pull-out torque vs step rate | spec value valid at 200 Hz, corner 500 Hz (0.69 x at the 600 Hz draw rate) | ASSUMPTION (back-EMF, `architecture.md`) |
 | supply | full torque >= 3.3 V, linear down to nothing at 1.8 V | ASSUMPTION (chopper current limit, STSPIN220 VS min) |
-| motor current sense | free 70 mA, stalled 175 mA, linear in load, noise 3 mA; core threshold 140 mA x 3 bursts | ASSUMPTION; the 140 mA is itself a "placeholder" in `limits.rs` |
+| run current | 160 mA peak per phase (VREF 0.160 V / 1.0 ohm, `limits::MOTOR_RUN_CURRENT_MA`); pull-out torque scales with run / rated (160 / 181) | electronics + ASSUMPTION (torque ~ current) |
+| motor current sense | free 107 mA, stalled 267 mA (2/3 and 5/3 of the run current), linear in load, noise 3 mA; core thresholds from `limits.rs`: forward 213 mA x 3 bursts, draw 253 mA, stored-volume rise 40 mA | ASSUMPTION (ratios of the old 105 mA model scaled to 160 mA); placeholders until the water bench |
 | seal friction | static 1.5 N, dynamic 0.8 N | ASSUMPTION (spec: "biggest development risk") |
 | carriage -> plunger stiffness | 40 N/mm | ASSUMPTION; dominates lost motion and the volume soaked up before an occlusion alarm |
-| backlash | 2.0 deg gear pair at the screw + 1.5 deg gearhead output | ASSUMPTION |
+| backlash | 2.0 deg gear pair at the screw + 1.5 deg gearhead output (x 16/20 into the screw domain) | ASSUMPTION |
 | lead error | 0 % nominal, +-0.2 um once per turn | ASSUMPTION (tolerance sampled by Monte Carlo) |
 | fluid compliance | 0.05 ul/kPa + isothermal air (bubble, connector air) | ASSUMPTION |
 | duckbill | cracks at 3 kPa (spec: 1 .. 5), closes at half of it | spec + ASSUMPTION |
@@ -75,7 +76,7 @@ distributions below are asserted loosely in `tests/montecarlo.rs`.
 | battery | 25 mAh, 1.5 ohm internal resistance, PCM cut-off 2.5 V, quiescent 100 uA | spec 1b / 5 + ASSUMPTION |
 | TPL5010 | resets 2.0 s after the last DONE; boot 300 ms | `architecture.md` |
 | flash | 90 ms per record write, A/B atomic (a torn write keeps the previous copy) | `architecture.md` + ASSUMPTION |
-| persistence policy | constants copied from `openpatch-bench/src/config.rs` (reservoir +64 steps, wear +600 s, event ceiling +64) | copy, keep in sync |
+| persistence policy | the SAME code as the firmware: `openpatch_core::persist` (reservoir margin +64 steps added once per run, schedule and temp basal records), constants copied from `openpatch-bench/src/config.rs` (wear +600 s, event ceiling +64) | shared code + copy, keep in sync |
 
 Not modelled: temperature, fluid viscosity and degradation, motor resonance and inertia, cannula
 kinking physics beyond a resistance factor, RF / BLE timing, Qi charging, the SMA drive.
@@ -85,7 +86,8 @@ Bench measurements that would replace the most influential assumptions, in order
 1. Force versus displacement of carriage + plunger + seal (static and dynamic break-away, stiffness).
    Sets lost motion, small-dose lumping and the water soaked up before an occlusion alarm.
 2. Motor current versus load at 200 Hz and 600 Hz (`CsvRow` has no current column yet: see
-   `architecture.md`). Sets whether the 140 mA threshold has margin for forward delivery AND draw.
+   `architecture.md`). Sets whether the 213 mA forward threshold, the 253 mA draw threshold and the 40 mA stored-volume
+   rise have margin at 160 mA run current.
 3. Thrust of the geared drive at 200 / 600 Hz and 3.3 .. 4.2 V.
 4. Pressure-volume curve of the closed reservoir (compliance, bubbles).
 5. TPL5010 timing on the scope (WAKE / DONE / RSTn) and the VMOT collapse time.
@@ -94,9 +96,10 @@ Bench measurements that would replace the most influential assumptions, in order
 
 All scenarios use the nominal plant (defaults) unless the description says otherwise. `needle` is the
 water that really left the outlet (gravimetric equivalent), `core` what the pod booked as delivered.
-The first hour of every scenario carries the lost motion after the refill's reversal (backlash plus
-seal and arm elasticity, about 0.4 U with the assumed stiffness), so a few percent of
-under-delivery there is expected.
+The standard set-up primes after the draw: the core first takes up the lost motion of the refill's reversal
+(backlash plus seal and arm elasticity, about 0.4 U with the assumed stiffness; 0.63 U take-up, not counted as
+delivery) and then primes, so the first dose is no longer short. The set-up waits one minute after the prime (the
+take-up counts against the 1.7 U/min backstop).
 
 {{SCENARIO_TABLE}}
 
@@ -151,27 +154,26 @@ water the elastic parts soak up before the pressure is high enough to load the m
 
 {{SENSITIVITY}}
 
-## 6. Findings
+## 6. Findings (all fixed)
 
-The simulator does not fix the core. Every behaviour that violates the safety concept is an
-`#[ignore]`d, currently failing test in `tests/findings.rs` with the description in its doc comment
-(`cargo test -p openpatch-sim --test findings -- --ignored`):
+The six findings the simulator raised against the core are fixed and their tests in `tests/findings.rs` are
+regression tests now (the fix is described in the doc comment of each):
 
-| test | topic |
-|---|---|
-| `unplanned_reset_of_an_active_pod_announces_itself` | F1: no alarm after a brown-out / watchdog reset (H3) |
-| `resume_after_a_reset_without_a_schedule_is_refused_or_delivers` | F2: schedule not persisted, Resume succeeds and delivers nothing |
-| `reservoir_margin_does_not_accumulate_across_reboots` | F3: reservoir margin re-added on every boot (platform policy) |
-| `a_standard_prime_after_a_draw_purges_the_connector` | F4: prime smaller than the lost motion after a draw |
-| `a_high_friction_pod_can_still_refill` | F5: draw current criterion has no tolerance margin |
-| `the_needle_never_sees_more_than_15_u_in_an_hour` | F6: the 15 U/h cap limits the commanded, not the delivered volume |
+| test | topic | fix |
+|---|---|---|
+| `unplanned_reset_of_an_active_pod_announces_itself` | F1: no alarm after a brown-out / watchdog reset (H3) | `Pump::restore_pod` raises `7-74-002` at FAULT severity for an active pod after any reset that was not commanded: ALARM flag, buzzer, notification, Resume refused until acknowledged |
+| `resume_after_a_reset_without_a_schedule_is_refused_or_delivers` | F2: schedule not persisted, Resume succeeds and delivers nothing | schedule and temp basal are persisted (`persist::SchedRec`, `TempRec`) and restored; without a schedule Resume is refused with the new result code 31 `NoSchedule` |
+| `reservoir_margin_does_not_accumulate_across_reboots` | F3: reservoir margin re-added on every boot | `persist::ReservoirPolicy`: nothing is rewritten after a boot until the reservoir moved |
+| `a_standard_prime_after_a_draw_purges_the_connector` | F4: prime smaller than the lost motion after a draw | take-up of `TAKEUP_MU_AFTER_DRAW` (632 mU = 160 steps) before the first prime after a draw, counted as non-delivery; one prime command stays 0.524 U, the 2.21 U connector path takes 5 commands |
+| `a_high_friction_pod_can_still_refill` | F5: draw current criterion has no tolerance margin | draw has its own stall threshold (`DRAW_STALL_CURRENT_MA`, within 5 % of the stalled current), the rate is capped by the fill needle gauge (29G: 841 pps) |
+| `the_needle_never_sees_more_than_15_u_in_an_hour` | F6: the 15 U/h cap limits the commanded, not the delivered volume | the cap is 15 U less `HOURLY_CAL_MARGIN_PCT` = 4 % (14.42 U) and a true rolling 60 minute window |
 
 ## 7. Reproduce
 
 ```sh
 cd firmware-rs
 cargo test -p openpatch-sim                       # all scenarios, hardware, physics, Monte Carlo
-cargo test -p openpatch-sim --test findings -- --ignored   # the open findings (they fail)
+cargo test -p openpatch-sim --test findings      # the six former findings, now regression tests
 cargo run --release -p openpatch-sim --bin opsim -- all --outdir /tmp/opsim
 cargo run --release -p openpatch-sim --bin opsim -- run wear_48h --csv wear.csv
 cargo run --release -p openpatch-sim --bin opsim -- mc accuracy --runs 1000 --seed 1

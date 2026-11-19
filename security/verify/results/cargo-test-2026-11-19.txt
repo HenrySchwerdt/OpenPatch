@@ -1,0 +1,38 @@
+     Running unittests src/lib.rs 
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+     Running tests/finding_001_reflection.rs 
+test fixed_reflected_response_is_refused_without_side_effects ... ignored, FINDING-001 open: enable when Session::open rejects RESPONSE-flagged frames on the pod
+test known_issue_two_time_pad_leaks_keystream ... ok
+test known_issue_reflected_response_is_accepted_replayable_and_answered ... ok
+test known_issue_nonce_reuse_under_key_p2c ... ok
+test result: ok. 3 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.00s
+     Running tests/handshake_props.rs 
+test known_issue_pending_slot_can_be_displaced_by_unauthenticated_init ... ok
+test pairing_refused_outside_window ... ok
+test low_order_public_keys_are_rejected ... ok
+test known_issue_ps_id_is_a_static_linkable_identifier ... ok
+test wrong_pairing_secret_cannot_open_a_session ... ok
+test honest_pairing_then_session_agree ... ok
+test responder_total_on_garbage ... ok
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.09s
+     Running tests/proto_props.rs 
+test keyless_session_refuses_everything ... ok
+test frame_decoder_total_and_canonical ... ok
+test codecs_total ... ok
+test sealed_frame_bitflip_rejected ... ok
+test replay_and_ordering ... ok
+test tlv_reader_total ... ok
+test session_open_rejects_garbage ... ok
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.70s
+     Running tests/safety_props.rs 
+test finding_003_sliding_window_exceeds_nominal_hourly_cap ... ok
+test p4_bolus_check ... ok
+test p5_rate_check ... ok
+test p1_per_minute_cap ... ok
+test p2_wall_clock_hour_cap ... ok
+test p3_sliding_hour_bound ... ok
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.43s
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+--- ignored fixed_* test (expected to FAIL while FINDING-001 is open):
+test fixed_reflected_response_is_refused_without_side_effects ... FAILED
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 3 filtered out; finished in 0.20s

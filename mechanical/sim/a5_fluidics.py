@@ -47,7 +47,7 @@ def run(ctx: Ctx) -> Result:
     # ---------------- 5.1 volumes ------------------------------------------------------------------------------
     items = path_volume(ctx)
     V_path = sum(items.values())
-    dead_mm = P["reservoir"]["dead"]
+    dead_mm = round(P["reservoir"]["dead"] - P["reservoir"].get("nose_len", 0.0), 3)     # printed plunger nose fills the rest
     V_dead_gap = dead_mm * A
     md.append("### 5.1 Priming and dead volume\n")
     md.append(table(["element (from `op_cap.py`, `reservoir_frozen`)", "volume mm3"], [[k, f"{v:.2f}"] for k, v in items.items()] + [["**path total**", f"**{V_path:.1f} mm3 = {V_path / 10:.2f} U**"]]))

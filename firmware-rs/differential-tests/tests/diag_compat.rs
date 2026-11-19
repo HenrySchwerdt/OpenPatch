@@ -1,6 +1,6 @@
 //! Old-parser compatibility of the diagnostics protocol extension (docs/06-diagnostics.md 5.4, 6.1):
 //! the frozen C reference parser (`op_*`) must skip the new tags and still decode the old commands,
-//! and answer `UNSUPPORTED` to the new commands 0x10..0x12, which only Rust knows.
+//! and answer `UNSUPPORTED` to the new commands 0x20..0x22, which only Rust knows.
 
 use differential_tests::desc::*;
 use differential_tests::ffi::*;
@@ -81,8 +81,8 @@ fn c_answers_unsupported_to_the_new_commands_and_rust_decodes_them() {
         assert_eq!(CSession::new().decode(&frame), Err(9), "C reference: UNSUPPORTED for 0x{ty:02X}");
         assert!(rust_decode(&frame).is_ok(), "Rust decodes 0x{ty:02X}");
     }
-    assert!(differential_tests::rust_only_cmd(0x10) && differential_tests::rust_only_cmd(0x12));
-    assert!(!differential_tests::rust_only_cmd(0x13) && !differential_tests::rust_only_cmd(0x0E));
+    assert!(differential_tests::rust_only_cmd(0x20) && differential_tests::rust_only_cmd(0x22) && differential_tests::rust_only_cmd(0x0F));
+    assert!(!differential_tests::rust_only_cmd(0x10) && !differential_tests::rust_only_cmd(0x23) && !differential_tests::rust_only_cmd(0x0E));
 }
 
 #[test]

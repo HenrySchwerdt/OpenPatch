@@ -137,3 +137,13 @@ plunger_seal,gasket}.step/.stl`, `{mould_lower,mould_upper}.step/.stl`, `{reserv
 * **Gears:** 16:20 step-down, tips modelled as circles; see `parts.md` section 1. **Spindle magnet:** diametric d3 x 1.5 (`drive.mag_d/mag_t`), board and TMAG follow it (`bench_geometry`).
 * **Modular dock (spec 8a):** `params.json -> dock_interface_frozen` (window half 6.85, flange pocket half 7.6, ledge z 0..0.45, detent d0.5 bumps, mouth half 6.2, insert datum x0_u 4.4, tail_u 21.2). `op_dock.build_insert` builds the insert, `op_coupon.py` the 12-variant set (A_dome_d x N_hook_h) and the pod-less fixture -> `out/bench/fab/dock-inserts/` (`python3 generate.py --coupon`). `check.py` assembles the nominal insert on every size and all 12 variants on the first size (interference + needle alignment).
 * **Sim-driven changes:** nut float 0.3 mm (hex pocket AF 3.8, carriage 4.8 wide, rail top 1.4), stainless tongue shim (0.5 x 1.4) instead of the printed tongue, plunger nose 0.7 mm (dead layer 0.3 mm, CNC part unchanged), snap arms 0.6 mm thick / free length 10.4 mm (needle_free 4.8, tail 20.3), guard-bore lead-in 0.4, hook ramp 0.5, gap_y 1.5 (dock axis y 11.2).
+
+## Update 2026-11-19 (round 2)
+* **Axial stack of the leadscrew:** rear thrust sleeve 2.05 mm (gear carrier, bears on the dry bush face), front thrust collar 1.0 mm (bears on the far bush face), magnet glued to the rod end behind the collar
+  (reverse/draw thrust never loads the magnet). `check.py` verifies the seats and the gaps. Rod lengths 21.0 / 25.0 / 38.5 mm.
+* **Nut retention:** carriage nut pocket closed at the rear (0.45 mm wall) and front, drop-in slot from the top, 0.3 mm radial float; carriage 4.8 mm wide, rail top 1.4 / groove 0.3.
+* **Duckbill:** 0.1 mm interference bore, printed `valve_plug` press-fit closes the insertion slot.
+* **Snap arms:** 0.75 mm thick, hook clearance 0.05 (arm force 1.1 N), free length 10.4 mm; the 12 inserts are regenerated.
+* **Real component models** (`mechanical/components/`, `op_models.py`): `OP-xx_real.sc` replaces the envelopes of motor, gears, rod, nut, magnet, needle and duckbill by the library STEP models;
+  renders/exploded views use it, `check.py` runs an interference check on it, `out/bench/OP-xx_assembly.glb` (metres, Y up) is the website asset. The rod STEPs are gitignored: `python3 components/build_all.py --only rod_m1p6_21,rod_m1p6_25,rod_m1p6_38.5 --no-boards` (about 3 min each).
+* **FFC connector:** the FH12 is 2.0 mm high and does not fit (see `parts.md`, open point).

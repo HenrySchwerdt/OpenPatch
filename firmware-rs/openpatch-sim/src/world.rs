@@ -81,6 +81,8 @@ pub struct World {
     pub power_restore_at_us: Option<u64>,
     pub boot_at_us: Option<u64>,
     pub reset_pending: Option<ResetCause>,
+    /// Why the MCU started this boot, as `Hal::reset_cause` reports it (RESETREAS, retained across the reset).
+    pub boot_cause: openpatch_core::hal::ResetCause,
     pub flash_cut_arm: Option<(f64, f64)>,
     pub brownout_until_us: Option<u64>,
     // ---- sensor ----
@@ -126,6 +128,7 @@ impl World {
             power_restore_at_us: None,
             boot_at_us: None,
             reset_pending: None,
+            boot_cause: openpatch_core::hal::ResetCause::PowerOn,
             flash_cut_arm: None,
             brownout_until_us: None,
             tracker: Tracker::default(),
@@ -402,6 +405,13 @@ impl Hal for SimHal {
     }
     fn motor_step_reverse(&mut self, steps: Pulses) -> Pulses {
         Pulses(self.0.borrow_mut().burst(false, steps.0))
+    }
+    fn set_draw_rate_pps(&mut self, pps: u32) {
+        // the HAL clamps to its hard cap (REVERSE_RATE_MAX_HZ = 1000)
+        self.0.borrow_mut().params.motor.reverse_rate_hz = pps.clamp(1, 1000) as f64;
+    }
+    fn reset_cause(&mut self) -> openpatch_core::hal::ResetCause {
+        self.0.borrow().boot_cause
     }
     fn motor_enable(&mut self, enable: bool) {
         let mut w = self.0.borrow_mut();

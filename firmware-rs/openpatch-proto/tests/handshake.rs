@@ -171,7 +171,7 @@ fn pairing_then_session_yield_identical_keys_and_encrypted_traffic_works() {
     let (phone_keys, pod_keys) = do_session(&mut p.pod, p.ps, 3).unwrap();
     assert!(phone_keys == pod_keys);
     assert_ne!(phone_keys.key_c2p, phone_keys.key_p2c, "one key per direction");
-    let (mut phone, mut pod) = (sess(&phone_keys), sess(&pod_keys));
+    let (mut phone, mut pod) = (sess(&phone_keys).with_role(LinkRole::Phone), sess(&pod_keys));
 
     let payload = [tag::AMOUNT_MU, 4, 0xD0, 0x07, 0, 0];
     let (mut buf, mut plain) = ([0u8; 244], [0u8; 244]);
@@ -308,15 +308,18 @@ fn stale_pending_and_out_of_order_finish_are_refused() {
     let n = ini.init_frame(0, &mut a).unwrap();
     let o = p.pod.handle(&a[..n], false, &mut CountRng(2), &mut b).unwrap();
     let m = ini.on_init_response(&b[..o.reply_len], 1, &mut c).unwrap();
-    // a second INIT replaces the pending handshake: the first FINISH no longer matches
+    // a second INIT takes another pending slot (FINDING-004): the first FINISH still matches its own handshake
     let ini2 = Initiator::session(&mut CountRng(3), p.ps);
     let n2 = ini2.init_frame(0, &mut a).unwrap();
     p.pod.handle(&a[..n2], false, &mut CountRng(4), &mut d).unwrap();
     let o = p.pod.handle(&c[..m], false, &mut CountRng(5), &mut a).unwrap();
-    assert!(matches!(o.event, Event::None));
-    // replaying that FINISH once more: nothing pending any more -> SESSION
+    assert!(matches!(o.event, Event::SessionUp(_)));
+    // replaying that FINISH once more: its slot is consumed, the other pending one does not match -> AUTH
     let o = p.pod.handle(&c[..m], false, &mut CountRng(5), &mut a).unwrap();
-    assert_eq!(decode_frame(&a[..o.reply_len]).unwrap().payload, &[tag::RESULT, 1, hresult::SESSION]);
+    assert_eq!(decode_frame(&a[..o.reply_len]).unwrap().payload, &[tag::RESULT, 1, hresult::AUTH]);
+    p.pod.reset();
+    let o = p.pod.handle(&c[..m], false, &mut CountRng(5), &mut a).unwrap();
+    assert_eq!(decode_frame(&a[..o.reply_len]).unwrap().payload, &[tag::RESULT, 1, hresult::SESSION], "nothing pending any more");
     // link reset drops a half-open handshake
     let mut ini3 = Initiator::session(&mut CountRng(6), p.ps);
     let n3 = ini3.init_frame(0, &mut a).unwrap();
@@ -560,4 +563,10 @@ fn check_stored_traffic() {
         nonce[4] = if dir == 0 { 1 } else { 0 };
         assert!(ccm.decrypt(&nonce, &frame[..7], &f.payload[..ct_len], &tag, &mut pt).is_err());
     }
+}
+
+#[test]
+fn handshake_frame_types_match_the_namespace_table() {
+    // `HANDSHAKE_TYPES` (feature independent) is what the frame type collision test checks against
+    assert_eq!(HANDSHAKE_TYPES, [htype::PAIR_INIT, htype::PAIR_FINISH, htype::SESSION_INIT, htype::SESSION_FINISH]);
 }

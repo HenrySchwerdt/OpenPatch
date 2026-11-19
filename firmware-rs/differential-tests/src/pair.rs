@@ -377,6 +377,11 @@ impl Pair {
         match op {
             Op::Frame(bytes) => {
                 stats.frames += 1;
+                if bytes.len() > 2 && bytes[2] & openpatch_proto::FLAG_RESPONSE != 0 {
+                    // documented difference (FINDING-001): the C reference opens RESPONSE-flagged frames as commands;
+                    // the Rust pod refuses wrong-direction frames. Neither side sees such a frame.
+                    return Ok(());
+                }
                 let mut out = [0u8; 256];
                 let cr = self.c.handle_frame(bytes);
                 let rr = self.r.handle_frame(&mut self.rs, bytes, &mut out).map(|n| out[..n].to_vec());

@@ -32,11 +32,14 @@ paint();
 
 // ---- mobile menu
 const menu = document.querySelector<HTMLButtonElement>('[data-menu]');
-const nav = document.getElementById('sidenav');
-menu?.addEventListener('click', () => {
-  const open = nav?.classList.toggle('open') ?? false;
-  menu.setAttribute('aria-expanded', String(open));
-});
+const nav = document.getElementById('mainnav');
+const setMenu = (open: boolean): void => {
+  nav?.classList.toggle('open', open);
+  menu?.setAttribute('aria-expanded', String(open));
+};
+menu?.addEventListener('click', () => setMenu(!nav?.classList.contains('open')));
+nav?.addEventListener('click', (e) => { if ((e.target as HTMLElement).closest('a')) setMenu(false); });
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && nav?.classList.contains('open')) { setMenu(false); menu?.focus(); } });
 
 // ---- generic table filter chips: [data-filter-group="k"] buttons[data-filter] + table[data-filter-table="k"] rows[data-k]
 for (const group of document.querySelectorAll<HTMLElement>('[data-filter-group]')) {

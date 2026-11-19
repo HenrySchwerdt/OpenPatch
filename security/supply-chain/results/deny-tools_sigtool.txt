@@ -1,0 +1,2 @@
+advisories ok, bans ok, licenses FAILED, sources ok
+error[rejected]: failed to satisfy license requirements

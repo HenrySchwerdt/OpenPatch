@@ -493,3 +493,51 @@ proptest! {
         let _ = TlvReader::new(&bytes).count();
     }
 }
+
+// ---- frame type namespace ----
+#[test]
+fn response_types_never_collide_with_any_other_frame_type() {
+    use std::collections::BTreeSet;
+    // no command id uses the response bit, and every id is unique
+    let cmds: BTreeSet<u8> = COMMAND_IDS.iter().copied().collect();
+    assert_eq!(cmds.len(), COMMAND_IDS.len(), "duplicate command id");
+    assert!(COMMAND_IDS.iter().all(|c| c & RSP_BIT == 0), "a command id with the response bit set is its own response type");
+    let hs: BTreeSet<u8> = HANDSHAKE_TYPES.iter().copied().collect();
+    assert!(hs.iter().all(|t| t & RSP_BIT == 0));
+    assert!(cmds.is_disjoint(&hs), "a handshake type is also a command id");
+
+    // response types: commands and handshake requests, each | RSP_BIT
+    let rsp_cmd: BTreeSet<u8> = cmds.iter().map(|c| c | RSP_BIT).collect();
+    let rsp_hs: BTreeSet<u8> = hs.iter().map(|c| c | RSP_BIT).collect();
+    let notif = notify::FRAME_TYPE;
+    assert!(notif & RSP_BIT != 0, "notifications carry the RESPONSE flag family");
+
+    // every frame type in use: all of these sets are pairwise disjoint
+    let sets: [(&str, BTreeSet<u8>); 5] = [
+        ("command ids", cmds.clone()),
+        ("handshake requests", hs.clone()),
+        ("command responses", rsp_cmd.clone()),
+        ("handshake responses", rsp_hs.clone()),
+        ("notification", BTreeSet::from([notif])),
+    ];
+    for i in 0..sets.len() {
+        for j in i + 1..sets.len() {
+            let both: Vec<u8> = sets[i].1.intersection(&sets[j].1).copied().collect();
+            assert!(both.is_empty(), "frame type(s) {both:02X?} used by both {} and {}", sets[i].0, sets[j].0);
+        }
+    }
+    // the specific bug: GetFaultLog (and the other diagnostics commands) must not answer with 0x90..0x92
+    for c in [cmd::GET_FAULT_LOG, cmd::RUN_SELF_TEST, cmd::CLEAR_DIAG] {
+        assert_ne!(c | RSP_BIT, notif);
+    }
+    assert_eq!((cmd::GET_FAULT_LOG, cmd::RUN_SELF_TEST, cmd::CLEAR_DIAG), (0x20, 0x21, 0x22));
+}
+
+#[test]
+fn every_id_that_is_not_a_command_is_unsupported() {
+    for t in 0..=255u8 {
+        if !COMMAND_IDS.contains(&t) {
+            assert_eq!(decode_command(t, 1, &[]).unwrap_err(), Error::Unsupported, "id 0x{t:02X}");
+        }
+    }
+}
