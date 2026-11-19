@@ -48,7 +48,7 @@ PARTS = {
                             "Half of the reservoir (split at bore centre plane). Bond halves after machining. Only for the later "
                             "optional material preparation (never filled with insulin); not part of the cheap monthly loop.", False),
     "reservoir_cnc_upper": ("CNC (PCBWay CNC; polypropylene) - OPTIONAL", "PP natural", "natural", "as machined", 1, "see lower half", False),
-    "plunger_seal": ("DO NOT ORDER - cast in the mould (silicone, Shore A 40-50)", "-", "-", "-", 0,
+    "plunger_seal": ("DO NOT ORDER - cast in the mould (silicone bead seal, Shore A 30, S1/S2/T)", "-", "-", "-", 0,
                      "Reference geometry (assembly state). Cast with mould_lower/upper.", False),
     "gasket": ("DO NOT ORDER - die-cut / laser-cut 0.5 mm silicone sheet, Shore A 40-50, ring 0.4 mm wide, or dispense a 0.5 mm bead", "-", "-", "-", 0,
                "Reference geometry (compressed state 0.45 mm). A 0.4 mm wide ring is fragile: cut it from 0.5 mm sheet with ~0.8 mm webs or use FIPG.", False),
@@ -74,8 +74,8 @@ BENCH_PARTS["cannula_adapter"] = ("SLA (JLC3DP resin 8001-type; PCBWay SLA)", "t
                                   2, "+-0.1 mm. Dummy cannula head (dome d 10, base plate, side septum recess d 3.6, two latch notches, hose barb d 1.6, magnet "
                                      "pocket d 2.1 x 1.05 in the rear lug). Glue a d2x1 N52 magnet (CA drop) and press a punched d2 silicone plug "
                                      "into the septum bore. Dimensions follow cannula.* placeholders (TODO-MEASURE).", True)
-MOULD = ("SLA (high detail, e.g. JLC3DP 8001 / PCBWay SLA)", "tough resin", "any", "wash + UV cure; drill sprue dia 0.7 / vent dia 0.5 clear", 1,
-         "One set for ALL sizes. +-0.05..0.1 mm. Check the 4 pin/hole fits (pin dia 2.0 / hole 2.2).")
+MOULD = ("SLA (high detail, e.g. JLC3DP 8001 / PCBWay SLA)", "tough resin", "any", "print each half standing on its short end (cavity axis vertical), wash + UV cure; clear sprue dia 0.8 / vent dia 0.5", 1,
+         "THREE seal variants (S1, S2, T) = 3 sets for ALL sizes (SEAL-AND-DEAD-VOLUME.md). +-0.05 mm. Check the 4 pin/hole fits (pin dia 2.0 / hole 2.2).")
 
 # --- price model (ESTIMATES, USD) ------------------------------------------------------------
 MJF_PER_G, MJF_MIN_PART, MJF_BILL_FACTOR, PA12_DENSITY = 0.28, 1.5, 1.6, 1.0
@@ -111,14 +111,14 @@ def write_bench_readme(p: dict, vols: dict, sizes: list, PARTS: dict) -> None:
         sub[sz] = sum(c)
         tot += sub[sz]
         lines.append(f"| {sz} | " + " | ".join(f"${x:.1f}" for x in c) + f" | ${sum(c):.1f} |")
-    mould = 2 * max(SLA_MIN_PART, 14.0 * SLA_BILL_FACTOR * SLA_PER_CM3 * 4)
+    mould = 6 * max(SLA_MIN_PART, 14.0 * SLA_BILL_FACTOR * SLA_PER_CM3 * 4)
     coupon = SLA_MIN_PART * 12 + MJF_MIN_PART
     single = min(sub.values())
     readme = f"""# OpenPatch bench pod - fabrication folder (`out/bench/fab/`)
 
 EXPERIMENTAL bench test sample (Rev A bench split, spec 4a): water only, NEVER on a person. No battery, Qi coil, RF module or
 main PCB: the pod carries only the 2-layer pod sensor board (ordered separately as PCBA, see `electronics/`) and an FFC cable
-to the bench controller. Folders: `OP-70/`, `OP-100/`, `OP-200/` (upload), `mould/` (one set for all sizes), `dock-inserts/`
+to the bench controller. Folders: `OP-70/`, `OP-100/`, `OP-200/` (upload), `mould/` (three seal-variant sets, valid for all sizes), `dock-inserts/`
 (12 swappable dock insert variants + pod-less fixture, order FIRST), `reservoir-sla-water-only/` (print copy of the frozen reservoir, WATER ONLY), `MANIFEST.csv`. Units mm; STEP is master, STL (fine) for the quote tool.
 
 ## Order sheet (every size)
@@ -126,7 +126,7 @@ to the bench controller. Folders: `OP-70/`, `OP-100/`, `OP-200/` (upload), `moul
 | file | process | material | colour | finish | qty / size | tolerance, notes |
 |---|---|---|---|---|---|---|
 """ + "\n".join(f"| `<SIZE>/{k}.stl` | {v[0]} | {v[1]} | {v[2]} | {v[3]} | {v[4]} | {v[5]} |" for k, v in PARTS.items() if v[6]) + f"""
-| `mould/mould_lower.stl`, `mould_upper.stl` | {MOULD[0]} | {MOULD[1]} | {MOULD[2]} | {MOULD[3]} | {MOULD[4]} set (all sizes) | {MOULD[5]} |
+| `mould/mould*_lower.stl`, `mould*_upper.stl` (3 variants S1, S2, T) | {MOULD[0]} | {MOULD[1]} | {MOULD[2]} | {MOULD[3]} | 3 sets (all sizes) | {MOULD[5]} |
 | `dock-inserts/insert_v01..v12.stl` | SLA tough resin (or MJF PA12) | tough resin / PA12 | any | support marks off arms | 12 (shared by all sizes) | swappable dock insert variants (ID on the -Y arm), see `variants.csv` |
 | `dock-inserts/dock_fixture.stl` | MJF PA12 or SLA | PA12 / tough resin | any | standard | 1 | pod-less fixture with the frozen dock interface: fit the inserts to a real cannula head without a pod |
 | `reservoir-sla-water-only/<SIZE>_reservoir_WATER-ONLY_sla.stl` | SLA clear resin | clear | clear | wash + UV | 1 per size | **WATER ONLY - never insulin or any drug** (printed resin is not validated for any drug). Print copy of the frozen reservoir geometry; the CNC PP part in `reservoir-cnc/` is an optional material preparation, also never filled with insulin |
@@ -189,7 +189,7 @@ def main() -> None:
         shutil.copy(OUT / f"{sz}_assembly.step", d / "assembly_reference.step")
     md = FAB / "mould"
     md.mkdir()
-    for n in ("mould_lower", "mould_upper"):
+    for n in ("mould_lower", "mould_upper", "mould_s2_lower", "mould_s2_upper", "mould_t_lower", "mould_t_upper"):
         for ext in ("stl", "step"):
             shutil.copy(OUT / f"{n}.{ext}", md / f"{n}.{ext}")
         rows.append([f"mould/{n}.stl", *MOULD[:5], MOULD[5], ""])
@@ -248,11 +248,11 @@ def main() -> None:
         lines.append(f"| {sz} (vol cm3: " + "/".join(f"{vols[sz].get(k,0):.2f}" for k in ("bottom", "top", "carriage", "plunger_core", "reservoir"))
                      + ") | " + " | ".join(f"${x:.1f}" for x in c) + f" | ${sum(c):.1f} |")
     spare = part_cost("OP-100", "bottom", 1) + part_cost("OP-100", "top", 1)
-    mould = 2 * max(SLA_MIN_PART, 14.0 * SLA_BILL_FACTOR * SLA_PER_CM3 * 4)
+    mould = 6 * max(SLA_MIN_PART, 14.0 * SLA_BILL_FACTOR * SLA_PER_CM3 * 4)
     readme = f"""# OpenPatch Rev A - fabrication folder (`out/fab/`)
 
 EXPERIMENTAL DIY device, not a medical device. Everything here is for bench/water testing.
-Folders: `OP-70/`, `OP-100/`, `OP-200/` (upload these), `mould/` (one set for all sizes), `MANIFEST.csv`
+Folders: `OP-70/`, `OP-100/`, `OP-200/` (upload these), `mould/` (three seal-variant sets, valid for all sizes), `MANIFEST.csv`
 (machine-readable version of the table below). Units: mm. STEP is the master, STL (fine tessellation) is for the
 quote tool; `assembly_reference.step` and `reference_not_ordered/` are NOT to be uploaded.
 
@@ -261,7 +261,7 @@ quote tool; `assembly_reference.step` and `reference_not_ordered/` are NOT to be
 | file | process | material | colour | finish | qty / size | tolerance, notes |
 |---|---|---|---|---|---|---|
 """ + "\n".join(f"| `<SIZE>/{k}.stl` | {v[0]} | {v[1]} | {v[2]} | {v[3]} | {v[4]} | {v[5]} |" for k, v in PARTS.items() if v[6]) + f"""
-| `mould/mould_lower.stl`, `mould_upper.stl` | {MOULD[0]} | {MOULD[1]} | {MOULD[2]} | {MOULD[3]} | {MOULD[4]} set (all sizes) | {MOULD[5]} |
+| `mould/mould*_lower.stl`, `mould*_upper.stl` (3 variants S1, S2, T) | {MOULD[0]} | {MOULD[1]} | {MOULD[2]} | {MOULD[3]} | 3 sets (all sizes) | {MOULD[5]} |
 
 Not uploaded (reference geometry in `reference_not_ordered/`): `plunger_seal` (cast in the mould) and `gasket`
 (die/laser-cut from silicone sheet). CNC reservoir halves (`reservoir_cnc_*`) are in `out/` only; they are the

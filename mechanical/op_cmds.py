@@ -86,6 +86,17 @@ class Script:
         self.add("solid.extrude", distance=x[1] - x[0], body_name=name, name=name)
         return name
 
+    def stadium_taper(self, name: str, x: tuple[float, float], yc: float, zc: float,
+                      w: float, h: float, taper_deg: float) -> str:
+        """Stadium (w x h at x[0]) extruded to x[1] with a draft: positive grows, negative shrinks the outline per side by
+        (x[1]-x[0]) * tan(taper).  Used for the flanks of the cast seal bead."""
+        half = (w - h) / 2
+        self.add("sketch.create", plane="YZ", offset=x[0])
+        self.add("sketch.slot.center_to_center", p0=[yc - half, zc], p1=[yc + half, zc], width=h)
+        self.add("sketch.finish")
+        self.add("solid.extrude", distance=x[1] - x[0], taper=f"{taper_deg:.4f} deg", body_name=name, name=name)
+        return name
+
     def stadium_ring(self, name: str, x: tuple[float, float], yc: float, zc: float,
                      w_out: float, h_out: float, w_in: float, h_in: float) -> str:
         self.stadium(name, x, yc, zc, w_out, h_out)

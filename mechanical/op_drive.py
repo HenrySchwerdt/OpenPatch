@@ -26,12 +26,15 @@ def build_reservoir(s: Script, p: dict, L: dict, name: str = "reservoir") -> Non
 
 
 def build_plunger(s: Script, p: dict, L: dict) -> None:
+    """Plunger core (printed) + cast silicone bead seal(s) in assembly state.  See SEAL-AND-DEAD-VOLUME.md."""
+    from op_seal import bead_bodies, ring_range, variant
     rs, dr, sl = p["reservoir"], p["drive"], p["seal"]
     zc, yr, xr = L["z_axis"], L["y_r"], L["xrear"]
     c = rs["plunger_clr"]
     wc, hc = rs["w_in"] - 2 * c, rs["h_in"] - 2 * c
     gd = sl["groove_depth"]
-    s.stadium("plunger_core", (xr, xr + rs["plunger_len"]), yr, zc, wc, hc)
+    xf = xr + rs["plunger_len"]                       # front face of the core (dead layer = rs.dead in front of it at the stop)
+    s.stadium("plunger_core", (xr, xf), yr, zc, wc, hc)
     tools = []
     for k, (a, b) in enumerate((sl["ring_a"], sl["ring_b"])):
         s.stadium_ring(f"t_gr{k}", (xr + a, xr + b), yr, zc, wc + 0.8, hc + 0.8, wc - 2 * gd, hc - 2 * gd)
@@ -40,14 +43,24 @@ def build_plunger(s: Script, p: dict, L: dict) -> None:
     y_end = yr + wc / 2
     tools.append(s.box("t_sock", (xr + sx[0], xr + sx[1]), (y_end - sl["socket_depth"], y_end + 0.1),
                        (zc - dr["arm_t"] / 2 - 0.05, zc + dr["arm_t"] / 2 + 0.05)))
+    pg = sl["purge"]          # purge grooves in the front face: long-axis groove, cross groove, centre spot (flow path to the port, no air pockets)
+    x0g = xf - pg["groove_d"]
+    tools.append(s.box("t_pg_y", (x0g, xf + 0.1), (yr - wc / 2 - 0.1, yr + wc / 2 + 0.1), (zc - pg["groove_w"] / 2, zc + pg["groove_w"] / 2)))
+    tools.append(s.box("t_pg_z", (x0g, xf + 0.1), (yr - pg["groove_w"] / 2, yr + pg["groove_w"] / 2), (zc - hc / 2 - 0.1, zc + hc / 2 + 0.1)))
+    tools.append(s.cyl("t_pg_c", "X", (0, yr, zc), pg["centre_d"], x0g, xf + 0.1))
     s.cut("plunger_core", tools)
-    if L["mode"] == "bench" and rs.get("nose_len", 0) > 0:      # separate printed nose: fills the dead layer in front of the plunger
-        s.stadium("plunger_nose", (xr + rs["plunger_len"], xr + rs["plunger_len"] + rs["nose_len"]), yr, zc, wc, hc)
-    # Silikon-Dichtlippen (Montagezustand = Bohrungsmaß; Gussmaß +0.3, siehe Form)
+    if L["mode"] == "bench" and rs.get("nose_len", 0) > 0:      # legacy separate printed nose (nose_len = 0 since the seal study)
+        s.stadium("plunger_nose", (xf, xf + rs["nose_len"]), yr, zc, wc, hc)
+    # cast silicone beads (assembly state: land at bore - assembly_gap; cast size is bigger, see op_mould.py)
+    v = variant(p)
     ao = sl["assembly_gap"]
-    for k, nm in enumerate(("seal_a", "seal_b")):
-        a, b = (sl["ring_a"], sl["ring_b"])[k]
-        s.stadium_ring(nm, (xr + a, xr + b), yr, zc, rs["w_in"] - ao, rs["h_in"] - ao, wc - 2 * gd, hc - 2 * gd)
+    for which in v["rings"]:
+        nm = "seal_" + which
+        a, b = ring_range(p, which)
+        parts = bead_bodies(s, nm, xr + a, xr + b, yr, zc, wc, hc, rs["w_in"] - ao, rs["h_in"] - ao, v["land"])
+        s.join(nm, parts[1:])
+        s.stadium(f"t_{nm}_floor", (xr + a - 0.1, xr + b + 0.1), yr, zc, wc - 2 * gd, hc - 2 * gd)
+        s.cut(nm, [f"t_{nm}_floor"])
 
 
 def build_carriage(s: Script, p: dict, L: dict) -> None:

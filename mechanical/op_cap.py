@@ -29,17 +29,18 @@ def build_cap(s: Script, p: dict, L: dict) -> dict:
          s.cyl("t_cap_shroud", "X", (0, yc, zn), cn["O_cyl_od"], xr + dk["block_len"] - 0.05, D["shroud_end"])]
     s.join("end_cap", j)
     d = nd["channel_d"]
+    dp = cp.get("prime_d", d)                       # main path (port -> jog -> valve -> hub): short, smallest bore (prime volume)
     ya = yc - 2.0                                   # side branch lane (beside the valve pocket)
     cuts = [
-        s.cyl("t_cap_p", "X", (0, yc, zp), d, xr - cp["spigot_len"] - 0.1, G["x_jog"] + 0.2),       # port channel
-        s.cyl("t_cap_d", "Z", (G["x_jog"], yc, 0), d, zn - 0.2, zp + 0.2),                             # jog to the needle axis
-        s.cyl("t_cap_e", "X", (0, yc, zn), d, G["x_jog"] - 0.2, G["valve_x"][0] + 0.1),                # junction -> valve
+        s.cyl("t_cap_p", "X", (0, yc, zp), dp, xr - cp["spigot_len"] - 0.1, G["x_jog"] + 0.2),       # port channel
+        s.cyl("t_cap_d", "Z", (G["x_jog"], yc, 0), dp, zn - 0.2, zp + 0.2),                             # jog to the needle axis
+        s.cyl("t_cap_e", "X", (0, yc, zn), dp, G["x_jog"] - 0.2, G["valve_x"][0] + 0.1),                # junction -> valve
         s.cyl("t_cap_c", "Y", (G["x_jog"], 0, zn), d, ya - 0.2, yc + 0.2),                             # junction -> side lane
         s.cyl("t_cap_b", "X", (0, ya, zn), d, G["x_jog"] - 0.2, G["x_sept"] + 0.2),                    # side lane -> septum x
         s.cyl("t_cap_a", "Y", (G["x_sept"], 0, zn), d, G["y_block"][0] + 3.5, ya + 0.2),               # septum chamber -> side lane
         s.cyl("t_cap_ch", "Y", (G["x_sept"], 0, zn), 1.0, G["y_block"][0] + 3.0, G["y_block"][0] + 3.8),
         s.cyl("t_cap_sb", "Y", (G["x_sept"], 0, zn), p["septum"]["d"] + 2 * p["septum"]["bore_clr"], G["y_block"][0] - 0.1, G["y_block"][0] + 3.1),
-        s.cyl("t_cap_f", "X", (0, yc, zn), d, G["valve_x"][1] - 0.1, D["x_h0"] + 0.1),                  # valve -> hub bore
+        s.cyl("t_cap_f", "X", (0, yc, zn), dp, G["valve_x"][1] - 0.1, D["x_h0"] + 0.1),                  # valve -> hub bore
         s.cyl("t_cap_hb", "X", (0, yc, zn), dk["hub_d"] + dk["hub_clr"], D["x_h0"], D["shroud_end"] + 0.1),
     ]
     s.cut("end_cap", cuts)

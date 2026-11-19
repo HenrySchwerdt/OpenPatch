@@ -147,8 +147,9 @@ def generate_size(p: dict, variant: str, outdir: Path, snapshots: bool) -> dict:
         run_cli("run", str(cj), "--quiet")
         cj.unlink()
     # mould files (size independent) copied per size
-    for f in ("mould_lower.step", "mould_upper.step", "mould_lower.stl", "mould_upper.stl"):
-        shutil.copy(outdir / f, outdir / f"{tag}_{f}")
+    for pre in ("mould", "mould_s2", "mould_t"):
+        for f in (f"{pre}_lower.step", f"{pre}_upper.step", f"{pre}_lower.stl", f"{pre}_upper.stl"):
+            shutil.copy(outdir / f, outdir / f"{tag}_{f}")
     if snapshots:
         shots(sc, outdir, tag, L, created)
     return L
