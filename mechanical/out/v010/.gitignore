@@ -1,0 +1,7 @@
+*.sc
+OP-*_*.stl
+OP-*_*.step
+!OP-*_assembly.step
+mould*
+*.script.json
+*.models.script.json

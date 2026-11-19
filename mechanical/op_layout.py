@@ -130,6 +130,8 @@ def compute_layout(p: dict, variant: str) -> dict:
     screws = [{"x": sc["dry_x"], "y": y} for y in dry_y] + [{"x": c_x, "y": sc["c_y"]}]
     if bench and layout == "coaxial":           # long pod: two more lid screws beside the motor (free area y < 19)
         screws += [{"x": 14.0, "y": 4.2}, {"x": 14.0, "y": 16.5}]
+    if p.get("v010_active"):                     # v0.1.0 hook (op_v010.py): extra lid screws along the longer pod
+        screws += [{"x": x_r1 + u, "y": y} for u, y in p["v010"]["extra_screws"]]
 
     bat_x0 = max(x_r1 + bt["margin"], mot_end + 0.3, c_x + sc["boss_d"] / 2 + 0.3, mag_x[1] + 0.3)
     bat_x1 = x_end - bt["margin"]
