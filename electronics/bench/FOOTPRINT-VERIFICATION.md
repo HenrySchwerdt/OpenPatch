@@ -9,20 +9,20 @@ Footprints are either the official KiCad 10 library parts (derived from the vend
 |---|---|---|---|
 | U1 Ebyte E73-2G4M08S1CX (C2764963) | custom `Ebyte_E73-2G4M08S1C_13x18`, 43 pads | Ebyte datasheet page 3 mechanical drawing: pads 1.0 x 0.8 on a 1.27 mm pitch, inner pads 0.8 x 0.8 at 2.0 mm from the edge, land extended 0.65 mm outside the edge for the castellation fillet. The drawing labelled "bottom pad" is the module bottom view, the PCB footprint is its mirror image (pins 1..10 on the right edge when the module is seen from above, 26..43 on the left). Pin names verified in the CX manual (pin table identical to the C variant) | **VERIFIED against the datasheet drawing** (dimensions read from the drawing at 0.05 mm resolution; check the first assembled board visually under the module) |
 | U2 XC6206P332MR-G | KiCad `SOT-23` | Torex: 1 VSS, 2 VOUT, 3 VIN (differs from clones, so only C5446 is used) | verified |
-| U3 USBLC6-2SC6 | KiCad `SOT-23-6` | ST: 1 I/O1, 2 GND, 3 I/O2, 4 I/O2, 5 VBUS, 6 I/O1 | verified |
+| U3 USBLC6-2SC6 | (removed) | USB TVS dropped for cost (extended part); bench power only, CC lines have 5.1 k pull-downs | n/a |
 | U4 STSPIN220 | KiCad `QFN-16-1EP_3x3mm_P0.5mm_EP1.7x1.7mm` | ST DS11633 Table 6 (pin map re-read from the text, see `../kicad/FOOTPRINT-VERIFICATION.md`) | pin map verified; exposed-pad size not compared with ST Figure |
 | U5 TPL5010DDCR | KiCad `SOT-23-6` | TI SNAS651A: 1 VDD, 2 GND, 3 DELAY, 4 DONE, 5 WAKE, 6 RSTn. Interval: R = 10 k parallel 22 k = 6.875 k (DS Table 3: 6.788 k = 2 s), about 2.03 s | verified |
-| U6 SN74AUP1G74DCUR | KiCad `VSSOP-8_2.3x2mm_P0.5mm` | TI SCES644D: 1 CLK, 2 D, 3 Q_N, 4 GND, 5 Q, 6 CLR, 7 PRE, 8 VCC (DCU = 2.3 x 2.0 mm) | verified |
+| U6, U9, U10 SN74AUP1G74DCUR (arm latch, over-current latch, DONE qualifier) | KiCad `VSSOP-8_2.3x2mm_P0.5mm` | TI SCES644D: 1 CLK, 2 D, 3 Q_N, 4 GND, 5 Q, 6 CLR, 7 PRE, 8 VCC (DCU = 2.3 x 2.0 mm) | verified |
 | U7 INA180A1IDBVR | KiCad `SOT-23-5` | TI INA180 "Pinout A": 1 OUT, 2 GND, 3 IN+, 4 IN-, 5 VS (the B-pinout parts have a different order, TI part C122228 only) | verified |
-| U8 CD74HC221M96 | KiCad `SOIC-16_3.9x9.9mm_P1.27mm` | TI datasheet pinout: 1 1A, 2 1B, 3 1R, 4 1Q-bar, 5 2Q, 6 2Cext, 7 2Rext/Cext, 8 GND, 9 2A, 10 2B, 11 2R, 12 2Q-bar, 13 1Q, 14 1Cext, 15 1Rext/Cext, 16 VCC. Non-retriggerable ("once triggered, the outputs are independent of further trigger inputs"); tW = 0.7 R C | verified (overbars checked against the standard 74HC221 order) |
+| U8 LM393DR2G (C7955, Basic) | KiCad `SOIC-8_3.9x4.9mm_P1.27mm` | standard dual comparator pinout: 1 OUT A, 2 IN- A, 3 IN+ A, 4 GND, 5 IN+ B, 6 IN- B, 7 OUT B, 8 V+. Channel B inputs parked (IN+ GND, IN- 3V3) | verified (standard pinout) |
 | Q1, Q2 AO3400A / Q4 AO3401A / Q5-Q12 2N7002 | KiCad `SOT-23` (1 G, 2 S, 3 D) | AOS / generic | standard; check the LCSC 2N7002 pinout on its datasheet |
 | J1 TYPE-C-31-M-12 (C165948) | KiCad `USB_C_Receptacle_HRO_TYPE-C-31-M-12` | KiCad library from the HRO drawing; power only (A4/A9/B4/B9 VBUS, A1/A12/B1/B12 GND, A5/B5 CC), shield tabs to GND | verified (library) |
 | J2 Tag-Connect TC2030-IDC-NL | KiCad `Tag-Connect_TC2030-IDC-NL_2x03_P1.27mm_Vertical` | Tag-Connect: 1 VTref, 2 SWDIO, 3 nRESET, 4 SWCLK, 5 GND, 6 SWO | verified (library) |
-| J3 hanxia PZ1.27-2x5P TP (C41376037) | KiCad `PinHeader_2x05_P1.27mm_Vertical_SMD` | generic 1.27 mm SMD header; hanxia drawing not retrievable | **provisional**: standard 1.27 mm pad pattern, check the pads on the first board |
-| J4 Hirose FH12-12S-0.5SH(55) (C88360) | KiCad `Hirose_FH12-12S-0.5SH_1x12-1MP_P0.50mm_Horizontal` | KiCad library from the Hirose drawing (pads 0.3 x 1.3, tabs) | verified (library) |
+| J3 hanxia PZ1.27-2x5P TP (C41376037) **DNP** | KiCad `PinHeader_2x05_P1.27mm_Vertical_SMD` | generic 1.27 mm SMD header; hanxia drawing not retrievable | **provisional**: standard 1.27 mm pad pattern, check the pads on the first board |
+| J4 Hirose FH12-10S-0.5SH(55) (C506791) | KiCad `Hirose_FH12-10S-0.5SH_1x10-1MP_P0.50mm_Horizontal` | KiCad library from the Hirose drawing (pads 0.3 x 1.3, tabs) | verified (library) |
 | J5 CJT A1251WR-S-4P-LCP (C225113) | KiCad `Molex_PicoBlade_53261-0471_1x04-1MP_P1.25mm_Horizontal` | CJT part is advertised as a Molex 53261-0471 clone; clone drawing not retrievable | **provisional**: pad pattern from the Molex part, confirm the plug on the first motor |
 | J6 JST SM04B-GHS-TB | KiCad `JST_GH_SM04B-GHS-TB_1x04-1MP_P1.25mm_Horizontal` | DNP alternative | verified (library), not assembled |
-| BZ1 Huaneng MLT-8530 (C94599) | custom `Buzzer_MLT-8530_8.5x8.5` | datasheet page 2: 8.5 x 8.5 x 3 mm, + lead top-left, - lead bottom-left (bottom view), dummy anchor pads right, inner pad gap 5.5 mm | verified against the drawing (pad size 1.9 x 1.9 chosen; polarity matters only for the flyback diode D1) |
+| BZ1 Huaneng MLT-8530 (C94599) **DNP in Rev A** | custom `Buzzer_MLT-8530_8.5x8.5` | datasheet page 2: 8.5 x 8.5 x 3 mm, + lead top-left, - lead bottom-left (bottom view), dummy anchor pads right, inner pad gap 5.5 mm | verified against the drawing (pad size 1.9 x 1.9 chosen; polarity matters only for the flyback diode D1) |
 | Y1 Epson Q13FC13500004 (C32346) | KiCad `Crystal_SMD_3215-2Pin_3.2x1.5mm` | 12.5 pF, load caps 2 x 15 pF C0G (about 12 pF incl. stray) | verified |
 | SW1 XKB TS-1187A-B-A-B (C318884) | KiCad `SW_Push_1P1T_XKB_TS-1187A` | library | verified (library) |
 | R_LIM Uniroyal 25121WF100JT4E (C47019) | KiCad `R_2512_6332Metric` | standard | verified |
@@ -35,6 +35,5 @@ Footprints are either the official KiCad 10 library parts (derived from the vend
 
 Datasheet-derived design values that are NOT footprints:
 
-* STSPIN220: SENSEA/SENSEB 1.0 ohm, REF divider 100 k / 5.1 k from 3.3 V = 0.160 V, so peak phase current about 160 mA (NFP-608-26.45-SGM is rated 4.8 V, 26.5 ohm, max 0.18 A per phase); TOFF 47 k; EN/FAULT 10 k pull-up + 10 nF; STBY 100 k pull-down; MODE1 pulled to 3V3, MODE2 on the MCU. Logic inputs are rated 5.5 V independent of VS, so an unpowered driver is not back-fed.
-* CD74HC221 pulse width: tW = 0.7 x R x C with R = 200 k + 100 k and C = 1 uF = 0.21 s nominal. Allowing +20 % capacitor and k scatter the worst case is about 0.3 s. The datasheet quotes the formula at 4.5 V; at 3.3 V k can differ by tens of percent, **measure tW on the first board (test points WIN1 / WIN2)**.
-* INA180A1 (gain 20 V/V) across a 0.333 ohm low-side shunt (3 x 1.0 ohm): 0.4 A gives 2.67 V.
+* STSPIN220: SENSEA/SENSEB 1.0 ohm, VREF 100 k / 5.1 k from 3.3 V = 0.160 V, I_peak = VREF / RSNS = 160 mA per phase (DS11633 Equation 1; NFP-608-26.45-SGM is rated 4.8 V, 26.5 ohm, max 0.18 A per phase; offset +-15 mV gives at most about 177 mA); TOFF 47 k with 1 k + 10 nF RC (datasheet); MODE1/MODE2 hard-wired low (full step forced, DS11633 6.2); EN/FAULT 10 k pull-up + 10 nF; STBY 100 k pull-down. See pin-assignment.md.
+* INA180A1 (gain 20 V/V) across a 0.333 ohm low-side shunt (3 x 1.0 ohm: R31, R39, R47): 0.3 A gives 2.0 V, I [mA] = V [mV] / 6.67, saturation at about 3.25 V (490 mA). The hardware over-current comparator trips at 3.0 V (450 mA).
