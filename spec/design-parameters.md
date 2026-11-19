@@ -56,6 +56,12 @@
 - **Build height 8.5 mm** (8.0 is not achievable with the 16×5 reservoir: stack = 8.4 mm; only with 0.6 mm reservoir wall + 0.75 mm shell) including housing wall and Velcro surface. Corners R ≥ 4 mm, top slightly domed (pillow shape).
 - Housing wall thickness: 0.9 mm (MJF PA12 or SLA resin for prototype; later injection-molded PC/PP).
 
+## 2a. Transparent lid (decision 2026-11-19, user)
+
+- The lid is printed in **clear resin** (JLC3DP clear SLA, polished/clear-coated outside) so reservoir, water level, plunger and drive are visible. The **fill window slot in the lid is removed**; the fill scale (ticks every 10 U, long every 50 U) becomes a shallow engraving on the lid inner face above the plunger travel.
+- Everything under the lid is therefore visible: tidy cable routing, no labels needed inside; light-sensitive parts (none in the bench pod) must be checked for v0.1.0 (e.g. hall sensors are fine, the TMAG is fine; LEDs may light up the housing).
+- Wall thickness and stiffness rules unchanged; clear resin is water-only like all printed parts.
+
 ## 3. Reservoir (flat, "stadium" cross-section)
 
 - Rigid reservoir with **stadium cross-section (slot) 16.0 × 5.0 mm inside** → area A = 5·11 + π·2.5² = **74.6 mm²**.
