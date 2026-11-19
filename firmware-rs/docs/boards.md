@@ -2,7 +2,7 @@
 
 Exactly one board feature must be enabled (`compile_error!` otherwise): `board-bench-e73` (default) or `board-nrf52840-dk`.
 Everything board specific is in `openpatch-bench/src/board/{e73,dk}.rs` (pins as typed peripherals, polarity / presence consts).
-Exactly one drive feature (NO default): `drive-nfp-608-26-45-g15-12` (primary, gear pair 15T->12T, ratio 21.16, id 0x24), `drive-nfp-608-26-45-g1-1` (coaxial, 0x20), `drive-syringe-rig-1ml` (bench rig, 0x30), `drive-zwbpd006006-6-43`, `drive-zwbpd006006-4-8`, `drive-faulhaber-adm0620-16`. Exactly one angle feature: `angle-tmag` (default) or `angle-qdec-fallback`; `coarse-qdec` is an optional cross-check log. The pin map below is the STEPPER map (STSPIN220); the board documentation currently in the repository differs, see docs/stubs.md.
+Exactly one drive feature (NO default): `drive-nfp-608-26-45-g16-20` (primary and `scripts/build.sh` default: GHW module 0.3 step-down pair 16T->20T, total ratio 33.0625, 0.003949 U/step, id 0x25, matches the current CAD), `drive-nfp-608-26-45-g15-12` (gear pair 15T->12T, ratio 21.16, id 0x24) and `drive-nfp-608-26-45-g1-1` (coaxial, 0x20), both NOT the current CAD and kept as options only, `drive-syringe-rig-1ml` (bench rig, 0x30), `drive-zwbpd006006-6-43`, `drive-zwbpd006006-4-8`, `drive-faulhaber-adm0620-16`. Exactly one angle feature: `angle-tmag` (default) or `angle-qdec-fallback`; `coarse-qdec` is an optional cross-check log. The pin map below is the STEPPER map (STSPIN220); the board documentation currently in the repository differs, see docs/stubs.md.
 
 ## `board-bench-e73`: bench controller board (Ebyte E73-2G4M08S1CX), `electronics/bench/pin-assignment.md` applied exactly
 
@@ -82,7 +82,7 @@ No motor driver, interlock, TPL5010 or current shunt. The STCK pin simply toggle
 DK pins are taken from the nRF52840-DK Arduino header numbering (A0 = P0.03, A1 = P0.04, A2 = P0.28, D0 to D13 = P1.01 to P1.15 without
 P1.09, SDA/SCL = P0.26/P0.27); check against the board documentation if something does not respond. P0.05 to P0.08 (UART bridge),
 P0.09/P0.10 (NFC), P0.17 to P0.23 (QSPI flash) and P0.18 (reset) are avoided.
-Run on the DK: `cargo run --release --no-default-features --features board-nrf52840-dk,angle-tmag,drive-nfp-608-26-45-g15-12,dev-plaintext`.
+Run on the DK: `cargo run --release --no-default-features --features board-nrf52840-dk,angle-tmag,drive-nfp-608-26-45-g16-20,dev-plaintext`.
 
 ## Software DOCKED (`dock-simulated`) and the interlock board
 

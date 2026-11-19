@@ -43,7 +43,7 @@ The drive preset must be chosen explicitly (cargo feature `drive-*`, exactly one
 
 ```sh
 ./scripts/build.sh                 # bootloader + app for both boards (explicit preset), prints sizes
-cd openpatch-bench && cargo build --release --no-default-features --features "board-nrf52840-dk,drive-nfp-608-26-45-g15-12,angle-tmag,dev-plaintext"
+cd openpatch-bench && cargo build --release --no-default-features --features "board-nrf52840-dk,drive-nfp-608-26-45-g16-20,angle-tmag,dev-plaintext"
 ```
 
 ## Flash and run (probe-rs, any CMSIS-DAP / J-Link / the DK's on-board debugger)

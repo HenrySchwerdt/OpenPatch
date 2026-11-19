@@ -319,7 +319,7 @@ fn missing_calibration_latches_no_calibration_and_delivers_nothing() {
 }
 
 // ---- gear-pair and syringe-rig presets ----
-use openpatch_core::drive_cal::{self, NFP_608_2645_G15_12, SYRINGE_RIG_1ML};
+use openpatch_core::drive_cal::{self, NFP_608_2645_G15_12, NFP_608_2645_G16_20, SYRINGE_RIG_1ML};
 
 #[test]
 fn preset_g15_12_gear_pair_is_the_exact_rational() {
@@ -364,4 +364,71 @@ fn every_production_preset_ids_are_unique_and_below_test_range() {
     ids.dedup();
     assert_eq!(ids.len(), drive_cal::PRESETS.len());
     assert!(drive_cal::PRESETS.iter().filter(|p| (p.id as u16) < 0x7F00).count() >= 6);
+}
+
+#[test]
+fn preset_g16_20_step_down_pair_is_the_exact_rational() {
+    // GHW module 0.3, 16 T on the motor : 20 T on the screw. Screw advance per motor turn = 16/20 = 0.8,
+    // total ratio 26.45 / 0.8 = 33.0625 = 529/16. U/step = 0.35 mm / (20 * 33.0625) * 74.6 mm^2 / 10
+    //   = 130 550 / 33.0625 uU = 130 550 * 16 / 529 uU = 2 088 800 / 529 uU = 3 948.58 uU
+    let p = NFP_608_2645_G16_20;
+    assert_eq!(p.id as u16, 0x25);
+    assert_eq!((p.uu_num, p.uu_den), (2_088_800, 529));
+    // the reduced fraction is the published geometry: uu_num / uu_den * (529 / 16) == 130 550 exactly
+    assert_eq!(p.uu_num as u64 * 529, 130_550 * 16 * p.uu_den as u64);
+    let cal = p.cal();
+    assert_eq!(cal.micro_u_floor(), 3_948);
+    // gear_ratio_x100 is the ratio rounded to 0.01 (33.0625 -> 33.06): it only feeds the angle plausibility
+    // check (error 0.0076 %, far below the 3 % per revolution tolerance), the dose uses the exact rational
+    assert_eq!(p.gear_ratio_x100, 3_306);
+    assert_eq!(cal.turn_x100, 66_120);
+    let exact_turn_x100 = 20.0 * 33.0625 * 100.0;
+    assert!(((cal.turn_x100 as f64 - exact_turn_x100) / exact_turn_x100).abs() < 1e-4);
+    // whole pump numbers: 253 steps per U, 0.05 U = 12 steps (floor: never more than requested)
+    assert_eq!(cal.mu_to_pulses(MilliUnits(1000)).0, 253);
+    assert_eq!(cal.mu_to_pulses(MilliUnits(50)).0, 12);
+    assert!(cal.pulses_to_mu(cal.mu_to_pulses(MilliUnits(1000))).0 <= 1000);
+    // 529 steps are exactly 2 088 800 uU: no drift over any multiple
+    assert_eq!(cal.pulses_to_micro(Pulses(529)).0, 2_088_800);
+    assert_eq!(cal.pulses_to_micro(Pulses(529 * 9)).0, 9 * 2_088_800);
+    // relation to the other NFP presets (same motor): U/step scales with the screw advance per motor turn
+    // G16_20 / G1_1 = 0.8 exactly
+    assert_eq!(p.uu_num as u64 * NFP_608_2645_G1_1.uu_den as u64 * 5, NFP_608_2645_G1_1.uu_num as u64 * p.uu_den as u64 * 4);
+    // the pair that does NOT match the current CAD would dose +56 % (g15-12) / +25 % (g1-1) too much
+    assert!(NFP_608_2645_G15_12.cal().micro_u_floor() > cal.micro_u_floor());
+    // the record validates, round-trips and is not confused with the other NFP presets
+    let rec = DriveCal::from_preset(&p);
+    assert_eq!(DriveCal::validate(Some(&rec)), Ok(()));
+    assert_eq!(DriveCal::from_bytes(&rec.to_bytes()), rec);
+    assert_eq!(DriveCal::preset(0x25), Ok(rec));
+    let mut wrong = rec;
+    wrong.drive_id = 0x24; // right numbers, wrong id (re-sealed): rejected as a mismatch
+    wrong.crc32 = wrong.compute_crc();
+    assert_eq!(DriveCal::validate(Some(&wrong)), Err(Error::BadArg));
+}
+
+#[test]
+fn g16_20_pump_delivers_the_requested_volume_through_the_core() {
+    let rec = DriveCal::from_preset(&NFP_608_2645_G16_20);
+    let hal = MockHal::new();
+    hal.st().counts_per_step = 6; // 4096 / 661.25 = 6.19 counts per step
+    hal.st().delivered_pct = 97;
+    let mut p = Pump::new(hal.clone(), Some(&rec), CAPACITY_100, 1);
+    p.set_config(PumpConfig::RELAXED);
+    assert_eq!(p.get_status().cal_drive_id, 0x25);
+    assert_eq!(p.get_status().cal_gear_ratio_x100, 3_306);
+    assert_eq!(p.get_status().cal_uu_per_step, 3_948);
+}
+
+#[test]
+fn g16_20_ustep_equals_the_geometry_formula_exactly() {
+    // U/step = 0.35 mm / (20 steps x 26.45 x 20/16) x 74.6 mm^2 / 10, evaluated as an exact rational (integers only):
+    // (35/100) * (100 / (20 * 2645)) * (16 / 20) * (746 / 10) / 10, in uU
+    let num: u128 = 35 * 100 * 16 * 746 * 1_000_000;
+    let den: u128 = 100 * 20 * 2645 * 20 * 10 * 10;
+    let p = NFP_608_2645_G16_20;
+    // equal fractions: p.uu_num / p.uu_den == num / den (cross multiplication, no rounding anywhere)
+    assert_eq!(p.uu_num as u128 * den, num * p.uu_den as u128);
+    // and to the core's precision in micro-units per 529 steps
+    assert_eq!(p.cal().pulses_to_micro(Pulses(529)).0 as u128, num * 529 / den);
 }

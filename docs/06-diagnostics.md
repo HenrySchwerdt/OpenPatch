@@ -40,7 +40,7 @@ Rules that follow from this:
 |---|---|---|---|---|
 | H1 Over-delivery | **partly** | (a) motor can not run unless latch AND MCU_EN AND (docked OR reverse); (b) a hung or crashed MCU loses the latch within the TPL5010 interval (see 1.3); (c) undocked forward motion is impossible; (d) driver chopper limits torque | the **amount**: per-bolus, per-minute and per-hour limits (15 U/h), encoder cross-check, rate limiting. Hardware alone does **not** bound the dose delivered inside the watchdog window (see 1.5) | 6-60-008, 7-70-001..007, 7-77-001..003, 1-06-001, 1-07-*, 1-04-* |
 | H2 Under-delivery / occlusion | no (hardware only stops, it does not measure) | dock gate stops delivery when the pod is not on the cannula | angle channel, current rise, shortfall > 2 U | 5-53-*, 6-60-*, 4-42-* |
-| H3 Unnoticed delivery stop | partly | after any reset all gates are open; the pod can not resume by itself | boot in SUSPENDED, alarm, app alert, reset cause logging | 7-74-002/003, 1-01-002, 9-90-* |
+| H3 Unnoticed delivery stop | partly | after any reset all gates are open; the pod can not resume by itself | boot in SUSPENDED, alarm, app alert, reset cause logging (implemented: an ACTIVE pod after an unplanned reset raises `7-74-002` at FAULT severity, sets the ALARM flag and buzzer and refuses `Resume` until acknowledged; a released pod keeps the catalogue severity W) | 7-74-002/003, 1-01-002, 9-90-* |
 | H4 Air in the reservoir | no | duckbill valve prevents air ingress through the outlet (mechanical) | compliance test, prime flow, instructions | 5-50-005 |
 | H5 Wrong concentration | no | - | app and fill dialog | (process) |
 | H6 Loss of communication | no | - | temp basal fallback after 30 min | 9-90-001, 7-71-* |
@@ -73,13 +73,13 @@ Proposed new hazards (to be merged into `02-safety.md` after review; not done he
 * Every control input of the interlock defaults to "no motion": `MCU_EN` 100 k pull-down, `PGATE` pulled to VBUS (P-FET off), latch cleared at power-up and by `RSTn`, `DOCK_N` 100 k pull-up (a missing or unplugged FFC reads "not docked"), STSPIN220 `STBY` 100 k pull-down.
 * Firmware defaults: boot in SUSPENDED; no calibration means no steps; no angle sensor means no steps; no session key means no commands; an unknown diagnostic code means fault (`7-7C-003`); an unknown FRU state is "UNKNOWN" (grey), never "OK".
 * A proof that has not been performed is **UNKNOWN**, never OK. Health is OK only after a passing test within its freshness window (section 3.4).
-* Assumptions not yet verified on hardware are not left as comments: they get a code that fires when the assumption is wrong: the `DIR_REV` polarity (`4-40-003`), the TMAG5273 register map (`2-20-002`, `2-20-005`), the gear ratio (`4-41-002`; see the open 15:12 vs 18:18 mismatch in `docs/STATUS.md`).
+* Assumptions not yet verified on hardware are not left as comments: they get a code that fires when the assumption is wrong: the `DIR_REV` polarity (`4-40-003`), the TMAG5273 register map (`2-20-002`, `2-20-005`), the gear ratio (`4-41-002`; the firmware preset is `drive-nfp-608-26-45-g16-20`, a pod fitted with another pair, e.g. 18:18, trips it).
 
 ### 1.5 Residual gap and recommended hardware additions (decision needed)
 
-With the current interlock the **dose inside the watchdog window is not bounded by hardware**. A firmware fault that keeps `STCK` running while the supply is armed and the pod is docked can deliver for about 2 to 4 s. At 200 Hz (the configured step rate) that is 400 to 800 steps, i.e. 2.5 to 4.9 U on the 15:12 drive (6.17 mU per step); if a bug sets a higher rate, the motor pull-in rate (about 1000 pps, unverified) gives an upper bound of about 25 U. That is above the 10 U default bolus limit. Rev A can therefore **not** claim a hardware dose limit; the dose limit is L3 (software). Two additions are proposed for the electronics work package (WP-7), both optional, both needing the user's decision (open question 1):
+With the current interlock the **dose inside the watchdog window is not bounded by hardware**. A firmware fault that keeps `STCK` running while the supply is armed and the pod is docked can deliver for about 2 to 4 s. At 200 Hz (the configured step rate) that is 400 to 800 steps, i.e. 1.6 to 3.2 U on the 16:20 drive (3.95 mU per step); if a bug sets a higher rate, the motor pull-in rate (about 1000 pps, unverified) gives an upper bound of about 16 U. That is above the 10 U default bolus limit. Rev A can therefore **not** claim a hardware dose limit; the dose limit is L3 (software). Two additions are proposed for the electronics work package (WP-7), both optional, both needing the user's decision (open question 1):
 
-* **HW-A, arm window and step budget** (about two small logic chips): `ARM_CLK` starts a non-retriggerable one-shot window (about 0.5 s) and resets a 5-bit counter on `STCK`; an AND gate stops `STCK` to the driver after 32 pulses (about 0.2 U on the 15:12 drive) until the next arm edge, and a dead time of at least 0.5 s separates arm edges. This bounds any "runaway inside one tick" fault to about 0.2 U per 0.5 s, i.e. at most about 1.6 U before the TPL5010 reset, **independent of firmware**.
+* **HW-A, arm window and step budget** (about two small logic chips): `ARM_CLK` starts a non-retriggerable one-shot window (about 0.5 s) and resets a 5-bit counter on `STCK`; an AND gate stops `STCK` to the driver after 32 pulses (about 0.13 U on the 16:20 drive) until the next arm edge, and a dead time of at least 0.5 s separates arm edges. This bounds any "runaway inside one tick" fault to about 0.2 U per 0.5 s, i.e. at most about 1 U before the TPL5010 reset, **independent of firmware**.
 * **HW-B, independent monitor** (Rev B): a tiny separate MCU or CPLD that counts `STCK` pulses on its own and enforces 15 U/h and 1.7 U/min by pulling `LATCH_CLR_N`. Only this gives a hardware hourly limit.
 
 The readback of such blocks would get codes in reserved controller components `0x0F` (HW-A) and `0x10` (HW-B).
@@ -155,7 +155,7 @@ Escalation: some codes start as W and escalate to F after repetition (rules in t
 | 2 | PODB | pod sensor board | pod board with TMAG5273 U4, dock hall U3, optional DRV5032 U1/U2, FFC connector J1 | |
 | 3 | FFC | FFC cable | 0.5 mm FFC between J4 (controller) and pod J1 | |
 | 4 | MOTOR | motor | NFP-608-26.45 with factory lead and plug (J5) | lead is part of the motor in Rev A |
-| 5 | GEAR | gear pair | GHW 15:12 module 0.3 pair | |
+| 5 | GEAR | gear pair | GHW 16:20 module 0.3 step-down pair | |
 | 6 | SCREW | leadscrew and nut (carriage) | M1.6 x 0.35 leadscrew, nut, carriage arm | |
 | 7 | RESV | reservoir | frozen CNC PP reservoir | |
 | 8 | SEAL | plunger seal | silicone/FKM stadium lip seal | |
@@ -198,7 +198,7 @@ Pod-level (not shared) FRUs are reported per pod; `CANN`, `APP` and `USB` are sh
 | 3 | 30 | FFC cable conductors | 10 pins between J4 and pod J1 (inst = pin number) | FFC |
 | 3 | 31 | motor lead | factory lead + plug into J5 | MOTOR |
 | 4 | 40 | motor | NFP-608-26.45 windings A/B, integral planetary gearhead | MOTOR |
-| 4 | 41 | gear pair | 15 T to 12 T | GEAR |
+| 4 | 41 | gear pair | 16 T to 20 T | GEAR |
 | 4 | 42 | leadscrew, nut, carriage | M1.6 x 0.35 | SCREW |
 | 5 | 50 | reservoir volume | fill model, end stops, draw | RESV |
 | 5 | 51 | plunger | stadium plunger and lip seal | SEAL |
@@ -330,7 +330,7 @@ POST-S ends with the record `7-74-006 POST_RESULT` (INFO, `ctx_a` = bitmask of s
 
 ### 3.3 POST-A: active self test (pod SUSPENDED only; on `Activate`, on app request, after an FRU replacement, at provisioning; at most 5 s)
 
-Motion steps are limited to a net-zero excursion of 16 steps reverse then 16 steps forward (about 0.1 U on the 15:12 drive); forward steps run only when docked (interlock), so on an undocked pod the forward-dependent proofs stay UNKNOWN until the first docked, suspended window. Bench only; with water.
+Motion steps are limited to a net-zero excursion of 16 steps reverse then 16 steps forward (about 0.06 U on the 16:20 drive); forward steps run only when docked (interlock), so on an undocked pod the forward-dependent proofs stay UNKNOWN until the first docked, suspended window. Bench only; with water.
 
 | Step | Proof | Method | Codes |
 |---|---|---|---|
@@ -338,7 +338,7 @@ Motion steps are limited to a net-zero excursion of 16 steps reverse then 16 ste
 | A02 | DOCKED and DIR_REV gates **block**, undocked only | undocked, DIR forward, latch armed, `MCU_EN` high: VMOT must stay below 0.5 V; then DIR reverse: VMOT must come up (draw path works) | 1-07-003, 1-07-004, 1-07-006 |
 | A03 | current baseline | 16 reverse steps: peak current stored as baseline on first run, compared later (+/- 25 %); open phase / lead / short signatures | 3-31-001..004, 4-40-002, 6-62-001, 1-08-003 |
 | A04 | direction polarity | reverse pulses must **decrease** the angle (retract), forward must increase | 4-40-003 |
-| A05 | step ratio | counts per pulse over 32 steps within +/- 5 % of the drive calibration; classification: power-of-two ratio means MODE pins, 0.8 or 1.25 means wrong gear pair (18:18 vs 15:12) | 4-41-002 |
+| A05 | step ratio | counts per pulse over 32 steps within +/- 5 % of the drive calibration; classification: power-of-two ratio means MODE pins, 0.8 or 1.25 means wrong gear pair (e.g. 18:18 fitted against the 16:20 firmware) | 4-41-002 |
 | A06 | backlash | dead travel at the turnaround against baseline | 4-41-001 |
 | A07 | compliance (closed system) | reverse 0.2 U with septum and duckbill closed: vacuum signature (current rise, early stall) expected for a liquid-filled closed reservoir | 5-50-005 |
 | A08 | watchdog is effective (**service/bench command only**, resets the MCU) | withhold DONE once; the MCU must be reset within 3.5 s; the record is written before and verified after the reset | 1-04-001, 1-04-002 |
@@ -677,9 +677,11 @@ Compatibility: frame `version` stays **1**; frame layout, CRC, TLV encoding, AAD
 
 | Id | Name | Request tags | Response (after `RESULT`) |
 |---|---|---|---|
-| 0x10 | `GetFaultLog` | `FROM_ID` (0x0A, optional, default 0), `MAX_EVENTS` (0x0B, optional; 0 or above 4 gives 4) | `NEXT_DIAG_ID`, `OLDEST_DIAG_ID`, `DIAG_LATCHED`, 0 to 4 x `DIAG_RECORD` (4 x 34 B + 15 B + up to 66 B = 217 B, below the 235 B payload budget of 244 - 9) |
-| 0x11 | `RunSelfTest` | `SUB_OP` (0x08): 1 POST-S again, 2 POST-A, 3 watchdog proof (service) | `SELFTEST_STATE`; progress through notification kind 7; results as `DIAG_RECORD`s (`7-74-006` last) |
-| 0x12 | `ClearDiag` | `DIAG_CODE` (0 = all clearable W/F records) | `DIAG_SUMMARY`; `NotClearable` if the code is latched and its verification test has not passed |
+| 0x20 (response 0xA0) | `GetFaultLog` | `FROM_ID` (0x0A, optional, default 0), `MAX_EVENTS` (0x0B, optional; 0 or above 4 gives 4) | `NEXT_DIAG_ID`, `OLDEST_DIAG_ID`, `DIAG_LATCHED`, 0 to 4 x `DIAG_RECORD` (4 x 34 B + 15 B + up to 66 B = 217 B, below the 235 B payload budget of 244 - 9) |
+| 0x21 (response 0xA1) | `RunSelfTest` | `SUB_OP` (0x08): 1 POST-S again, 2 POST-A, 3 watchdog proof (service) | `SELFTEST_STATE`; progress through notification kind 7; results as `DIAG_RECORD`s (`7-74-006` last) |
+| 0x22 (response 0xA2) | `ClearDiag` | `DIAG_CODE` (0 = all clearable W/F records) | `DIAG_SUMMARY`; `NotClearable` if the code is latched and its verification test has not passed |
+
+**Command ids (changed 2026-11-19):** the first draft used 0x10 to 0x12, whose response types 0x90 to 0x92 collided with the Alert notification frame type 0x90 (`GetFaultLog` 0x10 | 0x80 = 0x90). The ids are now 0x20 to 0x22 (responses 0xA0 to 0xA2); a test asserts that no response type equals any command, handshake or notification type.
 
 **New result codes** (after 27): 28 `SelfTestRefused` (not suspended, draw running or test running), 29 `Latched` (`Resume`/`Activate` refused; response carries `DIAG_CODE` of the root latched code), 30 `NotClearable`. `Acknowledge` (0x0A) keeps its legacy meaning (clears non-latched F records whose legacy bit is in the mask).
 
@@ -703,7 +705,7 @@ The C reference (`firmware/`) is frozen: it never emits these tags; differential
 ### 5.5 iOS `OpenPatchCore`
 
 * New types: `DiagCode` (struct over `UInt32` with `layer`, `component`, `fault`, `inst`, `description` `"1-06-001"`), `DiagSeverity`, `DiagAction`, `Fru` (enum with the ids of 2.4), `DiagRecord` (decode of the 32 bytes), `DiagSummary`, `FruHealth` (2-bit decode, `[Fru: HealthState]`), `PodUID`, `DiagCatalogue` (generated, `lookup(code) -> CodeInfo?`).
-* `WireV1`: add tags 0x27 to 0x2F, commands 0x10 to 0x12, result codes 28 to 30, notify kinds 5 to 7, history type 31. Decoders are tolerant: a short or long TLV for an unknown future size is skipped with a `DiagCode 9-95-002`-style local record, never a crash.
+* `WireV1`: add tags 0x27 to 0x2F, commands 0x20 to 0x22, result codes 28 to 30, notify kinds 5 to 7, history type 31. Decoders are tolerant: a short or long TLV for an unknown future size is skipped with a `DiagCode 9-95-002`-style local record, never a crash.
 * `PodStatus` gains `diag: DiagSummary?`, `fruHealth: FruHealth?`, `uid: PodUID?`; `faultCode` stays as the legacy summary.
 * `PodEvent` gains `.diag(DiagRecord)`, `.diagCleared(DiagCode)`, `.selfTest(passed: UInt16, failed: UInt16)`.
 * `V1Transport` gains `getFaultLog(from:)` (paging until `NEXT_DIAG_ID`), `runSelfTest(_:)`, `clearDiag(_:)`; `Transport` protocol gets the same with default "unsupported" for the simulator until extended.
@@ -787,7 +789,7 @@ A **fault jig** (WP-7) is a small board that plugs onto the controller test poin
 | B12 | TPL5010: cut `WAKE`, short `DONE`, withhold DONE (A08), break the `RSTn` path | `1-04-001`, `1-04-002`, `1-01-003` |
 | B13 | remove the spindle magnet; shim it 0.5 mm away; add a strong magnet near TMAG | `6-60-002`, `6-60-003`, `2-20-003` |
 | B14 | remove the dock magnet; hold it at the switching distance (jitter); fix a magnet permanently near the hall | `2-21-002`, `2-21-003`, `2-21-001` (via the lift test), `1-07-006` |
-| B15 | fit the wrong gear pair (18:18 against 15:12 firmware); swap the DIR_REV option (R96/R97); swap motor phases; insert a damaged/skipping gear | `4-41-002` (class 2), `4-40-003`, `4-41-003`, `6-60-006`; **this resolves the open gear-ratio question with evidence** |
+| B15 | fit the wrong gear pair (18:18 against 16:20 firmware); swap the DIR_REV option (R96/R97); swap motor phases; insert a damaged/skipping gear | `4-41-002` (class 2), `4-40-003`, `4-41-003`, `6-60-006`; **this resolves the open gear-ratio question with evidence** |
 | B16 | outlet blocked with a clamp (water), slow restriction | `5-53-003` then `5-53-002`/`5-53-001` before 2 U shortfall |
 | B17 | draw with an empty syringe / needle out of the septum / air at the outlet; with the DOCKED jumper missing | `5-50-004`, `5-50-005`, `5-50-003`, `7-73-002` |
 | B18 | programmable supply: ramp 5.0 to 3.0 V and back, 5.0 to 6.0 V, 100 ms dips; load step | `A-A2-001`, `A-A0-001/002`, `1-02-001`, `1-06-003`, `1-01-002`, `A-A2-002` |
@@ -829,7 +831,7 @@ Ordering: **WP-0 first** (shared catalogue), then WP-1, WP-4 and WP-7 in paralle
 | **WP-1 Core diag module** (`firmware-rs/openpatch-core/src/diag/`, `faults.rs`, `safety.rs`, `pump.rs`, `hal.rs`) | `DiagCode`, records, ring, latched set, `raise`/`raise_caused_by`/`clear`, legacy projection, convert `latch(Faults::X)` sites, extend `Hal` with default methods, notification kinds 5 to 7, `Approved<Pulses>` | WP-0 | **all 343 existing tests and the 32 differential tests pass unchanged**; new tests for ring, coalescing (10 s), cause chain depth, latch and clear rules per severity, unknown code (`7-7C-003`), legacy projection equals the old bits for every legacy scenario; no alloc, no unsafe; code size increase reported |
 | **WP-2 Core detectors** (`openpatch-core/src/diag/detect/*`, `safety.rs`, `reservoir.rs`, `draw.rs`) | angle plausibility (frozen, jump, noise, field, ratio, tooth skip, backlash, travel), uncommanded motion, step bookkeeping (dual encoding, executed vs approved), baselines (current, friction, ramp), reservoir model checks, tick overrun/stall, reset cause and loop, time-of-day, battery and temperature, wear; `FaultyHal` | WP-1 | one `diag_<code>` test per `FW-core` row; 72 h nominal soak has zero W-or-above records; mutation test on thresholds; differential parity (6.1) green |
 | **WP-3 Bench HAL, POST and persistence** (`firmware-rs/openpatch-bench/src/hal/*`, `safety.rs`, `storage.rs`, `board/e73.rs`) | host-testable interlock and POST module behind `Pins`; rotating single-gate disarm; A01 to A11; readbacks RB1..RB13 (stage 1 with existing signals `LATCH_Q_MON`, `VMOT_SENSE`, own-pin readback, `EN/FAULT`; stage 2 when WP-7 delivers RB1..RB5, RB12); `motor_step_ex` with driver fault; I2C bus recovery and TMAG ID/status; retained-RAM breadcrumb and panic handler; fault log and latched set persistence; `fault-inject` feature | WP-1; WP-7 for stage 2 | host simulated-board tests for every `H` row; bench B01 to B12 and B21 give the expected codes; step timing and tick jitter not worse than today (measure); DK build reports interlock proofs as UNKNOWN, never OK; no new `unsafe` |
-| **WP-4 Protocol** (`firmware-rs/openpatch-proto/`, `docs/`: `firmware-rs/docs/protocol-extensions.md`, `firmware/docs/openpatch-protocol.md` addendum) | tags 0x27 to 0x2F, commands 0x10 to 0x12, results 28 to 30, notify kinds 5 to 7, event 31, flags 13/14; codec, session; golden fixtures | WP-0 (record layout), WP-1 for the types | round-trip and golden tests; worst-case frame at most 244 B; fuzz clean; v1 old-parser test passes; encrypted notifications use nonce direction 2; document updated with the example of 5.4 |
+| **WP-4 Protocol** (`firmware-rs/openpatch-proto/`, `docs/`: `firmware-rs/docs/protocol-extensions.md`, `firmware/docs/openpatch-protocol.md` addendum) | tags 0x27 to 0x2F, commands 0x20 to 0x22, results 28 to 30, notify kinds 5 to 7, event 31, flags 13/14; codec, session; golden fixtures | WP-0 (record layout), WP-1 for the types | round-trip and golden tests; worst-case frame at most 244 B; fuzz clean; v1 old-parser test passes; encrypted notifications use nonce direction 2; document updated with the example of 5.4 |
 | **WP-5 iOS core** (`ios/OpenPatchKit/OpenPatchCore/`) | models, catalogue, `WireV1` additions, `V1Transport` calls, `PodStatus`/`PodEvent` extensions, `SimulatedPod.inject` | WP-0, WP-4 fixtures | Swift tests decode all golden fixtures; every catalogue row maps; unknown/short TLV never crashes; the existing 143 core tests pass |
 | **WP-6 iOS kit and UI** (`ios/OpenPatchKit/OpenPatchKit/`, `OpenPatchKitUI/`) | per-code alerts (identifier, text, level, repeat), retract, `pumpStatusHighlight` with FRU text, state persistence per pod UID, swap gating, component health view, isolation wizard, diagnostic report export | WP-5 | alert tests over every catalogue row; exactly one alert per (pod, code), retracted on clear; swap refused for a faulty spare with a naming message; health view view-model tests; legacy `podFault` still works for a v1-only pod; existing 49 kit tests pass; `ios/INTEGRATION.md` updated (optional `AlertCatalogRegistry` entries) |
 | **WP-7 Electronics readbacks, FMEA, jig** (`electronics/bench/controller`, `pod`, `pin-assignment.md`, `INTERLOCK.md`/`DIAGNOSTICS.md`) | RB1..RB5 and RB12 (FFC loop on the pod board), shared pin or resistor-ladder decision, test points for the jig, FMEA in the 3.6 format with codes, fault jig design, optional HW-A step budget (1.5), reconcile `pin-assignment.md` with `firmware-rs/docs/boards.md` | none (in parallel with WP-1) | pin map identical in `pin-assignment.md`, `boards.md` and the core; DRC 0; FMEA rows reference catalogue codes, every "protection lost" mode has an L code; jig drawing and BOM; the DRAW jumper question (`stubs.md` conflict 2) decided |
@@ -844,7 +846,7 @@ Ordering: **WP-0 first** (shared catalogue), then WP-1, WP-4 and WP-7 in paralle
 3. **Is a net-zero 0.1 U excursion in POST-A acceptable** on a docked pod (bench, water only)? For Rev B (on a real cannula) it would need a different test or no motion at all.
 4. **FRU granularity for Rev B** (integrated pod): keep the 18 ids and map several to "pod board", or collapse? Proposed: keep ids, collapse in the UI.
 5. **Critical Alerts entitlement:** `.critical` interruption needs Apple's entitlement in Trio; without it Trio falls back to time sensitive. Acceptable for the bench project?
-6. **Gear ratio:** the open 15:12 vs 18:18 decision in `docs/STATUS.md` is independent of this design, but `4-41-002` will latch a wrong build; decide before WP-3 bench runs.
+6. **Gear ratio:** the pair is decided (GHW 16:20, firmware preset `drive-nfp-608-26-45-g16-20`, id 0x25); `4-41-002` latches a pod built with another pair.
 
 **Assumptions (each has a code that fires if it is wrong)**: `DIR_REV` polarity (R96/R97, `4-40-003`); TMAG5273 register map and status bits (`2-20-002`, `2-20-005`); thresholds marked *cal*; TPL5010 timing (about 2 s, B11); nRF die temperature as a proxy for pod temperature (`B-B0-*`).
 
