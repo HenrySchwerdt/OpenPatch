@@ -1,3 +1,44 @@
+# OpenPatch - mechanics
+
+> **TEST PROJECT, not a medical device. WATER ONLY, never worn, never filled with insulin or any other drug** (`../DISCLAIMER.md`).
+
+## v0.1.0 integrated pod (current default: `--variant v010`, OP-100 and OP-200 only)
+
+One coherent model of all decisions up to 2026-11-19 (`V010.md` has the full story, the check results and the length levers):
+
+* **coaxial translating M1.6 screw = the only rod** (spec 3d), motor in the rear zone beside the screw tail meshing **directly** with the nut gear (no idler, no side rod, no encoder lane); diametric ring
+  magnet on the nut-gear sleeve + TMAG5273 beside it;
+* closed CNC reservoir, **re-frozen** as `reservoir_frozen_v010` (wall 1.0, bore 25.7 x 4.7, end wall 2.0, port offset to the dock axis; the old block is kept for history);
+* minimal fluid module without valve (sandwich cap, underside fill septum inside the docked footprint, crush ribs guarantee the O-ring land contact), dock insert on the frozen interface;
+* MAIN board over the dock tunnel (+ wing over the cell), cell, SENSOR board, USB board + waterproof USB-C in the rear wall, motor contact card (4 spring contacts), FPC spine under the reservoir, piezo on the
+  lid inner face, ePTFE vent, clear lid with engraved scale.
+
+```bash
+cd mechanical
+python3 generate.py --variant v010                 # OP-100 + OP-200 -> out/v010/ (renders for OP-100; --snapshot-sizes OP-100 OP-200); builds everything from a clean checkout
+python3 check.py --variant v010                    # geometry, interference, fluid boundary, H14, one-rod, electronics, walls; TARGET lines for the length goals
+python3 check.py --variant v010 --assembly         # + insertion paths, tool access, DFM with vendor rules, fit classes (out/v010/assembly-check/REPORT.md)
+python3 fab.py --variant v010                      # out/v010/fab/ (README per part in fab/parts/)
+python3 sim/run_all.py                             # v0.1.0 simulations -> sim/REPORT-v010.md (bench pod: --bench)
+python3 studies/pod_levers.py                      # length levers (pure arithmetic of op_pod.layout)
+python3 make_assembly_sequence_v010.py             # regenerates assembly_sequence_v010.json (the build order as data)
+```
+
+| file | purpose |
+|---|---|
+| `op_pod.py` | layout + electronics geometry + drive / reservoir / fluid / dock / electronics builders of the v0.1.0 pod (all numbers in `params.json -> pod`, `reservoir_frozen_v010`) |
+| `op_pod_shell.py` | bottom shell, clear lid, scale engraving |
+| `v010_gen.py`, `v010_check.py`, `v010_fab.py` | generate / check / fab drivers of the variant |
+| `assembly_sequence_v010.json`, `make_assembly_sequence_v010.py` | v0.1.0 build order, tools and fit list for `check_assembly.py` |
+| `studies/pod_levers.py` | length levers per size |
+| `sim/v010_sim.py`, `sim/ring_sensor.py` | thrust / dose / angle sensing / dead volume of the v0.1.0 geometry |
+| `op_v010.py`, `op_v010s*.py`, `op_cradle.py` | **superseded** tail and stack layouts (kept for history, not used) |
+
+Everything below is the bench-pod / Rev A documentation (history; still valid for `--variant bench`).
+
+---
+
+
 # OpenPatch - mechanics (parametric CAD, Rev A "orderable")
 
 EXPERIMENTAL DIY device, **not a medical device**. Rev A is for bench / water tests. Source of all dimensions:

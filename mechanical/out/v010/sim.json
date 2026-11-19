@@ -1,0 +1,55 @@
+{
+ "A_mm2": 116.05,
+ "perimeter_mm": 56.77,
+ "u_per_step": 0.006142503727834763,
+ "mm_per_step": 0.0005293005671077504,
+ "sizes": {
+  "OP-100": {
+   "stroke_mm": 8.61701661993666
+  },
+  "OP-200": {
+   "stroke_mm": 17.23403323987332
+  }
+ },
+ "thrust": {
+  "F105": 4.049896632575257,
+  "F160": 6.171271059162295,
+  "F181": 6.981250385677345,
+  "F_seal_kin": 0.5230515578463638,
+  "F_seal_break": 0.7845773367695457,
+  "F_back_40kPa": 4.6419778171779855,
+  "margin160": 1.1372354807216918,
+  "margin105": 0.7463107842236104,
+  "perimeter_scale_vs_16x5": 1.5053978139445567,
+  "P_for_margin2_kPa": 19.828256690898986
+ },
+ "dose": {
+  "u_step": 0.006142503727834763,
+  "steps_per_0p05U": 8.140003199904454,
+  "lost_motion_U": {
+   "thread backlash 0.08 mm (assumed)": 0.9283955634355971,
+   "thread backlash worst 0.15 mm": 1.7407416814417445
+  }
+ },
+ "angle": {
+  "B_yz_min_mT": 35.17,
+  "B_yz_max_mT": 75.3,
+  "B_x_pk_mT": 25.44,
+  "angle_err_pp_deg": 48.59,
+  "angle_slope": -1.051
+ },
+ "angle_deg_per_U": 88.63217094791995,
+ "dead": {
+  "prime_path_U": 0.3101954823178804,
+  "purge_grooves_U": 0.14544690049407735,
+  "dead_layer_U": 0.4641977817177986,
+  "items_mm3": {
+   "port channel (spigot half grooves d0.5 x 2.05)": 0.403,
+   "gasket slot 0.6 x 0.5 x 2.25": 0.675,
+   "via d0.6 x 1.25": 0.353,
+   "needle bore d0.5 x 2.90": 0.569,
+   "septum chamber d1.2 x 0.4 + spur": 0.992,
+   "needle ID 0.159 x 5.5": 0.109
+  }
+ }
+}

@@ -97,7 +97,7 @@
   {
    "id": "C1",
    "context": "capsub",
-   "title": "O-ring 2.0 x 0.5 stretched over the spigot into the face groove of the end cap",
+   "title": "O-ring 2.0 x 0.7 stretched over the spigot into the face groove of the end cap",
    "guide": "ASSEMBLY.md",
    "parts": [
     "cap_oring"
@@ -167,7 +167,7 @@
   {
    "id": "C3",
    "context": "capsub",
-   "title": "Septum disc d4 x 2 dropped into the septum pocket (open top)",
+   "title": "Septum disc d3.2 x 2 dropped into the septum pocket (open top)",
    "guide": "ASSEMBLY.md",
    "parts": [
     "septum"
@@ -571,7 +571,7 @@
   {
    "id": "M6",
    "context": "main",
-   "title": "Reservoir sub-assembly lowered and slid 3 mm toward -X over the nut (the nut protrudes into the bore opening)",
+   "title": "Reservoir sub-assembly lowered and slid 1.2 mm toward -X over the nut (the nut protrudes into the bore opening)",
    "guide": "ASSEMBLY.md",
    "parts": [
     "@res_sub"
@@ -1105,7 +1105,7 @@
    "hole_proc": "CNC_PP",
    "shaft_proc": "SLA",
    "at": [
-    "F('plunger_core','X',0.71)",
+    "F('plunger_core','X',0.55)",
     "L['y_r']",
     "L['z_axis']"
    ],
@@ -1131,7 +1131,7 @@
    "hole_proc": "CNC_PP",
    "shaft_proc": "SLA",
    "at": [
-    "F('plunger_core','X',0.71)",
+    "F('plunger_core','X',0.55)",
     "L['y_r']",
     "L['z_axis']"
    ],
@@ -1174,7 +1174,9 @@
    },
    "guide_regex": "sand the spigot.{0,80}1\\.95",
    "post_tight": "sand the spigot to d1.95 (1500 grit, rotate in a drill)",
-   "post_loose": "the O-ring seals; a drop of UV adhesive locates the cap"
+   "post_loose": "the O-ring seals; a drop of UV adhesive locates the cap",
+   "ds_override": 1.98,
+   "dh_override": 2.0
   },
   {
    "id": "F05",

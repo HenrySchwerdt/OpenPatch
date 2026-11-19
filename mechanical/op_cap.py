@@ -72,7 +72,7 @@ def build_cap(s: Script, p: dict, L: dict) -> dict:
         s.box("t_g_rec", (xr + gx0, xr + gx1), (y0 + gm, gy1), (zs - rec, zs + 0.1)),                                  # gasket recess (0.4 deep)
         s.cyl("t_cap_p", "X", (0, yc, zp), dp, xr - cp["spigot_len"] - 0.1, xr + gx0 + 0.1),                          # port channel (half groove in the spigot)
         s.cyl("t_cap_via", "Z", (xd, yc, 0), sw["via_d"], zn - 0.3, zs - rec + 0.1),                                  # via: slot layer -> needle axis
-        s.cyl("t_cap_nb", "X", (0, yc, zn), cp.get("bore_d", dp), xd - (0.1 if "bore_d" in cp else 0.3), D["x_h0"] + 0.1),                                           # needle bore: junction -> hub
+        s.cyl("t_cap_nb", "X", (0, yc, zn), cp.get("bore_d", dp), xd + (0.1 if "bore_d" in cp else -0.3), D["x_h0"] + (0.02 if "bore_d" in cp else 0.1)),                                           # needle bore: junction -> hub
         s.cyl("t_cap_hb", "X", (0, yc, zn), dk["hub_d"] - cp["hub_press"], D["x_h0"], D["shroud_end"] + 0.1),         # hub seat (needle UV-glued, jig)
         s.cyl("t_cap_sp", "Z", (xd, yd, 0), sdia + sfl, zf, zs + 0.05),                                                # septum pocket (axis Z, open top)
         s.cyl("t_cap_fh", "Z", (xd, yd, 0), cp["fill_hole_d"], z0 - 0.1, zf + 0.1),                                    # fill-needle hole down to the pod floor hole

@@ -13,6 +13,7 @@ from op_layout import HERE, load_params
 OUT = HERE / "out" / "v010"
 FAB = OUT / "fab"
 SIZES = ("OP-100", "OP-200")
+SIZE_INDEPENDENT = ("end_cap", "end_cap_lid", "plunger_core")
 
 # part -> (process, material, colour, finish, qty per pod, tolerance, post-processing, notes, upload?)
 VT = "JLC3DP vendor tolerances: SLA +-0.2 mm (holes shrink, +-0.3), MJF +-0.3 mm (holes shrink, +-0.3); the CAD clearances already assume them (dfm_rules.json)."
@@ -59,7 +60,7 @@ PURCHASED = [
     ("GHW module 0.3 brass gears 390754 (z16, motor) and 753020 (z20, nut gear, hub turned off)", "GHW-Modellbau", "1 + spare"),
     ("Thrust sleeve: brass tube d2.0 x d1.64 x 3.1 mm (cut + deburr); dry bush d3.0 x d1.7 x 1.0 (PTFE/brass)", "hardware", "1 each + spare"),
     ("Diametric RING magnet N45/N52 d5 x d2 x 1.5 mm (custom order; VERIFY availability) glued on the sleeve", "magnet vendor", "2"),
-    ("30G needle + printed hub, O-ring 2.0 x 0.5 (NBR/silicone), silicone septum disc d4 x 2, 0.5 mm silicone sheet", "generic", "1 set"),
+    ("30G needle + printed hub, O-ring 2.0 x 0.7 (NBR/silicone), silicone septum disc d3.2 x 2, 0.5 mm silicone sheet", "generic", "1 set"),
     ("ISP1807 radio SiP 8 x 8 x 1.0 (on the MAIN PCBA, consigned) + MAIN / POWER / SENSOR boards (electronics/v010)", "JLCPCB PCBA", "1 set"),
     ("Li-Po cell 301012 class (3.0 x 10 x 12 mm incl. PCM, ~30 mAh) + 0.6 mm foam tape", "AliExpress", "3 candidates"),
     ("Waterproof USB-C 16P mid-mount receptacle (IPX7 class, 8.94 x 7.35 x 3.26 mm, drawing VERIFY) + USB board", "AliExpress / LCSC", "1 + spare"),
@@ -125,7 +126,8 @@ def main() -> None:
             if not v[8] or part in ("reservoir_cnc", "dock_insert"):
                 continue
             for ext in ("stl", "step"):
-                src = OUT / f"{sz}_{part}.{ext}"
+                # size-independent parts (fluid sandwich, plunger core: same shape, only their position in the pod differs) are shipped from the OP-100 export for both sizes
+                src = OUT / f"{'OP-100' if part in SIZE_INDEPENDENT else sz}_{part}.{ext}"
                 if src.exists():
                     shutil.copy(src, d / f"{part}.{ext}")
             rows.append([f"{sz}/{part}.stl", v[0], v[1], v[2], v[3], v[4], v[5], round(vols[sz].get(part, 0), 3)])

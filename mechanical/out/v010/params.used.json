@@ -4,20 +4,16 @@
   "max_height": 8.5,
   "width_target": 32.0,
   "length_targets": {
-   "OP-70": 38.0,
-   "OP-100": 42.0,
-   "OP-200": 56.0
+   "OP-100": 45.0,
+   "OP-200": 54.0
   }
  },
  "variants": {
-  "OP-70": {
-   "stroke": 9.4
-  },
   "OP-100": {
-   "stroke": 13.4
+   "stroke": 0.0
   },
   "OP-200": {
-   "stroke": 26.8
+   "stroke": 0.0
   }
  },
  "shell": {
@@ -25,7 +21,7 @@
   "corner_r": 4.0,
   "top_fillet": 1.0,
   "width": 32.0,
-  "height": 8.5,
+  "height": 8.4,
   "lap_low": 5.0,
   "lap_high": 5.5,
   "lap_gap": 0.1,
@@ -44,23 +40,24 @@
   "depth": 0.35,
   "margin_x": 0.4,
   "y0": 4.0,
-  "y1": 29.0,
+  "y1": 26.3,
   "r": 1.5
  },
  "reservoir": {
-  "w_in": 16.0,
-  "h_in": 5.0,
-  "wall": 0.8,
-  "dead": 1.0,
-  "plunger_len": 3.8,
-  "plunger_clr": 0.2,
-  "plunger_gap": 0.2,
+  "w_in": 25.7,
+  "h_in": 4.7,
+  "wall": 1.0,
+  "dead": 0.04,
+  "plunger_len": 4.76,
+  "plunger_clr": 0.1,
+  "plunger_gap": 0.0,
   "fill_fraction": 1.0,
   "cnc_split": true,
-  "nose_len": 0.7
+  "nose_len": 0.0,
+  "_comment_seal_study": "2026-11-19 SEAL-AND-DEAD-VOLUME.md: plunger core is now 4.76 long with the front flange 0.46 behind the front bead, dead layer 0.04 (dead + plunger_len = 4.80 as before, so the CNC reservoir length is unchanged); core clearance 0.1 per side; the separate printed nose is gone (nose_len 0)."
  },
  "septum": {
-  "d": 4.0,
+  "d": 3.2,
   "len": 2.0,
   "bore_clr": 0.1,
   "z": 2.9,
@@ -249,19 +246,20 @@
   "recess_depth": 0.2
  },
  "seal": {
-  "ring_w": 0.8,
-  "flange": 0.6,
-  "groove_depth": 0.5,
-  "free_oversize": 0.3,
+  "_comment": "Cast silicone bead seal, three mould variants (op_seal.py, op_mould.py, SEAL-AND-DEAD-VOLUME.md). free_oversize = cavity tip diameter minus 16.0 (before cast shrink ~0.1-0.2 %).",
+  "ring_w": 0.6,
+  "flange": 0.4,
+  "groove_depth": 0.55,
+  "free_oversize": 0.15,
   "assembly_gap": 0.02,
   "socket_clr": 0.1,
   "ring_a": [
-   0.6,
-   1.4
+   0.4,
+   1.0
   ],
   "ring_b": [
-   2.3,
-   3.1
+   3.35,
+   4.25
   ],
   "socket_x": [
    1.45,
@@ -271,7 +269,49 @@
    1.55,
    2.15
   ],
-  "socket_depth": 1.6
+  "socket_depth": 1.6,
+  "land": 0.2,
+  "active_variant": "S2",
+  "variants": {
+   "S1": {
+    "rings": [
+     "b"
+    ],
+    "free_oversize": 0.15,
+    "land": 0.2,
+    "shore_target": 30,
+    "role": "fall-back: more squeeze (~0.047 mm per side), single front bead, land 0.20; use if S2 leaks"
+   },
+   "S2": {
+    "rings": [
+     "b"
+    ],
+    "free_oversize": 0.12,
+    "land": 0.15,
+    "shore_target": 30,
+    "role": "ACTIVE (CAD) / lowest friction: land 0.15, net squeeze ~0.03 mm per side; leak margin thinner"
+   },
+   "T": {
+    "rings": [
+     "a",
+     "b"
+    ],
+    "free_oversize": 0.14,
+    "land": 0.2,
+    "shore_target": 30,
+    "role": "twin bead (redundant seal, longer guide), about 1.7x the friction of S1 (use if S1 leaks)"
+   }
+  },
+  "purge": {
+   "groove_w": 0.5,
+   "groove_d": 0.1,
+   "centre_d": 1.8
+  },
+  "guide": {
+   "mu_g": 0.15,
+   "_note": "[ASM] mu_g = core flange vs PP bore, silicone-oil wetted. tape_recess: both core flanges are turned down by this much per side so that one wrap of 0.1 mm PTFE thread-seal tape (optional) restores the 0.1 mm clearance and lowers the guide friction to ~0.10 (see SEAL-AND-DEAD-VOLUME.md, cocking).",
+   "tape_recess": 0.1
+  }
  },
  "mould": {
   "margin": 6.0,
@@ -279,7 +319,7 @@
   "pin_d": 2.0,
   "pin_clr": 0.1,
   "pin_h": 2.5,
-  "sprue_d": 0.7,
+  "sprue_d": 0.8,
   "vent_d": 0.5,
   "core_clr": 0.03
  },
@@ -363,7 +403,7 @@
  },
  "bench": {
   "_comment": "Bench pod (spec 4a). u = x - x_r1. All board features are relative to x_r1 -> one board for all sizes.",
-  "board_t": 0.8,
+  "board_t": 0.6,
   "u_left": 1.7,
   "lobe_u": 9.0,
   "right_gap": 0.6,
@@ -430,48 +470,48 @@
   "mount": {
    "pins": [
     [
-     9.5,
-     2.4
+     10.6,
+     18.5
     ],
     [
-     19.0,
-     2.4
+     17.2,
+     22.0
     ]
    ],
    "pin_d": 1.0,
    "pin_h": 0.7,
    "hole_d": 1.2,
    "screw": [
-    13.0,
-    2.4
+    10.6,
+    19.4
    ],
    "screw_hole_d": 1.4,
    "screw_head_keepout": 2.8,
    "screw_len": 4.0,
    "posts": [
     [
-     3.6,
-     29.2
+     7.0,
+     22.4
+    ],
+    [
+     17.2,
+     20.4
     ]
    ],
    "post_d": 1.6,
    "boss_d": 2.2,
    "hd": [
     [
-     9.5,
-     2.4
+     6.5,
+     22.4
     ],
     [
-     19.0,
-     2.4
+     12.9,
+     22.8
     ],
     [
-     3.6,
-     29.2
-    ],
-    [
-     -1.0,
-     29.8
+     16.2,
+     13.3
     ]
    ],
    "hd_d": 1.2,
@@ -494,7 +534,7 @@
   "board_z0": 5.3,
   "revB_motor_contacts_note": "Rev B spring-contact variant: order the NFP motor WITHOUT lead; pins B,A-,B+,A at 1.2 mm pitch, see layout.json motor_pins_revB",
   "width": 27.0,
-  "tail_len": 29.5,
+  "tail_len": 20.3,
   "length_targets": {
    "OP-70": 65.5,
    "OP-100": 69.5,
@@ -520,14 +560,14 @@
    "groove_w": 2.2,
    "groove_floor": 0.4,
    "groove_top": 0.95,
-   "groove_y": 28.0,
+   "groove_y": 26.8,
    "slot_w": 2.2,
    "slot_z_top": 1.7,
-   "posts": 1,
+   "posts": 3,
    "post_d": 0.8,
    "post_dy": 0.65,
    "post_pitch": 2.0,
-   "post_x0": 5.6,
+   "post_x0": 1.0,
    "post_h": 0.9
   },
   "length_targets_by_layout": {
@@ -569,11 +609,6 @@
     "OP-200": 38.5
    }
   },
-  "valve": {
-   "bore_interference": 0.1,
-   "plug_interference": 0.04,
-   "plug_gap": 0.02
-  },
   "carriage": {
    "rear_wall": 0.6,
    "nut_rear_wall": 0.45,
@@ -588,7 +623,7 @@
   "pocket_half": 7.6,
   "ledge_z": [
    0.0,
-   0.45
+   0.5
   ],
   "clr": 0.05,
   "insert_top_gap": 0.02,
@@ -596,8 +631,8 @@
    "x_u": 7.4,
    "d_bump": 0.5,
    "z": [
-    0.35,
-    0.75
+    0.45,
+    0.85
    ],
    "hole_d": 0.9
   },
@@ -637,20 +672,81 @@
   "mouth_over": 0.6,
   "arm_gap_clr": 0.2,
   "hook_ramp": 0.5,
-  "valve_x0": 0.6,
+  "valve_x0": 1.4,
   "cap": {
    "septum_x": 2.2,
-   "spigot_len": 2.0,
+   "spigot_len": 1.8,
    "spigot_d": 1.98,
-   "block_y0": 1.0,
-   "block_up_y": 3.0,
-   "jog_x": 0.3,
-   "wall_hole_d": 2.0
+   "prime_d": 0.5,
+   "oring": {
+    "id": 2.0,
+    "cs": 0.7,
+    "groove_inner_d": 2.2,
+    "groove_w": 0.8,
+    "groove_depth": 0.55,
+    "_note": "catalogue O-ring 2.0 x 0.5 (NBR/silicone) in a face groove of the cap, sealing against the flat PP end face of the reservoir around the port: stretched 10 % on d2.2, cross-section 0.477, axial squeeze (0.477-0.40)/0.477 = 16 %. The d1.98 spigot only locates (clearance fit, NOT a seal)."
+   },
+   "block_up": 3.8,
+   "hub_press": 0.08,
+   "_note_2026_11_19_review": "septum bore = disc d x (1 - septum_compress) = 3.4 (radial compression 15 %), cavity 1.8 deep for a 2.0 disc (0.2 protrudes: the shell wall compresses it 0.1 axially, no air pocket behind it); needle hub bore = hub_d - hub_press (0.04 interference per side); main path channels d0.6 (L/D <= 5.3, flushable from both ends), fill branch d0.8 (drill/print straight legs).",
+   "sandwich": {
+    "_comment": "clamped two-part sandwich (op_cap.py), spec 3c minimal fluid module. septum: disc (septum.d / len) or a bought septum (change d / len); needle: hub seat with UV-glued needle (dock.hub_d, cap.hub_press) or bare needle.",
+    "slot_w": 0.6,
+    "via_d": 0.6,
+    "plenum_d": 1.2,
+    "gasket": {
+     "t": 0.5,
+     "recess": 0.4,
+     "x": [
+      1.0,
+      3.9
+     ],
+     "y_margin": -0.1,
+     "y_max_rel": 3.5
+    },
+    "septum": {
+     "type": "disc",
+     "compress": 0.15,
+     "float": 0.1
+    },
+    "screws": {
+     "d": 1.2,
+     "pilot": 1.0,
+     "clear": 1.4,
+     "head_d": 2.4,
+     "head_depth": 0.0,
+     "pos": [
+      [
+       2.6,
+       1.9
+      ]
+     ]
+    },
+    "chamber_d": 1.2,
+    "chamber_h": 0.4,
+    "spur_w": 0.8,
+    "spur_depth": 0.5,
+    "block_y_rel": [
+     -5.9,
+     3.4
+    ]
+   },
+   "septum_dy": 3.2,
+   "fill_hole_d": 2.0,
+   "_note_3c": "2026-11-19 spec 3c: NO check valve, pressure fill. Minimal module: reservoir port -> septum chamber -> outlet needle. Septum on the UNDERSIDE (axis Z) at (x_r1 + septum_x, y_c - septum_dy), fill needle through cap.fill_hole_d and a hole in the pod floor; one gasket slot, no branches.",
+   "bore_d": 0.9
   },
-  "guard_lead_in": 0.4
+  "guard_lead_in": 0.4,
+  "cover": {
+   "_comment": "Hazard H14 (spec 3e): no check valve, so the fill septum must be physically unreachable while docked. Omnipod-style: the septum is on the pod UNDERSIDE inside the Velcro patch footprint (the floor recess `velcro`, extended forward to x_r1 + x_end_u), so the patch covers the underside, and therefore the fill-needle hole, whenever the pod sits on it (docked); the pod must be removed and turned over to fill. check.py: the hole footprint (septum x, y, hole d + needle radius) must lie inside the patch footprint; a plate directly under the floor blocks every ray (any angle) through the hole.",
+   "x_end_u": 3.5,
+   "needle_d": 0.4
+  },
+  "digit_w": 0.5,
+  "digit_h": 0.4
  },
  "coax": {
-  "_comment": "Coaxial NFP motor + sleeve coupler (see op_coax.py). All lengths VERIFY with the real motor.",
+  "_comment": "Coaxial NFP motor + sleeve coupler (see op_coax.py). All lengths VERIFY with the real motor. valve_d/valve_len/dock.valve_x0 are LEGACY (coaxial layout only): the bench pod has no check valve since spec 3c.",
   "rear_gap": 1.9,
   "shaft_engage": 3.0,
   "len": 5.6,
@@ -658,7 +754,7 @@
   "screw_gap": 0.2,
   "carriage_gap": 0.3,
   "valve_d": 3.0,
-  "valve_len": 3.4,
+  "valve_len": 2.8,
   "post_d": 0.8,
   "slot_w": 3.0,
   "slot_z": [
@@ -668,19 +764,19 @@
  },
  "reservoir_frozen": {
   "_comment": "FROZEN INTERFACE of the CNC polypropylene reservoir (one order per size). Everything else (cap, septum, duckbill, needle, dock, housing) adapts to these numbers; do not change after the order.",
-  "bore_w": 16.0,
-  "bore_h": 5.0,
+  "bore_w": 25.7,
+  "bore_h": 4.7,
   "bore_tol_plus": 0.05,
   "bore_tol_minus": 0.0,
-  "bore_corner_r": 2.5,
-  "wall": 0.8,
-  "end_wall": 2.5,
+  "bore_corner_r": 2.35,
+  "wall": 1.0,
+  "end_wall": 2.0,
   "port_d": 2.0,
   "port_tol": "H7 (+0.012/0)",
   "port_chamfer": 0.2,
   "port_pos": "centre of the closed end face (y = bore centre, z = bore axis)",
-  "outer_w": 17.6,
-  "outer_h": 6.6,
+  "outer_w": 27.7,
+  "outer_h": 6.7,
   "outer_tol": "+-0.1",
   "length_tol": "+-0.1",
   "Ra_bore_um": 0.8,
@@ -841,23 +937,24 @@
   },
   "extra_screws": [
    [
-    16.2,
-    2.4
+    14.0,
+    2.2
    ],
    [
-    26.0,
-    2.4
+    34.0,
+    2.2
    ]
   ],
   "lead": {
    "end_clear": 1.0
   },
   "vent": {
-   "u": 3.0,
-   "y": 10.0,
+   "u": 8.0,
+   "y": 12.0,
    "hole_d": 0.8,
    "recess_d": 5.0,
-   "recess_depth": 0.2
+   "recess_depth": 0.2,
+   "part": "ePTFE hydrophobic vent membrane disc d5.0 x ~0.15 with adhesive ring (generic breathable-vent disc), glued into the lid recess; equalises the plunger dry-side / housing volume (review 2026-11-19)"
   },
   "cradle": {
    "pin_part": "P75-E2 class spring test probe (tube d1.02, length 16.5, stroke ~2 mm; AliExpress/LCSC), VERIFY with calipers",
@@ -1055,18 +1152,327 @@
    }
   }
  },
- "mode": "bench",
- "v010_active": true,
- "v010_plan": {
-  "layout": "stack",
-  "tmag_end_u": 5.85,
-  "cell_u0": 6.25,
-  "cell_u1": 19.05,
-  "tail_len": 29.5,
-  "shelf_x0": 22.0,
-  "lead_end_u": -3.8,
-  "arms_end_u": 16.5,
-  "y_lo_arms": 17.65
+ "reservoir_frozen_v010": {
+  "_comment": "RE-FROZEN reservoir interface for v0.1.0 (decision 2026-11-19, spec 3d/2b; the old block `reservoir_frozen` is kept for history, bench pod). Wide closed stadium bore for the coaxial translating screw, CNC wall >= 1.0 mm (JLCCNC absolute minimum for plastics = DFM hard floor), end wall 2.0 (port d2.0 length 2.0), port OFFSET from the bore centre to the dock axis y_c. Open dry end x = 0, closed end x = length. Order once per size after the independent DFM review; changing a number needs a decision in docs/STATUS.md.",
+  "bore_w": 25.7,
+  "bore_h": 4.7,
+  "bore_tol_plus": 0.05,
+  "bore_tol_minus": 0.0,
+  "bore_corner_r": 2.35,
+  "wall": 1.0,
+  "end_wall": 2.0,
+  "outer_w": 27.7,
+  "outer_h": 6.7,
+  "outer_tol": "+-0.1",
+  "length_tol": "+-0.1",
+  "port_d": 2.0,
+  "port_tol": "H7 (+0.012/0)",
+  "port_chamfer": 0.2,
+  "port_pos": "closed end face, z = bore axis, y = bore centre MINUS port_dy (the dock axis)",
+  "port_dy": 5.95,
+  "tool_d": 4.7,
+  "Ra_bore_um": 0.8,
+  "Ra_other_um": 1.6,
+  "qty": 2,
+  "material": "Polypropylene homopolymer (PP-H), natural; water only in this project",
+  "datums": "A = open dry-end face (x = 0); B = bottom flat (z = 0 at the lower outer flat); C = bore centre plane (y = 0)",
+  "why_changed": "spec 3d: 16 x 5 bore -> 25.7 x 4.7 (area 116.0 mm2, stroke 8.62 mm per 100 U instead of 13.4); wall 0.8 -> 1.0 (JLCCNC minimum, DFM hard floor); height 5.0 -> 4.7 so that outer 6.7 + 2 x 0.9 shell = 8.4 (a 1.0 wall on a 5.0 bore needs 8.8 mm); end wall 2.5 -> 2.0; port off-centre (dock axis)."
  },
- "v010_electronics": null
+ "pod": {
+  "_comment": "v0.1.0 INTEGRATED POD (mechanical/op_pod.py): one coherent model, OP-100 and OP-200 only (spec 2c). Coaxial translating M1.6 screw (spec 3d) = the ONLY rod; the motor (NFP-608, or the Zhaowei d3.4 option) lies in the rear zone BESIDE the screw tail and meshes DIRECTLY with the nut gear (no idler, no side rod, no encoder lane: owner requirement 2026-11-19). Angle magnet = diametric RING on the nut-gear sleeve, TMAG5273 beside it on the SENSOR board. Boards: MAIN over the dock tunnel (+ wing over the cell), SENSOR board in the rear pocket, USB board + mid-mount waterproof USB-C in the rear wall, motor contact card, FPC spine under the reservoir. x from the rear outer face, y across (0..32), z from the skin (0).",
+  "sizes": [
+   "OP-100",
+   "OP-200"
+  ],
+  "height": 8.4,
+  "length_targets": {
+   "OP-100": 45.0,
+   "OP-200": 54.0
+  },
+  "volume_ul": {
+   "OP-100": 1000.0,
+   "OP-200": 2000.0
+  },
+  "res": {
+   "y0": 3.3,
+   "y1": 31.0,
+   "dry_strip": 1.0,
+   "dead": 0.04,
+   "plunger_gap": 0.0,
+   "lid_recess": 0.05,
+   "plunger_len": 4.76,
+   "rib_stop": {
+    "w": 0.6,
+    "h": 1.2,
+    "interference": 0.4,
+    "_note": "printed crush ribs on the floor behind the reservoir rear face: 0.4 +-0.3 interference pushes the reservoir against the fluid module so the O-ring land contact (squeeze) is guaranteed"
+   }
+  },
+  "motor": {
+   "option": "nfp608",
+   "y_side": 1,
+   "options": {
+    "nfp608": {
+     "d": 6.0,
+     "stack": 17.6,
+     "tail": 0.7,
+     "motor_len": 8.0,
+     "gearhead_len": 8.1,
+     "boss_front": 0.8,
+     "boss_d": 3.5,
+     "rear_boss_d": 2.6,
+     "shaft_d": 2.0,
+     "note": "NFP-608-26.45-SGM (datasheet outline); stack = rear boss tail + motor + gearbox + front boss, from the rear boss tip"
+    },
+    "zw34": {
+     "d": 3.4,
+     "stack": 14.1,
+     "tail": 0.3,
+     "motor_len": 5.0,
+     "gearhead_len": 8.3,
+     "boss_front": 0.5,
+     "boss_d": 2.0,
+     "rear_boss_d": 1.5,
+     "shaft_d": 1.0,
+     "note": "Zhaowei ZWBMD004004-36 (d3.4 x 13.3 mm, 3 V / 50 mA): ENVELOPE ONLY, torque/resistance/shaft unverified (docs/MOTOR-RESEARCH-2026-11-19.md); order samples before use"
+    }
+   },
+   "gear": {
+    "module": 0.3,
+    "z_motor": 16,
+    "z_screw": 20,
+    "centre_add": 0.11,
+    "gear_t": 1.4,
+    "clr": 0.1
+   }
+  },
+  "drive": {
+   "nut_len": 1.3,
+   "nut_af": 3.2,
+   "nut_glue": 0.02,
+   "nut_to_res": 0.52,
+   "socket_depth": 2.0,
+   "tab_t": 0.4,
+   "slot_t": 0.55,
+   "tab_len": 1.0,
+   "engage_margin": 0.4,
+   "screw_d": 1.6,
+   "screw_rear_min_x": 1.5,
+   "rear_hole_d": 2.5,
+   "rear_plug_d": 2.4,
+   "sleeve_od": 2.0,
+   "bush_od": 3.0,
+   "bush_id": 1.7,
+   "bush_len": 1.0,
+   "bush_bore_clr": 0.05,
+   "block_wall": 0.675,
+   "sleeve_gap": 0.05
+  },
+  "ring": {
+   "od": 5.0,
+   "id": 2.0,
+   "t": 1.5,
+   "gap_to_bush": 0.1,
+   "gap_to_gear": 0.1,
+   "part": "diametrically magnetised ring magnet N45/N52 d5 x d2 x 1.5 (custom/vendor order; VERIFY) glued on the thrust sleeve",
+   "tmag": {
+    "pkg": [
+     2.9,
+     2.8,
+     1.45
+    ],
+    "gap": 0.4,
+    "board_t": 0.6,
+    "board_z0": 3.1,
+    "board_len": 8.3,
+    "board_w": 8.9
+   }
+  },
+  "usb": {
+   "w": 8.94,
+   "d": 7.35,
+   "h": 3.26,
+   "z_c": 2.9,
+   "y_c": 9.5,
+   "open_w": 9.4,
+   "open_h": 3.4,
+   "gasket_t": 0.5,
+   "gasket_w": 0.8,
+   "board_t": 0.6,
+   "board_len": 1.4,
+   "part": "waterproof USB-C 16P mid-mount receptacle with gasket, 8.94 x 7.35 x 3.26 mm (vendor drawing VERIFY), IPX7 class"
+  },
+  "cell": {
+   "class": "301012",
+   "l": 12.8,
+   "w": 10.2,
+   "t": 3.2,
+   "foam_t": 0.6,
+   "u0": 5.0,
+   "y0": 19.9,
+   "rib_t": 0.5,
+   "rib_h": 1.8,
+   "pad": [
+    1.6,
+    1.6
+   ],
+   "pad_u": 1.4,
+   "pad_dy": 5.0,
+   "spring": [
+    1.6,
+    1.6
+   ]
+  },
+  "board": {
+   "t": 0.8,
+   "z0": 5.45,
+   "u_left": 4.8,
+   "tunnel_y": [
+    4.6,
+    19.4
+   ],
+   "wing_y": [
+    19.4,
+    25.4
+   ],
+   "right_gap": 0.6,
+   "corner_r": 1.5,
+   "screw_hole_d": 3.0,
+   "radio": {
+    "u": [
+     8.2,
+     16.2
+    ],
+    "y": [
+     6.2,
+     14.2
+    ],
+    "h": 1.0
+   },
+   "switch": {
+    "u": 17.4,
+    "y": 22.4,
+    "size": [
+     3.0,
+     2.6,
+     0.55
+    ]
+   },
+   "zif": {
+    "u": [
+     5.4,
+     7.4
+    ],
+    "y": [
+     20.6,
+     25.0
+    ],
+    "h": 1.0
+   }
+  },
+  "piezo": {
+   "w": 9.0,
+   "l": 9.0,
+   "h": 1.0,
+   "x0": 1.5,
+   "y0": 4.4
+  },
+  "vent": {
+   "x": 6.0,
+   "y": 21.0,
+   "hole_d": 0.8,
+   "recess_d": 5.0,
+   "recess_depth": 0.2
+  },
+  "button": {
+   "d_memb": 5.0,
+   "memb_t": 0.5,
+   "post_d": 1.8,
+   "post_gap": 0.1
+  },
+  "mcard": {
+   "t": 0.6,
+   "y_gap": 0.4,
+   "z": [
+    1.4,
+    6.4
+   ],
+   "spring": [
+    1.2,
+    0.8,
+    0.8
+   ],
+   "slot_w": 0.8
+  },
+  "spine": {
+   "w": 3.4,
+   "t": 0.1,
+   "channel_depth": 0.3,
+   "y0": 26.8,
+   "x_front_u": 3.0,
+   "note": "flex (FPC) 0.1 mm in a 0.3 mm floor channel UNDER the reservoir (floor 0.6 left, MJF hard floor 0.5); ends: ZIF 0.5 mm pitch at MAIN and SENSOR (electronics agent: pinout)"
+  },
+  "screws": {
+   "lane_y": 2.0,
+   "pitch_max": 15.0,
+   "plus_y": [
+    [
+     2.0,
+     27.0
+    ]
+   ]
+  },
+  "pins": {
+   "d": 1.0,
+   "h": 0.7,
+   "post_d": 1.6,
+   "hole_d": 1.2
+  },
+  "dock": {
+   "y_c": 11.2,
+   "spigot_len": 1.8,
+   "ledge_t": 0.5,
+   "floor_pad": 0.4
+  },
+  "fluid": {
+   "septum_d": 3.2,
+   "needle_bore_d": 0.9,
+   "spur_w": 0.8,
+   "clamp_pos": [
+    [
+     2.6,
+     1.9
+    ]
+   ],
+   "gasket_x": [
+    1.0,
+    3.9
+   ],
+   "oring": {
+    "id": 2.0,
+    "cs": 0.7,
+    "groove_inner_d": 2.2,
+    "groove_w": 0.8,
+    "groove_depth": 0.55
+   },
+   "block_up": 3.8,
+   "gasket_y_margin": -0.1,
+   "gasket_y_max_rel": 3.5,
+   "spur_depth": 0.5,
+   "velcro_x_end_u": 3.5
+  },
+  "plunger": {
+   "purge_w": 0.5,
+   "ring_b": [
+    3.35,
+    4.25
+   ]
+  },
+  "insert": {
+   "digit_w": 0.5,
+   "digit_h": 0.4
+  }
+ },
+ "mode": "bench",
+ "v010_pod": true
 }

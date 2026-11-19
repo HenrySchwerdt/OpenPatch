@@ -1102,9 +1102,17 @@
     ]
    ],
    "gasket_x": [
-    0.9,
+    1.0,
     3.9
    ],
+   "oring": {
+    "id": 2.0,
+    "cs": 0.7,
+    "groove_inner_d": 2.2,
+    "groove_w": 0.8,
+    "groove_depth": 0.55
+   },
+   "block_up": 3.8,
    "gasket_y_margin": -0.1,
    "gasket_y_max_rel": 3.5,
    "spur_depth": 0.5,

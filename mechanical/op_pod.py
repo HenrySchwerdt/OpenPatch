@@ -40,6 +40,8 @@ def prepare(p0: dict) -> dict:
     cap = p["dock"]["cap"]
     cap["bore_d"] = P["fluid"]["needle_bore_d"]           # d1.0 x 2.9 (<= 3 x d, SLA hole rule); the d0.5 prime channel is only the short half groove
     cap["sandwich"]["spur_w"] = P["fluid"]["spur_w"]
+    cap["oring"] = {**cap["oring"], **P["fluid"]["oring"]}           # O-ring 2.0 x 0.7 in a 0.55 deep face groove (depth >= 0.5: a 0.4 deep groove reads as a 0.4 mm slot, SLA hard floor 0.5)
+    cap["block_up"] = P["fluid"]["block_up"]                          # cap block top 6.8 (lid wall above the groove >= 0.4)
     cap["sandwich"]["screws"]["pos"] = P["fluid"]["clamp_pos"]
     cap["sandwich"]["gasket"]["y_margin"] = P["fluid"]["gasket_y_margin"]      # -0.1: the recess runs out through the block side faces (no side wall: no thin step)
     cap["sandwich"]["gasket"]["y_max_rel"] = P["fluid"]["gasket_y_max_rel"]

@@ -144,6 +144,8 @@ def build_top(s: Script, p: dict, L: dict) -> None:
     R = P["res"]
     rec = s.box("t_lrecess", (L["x_r0"] - 0.2, L["x_r1"] + 0.2), (L["res_y"][0] + 2.2, L["res_y"][1] - 2.2), (zi - 0.2, zc + L["res_h_out"] / 2 + R["lid_recess"]))
     cuts.append(rec)
+    for k, (sx, sy) in enumerate(p["dock"]["cap"]["sandwich"]["screws"]["pos"]):          # pocket over the clamp screw head (the cap block top is at 6.8, the pan head reaches 7.7)
+        cuts.append(s.cyl(f"t_capheadpk{k}", "Z", (xr + sx, L["dock"]["y_c"] + sy, 0), 3.0, zi - 0.1, zi + 0.3))
     cuts.append(s.cyl("t_memb", "Z", (sw["c"][0], sw["c"][1], 0), bn["d_memb"], zt - (wall - bn["memb_t"]), zt + 0.1))
     px, py = G["piezo"]["port"]
     cuts.append(s.cyl("t_port", "Z", (px, py, 0), pt["hole_d"], zi - 0.1, zt + 0.1))

@@ -22,7 +22,8 @@ if len(sys.argv) > 1:
         for kk in ks[:-1]:
             node = node[kk]
         node[ks[-1]] = json.loads(v)
-L = op_pod.layout(p, "OP-100")
+import os
+L = op_pod.layout(p, os.environ.get("SIZE", "OP-100"))
 L["geo"] = op_pod.geometry(p, L)
 s = Script()
 build_cap(s, p, L)
