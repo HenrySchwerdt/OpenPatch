@@ -110,7 +110,7 @@ Draw pulls water INTO the reservoir by driving the leadscrew in reverse. Procedu
 4. **Stall / end stop:** a chunk that executed short, < 50 % angle-confirmed reverse travel, or 3 chunks above the current threshold end the draw as STALLED
    (double beep); `DRAW_DONE_MU` is what the angle sensor confirmed (rear end stop reached or jam), the reservoir level is raised by exactly that.
 5. A draw or fill sets `PRIME_REQUIRED` (flag bit 12): `Resume` is refused with `PrimeRequired` (26) until a prime completed (`FillPrime` prime sub-op, docked).
-   After a DRAW the first prime runs a backlash / lost-motion TAKE-UP first (`TAKEUP_MU_AFTER_DRAW` = 632 mU = 160 steps on the 16:20 drive, in 64 step
+   After a DRAW the first prime runs a backlash / lost-motion TAKE-UP first (`TAKEUP_UM_AFTER_REVERSAL` = 0.33 mm of plunger travel = 624 steps on the 16:20 drive, 499 steps on the cup drive (converted with the active preset), in 64 step
    chunks, watchdog serviced between them): it goes through the supervisor and counts against the 1.7 U/min backstop (so wait for the next minute before
    the first bolus) but is NOT booked as delivery. One prime command is at most 0.524 U (`MAX_PRIME`); the connector path is 2.21 U
    (`PRIME_PATH_MU`), so purge it with 5 prime commands.

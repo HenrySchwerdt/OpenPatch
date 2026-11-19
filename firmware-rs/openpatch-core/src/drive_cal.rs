@@ -74,9 +74,28 @@ pub struct Preset {
     pub gear_ratio_x100: u16,
     pub uu_num: u32,
     pub uu_den: u32,
+    /// Plunger face area of the reservoir in 0.01 mm^2 (the SAME area the `uu_num / uu_den` derivation uses, rounded to
+    /// 0.01 mm^2): converts a plunger TRAVEL into a volume or a step count for THIS drive (lost motion / take-up).
+    /// 74.60 mm^2 (16 x 5 stadium, bench pods), 106.26 mm^2 (cup pod 20.5 x 5.5), 17.94 mm^2 (1 ml syringe rig).
+    pub bore_area_x100: u32,
 }
 
 impl Preset {
+    /// Volume swept by a plunger travel of `um` micrometre on this preset's bore, in uU (1 um x 0.01 mm^2 = 1 uU). Exact.
+    pub const fn travel_um_to_uu(&self, um: u32) -> u64 {
+        um as u64 * self.bore_area_x100 as u64
+    }
+
+    /// Motor steps that cover a plunger travel of `um` micrometre, ROUNDED UP (a take-up must cover the play). Exact rational:
+    /// `steps = ceil(um x area_x100 x uu_den / uu_num)`; 0 for a preset without a valid per-step volume.
+    pub const fn travel_um_to_steps(&self, um: u32) -> u32 {
+        if self.uu_num == 0 {
+            return 0;
+        }
+        let n = self.travel_um_to_uu(um) * self.uu_den as u64;
+        ((n + self.uu_num as u64 - 1) / self.uu_num as u64) as u32
+    }
+
     /// Whether the suction draw (`FillMode::Draw`: the motor retracts the plunger and the pod pulls fluid in by itself) is
     /// allowed. The cup pod has no check valve between the tank and the needle: a suction draw could aspirate from the
     /// cannula side, so it is refused there. Only the assisted pressure fill (the user pushes, the motor retracts at a
@@ -95,15 +114,15 @@ impl Preset {
 }
 
 pub const NFP_608_2645_G1_1: Preset =
-    Preset { id: DriveId::Nfp608_26_45G1_1, steps_per_rev: 20, gear_ratio_x100: 2645, uu_num: 2_611_000, uu_den: 529 };
+    Preset { id: DriveId::Nfp608_26_45G1_1, steps_per_rev: 20, gear_ratio_x100: 2645, uu_num: 2_611_000, uu_den: 529, bore_area_x100: 7460 };
 /// NOT the pair of the current CAD (option only). Effective ratio 26.45 * 12/15 = 21.16 (x100 = 2116, exact);
 /// 0.35 * 12 / (20 * 26.45 * 15) * 7.46 U.
 pub const NFP_608_2645_G15_12: Preset =
-    Preset { id: DriveId::Nfp608_26_45G15_12, steps_per_rev: 20, gear_ratio_x100: 2116, uu_num: 3_263_750, uu_den: 529 };
+    Preset { id: DriveId::Nfp608_26_45G15_12, steps_per_rev: 20, gear_ratio_x100: 2116, uu_num: 3_263_750, uu_den: 529, bore_area_x100: 7460 };
 /// PRIMARY. GHW 16 T (motor) : 20 T (screw): total ratio 26.45 / 0.8 = 33.0625 = 529/16 (x100 = 3306.25, stored
 /// rounded as 3306); uU/step = 130 550 / 33.0625 = 130 550 * 16 / 529 = 2 088 800 / 529 (exact).
 pub const NFP_608_2645_G16_20: Preset =
-    Preset { id: DriveId::Nfp608_26_45G16_20, steps_per_rev: 20, gear_ratio_x100: 3306, uu_num: 2_088_800, uu_den: 529 };
+    Preset { id: DriveId::Nfp608_26_45G16_20, steps_per_rev: 20, gear_ratio_x100: 3306, uu_num: 2_088_800, uu_den: 529, bore_area_x100: 7460 };
 /// v0.1.0 CUP POD (`mechanical/out/v010-cup/*.mech.json`: bore 20.5 x 5.5, bore_area 106.258 mm^2, u_per_step 0.0070303; the
 /// V010-CUP.md table still says 20.3, the regenerated CAD data says 20.5). Miter pair 1:1 -> rod turns once per gearhead turn,
 /// so the ratio stays 26.45 (x100 = 2645, exact) and the angle check sees 20 x 26.45 = 529 steps per rod turn.
@@ -113,23 +132,23 @@ pub const NFP_608_2645_G16_20: Preset =
 /// uU/step = (0.35 / 529) x (192115 / 1808) x 1e5 = 35000 x 192115 / (529 x 1808) = 840 503 125 / 119 554 = 7 030.32 uU
 /// (0.00703 U). Fits u32; `pulses_to_micro` widens to u64.
 pub const NFP_608_2645_CUP_MITER_1_1: Preset =
-    Preset { id: DriveId::Nfp608_26_45CupMiter1_1, steps_per_rev: 20, gear_ratio_x100: 2645, uu_num: 840_503_125, uu_den: 119_554 };
+    Preset { id: DriveId::Nfp608_26_45CupMiter1_1, steps_per_rev: 20, gear_ratio_x100: 2645, uu_num: 840_503_125, uu_den: 119_554, bore_area_x100: 10626 };
 /// VERIFY: barrel area 17.94 mm^2 is an assumption (BD-class 1 ml U100, ID 4.78 mm) until the
 /// mechanics agent publishes the measured value. uU/step = 0.35 / 529 * 17.94 / 10 * 1e6.
 pub const SYRINGE_RIG_1ML: Preset =
-    Preset { id: DriveId::SyringeRig1ml, steps_per_rev: 20, gear_ratio_x100: 2645, uu_num: 627_900, uu_den: 529 };
+    Preset { id: DriveId::SyringeRig1ml, steps_per_rev: 20, gear_ratio_x100: 2645, uu_num: 627_900, uu_den: 529, bore_area_x100: 1794 };
 pub const ZWBPD006006_6_43: Preset =
-    Preset { id: DriveId::Zwbpd006006_6_43, steps_per_rev: 20, gear_ratio_x100: 643, uu_num: 13_055_000, uu_den: 643 };
+    Preset { id: DriveId::Zwbpd006006_6_43, steps_per_rev: 20, gear_ratio_x100: 643, uu_num: 13_055_000, uu_den: 643, bore_area_x100: 7460 };
 pub const ZWBPD006006_4_8: Preset =
-    Preset { id: DriveId::Zwbpd006006_4_8, steps_per_rev: 20, gear_ratio_x100: 480, uu_num: 1_305_500, uu_den: 48 };
+    Preset { id: DriveId::Zwbpd006006_4_8, steps_per_rev: 20, gear_ratio_x100: 480, uu_num: 1_305_500, uu_den: 48, bore_area_x100: 7460 };
 pub const FAULHABER_ADM0620_16: Preset =
-    Preset { id: DriveId::FaulhaberAdm0620_16, steps_per_rev: 20, gear_ratio_x100: 1600, uu_num: 130_550, uu_den: 16 };
+    Preset { id: DriveId::FaulhaberAdm0620_16, steps_per_rev: 20, gear_ratio_x100: 1600, uu_num: 130_550, uu_den: 16, bore_area_x100: 7460 };
 #[cfg(feature = "test-calibrations")]
 pub const TEST_26100: Preset =
-    Preset { id: DriveId::Test26100, steps_per_rev: 16, gear_ratio_x100: 1600, uu_num: 26_100, uu_den: 1 };
+    Preset { id: DriveId::Test26100, steps_per_rev: 16, gear_ratio_x100: 1600, uu_num: 26_100, uu_den: 1, bore_area_x100: 7460 };
 #[cfg(feature = "test-calibrations")]
 pub const TEST_8156: Preset =
-    Preset { id: DriveId::Test8156, steps_per_rev: 16, gear_ratio_x100: 1600, uu_num: 8_156, uu_den: 1 };
+    Preset { id: DriveId::Test8156, steps_per_rev: 16, gear_ratio_x100: 1600, uu_num: 8_156, uu_den: 1, bore_area_x100: 7460 };
 
 /// All presets available in this build.
 pub const PRESETS: &[Preset] = &[

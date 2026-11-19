@@ -23,7 +23,7 @@ public enum PumpConstants {
     /// Retraction rate of the assisted fill in motor steps per second (firmware `ASSISTED_FILL_PPS`, 200 pps).
     public static let assistedFillStepsPerSecond = 200
     /// After an assisted fill the first prime answers `Hourly` while the pod takes up the lost motion of the drive (firmware
-    /// `PumpConfig::takeup_mu`); the phone repeats it after the per-minute cap has recovered. Attempts and spacing.
+    /// `PumpConfig::takeup_um`); the phone repeats it after the per-minute cap has recovered. Attempts and spacing.
     public static let primeTakeupMaxAttempts = 6
     public static let primeTakeupRetryDelay: TimeInterval = 61
     /// Pod raises a low-reservoir event below this level.

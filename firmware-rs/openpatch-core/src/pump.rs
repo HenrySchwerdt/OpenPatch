@@ -4,7 +4,7 @@
 
 use crate::delivery::{BasalSchedule, BasalSeg, DeliveryEngine, EngineEvents};
 use crate::diag::{codes, DiagCode, DiagNote, Raise};
-use crate::drive_cal::DriveCal;
+use crate::drive_cal::{DriveCal, DriveId};
 use crate::faults::Faults;
 use crate::hal::{Buzzer, Hal, MotorFault};
 use crate::limits::*;
@@ -29,9 +29,10 @@ pub struct PumpConfig {
     /// ([`HOURLY_CAL_MARGIN_PCT`]). `false` = the frozen C reference's 60 wall-clock minute buckets without margin
     /// (differential tests only).
     pub strict_hourly: bool,
-    /// Backlash / lost-motion take-up volume (mU) run before the first prime after a draw
-    /// (`limits::TAKEUP_MU_AFTER_DRAW`); 0 = none (C reference). With a take-up the prime runs in watchdog-safe chunks.
-    pub takeup_mu: u32,
+    /// Backlash / lost-motion take-up as a plunger TRAVEL (um) run before the first prime after a reversal (assisted fill
+    /// or draw), converted to steps with the bore of the active drive preset (`limits::TAKEUP_UM_AFTER_REVERSAL`); 0 = none
+    /// (C reference). With a take-up the prime runs in watchdog-safe chunks.
+    pub takeup_um: u32,
     /// Draw mode: own current stall threshold (`DRAW_STALL_CURRENT_MA`), rate capped by the fill needle gauge, chunk
     /// length bound to 0.8 s. `false` = the C-compatible fixed chunks and the occlusion current threshold.
     pub strict_draw: bool,
@@ -48,7 +49,7 @@ impl PumpConfig {
     pub const STRICT: PumpConfig = PumpConfig {
         require_prime_after_fill: true,
         strict_hourly: true,
-        takeup_mu: TAKEUP_MU_AFTER_DRAW,
+        takeup_um: TAKEUP_UM_AFTER_REVERSAL,
         strict_draw: true,
         fill_needle: FillNeedle::G29,
         require_schedule_on_resume: true,
@@ -57,7 +58,7 @@ impl PumpConfig {
     pub const RELAXED: PumpConfig = PumpConfig {
         require_prime_after_fill: false,
         strict_hourly: false,
-        takeup_mu: 0,
+        takeup_um: 0,
         strict_draw: false,
         fill_needle: FillNeedle::G29,
         require_schedule_on_resume: false,
@@ -196,6 +197,18 @@ impl<H: Hal> Pump<H> {
             p.sync_faults(Faults::NONE); // e.g. NO_CALIBRATION: log + alarm, driver stays off
         }
         p
+    }
+
+    /// Steps of the take-up after a reversal for the ACTIVE preset's bore (0 without a valid calibration or with
+    /// `takeup_um == 0`).
+    pub(crate) fn takeup_steps(&self) -> u32 {
+        if !self.cal_valid {
+            return 0;
+        }
+        match DriveId::from_u16(self.cal.drive_id) {
+            Some(id) => id.preset().travel_um_to_steps(self.cfg.takeup_um),
+            None => 0,
+        }
     }
 
     pub fn set_config(&mut self, cfg: PumpConfig) {
@@ -880,9 +893,9 @@ impl<H: Hal> Pump<H> {
         let before = self.sv.faults();
         // After a draw the first forward travel only takes up backlash and elasticity: run the take-up first. It goes
         // through the supervisor like every forward step but is NOT delivery (engine totals are untouched).
-        let takeup = if self.cfg.takeup_mu > 0 { self.takeup_pending } else { 0 };
+        let takeup = if self.cfg.takeup_um > 0 { self.takeup_pending } else { 0 };
         // The lost motion of the mechanics is larger than one minute of the 1.7 U/min backstop allows together with a
-        // prime (`limits::TAKEUP_MU_AFTER_DRAW`): it is recovered no faster than the caps allow, over several prime
+        // prime (`limits::TAKEUP_UM_AFTER_REVERSAL`): it is recovered no faster than the caps allow, over several prime
         // commands. A command whose take-up + prime does not fit runs the part of the take-up that fits (through the
         // supervisor, never beyond the per-minute / hourly caps), does NOT prime and answers `Hourly`: the phone repeats
         // the prime after the cap has recovered. Never latches.
@@ -901,7 +914,7 @@ impl<H: Hal> Pump<H> {
             }
         }
         // RELAXED (C parity): one burst. Otherwise watchdog-safe chunks, verified and followed by a DONE pulse.
-        let chunk = if self.cfg.takeup_mu > 0 { PRIME_CHUNK_STEPS } else { u32::MAX };
+        let chunk = if self.cfg.takeup_um > 0 { PRIME_CHUNK_STEPS } else { u32::MAX };
         let (mut left_takeup, mut left) = (takeup_now, prime_now);
         let mut ok = true;
         while left_takeup + left > 0 {

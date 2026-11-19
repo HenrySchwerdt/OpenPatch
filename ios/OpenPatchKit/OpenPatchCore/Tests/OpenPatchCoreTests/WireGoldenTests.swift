@@ -104,7 +104,7 @@ final class WireGoldenTests: XCTestCase {
                 compared += 1
             }
         }
-        XCTAssertEqual(compared, 40)
+        XCTAssertEqual(compared, 41)   // cup take-up is 499 steps (bore-aware): one more prime retry than with the old fixed 74.63 mm^2 area
         // 2 raw-amount refusals + the unknown sub-op (the app never sends them) + 2 history pages (own test below)
         XCTAssertEqual(decodeOnly, 5)
     }

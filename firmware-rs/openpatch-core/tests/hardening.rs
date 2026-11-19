@@ -200,7 +200,7 @@ fn f4_the_first_prime_after_a_draw_runs_the_takeup_first_and_does_not_count_it_a
     let delivered0 = p.engine().delivered_steps();
     let steps0 = h.st().total_steps;
     let kicks0 = h.st().kicks;
-    let takeup = cal_test().pulse_cal().unwrap().mu_to_pulses(MilliUnits(TAKEUP_MU_AFTER_DRAW)).0;
+    let takeup = openpatch_core::drive_cal::DriveId::Test26100.preset().travel_um_to_steps(TAKEUP_UM_AFTER_REVERSAL);
     assert!(takeup > 0);
     // the lost motion is larger than one minute of the backstop allows together with a prime: several commands
     let commands = prime_all(&mut p, &h, 2);
@@ -223,7 +223,7 @@ fn f4_the_takeup_never_exceeds_the_per_minute_cap_even_though_it_is_larger_than_
     let (mut p, h) = draw_pump();
     let cal = cal_test().pulse_cal().unwrap();
     let minute = cal.mu_to_pulses(MAX_PER_MIN).0;
-    let takeup = cal.mu_to_pulses(MilliUnits(TAKEUP_MU_AFTER_DRAW)).0;
+    let takeup = openpatch_core::drive_cal::DriveId::Test26100.preset().travel_um_to_steps(TAKEUP_UM_AFTER_REVERSAL);
     assert!(takeup + 2 > minute);
     let s0 = h.st().total_steps;
     assert_eq!(p.prime(Pulses(2)), Err(Error::Hourly), "part of the take-up, no prime");

@@ -3,6 +3,9 @@
 > This file is the **entry point for every new session** (another machine, another Claude subscription, another person).
 > It is updated on every push. Last updated: **2026-11-19 (cloud session, milestone 1 merged)**.
 
+## Take-up is a travel, converted per preset (2026-11-19, electronics worktree, firmware-rs)
+- Fixed bug: `plunger_um_to_mu` used a global 74.63 mm^2 area, so the 0.33 mm take-up after a reversal was 350 steps on the cup pod instead of 499. Each `Preset` now carries `bore_area_x100` (cup 106.26 mm^2); `LOST_MOTION_TOTAL_UM` / `TAKEUP_UM_AFTER_REVERSAL` is a travel, `Preset::travel_um_to_steps` converts it exactly (rounded up), `PumpConfig::takeup_um` replaces `takeup_mu`. Applied after every assisted fill / draw. Golden vector `docs/vectors/wire-v1-scenarios.json` regenerated (one more cup prime retry); Swift golden count 40 -> 41. Open: the real cup backlash is still unmeasured.
+
 ## iOS / Trio kit drives the cup pod (2026-11-19, ios worktree)
 - `OpenPatchKit` now runs the v0.1.0 cup pod end to end from Trio on the bench (water only): wire parity with `firmware-rs` by golden frames of a real cup pod (`docs/vectors/wire-v1-scenarios.json`) and a source-parsing parity suite, encrypted session wired with keychain-stored pairing secret, `LAST_SEQ` resync, DRIVE_CAL `0x26` accepted / unknown refused / preset shown, assisted pressure fill only (no draw), prime take-up retry, uncertain-delivery recovery from status + history, new alerts; 257 core + 80 kit tests green; loop + balance compare: `ios/BENCH-LOOP.md`, `ios/tools/bench_compare.py`. Not run against a real pod; open: firmware take-up volume uses the 74.6 mm^2 bore area (cup bore 106 mm^2), Trio has no pump-history export.
 

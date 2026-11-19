@@ -156,7 +156,7 @@ final class FirmwareParityTests: XCTestCase {
     private func rustPresets() throws -> [RustPreset] {
         let source = try rust("openpatch-core/src/drive_cal.rs")
         let ids = try enumValues("DriveId", of: source)
-        let regex = try NSRegularExpression(pattern: #"Preset \{ id: DriveId::(\w+), steps_per_rev: (\d+), gear_ratio_x100: (\d+), uu_num: ([\d_]+), uu_den: ([\d_]+) \}"#)
+        let regex = try NSRegularExpression(pattern: #"Preset \{ id: DriveId::(\w+), steps_per_rev: (\d+), gear_ratio_x100: (\d+), uu_num: ([\d_]+), uu_den: ([\d_]+), bore_area_x100: \d+ \}"#)
         func group(_ m: NSTextCheckingResult, _ i: Int) -> String { String(source[Range(m.range(at: i), in: source)!]) }
         return regex.matches(in: source, range: NSRange(source.startIndex..., in: source)).compactMap { m in
             let name = group(m, 1)

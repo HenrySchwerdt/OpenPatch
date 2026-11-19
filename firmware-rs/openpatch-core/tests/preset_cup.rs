@@ -150,3 +150,56 @@ fn other_presets_still_allow_the_draw_mode() {
         assert_eq!(p.allows_draw(), p.id != DriveId::Nfp608_26_45CupMiter1_1, "{:?}", p.id);
     }
 }
+
+// ---- take-up after a reversal: a TRAVEL converted with the bore of the ACTIVE preset -------------------------------------
+#[test]
+fn bore_area_is_part_of_each_preset_and_matches_its_uu_per_step_derivation() {
+    assert_eq!(P.bore_area_x100, 10_626, "20.5 x 5.5 stadium = 106.258 mm^2");
+    let exact_x100 = A_NUM as f64 / A_DEN as f64 * 100.0;
+    assert!((P.bore_area_x100 as f64 - exact_x100).abs() <= 0.5);
+    assert_eq!(NFP_608_2645_G16_20.bore_area_x100, 7_460, "16 x 5 stadium: the old pods' 74.6 mm^2");
+}
+
+#[test]
+fn takeup_travel_converts_with_the_active_presets_bore_exactly() {
+    // 0.33 mm of play: 330 um x 106.26 mm^2 = 35.07 mm^3 = 3.507 U on the cup pod, 330 x 74.60 = 2.462 U on the 16:20 pod
+    assert_eq!(P.travel_um_to_uu(TAKEUP_UM_AFTER_REVERSAL), 3_506_580);
+    assert_eq!(NFP_608_2645_G16_20.travel_um_to_uu(TAKEUP_UM_AFTER_REVERSAL), 2_461_800);
+    // steps, rounded up: cup 3 506 580 x 119 554 / 840 503 125 = 498.8 -> 499; 16:20: 2 461 800 x 529 / 2 088 800 = 623.4 -> 624
+    assert_eq!(P.travel_um_to_steps(TAKEUP_UM_AFTER_REVERSAL), 499);
+    assert_eq!(NFP_608_2645_G16_20.travel_um_to_steps(TAKEUP_UM_AFTER_REVERSAL), 624);
+    // cross-check without the area: steps = travel / advance per step = 330 um / (350 um / 529 steps) = 498.8 (the bore cancels)
+    let by_lead = 330.0 / (350.0 / 529.0);
+    assert!((P.travel_um_to_steps(330) as f64 - by_lead).abs() < 1.0, "cup: {} vs lead {by_lead}", P.travel_um_to_steps(330));
+    // as a volume the cup pod's take-up is 43 % bigger than the old pods': the bug of the fixed 74.63 mm^2
+    assert!(P.travel_um_to_uu(330) * 100 / NFP_608_2645_G16_20.travel_um_to_uu(330) >= 142);
+    assert_eq!(P.travel_um_to_steps(0), 0);
+}
+
+#[test]
+fn reservoir_bookkeeping_after_an_assisted_fill_and_takeup_is_exact_within_one_step() {
+    let (mut p, h) = cup_pump();
+    p.set_config(PumpConfig::STRICT);
+    p.fill(MilliUnits(50_000)).unwrap();
+    h.st().docked = true;
+    activate(&mut p, 1000).unwrap();
+    h.st().docked = false;
+    run_secs(&mut p, &h, 1);
+    p.assisted_fill(MilliUnits(5_000)).unwrap();
+    run_draw(&mut p, &h);
+    let drawn = h.st().total_reverse_steps;
+    assert!(drawn > 0);
+    h.st().docked = true;
+    run_secs(&mut p, &h, 1);
+    let steps0 = h.st().total_steps;
+    prime_all(&mut p, &h, 3);
+    let fwd = h.st().total_steps - steps0;
+    let takeup = P.travel_um_to_steps(TAKEUP_UM_AFTER_REVERSAL);
+    assert_eq!(fwd, takeup + 3, "take-up of the CUP bore (499 steps), not of the old 74.63 mm^2 bore (about 350 steps)");
+    // expected remaining volume: fill + reverse steps - forward steps (take-up and prime), in uU at the preset's exact rational
+    let cal = P.cal();
+    let expect_uu = 50_000_000i64 + cal.pulses_to_micro(Pulses(drawn)).0 as i64 - cal.pulses_to_micro(Pulses(fwd)).0 as i64;
+    let have_uu = p.reservoir().remaining().0 as i64 * 1000;
+    let one_step = cal.micro_u_floor() as i64 + 1;
+    assert!((have_uu - expect_uu).abs() <= one_step, "model {have_uu} uU vs exact {expect_uu} uU, one step = {one_step}");
+}

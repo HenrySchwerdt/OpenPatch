@@ -186,7 +186,7 @@ impl<H: Hal> Pump<H> {
             if self.cfg.require_prime_after_fill {
                 self.prime_required = true;
             }
-            self.takeup_pending = self.pcal.mu_to_pulses(MilliUnits(self.cfg.takeup_mu)).0; // the drive reversed: backlash must be taken up before the prime
+            self.takeup_pending = self.takeup_steps(); // the drive reversed: backlash must be taken up before the prime
         }
         let (d, req) = (self.draw.drawn_mu as i32, self.draw.requested_mu as i32);
         match state {

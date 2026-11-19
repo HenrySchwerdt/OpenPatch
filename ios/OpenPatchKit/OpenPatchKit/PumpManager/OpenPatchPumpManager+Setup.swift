@@ -92,7 +92,7 @@ extension OpenPatchPumpManager {
 
     /// After an assisted fill the pod first takes up the lost motion of its drive, no faster than its per-minute delivery cap
     /// allows, over several prime commands: it answers `Hourly` after each slice and the phone repeats the command a minute
-    /// later (`PumpConfig::takeup_mu`). `state.primeTakeupAttempt` tells the screen which attempt is running.
+    /// later (`PumpConfig::takeup_um`). `state.primeTakeupAttempt` tells the screen which attempt is running.
     private func sendPrime(attempt: Int = 1, _ completion: @escaping (Error?) -> Void) {
         send(.prime) { [weak self] result in
             guard let self else { return }

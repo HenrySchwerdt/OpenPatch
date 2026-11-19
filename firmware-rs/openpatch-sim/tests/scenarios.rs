@@ -127,7 +127,7 @@ fn draw_stalls_at_the_rear_end_stop_and_reports_what_was_drawn() {
 #[test]
 fn a_prime_after_a_draw_takes_up_the_lost_motion_first_and_purges_the_line() {
     // Plant fact (REPORT.md, "lost motion"): after the draw reversed the drive, the first ~0.4 U of forward travel only
-    // winds up backlash and seal elasticity. The core now runs a take-up (limits::TAKEUP_MU_AFTER_DRAW) before the first
+    // winds up backlash and seal elasticity. The core now runs a take-up (limits::TAKEUP_UM_AFTER_REVERSAL) before the first
     // prime, so the standard 0.3 U prime reaches the connector. The take-up is not delivery: the engine books nothing.
     let o = run("prime");
     let w = o.dev.world.borrow();

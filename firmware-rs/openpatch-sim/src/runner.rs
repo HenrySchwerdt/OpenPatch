@@ -419,7 +419,7 @@ impl Runner {
         // 3. prime the connector
         let steps = self.dev.pump().pulse_cal().mu_to_pulses(openpatch_core::MilliUnits((self.sc.setup.prime_u * 1000.0) as u32)).0;
         if steps > 0 {
-            // The prime after a draw first recovers the lost motion of the mechanics (0.33 mm = 2.5 U), which counts against the
+            // The prime after a draw first recovers the lost motion of the mechanics (0.33 mm of travel, bore of the active preset), which counts against the
             // 1.7 U per minute backstop: the pod answers `Hourly` (16) after the part that fits and the app repeats the prime
             // a minute later, exactly like a phone.
             let mut r = 255;
