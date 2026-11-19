@@ -3,7 +3,7 @@
 "command": "solid.cylinder",
 "params": {
 "diameter": 3.0,
-"height": 1.0,
+"height": 1.5,
 "base": [
 0,
 0,
@@ -18,7 +18,7 @@
 "command": "solid.cylinder",
 "params": {
 "diameter": 3.0,
-"height": 1.0,
+"height": 1.5,
 "base": [
 0,
 0,
@@ -34,7 +34,7 @@
 "params": {
 "length": 3.0,
 "width": 6.0,
-"height": 2.0,
+"height": 2.5,
 "corner": [
 -0.0,
 -3.0,
@@ -60,7 +60,7 @@
 "params": {
 "length": 3.0,
 "width": 6.0,
-"height": 2.0,
+"height": 2.5,
 "corner": [
 -3.0,
 -3.0,
@@ -112,7 +112,7 @@
 {
 "command": "file.export_step",
 "params": {
-"path": "magnet_d3x1_diametric.step",
+"path": "magnet_d3x1p5_diametric.step",
 "bodies": [
 "S_half",
 "N_half"
@@ -122,7 +122,7 @@
 {
 "command": "file.export_stl",
 "params": {
-"path": "magnet_d3x1_diametric.stl",
+"path": "magnet_d3x1p5_diametric.stl",
 "bodies": [
 "S_half",
 "N_half"
@@ -133,7 +133,7 @@
 {
 "command": "file.export",
 "params": {
-"path": "magnet_d3x1_diametric.glb",
+"path": "magnet_d3x1p5_diametric.glb",
 "bodies": [
 "S_half",
 "N_half"

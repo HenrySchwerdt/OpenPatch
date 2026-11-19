@@ -1,6 +1,6 @@
 # OpenPatch vendor-accurate component library
 
-TEST PROJECT, never worn or used on a person (see `DISCLAIMER.md`). This library replaces envelope boxes with
+TEST PROJECT, WATER ONLY (never insulin), never worn or used on a person (see `DISCLAIMER.md`). This library replaces envelope boxes with
 models of the real bought-in parts so assemblies, renders and the website show the pump that is actually built.
 
 * One generator per part family (`gen_*.py`), each emitting SolidCraft command JSON through `mechanical/op_cmds.py` (`Script`, imported, not modified).
@@ -44,11 +44,13 @@ Tooth form: 20 deg involute, root radius = pitch radius - 1.25 m (GHW publishes 
 |---|---|---|---|---|---|---|
 | `gear_m03_z15_753015` | 753015 | 15 | 2.0 | 5.1 | 1.4 | 4.0 x 2.5 |
 | `gear_m03_z12_753012` | 753012 | 12 | 1.5 | 4.2 | 4.0 | none |
+| `gear_m03_z16_390754` | 390754 | 16 | 2.0 | 5.4 | 5.0 | none |
+| `gear_m03_z20_753020` | 753020 | 20 | 2.0 | 6.6 | 1.4 | 4.0 x 2.5 |
 | `gear_m03_z18_390755` | 390755 | 18 | 2.0 | 6.0 | 5.0 | none |
 
 Open point: GHW lists "hub length 2.5" next to "width 1.4"; the model puts the hub **beyond** the tooth width (total 3.9). Verify on the sample.
 The 18 T gear is only sold at width 5 (the 18:18 option in `parts.md` needs it turned to 1.2-2 mm; no thin z18 article was found).
-Centre distances: 15:12 = 4.05, 18:18 = 5.40.
+**Final pair (mechanical owner): 16 T on the motor (390754) -> 20 T on the screw (753020)**, nominal centre 0.3 x 36 / 2 = 5.40, built centre 5.51 mm (clearance). Other options kept: 15:12 = 4.05, 18:18 = 5.40.
 
 ### 3. Fastener set (`gen_fasteners.py`)
 
@@ -60,7 +62,7 @@ Centre distances: 15:12 = 4.05, 18:18 = 5.40.
 
 ### 4. NdFeB magnets (`gen_magnet.py`), colouring N red / S blue
 
-`magnet_d2x1_diametric` (spindle, PARTS-LOCK #7), `magnet_d2x1_axial` (dock, #8), `magnet_d3x1_diametric`, `magnet_d4x1_diametric` (options, thickness 1 assumed).
+`magnet_d2x1_diametric` (spindle, PARTS-LOCK #7), `magnet_d2x1_axial` (dock, #8), `magnet_d3x1p5_diametric` (**final spindle magnet**, d3 x 1.5, mechanical owner decision), `magnet_d4x1_diametric` (option, thickness assumed).
 Dimensions: `params.json drive.mag_d/mag_t`, `parts.md` 1.5. Two half-bodies per magnet for the pole marker.
 
 ### 5-7. Fluid path (`gen_fluid.py`)
@@ -121,3 +123,7 @@ No soft cannula or introducer needle is modelled, and the latch notch (G, H, I) 
 1. Add a `build()` returning `Part`s and a `META` dict (title, material, colour, frame, source, confidence, notes) to a `gen_*.py`; list it in `build_all.py` `MODULES`.
 2. `python3 build_all.py --only <id> --force`.
 3. Update the table above with the source of every new number.
+
+## Decisions applied from the mechanical owner
+
+Pod board: 0.6 mm 2-layer with Hirose FH12-10S-0.5SH(55). The board STEP in `out/boards/` was exported from the current `pod.kicad_pcb` (1.5 mm stack in that file): re-run `python3 gen_boards.py` after the board file is updated.

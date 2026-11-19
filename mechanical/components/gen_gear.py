@@ -68,6 +68,8 @@ def spur_gear(pid: str, title: str, m: float, z: int, bore: float, width: float,
 GEARS = [
     ("gear_m03_z15_753015", "GHW 753015 spur gear m0.3 z15 bore 2.0, thin 1.4 mm with hub", 15, 2.0, 1.4, 4.0, 2.5, "753015"),
     ("gear_m03_z12_753012", "GHW 753012 spur gear m0.3 z12 bore 1.5, width 4", 12, 1.5, 4.0, 0.0, 0.0, "753012"),
+    ("gear_m03_z16_390754", "GHW 390754 spur gear m0.3 z16 bore 2.0, width 5 (motor gear, final pair)", 16, 2.0, 5.0, 0.0, 0.0, "390754"),
+    ("gear_m03_z20_753020", "GHW 753020 spur gear m0.3 z20 bore 2.0, thin 1.4 mm with hub (screw gear, final pair)", 20, 2.0, 1.4, 4.0, 2.5, "753020"),
     ("gear_m03_z18_390755", "GHW 390755 spur gear m0.3 z18 bore 2.0, width 5", 18, 2.0, 5.0, 0.0, 0.0, "390755"),
 ]
 

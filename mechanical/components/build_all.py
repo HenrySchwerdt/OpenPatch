@@ -27,7 +27,7 @@ USE = {
     "rod_m1p6_19": "leadscrew, OP-70 cut length", "rod_m1p6_22": "leadscrew, OP-100 cut length", "rod_m1p6_37": "leadscrew, OP-200 cut length",
     "nut_din934_m1p6_brass": "carriage nut (PARTS-LOCK #5)",
     "screw_iso7045_m1p2x3": "lid/board screw (PARTS-LOCK #20)", "screw_iso7045_m1p2x4": "pod board screw len 4 (params bench.mount.screw_len)",
-    "magnet_d2x1_diametric": "spindle magnet (PARTS-LOCK #7)", "magnet_d2x1_axial": "dock magnet (PARTS-LOCK #8)",
+    "magnet_d2x1_diametric": "superseded spindle magnet option", "magnet_d3x1p5_diametric": "FINAL spindle magnet d3x1.5 diametric", "gear_m03_z16_390754": "FINAL motor gear 16T (centre 5.51 with 20T incl. clearance)", "gear_m03_z20_753020": "FINAL screw gear 20T", "magnet_d2x1_axial": "dock magnet (PARTS-LOCK #8)",
     "needle_30g_efd_14in": "outlet needle (PARTS-LOCK #17)", "duckbill_valve_generic": "outlet check valve (PARTS-LOCK #16)",
     "septum_d4x2": "fill septum (PARTS-LOCK #18)",
     "ebyte_e73_2g4m08s1c": "bench controller MCU module (PARTS-LOCK #11)",

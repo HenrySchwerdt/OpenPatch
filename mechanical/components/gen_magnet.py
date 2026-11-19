@@ -10,7 +10,7 @@ from cc import Part
 MAGS = [
     ("magnet_d2x1_diametric", 2.0, 1.0, "diametric", "N52"),   # spindle magnet (PARTS-LOCK #7)
     ("magnet_d2x1_axial", 2.0, 1.0, "axial", "N52"),           # dock magnet (PARTS-LOCK #8)
-    ("magnet_d3x1_diametric", 3.0, 1.0, "diametric", "N52"),   # option; size typical catalogue (supermagnete S-03-01-DN class)
+    ("magnet_d3x1p5_diametric", 3.0, 1.5, "diametric", "N52"),  # FINAL spindle magnet chosen by the mechanical owner
     ("magnet_d4x1_diametric", 4.0, 1.0, "diametric", "N52"),   # option
 ]
 
@@ -40,7 +40,7 @@ def build() -> list[Part]:
 
 META = {}
 for pid, d, t, kind, grade in MAGS:
-    lock = {"magnet_d2x1_diametric": "docs/PARTS-LOCK.md #7 (CANDIDATE: verify a diametric 2x1 listing)",
+    lock = {"magnet_d2x1_diametric": "docs/PARTS-LOCK.md #7 (superseded: spindle magnet is now d3 x 1.5)", "magnet_d3x1p5_diametric": "final spindle magnet (mechanical owner decision): d3 x 1.5 diametric",
             "magnet_d2x1_axial": "docs/PARTS-LOCK.md #8 (LOCKED, standard item)"}.get(pid, "option size, not locked")
     META[pid] = dict(
         title=f"NdFeB {grade} disc magnet d{d:g} x {t:g}, {kind} magnetisation",
@@ -48,7 +48,7 @@ for pid, d, t, kind, grade in MAGS:
         frame="Z axis; axial: N on +Z face; diametric: N half at +X (magnetisation +X)",
         source=f"{lock}; dimensions from the project spec (mechanical/parts.md 1.5, params.json drive.mag_d/mag_t). "
                "Catalogue tolerance typically +-0.05 mm (supermagnete.de / AliExpress listing)",
-        confidence="datasheet" if pid == "magnet_d2x1_axial" else ("datasheet" if "d2x1" in pid else "estimated"),
+        confidence="datasheet" if pid != "magnet_d4x1_diametric" else "estimated",
         notes="Pole colouring is two half-bodies (STEP/glTF keep them separate). d3/d4 option thicknesses assumed 1 mm "
               "(measured-sample TODO)." if "d2x1" not in pid else "Pole halves are coloured bodies; physical part is one piece.",
     )

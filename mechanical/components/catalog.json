@@ -458,6 +458,43 @@
   "notes": "Tooth form is the standard 20 deg involute (profile not published by GHW: measured-sample TODO, esp. tip/root rounding and hub length convention).",
   "used_for": "motor-side pinion option 15T (PARTS-LOCK #3, firmware preset drive-nfp-608-26-45-g15-12)"
  },
+ "gear_m03_z16_390754": {
+  "title": "GHW-Modellbau brass spur gear module 0.3, z=16, bore 2.0, width 5.0",
+  "files": {
+   "step": "out/gear_m03_z16_390754.step",
+   "stl": "out/gear_m03_z16_390754.stl",
+   "glb": "out/gear_m03_z16_390754.glb",
+   "png": "out/gear_m03_z16_390754.png"
+  },
+  "size_mm": [
+   5.4,
+   5.4,
+   5.0
+  ],
+  "bbox_mm": {
+   "min": [
+    -2.7,
+    -2.7,
+    0.0
+   ],
+   "max": [
+    2.7,
+    2.7,
+    5.0
+   ]
+  },
+  "mass_g_estimate": 0.6101,
+  "material": "brass Ms58 (CW614N / 2.0401)",
+  "colour": "brass",
+  "bodies": {
+   "gear": "brass"
+  },
+  "frame": "Z = bore axis; teeth z 0..width, hub (if any) z -hub_l..0; tooth 0 centred on +X",
+  "source": "ghw-modellbau.de page 'Spur gear Brass Module 0.3' (article 390754): z, bore, da=5.4, d=4.8, width, hub d/length as tabulated. Involute 20 deg PA, root 1.25 m computed (GHW publishes no profile drawing)",
+  "confidence": "datasheet (catalogue table); tooth profile computed",
+  "notes": "Tooth form is the standard 20 deg involute (profile not published by GHW: measured-sample TODO, esp. tip/root rounding and hub length convention).",
+  "used_for": "FINAL motor gear 16T (centre 5.51 with 20T incl. clearance)"
+ },
  "gear_m03_z18_390755": {
   "title": "GHW-Modellbau brass spur gear module 0.3, z=18, bore 2.0, width 5.0",
   "files": {
@@ -494,6 +531,43 @@
   "confidence": "datasheet (catalogue table); tooth profile computed",
   "notes": "Tooth form is the standard 20 deg involute (profile not published by GHW: measured-sample TODO, esp. tip/root rounding and hub length convention).",
   "used_for": "18T:18T 1:1 option used by last CAD snapshot (parts.md 1.0)"
+ },
+ "gear_m03_z20_753020": {
+  "title": "GHW-Modellbau brass spur gear module 0.3, z=20, bore 2.0, width 1.4, hub d4.0 x 2.5",
+  "files": {
+   "step": "out/gear_m03_z20_753020.step",
+   "stl": "out/gear_m03_z20_753020.stl",
+   "glb": "out/gear_m03_z20_753020.glb",
+   "png": "out/gear_m03_z20_753020.png"
+  },
+  "size_mm": [
+   6.6,
+   6.6,
+   3.9
+  ],
+  "bbox_mm": {
+   "min": [
+    -3.3,
+    -3.3,
+    -2.5
+   ],
+   "max": [
+    3.3,
+    3.3,
+    1.4
+   ]
+  },
+  "mass_g_estimate": 0.4909,
+  "material": "brass Ms58 (CW614N / 2.0401)",
+  "colour": "brass",
+  "bodies": {
+   "gear": "brass"
+  },
+  "frame": "Z = bore axis; teeth z 0..width, hub (if any) z -hub_l..0; tooth 0 centred on +X",
+  "source": "ghw-modellbau.de page 'Spur gear Brass Module 0.3' (article 753020): z, bore, da=6.6, d=6.0, width, hub d/length as tabulated. Involute 20 deg PA, root 1.25 m computed (GHW publishes no profile drawing)",
+  "confidence": "datasheet (catalogue table); tooth profile computed",
+  "notes": "Tooth form is the standard 20 deg involute (profile not published by GHW: measured-sample TODO, esp. tip/root rounding and hub length convention).",
+  "used_for": "FINAL screw gear 20T"
  },
  "hirose_fh12_10s_0p5sh": {
   "title": "Hirose FH12-10S-0.5SH(55) FFC/FPC connector, 0.5 mm, 10 pos, flip-lock, bottom contact",
@@ -884,18 +958,18 @@
   "notes": "Pole halves are coloured bodies; physical part is one piece.",
   "used_for": "spindle magnet (PARTS-LOCK #7)"
  },
- "magnet_d3x1_diametric": {
-  "title": "NdFeB N52 disc magnet d3 x 1, diametric magnetisation",
+ "magnet_d3x1p5_diametric": {
+  "title": "NdFeB N52 disc magnet d3 x 1.5, diametric magnetisation",
   "files": {
-   "step": "out/magnet_d3x1_diametric.step",
-   "stl": "out/magnet_d3x1_diametric.stl",
-   "glb": "out/magnet_d3x1_diametric.glb",
-   "png": "out/magnet_d3x1_diametric.png"
+   "step": "out/magnet_d3x1p5_diametric.step",
+   "stl": "out/magnet_d3x1p5_diametric.stl",
+   "glb": "out/magnet_d3x1p5_diametric.glb",
+   "png": "out/magnet_d3x1p5_diametric.png"
   },
   "size_mm": [
    3.0,
    3.0,
-   1.0
+   1.5
   ],
   "bbox_mm": {
    "min": [
@@ -906,10 +980,10 @@
    "max": [
     1.5,
     1.5,
-    1.0
+    1.5
    ]
   },
-  "mass_g_estimate": 0.053,
+  "mass_g_estimate": 0.0795,
   "material": "NdFeB N52, NiCuNi coating",
   "colour": "N pole red / S pole blue (visual marker only)",
   "bodies": {
@@ -917,10 +991,10 @@
    "N_half": "mag_n"
   },
   "frame": "Z axis; axial: N on +Z face; diametric: N half at +X (magnetisation +X)",
-  "source": "option size, not locked; dimensions from the project spec (mechanical/parts.md 1.5, params.json drive.mag_d/mag_t). Catalogue tolerance typically +-0.05 mm (supermagnete.de / AliExpress listing)",
-  "confidence": "estimated",
+  "source": "final spindle magnet (mechanical owner decision): d3 x 1.5 diametric; dimensions from the project spec (mechanical/parts.md 1.5, params.json drive.mag_d/mag_t). Catalogue tolerance typically +-0.05 mm (supermagnete.de / AliExpress listing)",
+  "confidence": "datasheet",
   "notes": "Pole colouring is two half-bodies (STEP/glTF keep them separate). d3/d4 option thicknesses assumed 1 mm (measured-sample TODO).",
-  "used_for": ""
+  "used_for": "FINAL spindle magnet d3x1.5 diametric"
  },
  "magnet_d4x1_diametric": {
   "title": "NdFeB N52 disc magnet d4 x 1, diametric magnetisation",
