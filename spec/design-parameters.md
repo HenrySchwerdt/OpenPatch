@@ -61,6 +61,15 @@
 - Spindle encoder: magnet on the spindle + Hall sensor (e.g. TMAG5273 / AS5600L class) for **independent delivery verification**.
 - Occlusion detection: motor current/back-EMF rise + encoder slip (no travel despite steps).
 
+## 4a. Rev A = bench split (decision 2026-11-19)
+
+The fully integrated pod board does not route on 17.1 × 29 mm (see `electronics/fab/STATUS.md`). Rev A is a bench test sample anyway, so it is split in two:
+
+1. **Bench pod** (same housing envelope, same drive/reservoir/cannula pocket as §2–§4): contains only mechanics and a small **pod sensor board** (2-layer, 0.6–0.8 mm, or flex): motor spring contacts, 2× DRV5032 quadrature hall switches facing the spindle magnet, 1× dock hall switch, optional TMAG5273 (SOT-23-6) if it fits, and a **0.5 mm-pitch FPC/FFC connector** (bottom-contact, ZIF, ≤ 1.2 mm high). No battery, no Qi coil, no RF module in the bench pod. An FFC cable leaves the housing through a slot (sealing not required for bench use).
+2. **Bench controller board** (≈ 40 × 50 mm, 4-layer 1.6 mm standard, JLCPCB economic/standard PCBA, prefer JLC Basic parts): nRF52840 module **stocked at LCSC** (no consignment), STSPIN220 motor driver, the full **hardware interlock** (MCU enable AND TPL5010 latch AND DOCKED → motor supply), USB-C 5 V power + LDO (no battery, no charger for bench), SWD (Tag-Connect + 10-pin 1.27 mm header), test points, a buzzer (space is not an issue here), button, status LED, motor-current sense for occlusion tests, FFC connector to the pod.
+3. Target **≤ $80 per iteration** (5 controller PCBs with 2 assembled + 5 pod sensor boards assembled) so that at least one iteration per month is affordable.
+4. The integrated single-board pod is postponed to Rev B (with SMA drive freeing space).
+
 ## 5. Electronics
 
 - MCU/BLE: Rev A **Insight SiP ISP1807** (nRF52840 SiP, 8×8×1 mm, integrated antenna); Rev B **nRF54L15** bare chip. No custom ASIC (not manufacturable at PCBWay, cost >> 500 €).
