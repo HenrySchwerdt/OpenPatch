@@ -1,0 +1,11 @@
+name = "magnet_falls_off_basal"
+description = "The leadscrew magnet comes off during a 1 U/h basal."
+seed = 52
+duration_s = 14400.0
+events = [
+  { at_s = 1800.0, action = "magnet", strength = 0.0 },
+]
+
+[setup]
+fill_u = 40.0
+basal = [[0.0, 1.0]]

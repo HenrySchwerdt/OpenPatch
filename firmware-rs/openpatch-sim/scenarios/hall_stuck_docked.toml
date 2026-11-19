@@ -1,0 +1,13 @@
+name = "hall_stuck_docked"
+description = "Single-fault analysis: the dock hall switch sticks at DOCKED while the pod is off the cannula. The interlock gate AND the core trust the same signal."
+seed = 43
+duration_s = 1800.0
+events = [
+  { at_s = 100.0, action = "hall_stuck_docked", on = true },
+  { at_s = 110.0, action = "dock", on = false },
+  { at_s = 200.0, action = "bolus", units = 2.0 },
+]
+
+[setup]
+fill_u = 40.0
+basal = [[0.0, 1.0]]

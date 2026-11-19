@@ -1,0 +1,92 @@
+[
+{
+"command": "solid.cylinder",
+"params": {
+"diameter": 2.0,
+"height": 0.5,
+"base": [
+0,
+0,
+0
+],
+"axis": "Z",
+"body_name": "S_half",
+"name": "S_half"
+}
+},
+{
+"command": "solid.cylinder",
+"params": {
+"diameter": 2.0,
+"height": 0.5,
+"base": [
+0,
+0,
+0.5
+],
+"axis": "Z",
+"body_name": "N_half",
+"name": "N_half"
+}
+},
+{
+"command": "appearance.assign",
+"params": {
+"bodies": [
+"S_half"
+],
+"color": "#3a6bd2",
+"pbr": {
+"metallic": 0.0,
+"roughness": 0.45,
+"dielectric_ior": 1.5
+}
+}
+},
+{
+"command": "appearance.assign",
+"params": {
+"bodies": [
+"N_half"
+],
+"color": "#d23a3a",
+"pbr": {
+"metallic": 0.0,
+"roughness": 0.45,
+"dielectric_ior": 1.5
+}
+}
+},
+{
+"command": "file.export_step",
+"params": {
+"path": "magnet_d2x1_axial.step",
+"bodies": [
+"S_half",
+"N_half"
+]
+}
+},
+{
+"command": "file.export_stl",
+"params": {
+"path": "magnet_d2x1_axial.stl",
+"bodies": [
+"S_half",
+"N_half"
+],
+"quality": "standard"
+}
+},
+{
+"command": "file.export",
+"params": {
+"path": "magnet_d2x1_axial.glb",
+"bodies": [
+"S_half",
+"N_half"
+],
+"quality": "standard"
+}
+}
+]

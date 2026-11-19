@@ -1,0 +1,11 @@
+name = "angle_sensor_nack"
+description = "The TMAG5273 stops answering on I2C during basal delivery."
+seed = 53
+duration_s = 1200.0
+events = [
+  { at_s = 300.0, action = "angle_nack", on = true },
+]
+
+[setup]
+fill_u = 40.0
+basal = [[0.0, 1.0]]

@@ -1,3 +1,4 @@
+<!-- SPDX-License-Identifier: CERN-OHL-P-2.0 -->
 # Measurement sheet: Accu-Chek Insight Flex - cannula head ("dome") and tubing-side connector
 
 TEST PROJECT, bench use only. Roche publishes no dimensions. Everything below is a **TODO-MEASURE placeholder**, scaled from two

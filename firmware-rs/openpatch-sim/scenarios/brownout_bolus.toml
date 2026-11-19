@@ -1,0 +1,14 @@
+name = "brownout_bolus"
+description = "A 50 ms supply dip (contact bounce) below the PCM cut-off 40 s into a 5 U bolus. Reset, restore from flash, come back suspended."
+seed = 81
+duration_s = 1800.0
+events = [
+  { at_s = 600.0, action = "bolus", units = 5.0 },
+  { at_s = 640.0, action = "brownout", dip_mv = 2200.0, duration_ms = 50.0 },
+  { at_s = 690.0, action = "set_basal", profile = [[0.0, 0.5]] },
+  { at_s = 700.0, action = "resume" },
+]
+
+[setup]
+fill_u = 40.0
+basal = [[0.0, 0.5]]

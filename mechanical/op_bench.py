@@ -32,7 +32,11 @@ def bench_geometry(p: dict, L: dict) -> dict:
     xr, ys, zc = L["x_r1"], L["y_s"], L["z_axis"]
     t, z0 = b["board_t"], b["board_z0"]
     ztop = z0 + t
-    U0, V0 = b["u_left"], b["leg_v0"]
+    mag_end_u = L["mag_x"][1] - xr
+    mr, mt = p["drive"]["mag_d"] / 2, p["drive"]["mag_t"]
+    # the spindle magnet (diametric, glued to the rod end) may be taller than the board bottom: the board starts behind it
+    U0 = max(b["u_left"], round(mag_end_u + 0.25, 3))
+    V0 = b["leg_v0"]
     X0 = xr + U0
     u_right = L["x_end"] - b["right_gap"] - xr
     r = b["corner_r"]
@@ -62,7 +66,8 @@ def bench_geometry(p: dict, L: dict) -> dict:
     mag_c = (xr + (L["mag_x"][0] - xr + L["mag_x"][1] - xr) / 2, ys, zc)
     mag_u = mag_c[0] - xr
     sensors = []
-    tm = b["tmag"]
+    tm = dict(b["tmag"])
+    tm["u"] = max(tm["u"], round(mag_end_u + 0.6 + tm["pkg"][0] / 2, 3))      # >= 0.6 mm air gap to the magnet end face
     tz_mid = z0 - tm["pkg"][2] / 2
     dx_t = tm["u"] - mag_u
     sensors.append({
@@ -74,16 +79,17 @@ def bench_geometry(p: dict, L: dict) -> dict:
                         "package X/Y lie in the board plane (pin row along pod Y).",
         "optional": False, "mandatory_reason": "per-pulse angle check (6.43 deg per tooth); the DRV pair is only a coarse second channel", "air_gap_to_magnet_end_face_mm": round(tm["u"] - tm["pkg"][0] / 2 - (L["mag_x"][1] - xr), 3),
         "dist_to_magnet_centre_mm": round(math.hypot(dx_t, tz_mid - zc), 3),
-        "expected_field_mT": round(abs(diametric_field_mT((dx_t, 0.0, tz_mid - zc), 0.0)[2]), 1),
+        "expected_field_mT": round(max(abs(c) for c in diametric_field_mT((dx_t, 0.0, tz_mid - zc), 0.0, 1.3, mr, mt)), 1),
         "note": "On the spindle axis (end-of-shaft angle sensing): B rotates in the Y-Z plane with the magnet, "
                 "amplitude about 12 mT (fits the A1 +-40 mT range).",
     })
-    dr = b["drv_top"]
+    dr = dict(b["drv_top"])
+    dr["u"] = max(dr["u"], round(U0 + 0.9, 3))
     zs = ztop + dr["pkg"][2] / 2
     for i, dvv in enumerate(dr["dvs"]):
         v = ys + dvv
         dxm, dym, dzm = dr["u"] - mag_u, dvv, zs - zc
-        ph, amp = bz_phase_amp((dxm, dym, dzm))
+        ph, amp = bz_phase_amp((dxm, dym, dzm), r=mr, t=mt)
         sensors.append({
             "id": f"HALL_{'AB'[i]}", "part": "DRV5032FADMR (X2SON-4 1.1x1.4, LCSC C2152496), omnipolar switch, "
                                            "alt. FADBZR SOT-23 C140921 does not fit the pitch", "side": "top",
@@ -219,7 +225,7 @@ def bench_geometry(p: dict, L: dict) -> dict:
                     + [{"what": "lid hold-down pad", "center_board_mm": q["center_board_mm"], "d_mm": q["top_keepout_d_mm"], "layers": "top: no components"}
                        for q in mount["lid_hold_down_pads"]])
     return {
-        "xr": xr, "X0": X0, "V0": V0, "ztop": ztop, "z0": z0, "t": t, "u_right": u_right,
+        "xr": xr, "X0": X0, "U0": U0, "V0": V0, "ztop": ztop, "z0": z0, "t": t, "u_right": u_right,
         "outline": clean, "width": width, "height": height, "sensors": sensors, "magnets": magnets, "contacts": contacts,
         "ffc": ffc, "mount": mount, "keepouts": keepouts, "excl_circles": excl_circles,
         "x_dock": x_dock,
@@ -276,7 +282,7 @@ def build_bench_electronics(s: Script, p: dict, L: dict) -> None:
     B = L["bench"]
     xr, ys = L["x_r1"], L["y_s"]
     z0, t, ztop = B["z0"], B["t"], B["ztop"]
-    U0, V0 = b["u_left"], b["leg_v0"]
+    U0, V0 = B["U0"], b["leg_v0"]
     wv, bv, lu, lobe = b["wing_v"], b["body_v"], b["leg_u"], b["lobe_u"]
     ur, r = B["u_right"], b["corner_r"]
 

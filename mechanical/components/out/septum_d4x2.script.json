@@ -1,0 +1,60 @@
+[
+{
+"command": "solid.cylinder",
+"params": {
+"diameter": 4.0,
+"height": 2.0,
+"base": [
+0,
+0,
+0.0
+],
+"axis": "Z",
+"body_name": "septum",
+"name": "septum"
+}
+},
+{
+"command": "appearance.assign",
+"params": {
+"bodies": [
+"septum"
+],
+"color": "#d9ecef",
+"pbr": {
+"metallic": 0.0,
+"roughness": 0.35,
+"dielectric_ior": 1.5
+}
+}
+},
+{
+"command": "file.export_step",
+"params": {
+"path": "septum_d4x2.step",
+"bodies": [
+"septum"
+]
+}
+},
+{
+"command": "file.export_stl",
+"params": {
+"path": "septum_d4x2.stl",
+"bodies": [
+"septum"
+],
+"quality": "standard"
+}
+},
+{
+"command": "file.export",
+"params": {
+"path": "septum_d4x2.glb",
+"bodies": [
+"septum"
+],
+"quality": "standard"
+}
+}
+]

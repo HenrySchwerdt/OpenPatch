@@ -116,8 +116,8 @@ Test-fit the printed `dock-coupon` to a spare cannula head as described in `cann
 Cast the lip seals in `mould/`, assemble plunger core + seals, push into the reservoir from the open end (sections 1-2 above). Press the **end cap** (d1.98 spigot) onto the d2.0 port of the closed end by hand until the cap block touches the reservoir end face; the fill septum plug (d4 x 2, punched) goes into the cap's side bore (access hole in the -Y shell wall). Carriage with the **fixed M1.6 nut** (press into the hex pocket).
 
 ## B3. Motor, gear pair, leadscrew (default side-by-side layout)
-1. Lay the motor in its three cradles beside the lane (shaft toward the dry end wall). Press **gear A** (z18, bore 2.0) onto the D-shaft with one drop of Loctite 638 on the round bore; the flat leaves a 0.5 mm gap that the adhesive fills.
-2. **Gear B** (z18, bore 2.0) on a d2.0 x d1.6 sleeve pressed on the M1.6 rod end (Loctite 638), so it meshes with gear A (centre 5.4 mm, fixed by the shell cradles). Do not glue the sleeve to the dry bush.
+1. Lay the motor in its three cradles beside the lane (shaft toward the dry end wall). Press **gear A** (z16, GHW 390754, bore 2.0, skimmed to 1.4 mm) onto the D-shaft with one drop of Loctite 638 on the round bore; the flat leaves a 0.5 mm gap that the adhesive fills.
+2. **Gear B** (z20, GHW 753020, bore 2.0, **hub turned off**) on a d2.0 x d1.6 sleeve (1.4 mm) pressed on the M1.6 rod end (Loctite 638), so it meshes with gear A (centre 5.51 mm; the floor trough and the screw bush bore fix it, the two lid pads hold the motor down without preload). The 0.25 mm floor relief and lid recess over gear B are intentional (tip OD 6.6). Do not glue the sleeve to the dry bush.
 3. The factory lead (4 wires) hangs from the pins under the motor: lay it in the floor pocket under the terminal block and the 2.2 mm channel to the +X end wall, weave the wires between the three printed posts (strain relief), out through the end-wall slot.
    **Pins:** as delivered they point down (-Z); trim/bend the pin tips flat toward the rear (VERIFY) so the block sits in its floor pocket; never pull on the wires.
 4. Thread the leadscrew through the dry bush (x = 0.9), the carriage nut and the far bearing; put the spindle magnet (diametric, d2 x 1) on the wet end. Turn it by hand: the carriage runs between the rear stop and the far block.
@@ -145,3 +145,9 @@ the table: the dome enters the channel, the arms spread (under 1 N), snap behind
 
 ## B9. Disassembly
 Reverse order. Reusable: motor, sensor board, magnets, FFC, screws, coupler (brass), duckbill valve (check). Consumed: lip seals, gasket, septum plugs, needle hubs after 3-5 cycles.
+
+
+## B4. Dock insert, tongue shim, plunger nose (2026-11-19)
+* **Dock insert** (`out/bench/fab/dock-inserts/insert_vNN`): slide the insert into the dock window from the +X mouth (arms toward you) until its front face meets the rear dock face and the two detent bumps click into the flange holes. Swap: push it out with a pin from the open end. Same fit on a bare `dock_fixture` for fit tests (permissive, CERN-OHL-P-2.0). The needle stays in the end cap.
+* **Tongue shim:** glue a 0.5 x 1.4 mm stainless strip (about 4 mm long) into the carriage pocket (open face toward the reservoir) with one drop of cyanoacrylate; the free end enters the plunger socket. Do not bend it.
+* **Plunger nose:** glue the printed 0.7 mm nose disc onto the plunger front face (dead layer in front of the plunger becomes 0.3 mm). Water test only.

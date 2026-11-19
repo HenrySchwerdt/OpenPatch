@@ -13,6 +13,6 @@
 * Good for hand-reviewed thin features and for combining with PCB/PCBA orders.
 
 ## Both
-* Water-test parts (reservoir, plunger core) are NOT biocompatible or sterile. Never put insulin or anything that
+* Water-test parts (reservoir, plunger core) are NOT biocompatible or sterile. The pump is never filled with insulin or any other drug and nothing that
   goes to a person through printed Rev A parts.
 * Always request the quote for the smallest size (OP-70) first to see per-part minimums before ordering 3 sizes.

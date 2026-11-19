@@ -1,0 +1,1503 @@
+{
+ "battery_lipo_3x12x20": {
+  "title": "Li-Po pouch cell with protection circuit (PCM), 3.0 x 12 x 20 mm placeholder (~40 mAh class)",
+  "files": {
+   "step": "out/battery_lipo_3x12x20.step",
+   "stl": "out/battery_lipo_3x12x20.stl",
+   "glb": "out/battery_lipo_3x12x20.glb",
+   "png": "out/battery_lipo_3x12x20.png"
+  },
+  "size_mm": [
+   20.0,
+   12.0,
+   3.0
+  ],
+  "bbox_mm": {
+   "min": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "max": [
+    20.0,
+    12.0,
+    3.0
+   ]
+  },
+  "mass_g_estimate": 1.1482,
+  "material": "aluminium-laminate pouch, Ni tabs, FR4 PCM",
+  "colour": "silver / green",
+  "bodies": {
+   "cell": "pouch",
+   "seal": "pouch",
+   "tab_pos": "nickel",
+   "tab_neg": "nickel",
+   "pcm": "fr4_green",
+   "pcm_ic1": "black_ic",
+   "pcm_ic2": "black_ic",
+   "pcm_pad1": "gold",
+   "pcm_pad2": "gold",
+   "pcm_pad3": "gold"
+  },
+  "frame": "X length 20 (PCM end at +X), Y width 12, Z thickness 3.0, z=0 bottom face",
+  "source": "Task brief / docs/v010 placeholder 3.0 x 12 x 20 (Rev B target >= 40 mAh); spec/design-parameters.md 'flat Li-Po with PCM' (Rev A 3.2 x 11.2 x <=19.8). NOT a specific vendor cell",
+  "confidence": "placeholder",
+  "notes": "Cell/seal/tab/PCM split is generic. Rev A envelope in params.json battery is 3.2 x 11.2 x up to 19.8 mm; this part is 3.0 x 12 x 20 (does not fit that pocket: width 12 > 11.2). Replace with a sourced cell's drawing.",
+  "used_for": "Rev B battery placeholder"
+ },
+ "bench_controller_board": {
+  "title": "bench controller board (KiCad STEP export with component models)",
+  "files": {
+   "step": "out/boards/bench_controller_board.step",
+   "glb": "out/boards/bench_controller_board.glb",
+   "png": "out/boards/bench_controller_board.png"
+  },
+  "material": "FR4 + KiCad stock component models",
+  "colour": "green soldermask, gold pads",
+  "frame": "KiCad board coordinates (mm), PCB top at z~1.5, bottom z=0",
+  "source": "electronics/bench/controller/controller.kicad_pcb via kicad-cli pcb export step (KiCad 10, stock 3D libraries)",
+  "confidence": "datasheet (board geometry from the design) / mixed (stock component models)",
+  "footprints_without_3d_model": [
+   "Buzzer_MLT-8530_8.5x8.5",
+   "Ebyte_E73-2G4M08S1C_13x18",
+   "MountingHole_3.2mm_M3",
+   "Tag-Connect_TC2030-IDC-NL_2x03_P1.27mm_Vertical",
+   "TestPoint_Pad_D1.0mm"
+  ],
+  "footprints_model_file_not_found": [
+   "SW_Push_1P1T_XKB_TS-1187A",
+   "USB_C_Receptacle_HRO_TYPE-C-31-M-12"
+  ],
+  "notes": "Replace missing-model parts with the models in this library (e.g. ic_drv5032_x2son, ebyte_e73_2g4m08s1c)."
+ },
+ "bench_pod_board": {
+  "title": "bench pod board (KiCad STEP export with component models)",
+  "files": {
+   "step": "out/boards/bench_pod_board.step",
+   "stl": "out/boards/bench_pod_board.stl",
+   "glb": "out/boards/bench_pod_board.glb",
+   "png": "out/boards/bench_pod_board.png"
+  },
+  "material": "FR4 + KiCad stock component models",
+  "colour": "green soldermask, gold pads",
+  "frame": "KiCad board coordinates (mm), PCB top at z~1.5, bottom z=0",
+  "source": "electronics/bench/pod/pod.kicad_pcb via kicad-cli pcb export step (KiCad 10, stock 3D libraries)",
+  "confidence": "datasheet (board geometry from the design) / mixed (stock component models)",
+  "footprints_without_3d_model": [
+   "DRV5032_X2SON-4_DMR0004B",
+   "NPTH_1.2mm",
+   "NPTH_1.4mm"
+  ],
+  "footprints_model_file_not_found": [],
+  "notes": "Replace missing-model parts with the models in this library (e.g. ic_drv5032_x2son, ebyte_e73_2g4m08s1c)."
+ },
+ "c_0402_100nf": {
+  "title": "0402 ceramic capacitor (100 nF X7R)",
+  "files": {
+   "step": "out/c_0402_100nf.step",
+   "stl": "out/c_0402_100nf.stl",
+   "glb": "out/c_0402_100nf.glb",
+   "png": "out/c_0402_100nf.png"
+  },
+  "size_mm": [
+   1.0,
+   0.5,
+   0.5
+  ],
+  "bbox_mm": {
+   "min": [
+    -0.5,
+    -0.25,
+    0.0
+   ],
+   "max": [
+    0.5,
+    0.25,
+    0.5
+   ]
+  },
+  "mass_g_estimate": 0.0009,
+  "material": "ceramic, tinned terminations",
+  "colour": "brown / tin",
+  "bodies": {
+   "term1": "tin",
+   "term2": "tin"
+  },
+  "frame": "centred on origin, z=0 PCB surface; length along X",
+  "source": "EIA 0402: L 1.0 x W 0.5, T 0.5, termination band 0.25 (typical MLCC series, e.g. Samsung CL05B104KO5NNNC)",
+  "confidence": "datasheet",
+  "notes": "Typical; band width 0.15-0.35 across vendors.",
+  "used_for": ""
+ },
+ "c_0603_10uf": {
+  "title": "0603 ceramic capacitor (10 uF)",
+  "files": {
+   "step": "out/c_0603_10uf.step",
+   "stl": "out/c_0603_10uf.stl",
+   "glb": "out/c_0603_10uf.glb",
+   "png": "out/c_0603_10uf.png"
+  },
+  "size_mm": [
+   1.6,
+   0.8,
+   0.8
+  ],
+  "bbox_mm": {
+   "min": [
+    -0.8,
+    -0.4,
+    0.0
+   ],
+   "max": [
+    0.8,
+    0.4,
+    0.8
+   ]
+  },
+  "mass_g_estimate": 0.0033,
+  "material": "ceramic, tinned terminations",
+  "colour": "brown / tin",
+  "bodies": {
+   "term1": "tin",
+   "term2": "tin"
+  },
+  "frame": "centred on origin, z=0 PCB surface; length along X",
+  "source": "EIA 0603: 1.6 x 0.8, T 0.8 (10 uF class is 0.8-0.95), termination 0.35",
+  "confidence": "datasheet",
+  "notes": "Typical.",
+  "used_for": ""
+ },
+ "cannula_head_dummy": {
+  "title": "Accu-Chek Insight Flex cannula head (dome + patch + septum) DUMMY, assumed dimensions",
+  "files": {
+   "step": "out/cannula_head_dummy.step",
+   "stl": "out/cannula_head_dummy.stl",
+   "glb": "out/cannula_head_dummy.glb",
+   "png": "out/cannula_head_dummy.png"
+  },
+  "size_mm": [
+   11.0,
+   11.0,
+   5.094
+  ],
+  "bbox_mm": {
+   "min": [
+    -5.5,
+    -5.5,
+    0.0
+   ],
+   "max": [
+    5.5,
+    5.5,
+    5.094
+   ]
+  },
+  "mass_g_estimate": 0.3961,
+  "material": "PC/PETG dome, silicone septum, non-woven adhesive patch",
+  "colour": "translucent clear / white",
+  "bodies": {
+   "patch": "white_pa",
+   "dome": "dome",
+   "septum": "silicone"
+  },
+  "frame": "dome centre on Z axis, patch underside z=0, slide direction -X (septum faces +X)",
+  "source": "mechanical/cannula-measurement.md and params.json cannula (A 10.0, B 5.0, C 3.0, D 3.6, E 1.0, J=K=11, L 0.6): ALL TODO-MEASURE, scaled from two photos; Roche publishes no drawing",
+  "confidence": "placeholder",
+  "notes": "ASSUMED. No soft cannula or introducer needle is modelled (puncture hazard, nothing to fit-check). Latch notch not modelled yet (G, H, I letters). Use only for dock-fit layout until the real head is measured.",
+  "used_for": "dock fit layout (PARTS-LOCK #1)"
+ },
+ "duckbill_valve_generic": {
+  "title": "Miniature silicone duckbill check valve, OD 3 (PLACEHOLDER, no sourced listing yet)",
+  "files": {
+   "step": "out/duckbill_valve_generic.step",
+   "stl": "out/duckbill_valve_generic.stl",
+   "glb": "out/duckbill_valve_generic.glb",
+   "png": "out/duckbill_valve_generic.png"
+  },
+  "size_mm": [
+   3.0,
+   3.0,
+   4.2
+  ],
+  "bbox_mm": {
+   "min": [
+    -1.5,
+    -1.5,
+    0.0
+   ],
+   "max": [
+    1.5,
+    1.5,
+    4.2
+   ]
+  },
+  "mass_g_estimate": 0.0139,
+  "material": "silicone (translucent)",
+  "colour": "translucent clear/blue-white",
+  "bodies": {
+   "sleeve": "silicone"
+  },
+  "frame": "Z axis; sleeve inlet z=0, bills (outlet) toward +Z",
+  "source": "PARTS-LOCK #16 CANDIDATE: 'miniature silicone duckbill OD <= 3 mm, cracking 1-5 kPa'. Shape generic (Minivalve/Vernay style); no vendor drawing yet",
+  "confidence": "placeholder",
+  "notes": "Every dimension except OD<=3 is invented (sleeve ID 2.0 x 2.0 long, bills 2.2 long, slit closed to 0.08). Replace when a part is sourced.",
+  "used_for": "outlet check valve (PARTS-LOCK #16)"
+ },
+ "ebyte_e73_2g4m08s1c": {
+  "title": "Ebyte E73-2G4M08S1C nRF52840 module",
+  "files": {
+   "step": "out/ebyte_e73_2g4m08s1c.step",
+   "stl": "out/ebyte_e73_2g4m08s1c.stl",
+   "glb": "out/ebyte_e73_2g4m08s1c.glb",
+   "png": "out/ebyte_e73_2g4m08s1c.png"
+  },
+  "size_mm": [
+   13.0,
+   18.0,
+   2.25
+  ],
+  "bbox_mm": {
+   "min": [
+    -6.5,
+    -9.0,
+    -0.03
+   ],
+   "max": [
+    6.5,
+    9.0,
+    2.22
+   ]
+  },
+  "mass_g_estimate": 2.3738,
+  "material": "FR4 black soldermask, tinned steel can, ceramic chip antenna, ENIG castellations",
+  "colour": "black / tin / ceramic / gold",
+  "bodies": {
+   "pcb": "fr4_black",
+   "shield": "tin",
+   "shield_lid": "nickel",
+   "antenna": "ceramic",
+   "ant_feed": "gold",
+   "pad1": "gold",
+   "pad2": "gold",
+   "pad3": "gold",
+   "pad4": "gold",
+   "pad5": "gold",
+   "pad6": "gold",
+   "pad7": "gold",
+   "pad8": "gold",
+   "pad9": "gold",
+   "pad10": "gold",
+   "pad11": "gold",
+   "pad13": "gold",
+   "pad15": "gold",
+   "pad17": "gold",
+   "pad19": "gold",
+   "pad21": "gold",
+   "pad23": "gold",
+   "pad25": "gold",
+   "pad12": "gold",
+   "pad14": "gold",
+   "pad16": "gold",
+   "pad18": "gold",
+   "pad20": "gold",
+   "pad22": "gold",
+   "pad24": "gold",
+   "pad26": "gold",
+   "pad27": "gold",
+   "pad29": "gold",
+   "pad31": "gold",
+   "pad33": "gold",
+   "pad35": "gold",
+   "pad37": "gold",
+   "pad39": "gold",
+   "pad41": "gold",
+   "pad43": "gold",
+   "pad28": "gold",
+   "pad30": "gold",
+   "pad32": "gold",
+   "pad34": "gold",
+   "pad36": "gold",
+   "pad38": "gold",
+   "pad40": "gold",
+   "pad42": "gold"
+  },
+  "frame": "module centred on origin, bottom (pads) at z=0, +Z up, antenna end toward -Y, pad row end toward +Y",
+  "source": "Ebyte E73-2G4M08S1C product data sheet: 13 x 18 x 2.2 mm, 43 castellated/ground pads at 1.27 pitch; pad geometry taken from the project footprint (electronics/bench/footprints/Bench.pretty/Ebyte_E73-2G4M08S1C_13x18.kicad_mod)",
+  "confidence": "datasheet (outline, pads) / estimated (shield, antenna, PCB thickness)",
+  "notes": "Shield can outline 12.2 x 12.6 and chip antenna 3.2 x 1.6 x 1.0 are ESTIMATES (measured-sample TODO). NOTE repo parts.json says the '-C' lcsc variant has IPEX while the spec asks for the ceramic-antenna version: confirm which is ordered.",
+  "used_for": "bench controller MCU module (PARTS-LOCK #11)"
+ },
+ "ffc_05mm_10p_same_side": {
+  "title": "0.5 mm pitch FFC ribbon, 10 conductors, same-side contacts, 30 mm (cut to length in practice)",
+  "files": {
+   "step": "out/ffc_05mm_10p_same_side.step",
+   "stl": "out/ffc_05mm_10p_same_side.stl",
+   "glb": "out/ffc_05mm_10p_same_side.glb",
+   "png": "out/ffc_05mm_10p_same_side.png"
+  },
+  "size_mm": [
+   6.0,
+   30.0,
+   0.45
+  ],
+  "bbox_mm": {
+   "min": [
+    -3.0,
+    0.0,
+    0.0
+   ],
+   "max": [
+    3.0,
+    30.0,
+    0.45
+   ]
+  },
+  "mass_g_estimate": 0.081,
+  "material": "PET film, Cu conductors tin-plated, PET stiffener at the ends",
+  "colour": "translucent blue / tin",
+  "bodies": {
+   "film": "ffc_pet",
+   "c0_1": "tin",
+   "c0_2": "tin",
+   "c0_3": "tin",
+   "c0_4": "tin",
+   "c0_5": "tin",
+   "c0_6": "tin",
+   "c0_7": "tin",
+   "c0_8": "tin",
+   "c0_9": "tin",
+   "c0_10": "tin",
+   "c1_1": "tin",
+   "c1_2": "tin",
+   "c1_3": "tin",
+   "c1_4": "tin",
+   "c1_5": "tin",
+   "c1_6": "tin",
+   "c1_7": "tin",
+   "c1_8": "tin",
+   "c1_9": "tin",
+   "c1_10": "tin"
+  },
+  "frame": "flat in XY, length along +Y from y=0, z 0..0.3, contacts on the bottom face (z=0) at both ends",
+  "source": "Hirose FH12 datasheet applicable FPC: t = 0.30 +-0.05, 0.5 mm pitch, 10 conductors -> width 6.0 (params.json bench.ffc.cable_w); conductor width 0.3 / thickness 0.035 typical (IPC-4203)",
+  "confidence": "estimated",
+  "notes": "Generic; actual stiffener thickness and conductor width vary per vendor (measured-sample TODO).",
+  "used_for": "pod<->controller cable (PARTS-LOCK #15)"
+ },
+ "gear_m03_z12_753012": {
+  "title": "GHW-Modellbau brass spur gear module 0.3, z=12, bore 1.5, width 4.0",
+  "files": {
+   "step": "out/gear_m03_z12_753012.step",
+   "stl": "out/gear_m03_z12_753012.stl",
+   "glb": "out/gear_m03_z12_753012.glb",
+   "png": "out/gear_m03_z12_753012.png"
+  },
+  "size_mm": [
+   4.2,
+   4.2,
+   4.0
+  ],
+  "bbox_mm": {
+   "min": [
+    -2.1,
+    -2.1,
+    0.0
+   ],
+   "max": [
+    2.1,
+    2.1,
+    4.0
+   ]
+  },
+  "mass_g_estimate": 0.2703,
+  "material": "brass Ms58 (CW614N / 2.0401)",
+  "colour": "brass",
+  "bodies": {
+   "gear": "brass"
+  },
+  "frame": "Z = bore axis; teeth z 0..width, hub (if any) z -hub_l..0; tooth 0 centred on +X",
+  "source": "ghw-modellbau.de page 'Spur gear Brass Module 0.3' (article 753012): z, bore, da=4.2, d=3.6, width, hub d/length as tabulated. Involute 20 deg PA, root 1.25 m computed (GHW publishes no profile drawing)",
+  "confidence": "datasheet (catalogue table); tooth profile computed",
+  "notes": "Tooth form is the standard 20 deg involute (profile not published by GHW: measured-sample TODO, esp. tip/root rounding and hub length convention).",
+  "used_for": "leadscrew-side gear 12T (PARTS-LOCK #3)"
+ },
+ "gear_m03_z15_753015": {
+  "title": "GHW-Modellbau brass spur gear module 0.3, z=15, bore 2.0, width 1.4, hub d4.0 x 2.5",
+  "files": {
+   "step": "out/gear_m03_z15_753015.step",
+   "stl": "out/gear_m03_z15_753015.stl",
+   "glb": "out/gear_m03_z15_753015.glb",
+   "png": "out/gear_m03_z15_753015.png"
+  },
+  "size_mm": [
+   5.063,
+   5.089,
+   3.9
+  ],
+  "bbox_mm": {
+   "min": [
+    -2.513,
+    -2.544,
+    -2.5
+   ],
+   "max": [
+    2.55,
+    2.544,
+    1.4
+   ]
+  },
+  "mass_g_estimate": 0.3454,
+  "material": "brass Ms58 (CW614N / 2.0401)",
+  "colour": "brass",
+  "bodies": {
+   "gear": "brass"
+  },
+  "frame": "Z = bore axis; teeth z 0..width, hub (if any) z -hub_l..0; tooth 0 centred on +X",
+  "source": "ghw-modellbau.de page 'Spur gear Brass Module 0.3' (article 753015): z, bore, da=5.1, d=4.5, width, hub d/length as tabulated. Involute 20 deg PA, root 1.25 m computed (GHW publishes no profile drawing)",
+  "confidence": "datasheet (catalogue table); tooth profile computed",
+  "notes": "Tooth form is the standard 20 deg involute (profile not published by GHW: measured-sample TODO, esp. tip/root rounding and hub length convention).",
+  "used_for": "motor-side pinion option 15T (PARTS-LOCK #3, firmware preset drive-nfp-608-26-45-g15-12)"
+ },
+ "gear_m03_z16_390754": {
+  "title": "GHW-Modellbau brass spur gear module 0.3, z=16, bore 2.0, width 5.0",
+  "files": {
+   "step": "out/gear_m03_z16_390754.step",
+   "stl": "out/gear_m03_z16_390754.stl",
+   "glb": "out/gear_m03_z16_390754.glb",
+   "png": "out/gear_m03_z16_390754.png"
+  },
+  "size_mm": [
+   5.4,
+   5.4,
+   5.0
+  ],
+  "bbox_mm": {
+   "min": [
+    -2.7,
+    -2.7,
+    0.0
+   ],
+   "max": [
+    2.7,
+    2.7,
+    5.0
+   ]
+  },
+  "mass_g_estimate": 0.6101,
+  "material": "brass Ms58 (CW614N / 2.0401)",
+  "colour": "brass",
+  "bodies": {
+   "gear": "brass"
+  },
+  "frame": "Z = bore axis; teeth z 0..width, hub (if any) z -hub_l..0; tooth 0 centred on +X",
+  "source": "ghw-modellbau.de page 'Spur gear Brass Module 0.3' (article 390754): z, bore, da=5.4, d=4.8, width, hub d/length as tabulated. Involute 20 deg PA, root 1.25 m computed (GHW publishes no profile drawing)",
+  "confidence": "datasheet (catalogue table); tooth profile computed",
+  "notes": "Tooth form is the standard 20 deg involute (profile not published by GHW: measured-sample TODO, esp. tip/root rounding and hub length convention).",
+  "used_for": "FINAL motor gear 16T (centre 5.51 with 20T incl. clearance)"
+ },
+ "gear_m03_z18_390755": {
+  "title": "GHW-Modellbau brass spur gear module 0.3, z=18, bore 2.0, width 5.0",
+  "files": {
+   "step": "out/gear_m03_z18_390755.step",
+   "stl": "out/gear_m03_z18_390755.stl",
+   "glb": "out/gear_m03_z18_390755.glb",
+   "png": "out/gear_m03_z18_390755.png"
+  },
+  "size_mm": [
+   6.0,
+   5.941,
+   5.0
+  ],
+  "bbox_mm": {
+   "min": [
+    -3.0,
+    -2.97,
+    0.0
+   ],
+   "max": [
+    3.0,
+    2.97,
+    5.0
+   ]
+  },
+  "mass_g_estimate": 0.8119,
+  "material": "brass Ms58 (CW614N / 2.0401)",
+  "colour": "brass",
+  "bodies": {
+   "gear": "brass"
+  },
+  "frame": "Z = bore axis; teeth z 0..width, hub (if any) z -hub_l..0; tooth 0 centred on +X",
+  "source": "ghw-modellbau.de page 'Spur gear Brass Module 0.3' (article 390755): z, bore, da=6.0, d=5.4, width, hub d/length as tabulated. Involute 20 deg PA, root 1.25 m computed (GHW publishes no profile drawing)",
+  "confidence": "datasheet (catalogue table); tooth profile computed",
+  "notes": "Tooth form is the standard 20 deg involute (profile not published by GHW: measured-sample TODO, esp. tip/root rounding and hub length convention).",
+  "used_for": "18T:18T 1:1 option used by last CAD snapshot (parts.md 1.0)"
+ },
+ "gear_m03_z20_753020": {
+  "title": "GHW-Modellbau brass spur gear module 0.3, z=20, bore 2.0, width 1.4, hub d4.0 x 2.5",
+  "files": {
+   "step": "out/gear_m03_z20_753020.step",
+   "stl": "out/gear_m03_z20_753020.stl",
+   "glb": "out/gear_m03_z20_753020.glb",
+   "png": "out/gear_m03_z20_753020.png"
+  },
+  "size_mm": [
+   6.6,
+   6.6,
+   3.9
+  ],
+  "bbox_mm": {
+   "min": [
+    -3.3,
+    -3.3,
+    -2.5
+   ],
+   "max": [
+    3.3,
+    3.3,
+    1.4
+   ]
+  },
+  "mass_g_estimate": 0.4909,
+  "material": "brass Ms58 (CW614N / 2.0401)",
+  "colour": "brass",
+  "bodies": {
+   "gear": "brass"
+  },
+  "frame": "Z = bore axis; teeth z 0..width, hub (if any) z -hub_l..0; tooth 0 centred on +X",
+  "source": "ghw-modellbau.de page 'Spur gear Brass Module 0.3' (article 753020): z, bore, da=6.6, d=6.0, width, hub d/length as tabulated. Involute 20 deg PA, root 1.25 m computed (GHW publishes no profile drawing)",
+  "confidence": "datasheet (catalogue table); tooth profile computed",
+  "notes": "Tooth form is the standard 20 deg involute (profile not published by GHW: measured-sample TODO, esp. tip/root rounding and hub length convention).",
+  "used_for": "FINAL screw gear 20T"
+ },
+ "hirose_fh12_10s_0p5sh": {
+  "title": "Hirose FH12-10S-0.5SH(55) FFC/FPC connector, 0.5 mm, 10 pos, flip-lock, bottom contact",
+  "files": {
+   "step": "out/hirose_fh12_10s_0p5sh.step",
+   "stl": "out/hirose_fh12_10s_0p5sh.stl",
+   "glb": "out/hirose_fh12_10s_0p5sh.glb",
+   "png": "out/hirose_fh12_10s_0p5sh.png"
+  },
+  "size_mm": [
+   9.1,
+   5.6,
+   2.0
+  ],
+  "bbox_mm": {
+   "min": [
+    -4.55,
+    -3.1,
+    0.0
+   ],
+   "max": [
+    4.55,
+    2.5,
+    2.0
+   ]
+  },
+  "mass_g_estimate": 0.0977,
+  "material": "LCP housing, phosphor-bronze gold-plated contacts, tin-plated tabs",
+  "colour": "beige / gold",
+  "bodies": {
+   "housing": "pa_beige",
+   "lock": "pa_beige",
+   "tail1": "gold",
+   "tail2": "gold",
+   "tail3": "gold",
+   "tail4": "gold",
+   "tail5": "gold",
+   "tail6": "gold",
+   "tail7": "gold",
+   "tail8": "gold",
+   "tail9": "gold",
+   "tail10": "gold",
+   "tab_l": "gold",
+   "tab_r": "gold"
+  },
+  "frame": "footprint frame: origin at connector centre, PCB surface z=0, FFC enters from -Y, tails at +Y",
+  "source": "Hirose FH12 catalogue (FH12_Series.pdf) 0.5mm bottom-contact table: A 4.5 / B 8.1 / C 9.1 / D 5.57 for 10 pos; 'standard type connector height 2 mm'; KiCad stock footprint Hirose_FH12-10S-0.5SH_1x10-1MP (pad pitch 0.5, MP pads +-4.15) for tails/tabs",
+  "confidence": "datasheet (B, C, H, pitch) / estimated (slot, lever detail)",
+  "notes": "FH12 is 2.0 mm HIGH, but params.json bench.ffc.conn assumes 1.0 mm and spec s4a asks for <= 1.2 mm: the ZIF as locked does not meet that height budget (pod stack must allow 2.0 or switch to a lower connector). Lever shown closed; opening rotates it up (adds ~1.5 mm toward -Y).",
+  "used_for": "pod and controller FFC connector (PARTS-LOCK #15)"
+ },
+ "ic_drv5032_sot23": {
+  "title": "TI DRV5032 hall switch, SOT-23-3 (DBZ)",
+  "files": {
+   "step": "out/ic_drv5032_sot23.step",
+   "stl": "out/ic_drv5032_sot23.stl",
+   "glb": "out/ic_drv5032_sot23.glb",
+   "png": "out/ic_drv5032_sot23.png"
+  },
+  "size_mm": [
+   2.9,
+   2.4,
+   1.1
+  ],
+  "bbox_mm": {
+   "min": [
+    -1.45,
+    -1.2,
+    0.0
+   ],
+   "max": [
+    1.45,
+    1.2,
+    1.1
+   ]
+  },
+  "mass_g_estimate": 0.0015,
+  "material": "epoxy, tin leads",
+  "colour": "black / tin",
+  "bodies": {
+   "lead1": "tin",
+   "lead2": "tin",
+   "lead3": "tin"
+  },
+  "frame": "package centred on origin, z=0 PCB surface, +Z up; pin 1 at (-x,+y)",
+  "source": "TI DRV5032 datasheet SLVSDJ0 (package DBZ0003A): body 2.9 x 1.3, height 1.1 max, pitch 0.95, lead span 2.4",
+  "confidence": "datasheet",
+  "notes": "Two leads on +Y, one centred on -Y; not used on current boards (bench uses X2SON).",
+  "used_for": ""
+ },
+ "ic_drv5032_x2son": {
+  "title": "TI DRV5032 hall switch, X2SON-4 (DMR0004B) 1.1 x 1.4 x 0.4",
+  "files": {
+   "step": "out/ic_drv5032_x2son.step",
+   "stl": "out/ic_drv5032_x2son.stl",
+   "glb": "out/ic_drv5032_x2son.glb",
+   "png": "out/ic_drv5032_x2son.png"
+  },
+  "size_mm": [
+   1.1,
+   1.4,
+   0.405
+  ],
+  "bbox_mm": {
+   "min": [
+    -0.55,
+    -0.7,
+    -0.005
+   ],
+   "max": [
+    0.55,
+    0.7,
+    0.4
+   ]
+  },
+  "mass_g_estimate": 0.0006,
+  "material": "epoxy, tin pads",
+  "colour": "black / tin",
+  "bodies": {
+   "pad1": "tin",
+   "pad2": "tin",
+   "pad3": "tin",
+   "pad4": "tin",
+   "thermal": "tin"
+  },
+  "frame": "package centred on origin, z=0 PCB surface, +Z up; pin 1 at (-x,+y)",
+  "source": "TI DRV5032 datasheet SLVSDJ0 package DMR0004B: 1.1 x 1.4 x 0.4 mm, 4 pads + thermal; pad centres from electronics/bench/footprints DRV5032_X2SON-4 (+-0.25, +-0.7)",
+  "confidence": "datasheet",
+  "notes": "KiCad stock library has no X2SON-4 DMR model, so the boards export (below) lacks this part; use this one.",
+  "used_for": "pod dock/hall switch (PARTS-LOCK #10)"
+ },
+ "ic_stspin220_vfqfpn16": {
+  "title": "ST STSPIN220 low-voltage stepper driver, VFQFPN-16 3x3x1.0",
+  "files": {
+   "step": "out/ic_stspin220_vfqfpn16.step",
+   "stl": "out/ic_stspin220_vfqfpn16.stl",
+   "glb": "out/ic_stspin220_vfqfpn16.glb",
+   "png": "out/ic_stspin220_vfqfpn16.png"
+  },
+  "size_mm": [
+   3.06,
+   3.06,
+   1.005
+  ],
+  "bbox_mm": {
+   "min": [
+    -1.53,
+    -1.53,
+    -0.005
+   ],
+   "max": [
+    1.53,
+    1.53,
+    1.0
+   ]
+  },
+  "mass_g_estimate": 0.0221,
+  "material": "epoxy, tin pads",
+  "colour": "black / tin",
+  "bodies": {
+   "body": "black_ic",
+   "pad1": "tin",
+   "pad2": "tin",
+   "pad3": "tin",
+   "pad4": "tin",
+   "pad5": "tin",
+   "pad6": "tin",
+   "pad7": "tin",
+   "pad8": "tin",
+   "pad9": "tin",
+   "pad10": "tin",
+   "pad11": "tin",
+   "pad12": "tin",
+   "pad13": "tin",
+   "pad14": "tin",
+   "pad15": "tin",
+   "pad16": "tin",
+   "exposed_pad": "tin"
+  },
+  "frame": "package centred on origin, z=0 PCB surface, +Z up; pin 1 at (-x,+y)",
+  "source": "ST STSPIN220 datasheet DS12078, VFQFPN 3x3x1.0 16L, pitch 0.5, lead width 0.25, exposed pad ~1.7 x 1.7 (project footprint EP 1.7)",
+  "confidence": "datasheet",
+  "notes": "Exposed pad modelled 1.7 x 1.7 (the footprint's EP1.7); pin 1 chamfer at -x,+y.",
+  "used_for": "motor driver (PARTS-LOCK #12)"
+ },
+ "ic_tmag5273_sot23_6": {
+  "title": "TI TMAG5273 3D hall sensor, SOT-23-6 (DBV)",
+  "files": {
+   "step": "out/ic_tmag5273_sot23_6.step",
+   "stl": "out/ic_tmag5273_sot23_6.stl",
+   "glb": "out/ic_tmag5273_sot23_6.glb",
+   "png": "out/ic_tmag5273_sot23_6.png"
+  },
+  "size_mm": [
+   2.9,
+   2.8,
+   1.45
+  ],
+  "bbox_mm": {
+   "min": [
+    -1.45,
+    -1.4,
+    0.0
+   ],
+   "max": [
+    1.45,
+    1.4,
+    1.45
+   ]
+  },
+  "mass_g_estimate": 0.0038,
+  "material": "epoxy mould compound, tin leads",
+  "colour": "black / tin",
+  "bodies": {
+   "lead1": "tin",
+   "lead4": "tin",
+   "lead2": "tin",
+   "lead5": "tin",
+   "lead3": "tin",
+   "lead6": "tin"
+  },
+  "frame": "package centred on origin, z=0 PCB surface, +Z up; pin 1 at (-x,+y)",
+  "source": "TI TMAG5273 datasheet SBASA27, package DBV0006A: body 2.9 x 1.6, pitch 0.95, lead span 2.8, height 1.45 max; project params.json bench.tmag.pkg [2.9,2.8,1.45]",
+  "confidence": "datasheet",
+  "notes": "Gull-wing lead shape simplified; standoff 0.1 assumed (JEDEC MO-178 0.00-0.15).",
+  "used_for": "pod angle sensor (PARTS-LOCK #9)"
+ },
+ "ic_tpl5010_sot23_6": {
+  "title": "TI TPL5010 nano-power system timer, SOT-23-6 (DDC)",
+  "files": {
+   "step": "out/ic_tpl5010_sot23_6.step",
+   "stl": "out/ic_tpl5010_sot23_6.stl",
+   "glb": "out/ic_tpl5010_sot23_6.glb",
+   "png": "out/ic_tpl5010_sot23_6.png"
+  },
+  "size_mm": [
+   2.9,
+   2.8,
+   1.1
+  ],
+  "bbox_mm": {
+   "min": [
+    -1.45,
+    -1.4,
+    0.0
+   ],
+   "max": [
+    1.45,
+    1.4,
+    1.1
+   ]
+  },
+  "mass_g_estimate": 0.0033,
+  "material": "epoxy, tin leads",
+  "colour": "black / tin",
+  "bodies": {
+   "lead1": "tin",
+   "lead4": "tin",
+   "lead2": "tin",
+   "lead5": "tin",
+   "lead3": "tin",
+   "lead6": "tin"
+  },
+  "frame": "package centred on origin, z=0 PCB surface, +Z up; pin 1 at (-x,+y)",
+  "source": "TI TPL5010 datasheet SNAS675, package DDC0006A (SOT-23-THIN): 2.9 x 1.6 body, pitch 0.95, height 1.1 max",
+  "confidence": "datasheet",
+  "notes": "Lead profile simplified.",
+  "used_for": "watchdog (PARTS-LOCK #13)"
+ },
+ "lead_picoblade_plug": {
+  "title": "Molex PicoBlade 51021-0400 plug + 4-wire 30 AWG motor lead (30 mm shown; NFP supplies ~200 mm)",
+  "files": {
+   "step": "out/lead_picoblade_plug.step",
+   "stl": "out/lead_picoblade_plug.stl",
+   "glb": "out/lead_picoblade_plug.glb",
+   "png": "out/lead_picoblade_plug.png"
+  },
+  "size_mm": [
+   5.6,
+   35.1,
+   2.0
+  ],
+  "bbox_mm": {
+   "min": [
+    -2.8,
+    -36.1,
+    0.85
+   ],
+   "max": [
+    2.8,
+    -1.0,
+    2.85
+   ]
+  },
+  "mass_g_estimate": 0.0768,
+  "material": "nylon plug, PVC-insulated 30 AWG wires, tinned ends",
+  "colour": "off-white / black red yellow white",
+  "bodies": {
+   "plug": "pb_natural",
+   "wire1": "wire_blk",
+   "strip1": "tin",
+   "wire2": "wire_red",
+   "strip2": "tin",
+   "wire3": "wire_ylw",
+   "strip3": "tin",
+   "wire4": "wire_wht",
+   "strip4": "tin"
+  },
+  "frame": "mated frame of molex_picoblade_53261_0471: plug sits in the cavity, wires leave toward -Y at z=1.85",
+  "source": "nfpshop.com product page ('JST 1.25 mm connector + 200 mm lead', 30 AWG per mechanical/parts.md); plug outline ESTIMATED to fit the 53261 cavity",
+  "confidence": "estimated",
+  "notes": "Product page says JST 1.25; project assumes the PicoBlade-compatible plug (PARTS-LOCK #14 LOCK-AFTER-SAMPLE). Wire colours and plug size are placeholders until a sample is in hand.",
+  "used_for": "NFP motor lead with plug (PARTS-LOCK #14)"
+ },
+ "magnet_d2x1_axial": {
+  "title": "NdFeB N52 disc magnet d2 x 1, axial magnetisation",
+  "files": {
+   "step": "out/magnet_d2x1_axial.step",
+   "stl": "out/magnet_d2x1_axial.stl",
+   "glb": "out/magnet_d2x1_axial.glb",
+   "png": "out/magnet_d2x1_axial.png"
+  },
+  "size_mm": [
+   2.0,
+   2.0,
+   1.0
+  ],
+  "bbox_mm": {
+   "min": [
+    -1.0,
+    -1.0,
+    0.0
+   ],
+   "max": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "mass_g_estimate": 0.0236,
+  "material": "NdFeB N52, NiCuNi coating",
+  "colour": "N pole red / S pole blue (visual marker only)",
+  "bodies": {
+   "S_half": "mag_s",
+   "N_half": "mag_n"
+  },
+  "frame": "Z axis; axial: N on +Z face; diametric: N half at +X (magnetisation +X)",
+  "source": "docs/PARTS-LOCK.md #8 (LOCKED, standard item); dimensions from the project spec (mechanical/parts.md 1.5, params.json drive.mag_d/mag_t). Catalogue tolerance typically +-0.05 mm (supermagnete.de / AliExpress listing)",
+  "confidence": "datasheet",
+  "notes": "Pole halves are coloured bodies; physical part is one piece.",
+  "used_for": "dock magnet (PARTS-LOCK #8)"
+ },
+ "magnet_d2x1_diametric": {
+  "title": "NdFeB N52 disc magnet d2 x 1, diametric magnetisation",
+  "files": {
+   "step": "out/magnet_d2x1_diametric.step",
+   "stl": "out/magnet_d2x1_diametric.stl",
+   "glb": "out/magnet_d2x1_diametric.glb",
+   "png": "out/magnet_d2x1_diametric.png"
+  },
+  "size_mm": [
+   2.0,
+   2.0,
+   1.0
+  ],
+  "bbox_mm": {
+   "min": [
+    -1.0,
+    -1.0,
+    0.0
+   ],
+   "max": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "mass_g_estimate": 0.0236,
+  "material": "NdFeB N52, NiCuNi coating",
+  "colour": "N pole red / S pole blue (visual marker only)",
+  "bodies": {
+   "S_half": "mag_s",
+   "N_half": "mag_n"
+  },
+  "frame": "Z axis; axial: N on +Z face; diametric: N half at +X (magnetisation +X)",
+  "source": "docs/PARTS-LOCK.md #7 (CANDIDATE: verify a diametric 2x1 listing); dimensions from the project spec (mechanical/parts.md 1.5, params.json drive.mag_d/mag_t). Catalogue tolerance typically +-0.05 mm (supermagnete.de / AliExpress listing)",
+  "confidence": "datasheet",
+  "notes": "Pole halves are coloured bodies; physical part is one piece.",
+  "used_for": "spindle magnet (PARTS-LOCK #7)"
+ },
+ "magnet_d3x1p5_diametric": {
+  "title": "NdFeB N52 disc magnet d3 x 1.5, diametric magnetisation",
+  "files": {
+   "step": "out/magnet_d3x1p5_diametric.step",
+   "stl": "out/magnet_d3x1p5_diametric.stl",
+   "glb": "out/magnet_d3x1p5_diametric.glb",
+   "png": "out/magnet_d3x1p5_diametric.png"
+  },
+  "size_mm": [
+   3.0,
+   3.0,
+   1.5
+  ],
+  "bbox_mm": {
+   "min": [
+    -1.5,
+    -1.5,
+    0.0
+   ],
+   "max": [
+    1.5,
+    1.5,
+    1.5
+   ]
+  },
+  "mass_g_estimate": 0.0795,
+  "material": "NdFeB N52, NiCuNi coating",
+  "colour": "N pole red / S pole blue (visual marker only)",
+  "bodies": {
+   "S_half": "mag_s",
+   "N_half": "mag_n"
+  },
+  "frame": "Z axis; axial: N on +Z face; diametric: N half at +X (magnetisation +X)",
+  "source": "final spindle magnet (mechanical owner decision): d3 x 1.5 diametric; dimensions from the project spec (mechanical/parts.md 1.5, params.json drive.mag_d/mag_t). Catalogue tolerance typically +-0.05 mm (supermagnete.de / AliExpress listing)",
+  "confidence": "datasheet",
+  "notes": "Pole colouring is two half-bodies (STEP/glTF keep them separate). d3/d4 option thicknesses assumed 1 mm (measured-sample TODO).",
+  "used_for": "FINAL spindle magnet d3x1.5 diametric"
+ },
+ "magnet_d4x1_diametric": {
+  "title": "NdFeB N52 disc magnet d4 x 1, diametric magnetisation",
+  "files": {
+   "step": "out/magnet_d4x1_diametric.step",
+   "stl": "out/magnet_d4x1_diametric.stl",
+   "glb": "out/magnet_d4x1_diametric.glb",
+   "png": "out/magnet_d4x1_diametric.png"
+  },
+  "size_mm": [
+   4.0,
+   4.0,
+   1.0
+  ],
+  "bbox_mm": {
+   "min": [
+    -2.0,
+    -2.0,
+    0.0
+   ],
+   "max": [
+    2.0,
+    2.0,
+    1.0
+   ]
+  },
+  "mass_g_estimate": 0.0942,
+  "material": "NdFeB N52, NiCuNi coating",
+  "colour": "N pole red / S pole blue (visual marker only)",
+  "bodies": {
+   "S_half": "mag_s",
+   "N_half": "mag_n"
+  },
+  "frame": "Z axis; axial: N on +Z face; diametric: N half at +X (magnetisation +X)",
+  "source": "option size, not locked; dimensions from the project spec (mechanical/parts.md 1.5, params.json drive.mag_d/mag_t). Catalogue tolerance typically +-0.05 mm (supermagnete.de / AliExpress listing)",
+  "confidence": "estimated",
+  "notes": "Pole colouring is two half-bodies (STEP/glTF keep them separate). d3/d4 option thicknesses assumed 1 mm (measured-sample TODO).",
+  "used_for": ""
+ },
+ "molex_picoblade_53261_0471": {
+  "title": "Molex PicoBlade 53261-0471 header, 4 circuits, 1.25 mm, right-angle SMT",
+  "files": {
+   "step": "out/molex_picoblade_53261_0471.step",
+   "stl": "out/molex_picoblade_53261_0471.stl",
+   "glb": "out/molex_picoblade_53261_0471.glb",
+   "png": "out/molex_picoblade_53261_0471.png"
+  },
+  "size_mm": [
+   10.16,
+   5.2,
+   3.4
+  ],
+  "bbox_mm": {
+   "min": [
+    -5.08,
+    -2.6,
+    0.0
+   ],
+   "max": [
+    5.08,
+    2.6,
+    3.4
+   ]
+  },
+  "mass_g_estimate": 0.1047,
+  "material": "natural nylon housing, tin-plated tails",
+  "colour": "off-white / tin",
+  "bodies": {
+   "housing": "pb_natural",
+   "tail1": "tin",
+   "blade1": "tin",
+   "tail2": "tin",
+   "blade2": "tin",
+   "tail3": "tin",
+   "blade3": "tin",
+   "tail4": "tin",
+   "blade4": "tin",
+   "tab_l": "tin",
+   "tab_r": "tin"
+  },
+  "frame": "footprint frame: origin at footprint centre, cavity toward -Y, tails toward +Y, PCB surface z=0",
+  "source": "KiCad stock footprint/3D Molex_PicoBlade_53261-0471_1x04-1MP_P1.25mm_Horizontal (pad pitch 1.25, pads at y=2.4, MP pads x=+-4.425) -- outline (housing 6.7 x 4.1 x 3.4, tabs to +-5.08) read off that model; Molex drawing SD-53261-... NOT read (molex.com unreachable)",
+  "confidence": "estimated (from KiCad library model of the Molex part)",
+  "notes": "Cavity depth/width approximated. Verify against the Molex 2D drawing before freezing keep-outs. PARTS-LOCK #14: confirm PicoBlade vs JST-GH on the first motor.",
+  "used_for": "controller motor connector (PARTS-LOCK #14)"
+ },
+ "needle_30g_efd_14in": {
+  "title": "30G blunt dispensing needle 1/4 in with polypropylene luer-lock hub (Nordson EFD type)",
+  "files": {
+   "step": "out/needle_30g_efd_14in.step",
+   "stl": "out/needle_30g_efd_14in.stl",
+   "glb": "out/needle_30g_efd_14in.glb",
+   "png": "out/needle_30g_efd_14in.png"
+  },
+  "size_mm": [
+   6.6,
+   8.0,
+   14.45
+  ],
+  "bbox_mm": {
+   "min": [
+    -3.3,
+    -4.0,
+    -8.1
+   ],
+   "max": [
+    3.3,
+    4.0,
+    6.35
+   ]
+  },
+  "mass_g_estimate": 0.1887,
+  "material": "needle: stainless steel; hub: polypropylene (lavender = 30G colour code)",
+  "colour": "steel / lavender",
+  "bodies": {
+   "hub": "lavender",
+   "needle": "steel"
+  },
+  "frame": "Z axis; hub front face z=0, needle tip z=+6.35, hub toward -Z",
+  "source": "Needle: Nordson EFD General Purpose Dispense Tips catalogue (gauge 30, lavender, ID 0.15 mm / OD 0.31 mm, stainless straight blunt, 1/4 in = 6.35 mm, part 7018424). Hub: NOT dimensioned in the catalogue.",
+  "confidence": "datasheet (needle) / estimated (hub)",
+  "notes": "Hub geometry (nose cone d1.6-4.2, body d6.4 x 4.4, ears d8.0, flats 6.6) is an estimate of a generic luer-lock hub (measured-sample TODO). The project press-fits the needle via its own printed hub, so the real EFD hub is normally cut away: use the 'needle' body alone for the in-pod model.",
+  "used_for": "outlet needle (PARTS-LOCK #17)"
+ },
+ "nfp_608_26_45": {
+  "title": "NFP-608-26.45-SGM 6 mm planetary-gear stepper (bare, no lead)",
+  "files": {
+   "step": "out/nfp_608_26_45.step",
+   "stl": "out/nfp_608_26_45.stl",
+   "glb": "out/nfp_608_26_45.glb",
+   "png": "out/nfp_608_26_45.png"
+  },
+  "size_mm": [
+   6.0,
+   7.7,
+   22.9
+  ],
+  "bbox_mm": {
+   "min": [
+    -3.0,
+    -4.7,
+    -16.8
+   ],
+   "max": [
+    3.0,
+    3.0,
+    6.1
+   ]
+  },
+  "mass_g_estimate": 4.3386,
+  "material": "nickel-plated steel case, brass boss, stainless D-shaft, black PA terminal block, tinned pins",
+  "colour": "nickel grey / brass / black",
+  "bodies": {
+   "gearbox": "nickel",
+   "motor_can": "nickel",
+   "front_boss": "brass",
+   "shaft": "steel",
+   "rear_boss": "brass",
+   "term_block": "black_pa",
+   "pin1": "tin",
+   "pin2": "tin",
+   "pin3": "tin",
+   "pin4": "tin"
+  },
+  "frame": "Z = shaft axis, origin on gearbox mounting face, +Z toward shaft tip; terminal block on -Y",
+  "source": "nfpshop.com NFP-608-26.45-SGM product page + outline drawing (stepper-gear-motor-spec-NFP-608-26.45-SGM.pdf); numbers as transcribed in mechanical/parts.md section 1.0 and params.json drive_presets.nfp_608_26",
+  "confidence": "datasheet",
+  "notes": "Body d6.0, gearbox 8.1, motor 8.0 (drawing). parts.md states total 15.1 but 8.1+8.0 = 16.1: model uses the sub-dimensions (TODO measure on sample). Rear boss length 0.7, terminal block 4.6x3.4x0.65, pin 0.3 sq x1.05 are DERIVED/assumed (measured-sample TODO). Product page says lead+JST plug; drawing shows 4 solder pins (conflict noted in motor-selection.md); see nfp_lead_picoblade.",
+  "used_for": "drive motor (PARTS-LOCK #2); params.json drive_presets.nfp_608_26"
+ },
+ "nut_din934_m1p6_brass": {
+  "title": "DIN 934 M1.6 hex nut, brass (AF 3.2, m 1.3)",
+  "files": {
+   "step": "out/nut_din934_m1p6_brass.step",
+   "stl": "out/nut_din934_m1p6_brass.stl",
+   "glb": "out/nut_din934_m1p6_brass.glb",
+   "png": "out/nut_din934_m1p6_brass.png"
+  },
+  "size_mm": [
+   3.2,
+   3.41,
+   1.3
+  ],
+  "bbox_mm": {
+   "min": [
+    -1.6,
+    -1.705,
+    -0.0
+   ],
+   "max": [
+    1.6,
+    1.705,
+    1.3
+   ]
+  },
+  "mass_g_estimate": 0.0783,
+  "material": "brass (CuZn, nickel plated optional)",
+  "colour": "brass",
+  "bodies": {
+   "nut": "brass"
+  },
+  "frame": "Z axis, z 0..1.3, flats parallel to X",
+  "source": "DIN 934 / ISO 4032 table: s=3.2, m=1.3, e>=3.41; 30 deg chamfer both faces (chamfer size estimated 0.28 x 0.16)",
+  "confidence": "datasheet (standard)",
+  "notes": "Bore modelled plain at 1.3 (about thread minor D1 1.221-1.321 range); no helical internal thread (rod carries the helical thread).",
+  "used_for": "carriage nut (PARTS-LOCK #5)"
+ },
+ "r_0402": {
+  "title": "0402 thick-film resistor",
+  "files": {
+   "step": "out/r_0402.step",
+   "stl": "out/r_0402.stl",
+   "glb": "out/r_0402.glb",
+   "png": "out/r_0402.png"
+  },
+  "size_mm": [
+   1.0,
+   0.5,
+   0.35
+  ],
+  "bbox_mm": {
+   "min": [
+    -0.5,
+    -0.25,
+    0.0
+   ],
+   "max": [
+    0.5,
+    0.25,
+    0.35
+   ]
+  },
+  "mass_g_estimate": 0.0006,
+  "material": "alumina, tinned terminations",
+  "colour": "black / tin",
+  "bodies": {
+   "term1": "tin",
+   "term2": "tin"
+  },
+  "frame": "centred on origin, z=0 PCB surface; length along X",
+  "source": "EIA 0402: 1.0 x 0.5, T 0.35, terminations 0.25 (typical, e.g. Uniroyal 0402WGF series)",
+  "confidence": "datasheet",
+  "notes": "Typical.",
+  "used_for": ""
+ },
+ "r_0603": {
+  "title": "0603 thick-film resistor",
+  "files": {
+   "step": "out/r_0603.step",
+   "stl": "out/r_0603.stl",
+   "glb": "out/r_0603.glb",
+   "png": "out/r_0603.png"
+  },
+  "size_mm": [
+   1.6,
+   0.8,
+   0.45
+  ],
+  "bbox_mm": {
+   "min": [
+    -0.8,
+    -0.4,
+    0.0
+   ],
+   "max": [
+    0.8,
+    0.4,
+    0.45
+   ]
+  },
+  "mass_g_estimate": 0.0018,
+  "material": "alumina, tinned terminations",
+  "colour": "black / tin",
+  "bodies": {
+   "term1": "tin",
+   "term2": "tin"
+  },
+  "frame": "centred on origin, z=0 PCB surface; length along X",
+  "source": "EIA 0603: 1.6 x 0.8, T 0.45, terminations 0.35 (typical)",
+  "confidence": "datasheet",
+  "notes": "Typical.",
+  "used_for": ""
+ },
+ "rod_m1p6_19": {
+  "title": "M1.6x0.35 A2/304 stainless threaded rod cut to 19 mm (project cut lengths 19/22/37)",
+  "files": {
+   "step": "out/rod_m1p6_19.step",
+   "stl": "out/rod_m1p6_19.stl",
+   "glb": "out/rod_m1p6_19.glb",
+   "png": "out/rod_m1p6_19.png"
+  },
+  "size_mm": [
+   1.6,
+   1.6,
+   19.0
+  ],
+  "bbox_mm": {
+   "min": [
+    -0.8,
+    -0.8,
+    0.0
+   ],
+   "max": [
+    0.8,
+    0.8,
+    19.0
+   ]
+  },
+  "mass_g_estimate": 0.2286,
+  "material": "stainless steel A2 (1.4301)",
+  "colour": "steel grey",
+  "bodies": {
+   "rod": "steel"
+  },
+  "frame": "Z axis, z=0 at one end, rod to +Z",
+  "source": "ISO 261/965: M1.6 coarse pitch 0.35, major d 1.6; thread is a true helical modelled thread (SolidCraft solid.thread, 60 deg ISO profile). Stock 1 m rod is DIN 976-1 class",
+  "confidence": "datasheet (standard)",
+  "notes": "Standard thread, no vendor-specific geometry. Cut ends modelled square (real cut ends are burred).",
+  "used_for": "leadscrew, OP-70 cut length"
+ },
+ "rod_m1p6_22": {
+  "title": "M1.6x0.35 A2/304 stainless threaded rod cut to 22 mm (project cut lengths 19/22/37)",
+  "files": {
+   "step": "out/rod_m1p6_22.step",
+   "stl": "out/rod_m1p6_22.stl",
+   "glb": "out/rod_m1p6_22.glb",
+   "png": "out/rod_m1p6_22.png"
+  },
+  "size_mm": [
+   1.6,
+   1.6,
+   22.0
+  ],
+  "bbox_mm": {
+   "min": [
+    -0.8,
+    -0.8,
+    0.0
+   ],
+   "max": [
+    0.8,
+    0.8,
+    22.0
+   ]
+  },
+  "mass_g_estimate": 0.2647,
+  "material": "stainless steel A2 (1.4301)",
+  "colour": "steel grey",
+  "bodies": {
+   "rod": "steel"
+  },
+  "frame": "Z axis, z=0 at one end, rod to +Z",
+  "source": "ISO 261/965: M1.6 coarse pitch 0.35, major d 1.6; thread is a true helical modelled thread (SolidCraft solid.thread, 60 deg ISO profile). Stock 1 m rod is DIN 976-1 class",
+  "confidence": "datasheet (standard)",
+  "notes": "Standard thread, no vendor-specific geometry. Cut ends modelled square (real cut ends are burred).",
+  "used_for": "leadscrew, OP-100 cut length"
+ },
+ "rod_m1p6_37": {
+  "title": "M1.6x0.35 A2/304 stainless threaded rod cut to 37 mm (project cut lengths 19/22/37)",
+  "files": {
+   "step": "out/rod_m1p6_37.step",
+   "stl": "out/rod_m1p6_37.stl",
+   "glb": "out/rod_m1p6_37.glb",
+   "png": "out/rod_m1p6_37.png"
+  },
+  "size_mm": [
+   1.6,
+   1.6,
+   37.0
+  ],
+  "bbox_mm": {
+   "min": [
+    -0.8,
+    -0.8,
+    0.0
+   ],
+   "max": [
+    0.8,
+    0.8,
+    37.0
+   ]
+  },
+  "mass_g_estimate": 0.4457,
+  "material": "stainless steel A2 (1.4301)",
+  "colour": "steel grey",
+  "bodies": {
+   "rod": "steel"
+  },
+  "frame": "Z axis, z=0 at one end, rod to +Z",
+  "source": "ISO 261/965: M1.6 coarse pitch 0.35, major d 1.6; thread is a true helical modelled thread (SolidCraft solid.thread, 60 deg ISO profile). Stock 1 m rod is DIN 976-1 class",
+  "confidence": "datasheet (standard)",
+  "notes": "Standard thread, no vendor-specific geometry. Cut ends modelled square (real cut ends are burred).",
+  "used_for": "leadscrew, OP-200 cut length"
+ },
+ "screw_iso7045_m1p2x3": {
+  "title": "ISO 7045-style M1.2x3 pan head cross-recess screw, A2 stainless",
+  "files": {
+   "step": "out/screw_iso7045_m1p2x3.step",
+   "stl": "out/screw_iso7045_m1p2x3.stl",
+   "glb": "out/screw_iso7045_m1p2x3.glb",
+   "png": "out/screw_iso7045_m1p2x3.png"
+  },
+  "size_mm": [
+   2.4,
+   2.4,
+   3.9
+  ],
+  "bbox_mm": {
+   "min": [
+    -1.2,
+    -1.2,
+    -3.0
+   ],
+   "max": [
+    1.2,
+    1.2,
+    0.9
+   ]
+  },
+  "mass_g_estimate": 0.0492,
+  "material": "stainless steel A2",
+  "colour": "steel grey",
+  "bodies": {
+   "screw": "steel"
+  },
+  "frame": "Z axis, head underside z=0, head up (0..0.9), shank to -L",
+  "source": "ISO 7045 pan head form; M1.2 is below the standard's M1.6 start -> dk 2.4 / k 0.9 ESTIMATED from vendor listings (measured-sample TODO); thread M1.2x0.25 (ISO 261 coarse)",
+  "confidence": "estimated",
+  "notes": "Cross recess is a simplified two-slot cut, not the ISO 4757 H-recess profile.",
+  "used_for": "lid/board screw (PARTS-LOCK #20)"
+ },
+ "screw_iso7045_m1p2x4": {
+  "title": "ISO 7045-style M1.2x4 pan head cross-recess screw, A2 stainless",
+  "files": {
+   "step": "out/screw_iso7045_m1p2x4.step",
+   "stl": "out/screw_iso7045_m1p2x4.stl",
+   "glb": "out/screw_iso7045_m1p2x4.glb",
+   "png": "out/screw_iso7045_m1p2x4.png"
+  },
+  "size_mm": [
+   2.4,
+   2.4,
+   4.9
+  ],
+  "bbox_mm": {
+   "min": [
+    -1.2,
+    -1.2,
+    -4.0
+   ],
+   "max": [
+    1.2,
+    1.2,
+    0.9
+   ]
+  },
+  "mass_g_estimate": 0.056,
+  "material": "stainless steel A2",
+  "colour": "steel grey",
+  "bodies": {
+   "screw": "steel"
+  },
+  "frame": "Z axis, head underside z=0, head up (0..0.9), shank to -L",
+  "source": "ISO 7045 pan head form; M1.2 is below the standard's M1.6 start -> dk 2.4 / k 0.9 ESTIMATED from vendor listings (measured-sample TODO); thread M1.2x0.25 (ISO 261 coarse)",
+  "confidence": "estimated",
+  "notes": "Cross recess is a simplified two-slot cut, not the ISO 4757 H-recess profile.",
+  "used_for": "pod board screw len 4 (params bench.mount.screw_len)"
+ },
+ "septum_d4x2": {
+  "title": "Fill septum disc d4 x 2 (punched from platinum-cure silicone sheet)",
+  "files": {
+   "step": "out/septum_d4x2.step",
+   "stl": "out/septum_d4x2.stl",
+   "glb": "out/septum_d4x2.glb",
+   "png": "out/septum_d4x2.png"
+  },
+  "size_mm": [
+   4.0,
+   4.0,
+   2.0
+  ],
+  "bbox_mm": {
+   "min": [
+    -2.0,
+    -2.0,
+    0.0
+   ],
+   "max": [
+    2.0,
+    2.0,
+    2.0
+   ]
+  },
+  "mass_g_estimate": 0.0289,
+  "material": "silicone Shore A 40-50",
+  "colour": "translucent",
+  "bodies": {
+   "septum": "silicone"
+  },
+  "frame": "Z axis, z 0..2",
+  "source": "spec / params.json septum.d=4.0, len=2.0; PARTS-LOCK #18",
+  "confidence": "datasheet (spec dimension; vendor sheet thickness TODO)",
+  "notes": "Plain punched disc; real punched edge has a slight taper.",
+  "used_for": "fill septum (PARTS-LOCK #18)"
+ }
+}

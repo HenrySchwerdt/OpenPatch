@@ -1,0 +1,11 @@
+name = "occlusion_basal"
+description = "Cannula blocked during a 1 U/h basal. Detection latency and the water that is not delivered when the alarm comes (spec: <= 2 U)."
+seed = 31
+duration_s = 14400.0
+events = [
+  { at_s = 1800.0, action = "occlude" },
+]
+
+[setup]
+fill_u = 60.0
+basal = [[0.0, 1.0]]

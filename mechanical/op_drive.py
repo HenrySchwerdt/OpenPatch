@@ -41,6 +41,8 @@ def build_plunger(s: Script, p: dict, L: dict) -> None:
     tools.append(s.box("t_sock", (xr + sx[0], xr + sx[1]), (y_end - sl["socket_depth"], y_end + 0.1),
                        (zc - dr["arm_t"] / 2 - 0.05, zc + dr["arm_t"] / 2 + 0.05)))
     s.cut("plunger_core", tools)
+    if L["mode"] == "bench" and rs.get("nose_len", 0) > 0:      # separate printed nose: fills the dead layer in front of the plunger
+        s.stadium("plunger_nose", (xr + rs["plunger_len"], xr + rs["plunger_len"] + rs["nose_len"]), yr, zc, wc, hc)
     # Silikon-Dichtlippen (Montagezustand = Bohrungsmaß; Gussmaß +0.3, siehe Form)
     ao = sl["assembly_gap"]
     for k, nm in enumerate(("seal_a", "seal_b")):
@@ -55,15 +57,24 @@ def build_carriage(s: Script, p: dict, L: dict) -> None:
     s.box("carriage", (xr, xr + cl), (ys - bw / 2, ys + bw / 2), (zc - bh / 2, zc + bh / 2))
     to = sl["tongue_off"]
     y_end = L["y_r"] + (p["reservoir"]["w_in"] - 2 * p["reservoir"]["plunger_clr"]) / 2
-    tongue = s.box("t_tongue", (xr + to[0], xr + to[1]), (y_end - sl["socket_depth"] + 0.1, ys - bw / 2 + 0.2),
-                   (zc - dr["arm_t"] / 2, zc + dr["arm_t"] / 2))
-    s.join("carriage", [tongue])
+    sh = p["bench"]["shim"] if L["mode"] == "bench" else None
+    if sh is None:      # integrated variant: printed tongue
+        tongue = s.box("t_tongue", (xr + to[0], xr + to[1]), (y_end - sl["socket_depth"] + 0.1, ys - bw / 2 + 0.2),
+                       (zc - dr["arm_t"] / 2, zc + dr["arm_t"] / 2))
+        s.join("carriage", [tongue])
     apo = (dr["nut_af"] + dr["nut_hex_clr"]) / 2
     cuts = [s.cyl("t_chole", "X", (0, ys, zc), 1.9, xr - 0.1, xr + cl + 0.1),
             s.hexprism("t_hexp", (xr - 0.1, xr + dr["nut_len"] + 0.1), ys, zc, apo, angle=0.0),
             s.box("t_groove", (xr - 0.1, xr + cl + 0.1), (ys - dr["groove_w"] / 2, ys + dr["groove_w"] / 2),
                   (zc - bh / 2 - 0.1, zc - bh / 2 + dr["groove_d"]))]
+    if sh is not None:      # pocket for the stainless tongue shim (open towards the reservoir)
+        xm = xr + (to[0] + to[1]) / 2
+        cuts.append(s.box("t_shimpocket", (xm - sh["t"] / 2 - sh["clr"], xm + sh["t"] / 2 + sh["clr"]), (ys - bw / 2 - 0.1, ys - bw / 2 + sh["pocket_depth"]),
+                          (zc - sh["h"] / 2 - sh["clr"], zc + sh["h"] / 2 + sh["clr"])))
     s.cut("carriage", cuts)
+    if sh is not None:
+        s.box("tongue_shim", (xm - sh["t"] / 2, xm + sh["t"] / 2), (y_end - sl["socket_depth"] + 0.1, ys - bw / 2 + sh["pocket_depth"] - 0.1),
+              (zc - sh["h"] / 2, zc + sh["h"] / 2))
     # M1.6-Mutter (DIN 934), Kauf
     s.hexprism("nut", (xr + 0.05, xr + 0.05 + dr["nut_len"]), ys, zc, dr["nut_af"] / 2, angle=0.0)
     s.cyl("t_nbore", "X", (0, ys, zc), dr["screw_d"] + 0.05, xr - 0.1, xr + 2.0)
@@ -76,15 +87,15 @@ def build_drive(s: Script, p: dict, L: dict) -> None:
         return build_coax_parts(s, p, L)
     dr = p["drive"]
     zc, ys, ym = L["z_axis"], L["y_s"], L["y_m"]
-    gx0 = dr["gear_x0"]
+    gx0 = L["gear_x0"]
     s.cyl("gearhead", "X", (0, ym, zc), dr["motor_d"], L["gh_x"][0], L["gh_x"][1])
     s.cyl("motor", "X", (0, ym, zc), dr["motor_d"], L["mo_x"][0], L["mo_x"][1])
     # Zahnräder (Modul 0.3, z=18) als Fußkreis modelliert (Kopfkreis Ø6.0)
-    s.cyl("gear_a", "X", (0, ym, zc), L["gears"]["root_motor"], gx0, L["gear_x1"])
+    s.cyl("gear_a", "X", (0, ym, zc), L["gears"]["tip_motor"], gx0, L["gear_x1"])   # tip envelope (meshes with gear_b: see EXCLUDE pair)
     if L["nfp"]:                                   # D-shaft bore (flat modelled as a plain bore d2.04)
         s.cyl("t_gab", "X", (0, ym, zc), dr["shaft_d"] + 0.04, gx0 - 0.1, L["gear_x1"] + 0.1)
         s.cut("gear_a", ["t_gab"])
-    s.cyl("gear_b", "X", (0, ys, zc), L["gears"]["root_screw"], gx0, L["gear_x1"])
+    s.cyl("gear_b", "X", (0, ys, zc), L["gears"]["tip_screw"], gx0, L["gear_x1"])
     s.cyl("t_gbb", "X", (0, ys, zc), dr["screw_d"] + 0.04, gx0 - 0.1, L["gear_x1"] + 0.1)
     s.cut("gear_b", ["t_gbb"])
     s.cyl("leadscrew", "X", (0, ys, zc), dr["screw_d"], L["dry_bush"][0] + 0.1, L["screw_tip"])
@@ -94,7 +105,7 @@ def build_drive(s: Script, p: dict, L: dict) -> None:
     if L["nfp"]:
         x_boss0 = L["mx0"] - dr["boss_front"]
         s.cyl("motor_boss", "X", (0, ym, zc), dr["boss_d"], x_boss0, L["mx0"])
-        s.cyl("motor_shaft", "X", (0, ym, zc), dr["shaft_d"], dr["shaft_cut_x"], x_boss0)
+        s.cyl("motor_shaft", "X", (0, ym, zc), dr["shaft_d"], max(dr["shaft_cut_x"], gx0 - 0.2), x_boss0)
         s.cyl("motor_rear_boss", "X", (0, ym, zc), dr["rear_boss_d"], L["mo_x"][1], L["mot_end"])
         n = L["nfp_term"]
         s.box("motor_term", tuple(n["block_x"]), tuple(n["block_y"]), tuple(n["block_z"]))

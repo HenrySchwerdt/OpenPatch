@@ -71,7 +71,10 @@ Only z10 and z12 (module 0.3) come with a 1.5 mm bore, and those are far too coa
 
 Neither candidate hits the target with one or two pawls. If three pawls do not fit the layout, the alternative is a custom ratchet wheel (laser cut, wire EDM or 3D-printed) with 44-60 teeth. A catalogue module 0.1-0.2 wheel was not found.
 
-### Motor coupling (Ø2.0 D-flat 1.5 shaft side must have a 2.0 mm bore)
+### Motor coupling - FINAL DECISION 2026-11-19: step-down 16 T (motor, GHW 390754, 16.15 EUR) : 20 T (screw, GHW 753020, 3.10 EUR)
+Verified on the GHW page 2026-11-19: 390754 (16 Z, bore 2.0, width 5, 16.15 EUR), 753020 (20 Z B, bore 2.0, hub 4 x 2.5, width 1.4, 3.10 EUR), 390756 (20 Z A, 5 wide, 16.15 EUR), 390755 (18 Z, 16.15 EUR). Ratio 16:20 = 0.8, centre 5.40 theoretical / **5.51 built**, U/step 0.003951. 15:12 (centre 4.05) and 15:15 (4.50) do not clear the carriage lane (centre >= 5.5 needed); 20:16 does not fit the 6.7 mm cavity (tip OD 6.6 on the motor, wall); 18:18 fits but costs 32.30 EUR with less thrust. See `parts.md` section 1 for the full reasoning. The remaining text of this section is the earlier catalogue research.
+
+### Motor coupling, earlier research (Ø2.0 D-flat 1.5 shaft side must have a 2.0 mm bore)
 - **Best pair: GHW 753015 (z15, bore 2.0, hub 4 x 2.5, width 1.4) on the motor, driving GHW 753012 (z12, bore 1.5, OD 4.2, width 4) on the leadscrew side.** Ratio 15:12 (leadscrew turns 1.25x per motor turn). Centre distance = 0.3 x (15+12) / 2 = 4.05 mm (add backlash allowance, about +0.05 mm). Total cost about 6 EUR.
 - **Near 1:1 alternative: two GHW 753015 (z15/z15) gears,** centre distance 4.50 mm, with a bore sleeve on the leadscrew side. About 6 EUR.
 - Neither gear has a D bore or set screw. Fix the 2.0 mm round bore on the D-flat shaft with retaining compound (the flat leaves a 0.5 mm gap, filled by adhesive) or a light press fit. A D-bore gear was not found in any catalogue.

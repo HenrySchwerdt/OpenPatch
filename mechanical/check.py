@@ -13,15 +13,16 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import subprocess
 import sys
 import tempfile
 from pathlib import Path
 
 from op_build import part_sets
-from op_layout import HERE, load_params
+from op_layout import HERE, find_cli, load_params
 
-CLI = "/Applications/SolidCraft.app/Contents/MacOS/solidcraft-cli"
+CLI = find_cli()
 EPS = 1e-6
 MIN_OVERLAP_MM3 = 1e-4
 MIN_WALL = 0.6
@@ -115,7 +116,7 @@ def check_bench(p: dict, L: dict, bodies: list) -> tuple[list, list]:
     b, B = p["bench"], L["bench"]
     by = {x["name"]: x for x in bodies}
     for need in ("pod_board", "hall_tmag", "hall_drv0", "hall_drv1", "hall_dock", "ffc_conn", "ffc_cable",
-                 "cannula_adapter", "dock_magnet", "motor", "gearhead", "motor_shaft", "motor_pins", "duckbill_valve", "end_cap") + (("coupler",) if L["coax"] else ("gear_a", "gear_b")):
+                 "cannula_adapter", "dock_magnet", "motor", "gearhead", "motor_shaft", "motor_pins", "duckbill_valve", "end_cap", "dock_insert") + (("coupler",) if L["coax"] else ("gear_a", "gear_b")):
         if need not in by:
             problems.append(f"bench body missing: {need}")
     for gone in ("battery", "qi_coil", "rf_module", "pcb", "buzzer", "ratchet_wheel", "sma_slider"):
@@ -165,6 +166,9 @@ def check_bench(p: dict, L: dict, bodies: list) -> tuple[list, list]:
     ec, rv = by["end_cap"]["bbox"], by["reservoir"]["bbox"]
     if abs(ec["min"][0] - rv["max"][0]) > 0.011 and ec["min"][0] > rv["max"][0] - 1.9:
         problems.append("end cap spigot position vs reservoir port")
+    pr_i, wr_i = check_insert(p, L, by)
+    problems += pr_i
+    warns += wr_i
     ct = B["contacts"]
     # FFC slot: cable leaves the housing, slot taller than the cable
     cab = by["ffc_cable"]["bbox"]
@@ -193,7 +197,71 @@ def check_bench(p: dict, L: dict, bodies: list) -> tuple[list, list]:
     return problems, warns
 
 
-def check_size(outdir: Path, variant: str, p: dict, ignore_length: bool) -> dict:
+def check_insert(p: dict, L: dict, by: dict) -> tuple[list, list]:
+    """Dock insert assembled in the pod: frozen-interface fit, needle-to-septum alignment."""
+    problems, warns = [], []
+    F, cn, D = p["dock_interface_frozen"], p["cannula"], L["dock"]
+    ins, ndl, hub, ad = by["dock_insert"]["bbox"], by["needle"]["bbox"], by["needle_hub"]["bbox"], by["cannula_adapter"]["bbox"]
+    yc, zn, xr = D["y_c"], D["z_n"], L["x_r1"]
+    if ins["min"][0] < xr + F["x0_u"] - 1e-6 or ins["min"][0] > xr + F["x0_u"] + 0.2:
+        problems.append(f"dock insert front face x {ins['min'][0]:.3f} not on the frozen datum x_r1+{F['x0_u']}")
+    if ins["max"][0] > L["length"] + 1e-6:
+        problems.append("dock insert sticks out behind the +X end face")
+    half = max(yc - ins["min"][1], ins["max"][1] - yc)
+    if half > F["pocket_half"] + 1e-6 or abs((ins["min"][1] + ins["max"][1]) / 2 - yc) > 0.3:
+        problems.append(f"dock insert y extent {ins['min'][1]:.2f}..{ins['max'][1]:.2f} outside the frozen pocket (half {F['pocket_half']})")
+    ny, nz = (ndl["min"][1] + ndl["max"][1]) / 2, (ndl["min"][2] + ndl["max"][2]) / 2
+    hy, hz = (hub["min"][1] + hub["max"][1]) / 2, (hub["min"][2] + hub["max"][2]) / 2
+    if max(abs(ny - yc), abs(nz - zn), abs(hy - yc), abs(hz - zn)) > 0.02:
+        problems.append(f"needle axis ({ny:.3f},{nz:.3f}) / hub ({hy:.3f},{hz:.3f}) not on the frozen needle axis ({yc},{zn})")
+    if abs((ad["min"][1] + ad["max"][1]) / 2 - yc) > 0.05:
+        problems.append("adapter not centred on the needle axis in Y")
+    depth = ndl["max"][0] - D["x_face"]
+    if abs(depth - cn["F_needle_depth"]) > 0.02:
+        problems.append(f"needle penetration {depth:.3f} mm != cannula.F_needle_depth {cn['F_needle_depth']}")
+    if abs(D["x_hook"] - (D["x_d"] + cn["G_latch_dx"])) > 0.05:
+        problems.append("insert hook x not on the adapter notch x")
+    warns.append(f"dock insert: x {ins['min'][0]-xr:.2f}..{ins['max'][0]-xr:.2f} (u), needle penetration {depth:.2f} mm, "
+                 f"hook gap {2 * D['hook_in']:.2f} mm")
+    return problems, warns
+
+
+def check_insert_variants(outdir: Path, variant: str, p: dict, L: dict) -> tuple[list, list]:
+    """All insert variants (variants.csv set) assembled at the pod position of `variant`: no interference with any pod part
+    (the nominal insert, the dummy head and the other variants are excluded), arm strain within limit."""
+    from op_cmds import Script
+    from op_coupon import add_variant_inserts, variants
+    problems, warns = [], []
+    vs = variants(p)
+    s = Script()
+    geo = add_variant_inserts(s, p, vs, x_r1=L["x_r1"], length=L["length"])
+    names = [f"dock_insert_v{v['id']:02d}" for v in vs]
+    excl = [[a, b] for i, a in enumerate(names) for b in names[i + 1:]] + [[n, o] for n in names for o in ("dock_insert", "cannula_adapter")]
+    cmds = s.dumps() + [{"command": "inspect.interference", "params": {"exclude_pairs": excl}}]
+    with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False) as fh:
+        json.dump(cmds, fh)
+        tmp = fh.name
+    res = subprocess.run([CLI, "run", tmp, "--in", str(outdir / f"{variant}.sc"), "--results", "--quiet"], capture_output=True, text=True)
+    Path(tmp).unlink(missing_ok=True)
+    if res.returncode != 0:
+        return [f"insert variant check failed to run: {(res.stdout + res.stderr)[-300:]}"], warns
+    interf = next(r for r in json.loads(res.stdout) if "interferences" in r)
+    for i in interf["interferences"]:
+        if (i["a"] in names or i["b"] in names) and i.get("volume_mm3", 1) > MIN_OVERLAP_MM3:
+            problems.append(f"insert variant interference {i['a']} x {i['b']}: {i['volume_mm3']:.4f} mm3")
+    for u in interf.get("unchecked", []):
+        if u["a"] in names or u["b"] in names:
+            problems.append(f"insert variant pair not checked: {u['a']} x {u['b']}")
+    for v in vs:
+        g = geo[v["id"]]
+        if not g["strain_ok"]:
+            problems.append(f"insert variant {v['id']}: arm strain {g['arm_strain']*100:.1f} % > 3 %")
+    strains = [g["arm_strain"] * 100 for g in geo.values()]
+    warns.append(f"{len(vs)} dock insert variants assembled on {variant}: no pod interference, arm strain {min(strains):.1f}..{max(strains):.1f} %")
+    return problems, warns
+
+
+def check_size(outdir: Path, variant: str, p: dict, ignore_length: bool, with_variants: bool = False) -> dict:
     mode = p.get("mode", "integrated")
     MFG_PARTS, _, EXCLUDE_PAIRS = part_sets(mode)
     results = eval_design(outdir / f"{variant}.sc", EXCLUDE_PAIRS)
@@ -218,6 +286,9 @@ def check_size(outdir: Path, variant: str, p: dict, ignore_length: bool) -> dict
             problems.append(f"interference {i['a']} x {i['b']}: {i['volume_mm3']:.4f} mm3")
     for u in interf.get("unchecked", []):
         problems.append(f"pair not checked: {u['a']} x {u['b']}: {u['reason'][:80]}")
+    frags = [b["name"] for b in bodies if re.search(r" \(\d+\)$", b["name"])]
+    if frags:          # SolidCraft names disconnected pieces of a body "name (1)": loose fragments in a printed part
+        problems.append(f"disconnected fragments (body split into several solids): {frags}")
     not_closed = [b["name"] for b in bodies if not b.get("closed")]
     if not_closed:
         problems.append(f"open bodies: {not_closed}")
@@ -232,8 +303,12 @@ def check_size(outdir: Path, variant: str, p: dict, ignore_length: bool) -> dict
     pr, wr = check_bench(p, L, bodies) if mode == "bench" else check_extra(p, L, bodies)
     problems += pr
     warns += wr
+    if mode == "bench" and with_variants:
+        pv, wv = check_insert_variants(outdir, variant, p, L)
+        problems += pv
+        warns += wv
     exports = ["bottom", "top", "carriage", "reservoir", "plunger_core", "plunger_seal", "gasket", "mould_lower", "mould_upper"]
-    exports += ["cannula_adapter"] if mode == "bench" else ["reservoir_cnc_lower", "reservoir_cnc_upper"]
+    exports += ["cannula_adapter", "dock_insert"] if mode == "bench" else ["reservoir_cnc_lower", "reservoir_cnc_upper"]
     for part in exports:
         for ext in ("step", "stl"):
             if not (outdir / f"{variant}_{part}.{ext}").exists():
@@ -256,8 +331,8 @@ def main() -> None:
     sizes = args.sizes or list(p["variants"])
     failed = False
     print(f"{'Size':8} {'L':>7} {'B':>6} {'H':>6}  {'target L':>8}  status")
-    for v in sizes:
-        r = check_size(out, v, p, args.ignore_length)
+    for k, v in enumerate(sizes):
+        r = check_size(out, v, p, args.ignore_length, with_variants=(k == 0))
         d = r["dims"]
         status = "PASS" if not r["problems"] else "FAIL"
         failed |= bool(r["problems"])

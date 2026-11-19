@@ -1,0 +1,11 @@
+name = "occlusion_basal_high"
+description = "Cannula blocked during a 3 U/h basal (high-rate end of the range)."
+seed = 32
+duration_s = 7200.0
+events = [
+  { at_s = 1800.0, action = "occlude" },
+]
+
+[setup]
+fill_u = 60.0
+basal = [[0.0, 3.0]]
