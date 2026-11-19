@@ -12,7 +12,10 @@ for f in .github/workflows/*.yml .github/workflows/*.yaml; do
     case "$ref" in ./*|docker://*) continue;; esac
     if ! echo "$ref" | grep -Eq '@[0-9a-f]{40}$'; then echo "UNPINNED  $f: $ref"; fail=1; fi
   done < <(grep -E '^[[:space:]-]*uses:' "$f")
-  grep -nE 'pull_request_target|permissions:[[:space:]]*write-all' "$f" | sed "s#^#RISKY     $f:#" && fail=1
+  if grep -nE 'pull_request_target|permissions:[[:space:]]*write-all' "$f" > /tmp/risky.$$; then
+    sed "s#^#RISKY     $f:#" /tmp/risky.$$; fail=1
+  fi
+  rm -f /tmp/risky.$$
 done
-[ "$fail" = 0 ] && echo "all actions pinned" || echo "pin them with security/supply-chain/pin-actions.sh (needs GitHub API access)"
+[ "$fail" = 0 ] && echo "all actions pinned" || echo "pin them with security/supply-chain/pin-actions.sh (or git ls-remote <action> refs/tags/<tag>^{})"
 exit $fail

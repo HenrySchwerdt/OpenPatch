@@ -5,8 +5,8 @@
 #
 # Hardening: top-level permissions are read-only, no job gets a write token, no secrets are used, third-party actions are avoided
 # (only first-party `actions/*`), tools are installed from pinned versions with checksums or `cargo install --locked --version`.
-# TODO(pin): replace the `@v4` tags below by full commit SHAs (the `actions-pins` job fails until that is done; resolve the SHAs on a
-# maintainer machine with `security/supply-chain/pin-actions.sh`, which needs network access to the GitHub API).
+# All `uses:` are pinned to full commit SHAs (resolved 2026-11-19 with `git ls-remote` on the major tag); the `actions-pins` job
+# enforces it. To update, re-resolve with `security/supply-chain/pin-actions.sh` or `git ls-remote https://github.com/<action> refs/tags/<tag>^{}`.
 name: security-ci
 
 on:
@@ -40,7 +40,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with: { persist-credentials: false }
       - run: rustup toolchain install "$RUST_TOOLCHAIN" --profile minimal && rustup default "$RUST_TOOLCHAIN"
       - run: cargo install --locked cargo-deny --version "$CARGO_DENY_VERSION"
@@ -69,7 +69,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with: { persist-credentials: false }
       - run: rustup toolchain install "$RUST_TOOLCHAIN" --profile minimal && rustup default "$RUST_TOOLCHAIN"
       - name: proptest properties + known-issue demonstrators
@@ -92,7 +92,7 @@ jobs:
       matrix:
         target: [frame_tlv, session_open, ccm_open, dfu_manifest, storage_records, handshake_responder, handshake_mutate]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with: { persist-credentials: false }
       - run: rustup toolchain install "$NIGHTLY" --profile minimal && rustup default "$NIGHTLY"
       - run: cargo install --locked cargo-fuzz --version "$CARGO_FUZZ_VERSION"
@@ -103,7 +103,7 @@ jobs:
         if: failure()
         working-directory: firmware-rs/fuzz
         run: ls -la artifacts/${{ matrix.target }} 2>/dev/null || true
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: failure()
         with:
           name: fuzz-crash-${{ matrix.target }}
@@ -114,7 +114,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with: { persist-credentials: false }
       - name: install ProVerif 2.05 (source tarball, checksum pinned) and Maude
         run: |
@@ -132,7 +132,7 @@ jobs:
           mkdir -p /tmp/tam && tar xzf /tmp/tam.tgz -C /tmp/tam && sudo install -m755 /tmp/tam/tamarin-prover /usr/local/bin/
       - name: run all models, every result must equal the expected value
         run: security/formal/run.sh /tmp/formal-results
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: always()
         with: { name: formal-results, path: /tmp/formal-results, retention-days: 30 }
 
@@ -140,7 +140,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 45
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with: { persist-credentials: false }
       - run: rustup toolchain install "$RUST_TOOLCHAIN" --profile minimal --target thumbv7em-none-eabihf && rustup default "$RUST_TOOLCHAIN"
       - run: sudo apt-get update -qq && sudo apt-get install -y -qq libclang-dev
@@ -152,22 +152,19 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with: { persist-credentials: false }
       - run: rustup toolchain install "$RUST_TOOLCHAIN" --profile minimal && rustup default "$RUST_TOOLCHAIN"
       - run: cargo install --locked cargo-cyclonedx --version "$CARGO_CYCLONEDX_VERSION"
       - run: security/supply-chain/sbom.sh /tmp/sbom
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with: { name: sbom-cyclonedx, path: /tmp/sbom, retention-days: 90 }
 
   actions-pins:
     runs-on: ubuntu-24.04
     timeout-minutes: 5
-    # Non-blocking until a maintainer runs security/supply-chain/pin-actions.sh (needs GitHub API access).
-    # Remove continue-on-error once every `uses:` is pinned to a commit SHA.
-    continue-on-error: true
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with: { persist-credentials: false }
       - name: every `uses:` in every workflow must be pinned to a 40 hex commit SHA
         run: security/supply-chain/check-action-pins.sh
