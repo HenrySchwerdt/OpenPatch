@@ -29,12 +29,12 @@ def diametric_field_mT(pos: tuple[float, float, float], theta: float, br_t: floa
     return bx * 1000, by * 1000, bz * 1000
 
 
-def bz_phase_amp(pos: tuple[float, float, float], n: int = 24, br_t: float = 1.3) -> tuple[float, float]:
+def bz_phase_amp(pos: tuple[float, float, float], n: int = 24, br_t: float = 1.3, r: float = 1.0, t: float = 1.0) -> tuple[float, float]:
     """Fundamental of B_z(theta) of a sensor at pos: (phase in deg, amplitude in mT)."""
     c = s = 0.0
     for k in range(n):
         th = 2 * math.pi * k / n
-        b = diametric_field_mT(pos, th, br_t)[2]
+        b = diametric_field_mT(pos, th, br_t, r, t)[2]
         c += b * math.cos(th)
         s += b * math.sin(th)
     c *= 2 / n

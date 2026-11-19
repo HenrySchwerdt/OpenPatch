@@ -8,9 +8,17 @@ from __future__ import annotations
 
 import json
 import math
+import os
+import shutil
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
+
+
+def find_cli() -> str:
+    """solidcraft-cli: env SOLIDCRAFT_CLI, then PATH, then the macOS app bundle."""
+    return (os.environ.get("SOLIDCRAFT_CLI") or shutil.which("solidcraft-cli")
+            or "/Applications/SolidCraft.app/Contents/MacOS/solidcraft-cli")
 
 
 def load_params(path: Path | None = None) -> dict:
@@ -54,8 +62,10 @@ def compute_layout(p: dict, variant: str) -> dict:
     end_wall = p["reservoir_frozen"]["end_wall"] if bench0 else rs["wall"]
     res_len = lin + rs["wall"] + end_wall
     z_axis = wall + res_h_out / 2
-    gear_x1 = dr["gear_x0"] + dr["gear_t"]
     bench = p.get("mode") == "bench"
+    # gear plane: bench side_gears uses bench.gears.x0 (the gear tips must clear the R4 rear corner, see params comment)
+    gear_x0 = p["bench"]["gears"].get("x0", dr["gear_x0"]) if bench and p["bench"]["drive_layout"] == "side_gears" else dr["gear_x0"]
+    gear_x1 = gear_x0 + dr["gear_t"]
     y_r0 = yi0 + sp["gap_y"]
     y_r = y_r0 + res_w_out / 2
     y_s = y_r0 + res_w_out + dr["lane_clr"] + dr["screw_lane_w"] / 2
@@ -73,6 +83,8 @@ def compute_layout(p: dict, variant: str) -> dict:
     gear_center = gz["module"] * (gz["z_motor"] + gz["z_screw"]) / 2
     gears = {"z_motor": gz["z_motor"], "z_screw": gz["z_screw"], "module": gz["module"], "centre": gear_center,
              "root_motor": gz["module"] * (gz["z_motor"] - 2.5), "root_screw": gz["module"] * (gz["z_screw"] - 2.5),
+             "tip_motor": gz["module"] * (gz["z_motor"] + 2), "tip_screw": gz["module"] * (gz["z_screw"] + 2),
+             "x0": gear_x0, "x1": gear_x1,
              "ratio_motor_to_screw": gz["z_screw"] / gz["z_motor"]}
     y_m = y_s + gear_center
 
@@ -196,7 +208,7 @@ def compute_layout(p: dict, variant: str) -> dict:
         "coil_cx": x_r1 + co["gap_x"] + co["d"] / 2, "coil_cy": yi0 + 0.2 + co["d"] / 2,
         "bat_x": bat_x, "bat_x0": bat_x0, "bat_y0": bat_y0, "bat_y1": bat_y0 + bt["y"], "contacts": contacts,
         "bat_vol_mm3": bat_x * bt["y"] * bt["t"],
-        "gear_x1": gear_x1, "gh_x": list(gh_x), "mo_x": list(mo_x), "mot_end": mot_end,
+        "gear_x0": gear_x0, "gear_x1": gear_x1, "gh_x": list(gh_x), "mo_x": list(mo_x), "mot_end": mot_end,
         "far_bush": list(far_bush), "far_block": list(far_block), "dry_bush": list(dry_bush),
         "screw_tip": screw_tip, "mag_x": list(mag_x), "hall": hall, "drv5032": drv,
         "screws": screws, "c_x": c_x,

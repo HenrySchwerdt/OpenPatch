@@ -20,7 +20,13 @@ def build_bottom(s: Script, p: dict, L: dict) -> None:
 
     # ---- Kanülenturm, Septum-Boss ---------------------------------------------------
     from op_dock import build_dock_cuts, build_dock_joins, build_mouth_cut
-    joins = build_dock_joins(s, p, L)
+    bench_ = L["mode"] == "bench"
+    if bench_:
+        from op_dock import build_pod_dock_interface
+        dock_bumps, dock_cuts_new = build_pod_dock_interface(s, p, L)
+        joins = []
+    else:
+        joins = build_dock_joins(s, p, L)
     if L["mode"] != "bench":
         joins.append(s.cyl("t_boss", "Y", (L["x_s"], 0, sp["z"]), sp["boss_d"], wall - 0.1, L["y_r0"]))
 
@@ -29,7 +35,7 @@ def build_bottom(s: Script, p: dict, L: dict) -> None:
     z_top_blk = zc + bh / 2
     yb = (ys - bh / 2, ys + bh / 2)
     if not L["coax"]:
-        joins.append(s.box("t_dblk", (wall + 0.02, dr["gear_x0"] - 0.05), yb, (wall - 0.1, z_top_blk)))
+        joins.append(s.box("t_dblk", (wall + 0.02, L["gear_x0"] - 0.05), yb, (wall - 0.1, z_top_blk)))
     fb = L["far_block"]
     joins.append(s.box("t_fblk", (fb[0], fb[1]), yb, (wall - 0.1, z_top_blk)))
     # Führungsschiene für den Schlitten
@@ -82,7 +88,7 @@ def build_bottom(s: Script, p: dict, L: dict) -> None:
     # Lager-Bohrungen
     bb = dr["bush_od"] + dr["bush_bore_clr"]
     if not L["coax"]:
-        cut.append(s.cyl("t_dbore", "X", (0, ys, zc), bb, L["dry_bush"][0], dr["gear_x0"] + 0.05))
+        cut.append(s.cyl("t_dbore", "X", (0, ys, zc), bb, L["dry_bush"][0], L["gear_x0"] + 0.05))
     cut.append(s.cyl("t_fbore", "X", (0, ys, zc), bb, fb[0] - 0.1, fb[1] + 0.1))
     # Sattel-Mulden (Motor Ø6.1)
     for i in range(len(saddles)):
@@ -115,8 +121,10 @@ def build_bottom(s: Script, p: dict, L: dict) -> None:
         posts = [s.cyl(f"t_zz{k}", "Z", (L["mot_end"] + ld["post_x0"] + k * ld["post_pitch"], ld["groove_y"] + (-1) ** k * ld["post_dy"], 0), ld["post_d"], ld["groove_floor"] - 0.05, wall + ld["post_h"])
                  for k in range(ld["posts"])]
         s.join("bottom", posts)
-    dock_cuts = build_dock_cuts(s, p, L) + build_mouth_cut(s, p, L, "t_kmouth")
+    dock_cuts = (dock_cuts_new if bench_ else build_dock_cuts(s, p, L)) + build_mouth_cut(s, p, L, "t_kmouth")
     s.cut("bottom", dock_cuts)
+    if bench_:
+        s.join("bottom", dock_bumps)          # detent bumps on the ledge (after the pocket cut)
 
 
 def build_top(s: Script, p: dict, L: dict) -> None:

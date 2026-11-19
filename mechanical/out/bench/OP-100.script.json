@@ -635,7 +635,7 @@
   "command": "parameters.add",
   "params": {
    "name": "p_drive_mag_d",
-   "expression": "2.0",
+   "expression": "3.0",
    "comment": "Generator-Wert (Info). \u00c4nderungen: params.json + generate.py"
   }
  },
@@ -643,7 +643,7 @@
   "command": "parameters.add",
   "params": {
    "name": "p_drive_mag_t",
-   "expression": "1.0",
+   "expression": "1.5",
    "comment": "Generator-Wert (Info). \u00c4nderungen: params.json + generate.py"
   }
  },
@@ -1539,7 +1539,7 @@
   "command": "parameters.add",
   "params": {
    "name": "p_length",
-   "expression": "44.9",
+   "expression": "46.2",
    "comment": "Generator-Wert (Info). \u00c4nderungen: params.json + generate.py"
   }
  },
@@ -1558,7 +1558,7 @@
     0
    ],
    "p1": [
-    44.9,
+    46.199999999999996,
     32.0
    ],
    "radius": 4.0
@@ -1591,7 +1591,7 @@
     0.5
    ],
    "p1": [
-    44.4,
+    45.699999999999996,
     31.5
    ],
    "radius": 3.5
@@ -1635,7 +1635,7 @@
     0.9
    ],
    "p1": [
-    44.0,
+    45.3,
     31.1
    ],
    "radius": 3.1
@@ -1667,154 +1667,67 @@
  {
   "command": "solid.box",
   "params": {
-   "length": 0.8000000000000007,
-   "width": 12.0,
-   "height": 4.4,
+   "length": 15.600000000000001,
+   "width": 13.700000000000001,
+   "height": 1.02,
    "corner": [
-    29.4,
-    5.5,
-    0.8
+    30.699999999999996,
+    4.65,
+    -0.1
    ],
-   "body_name": "t_dbridge",
-   "name": "t_dbridge"
+   "body_name": "t_dwin",
+   "name": "t_dwin"
   }
  },
  {
   "command": "solid.box",
   "params": {
-   "length": 10.300000000000004,
-   "width": 0.7999999999999998,
-   "height": 3.6500000000000004,
+   "length": 15.600000000000001,
+   "width": 15.200000000000001,
+   "height": 0.47000000000000003,
    "corner": [
-    29.9,
-    5.5,
-    1.3
+    30.699999999999996,
+    3.9000000000000004,
+    0.45
    ],
-   "body_name": "t_darm0",
-   "name": "t_darm0"
+   "body_name": "t_dpocket",
+   "name": "t_dpocket"
   }
  },
  {
-  "command": "sketch.create",
+  "command": "solid.cylinder",
   "params": {
-   "plane": "XY",
-   "offset": 1.5
-  }
- },
- {
-  "command": "sketch.line",
-  "params": {
-   "points": [
-    [
-     38.7,
-     6.2
-    ],
-    [
-     38.7,
-     7.808125457540291
-    ],
-    [
-     39.1,
-     8.20812545754029
-    ],
-    [
-     39.50000000000001,
-     8.20812545754029
-    ],
-    [
-     39.900000000000006,
-     7.808125457540291
-    ],
-    [
-     39.900000000000006,
-     6.2
-    ]
+   "diameter": 0.5,
+   "height": 0.4,
+   "base": [
+    33.699999999999996,
+    4.275,
+    0.35
    ],
-   "closed": true
+   "axis": "Z",
+   "body_name": "t_dbump0",
+   "name": "t_dbump0"
   }
  },
  {
-  "command": "sketch.finish",
-  "params": {}
- },
- {
-  "command": "solid.extrude",
+  "command": "solid.cylinder",
   "params": {
-   "distance": 3.0,
-   "body_name": "t_dhook0",
-   "name": "t_dhook0"
+   "diameter": 0.5,
+   "height": 0.4,
+   "base": [
+    33.699999999999996,
+    18.725,
+    0.35
+   ],
+   "axis": "Z",
+   "body_name": "t_dbump1",
+   "name": "t_dbump1"
   }
  },
  {
   "command": "solid.box",
   "params": {
-   "length": 10.300000000000004,
-   "width": 0.8000000000000007,
-   "height": 3.6500000000000004,
-   "corner": [
-    29.9,
-    16.7,
-    1.3
-   ],
-   "body_name": "t_darm1",
-   "name": "t_darm1"
-  }
- },
- {
-  "command": "sketch.create",
-  "params": {
-   "plane": "XY",
-   "offset": 1.5
-  }
- },
- {
-  "command": "sketch.line",
-  "params": {
-   "points": [
-    [
-     38.7,
-     16.8
-    ],
-    [
-     38.7,
-     15.191874542459708
-    ],
-    [
-     39.1,
-     14.79187454245971
-    ],
-    [
-     39.50000000000001,
-     14.79187454245971
-    ],
-    [
-     39.900000000000006,
-     15.191874542459708
-    ],
-    [
-     39.900000000000006,
-     16.8
-    ]
-   ],
-   "closed": true
-  }
- },
- {
-  "command": "sketch.finish",
-  "params": {}
- },
- {
-  "command": "solid.extrude",
-  "params": {
-   "distance": 3.0,
-   "body_name": "t_dhook1",
-   "name": "t_dhook1"
-  }
- },
- {
-  "command": "solid.box",
-  "params": {
-   "length": 1.0299999999999998,
+   "length": 2.33,
    "width": 4.350000000000001,
    "height": 5.575,
    "corner": [
@@ -1833,7 +1746,7 @@
    "width": 4.350000000000001,
    "height": 5.575,
    "corner": [
-    23.7,
+    24.999999999999996,
     20.425,
     0.8
    ],
@@ -1844,11 +1757,11 @@
  {
   "command": "solid.box",
   "params": {
-   "length": 19.7,
+   "length": 19.699999999999996,
    "width": 0.8999999999999986,
    "height": 0.8,
    "corner": [
-    3.7,
+    5.0,
     22.150000000000002,
     0.8
    ],
@@ -1863,7 +1776,7 @@
    "width": 4.399999999999999,
    "height": 1.5000000000000002,
    "corner": [
-    6.500000000000001,
+    7.799999999999999,
     25.8,
     0.8
    ],
@@ -1878,7 +1791,7 @@
    "width": 4.399999999999999,
    "height": 1.5000000000000002,
    "corner": [
-    12.2,
+    13.5,
     25.8,
     0.8
    ],
@@ -1893,7 +1806,7 @@
    "width": 4.399999999999999,
    "height": 1.5000000000000002,
    "corner": [
-    17.599999999999998,
+    18.9,
     25.8,
     0.8
    ],
@@ -1952,7 +1865,7 @@
    "diameter": 2.2,
    "height": 5.140000000000001,
    "base": [
-    28.0,
+    29.299999999999997,
     18.8,
     0.8
    ],
@@ -1967,8 +1880,8 @@
    "diameter": 1.6,
    "height": 4.5,
    "base": [
-    35.6,
-    18.0,
+    36.9,
+    18.5,
     0.8
    ],
    "axis": "Z",
@@ -1982,8 +1895,8 @@
    "diameter": 1.0,
    "height": 0.7000000000000002,
    "base": [
-    35.6,
-    18.0,
+    36.9,
+    18.5,
     5.2
    ],
    "axis": "Z",
@@ -1997,7 +1910,7 @@
    "diameter": 1.6,
    "height": 4.5,
    "base": [
-    42.2,
+    43.5,
     22.0,
     0.8
    ],
@@ -2012,7 +1925,7 @@
    "diameter": 1.0,
    "height": 0.7000000000000002,
    "base": [
-    42.2,
+    43.5,
     22.0,
     5.2
    ],
@@ -2027,7 +1940,7 @@
    "diameter": 1.6,
    "height": 4.5,
    "base": [
-    32.0,
+    33.3,
     22.4,
     0.8
    ],
@@ -2042,8 +1955,8 @@
    "diameter": 1.6,
    "height": 4.5,
    "base": [
-    42.2,
-    16.0,
+    43.5,
+    20.4,
     0.8
    ],
    "axis": "Z",
@@ -2057,7 +1970,7 @@
    "diameter": 2.2,
    "height": 4.5,
    "base": [
-    35.6,
+    36.9,
     19.4,
     0.8
    ],
@@ -2071,11 +1984,6 @@
   "params": {
    "target": "bottom",
    "tools": [
-    "t_dbridge",
-    "t_darm0",
-    "t_dhook0",
-    "t_darm1",
-    "t_dhook1",
     "t_dblk",
     "t_fblk",
     "t_rail",
@@ -2104,7 +2012,7 @@
    "diameter": 2.0,
    "height": 1.1,
    "base": [
-    27.2,
+    28.499999999999996,
     -0.1,
     3.0
    ],
@@ -2117,7 +2025,7 @@
   "command": "solid.cylinder",
   "params": {
    "diameter": 3.05,
-   "height": 1.15,
+   "height": 2.4499999999999997,
    "base": [
     0.9,
     22.6,
@@ -2134,7 +2042,7 @@
    "diameter": 3.05,
    "height": 1.4000000000000021,
    "base": [
-    23.599999999999998,
+    24.899999999999995,
     22.6,
     4.2
    ],
@@ -2147,9 +2055,9 @@
   "command": "solid.cylinder",
   "params": {
    "diameter": 6.1,
-   "height": 16.799999999999997,
+   "height": 16.8,
    "base": [
-    3.9000000000000004,
+    5.199999999999999,
     28.0,
     4.2
    ],
@@ -2209,7 +2117,7 @@
    "diameter": 1.0,
    "height": 4.1,
    "base": [
-    28.0,
+    29.299999999999997,
     18.8,
     1.9500000000000002
    ],
@@ -2224,7 +2132,7 @@
    "diameter": 1.0,
    "height": 3.4999999999999996,
    "base": [
-    35.6,
+    36.9,
     19.4,
     1.9
    ],
@@ -2244,11 +2152,11 @@
   "command": "sketch.rectangle.rounded",
   "params": {
    "p0": [
-    3.7,
+    5.0,
     4.0
    ],
    "p1": [
-    23.5,
+    24.799999999999997,
     29.0
    ],
    "radius": 1.5
@@ -2273,7 +2181,7 @@
    "width": 5.200000000000003,
    "height": 0.6000000000000001,
    "corner": [
-    13.100000000000001,
+    14.399999999999999,
     25.4,
     0.35
    ],
@@ -2288,7 +2196,7 @@
    "width": 2.200000000000003,
    "height": 0.5499999999999999,
    "corner": [
-    15.100000000000001,
+    16.4,
     25.7,
     0.4
    ],
@@ -2303,7 +2211,7 @@
    "width": 2.200000000000003,
    "height": 1.2999999999999998,
    "corner": [
-    43.7,
+    45.0,
     25.7,
     0.4
    ],
@@ -2340,7 +2248,7 @@
    "diameter": 0.8,
    "height": 1.45,
    "base": [
-    21.9,
+    23.2,
     27.45,
     0.35000000000000003
    ],
@@ -2355,7 +2263,7 @@
    "diameter": 0.8,
    "height": 1.45,
    "base": [
-    23.9,
+    25.2,
     26.150000000000002,
     0.35000000000000003
    ],
@@ -2370,7 +2278,7 @@
    "diameter": 0.8,
    "height": 1.45,
    "base": [
-    25.9,
+    27.2,
     27.45,
     0.35000000000000003
    ],
@@ -2393,44 +2301,14 @@
   }
  },
  {
-  "command": "solid.cylinder",
-  "params": {
-   "diameter": 3.4000000000000004,
-   "height": 1.0000000000000036,
-   "base": [
-    29.299999999999997,
-    11.5,
-    3.0
-   ],
-   "axis": "X",
-   "body_name": "t_kshr",
-   "name": "t_kshr"
-  }
- },
- {
-  "command": "solid.box",
-  "params": {
-   "length": 14.8,
-   "width": 12.200000000000001,
-   "height": 1.4000000000000001,
-   "corner": [
-    30.2,
-    5.4,
-    -0.1
-   ],
-   "body_name": "t_kfloor",
-   "name": "t_kfloor"
-  }
- },
- {
   "command": "solid.box",
   "params": {
    "length": 1.2999999999999972,
-   "width": 11.600000000000001,
+   "width": 12.399999999999999,
    "height": 5.05,
    "corner": [
-    43.7,
-    5.7,
+    45.0,
+    5.3,
     -0.1
    ],
    "body_name": "t_kmoutha",
@@ -2441,11 +2319,11 @@
   "command": "solid.box",
   "params": {
    "length": 1.1499999999999986,
-   "width": 11.600000000000001,
+   "width": 12.399999999999999,
    "height": 0.6999999999999993,
    "corner": [
-    43.7,
-    5.7,
+    45.0,
+    5.3,
     4.9
    ],
    "body_name": "t_kmouthb",
@@ -2457,13 +2335,25 @@
   "params": {
    "target": "bottom",
    "tools": [
-    "t_kshr",
-    "t_kfloor",
+    "t_dwin",
+    "t_dpocket",
     "t_kmoutha",
     "t_kmouthb"
    ],
    "operation": "cut",
    "name": "cut bottom"
+  }
+ },
+ {
+  "command": "solid.combine",
+  "params": {
+   "target": "bottom",
+   "tools": [
+    "t_dbump0",
+    "t_dbump1"
+   ],
+   "operation": "join",
+   "name": "join bottom"
   }
  },
  {
@@ -2481,7 +2371,7 @@
     0
    ],
    "p1": [
-    44.9,
+    46.199999999999996,
     32.0
    ],
    "radius": 4.0
@@ -2504,7 +2394,7 @@
   "params": {
    "edges": [
     [
-     22.45,
+     23.099999999999998,
      0.0,
      8.5
     ]
@@ -2529,7 +2419,7 @@
     0.45
    ],
    "p1": [
-    44.449999999999996,
+    45.74999999999999,
     31.55
    ],
    "radius": 3.55
@@ -2562,7 +2452,7 @@
     0.9
    ],
    "p1": [
-    44.0,
+    45.3,
     31.1
    ],
    "radius": 3.1
@@ -2643,7 +2533,7 @@
    "diameter": 2.4000000000000004,
    "height": 1.7499999999999991,
    "base": [
-    28.0,
+    29.299999999999997,
     18.8,
     5.95
    ],
@@ -2658,7 +2548,7 @@
    "diameter": 1.2,
    "height": 1.5499999999999998,
    "base": [
-    31.5,
+    32.8,
     22.4,
     6.1499999999999995
    ],
@@ -2673,7 +2563,7 @@
    "diameter": 1.2,
    "height": 1.5499999999999998,
    "base": [
-    37.9,
+    39.199999999999996,
     22.8,
     6.1499999999999995
    ],
@@ -2688,7 +2578,7 @@
    "diameter": 1.2,
    "height": 1.5499999999999998,
    "base": [
-    41.2,
+    42.5,
     13.3,
     6.1499999999999995
    ],
@@ -2810,7 +2700,7 @@
    "diameter": 1.4,
    "height": 2.749999999999999,
    "base": [
-    28.0,
+    29.299999999999997,
     18.8,
     5.8500000000000005
    ],
@@ -2825,7 +2715,7 @@
    "diameter": 2.4,
    "height": 0.5999999999999996,
    "base": [
-    28.0,
+    29.299999999999997,
     18.8,
     8.0
    ],
@@ -2841,7 +2731,7 @@
    "width": 8.0,
    "height": 1.0999999999999996,
    "corner": [
-    43.8,
+    45.099999999999994,
     14.5,
     6.0
    ],
@@ -2853,11 +2743,11 @@
   "command": "solid.box",
   "params": {
    "length": 1.1499999999999986,
-   "width": 11.600000000000001,
+   "width": 12.399999999999999,
    "height": 0.6999999999999993,
    "corner": [
-    43.7,
-    5.7,
+    45.0,
+    5.3,
     4.9
    ],
    "body_name": "t_kmouth_top",
@@ -2867,11 +2757,11 @@
  {
   "command": "solid.box",
   "params": {
-   "length": 16.400000000000002,
+   "length": 16.4,
    "width": 2.0,
    "height": 1.0999999999999996,
    "corner": [
-    4.800000000000001,
+    6.1,
     21.6,
     7.5
    ],
@@ -2886,7 +2776,7 @@
    "width": 1.0,
    "height": 0.40000000000000036,
    "corner": [
-    4.180000000000001,
+    5.4799999999999995,
     23.900000000000002,
     8.2
    ],
@@ -2901,7 +2791,7 @@
    "width": 0.5,
    "height": 0.40000000000000036,
    "corner": [
-    5.519943722363661,
+    6.81994372236366,
     23.900000000000002,
     8.2
    ],
@@ -2912,11 +2802,11 @@
  {
   "command": "solid.box",
   "params": {
-   "length": 0.2400000000000002,
+   "length": 0.23999999999999844,
    "width": 0.5,
    "height": 0.40000000000000036,
    "corner": [
-    6.859887444727322,
+    8.159887444727323,
     23.900000000000002,
     8.2
    ],
@@ -2931,7 +2821,7 @@
    "width": 0.5,
    "height": 0.40000000000000036,
    "corner": [
-    8.199831167090984,
+    9.499831167090983,
     23.900000000000002,
     8.2
    ],
@@ -2946,7 +2836,7 @@
    "width": 0.5,
    "height": 0.40000000000000036,
    "corner": [
-    9.539774889454645,
+    10.839774889454644,
     23.900000000000002,
     8.2
    ],
@@ -2961,7 +2851,7 @@
    "width": 1.0,
    "height": 0.40000000000000036,
    "corner": [
-    10.879718611818305,
+    12.179718611818304,
     23.900000000000002,
     8.2
    ],
@@ -2976,7 +2866,7 @@
    "width": 0.5,
    "height": 0.40000000000000036,
    "corner": [
-    12.219662334181967,
+    13.519662334181966,
     23.900000000000002,
     8.2
    ],
@@ -2991,7 +2881,7 @@
    "width": 0.5,
    "height": 0.40000000000000036,
    "corner": [
-    13.559606056545627,
+    14.859606056545626,
     23.900000000000002,
     8.2
    ],
@@ -3002,11 +2892,11 @@
  {
   "command": "solid.box",
   "params": {
-   "length": 0.23999999999999844,
+   "length": 0.240000000000002,
    "width": 0.5,
    "height": 0.40000000000000036,
    "corner": [
-    14.899549778909288,
+    16.199549778909283,
     23.900000000000002,
     8.2
    ],
@@ -3021,7 +2911,7 @@
    "width": 0.5,
    "height": 0.40000000000000036,
    "corner": [
-    16.239493501272946,
+    17.539493501272947,
     23.900000000000002,
     8.2
    ],
@@ -3036,7 +2926,7 @@
    "width": 1.0,
    "height": 0.40000000000000036,
    "corner": [
-    17.579437223636607,
+    18.879437223636604,
     23.900000000000002,
     8.2
    ],
@@ -3091,7 +2981,7 @@
     0.5
    ],
    "p1": [
-    44.4,
+    45.699999999999996,
     31.5
    ],
    "radius": 3.5
@@ -3124,7 +3014,7 @@
     0.9
    ],
    "p1": [
-    44.0,
+    45.3,
     31.1
    ],
    "radius": 3.1
@@ -3157,11 +3047,11 @@
   "command": "solid.box",
   "params": {
    "length": 1.1499999999999986,
-   "width": 11.600000000000001,
+   "width": 12.399999999999999,
    "height": 0.6999999999999993,
    "corner": [
-    43.7,
-    5.7,
+    45.0,
+    5.3,
     4.9
    ],
    "body_name": "t_gmouth",
@@ -3183,7 +3073,7 @@
   "command": "sketch.create",
   "params": {
    "plane": "YZ",
-   "offset": 3.3000000000000003
+   "offset": 4.6
   }
  },
  {
@@ -3207,7 +3097,7 @@
  {
   "command": "solid.extrude",
   "params": {
-   "distance": 21.7,
+   "distance": 21.699999999999996,
    "body_name": "reservoir",
    "name": "reservoir"
   }
@@ -3216,7 +3106,7 @@
   "command": "sketch.create",
   "params": {
    "plane": "YZ",
-   "offset": 3.2
+   "offset": 4.5
   }
  },
  {
@@ -3240,7 +3130,7 @@
  {
   "command": "solid.extrude",
   "params": {
-   "distance": 19.3,
+   "distance": 19.299999999999997,
    "body_name": "t_chamber",
    "name": "t_chamber"
   }
@@ -3251,7 +3141,7 @@
    "diameter": 2.0,
    "height": 2.700000000000003,
    "base": [
-    22.4,
+    23.699999999999996,
     11.5,
     4.2
    ],
@@ -3263,11 +3153,11 @@
  {
   "command": "solid.box",
   "params": {
-   "length": 14.4,
+   "length": 14.399999999999999,
    "width": 1.3000000000000007,
    "height": 1.6,
    "corner": [
-    5.65,
+    6.949999999999999,
     19.3,
     3.4
    ],
@@ -3292,7 +3182,7 @@
   "command": "sketch.create",
   "params": {
    "plane": "YZ",
-   "offset": 4.300000000000001
+   "offset": 5.6
   }
  },
  {
@@ -3316,7 +3206,7 @@
  {
   "command": "solid.extrude",
   "params": {
-   "distance": 3.8000000000000007,
+   "distance": 3.799999999999999,
    "body_name": "plunger_core",
    "name": "plunger_core"
   }
@@ -3325,7 +3215,7 @@
   "command": "sketch.create",
   "params": {
    "plane": "YZ",
-   "offset": 4.9
+   "offset": 6.199999999999999
   }
  },
  {
@@ -3358,7 +3248,7 @@
   "command": "sketch.create",
   "params": {
    "plane": "YZ",
-   "offset": 4.800000000000001
+   "offset": 6.1
   }
  },
  {
@@ -3402,7 +3292,7 @@
   "command": "sketch.create",
   "params": {
    "plane": "YZ",
-   "offset": 6.6000000000000005
+   "offset": 7.8999999999999995
   }
  },
  {
@@ -3435,7 +3325,7 @@
   "command": "sketch.create",
   "params": {
    "plane": "YZ",
-   "offset": 6.500000000000001
+   "offset": 7.8
   }
  },
  {
@@ -3482,7 +3372,7 @@
    "width": 1.7000000000000028,
    "height": 1.5,
    "corner": [
-    5.750000000000001,
+    7.05,
     17.7,
     3.45
    ],
@@ -3507,7 +3397,7 @@
   "command": "sketch.create",
   "params": {
    "plane": "YZ",
-   "offset": 4.9
+   "offset": 6.199999999999999
   }
  },
  {
@@ -3540,7 +3430,7 @@
   "command": "sketch.create",
   "params": {
    "plane": "YZ",
-   "offset": 4.800000000000001
+   "offset": 6.1
   }
  },
  {
@@ -3584,7 +3474,7 @@
   "command": "sketch.create",
   "params": {
    "plane": "YZ",
-   "offset": 6.6000000000000005
+   "offset": 7.8999999999999995
   }
  },
  {
@@ -3617,7 +3507,7 @@
   "command": "sketch.create",
   "params": {
    "plane": "YZ",
-   "offset": 6.500000000000001
+   "offset": 7.8
   }
  },
  {
@@ -3664,7 +3554,7 @@
    "width": 4.399999999999999,
    "height": 6.200000000000001,
    "corner": [
-    4.300000000000001,
+    5.6,
     20.400000000000002,
     1.1
    ],
@@ -3679,7 +3569,7 @@
    "width": 2.8000000000000007,
    "height": 1.4000000000000004,
    "corner": [
-    5.8500000000000005,
+    7.1499999999999995,
     17.8,
     3.5
    ],
@@ -3704,7 +3594,7 @@
    "diameter": 1.9,
    "height": 4.199999999999999,
    "base": [
-    4.200000000000001,
+    5.5,
     22.6,
     4.2
    ],
@@ -3717,7 +3607,7 @@
   "command": "sketch.create",
   "params": {
    "plane": "YZ",
-   "offset": 4.200000000000001
+   "offset": 5.5
   }
  },
  {
@@ -3751,7 +3641,7 @@
    "width": 1.2000000000000028,
    "height": 0.6000000000000001,
    "corner": [
-    4.200000000000001,
+    5.5,
     22.0,
     1.0
    ],
@@ -3776,7 +3666,7 @@
   "command": "sketch.create",
   "params": {
    "plane": "YZ",
-   "offset": 4.3500000000000005
+   "offset": 5.6499999999999995
   }
  },
  {
@@ -3809,7 +3699,7 @@
    "diameter": 1.6500000000000001,
    "height": 2.0999999999999996,
    "base": [
-    4.200000000000001,
+    5.5,
     22.6,
     4.2
    ],
@@ -3833,9 +3723,9 @@
   "command": "solid.cylinder",
   "params": {
    "diameter": 6.0,
-   "height": 8.099999999999998,
+   "height": 8.100000000000001,
    "base": [
-    4.1000000000000005,
+    5.3999999999999995,
     28.0,
     4.2
    ],
@@ -3850,7 +3740,7 @@
    "diameter": 6.0,
    "height": 8.0,
    "base": [
-    12.2,
+    13.5,
     28.0,
     4.2
    ],
@@ -3862,10 +3752,10 @@
  {
   "command": "solid.cylinder",
   "params": {
-   "diameter": 4.6499999999999995,
+   "diameter": 6.0,
    "height": 1.2000000000000002,
    "base": [
-    2.0,
+    3.3,
     28.0,
     4.2
    ],
@@ -3878,9 +3768,9 @@
   "command": "solid.cylinder",
   "params": {
    "diameter": 2.04,
-   "height": 1.4000000000000004,
+   "height": 1.4,
    "base": [
-    1.9,
+    3.1999999999999997,
     28.0,
     4.2
    ],
@@ -3903,10 +3793,10 @@
  {
   "command": "solid.cylinder",
   "params": {
-   "diameter": 4.6499999999999995,
+   "diameter": 6.0,
    "height": 1.2000000000000002,
    "base": [
-    2.0,
+    3.3,
     22.6,
     4.2
    ],
@@ -3919,9 +3809,9 @@
   "command": "solid.cylinder",
   "params": {
    "diameter": 1.6400000000000001,
-   "height": 1.4000000000000004,
+   "height": 1.4,
    "base": [
-    1.9,
+    3.1999999999999997,
     22.6,
     4.2
    ],
@@ -3945,7 +3835,7 @@
   "command": "solid.cylinder",
   "params": {
    "diameter": 1.6,
-   "height": 24.15,
+   "height": 25.449999999999996,
    "base": [
     1.0,
     22.6,
@@ -4003,7 +3893,7 @@
    "diameter": 3.0,
    "height": 1.0,
    "base": [
-    23.8,
+    25.099999999999998,
     22.6,
     4.2
    ],
@@ -4018,7 +3908,7 @@
    "diameter": 1.7,
    "height": 1.2000000000000028,
    "base": [
-    23.7,
+    24.999999999999996,
     22.6,
     4.2
    ],
@@ -4041,10 +3931,10 @@
  {
   "command": "solid.cylinder",
   "params": {
-   "diameter": 2.0,
-   "height": 1.0,
+   "diameter": 3.0,
+   "height": 1.5,
    "base": [
-    25.15,
+    26.449999999999996,
     22.6,
     4.2
    ],
@@ -4059,7 +3949,7 @@
    "diameter": 3.5,
    "height": 0.7999999999999998,
    "base": [
-    3.3000000000000007,
+    4.6,
     28.0,
     4.2
    ],
@@ -4072,9 +3962,9 @@
   "command": "solid.cylinder",
   "params": {
    "diameter": 2.0,
-   "height": 2.1000000000000005,
+   "height": 1.5,
    "base": [
-    1.2,
+    3.0999999999999996,
     28.0,
     4.2
    ],
@@ -4089,7 +3979,7 @@
    "diameter": 2.6,
    "height": 0.6999999999999993,
    "base": [
-    20.2,
+    21.5,
     28.0,
     4.2
    ],
@@ -4105,7 +3995,7 @@
    "width": 4.600000000000001,
    "height": 0.65,
    "corner": [
-    13.400000000000002,
+    14.7,
     25.7,
     0.5500000000000002
    ],
@@ -4120,7 +4010,7 @@
    "width": 3.8999999999999986,
    "height": 0.15000000000000002,
    "corner": [
-    15.100000000000001,
+    16.4,
     26.05,
     0.40000000000000013
    ],
@@ -4131,11 +4021,11 @@
  {
   "command": "solid.box",
   "params": {
-   "length": 7.309999999999999,
+   "length": 7.109999999999999,
    "width": 4.5,
    "height": 0.7999999999999998,
    "corner": [
-    26.7,
+    28.199999999999996,
     20.2,
     5.3
    ],
@@ -4150,7 +4040,7 @@
    "width": 11.0,
    "height": 0.7999999999999998,
    "corner": [
-    34.0,
+    35.3,
     14.5,
     5.3
    ],
@@ -4165,7 +4055,7 @@
    "width": 9.91,
    "height": 0.7999999999999998,
    "corner": [
-    39.0,
+    40.3,
     4.6,
     5.3
    ],
@@ -4192,7 +4082,7 @@
    "width": 2.5100000000000016,
    "height": 0.9999999999999991,
    "corner": [
-    40.9,
+    42.199999999999996,
     23.0,
     5.2
    ],
@@ -4206,7 +4096,7 @@
    "diameter": 5.0,
    "height": 1.2000000000000002,
    "base": [
-    40.9,
+    42.199999999999996,
     23.0,
     5.1
    ],
@@ -4232,8 +4122,8 @@
    "diameter": 1.2,
    "height": 0.9999999999999991,
    "base": [
-    35.6,
-    18.0,
+    36.9,
+    18.5,
     5.2
    ],
    "axis": "Z",
@@ -4247,7 +4137,7 @@
    "diameter": 1.2,
    "height": 0.9999999999999991,
    "base": [
-    42.2,
+    43.5,
     22.0,
     5.2
    ],
@@ -4262,7 +4152,7 @@
    "diameter": 1.4,
    "height": 0.9999999999999991,
    "base": [
-    35.6,
+    36.9,
     19.4,
     5.2
    ],
@@ -4292,7 +4182,7 @@
    "width": 2.799999999999997,
    "height": 1.4499999999999997,
    "corner": [
-    27.05,
+    28.55,
     21.200000000000003,
     3.85
    ],
@@ -4307,7 +4197,7 @@
    "width": 1.1000000000000014,
    "height": 0.40000000000000036,
    "corner": [
-    26.900000000000002,
+    28.400000000000002,
     20.55,
     6.1
    ],
@@ -4322,7 +4212,7 @@
    "width": 1.1000000000000014,
    "height": 0.40000000000000036,
    "corner": [
-    26.900000000000002,
+    28.400000000000002,
     23.25,
     6.1
    ],
@@ -4337,7 +4227,7 @@
    "width": 1.3999999999999986,
    "height": 0.39999999999999947,
    "corner": [
-    41.150000000000006,
+    42.45,
     10.8,
     4.9
    ],
@@ -4352,7 +4242,7 @@
    "width": 7.399999999999999,
    "height": 1.0,
    "corner": [
-    38.8,
+    40.1,
     14.8,
     6.1
    ],
@@ -4363,11 +4253,11 @@
  {
   "command": "solid.box",
   "params": {
-   "length": 14.100000000000001,
+   "length": 14.099999999999994,
    "width": 6.0,
    "height": 0.3000000000000007,
    "corner": [
-    42.8,
+    44.1,
     15.5,
     6.199999999999999
    ],
@@ -4381,7 +4271,7 @@
    "diameter": 2.0,
    "height": 1.0,
    "base": [
-    41.7,
+    43.0,
     11.5,
     3.3
    ],
@@ -4397,7 +4287,7 @@
    "width": 11.0,
    "height": 0.6,
    "corner": [
-    30.6,
+    31.9,
     6.0,
     0
    ],
@@ -4411,7 +4301,7 @@
    "diameter": 10.0,
    "height": 5.0,
    "base": [
-    36.1,
+    37.4,
     11.5,
     0
    ],
@@ -4427,7 +4317,7 @@
    "width": 4.0,
    "height": 4.3,
    "corner": [
-    40.1,
+    41.4,
     9.5,
     0
    ],
@@ -4441,7 +4331,7 @@
    "diameter": 1.6,
    "height": 5.009999999999998,
    "base": [
-    43.290000000000006,
+    44.59,
     11.5,
     1.5
    ],
@@ -4470,7 +4360,7 @@
    "width": 2.3581254575402912,
    "height": 3.5999999999999996,
    "corner": [
-    38.6,
+    39.9,
     6.0,
     1.5
    ],
@@ -4485,7 +4375,7 @@
    "width": 2.3581254575402912,
    "height": 3.5999999999999996,
    "corner": [
-    38.6,
+    39.9,
     14.641874542459709,
     1.5
    ],
@@ -4499,7 +4389,7 @@
    "diameter": 3.6,
    "height": 1.1000000000000014,
    "base": [
-    31.0,
+    32.3,
     11.5,
     3.0
    ],
@@ -4514,7 +4404,7 @@
    "diameter": 0.5,
    "height": 2.6099999999999994,
    "base": [
-    32.09,
+    33.39,
     11.5,
     3.0
    ],
@@ -4529,7 +4419,7 @@
    "diameter": 0.7,
    "height": 1.85,
    "base": [
-    34.35,
+    35.65,
     11.5,
     1.15
    ],
@@ -4544,7 +4434,7 @@
    "diameter": 0.7,
    "height": 14.350000000000001,
    "base": [
-    34.050000000000004,
+    35.35,
     11.5,
     1.5
    ],
@@ -4559,7 +4449,7 @@
    "diameter": 2.1,
    "height": 1.1499999999999995,
    "base": [
-    41.7,
+    43.0,
     11.5,
     3.25
    ],
@@ -4592,7 +4482,7 @@
    "width": 13.5,
    "height": 4.3,
    "corner": [
-    25.0,
+    26.299999999999997,
     1.0,
     0.9
    ],
@@ -4606,7 +4496,7 @@
    "diameter": 1.98,
    "height": 2.0100000000000016,
    "base": [
-    23.0,
+    24.299999999999997,
     11.5,
     4.2
    ],
@@ -4619,9 +4509,9 @@
   "command": "solid.cylinder",
   "params": {
    "diameter": 3.2,
-   "height": 2.5500000000000043,
+   "height": 2.5500000000000007,
    "base": [
-    29.349999999999998,
+    30.649999999999995,
     11.5,
     3.0
    ],
@@ -4648,7 +4538,7 @@
    "diameter": 0.7,
    "height": 2.6000000000000014,
    "base": [
-    22.9,
+    24.199999999999996,
     11.5,
     4.2
    ],
@@ -4663,7 +4553,7 @@
    "diameter": 0.7,
    "height": 1.6000000000000005,
    "base": [
-    25.3,
+    26.599999999999998,
     11.5,
     2.8
    ],
@@ -4678,7 +4568,7 @@
    "diameter": 0.7,
    "height": 0.6000000000000014,
    "base": [
-    25.1,
+    26.4,
     11.5,
     3.0
    ],
@@ -4693,7 +4583,7 @@
    "diameter": 0.7,
    "height": 2.3999999999999986,
    "base": [
-    25.3,
+    26.599999999999998,
     9.3,
     3.0
    ],
@@ -4708,7 +4598,7 @@
    "diameter": 0.7,
    "height": 2.299999999999997,
    "base": [
-    25.1,
+    26.4,
     9.5,
     3.0
    ],
@@ -4723,7 +4613,7 @@
    "diameter": 0.7,
    "height": 5.199999999999999,
    "base": [
-    27.2,
+    28.499999999999996,
     4.5,
     3.0
    ],
@@ -4738,7 +4628,7 @@
    "diameter": 1.0,
    "height": 0.7999999999999998,
    "base": [
-    27.2,
+    28.499999999999996,
     4.0,
     3.0
    ],
@@ -4753,7 +4643,7 @@
    "diameter": 4.2,
    "height": 3.1999999999999997,
    "base": [
-    27.2,
+    28.499999999999996,
     0.9,
     3.0
    ],
@@ -4768,7 +4658,7 @@
    "diameter": 0.7,
    "height": 1.0000000000000036,
    "base": [
-    28.9,
+    30.199999999999996,
     11.5,
     3.0
    ],
@@ -4783,7 +4673,7 @@
    "diameter": 2.0,
    "height": 2.1999999999999993,
    "base": [
-    29.8,
+    31.099999999999998,
     11.5,
     3.0
    ],
@@ -4818,7 +4708,7 @@
    "diameter": 3.05,
    "height": 3.3999999999999986,
    "base": [
-    25.6,
+    26.9,
     11.5,
     3.0
    ],
@@ -4834,7 +4724,7 @@
    "width": 3.039999999999999,
    "height": 2.3,
    "corner": [
-    25.6,
+    26.9,
     9.98,
     3.0
    ],
@@ -4860,7 +4750,7 @@
    "diameter": 4.0,
    "height": 1.9999999999999998,
    "base": [
-    27.2,
+    28.499999999999996,
     1.05,
     3.0
    ],
@@ -4875,7 +4765,7 @@
    "diameter": 3.0,
    "height": 3.3999999999999986,
    "base": [
-    25.6,
+    26.9,
     11.5,
     3.0
    ],
@@ -4890,7 +4780,7 @@
    "diameter": 0.31,
    "height": 4.199999999999999,
    "base": [
-    29.8,
+    31.099999999999998,
     11.5,
     3.0
    ],
@@ -4905,7 +4795,7 @@
    "diameter": 2.0,
    "height": 0.6999999999999993,
    "base": [
-    29.8,
+    31.099999999999998,
     11.5,
     3.0
    ],
@@ -4920,7 +4810,7 @@
    "diameter": 0.31,
    "height": 0.9000000000000021,
    "base": [
-    29.7,
+    30.999999999999996,
     11.5,
     3.0
    ],
@@ -4941,15 +4831,299 @@
   }
  },
  {
+  "command": "solid.box",
+  "params": {
+   "length": 15.400000000000002,
+   "width": 13.600000000000001,
+   "height": 0.88,
+   "corner": [
+    30.749999999999996,
+    4.7,
+    0
+   ],
+   "body_name": "dock_insert",
+   "name": "dock_insert"
+  }
+ },
+ {
+  "command": "solid.box",
+  "params": {
+   "length": 15.400000000000002,
+   "width": 1.0,
+   "height": 0.38,
+   "corner": [
+    30.749999999999996,
+    3.95,
+    0.5
+   ],
+   "body_name": "t_ifl0",
+   "name": "t_ifl0"
+  }
+ },
+ {
+  "command": "solid.box",
+  "params": {
+   "length": 15.400000000000002,
+   "width": 1.0,
+   "height": 0.38,
+   "corner": [
+    30.749999999999996,
+    18.05,
+    0.5
+   ],
+   "body_name": "t_ifl1",
+   "name": "t_ifl1"
+  }
+ },
+ {
+  "command": "solid.box",
+  "params": {
+   "length": 0.75,
+   "width": 12.0,
+   "height": 4.42,
+   "corner": [
+    30.749999999999996,
+    5.5,
+    0.78
+   ],
+   "body_name": "t_ibridge",
+   "name": "t_ibridge"
+  }
+ },
+ {
+  "command": "solid.box",
+  "params": {
+   "length": 10.300000000000004,
+   "width": 0.7999999999999998,
+   "height": 3.6500000000000004,
+   "corner": [
+    31.199999999999996,
+    5.5,
+    1.3
+   ],
+   "body_name": "t_iarm0",
+   "name": "t_iarm0"
+  }
+ },
+ {
+  "command": "sketch.create",
+  "params": {
+   "plane": "XY",
+   "offset": 1.5
+  }
+ },
+ {
+  "command": "sketch.line",
+  "params": {
+   "points": [
+    [
+     40.0,
+     6.2
+    ],
+    [
+     40.0,
+     7.808125457540291
+    ],
+    [
+     40.4,
+     8.20812545754029
+    ],
+    [
+     40.800000000000004,
+     8.20812545754029
+    ],
+    [
+     41.2,
+     7.808125457540291
+    ],
+    [
+     41.2,
+     6.2
+    ]
+   ],
+   "closed": true
+  }
+ },
+ {
+  "command": "sketch.finish",
+  "params": {}
+ },
+ {
+  "command": "solid.extrude",
+  "params": {
+   "distance": 3.0,
+   "body_name": "t_ihook0",
+   "name": "t_ihook0"
+  }
+ },
+ {
+  "command": "solid.box",
+  "params": {
+   "length": 10.300000000000004,
+   "width": 0.8000000000000007,
+   "height": 3.6500000000000004,
+   "corner": [
+    31.199999999999996,
+    16.7,
+    1.3
+   ],
+   "body_name": "t_iarm1",
+   "name": "t_iarm1"
+  }
+ },
+ {
+  "command": "sketch.create",
+  "params": {
+   "plane": "XY",
+   "offset": 1.5
+  }
+ },
+ {
+  "command": "sketch.line",
+  "params": {
+   "points": [
+    [
+     40.0,
+     16.8
+    ],
+    [
+     40.0,
+     15.191874542459708
+    ],
+    [
+     40.4,
+     14.79187454245971
+    ],
+    [
+     40.800000000000004,
+     14.79187454245971
+    ],
+    [
+     41.2,
+     15.191874542459708
+    ],
+    [
+     41.2,
+     16.8
+    ]
+   ],
+   "closed": true
+  }
+ },
+ {
+  "command": "sketch.finish",
+  "params": {}
+ },
+ {
+  "command": "solid.extrude",
+  "params": {
+   "distance": 3.0,
+   "body_name": "t_ihook1",
+   "name": "t_ihook1"
+  }
+ },
+ {
+  "command": "solid.combine",
+  "params": {
+   "target": "dock_insert",
+   "tools": [
+    "t_ifl0",
+    "t_ifl1",
+    "t_ibridge",
+    "t_iarm0",
+    "t_ihook0",
+    "t_iarm1",
+    "t_ihook1"
+   ],
+   "operation": "join",
+   "name": "join dock_insert"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 3.4000000000000004,
+   "height": 0.9500000000000028,
+   "base": [
+    30.649999999999995,
+    11.5,
+    3.0
+   ],
+   "axis": "X",
+   "body_name": "t_ishr",
+   "name": "t_ishr"
+  }
+ },
+ {
+  "command": "solid.box",
+  "params": {
+   "length": 14.8,
+   "width": 12.200000000000001,
+   "height": 1.4000000000000001,
+   "corner": [
+    31.499999999999996,
+    5.4,
+    -0.1
+   ],
+   "body_name": "t_ifloor",
+   "name": "t_ifloor"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 0.9,
+   "height": 0.52,
+   "base": [
+    33.699999999999996,
+    4.275,
+    0.46
+   ],
+   "axis": "Z",
+   "body_name": "t_ihole0",
+   "name": "t_ihole0"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 0.9,
+   "height": 0.52,
+   "base": [
+    33.699999999999996,
+    18.725,
+    0.46
+   ],
+   "axis": "Z",
+   "body_name": "t_ihole1",
+   "name": "t_ihole1"
+  }
+ },
+ {
+  "command": "solid.combine",
+  "params": {
+   "target": "dock_insert",
+   "tools": [
+    "t_ishr",
+    "t_ifloor",
+    "t_ihole0",
+    "t_ihole1"
+   ],
+   "operation": "cut",
+   "name": "cut dock_insert"
+  }
+ },
+ {
   "command": "file.export_step",
   "params": {
-   "path": "/Users/henryschwerdtner/dev/ai-insulin-pump/mechanical/out/bench/OP-100_assembly.step",
+   "path": "/home/user/ai-insulin-pump/.claude/worktrees/agent-ae9f971b9ed4471d1/mechanical/out/bench/OP-100_assembly.step",
    "bodies": [
     "bottom",
     "top",
     "carriage",
     "reservoir",
     "cannula_adapter",
+    "dock_insert",
     "plunger_core",
     "end_cap",
     "seal_a",
@@ -4987,7 +5161,7 @@
  {
   "command": "file.export_step",
   "params": {
-   "path": "/Users/henryschwerdtner/dev/ai-insulin-pump/mechanical/out/bench/OP-100_bottom.step",
+   "path": "/home/user/ai-insulin-pump/.claude/worktrees/agent-ae9f971b9ed4471d1/mechanical/out/bench/OP-100_bottom.step",
    "bodies": [
     "bottom"
    ]
@@ -4996,7 +5170,7 @@
  {
   "command": "file.export_stl",
   "params": {
-   "path": "/Users/henryschwerdtner/dev/ai-insulin-pump/mechanical/out/bench/OP-100_bottom.stl",
+   "path": "/home/user/ai-insulin-pump/.claude/worktrees/agent-ae9f971b9ed4471d1/mechanical/out/bench/OP-100_bottom.stl",
    "bodies": [
     "bottom"
    ],
@@ -5006,7 +5180,7 @@
  {
   "command": "file.export_step",
   "params": {
-   "path": "/Users/henryschwerdtner/dev/ai-insulin-pump/mechanical/out/bench/OP-100_top.step",
+   "path": "/home/user/ai-insulin-pump/.claude/worktrees/agent-ae9f971b9ed4471d1/mechanical/out/bench/OP-100_top.step",
    "bodies": [
     "top"
    ]
@@ -5015,7 +5189,7 @@
  {
   "command": "file.export_stl",
   "params": {
-   "path": "/Users/henryschwerdtner/dev/ai-insulin-pump/mechanical/out/bench/OP-100_top.stl",
+   "path": "/home/user/ai-insulin-pump/.claude/worktrees/agent-ae9f971b9ed4471d1/mechanical/out/bench/OP-100_top.stl",
    "bodies": [
     "top"
    ],
@@ -5025,7 +5199,7 @@
  {
   "command": "file.export_step",
   "params": {
-   "path": "/Users/henryschwerdtner/dev/ai-insulin-pump/mechanical/out/bench/OP-100_carriage.step",
+   "path": "/home/user/ai-insulin-pump/.claude/worktrees/agent-ae9f971b9ed4471d1/mechanical/out/bench/OP-100_carriage.step",
    "bodies": [
     "carriage"
    ]
@@ -5034,7 +5208,7 @@
  {
   "command": "file.export_stl",
   "params": {
-   "path": "/Users/henryschwerdtner/dev/ai-insulin-pump/mechanical/out/bench/OP-100_carriage.stl",
+   "path": "/home/user/ai-insulin-pump/.claude/worktrees/agent-ae9f971b9ed4471d1/mechanical/out/bench/OP-100_carriage.stl",
    "bodies": [
     "carriage"
    ],
@@ -5044,7 +5218,7 @@
  {
   "command": "file.export_step",
   "params": {
-   "path": "/Users/henryschwerdtner/dev/ai-insulin-pump/mechanical/out/bench/OP-100_reservoir.step",
+   "path": "/home/user/ai-insulin-pump/.claude/worktrees/agent-ae9f971b9ed4471d1/mechanical/out/bench/OP-100_reservoir.step",
    "bodies": [
     "reservoir"
    ]
@@ -5053,7 +5227,7 @@
  {
   "command": "file.export_stl",
   "params": {
-   "path": "/Users/henryschwerdtner/dev/ai-insulin-pump/mechanical/out/bench/OP-100_reservoir.stl",
+   "path": "/home/user/ai-insulin-pump/.claude/worktrees/agent-ae9f971b9ed4471d1/mechanical/out/bench/OP-100_reservoir.stl",
    "bodies": [
     "reservoir"
    ],
@@ -5063,7 +5237,7 @@
  {
   "command": "file.export_step",
   "params": {
-   "path": "/Users/henryschwerdtner/dev/ai-insulin-pump/mechanical/out/bench/OP-100_cannula_adapter.step",
+   "path": "/home/user/ai-insulin-pump/.claude/worktrees/agent-ae9f971b9ed4471d1/mechanical/out/bench/OP-100_cannula_adapter.step",
    "bodies": [
     "cannula_adapter"
    ]
@@ -5072,7 +5246,7 @@
  {
   "command": "file.export_stl",
   "params": {
-   "path": "/Users/henryschwerdtner/dev/ai-insulin-pump/mechanical/out/bench/OP-100_cannula_adapter.stl",
+   "path": "/home/user/ai-insulin-pump/.claude/worktrees/agent-ae9f971b9ed4471d1/mechanical/out/bench/OP-100_cannula_adapter.stl",
    "bodies": [
     "cannula_adapter"
    ],
@@ -5082,7 +5256,26 @@
  {
   "command": "file.export_step",
   "params": {
-   "path": "/Users/henryschwerdtner/dev/ai-insulin-pump/mechanical/out/bench/OP-100_plunger_core.step",
+   "path": "/home/user/ai-insulin-pump/.claude/worktrees/agent-ae9f971b9ed4471d1/mechanical/out/bench/OP-100_dock_insert.step",
+   "bodies": [
+    "dock_insert"
+   ]
+  }
+ },
+ {
+  "command": "file.export_stl",
+  "params": {
+   "path": "/home/user/ai-insulin-pump/.claude/worktrees/agent-ae9f971b9ed4471d1/mechanical/out/bench/OP-100_dock_insert.stl",
+   "bodies": [
+    "dock_insert"
+   ],
+   "quality": "fine"
+  }
+ },
+ {
+  "command": "file.export_step",
+  "params": {
+   "path": "/home/user/ai-insulin-pump/.claude/worktrees/agent-ae9f971b9ed4471d1/mechanical/out/bench/OP-100_plunger_core.step",
    "bodies": [
     "plunger_core"
    ]
@@ -5091,7 +5284,7 @@
  {
   "command": "file.export_stl",
   "params": {
-   "path": "/Users/henryschwerdtner/dev/ai-insulin-pump/mechanical/out/bench/OP-100_plunger_core.stl",
+   "path": "/home/user/ai-insulin-pump/.claude/worktrees/agent-ae9f971b9ed4471d1/mechanical/out/bench/OP-100_plunger_core.stl",
    "bodies": [
     "plunger_core"
    ],
@@ -5101,7 +5294,7 @@
  {
   "command": "file.export_step",
   "params": {
-   "path": "/Users/henryschwerdtner/dev/ai-insulin-pump/mechanical/out/bench/OP-100_end_cap.step",
+   "path": "/home/user/ai-insulin-pump/.claude/worktrees/agent-ae9f971b9ed4471d1/mechanical/out/bench/OP-100_end_cap.step",
    "bodies": [
     "end_cap"
    ]
@@ -5110,7 +5303,7 @@
  {
   "command": "file.export_stl",
   "params": {
-   "path": "/Users/henryschwerdtner/dev/ai-insulin-pump/mechanical/out/bench/OP-100_end_cap.stl",
+   "path": "/home/user/ai-insulin-pump/.claude/worktrees/agent-ae9f971b9ed4471d1/mechanical/out/bench/OP-100_end_cap.stl",
    "bodies": [
     "end_cap"
    ],
@@ -5120,7 +5313,7 @@
  {
   "command": "file.export_step",
   "params": {
-   "path": "/Users/henryschwerdtner/dev/ai-insulin-pump/mechanical/out/bench/OP-100_plunger_seal.step",
+   "path": "/home/user/ai-insulin-pump/.claude/worktrees/agent-ae9f971b9ed4471d1/mechanical/out/bench/OP-100_plunger_seal.step",
    "bodies": [
     "seal_a",
     "seal_b"
@@ -5130,7 +5323,7 @@
  {
   "command": "file.export_stl",
   "params": {
-   "path": "/Users/henryschwerdtner/dev/ai-insulin-pump/mechanical/out/bench/OP-100_plunger_seal.stl",
+   "path": "/home/user/ai-insulin-pump/.claude/worktrees/agent-ae9f971b9ed4471d1/mechanical/out/bench/OP-100_plunger_seal.stl",
    "bodies": [
     "seal_a",
     "seal_b"
@@ -5141,7 +5334,7 @@
  {
   "command": "file.export_step",
   "params": {
-   "path": "/Users/henryschwerdtner/dev/ai-insulin-pump/mechanical/out/bench/OP-100_gasket.step",
+   "path": "/home/user/ai-insulin-pump/.claude/worktrees/agent-ae9f971b9ed4471d1/mechanical/out/bench/OP-100_gasket.step",
    "bodies": [
     "gasket"
    ]
@@ -5150,7 +5343,7 @@
  {
   "command": "file.export_stl",
   "params": {
-   "path": "/Users/henryschwerdtner/dev/ai-insulin-pump/mechanical/out/bench/OP-100_gasket.stl",
+   "path": "/home/user/ai-insulin-pump/.claude/worktrees/agent-ae9f971b9ed4471d1/mechanical/out/bench/OP-100_gasket.stl",
    "bodies": [
     "gasket"
    ],

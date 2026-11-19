@@ -154,6 +154,12 @@ def draw(variant: str) -> Path:
     path.write_text("\n".join(out), encoding="utf-8")
     if shutil.which("rsvg-convert"):
         subprocess.run(["rsvg-convert", "-b", "white", "-o", str(path.with_suffix(".png")), str(path)], check=True)
+    else:                                   # Linux/CI fallback: pip install cairosvg
+        try:
+            import cairosvg
+            cairosvg.svg2png(url=str(path), write_to=str(path.with_suffix(".png")), background_color="white")
+        except ImportError:
+            print("warning: neither rsvg-convert nor cairosvg available, PNG not updated", file=sys.stderr)
     return path
 
 

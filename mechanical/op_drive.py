@@ -76,15 +76,15 @@ def build_drive(s: Script, p: dict, L: dict) -> None:
         return build_coax_parts(s, p, L)
     dr = p["drive"]
     zc, ys, ym = L["z_axis"], L["y_s"], L["y_m"]
-    gx0 = dr["gear_x0"]
+    gx0 = L["gear_x0"]
     s.cyl("gearhead", "X", (0, ym, zc), dr["motor_d"], L["gh_x"][0], L["gh_x"][1])
     s.cyl("motor", "X", (0, ym, zc), dr["motor_d"], L["mo_x"][0], L["mo_x"][1])
     # Zahnräder (Modul 0.3, z=18) als Fußkreis modelliert (Kopfkreis Ø6.0)
-    s.cyl("gear_a", "X", (0, ym, zc), L["gears"]["root_motor"], gx0, L["gear_x1"])
+    s.cyl("gear_a", "X", (0, ym, zc), L["gears"]["tip_motor"], gx0, L["gear_x1"])   # tip envelope (meshes with gear_b: see EXCLUDE pair)
     if L["nfp"]:                                   # D-shaft bore (flat modelled as a plain bore d2.04)
         s.cyl("t_gab", "X", (0, ym, zc), dr["shaft_d"] + 0.04, gx0 - 0.1, L["gear_x1"] + 0.1)
         s.cut("gear_a", ["t_gab"])
-    s.cyl("gear_b", "X", (0, ys, zc), L["gears"]["root_screw"], gx0, L["gear_x1"])
+    s.cyl("gear_b", "X", (0, ys, zc), L["gears"]["tip_screw"], gx0, L["gear_x1"])
     s.cyl("t_gbb", "X", (0, ys, zc), dr["screw_d"] + 0.04, gx0 - 0.1, L["gear_x1"] + 0.1)
     s.cut("gear_b", ["t_gbb"])
     s.cyl("leadscrew", "X", (0, ys, zc), dr["screw_d"], L["dry_bush"][0] + 0.1, L["screw_tip"])
@@ -94,7 +94,7 @@ def build_drive(s: Script, p: dict, L: dict) -> None:
     if L["nfp"]:
         x_boss0 = L["mx0"] - dr["boss_front"]
         s.cyl("motor_boss", "X", (0, ym, zc), dr["boss_d"], x_boss0, L["mx0"])
-        s.cyl("motor_shaft", "X", (0, ym, zc), dr["shaft_d"], dr["shaft_cut_x"], x_boss0)
+        s.cyl("motor_shaft", "X", (0, ym, zc), dr["shaft_d"], max(dr["shaft_cut_x"], gx0 - 0.2), x_boss0)
         s.cyl("motor_rear_boss", "X", (0, ym, zc), dr["rear_boss_d"], L["mo_x"][1], L["mot_end"])
         n = L["nfp_term"]
         s.box("motor_term", tuple(n["block_x"]), tuple(n["block_y"]), tuple(n["block_z"]))

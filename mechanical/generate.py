@@ -25,10 +25,10 @@ from pathlib import Path
 from op_build import build_model, part_sets
 from op_cmds import Script
 from op_drive import build_reservoir
-from op_layout import HERE, load_params, merge, stadium_area
+from op_layout import HERE, find_cli, load_params, merge, stadium_area
 from op_mould import build_mould
 
-CLI = os.environ.get("SOLIDCRAFT_CLI", "/Applications/SolidCraft.app/Contents/MacOS/solidcraft-cli")
+CLI = find_cli()
 
 # exploded view: translation per body group (z up, mm)
 EXPLODE = {
@@ -55,11 +55,11 @@ BENCH_EXPLODE = {
     "motor": (0, 0, 10), "gearhead": (0, 0, 10), "motor_boss": (0, 0, 10), "motor_shaft": (0, 0, 10), "motor_rear_boss": (0, 0, 10),
     "motor_term": (0, 6, 10), "motor_pins": (0, 6, 10), "coupler": (0, 0, 14), "duckbill_valve": (0, 0, 12),
     "septum": (0, -8, 4), "needle": (0, 0, -6), "needle_hub": (0, 0, -3), "dock_magnet": (0, 0, -16),
-    "cannula_adapter": (0, 0, -12), "bottom": (0, 0, -6),
+    "cannula_adapter": (0, 0, -12), "dock_insert": (0, 0, -9), "bottom": (0, 0, -6),
 }
 BENCH_COLORS = ["--body", "top:opacity=0.18,color=#9fb3c8", "--body", "bottom:opacity=0.55,color=#c9d3dd",
                 "--body", "reservoir:opacity=0.5,color=#7fd0e0", "--body", "plunger_core:color=#e0803a",
-                "--body", "carriage:color=#f0c040", "--body", "pod_board:color=#2e8b57", "--body", "cannula_adapter:color=#7a5cc7",
+                "--body", "carriage:color=#f0c040", "--body", "pod_board:color=#2e8b57", "--body", "cannula_adapter:color=#7a5cc7", "--body", "dock_insert:color=#e07ac0",
                 "--body", "ffc_cable:color=#e8c36a", "--body", "ffc_conn:color=#222222", "--body", "motor:color=#888888", "--body", "gearhead:color=#aaaaaa", "--body", "coupler:color=#d4a017", "--body", "duckbill_valve:color=#5ec8e8",
                 "--body", "dock_magnet:color=#cc2222", "--body", "magnet:color=#cc2222", "--body", "gasket:color=#111111"]
 
@@ -158,6 +158,9 @@ def shots(sc: Path, outdir: Path, tag: str, L: dict, created: set | None = None)
     bench = L["mode"] == "bench"
     COLORS = BENCH_COLORS if bench else globals()["COLORS"]
     EXPLODE = BENCH_EXPLODE if bench else globals()["EXPLODE"]
+    if created is not None:        # drop colour entries of bodies that do not exist in this variant (solidcraft-cli errors on them)
+        COLORS = [x for k, x in enumerate(COLORS) if x == "--body" and k + 1 < len(COLORS) and COLORS[k + 1].split(":")[0] in created
+                  or (k > 0 and COLORS[k - 1] == "--body" and x.split(":")[0] in created)]
     run_cli("snapshot", str(sc), "--out", str(outdir / f"{tag}_iso.png"), "--view", "iso",
             "--width", "1400", "--height", "900", *COLORS)
     ex = Script()
@@ -182,26 +185,36 @@ def shots(sc: Path, outdir: Path, tag: str, L: dict, created: set | None = None)
 
 
 def generate_coupon(p: dict) -> None:
-    """Dock fit-test coupon (6 variants, no needle) -> out/fab/dock-coupon/."""
-    from op_coupon import build_coupon
-    d = HERE / "out" / "fab" / "dock-coupon"
+    """Dock insert variant set (12 variants, embossed IDs) + pod-less fit-test fixture -> out/bench/fab/dock-inserts/."""
+    from op_coupon import add_variant_inserts, build_fixture, variants
+    p = copy.deepcopy(p)
+    p["mode"] = "bench"
+    d = HERE / "out" / "bench" / "fab" / "dock-inserts"
     d.mkdir(parents=True, exist_ok=True)
-    s, vs = build_coupon(p)
-    s.export_step(str(d / "dock_coupon.step"), ["coupon"])
-    s.export_stl(str(d / "dock_coupon.stl"), ["coupon"])
-    sj = d / "_coupon.script.json"
+    for old in d.glob("*"):
+        old.unlink()
+    s = Script()
+    vs = variants(p)
+    geo = add_variant_inserts(s, p, vs)
+    build_fixture(s, p)
+    for v in vs:
+        nm = f"dock_insert_v{v['id']:02d}"
+        s.export_step(str(d / f"insert_v{v['id']:02d}.step"), [nm])
+        s.export_stl(str(d / f"insert_v{v['id']:02d}.stl"), [nm])
+    s.export_step(str(d / "dock_fixture.step"), ["dock_fixture"])
+    s.export_stl(str(d / "dock_fixture.stl"), ["dock_fixture"])
+    sj = d / "_inserts.script.json"
     sj.write_text(json.dumps(s.dumps()), encoding="utf-8")
-    run_cli("run", str(sj), "--save", str(d / "dock_coupon.sc"), "--quiet")
+    run_cli("run", str(sj), "--save", str(d / "dock_inserts.sc"), "--quiet")
     sj.unlink()
-    run_cli("snapshot", str(d / "dock_coupon.sc"), "--out", str(d / "dock_coupon_top.png"), "--view", "top", "--width", "900",
-            "--height", "1100", "--no-grid", "--no-axes")
-    run_cli("snapshot", str(d / "dock_coupon.sc"), "--out", str(d / "dock_coupon_iso.png"), "--view", "iso", "--width", "1200",
-            "--height", "900")
+    (d / "dock_inserts.sc").unlink()
     with open(d / "variants.csv", "w", encoding="utf-8") as fh:
-        fh.write("id,cannula.A_dome_d,cannula.N_hook_h\n")
+        fh.write("id,file,cannula.A_dome_d,cannula.N_hook_h,hook_gap_mm,arm_strain_pct,arm_tip_travel_mm,arm_force_N\n")
         for v in vs:
-            fh.write(f"{v['id']},{v['A_dome_d']},{v['N_hook_h']}\n")
-    print(f"coupon written: {d}")
+            g = geo[v["id"]]
+            fh.write(f"{v['id']},insert_v{v['id']:02d}.stl,{v['A_dome_d']},{v['N_hook_h']},{2 * g['hook_in']:.3f},"
+                     f"{g['arm_strain'] * 100:.2f},{g['travel']:.3f},{g['arm_tip_force_N']:.2f}\n")
+    print(f"dock inserts + fixture written: {d}")
 
 
 def main() -> None:
@@ -215,7 +228,7 @@ def main() -> None:
     ap.add_argument("--coil-d", type=float)
     ap.add_argument("--set", action="append", default=[], metavar="group.key=value")
     ap.add_argument("--no-snapshots", action="store_true")
-    ap.add_argument("--coupon", action="store_true", help="only build the dock fit-test coupon (out/fab/dock-coupon/)")
+    ap.add_argument("--coupon", action="store_true", help="only build the dock insert variant set + fit-test fixture (out/bench/fab/dock-inserts/)")
     args = ap.parse_args()
 
     p = apply_overrides(load_params(Path(args.params) if args.params else None), args.set, args.coil_d, args.preset)
@@ -239,6 +252,8 @@ def main() -> None:
         extra = "" if args.variant == "bench" else f" battery={L['bat_x']:.1f}x{p['battery']['y']}x{p['battery']['t']}"
         print(f"{v}: L={L['length']:.2f} W={L['width']:.1f} H={L['height']:.1f}{extra} "
               f"U/step={L['drive']['u_per_step']:.5f} env={L['envelope']['bbox_volume_ml']} ml -> {out}")
+    if args.variant == "bench" and not args.sizes:
+        generate_coupon(p)
 
 
 if __name__ == "__main__":

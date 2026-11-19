@@ -114,8 +114,8 @@
   "bush_id": 1.7,
   "bush_len": 1.0,
   "bush_bore_clr": 0.05,
-  "mag_d": 2.0,
-  "mag_t": 1.0,
+  "mag_d": 3.0,
+  "mag_t": 1.5,
   "rail_w": 0.9,
   "rail_top": 1.6,
   "groove_w": 1.2,
@@ -406,7 +406,7 @@
    "pins": [
     [
      10.6,
-     18.0
+     18.5
     ],
     [
      17.2,
@@ -430,7 +430,7 @@
     ],
     [
      17.2,
-     16.0
+     20.4
     ]
    ],
    "post_d": 1.6,
@@ -481,11 +481,12 @@
    "coaxial": 27.0
   },
   "gears": {
-   "_comment": "GHW-Modellbau module 0.3 brass gears (gear-selection.md). z_motor on the NFP D-shaft (bore 2.0, Loctite 638), z_screw on the M1.6 leadscrew. centre = 0.15*(zm+zs) must be >= 5.3 mm here (motor body clear of the carriage lane): 18:18 only.",
+   "_comment": "GHW-Modellbau module 0.3 brass gears (gear-selection.md), modelled as TIP circles. DECISION 2026-11-19: 1:1 pair z18:z18, centre 5.40 (firmware feature drive-nfp-608-26-45-g1-1, 0.004938 U/step). 15:12 (centre 4.05) cannot fit: the NFP motor body beside the carriage lane needs centre >= 5.3 (carriage +Y edge y_s+2.2, motor r3.0). The ratio-equivalent 20:16 (centre 5.4, tip OD 6.6) does not fit either: cavity height is 6.7 with the axis 3.3 above the floor (zero floor clearance) and the tip would leave the +Y wall (y_m+3.3 > 31.1). 18:18 tip OD 6.0: y_m+3.0 = 31.0 vs wall 31.1. x0 = gear plane start: the R4 rear corner limits the tip circle to x >= 3.22.",
    "z_motor": 18,
    "z_screw": 18,
    "module": 0.3,
-   "min_centre": 5.3
+   "min_centre": 5.3,
+   "x0": 3.3
   },
   "lead": {
    "pocket_floor": 0.35,
@@ -505,9 +506,9 @@
   },
   "length_targets_by_layout": {
    "side_gears": {
-    "OP-70": 41.5,
-    "OP-100": 45.5,
-    "OP-200": 59.0
+    "OP-70": 42.5,
+    "OP-100": 46.5,
+    "OP-200": 60.0
    },
    "coaxial": {
     "OP-70": 65.5,
@@ -515,6 +516,40 @@
     "OP-200": 83.0
    }
   }
+ },
+ "dock_interface_frozen": {
+  "_comment": "FROZEN INTERFACE between the pod (bottom shell + end cap + pod sensor board) and the swappable DOCK INSERT (spec 8a). All insert variants fit this; the pod never changes for a new cannula fit. Pod frame: x relative to x_r1 (u), y relative to the dock axis y_c. Changing any number needs a decision entry in docs/STATUS.md.",
+  "x0_u": 4.4,
+  "tail_u": 19.9,
+  "win_half": 6.85,
+  "pocket_half": 7.6,
+  "ledge_z": [
+   0.0,
+   0.45
+  ],
+  "clr": 0.05,
+  "insert_top_gap": 0.02,
+  "detent": {
+   "x_u": 7.4,
+   "d_bump": 0.5,
+   "z": [
+    0.35,
+    0.75
+   ],
+   "hole_d": 0.9
+  },
+  "mouth_half": 6.2,
+  "needle_axis": {
+   "y": "dock.y_c",
+   "z": "cannula.C_septum_axis_z"
+  },
+  "needle_tip_x_u": "dock.hub_x0 + dock.hub_t + dock.needle_free  (pod end cap, never changes)",
+  "guard_tube": {
+   "od": 3.2,
+   "x_u_end": 6.4
+  },
+  "hall_dock_x_u_from_nominal_dome_centre": 5.6,
+  "mount": "slide-in T-slot: the insert slides in along -X through the end-wall mouth until its front face meets the pod rear dock face at x0_u; the flange (z 0.5..0.88, |dy| up to pocket_half) runs on the ledge (z 0..0.45) so it cannot drop out towards the skin or move sideways; the d0.5 ledge bumps click into d0.9 holes in the flange (detent against the pull-off force); optional: a drop of cyanoacrylate. Tool-free swap: push the insert out with a pin from the open end."
  },
  "dock": {
   "_comment": "pod side of the slide-on dock. y_c = dock axis in pod Y. arm_in = relaxed inner half spacing of the snap arms.",
