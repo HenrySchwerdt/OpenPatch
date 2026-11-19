@@ -1,0 +1,144 @@
+[
+{
+"command": "solid.cylinder",
+"params": {
+"diameter": 2.0,
+"height": 1.0,
+"base": [
+0,
+0,
+0
+],
+"axis": "Z",
+"body_name": "S_half",
+"name": "S_half"
+}
+},
+{
+"command": "solid.cylinder",
+"params": {
+"diameter": 2.0,
+"height": 1.0,
+"base": [
+0,
+0,
+0
+],
+"axis": "Z",
+"body_name": "N_half",
+"name": "N_half"
+}
+},
+{
+"command": "solid.box",
+"params": {
+"length": 2.0,
+"width": 4.0,
+"height": 2.0,
+"corner": [
+-0.0,
+-2.0,
+-0.5
+],
+"body_name": "cut_s",
+"name": "cut_s"
+}
+},
+{
+"command": "solid.combine",
+"params": {
+"target": "S_half",
+"tools": [
+"cut_s"
+],
+"operation": "cut",
+"name": "cut S_half"
+}
+},
+{
+"command": "solid.box",
+"params": {
+"length": 2.0,
+"width": 4.0,
+"height": 2.0,
+"corner": [
+-2.0,
+-2.0,
+-0.5
+],
+"body_name": "cut_n",
+"name": "cut_n"
+}
+},
+{
+"command": "solid.combine",
+"params": {
+"target": "N_half",
+"tools": [
+"cut_n"
+],
+"operation": "cut",
+"name": "cut N_half"
+}
+},
+{
+"command": "appearance.assign",
+"params": {
+"bodies": [
+"S_half"
+],
+"color": "#3a6bd2",
+"pbr": {
+"metallic": 0.0,
+"roughness": 0.45,
+"dielectric_ior": 1.5
+}
+}
+},
+{
+"command": "appearance.assign",
+"params": {
+"bodies": [
+"N_half"
+],
+"color": "#d23a3a",
+"pbr": {
+"metallic": 0.0,
+"roughness": 0.45,
+"dielectric_ior": 1.5
+}
+}
+},
+{
+"command": "file.export_step",
+"params": {
+"path": "magnet_d2x1_diametric.step",
+"bodies": [
+"S_half",
+"N_half"
+]
+}
+},
+{
+"command": "file.export_stl",
+"params": {
+"path": "magnet_d2x1_diametric.stl",
+"bodies": [
+"S_half",
+"N_half"
+],
+"quality": "standard"
+}
+},
+{
+"command": "file.export",
+"params": {
+"path": "magnet_d2x1_diametric.glb",
+"bodies": [
+"S_half",
+"N_half"
+],
+"quality": "standard"
+}
+}
+]

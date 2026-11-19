@@ -1,0 +1,36 @@
+{
+ "bench_pod_board": {
+  "pcb": "electronics/bench/pod/pod.kicad_pcb",
+  "footprints": 11,
+  "with_model": 5,
+  "footprints_without_3d_model": [
+   "DRV5032_X2SON-4_DMR0004B",
+   "NPTH_1.2mm",
+   "NPTH_1.4mm"
+  ],
+  "footprints_model_file_not_found": [],
+  "kicad_warnings": []
+ },
+ "bench_controller_board": {
+  "pcb": "electronics/bench/controller/controller.kicad_pcb",
+  "footprints": 125,
+  "with_model": 86,
+  "footprints_without_3d_model": [
+   "Buzzer_MLT-8530_8.5x8.5",
+   "Ebyte_E73-2G4M08S1C_13x18",
+   "MountingHole_3.2mm_M3",
+   "Tag-Connect_TC2030-IDC-NL_2x03_P1.27mm_Vertical",
+   "TestPoint_Pad_D1.0mm"
+  ],
+  "footprints_model_file_not_found": [
+   "SW_Push_1P1T_XKB_TS-1187A",
+   "USB_C_Receptacle_HRO_TYPE-C-31-M-12"
+  ],
+  "kicad_warnings": [
+   "Could not add 3D model for SW1.",
+   "File not found: ${KICAD10_3DMODEL_DIR}/Button_Switch_SMD.3dshapes/SW_Push_1P1T_XKB_TS-1187A.step",
+   "Could not add 3D model for J1.",
+   "File not found: ${KICAD10_3DMODEL_DIR}/Connector_USB.3dshapes/USB_C_Receptacle_HRO_TYPE-C-31-M-12.step"
+  ]
+ }
+}
