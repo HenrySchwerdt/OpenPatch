@@ -1,13 +1,14 @@
 import {
   AmbientLight, Box3, BufferGeometry, Color, DirectionalLight, EdgesGeometry, Group, HemisphereLight, LineBasicMaterial, LineSegments,
-  Mesh, MeshStandardMaterial, Object3D, PerspectiveCamera, Raycaster, Scene, Spherical, Vector2, Vector3, WebGLRenderer,
+  Mesh, MeshStandardMaterial, Object3D, PerspectiveCamera, PMREMGenerator, Raycaster, Scene, Spherical, Vector2, Vector3, WebGLRenderer,
 } from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
 interface PartInfo {
   id: string; name: string; category?: string; process?: string; lockNo?: number | null; note?: string; partNumber?: string; vendor?: string; model?: string;
-  url: string | null; bytes?: number; bbox?: number[]; tris?: number; datasheet?: string; verified?: unknown; source?: string; dims?: unknown; position?: number[] | null;
+  url: string | null; confidence?: string; material?: string; usedFor?: string; frame?: string; mass?: number | null; bytes?: number; bbox?: number[]; tris?: number; datasheet?: string; verified?: unknown; source?: string; dims?: unknown; position?: number[] | null;
 }
 interface Manifest {
   source: string; generated: string; catalogNote: string;
@@ -44,6 +45,7 @@ export async function mountViewer(host: HTMLElement): Promise<void> {
   const renderer = new WebGLRenderer({ canvas, antialias: true, alpha: true });
   renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
   const scene = new Scene();
+  scene.environment = new PMREMGenerator(renderer).fromScene(new RoomEnvironment(), 0.04).texture;
   scene.add(new HemisphereLight(0xffffff, 0x8892a0, 1.1));
   scene.add(new AmbientLight(0xffffff, 0.35));
   const key = new DirectionalLight(0xffffff, 1.6);
@@ -94,7 +96,7 @@ export async function mountViewer(host: HTMLElement): Promise<void> {
       d.append(dd);
       dl.append(d);
     };
-    add('Part number', p.partNumber);
+    add('Part number', p.partNumber || p.id);
     add('Vendor / source', p.vendor || p.source);
     add('Process', p.process);
     add('Category', p.category);
@@ -104,7 +106,11 @@ export async function mountViewer(host: HTMLElement): Promise<void> {
     }
     if (p.bbox) add('Bounding box', `${p.bbox.join(' × ')} mm`);
     if (p.dims) add('Dimensions', Array.isArray(p.dims) ? `${p.dims.join(' × ')} mm` : String(p.dims));
-    add('Model', p.model ?? (p.verified ? 'vendor-accurate (catalog)' : 'catalog'));
+    add('Model', p.model ?? (p.confidence ? `component library, confidence: ${p.confidence}` : 'component library'));
+    add('Material', p.material);
+    add('Used for', p.usedFor);
+    if (p.mass) add('Mass (estimate)', `${p.mass} g`);
+    add('Frame', p.frame);
     add('Note', p.note);
     if (p.datasheet) add('Datasheet', 'Open datasheet', p.datasheet);
     infoEl.append(dl);
@@ -210,7 +216,9 @@ export async function mountViewer(host: HTMLElement): Promise<void> {
     // fill the "3D model" column of the parts table
     for (const cell of document.querySelectorAll<HTMLElement>('[data-model-for]')) {
       const hit = live.find((l) => String(l.info.lockNo ?? '') === cell.dataset.modelFor);
-      if (hit) { cell.textContent = `${hit.info.name} (${hit.info.model ?? 'catalog'})`; }
+      const lib = (manifest.catalog ?? []).filter((c) => c.url && String(c.lockNo ?? '') === cell.dataset.modelFor);
+      const bits = [...(hit ? [`pod: ${hit.info.name} (generated envelope)`] : []), ...lib.map((c) => `library: ${c.id} (${c.confidence || 'catalog'})`)];
+      if (bits.length) cell.textContent = bits.join('; ');
     }
     controls.target.set(0, 4, 0);
     resetCamera();
@@ -295,6 +303,79 @@ export async function mountViewer(host: HTMLElement): Promise<void> {
     });
   }
 
+  // ---- component library view: every catalogued part on its own (glTF is metres, Y up)
+  const modeBox = panel.querySelector<HTMLElement>('.mode-pick');
+  const modeInputs = [...panel.querySelectorAll<HTMLInputElement>('input[name="vmode"]')];
+  const sizeBox = panel.querySelector<HTMLElement>('.size-pick');
+  const explodeLabel = explode?.closest('label');
+  const comp = new Group();
+  scene.add(comp);
+  const library = (manifest.catalog ?? []).filter((c) => c.url).sort((a, b) => (a.lockNo ?? 99) - (b.lockNo ?? 99) || a.name.localeCompare(b.name));
+  if (library.length && modeBox) modeBox.hidden = false;
+
+  async function showComponent(c: PartInfo): Promise<void> {
+    if (status) status.textContent = 'Loading part…';
+    const gltf = await loader.loadAsync(siteRoot + (c.url ?? ''));
+    const obj = gltf.scene;
+    const size = new Box3().setFromObject(obj).getSize(new Vector3());
+    if (Math.max(size.x, size.y, size.z) < 1) obj.scale.setScalar(1000); // metres -> mm
+    obj.updateMatrixWorld(true);
+    const box = new Box3().setFromObject(obj);
+    obj.position.sub(box.getCenter(new Vector3()));
+    obj.traverse((o) => {
+      if (!(o instanceof Mesh)) return;
+      const g = o.geometry as BufferGeometry;
+      if ((g.index?.count ?? g.attributes.position.count) / 3 < 120000) o.add(new LineSegments(new EdgesGeometry(g, 35), lineMat));
+    });
+    comp.clear();
+    comp.add(obj);
+    const r = Math.max(12, new Box3().setFromObject(comp).getSize(new Vector3()).length() * 2.2);
+    controls.target.set(0, 0, 0);
+    camera.position.set(-0.5 * r, 0.6 * r, 0.8 * r);
+    controls.update();
+    describe(c);
+    if (status) status.textContent = '';
+    wake();
+  }
+
+  function showLibrary(): void {
+    group.visible = false;
+    labelsEl!.replaceChildren();
+    for (const l of live) l.label.hidden = true;
+    if (sizeBox) sizeBox.hidden = true;
+    if (explodeLabel) explodeLabel.hidden = true;
+    controls.minDistance = 4;
+    list!.replaceChildren();
+    for (const c of library) {
+      const item = el('button');
+      item.type = 'button';
+      item.setAttribute('aria-pressed', 'false');
+      item.append(document.createTextNode(c.name.length > 60 ? `${c.name.slice(0, 57)}...` : c.name));
+      item.append(el('span', 'pn', c.id));
+      item.addEventListener('click', () => {
+        list!.querySelectorAll('button').forEach((b) => b.setAttribute('aria-pressed', String(b === item)));
+        void showComponent(c);
+      });
+      const li = el('li');
+      li.append(item);
+      list!.append(li);
+    }
+    infoEl?.replaceChildren(el('p', 'muted', `Select one of ${library.length} catalogued components. Each is built from the vendor drawing or datasheet; the confidence level is shown in its data.`));
+  }
+
+  for (const m of modeInputs) {
+    m.addEventListener('change', async () => {
+      if (!m.checked) return;
+      if (m.value === 'library') { showLibrary(); return; }
+      comp.clear();
+      group.visible = true;
+      if (sizeBox) sizeBox.hidden = false;
+      if (explodeLabel) explodeLabel.hidden = false;
+      controls.minDistance = 40;
+      await loadSize(sizeInputs.find((r) => r.checked)?.value ?? '100');
+    });
+  }
+
   placeholder.hidden = true;
   canvas.hidden = false;
   panel.hidden = false;
@@ -306,7 +387,7 @@ export async function mountViewer(host: HTMLElement): Promise<void> {
     sourceNote.textContent = manifest.assembly
       ? `Model source: assembly glTF (${manifest.assembly.from}). ${manifest.catalogNote}`
       : manifest.catalog
-        ? `Model source: generated CAD shells plus catalog components. ${manifest.catalogNote}`
+        ? `Pod view: generated CAD envelopes (final assembly not yet available). Component library view: ${manifest.catalogNote}, each with a confidence level (datasheet, estimated or placeholder).`
         : 'Model source: generated CAD (mechanical/out), simplified envelopes for fit and interference checks, not vendor-accurate. Motor, gears, sensor board and valves have no model yet.';
   }
   host.dataset.ready = 'true';

@@ -321,3 +321,4 @@ td.val { white-space: normal; font-family: var(--mono); font-size: 0.88rem; }
 @media print { .sidenav, .topbar, .banner ~ * .menu-btn { display: none; } body { background: #fff; } }
 @media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
 .viewer-note { position: absolute; left: 0; right: 0; bottom: 0; z-index: 2; margin: 0; padding: 0.2rem 0.5rem; font: 700 0.72rem var(--mono); background: var(--banner-bg); color: var(--banner-ink); text-align: center; pointer-events: none; }
+.viewer-panel [hidden] { display: none !important; }

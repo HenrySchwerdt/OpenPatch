@@ -110,7 +110,9 @@ const catPath = join(repo, 'mechanical', 'components', 'catalog.json');
 if (existsSync(catPath)) {
   try {
     const raw = JSON.parse(readFileSync(catPath, 'utf8'));
-    const list = Array.isArray(raw) ? raw : raw.components ?? raw.parts ?? Object.entries(raw.items ?? {}).map(([id, v]) => ({ id, ...v }));
+    // Real shape (mechanical/components/README.md): { <id>: { title, files:{glb,step,stl,png}, size_mm, bbox_mm, material, source, confidence, notes, used_for, ... } }
+    const isIdMap = !Array.isArray(raw) && Object.values(raw).every((v) => v && typeof v === 'object' && !Array.isArray(v)) && Object.values(raw).some((v) => v.files || v.title);
+    const list = Array.isArray(raw) ? raw : isIdMap ? Object.entries(raw).map(([id, v]) => ({ id, ...v })) : raw.components ?? raw.parts ?? Object.entries(raw.items ?? {}).map(([id, v]) => ({ id, ...v }));
     const cdir = dirname(catPath);
     mkdirSync(join(dst, 'components'), { recursive: true });
     const copyModel = (rel) => {
@@ -130,18 +132,19 @@ if (existsSync(catPath)) {
     const pick = (o, ...k) => k.map((x) => o[x]).find((v) => v !== undefined && v !== null && v !== '');
     manifest.catalog = list.map((c, i) => ({
       id: String(pick(c, 'id', 'key', 'ref', 'name') ?? `component-${i}`),
-      name: pick(c, 'name', 'title', 'description') ?? '',
+      name: pick(c, 'title', 'name', 'description') ?? '',
       partNumber: pick(c, 'mpn', 'part_number', 'partNumber', 'pn', 'manufacturer_pn') ?? '',
       vendor: pick(c, 'manufacturer', 'vendor', 'brand', 'supplier') ?? '',
       category: pick(c, 'category', 'type', 'group') ?? 'component',
-      lockNo: pick(c, 'lock_no', 'lockNo', 'lock', 'parts_lock') ?? null,
+      lockNo: pick(c, 'lock_no', 'lockNo', 'lock', 'parts_lock') ?? (/PARTS-LOCK #(\d+)/.exec(c.used_for ?? '')?.[1] ? Number(/PARTS-LOCK #(\d+)/.exec(c.used_for)[1]) : null),
       datasheet: pick(c, 'datasheet', 'datasheet_url', 'datasheetUrl', 'url') ?? '',
-      dims: pick(c, 'dims_mm', 'dimensions_mm', 'dims', 'size_mm', 'bbox_mm') ?? null,
+      dims: pick(c, 'dims_mm', 'dimensions_mm', 'dims', 'size_mm') ?? null,
+      confidence: c.confidence ?? '', material: c.material ?? '', usedFor: c.used_for ?? '', frame: c.frame ?? '', mass: c.mass_g_estimate ?? null,
       position: pick(c, 'position_mm', 'position', 'origin_mm') ?? null,
       verified: pick(c, 'verified', 'vendor_accurate', 'status') ?? null,
       source: pick(c, 'source', 'drawing', 'reference') ?? '',
       note: pick(c, 'note', 'notes', 'remark') ?? '',
-      url: copyModel(pick(c, 'gltf', 'glb', 'model', 'file', 'path')),
+      url: copyModel(c.files?.glb ?? pick(c, 'gltf', 'glb', 'model', 'file', 'path')),
     }));
     manifest.source = 'catalog';
     manifest.catalogNote = `${manifest.catalog.length} components from mechanical/components/catalog.json`;
@@ -149,10 +152,10 @@ if (existsSync(catPath)) {
 }
 
 // assembly glTF: components dir first, then bench output
-const asmDirs = [join(repo, 'mechanical', 'components'), join(repo, 'mechanical', 'out', 'bench'), join(repo, 'mechanical', 'out')];
+const asmDirs = [...(process.env.OP_ASSEMBLY_DIR ? [process.env.OP_ASSEMBLY_DIR] : []), join(repo, 'mechanical', 'components'), join(repo, 'mechanical', 'out', 'bench'), join(repo, 'mechanical', 'out')];
 for (const d of asmDirs) {
   if (!existsSync(d) || manifest.assembly) continue;
-  const f = readdirSync(d).filter((n) => /assembly.*\.(glb|gltf)$/i.test(n)).sort()[0];
+  const f = readdirSync(d).filter((n) => /assembly.*\.(glb|gltf)$/i.test(n) && !/^bench_pod_board/.test(n)).sort()[0];
   if (f) {
     mkdirSync(join(dst, 'components'), { recursive: true });
     copyFileSync(join(d, f), join(dst, 'components', f));

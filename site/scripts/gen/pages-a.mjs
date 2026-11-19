@@ -153,7 +153,7 @@ export function design(ctx) {
 <header class="pagehead">
   <p class="kicker">Design</p>
   <h1>Mechanical design and 3D explorer</h1>
-  <p class="lede">Explode the pod, click a part, read its datasheet entry. The models are generated envelopes for fit and interference checks. They are <strong>not</strong> vendor-accurate yet: motor, gears, sensor board and valves are still to be modelled from the vendor drawings.</p>
+  <p class="lede">Explode the pod, click a part, read its datasheet entry. The models are generated envelopes for fit and interference checks. The pod view uses generated envelopes for fit and interference checks. The component library view shows the bought-in parts (motor, gears, magnets, ICs, connectors, boards) modelled from vendor drawings and datasheets, each with a confidence level. The final pod assembly will replace the envelopes when it lands.</p>
 </header>
 
 <section aria-labelledby="v-h" class="viewer-section">
@@ -171,6 +171,10 @@ export function design(ctx) {
       </div>
     </div>
     <div class="viewer-panel" hidden>
+      <fieldset class="mode-pick" hidden><legend>View</legend>
+        <label><input type="radio" name="vmode" value="pod" checked /> Pod (generated CAD)</label>
+        <label><input type="radio" name="vmode" value="library" /> Component library</label>
+      </fieldset>
       <fieldset class="size-pick"><legend>Size</legend>
         <label><input type="radio" name="vsize" value="70" /> OP-70</label>
         <label><input type="radio" name="vsize" value="100" checked /> OP-100</label>

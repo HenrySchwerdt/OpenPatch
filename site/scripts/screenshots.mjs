@@ -49,6 +49,7 @@ for (const theme of ['light', 'dark']) {
         }).catch(() => 0);
         if (!lit) problems.push(`[${w}/${theme}] viewer canvas empty (software GL may not support preserveDrawingBuffer)`);
       }
+      await page.evaluate(() => window.scrollTo(0, 0));
       const top = await page.evaluate(() => { const b = document.querySelector('.banner'); const r = b?.getBoundingClientRect(); return b && r.top <= 0.5 && document.elementFromPoint(5, 5)?.closest('.banner') && r.height > 20 ? Math.round(r.height) : 0; });
       if (!top) problems.push(`[${w}/${theme}] ${name}: safety banner is not the first visible element`);
       const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
