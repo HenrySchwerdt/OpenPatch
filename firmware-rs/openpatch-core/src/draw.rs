@@ -61,7 +61,7 @@ impl<H: Hal> Pump<H> {
     /// Cancel a running draw (partial volume is booked). No-op when idle.
     pub(crate) fn draw_abort(&mut self) {
         if self.draw_running() {
-            self.draw_finish(draw_state::ABORTED);
+            self.draw_finish(draw_state::ABORTED, 3); // cancelled
         }
     }
 
@@ -72,12 +72,13 @@ impl<H: Hal> Pump<H> {
         }
         // safety gates re-checked every chunk
         if self.pod.docked || !self.de.is_suspended() || !self.sv.motor_allowed() {
-            self.draw_finish(draw_state::ABORTED);
+            let reason = if self.pod.docked { 1 } else { 2 }; // docked / fault
+            self.draw_finish(draw_state::ABORTED, reason);
             return;
         }
         let Some(a0) = self.hal.angle_read() else {
             self.sv.raise(Raise::new(codes::ANGLE_CHANNEL_LOST));
-            self.draw_finish(draw_state::ABORTED);
+            self.draw_finish(draw_state::ABORTED, 2);
             return;
         };
         let steps = Pulses(self.draw.remaining_steps.min(DRAW_CHUNK_STEPS));
@@ -89,16 +90,31 @@ impl<H: Hal> Pump<H> {
         if let Some(f) = self.hal.motor_fault() {
             self.last_motor_fault = Some(f);
             self.raise_motor_fault(f, executed);
+            if f == crate::hal::MotorFault::SupplyMissing {
+                // the reverse burst executed nothing because VMOT never came up: the bench interlock limitation
+                let cause = self.hal_rec;
+                self.sv.raise(Raise::new(codes::DRAW_BLOCKED_NO_VMOT).a(executed.0 as i32).caused_by(cause));
+            }
             self.draw.executed_steps += executed.0;
-            self.draw_finish(draw_state::ABORTED);
+            self.draw_finish(draw_state::ABORTED, 2);
             return;
         }
         let peak = self.hal.motor_current_peak_ma();
         let Some(a1) = self.hal.angle_read() else {
             self.sv.raise(Raise::new(codes::ANGLE_CHANNEL_LOST));
-            self.draw_finish(draw_state::ABORTED);
+            self.draw_finish(draw_state::ABORTED, 2);
             return;
         };
+        // A04: reverse pulses must DECREASE the angle. A burst that moved it forward proves a wrong
+        // direction polarity (which would let an undocked pod run forward): latched.
+        let rose = a1.0 - a0.0;
+        let expected = self.pcal.expected_angle(executed).0;
+        if executed.0 >= DIR_INVERTED_MIN_STEPS && rose * 100 > expected * DIR_INVERTED_PCT {
+            self.sv.raise(Raise::new(codes::DIR_INVERTED).a(rose as i32).b(expected as i32).c(executed.0));
+            self.draw.executed_steps += executed.0;
+            self.draw_finish(draw_state::ABORTED, 2);
+            return;
+        }
         // steps confirmed by the angle sensor (reverse travel), never more than commanded
         let travelled = (a0.0 - a1.0).max(0);
         let measured = Pulses(((travelled as u128 * self.pcal.turn_x100 as u128) / (ANGLE_COUNTS_PER_TURN as u128 * 100)) as u32);
@@ -117,16 +133,17 @@ impl<H: Hal> Pump<H> {
         }
         let current_stall = self.draw.high_current >= OCCLUSION_CURRENT_BURSTS;
         if executed.0 < steps.0 || slipped || current_stall {
-            self.draw_finish(draw_state::STALLED);
+            self.draw_finish(draw_state::STALLED, 4);
         } else if self.draw.remaining_steps == 0 {
-            self.draw_finish(draw_state::DONE);
+            self.draw_finish(draw_state::DONE, 0);
         } else {
             let d = self.draw.drawn_mu;
             self.notify(Notification::DrawProgress(d));
         }
     }
 
-    fn draw_finish(&mut self, state: u8) {
+    /// `reason` (for `7-73-001` inst): 1 docked, 2 fault, 3 cancelled, 4 stall; 0 = finished normally.
+    fn draw_finish(&mut self, state: u8, reason: u8) {
         self.draw.state = state;
         self.hal.motor_enable(false);
         let drawn = Pulses(self.draw.confirmed_steps);
@@ -152,6 +169,9 @@ impl<H: Hal> Pump<H> {
                 self.notify(Notification::DrawStalled(self.draw.drawn_mu));
             }
             _ => self.log_ev(EventType::DrawStall, d, req),
+        }
+        if state == draw_state::ABORTED || state == draw_state::STALLED {
+            self.sv.raise(Raise::new(codes::DRAW_ABORTED).inst(reason).a(d).b(req));
         }
     }
 }

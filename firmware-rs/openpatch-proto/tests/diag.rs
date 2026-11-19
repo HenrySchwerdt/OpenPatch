@@ -121,7 +121,7 @@ proptest! {
     /// TLV soup built from the diagnostic tags only, with random lengths.
     #[test]
     fn fuzz_diag_tag_soup(items in prop::collection::vec((0x25u8..=0x30, prop::collection::vec(any::<u8>(), 0..70)), 0..12)) {
-        let mut buf = [0u8; 600];
+        let mut buf = [0u8; 1200];
         let mut w = TlvWriter::new(&mut buf);
         w.put_u8(tag::RESULT, 0);
         for (t, v) in &items {

@@ -141,6 +141,7 @@ impl<H: Hal> Pump<H> {
         p.hal.buzzer(Buzzer::Off);
         p.log_ev(EventType::Boot, 0, 0);
         p.sv.raise(Raise::new(codes::BOOT).a(FW_VERSION as i32));
+        p.raise_reset_cause();
         p.observe();
         if !p.sv.faults().is_empty() {
             p.sync_faults(Faults::NONE); // e.g. NO_CALIBRATION: log + alarm, driver stays off
@@ -303,8 +304,13 @@ impl<H: Hal> Pump<H> {
             self.low_batt_reported = true;
             let mv = self.hal.battery_mv();
             self.log_ev(EventType::LowBattery, mv as i32, 0);
+            // inst 1 = bench VBUS source
+            self.sv.raise(Raise::new(codes::BATTERY_LOW).inst(1).a(mv as i32).b(BATTERY_LOW_MV as i32));
         } else if !self.sv.battery_low() {
             self.low_batt_reported = false;
+        }
+        if battery_mv >= BATTERY_LOW_MV + BATTERY_HYSTERESIS_MV {
+            self.sv.diag_mut().clear(codes::BATTERY_LOW); // condition gone, with the 100 mV hysteresis
         }
     }
 
@@ -377,6 +383,28 @@ impl<H: Hal> Pump<H> {
         let r = Raise::new(codes::STEPS_SHORT_OF_APPROVAL).a(executed.0 as i32).b(approved.0 as i32);
         let cause = self.hal_rec;
         self.sv.raise(if cause != 0 { r.caused_by(cause) } else { r });
+    }
+
+    /// Boot: why did the MCU start? Anything other than power-on or a commanded reset is an unexpected
+    /// reset (`7-74-002`; a brown-out also `1-01-002`, its root). The pod boots SUSPENDED anyway.
+    fn raise_reset_cause(&mut self) {
+        use crate::hal::ResetCause;
+        let cause = self.hal.reset_cause();
+        let crumb = self.hal.breadcrumb();
+        let code = match cause {
+            ResetCause::PowerOn | ResetCause::Commanded => return,
+            ResetCause::Watchdog => 1,
+            ResetCause::Brownout => 2,
+            ResetCause::Lockup => 3,
+            ResetCause::Other => 4,
+        };
+        let mut root = 0;
+        if cause == ResetCause::Brownout {
+            let mv = self.hal.battery_mv();
+            root = self.sv.raise(Raise::new(codes::BROWNOUT_RESET).a(mv as i32));
+        }
+        let r = Raise::new(codes::UNEXPECTED_RESET).a(code).c(crumb);
+        self.sv.raise(if root != 0 { r.caused_by(root) } else { r });
     }
 
     /// Events the HAL detected on its own (as data): raised with the HAL's own code.
@@ -558,6 +586,7 @@ impl<H: Hal> Pump<H> {
         if !self.pod.wear_warned && self.pod.wear >= WEAR_WARN {
             self.pod.wear_warned = true;
             self.log_ev(EventType::WearWarning, minutes, 0);
+            self.sv.raise(Raise::new(codes::WEAR_WARNING).a(minutes));
             if self.sv.faults().is_empty() {
                 self.hal.buzzer(Buzzer::Beep);
             }
@@ -582,6 +611,12 @@ impl<H: Hal> Pump<H> {
             self.tick_overruns += 1;
         }
         let before = self.sv.faults();
+        if wear_dt.0 > TICK_OVERRUN_MS {
+            // warning only: `7-7B-002` (F at 5 s) would add a fault bit the C reference does not have
+            self.sv.raise(Raise::new(codes::TICK_OVERRUN).a(wear_dt.0 as i32).b(TICK_OVERRUN_MS as i32));
+        } else {
+            self.sv.diag_mut().clear(codes::TICK_OVERRUN);
+        }
 
         self.refresh_dock();
         if self.pod.active && self.hal_charger() {
@@ -614,6 +649,9 @@ impl<H: Hal> Pump<H> {
             self.low_res_reported = true;
             let rem = self.res.remaining().0 as i32;
             self.log_ev(EventType::LowReservoir, rem, 0);
+            self.sv.raise(Raise::new(codes::RESERVOIR_LOW).a(rem));
+        } else if !self.res.is_low() {
+            self.sv.diag_mut().clear(codes::RESERVOIR_LOW); // refilled
         }
         self.drain_hal_diag();
         self.observe();
@@ -957,6 +995,7 @@ impl<H: Hal> Pump<H> {
         self.de.suspend(); // stays suspended until Resume, so the connector can be primed first
         self.pod.pending_temp = a.temp;
         self.sv.reset_wear();
+        self.sv.diag_mut().clear(codes::WEAR_WARNING);
         self.pod.wear = Millis(0);
         self.pod.wear_warned = false;
         self.pod.activation_id = a.activation_id;
