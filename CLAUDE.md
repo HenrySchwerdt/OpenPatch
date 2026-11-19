@@ -10,6 +10,7 @@
 - All documentation, code comments and UI text in English.
 - Safety limits (spec §7) must never be relaxed silently.
 - The hardware interlock (motor only with MCU enable **and** watchdog) is kept in every revision.
+- Firmware is written in **Rust** (`firmware-rs/`, Embassy, `no_std` core with `forbid(unsafe_code)`); `firmware/` (C/Zephyr) is the frozen reference for differential tests only.
 - The firmware core and the Swift core are developed test-first. All tests must be green before committing.
 - Mechanics: run `mechanical/check.py` after every change. Height ≤ 8.5 mm.
 - Assembly without a soldering iron (spec §1a).
