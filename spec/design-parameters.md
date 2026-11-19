@@ -61,6 +61,10 @@
 - Hard targets incl. battery and electronics: **OP-100 ≤ 45 mm**, **OP-200 ≤ 52 mm** (Omnipod DASH: 52 × 39 × 14.5 mm, 200 U), width ≤ 32 mm, height ≤ 8.5 mm. A design that misses them is not accepted silently; the gap and the next lever are reported.
 - Levers, in order: (1) stack battery + board above the dock tunnel (≈ 3 mm free above the cannula head) instead of a tail; (2) low-profile radio (≤ 1.3 mm) on the lid side + spring contacts instead of connectors; (3) coaxial leadscrew in the reservoir axis (Omnipod-style) + wider bore → shorter stroke; (4) minimal fluid path without valve (§3c).
 
+## 2c. Sizes for v0.1.0 (decision 2026-11-19, user)
+
+- **Two sizes only: OP-100 and OP-200.** OP-70 is dropped (with OP-100 ≤ 45 mm a separate 70 U pod is not worth the extra CAD, tests and reservoir orders). Existing OP-70 bench files stay as history; new work targets OP-100 and OP-200.
+
 ## 2a. Transparent lid (decision 2026-11-19, user)
 
 - The lid is printed in **clear resin** (JLC3DP clear SLA, polished/clear-coated outside) so reservoir, water level, plunger and drive are visible. The **fill window slot in the lid is removed**; the fill scale (ticks every 10 U, long every 50 U) becomes a shallow engraving on the lid inner face above the plunger travel.
