@@ -32,7 +32,7 @@ def dock_geometry(p: dict, xr: float, wall: float) -> dict:
     arm_in = R + dk["arm_gap_clr"]                        # relaxed inner half spacing of the arms
     floor_half = arm_in + dk["arm_t"] + 0.1               # floor opening clears plate AND the arms (no fusing in MJF)
     mouth_half = max(cn["J_base_w"] / 2 + 0.3, R + 0.3)
-    x_arm0 = xr + dk["root_len"]                          # start of the free (flexing) length
+    x_arm0 = xr + dk["block_len"] + dk["root_len"]         # start of the free (flexing) length (behind the cap and the bridge)
     x_hook = x_d + cn["G_latch_dx"]
     flex_len = x_hook - x_arm0                            # free length root -> hook centre
     t = dk["arm_t"]
@@ -50,19 +50,18 @@ def dock_geometry(p: dict, xr: float, wall: float) -> dict:
 
 
 def build_dock_joins(s: Script, p: dict, L: dict) -> list[str]:
-    """Solid dock structure of the bottom shell: end block, guard tube, two snap arms with hooks."""
+    """Shell part of the dock: bridge bar behind the end cap + two snap arms with ramped hooks.
+    (The cap with septum, duckbill, needle guard is a separate part: op_cap.py.)"""
     cn, dk, D = p["cannula"], p["dock"], L["dock"]
     xr, yc, zn, wall = L["x_r1"], D["y_c"], D["z_n"], L["wall"]
-    out = [s.box("t_dblock", (xr, xr + dk["block_len"]), (yc - dk["block_half_y"], yc + dk["block_half_y"]),
-                 (wall - 0.1, zn + dk["block_up"]))]
-    out.append(s.cyl("t_dshroud", "X", (0, yc, zn), cn["O_cyl_od"], xr + dk["block_len"] - 0.05, D["shroud_end"]))
     za, zb = dk["arm_z"]
     ai = D["arm_in"]
+    bx0 = xr + dk["block_len"]
+    bx1 = bx0 + dk["root_len"]
+    out = [s.box("t_dbridge", (bx0, bx1), (yc - ai - dk["arm_t"], yc + ai + dk["arm_t"]), (wall - 0.1, zn + dk["block_up"]))]
     for k, sg in enumerate((-1, 1)):
         y0, y1 = sorted((yc + sg * ai, yc + sg * (ai + dk["arm_t"])))
-        out.append(s.box(f"t_darm{k}", (xr + dk["root_len"] - 0.3, D["arm_x"][1]), (y0, y1), (za, zb)))
-        out.append(s.box(f"t_droot{k}", (xr, xr + dk["root_len"]),
-                         tuple(sorted((yc + sg * (dk["block_half_y"] - 0.1), yc + sg * (ai + dk["arm_t"])))), (wall - 0.1, zb)))
+        out.append(s.box(f"t_darm{k}", (bx1 - 0.3, D["arm_x"][1]), (y0, y1), (za, zb)))
         w2, rmp = dk["hook_w"] / 2, dk["hook_ramp"]
         ri, ra = D["hook_in"], ai + 0.1
         prof = [(-w2, ra), (-w2, ri + rmp), (-w2 + rmp, ri), (w2 - rmp, ri), (w2, ri + rmp), (w2, ra)]
@@ -72,13 +71,13 @@ def build_dock_joins(s: Script, p: dict, L: dict) -> list[str]:
 
 
 def build_dock_cuts(s: Script, p: dict, L: dict) -> list[str]:
-    cn, dk, D, nd = p["cannula"], p["dock"], L["dock"], p["needle"]
+    cn, dk, D = p["cannula"], p["dock"], L["dock"]
     xr, yc, zn = L["x_r1"], D["y_c"], D["z_n"]
-    cuts = [s.cyl("t_kbore", "X", (0, yc, zn), dk["hub_d"] + dk["hub_clr"], D["x_h0"], D["shroud_end"] + 0.1),
-            s.cyl("t_kchan", "X", (0, yc, zn), nd["channel_d"], xr - 0.5, D["x_h0"] + 0.1)]
-    # floor opening under the channel (the dome + patch footprint) from the block face to the mouth
-    cuts.append(s.box("t_kfloor", (xr + dk["block_len"], L["length"] + 0.1), (yc - D["floor_half"], yc + D["floor_half"]),
-                      (-0.1, dk["arm_z"][0])))
+    bx0 = xr + dk["block_len"]
+    bx1 = bx0 + dk["root_len"]
+    cuts = [s.cyl("t_kshr", "X", (0, yc, zn), cn["O_cyl_od"] + 0.2, bx0 - 0.1, bx1 + 0.1)]      # hole for the guard tube of the end cap
+    # floor opening under the channel (dome + patch footprint) from the bridge to the mouth
+    cuts.append(s.box("t_kfloor", (bx1, L["length"] + 0.1), (yc - D["floor_half"], yc + D["floor_half"]), (-0.1, dk["arm_z"][0])))
     return cuts
 
 

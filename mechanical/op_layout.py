@@ -50,28 +50,36 @@ def compute_layout(p: dict, variant: str) -> dict:
     res_h_out = rs["h_in"] + 2 * rs["wall"]
     res_w_out = rs["w_in"] + 2 * rs["wall"]
     lin = rs["dead"] + stroke + rs["plunger_len"] + rs["plunger_gap"]
-    res_len = lin + 2 * rs["wall"]
+    bench0 = p.get("mode") == "bench"
+    end_wall = p["reservoir_frozen"]["end_wall"] if bench0 else rs["wall"]
+    res_len = lin + rs["wall"] + end_wall
     z_axis = wall + res_h_out / 2
     gear_x1 = dr["gear_x0"] + dr["gear_t"]
-    x_r0 = gear_x1 + fit["clr_small"]
-    x_r1 = x_r0 + res_len
-    x_in0, x_in1 = x_r0 + rs["wall"], x_r1 - rs["wall"]
+    bench = p.get("mode") == "bench"
     y_r0 = yi0 + sp["gap_y"]
     y_r = y_r0 + res_w_out / 2
-
     y_s = y_r0 + res_w_out + dr["lane_clr"] + dr["screw_lane_w"] / 2
+    coax = None
+    if bench:                                   # NFP motor coaxial with the leadscrew: the reservoir lane starts behind the coupler
+        from op_coax import coax_geometry
+        coax = coax_geometry(p, wall, y_s, z_axis)
+        x_r0 = coax["x_carriage_min"] - rs["plunger_gap"] - rs["wall"]
+    else:
+        x_r0 = gear_x1 + fit["clr_small"]
+    x_r1 = x_r0 + res_len
+    x_in0, x_in1 = x_r0 + rs["wall"], x_r1 - end_wall
     y_m = y_s + dr["gear_center"]
 
     xrear_full = x_in0 + rs["plunger_gap"]
     xrear = xrear_full + stroke * (1.0 - rs["fill_fraction"])
     xrear_empty = xrear_full + stroke
 
-    mx0 = gear_x1 + fit["clr_small"]
+    mx0 = gear_x1 + fit["clr_small"] + dr.get("boss_front", 0.0)      # body front face (after the front boss)
     gh_x = (mx0, mx0 + dr["gearhead_len"])
     mo_x = (gh_x[1], gh_x[1] + dr["motor_len"])
     mot_end = mo_x[1] + dr["motor_tail"]
 
-    x_end = x_r1 + co["d"] + 2 * co["gap_x"]
+    x_end = x_r1 + (p["bench"]["tail_len"] if bench else co["d"] + 2 * co["gap_x"])
     length = x_end + wall
     from op_dock import dock_geometry
     D = dock_geometry(p, x_r1, wall)
@@ -94,6 +102,8 @@ def compute_layout(p: dict, variant: str) -> dict:
 
     c_x = x_r1 + sc["c_dx"]
     screws = [{"x": sc["dry_x"], "y": y} for y in sc["dry_y"]] + [{"x": c_x, "y": sc["c_y"]}]
+    if bench:                                   # long pod: two more lid screws beside the motor (free area y < 19)
+        screws += [{"x": 14.0, "y": 4.2}, {"x": 14.0, "y": 16.5}]
 
     bat_x0 = max(x_r1 + bt["margin"], mot_end + 0.3, c_x + sc["boss_d"] / 2 + 0.3, mag_x[1] + 0.3)
     bat_x1 = x_end - bt["margin"]
@@ -153,8 +163,21 @@ def compute_layout(p: dict, variant: str) -> dict:
         hp["on_module"] = on_mod
     btn_pos = {"x": btn_x, "y": bz_y0 + (bz_y1 - bz_y0) / 2}
 
+    nfp_term = None
+    if "boss_front" in dr:
+        xt = mx0 + dr["term_x"]
+        bx, by, bz = dr["term_block"]
+        zb = z_axis - dr["motor_d"] / 2 - bz
+        nfp_term = {"x_center": xt, "block_x": [xt - bx / 2, xt + bx / 2], "block_y": [y_m - by / 2, y_m + by / 2],
+                    "block_z": [zb, zb + bz],
+                    "pins_x": [xt, xt + dr["pin_tab_len"]], "pins_y": [y_m - 1.5 * dr["term_pitch"] - 0.15, y_m + 1.5 * dr["term_pitch"] + 0.15],
+                    "pins_z": [zb - dr["pin_tab_t"], zb],
+                    "pin_y_centres": [round(y_m + k * dr["term_pitch"], 3) for k in (1.5, 0.5, -0.5, -1.5)],
+                    "pin_order_drawing_left_to_right": ["B", "A-", "B+", "A"],
+                    "pins_as_supplied_tip_z": round(zb - dr["pin_len"], 3)}
     out = {
-        "mode": p.get("mode", "integrated"),
+        "nfp_term": nfp_term, "coax": coax,
+        "mode": p.get("mode", "integrated"), "nfp": "boss_front" in dr, "mx0": mx0,
         "dock": D, "variant": variant, "stroke": stroke, "length": length, "width": W,
         "height": sh["height"], "wall": wall, "xi0": wall, "yi0": yi0, "yi1": yi1,
         "x_end": x_end, "res_len": res_len, "res_h_out": res_h_out, "res_w_out": res_w_out,

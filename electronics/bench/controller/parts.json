@@ -1,0 +1,1172 @@
+{
+ "U1": {
+  "ref": "U1",
+  "value": "E73-2G4M08S1CX",
+  "fp": "Ebyte_E73-2G4M08S1C_13x18",
+  "lcsc": "C2764963",
+  "mpn": "E73-2G4M08S1CX",
+  "bom": true,
+  "note": "nRF52840 module, IPEX antenna connector (C variant C356849 has ceramic antenna, same footprint)",
+  "side": "F"
+ },
+ "C4": {
+  "ref": "C4",
+  "value": "100nF",
+  "fp": "C_0402_1005Metric",
+  "lcsc": "C1525",
+  "mpn": "CL05B104KO5NNNC",
+  "bom": true,
+  "note": "",
+  "side": "F"
+ },
+ "C5": {
+  "ref": "C5",
+  "value": "4.7uF",
+  "fp": "C_0402_1005Metric",
+  "lcsc": "C23733",
+  "mpn": "CL05A475MP5NRNC",
+  "bom": true,
+  "note": "",
+  "side": "F"
+ },
+ "Y1": {
+  "ref": "Y1",
+  "value": "32.768kHz 12.5pF",
+  "fp": "Crystal_SMD_3215-2Pin_3.2x1.5mm",
+  "lcsc": "C32346",
+  "mpn": "Q13FC13500004",
+  "bom": true,
+  "note": "",
+  "side": "F"
+ },
+ "C6": {
+  "ref": "C6",
+  "value": "15pF",
+  "fp": "C_0402_1005Metric",
+  "lcsc": "C1548",
+  "mpn": "0402CG150J500NT",
+  "bom": true,
+  "note": "",
+  "side": "F"
+ },
+ "C7": {
+  "ref": "C7",
+  "value": "15pF",
+  "fp": "C_0402_1005Metric",
+  "lcsc": "C1548",
+  "mpn": "0402CG150J500NT",
+  "bom": true,
+  "note": "",
+  "side": "F"
+ },
+ "J1": {
+  "ref": "J1",
+  "value": "TYPE-C-31-M-12 (power only)",
+  "fp": "USB_C_Receptacle_HRO_TYPE-C-31-M-12",
+  "lcsc": "C165948",
+  "mpn": "TYPE-C-31-M-12",
+  "bom": true,
+  "note": "",
+  "side": "F"
+ },
+ "U3": {
+  "ref": "U3",
+  "value": "USBLC6-2SC6",
+  "fp": "SOT-23-6",
+  "lcsc": "C7519",
+  "mpn": "USBLC6-2SC6",
+  "bom": true,
+  "note": "",
+  "side": "F"
+ },
+ "R1": {
+  "ref": "R1",
+  "value": "5.1k",
+  "fp": "R_0402_1005Metric",
+  "lcsc": "C25905",
+  "mpn": "0402WGF5101TCE",
+  "bom": true,
+  "note": "",
+  "side": "F"
+ },
+ "R2": {
+  "ref": "R2",
+  "value": "5.1k",
+  "fp": "R_0402_1005Metric",
+  "lcsc": "C25905",
+  "mpn": "0402WGF5101TCE",
+  "bom": true,
+  "note": "",
+  "side": "F"
+ },
+ "U2": {
+  "ref": "U2",
+  "value": "XC6206P332MR-G",
+  "fp": "SOT-23",
+  "lcsc": "C5446",
+  "mpn": "XC6206P332MR-G",
+  "bom": true,
+  "note": "Torex pinout 1 GND, 2 OUT, 3 IN (differs from clones)",
+  "side": "F"
+ },
+ "C1": {
+  "ref": "C1",
+  "value": "1uF",
+  "fp": "C_0402_1005Metric",
+  "lcsc": "C52923",
+  "mpn": "CL05A105KA5NQNC",
+  "bom": true,
+  "note": "",
+  "side": "F"
+ },
+ "C2": {
+  "ref": "C2",
+  "value": "10uF",
+  "fp": "C_0603_1608Metric",
+  "lcsc": "C19702",
+  "mpn": "CL10A106KP8NNNC",
+  "bom": true,
+  "note": "",
+  "side": "F"
+ },
+ "LD1": {
+  "ref": "LD1",
+  "value": "green 3V3",
+  "fp": "LED_0805_2012Metric",
+  "lcsc": "C2297",
+  "mpn": "KT-0805G",
+  "bom": true,
+  "note": "",
+  "side": "F"
+ },
+ "R3": {
+  "ref": "R3",
+  "value": "100R",
+  "fp": "R_0402_1005Metric",
+  "lcsc": "C25076",
+  "mpn": "0402WGF1000TCE",
+  "bom": true,
+  "note": "",
+  "side": "F"
+ },
+ "J2": {
+  "ref": "J2",
+  "value": "TC2030-IDC-NL",
+  "fp": "Tag-Connect_TC2030-IDC-NL_2x03_P1.27mm_Vertical",
+  "lcsc": null,
+  "mpn": null,
+  "bom": false,
+  "note": "",
+  "side": "F"
+ },
+ "J3": {
+  "ref": "J3",
+  "value": "SWD 2x5 1.27 mm",
+  "fp": "PinHeader_2x05_P1.27mm_Vertical_SMD",
+  "lcsc": "C41376037",
+  "mpn": "PZ1.27-2x5P TP",
+  "bom": true,
+  "note": "",
+  "side": "F"
+ },
+ "R4": {
+  "ref": "R4",
+  "value": "100k",
+  "fp": "R_0402_1005Metric",
+  "lcsc": "C25741",
+  "mpn": "0402WGF1003TCE",
+  "bom": true,
+  "note": "",
+  "side": "F"
+ },
+ "SW1": {
+  "ref": "SW1",
+  "value": "TS-1187A-B-A-B",
+  "fp": "SW_Push_1P1T_XKB_TS-1187A",
+  "lcsc": "C318884",
+  "mpn": "TS-1187A-B-A-B",
+  "bom": true,
+  "note": "",
+  "side": "F"
+ },
+ "R5": {
+  "ref": "R5",
+  "value": "100k",
+  "fp": "R_0402_1005Metric",
+  "lcsc": "C25741",
+  "mpn": "0402WGF1003TCE",
+  "bom": true,
+  "note": "",
+  "side": "F"
+ },
+ "LD2": {
+  "ref": "LD2",
+  "value": "green status",
+  "fp": "LED_0805_2012Metric",
+  "lcsc": "C2297",
+  "mpn": "KT-0805G",
+  "bom": true,
+  "note": "",
+  "side": "F"
+ },
+ "R6": {
+  "ref": "R6",
+  "value": "100R",
+  "fp": "R_0402_1005Metric",
+  "lcsc": "C25076",
+  "mpn": "0402WGF1000TCE",
+  "bom": true,
+  "note": "",
+  "side": "F"
+ },
+ "R7": {
+  "ref": "R7",
+  "value": "100R",
+  "fp": "R_0402_1005Metric",
+  "lcsc": "C25076",
+  "mpn": "0402WGF1000TCE",
+  "bom": true,
+  "note": "",
+  "side": "F"
+ },
+ "LD3": {
+  "ref": "LD3",
+  "value": "red alarm",
+  "fp": "LED_0603_1608Metric",
+  "lcsc": "C2286",
+  "mpn": "KT-0603R",
+  "bom": true,
+  "note": "",
+  "side": "F"
+ },
+ "R8": {
+  "ref": "R8",
+  "value": "1k",
+  "fp": "R_0402_1005Metric",
+  "lcsc": "C11702",
+  "mpn": "0402WGF1001TCE",
+  "bom": true,
+  "note": "",
+  "side": "F"
+ },
+ "R9": {
+  "ref": "R9",
+  "value": "100R",
+  "fp": "R_0402_1005Metric",
+  "lcsc": "C25076",
+  "mpn": "0402WGF1000TCE",
+  "bom": true,
+  "note": "",
+  "side": "F"
+ },
+ "BZ1": {
+  "ref": "BZ1",
+  "value": "MLT-8530",
+  "fp": "Buzzer_MLT-8530_8.5x8.5",
+  "lcsc": "C94599",
+  "mpn": "MLT-8530",
+  "bom": true,
+  "note": "",
+  "side": "F"
+ },
+ "D1": {
+  "ref": "D1",
+  "value": "1N4148W",
+  "fp": "D_SOD-123",
+  "lcsc": "C81598",
+  "mpn": "1N4148W",
+  "bom": true,
+  "note": "",
+  "side": "F"
+ },
+ "R10": {
+  "ref": "R10",
+  "value": "22R",
+  "fp": "R_0402_1005Metric",
+  "lcsc": "C25092",
+  "mpn": "0402WGF220JTCE",
+  "bom": true,
+  "note": "",
+  "side": "F"
+ },
+ "Q9": {
+  "ref": "Q9",
+  "value": "2N7002",
+  "fp": "SOT-23",
+  "lcsc": "C8545",
+  "mpn": "2N7002",
+  "bom": true,
+  "note": "",
+  "side": "F"
+ },
+ "R11": {
+  "ref": "R11",
+  "value": "100R",
+  "fp": "R_0402_1005Metric",
+  "lcsc": "C25076",
+  "mpn": "0402WGF1000TCE",
+  "bom": true,
+  "note": "",
+  "side": "F"
+ },
+ "R12": {
+  "ref": "R12",
+  "value": "100k",
+  "fp": "R_0402_1005Metric",
+  "lcsc": "C25741",
+  "mpn": "0402WGF1003TCE",
+  "bom": true,
+  "note": "",
+  "side": "F"
+ },
+ "U4": {
+  "ref": "U4",
+  "value": "STSPIN220",
+  "fp": "QFN-16-1EP_3x3mm_P0.5mm_EP1.7x1.7mm",
+  "lcsc": "C2150516",
+  "mpn": "STSPIN220",
+  "bom": true,
+  "note": "",
+  "side": "F"
+ },
+ "R20": {
+  "ref": "R20",
+  "value": "1.0R",
+  "fp": "R_0603_1608Metric",
+  "lcsc": "C174300",
+  "mpn": "RS-03L1R00FT",
+  "bom": true,
+  "note": "",
+  "side": "F"
+ },
+ "R21": {
+  "ref": "R21",
+  "value": "1.0R",
+  "fp": "R_0603_1608Metric",
+  "lcsc": "C174300",
+  "mpn": "RS-03L1R00FT",
+  "bom": true,
+  "note": "",
+  "side": "F"
+ },
+ "R22": {
+  "ref": "R22",
+  "value": "47k",
+  "fp": "R_0402_1005Metric",
+  "lcsc": "C25792",
+  "mpn": "0402WGF4702TCE",
+  "bom": true,
+  "note": "",
+  "side": "F"
+ },
+ "R23": {
+  "ref": "R23",
+  "value": "100k",
+  "fp": "R_0402_1005Metric",
+  "lcsc": "C25741",
+  "mpn": "0402WGF1003TCE",
+  "bom": true,
+  "note": "",
+  "side": "F"
+ },
+ "R24": {
+  "ref": "R24",
+  "value": "5.1k",
+  "fp": "R_0402_1005Metric",
+  "lcsc": "C25905",
+  "mpn": "0402WGF5101TCE",
+  "bom": true,
+  "note": "",
+  "side": "F"
+ },
+ "C20": {
+  "ref": "C20",
+  "value": "100nF",
+  "fp": "C_0402_1005Metric",
+  "lcsc": "C1525",
+  "mpn": "CL05B104KO5NNNC",
+  "bom": true,
+  "note": "",
+  "side": "F"
+ },
+ "R25": {
+  "ref": "R25",
+  "value": "100k",
+  "fp": "R_0402_1005Metric",
+  "lcsc": "C25741",
+  "mpn": "0402WGF1003TCE",
+  "bom": true,
+  "note": "",
+  "side": "F"
+ },
+ "R26": {
+  "ref": "R26",
+  "value": "10k",
+  "fp": "R_0402_1005Metric",
+  "lcsc": "C25744",
+  "mpn": "0402WGF1002TCE",
+  "bom": true,
+  "note": "",
+  "side": "F"
+ },
+ "C21": {
+  "ref": "C21",
+  "value": "10nF",
+  "fp": "C_0402_1005Metric",
+  "lcsc": "C15195",
+  "mpn": "CL05B103KB5NNNC",
+  "bom": true,
+  "note": "",
+  "side": "F"
+ },
+ "C22": {
+  "ref": "C22",
+  "value": "10uF 25V",
+  "fp": "C_0603_1608Metric",
+  "lcsc": "C96446",
+  "mpn": "CL10A106MA8NRNC",
+  "bom": true,
+  "note": "",
+  "side": "F"
+ },
+ "C23": {
+  "ref": "C23",
+  "value": "10uF 25V",
+  "fp": "C_0603_1608Metric",
+  "lcsc": "C96446",
+  "mpn": "CL10A106MA8NRNC",
+  "bom": true,
+  "note": "",
+  "side": "F"
+ },
+ "C24": {
+  "ref": "C24",
+  "value": "100nF",
+  "fp": "C_0402_1005Metric",
+  "lcsc": "C1525",
+  "mpn": "CL05B104KO5NNNC",
+  "bom": true,
+  "note": "",
+  "side": "F"
+ },
+ "Q4": {
+  "ref": "Q4",
+  "value": "AO3401A",
+  "fp": "SOT-23",
+  "lcsc": "C15127",
+  "mpn": "AO3401A",
+  "bom": true,
+  "note": "",
+  "side": "F"
+ },
+ "R30": {
+  "ref": "R30",
+  "value": "100k",
+  "fp": "R_0402_1005Metric",
+  "lcsc": "C25741",
+  "mpn": "0402WGF1003TCE",
+  "bom": true,
+  "note": "",
+  "side": "F"
+ },
+ "R31": {
+  "ref": "R31",
+  "value": "1.0R",
+  "fp": "R_0603_1608Metric",
+  "lcsc": "C174300",
+  "mpn": "RS-03L1R00FT",
+  "bom": true,
+  "note": "",
+  "side": "F"
+ },
+ "R39": {
+  "ref": "R39",
+  "value": "1.0R",
+  "fp": "R_0603_1608Metric",
+  "lcsc": "C174300",
+  "mpn": "RS-03L1R00FT",
+  "bom": true,
+  "note": "parallel with R31: 0.5 ohm shunt",
+  "side": "F"
+ },
+ "U7": {
+  "ref": "U7",
+  "value": "INA180A1IDBVR",
+  "fp": "SOT-23-5",
+  "lcsc": "C122228",
+  "mpn": "INA180A1IDBVR",
+  "bom": true,
+  "note": "Pinout A: 1 OUT, 2 GND, 3 IN+, 4 IN-, 5 VS",
+  "side": "F"
+ },
+ "C25": {
+  "ref": "C25",
+  "value": "100nF",
+  "fp": "C_0402_1005Metric",
+  "lcsc": "C1525",
+  "mpn": "CL05B104KO5NNNC",
+  "bom": true,
+  "note": "",
+  "side": "F"
+ },
+ "R32": {
+  "ref": "R32",
+  "value": "1k",
+  "fp": "R_0402_1005Metric",
+  "lcsc": "C11702",
+  "mpn": "0402WGF1001TCE",
+  "bom": true,
+  "note": "",
+  "side": "F"
+ },
+ "C26": {
+  "ref": "C26",
+  "value": "100nF",
+  "fp": "C_0402_1005Metric",
+  "lcsc": "C1525",
+  "mpn": "CL05B104KO5NNNC",
+  "bom": true,
+  "note": "",
+  "side": "F"
+ },
+ "R33": {
+  "ref": "R33",
+  "value": "100k",
+  "fp": "R_0402_1005Metric",
+  "lcsc": "C25741",
+  "mpn": "0402WGF1003TCE",
+  "bom": true,
+  "note": "",
+  "side": "F"
+ },
+ "R34": {
+  "ref": "R34",
+  "value": "100k",
+  "fp": "R_0402_1005Metric",
+  "lcsc": "C25741",
+  "mpn": "0402WGF1003TCE",
+  "bom": true,
+  "note": "",
+  "side": "F"
+ },
+ "R35": {
+  "ref": "R35",
+  "value": "100k",
+  "fp": "R_0402_1005Metric",
+  "lcsc": "C25741",
+  "mpn": "0402WGF1003TCE",
+  "bom": true,
+  "note": "",
+  "side": "F"
+ },
+ "R36": {
+  "ref": "R36",
+  "value": "100k",
+  "fp": "R_0402_1005Metric",
+  "lcsc": "C25741",
+  "mpn": "0402WGF1003TCE",
+  "bom": true,
+  "note": "",
+  "side": "F"
+ },
+ "LD4": {
+  "ref": "LD4",
+  "value": "red VMOT on",
+  "fp": "LED_0603_1608Metric",
+  "lcsc": "C2286",
+  "mpn": "KT-0603R",
+  "bom": true,
+  "note": "",
+  "side": "F"
+ },
+ "R37": {
+  "ref": "R37",
+  "value": "1k",
+  "fp": "R_0402_1005Metric",
+  "lcsc": "C11702",
+  "mpn": "0402WGF1001TCE",
+  "bom": true,
+  "note": "",
+  "side": "F"
+ },
+ "R38": {
+  "ref": "R38",
+  "value": "100R",
+  "fp": "R_0402_1005Metric",
+  "lcsc": "C25076",
+  "mpn": "0402WGF1000TCE",
+  "bom": true,
+  "note": "",
+  "side": "F"
+ },
+ "Q5": {
+  "ref": "Q5",
+  "value": "2N7002",
+  "fp": "SOT-23",
+  "lcsc": "C8545",
+  "mpn": "2N7002",
+  "bom": true,
+  "note": "",
+  "side": "F"
+ },
+ "Q8": {
+  "ref": "Q8",
+  "value": "2N7002",
+  "fp": "SOT-23",
+  "lcsc": "C8545",
+  "mpn": "2N7002",
+  "bom": true,
+  "note": "",
+  "side": "F"
+ },
+ "Q6": {
+  "ref": "Q6",
+  "value": "2N7002",
+  "fp": "SOT-23",
+  "lcsc": "C8545",
+  "mpn": "2N7002",
+  "bom": true,
+  "note": "",
+  "side": "F"
+ },
+ "Q7": {
+  "ref": "Q7",
+  "value": "2N7002",
+  "fp": "SOT-23",
+  "lcsc": "C8545",
+  "mpn": "2N7002",
+  "bom": true,
+  "note": "",
+  "side": "F"
+ },
+ "R40": {
+  "ref": "R40",
+  "value": "100k",
+  "fp": "R_0402_1005Metric",
+  "lcsc": "C25741",
+  "mpn": "0402WGF1003TCE",
+  "bom": true,
+  "note": "",
+  "side": "F"
+ },
+ "R41": {
+  "ref": "R41",
+  "value": "100k",
+  "fp": "R_0402_1005Metric",
+  "lcsc": "C25741",
+  "mpn": "0402WGF1003TCE",
+  "bom": true,
+  "note": "",
+  "side": "F"
+ },
+ "R42": {
+  "ref": "R42",
+  "value": "100k",
+  "fp": "R_0402_1005Metric",
+  "lcsc": "C25741",
+  "mpn": "0402WGF1003TCE",
+  "bom": true,
+  "note": "",
+  "side": "F"
+ },
+ "R43": {
+  "ref": "R43",
+  "value": "100k",
+  "fp": "R_0402_1005Metric",
+  "lcsc": "C25741",
+  "mpn": "0402WGF1003TCE",
+  "bom": true,
+  "note": "",
+  "side": "F"
+ },
+ "U5": {
+  "ref": "U5",
+  "value": "TPL5010DDCR",
+  "fp": "SOT-23-6",
+  "lcsc": "C473912",
+  "mpn": "TPL5010DDCR",
+  "bom": true,
+  "note": "",
+  "side": "F"
+ },
+ "R44": {
+  "ref": "R44",
+  "value": "10k",
+  "fp": "R_0402_1005Metric",
+  "lcsc": "C25744",
+  "mpn": "0402WGF1002TCE",
+  "bom": true,
+  "note": "",
+  "side": "F"
+ },
+ "R45": {
+  "ref": "R45",
+  "value": "22k",
+  "fp": "R_0402_1005Metric",
+  "lcsc": "C25768",
+  "mpn": "0402WGF2202TCE",
+  "bom": true,
+  "note": "",
+  "side": "F"
+ },
+ "C27": {
+  "ref": "C27",
+  "value": "100nF",
+  "fp": "C_0402_1005Metric",
+  "lcsc": "C1525",
+  "mpn": "CL05B104KO5NNNC",
+  "bom": true,
+  "note": "",
+  "side": "F"
+ },
+ "U6": {
+  "ref": "U6",
+  "value": "SN74AUP1G74DCUR",
+  "fp": "VSSOP-8_2.3x2mm_P0.5mm",
+  "lcsc": "C140267",
+  "mpn": "SN74AUP1G74DCUR",
+  "bom": true,
+  "note": "",
+  "side": "F"
+ },
+ "C28": {
+  "ref": "C28",
+  "value": "100nF",
+  "fp": "C_0402_1005Metric",
+  "lcsc": "C1525",
+  "mpn": "CL05B104KO5NNNC",
+  "bom": true,
+  "note": "",
+  "side": "F"
+ },
+ "R46": {
+  "ref": "R46",
+  "value": "100k",
+  "fp": "R_0402_1005Metric",
+  "lcsc": "C25741",
+  "mpn": "0402WGF1003TCE",
+  "bom": true,
+  "note": "",
+  "side": "F"
+ },
+ "C29": {
+  "ref": "C29",
+  "value": "100nF",
+  "fp": "C_0402_1005Metric",
+  "lcsc": "C1525",
+  "mpn": "CL05B104KO5NNNC",
+  "bom": true,
+  "note": "",
+  "side": "F"
+ },
+ "D2": {
+  "ref": "D2",
+  "value": "SS14",
+  "fp": "D_SMA",
+  "lcsc": "C2480",
+  "mpn": "SS14",
+  "bom": true,
+  "note": "",
+  "side": "F"
+ },
+ "J4": {
+  "ref": "J4",
+  "value": "FH12-10S-0.5SH(55)",
+  "fp": "Hirose_FH12-10S-0.5SH_1x10-1MP_P0.50mm_Horizontal",
+  "lcsc": "C506791",
+  "mpn": "FH12-10S-0.5SH(55)",
+  "bom": true,
+  "note": "",
+  "side": "F"
+ },
+ "J5": {
+  "ref": "J5",
+  "value": "PicoBlade 4P (A1251WR-S-4P)",
+  "fp": "Molex_PicoBlade_53261-0471_1x04-1MP_P1.25mm_Horizontal",
+  "lcsc": "C225113",
+  "mpn": "A1251WR-S-4P-LCP",
+  "bom": true,
+  "note": "Molex 53261-0471 compatible; confirm the plug on the first motor",
+  "side": "F"
+ },
+ "J6": {
+  "ref": "J6",
+  "value": "JST GH SM04B-GHS-TB (DNP alt.)",
+  "fp": "JST_GH_SM04B-GHS-TB_1x04-1MP_P1.25mm_Horizontal",
+  "lcsc": null,
+  "mpn": null,
+  "bom": false,
+  "note": "DNP alternative footprint for a JST GH plug, parallel to J5",
+  "side": "F"
+ },
+ "R50": {
+  "ref": "R50",
+  "value": "4.7k",
+  "fp": "R_0402_1005Metric",
+  "lcsc": "C25900",
+  "mpn": "0402WGF4701TCE",
+  "bom": true,
+  "note": "",
+  "side": "F"
+ },
+ "R51": {
+  "ref": "R51",
+  "value": "4.7k",
+  "fp": "R_0402_1005Metric",
+  "lcsc": "C25900",
+  "mpn": "0402WGF4701TCE",
+  "bom": true,
+  "note": "",
+  "side": "F"
+ },
+ "R52": {
+  "ref": "R52",
+  "value": "100k",
+  "fp": "R_0402_1005Metric",
+  "lcsc": "C25741",
+  "mpn": "0402WGF1003TCE",
+  "bom": true,
+  "note": "",
+  "side": "F"
+ },
+ "R53": {
+  "ref": "R53",
+  "value": "100k",
+  "fp": "R_0402_1005Metric",
+  "lcsc": "C25741",
+  "mpn": "0402WGF1003TCE",
+  "bom": true,
+  "note": "",
+  "side": "F"
+ },
+ "TP1": {
+  "ref": "TP1",
+  "value": "GND",
+  "fp": "TestPoint_Pad_D1.0mm",
+  "lcsc": null,
+  "mpn": null,
+  "bom": false,
+  "note": "",
+  "side": "F"
+ },
+ "TP2": {
+  "ref": "TP2",
+  "value": "3V3",
+  "fp": "TestPoint_Pad_D1.0mm",
+  "lcsc": null,
+  "mpn": null,
+  "bom": false,
+  "note": "",
+  "side": "F"
+ },
+ "TP3": {
+  "ref": "TP3",
+  "value": "VBUS",
+  "fp": "TestPoint_Pad_D1.0mm",
+  "lcsc": null,
+  "mpn": null,
+  "bom": false,
+  "note": "",
+  "side": "F"
+ },
+ "TP4": {
+  "ref": "TP4",
+  "value": "VMOT",
+  "fp": "TestPoint_Pad_D1.0mm",
+  "lcsc": null,
+  "mpn": null,
+  "bom": false,
+  "note": "",
+  "side": "F"
+ },
+ "TP5": {
+  "ref": "TP5",
+  "value": "PGATE",
+  "fp": "TestPoint_Pad_D1.0mm",
+  "lcsc": null,
+  "mpn": null,
+  "bom": false,
+  "note": "",
+  "side": "F"
+ },
+ "TP6": {
+  "ref": "TP6",
+  "value": "MOT_ALLOW",
+  "fp": "TestPoint_Pad_D1.0mm",
+  "lcsc": null,
+  "mpn": null,
+  "bom": false,
+  "note": "",
+  "side": "F"
+ },
+ "TP7": {
+  "ref": "TP7",
+  "value": "MCU_EN",
+  "fp": "TestPoint_Pad_D1.0mm",
+  "lcsc": null,
+  "mpn": null,
+  "bom": false,
+  "note": "",
+  "side": "F"
+ },
+ "TP8": {
+  "ref": "TP8",
+  "value": "DOCKED_H",
+  "fp": "TestPoint_Pad_D1.0mm",
+  "lcsc": null,
+  "mpn": null,
+  "bom": false,
+  "note": "",
+  "side": "F"
+ },
+ "TP9": {
+  "ref": "TP9",
+  "value": "DOCK_N",
+  "fp": "TestPoint_Pad_D1.0mm",
+  "lcsc": null,
+  "mpn": null,
+  "bom": false,
+  "note": "",
+  "side": "F"
+ },
+ "TP10": {
+  "ref": "TP10",
+  "value": "LATCH_CLR_N",
+  "fp": "TestPoint_Pad_D1.0mm",
+  "lcsc": null,
+  "mpn": null,
+  "bom": false,
+  "note": "",
+  "side": "F"
+ },
+ "TP11": {
+  "ref": "TP11",
+  "value": "ARM_CLK",
+  "fp": "TestPoint_Pad_D1.0mm",
+  "lcsc": null,
+  "mpn": null,
+  "bom": false,
+  "note": "",
+  "side": "F"
+ },
+ "TP12": {
+  "ref": "TP12",
+  "value": "WDT_WAKE",
+  "fp": "TestPoint_Pad_D1.0mm",
+  "lcsc": null,
+  "mpn": null,
+  "bom": false,
+  "note": "",
+  "side": "F"
+ },
+ "TP13": {
+  "ref": "TP13",
+  "value": "WDT_DONE",
+  "fp": "TestPoint_Pad_D1.0mm",
+  "lcsc": null,
+  "mpn": null,
+  "bom": false,
+  "note": "",
+  "side": "F"
+ },
+ "TP14": {
+  "ref": "TP14",
+  "value": "NRST",
+  "fp": "TestPoint_Pad_D1.0mm",
+  "lcsc": null,
+  "mpn": null,
+  "bom": false,
+  "note": "",
+  "side": "F"
+ },
+ "TP15": {
+  "ref": "TP15",
+  "value": "MOT_A1",
+  "fp": "TestPoint_Pad_D1.0mm",
+  "lcsc": null,
+  "mpn": null,
+  "bom": false,
+  "note": "",
+  "side": "F"
+ },
+ "TP16": {
+  "ref": "TP16",
+  "value": "MOT_A2",
+  "fp": "TestPoint_Pad_D1.0mm",
+  "lcsc": null,
+  "mpn": null,
+  "bom": false,
+  "note": "",
+  "side": "F"
+ },
+ "TP17": {
+  "ref": "TP17",
+  "value": "MOT_B1",
+  "fp": "TestPoint_Pad_D1.0mm",
+  "lcsc": null,
+  "mpn": null,
+  "bom": false,
+  "note": "",
+  "side": "F"
+ },
+ "TP18": {
+  "ref": "TP18",
+  "value": "MOT_B2",
+  "fp": "TestPoint_Pad_D1.0mm",
+  "lcsc": null,
+  "mpn": null,
+  "bom": false,
+  "note": "",
+  "side": "F"
+ },
+ "TP19": {
+  "ref": "TP19",
+  "value": "MOT_STCK",
+  "fp": "TestPoint_Pad_D1.0mm",
+  "lcsc": null,
+  "mpn": null,
+  "bom": false,
+  "note": "",
+  "side": "F"
+ },
+ "TP20": {
+  "ref": "TP20",
+  "value": "MOT_DIR",
+  "fp": "TestPoint_Pad_D1.0mm",
+  "lcsc": null,
+  "mpn": null,
+  "bom": false,
+  "note": "",
+  "side": "F"
+ },
+ "TP21": {
+  "ref": "TP21",
+  "value": "MOT_STBY",
+  "fp": "TestPoint_Pad_D1.0mm",
+  "lcsc": null,
+  "mpn": null,
+  "bom": false,
+  "note": "",
+  "side": "F"
+ },
+ "TP22": {
+  "ref": "TP22",
+  "value": "I_SENSE",
+  "fp": "TestPoint_Pad_D1.0mm",
+  "lcsc": null,
+  "mpn": null,
+  "bom": false,
+  "note": "",
+  "side": "F"
+ },
+ "TP23": {
+  "ref": "TP23",
+  "value": "HALL_A",
+  "fp": "TestPoint_Pad_D1.0mm",
+  "lcsc": null,
+  "mpn": null,
+  "bom": false,
+  "note": "",
+  "side": "F"
+ },
+ "TP24": {
+  "ref": "TP24",
+  "value": "HALL_B",
+  "fp": "TestPoint_Pad_D1.0mm",
+  "lcsc": null,
+  "mpn": null,
+  "bom": false,
+  "note": "",
+  "side": "F"
+ },
+ "TP28": {
+  "ref": "TP28",
+  "value": "I2C_SDA",
+  "fp": "TestPoint_Pad_D1.0mm",
+  "lcsc": null,
+  "mpn": null,
+  "bom": false,
+  "note": "",
+  "side": "F"
+ },
+ "TP29": {
+  "ref": "TP29",
+  "value": "I2C_SCL",
+  "fp": "TestPoint_Pad_D1.0mm",
+  "lcsc": null,
+  "mpn": null,
+  "bom": false,
+  "note": "",
+  "side": "F"
+ },
+ "TP25": {
+  "ref": "TP25",
+  "value": "UART_TX",
+  "fp": "TestPoint_Pad_D1.0mm",
+  "lcsc": null,
+  "mpn": null,
+  "bom": false,
+  "note": "",
+  "side": "F"
+ },
+ "TP26": {
+  "ref": "TP26",
+  "value": "UART_RX",
+  "fp": "TestPoint_Pad_D1.0mm",
+  "lcsc": null,
+  "mpn": null,
+  "bom": false,
+  "note": "",
+  "side": "F"
+ },
+ "TP27": {
+  "ref": "TP27",
+  "value": "GND",
+  "fp": "TestPoint_Pad_D1.0mm",
+  "lcsc": null,
+  "mpn": null,
+  "bom": false,
+  "note": "",
+  "side": "F"
+ },
+ "H1": {
+  "ref": "H1",
+  "value": "M3",
+  "fp": "MountingHole_3.2mm_M3",
+  "lcsc": null,
+  "mpn": null,
+  "bom": false,
+  "note": "",
+  "side": "F"
+ },
+ "H2": {
+  "ref": "H2",
+  "value": "M3",
+  "fp": "MountingHole_3.2mm_M3",
+  "lcsc": null,
+  "mpn": null,
+  "bom": false,
+  "note": "",
+  "side": "F"
+ },
+ "H3": {
+  "ref": "H3",
+  "value": "M3",
+  "fp": "MountingHole_3.2mm_M3",
+  "lcsc": null,
+  "mpn": null,
+  "bom": false,
+  "note": "",
+  "side": "F"
+ },
+ "H4": {
+  "ref": "H4",
+  "value": "M3",
+  "fp": "MountingHole_3.2mm_M3",
+  "lcsc": null,
+  "mpn": null,
+  "bom": false,
+  "note": "",
+  "side": "F"
+ }
+}

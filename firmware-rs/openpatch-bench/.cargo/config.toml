@@ -1,0 +1,15 @@
+[build]
+target = "thumbv7em-none-eabihf"
+
+[target.thumbv7em-none-eabihf]
+runner = "probe-rs run --chip nRF52840_xxAA"
+rustflags = [
+    "-C", "linker=flip-link",
+    "-C", "link-arg=-Tlink.x",
+    "-C", "link-arg=-Tdefmt.x",
+    "-C", "link-arg=--nmagic",
+]
+
+[env]
+# hal=debug shows the per burst motor current peak and encoder counts (docs/bench-testing.md)
+DEFMT_LOG = "info,openpatch_bench::hal=debug,trouble_host=warn"

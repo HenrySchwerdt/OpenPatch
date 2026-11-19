@@ -1,0 +1,519 @@
+          E73-2G4M08S1CX
+
+nRF52840 2.4GHz BLE4.2/5.0 Bluetooth LE Module
+       Chengdu Ebyte Electronic Technology Co.,Ltd.                                                                                                            E73-2G4M08S1CX User Manual
+
+
+
+     Contents
+     Disclaimer ...........................................................................................................................................................................................................2
+             Features ...................................................................................................................................................................................................... 3
+     1 Introduction .....................................................................................................................................................................................................4
+             1.1 Brief Introduction ............................................................................................................................................................................. 4
+             1.2 Application ......................................................................................................................................................................................... 4
+     2 Specification and parameter ........................................................................................................................................................................5
+             2.1 Limit parameter .................................................................................................................................................................................5
+             2.2 Operating parameter .........................................................................................................................................................................5
+     3 Size and pin definition ..................................................................................................................................................................................7
+     4 Development and Application ................................................................................................................................................................. 10
+     5 Basic operation ............................................................................................................................................................................................ 11
+             5.1 Hardware design and circuit schematic diagram ....................................................................................................................11
+     6 FAQ ................................................................................................................................................................................................................ 12
+             6.1 Communication range is too short ............................................................................................................................................. 12
+             6.2 Module is easy to damage ............................................................................................................................................................12
+             6.3 BER(Bit Error Rate) is high ........................................................................................................................................................ 13
+     7 Production guidance ...................................................................................................................................................................................14
+             7.1 Reflow soldering temperature .....................................................................................................................................................14
+             7.2 Reflow soldering curve .................................................................................................................................................................14
+     8 E73 series ...................................................................................................................................................................................................... 15
+     9 Bulk packing ................................................................................................................................................................................................ 15
+     Revision history .............................................................................................................................................................................................. 16
+     About us ............................................................................................................................................................................................................16
+
+
+
+
+Copyright ©2012–2023，Chengdu Ebyte Electronic Technology Co.,Ltd.                                                                                                                                                        1
+       Chengdu Ebyte Electronic Technology Co.,Ltd.                          E73-2G4M08S1CX User Manual
+
+
+
+
+                                                                Disclaimer
+
+           EBYTE reserves all rights to this document and the information contained herein.
+
+     Products, names, logos and designs described herein may in whole or in part be
+
+     subject to intellectual property rights. Reproduction, use, modification or disclosure to
+
+     third parties of this document or any part thereof without the express permission of
+
+     EBYTE is strictly prohibited.
+
+     The information contained herein is provided “as is” and EBYTE assumes no liability
+
+     for the use of the information. No warranty, either express or implied, is given,
+
+     including but not limited, with respect to the accuracy, correctness, reliability and
+
+     fitness for a particular purpose of the information. This document may be revised by
+
+     EBYTE at any time. For most recent documents, visit www.ebyte.com.
+
+
+
+
+Copyright ©2012–2023，Chengdu Ebyte Electronic Technology Co.,Ltd.                                     2
+       Chengdu Ebyte Electronic Technology Co.,Ltd.                                         E73-2G4M08S1CX User Manual
+
+     Features
+
+          13 x 18mm, small size;
+          Support BLE4.2 and BLE5.0;
+          Maximum transmission power of 6mW, software multi-level adjustable;
+          Support the global license- free ISM 2.4GHz band;
+          Built-in high performance low power ARM⑧and Cortex⑧-M4 dual core processor;
+          Rich resources, 1024KB FLASH, 256KB RAM;
+          Support 1.7V~5.5V power supply, power supply over 3. 3Vcan guarantee the best performance;
+          Industrial grade standard design, support -40 ~ 85 °C for working over a long time;
+          With IPEX antenna interface, an external antenna is required;
+          Under ideal conditions, the communication distance can reach 120m.
+
+
+
+
+Copyright ©2012–2023，Chengdu Ebyte Electronic Technology Co.,Ltd.                                                    3
+       Chengdu Ebyte Electronic Technology Co.,Ltd.                                       E73-2G4M08S1CX User Manual
+
+
+     1 Introduction
+
+
+     1.1 Brief Introduction
+
+           E73-2G4M08S1CX are wireless Bluetooth modules designed by
+     Chengdu Ebyte which feature small size, low power consumption. It
+     adopt the originally imported RFIC nRF52840 of NORDIC, supporting
+     BLE 4.2 and BLE 5.0. The chip has high-performance ARM
+     CORTEX-M4F kemel and other peripheral resources, such as UART,
+     I2C, SPI, ADC, DMA, PWM etc. The module led out most IO Port of
+     nRF 52840 for multilateral development. Please see the pin definition for details.
+           E73-2G4M08S1CX is hardware platform without firmware, so users need to conduct a secondary development.The
+     characteristics of the nRF52840 chip can be found in the official Datasheet. The module has maximized the RF
+     characteristics of the chip.
+
+
+
+
+     1.2 Application
+
+          Smart homes and industrial sensors;
+          Security system, positioning system;
+          Wireless remote control, drone;
+          Wireless game remote control;
+          Health care products;
+          Wireless voice, wireless headset;
+          Automotive industry applications.
+
+
+
+
+Copyright ©2012–2023，Chengdu Ebyte Electronic Technology Co.,Ltd.                                                  4
+        Chengdu Ebyte Electronic Technology Co.,Ltd.                                                      E73-2G4M08S1CX User Manual
+
+
+     2 Specification and parameter
+
+
+     2.1 Limit parameter
+
+                                                                                Performance
+                      Main parameter                                                                                           Remark
+                                                                         Min                  Max
+                                                                                                             Voltage over 5.5V will cause
+                                          Power supply（V）                  0                  5.5
+                                                                                                             permanent damage to module
+                                                                                                             Chances of burn is slim when modules
+                                    Blocking power（dBm）                    -                  10
+                                                                                                             are used in short distance
+                                Operating temperature（℃）                  -40                 +85            Industrial
+
+
+
+     2.2 Operating parameter
+
+                                                                                Performance
+                      Main parameter                                                                                           Remark
+                                                                    Min            Type         Max
+                                     Operating voltage（V）           1.7             3.3             5.5     ≥3.3 V ensures output power
+                                                                                                            For 5V TTL, it may be at risk of
+                                 Communication level（V）                             3.3
+                                                                                                            burning down
+                                Operating temperature（℃）            -40              -          +85         Industrial grade
+                               Operating frequency（MHz）             2360             -          2500        Support ISM band
+                                          TX only run current
+                                                                                   17.05                    mA
+                                (DC/DC, 3 V) PRF = +8 dBm
+                                          TX only run current
+                                                                                   12.68                    mA
+                                (DC/DC, 3 V) PRF = +4 dBm
+   TX
+                                          TX only run current
+ current                                                                           7.25                     mA
+              (DC/DC, 5 V, REG0 out = 3.3 V)PRF = 0 dBm
+（mA）
+                                          TX only run current
+                                                                                   7.63                     mA
+                                  (DC/DC, 3 V)PRF = 0 dBm
+                                          TX only run current
+                                                                                   17.05                    mA
+                                (DC/DC, 3 V) PRF = +8 dBm
+                           RX only run current (DC/DC, 3 V)
+   RX                                                                              7.71                     mA
+                                       1 Mbps / 1 Mbps BLE
+ current
+                           RX only run current (DC/DC, 3 V)
+（mA）                                                                               8.27                     mA
+                                       2 Mbps / 2 Mbps BLE
+                                          TX power（dBm）              7               8              9       dBm
+                                                                      -103dBm @ BLE 125kbps                 Long ditance mode
+                               Receiving sensitivity（dBm）
+                                                                          -95dBm @ BLE 1Mbps
+
+
+
+
+Copyright ©2012–2023，Chengdu Ebyte Electronic Technology Co.,Ltd.                                                                           5
+       Chengdu Ebyte Electronic Technology Co.,Ltd.                                        E73-2G4M08S1CX User Manual
+
+
+         Main parameter                            Description                                  Remark
+                                                                    Test condition：clear and open area,antenna height: 2.5m，air data
+         Reference distance                           120m
+                                                                    rate: 1Mbps
+         Crystal Oscillator                    32MHz/32.768KHz      32.768KHz crystal needs external connection
+              Protocol                             BLE 4.2/5.0                                      -
+              Package                                 SMD                                           -
+              Interface                              1.27mm         Stamp hole
+                 IC                     nRF52840-QIAAC0/aQFN ™ 73                                   -
+              FLASH                                  1024KB                                         -
+               RAM                                   256KB                                          -
+                Core                          ARM® Cortex ® -M4                                     -
+                Size                                13*18mm                                         -
+              Antenna                                 IPEX          50 ohm impedance
+
+
+
+
+Copyright ©2012–2023，Chengdu Ebyte Electronic Technology Co.,Ltd.                                                             6
+       Chengdu Ebyte Electronic Technology Co.,Ltd.                                          E73-2G4M08S1CX User Manual
+
+
+     3 Size and pin definition
+
+
+
+
+                                         Corresponding,ch
+        Pin No.             Item                                     Direction                       Description
+                                             ip pin item
+                           P1.11                B19                 Common I/O   See details about nrf52840 datasheet on Nordic
+           1
+                                                                                 website
+           2               P1.10                A20                 Common I/O   Low frequency I0, standard drive
+           3               P0.03                B13                 Common I/O   Analog input 1, low frequency I/O, standard drive.
+           4                AI4                 B11                 Common I/O   Analog input 4
+                            GND                   -                      -       Single ground line , connect to the power reference
+           5
+                                                                                 ground.
+           6               P1.13                A16                 Common I/O   Low frequency I0, standard drive
+           7                AI0                 A12                 Common I/O   Analog input 0, low frequency I/O, standard drive.
+           8                AI5                 A10                 Common I/O   Analog input 5, low frequency I/O, standard drive.
+           9                AI7                  A8                 Common I/O   Analog input 7, low frequency I/O, standard drive.
+           10               AI6                  B9                 Common I/O   Analog input 6, low frequency I/O, standard drive.
+
+
+
+Copyright ©2012–2023，Chengdu Ebyte Electronic Technology Co.,Ltd.                                                                7
+       Chengdu Ebyte Electronic Technology Co.,Ltd.                                          E73-2G4M08S1CX User Manual
+
+           11               XL1                  D2                 Common I/O   Connect to 32.768 kHz crystal
+                           P0.26                 G1                 Common I/O   See details about nrf52840 datasheet on Nordic
+           12
+                                                                                 website
+           13               XL2                  F2                 Common I/O   Connect to 32.768 kHz crystal
+                           P0.06                 L1                 Common I/O   See details about nrf52840 datasheet on Nordic
+           14
+                                                                                 website
+           15               AI3                  K2                 Common I/O   Analog input 3
+                           P0.08                 N1                 Common I/O   See details about nrf52840 datasheet on Nordic
+           16
+                                                                                 website
+                           P1.09                 R1                 Common I/O   See details about nrf52840 datasheet on Nordic
+           17
+                                                                                 website
+           18               AI2                  J1                 Common I/O   Analog input 2
+           19               VCC                   -                     -        Power supply
+                            P12                  U1                 Common I/O   See details about nrf52840 datasheet on Nordic
+           20
+                                                                                 website
+           21               GND                   -                     -        Ground line, connect to the power reference ground
+                           P0.07                M2                  Common I/O   See details about nrf52840 datasheet on Nordic
+           22
+                                                                                 website
+           23               VDH                VDDH                     -        High voltage power supply
+           24               GND                   -                     -        Ground line, connect to the power reference ground
+           25               DCH                DCCH                     -        DC/DC converter output
+           26               RST            P0.18/RESET              Common I/O   QSPI/CSN/external reset
+                            VBS                VBUS                     -        USB power supply, 5W input, used to USB33V
+           27
+                                                                                 voltage regulator
+                            P15                AD10                 Common I/O   See details about nrf52840 datasheet on Nordic
+           28
+                                                                                 website
+           29                D-                  D-                     -        USB D-
+                            P17                AD12                 Common I/O   See details about nrf52840 datasheet on Nordic
+           30
+                                                                                 website
+           31                D+                  D+                     -        USB D+
+                           P0.20               AD16                 Common I/O   See details about nrf52840 datasheet on Nordic
+           32
+                                                                                 website
+                           P0.13                AD8                 Common I/O   See details about nrf52840 datasheet on Nordic
+           33
+                                                                                 website
+           34              P0.22               AD18                 Common I/O   QSPI
+           35              P0.24               AD20                 Common I/O
+                           P1.00               AD22                 Common I/O   See details about nrf52840 datasheet on Nordic
+           36
+                                                                                 website
+           37               SWD               SWDIO                     -        Serial debug programming port clock
+                           P1.02               P1.02                Common I/O   See details about nrf52840 datasheet on Nordic
+           38
+                                                                                 website
+           39               SWC               SWCLK                     -        Serial debug programming port clock
+           40              P1.04                U24                 Common I/O   Low frequency I/O, standard drive
+
+
+
+Copyright ©2012–2023，Chengdu Ebyte Electronic Technology Co.,Ltd.                                                                 8
+       Chengdu Ebyte Electronic Technology Co.,Ltd.                                          E73-2G4M08S1CX User Manual
+
+           41               NF1                 L24                 Common I/O   NFC input
+           42              P1.06                R24                 Common I/O   Low frequency I/O, standard drive
+           43               NF2                 J24                 Common I/O   NFC input
+
+
+
+
+Copyright ©2012–2023，Chengdu Ebyte Electronic Technology Co.,Ltd.                                                     9
+    Chengdu Ebyte Electronic Technology Co.,Ltd.                                             E73-2G4M08S1CX User Manual
+
+
+
+
+    4 Development and Application
+
+   No.      Item                                                    Notes
+                     1.The module is embedded with ARM MCU. For program downloading, please use the J-LINK downloader.Any
+                     other serial port or JTAG、ISP、 ICP are unavailable to download.
+                     2.The burn firmware needs to be completed in two parts. Since the protocol stack provided by NORDIC is not
+                     loaded in the program, in the second development, you need to use the official burning tool nRFgo studio to burn
+                     the protocol stack, and then use nRFgo studio to bum. The hex of the application code; you can also use the
+                     official burning tool nRF go studio to burn the protocol stack, and then download it with IAR or KEIL.
+            Burn
+    1                Website of tool download:
+          Firmware
+                     http://www.nordicsemi.com/eng/Products/Bluetooth-low-energy/nRF52832/(language)/eng-GB
+
+
+
+
+           Testing
+    2                Testing board is not available.
+           Board
+
+
+
+
+Copyright ©2012–2023，成都亿佰特电子科技有限公司                                                                                                 10
+    Chengdu Ebyte Electronic Technology Co.,Ltd.                                           E73-2G4M08S1CX User Manual
+
+
+    5 Basic operation
+
+
+    5.1 Hardware design and circuit schematic diagram
+
+
+
+
+       It is recommended to use a DC stabilized power supply. The power supply ripple factor is as small as possible and
+        the module needs to be reliably grounded;
+       Please pay attention to the correct connection of the positive and negative poles of the power supply, reverse
+        connection may cause permanent damage to the module;
+       Please check the power supply to ensure that between the recommended supply voltage, if exceeding the maximum,
+        the module will be permanently damaged;
+       Please check the stability of the power supply. Voltage can not fluctuate greatly and frequently;
+       When designing the power supply circuit for the module, it is often recommended to reserve more than 30% of the
+        margin, so the whole machine is beneficial for long-term stable operation;
+       The module should be as far away as possible from the power supply, transformers, high-frequency wiring and other
+        parts with large electromagnetic interference;
+       Bottom Layer；
+       Bottom Layer High-frequency digital routing, high-frequency analog routing, and power routing must be avoided
+        under the module. If it is necessary to pass through the module, assume that the module is soldered to the Top Layer,
+        and the copper is spread on the Top Layer of the module contact part(well grounded), it must be close to the digital
+
+
+Copyright ©2012–2023，成都亿佰特电子科技有限公司                                                                                          11
+    Chengdu Ebyte Electronic Technology Co.,Ltd.                                               E73-2G4M08S1CX User Manual
+
+        part of the module and routed in the Bottom Layer;
+       Assuming the module is soldered or placed over the Top Layer, it is wrong to randomly route over the Bottom Layer
+        or other layers, which will affect the module's spurs and receiving sensitivity to varying degrees;
+       Assume that there are traces with large electromagnetic interference (high-frequency digital, high-frequency analog,
+        power traces) around the module that will greatly affect the performance of the module. It is recommended to stay
+        away from the module according to the strength of the interference.If necessary, appropriate isolation and shielding
+        can be done;
+       If the communication line uses a 5V level, a 1k-5.1k resistor must be connected in series (not recommended, there is
+        still a risk of damage);
+       Try to stay away from some physical layers such as TTL protocol at 2.4GHz , for example: USB3.0;
+       The mounting structure of antenna has a great influence on the performance of the module. It is necessary to ensure
+        that the antenna is exposed, preferably vertically upward. When the module is mounted inside the case, use a good
+        antenna extension cable to extend the antenna to the outside;
+       The antenna must not be installed inside the metal case, which will cause the transmission distance to be greatly
+        weakened.
+
+
+
+    6 FAQ
+
+
+    6.1 Communication range is too short
+
+       The communication distance will be affected when obstacle exists;
+       Data lose rate will be affected by temperature, humidity and co-channel interference;
+       The ground will absorb and reflect wireless radio wave, so the performance will be poor when testing near ground;
+       Sea water has great ability in absorbing wireless radio wave, so performance will be poor when testing near the sea;
+       The signal will be affected when the antenna is near metal object or put in a metal case;
+       Power register was set incorrectly, air data rate is set as too high (the higher the air data rate, the shorter the
+        distance);
+       The power supply low voltage under room temperature is lower than recommended value, the lower the voltage, the
+        lower the transmitting power;
+       Due to antenna quality or poor matching between antenna and module.
+
+
+    6.2 Module is easy to damage
+
+       Please check the power supply and ensure it is within the recommended range. Voltage higher than the peak will
+        lead to a permanent damage to the module.
+       Please check the stability of power source, the voltage cannot fluctuate too much;
+       Please make sure antistatic measure are taken when installing and using, high frequency devices have electrostatic
+        susceptibility;
+       Please ensure the humidity is within limited range, some parts are sensitive to humidity;
+       Please avoid using modules under too high or too low temperature.
+
+
+
+
+Copyright ©2012–2023，成都亿佰特电子科技有限公司                                                                                            12
+    Chengdu Ebyte Electronic Technology Co.,Ltd.                                             E73-2G4M08S1CX User Manual
+
+    6.3 BER(Bit Error Rate) is high
+
+       There are co-channel signal interference nearby, please be away from interference sources or modify frequency and
+        channel to avoid interference;
+       The clock waveform on SPI is not standard, check whether there is interference on the SPI line, and the SPI bus line
+        should not be too long;
+       Poor power supply may cause messy code. Make sure that the power supply is reliable;
+       The extension line and feeder quality are poor or too long, so the bit error rate is high.
+
+
+
+
+Copyright ©2012–2023，成都亿佰特电子科技有限公司                                                                                        13
+    Chengdu Ebyte Electronic Technology Co.,Ltd.                                  E73-2G4M08S1CX User Manual
+
+
+    7 Production guidance
+
+
+    7.1 Reflow soldering temperature
+
+               Profile Feature                  Curve characteristics        Sn-Pb Assembly    Pb-Free Assembly
+                Solder Paste                           Solder paste            Sn63/Pb37       Sn96.5/Ag3/Cu0.5
+     Preheat Temperature min （Tsmin）               Min preheating temp.          100℃               150℃
+       Preheat temperature max (Tsmax)             Mx preheating temp.           150℃               200℃
+      Preheat Time (Tsmin to Tsmax)(ts)              Preheating time           60-120 sec         60-120 sec
+      Average ramp-up rate(Tsmax to Tp)            Average ramp-up rate      3℃/second max      3℃/second max
+         Liquidous Temperature (TL)                 Liquid phase temp.           183℃               217℃
+     Time（tL）Maintained Above（TL）            Time below liquid phase line       60-90 sec          30-90 sec
+           Peak temperature（Tp）                        Peak temp.              220-235℃           230-250℃
+    Aveage ramp-down rate（Tp to Tsmax）         Average ramp-down rate        6℃/second max      6℃/second max
+        Time 25℃ to peak temperature      Time to peak temperature for 25℃    6 minutes max     8 minutes max
+
+
+
+    7.2 Reflow soldering curve
+
+
+
+
+Copyright ©2012–2023，成都亿佰特电子科技有限公司                                                                              14
+    Chengdu Ebyte Electronic Technology Co.,Ltd.                         E73-2G4M08S1CX User Manual
+
+
+    8 E73 series
+
+                               Frequency      Tx power   Protocol     Size
+   Model No.         IC                                                          Package      Antenna
+                                  Hz               dBm    BLE         mm
+E73-2G4M04S1A     nRF52810       2.4G               4    4.2/5.0    17.5*28.7     SMD        PCB/IPEX
+
+E73-2G4M04S1B     nRF52832       2.4G               4    4.2/5.0    17.5*28.7     SMD        PCB/IPEX
+                  nRF52840                                                                    Ceramic
+E73-2G4M08S1C                    2.4G               8    4.2/5.0     13*18        SMD
+                                                                                              antenna
+E73-2G4M04S1D     nRF51822       2.4G               4      4.2      17.5*28.7     SMD        PCB/IPEX
+
+E73-2G4M04S1AX    nRF52810       2.4G               4    4.2/5.0    17.5*23.5     SMD          IPEX
+
+E73-2G4M04S1BX    nRF52832       2.4G               4    4.2/5.0    17.5*23.5     SMD          IPEX
+
+
+
+
+    9 Bulk packing
+
+
+
+
+Copyright ©2012–2023，成都亿佰特电子科技有限公司                                                                15
+     Chengdu Ebyte Electronic Technology Co.,Ltd.                                                       E73-2G4M08S1CX User Manual
+
+
+    Revision history
+
+                         Version                          Date                        Description             Issued by
+                            1.0                        2020-12-02                    Initial version           Linson
+                            1.1                        2023-10-07                  Content revision             Bin
+                            1.2                        2023-12-20                  Content revision             Bin
+
+
+
+
+    About us
+
+    Technical support: support@cdebyte.com
+    Documents and RF Setting download link: https://www.cdebyte.com
+    Thank you for using Ebyte products! Please contact us with any questions or suggestions: info@cdebyte.com
+    -------------------------------------------------------------------------------------------------
+    Web: https://www.cdebyte.com
+    Address: B5 Mould Park, 199# Xiqu Ave, High-tech District, Sichuan, China
+
+
+
+
+Copyright ©2012–2023，成都亿佰特电子科技有限公司                                                                                              16
+

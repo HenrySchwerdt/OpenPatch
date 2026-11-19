@@ -1,0 +1,112 @@
+{
+ "U3": {
+  "ref": "U3",
+  "value": "DRV5032FADMR",
+  "fp": "DRV5032_X2SON-4_DMR0004B",
+  "lcsc": "C2152496",
+  "mpn": "DRV5032FADMRR",
+  "bom": true,
+  "note": "threshold 3.9 mT switches about 4 mm before full latch; AJ variant C2152498 (9.5 mT) is footprint compatible but not in JLC stock",
+  "side": "B"
+ },
+ "U4": {
+  "ref": "U4",
+  "value": "TMAG5273A1QDBVR",
+  "fp": "SOT-23-6",
+  "lcsc": "C3716049",
+  "mpn": "TMAG5273A1QDBVR",
+  "bom": true,
+  "note": "mandatory angle sensor",
+  "side": "B"
+ },
+ "U1": {
+  "ref": "U1",
+  "value": "DRV5032FADMR",
+  "fp": "DRV5032_X2SON-4_DMR0004B",
+  "lcsc": "C2152496",
+  "mpn": "DRV5032FADMRR",
+  "bom": true,
+  "note": "optional coarse quadrature channel (delete from BOM/CPL to leave unpopulated)",
+  "side": "F"
+ },
+ "U2": {
+  "ref": "U2",
+  "value": "DRV5032FADMR",
+  "fp": "DRV5032_X2SON-4_DMR0004B",
+  "lcsc": "C2152496",
+  "mpn": "DRV5032FADMRR",
+  "bom": true,
+  "note": "optional coarse quadrature channel (delete from BOM/CPL to leave unpopulated)",
+  "side": "F"
+ },
+ "C1": {
+  "ref": "C1",
+  "value": "100nF",
+  "fp": "C_0402_1005Metric",
+  "lcsc": "C1525",
+  "mpn": "CL05B104KO5NNNC",
+  "bom": true,
+  "note": "",
+  "side": "F"
+ },
+ "C3": {
+  "ref": "C3",
+  "value": "100nF",
+  "fp": "C_0402_1005Metric",
+  "lcsc": "C1525",
+  "mpn": "CL05B104KO5NNNC",
+  "bom": true,
+  "note": "",
+  "side": "F"
+ },
+ "C4": {
+  "ref": "C4",
+  "value": "100nF",
+  "fp": "C_0402_1005Metric",
+  "lcsc": "C1525",
+  "mpn": "CL05B104KO5NNNC",
+  "bom": true,
+  "note": "",
+  "side": "B"
+ },
+ "J1": {
+  "ref": "J1",
+  "value": "FH12-10S-0.5SH(55)",
+  "fp": "Hirose_FH12-10S-0.5SH_1x10-1MP_P0.50mm_Horizontal",
+  "lcsc": "C506791",
+  "mpn": "FH12-10S-0.5SH(55)",
+  "bom": true,
+  "note": "",
+  "side": "F"
+ },
+ "H1": {
+  "ref": "H1",
+  "value": "NPTH 1.2",
+  "fp": "NPTH_1.2mm",
+  "lcsc": null,
+  "mpn": null,
+  "bom": false,
+  "note": "",
+  "side": "F"
+ },
+ "H2": {
+  "ref": "H2",
+  "value": "NPTH 1.2",
+  "fp": "NPTH_1.2mm",
+  "lcsc": null,
+  "mpn": null,
+  "bom": false,
+  "note": "",
+  "side": "F"
+ },
+ "H3": {
+  "ref": "H3",
+  "value": "NPTH 1.4",
+  "fp": "NPTH_1.4mm",
+  "lcsc": null,
+  "mpn": null,
+  "bom": false,
+  "note": "",
+  "side": "F"
+ }
+}

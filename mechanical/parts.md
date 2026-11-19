@@ -11,9 +11,41 @@ Status legend used below:
 
 All dimensions below are the ones used in `params.json` (single source of truth); the CAD follows them.
 
-## 1. Drive: stepper + gearbox + leadscrew
+## 1. Drive: NFP-608-26.45-SGM geared stepper, coaxial sleeve coupler (primary, spec 4)
 
-### 1.1 Chosen for Rev A (cheap): Zhaowei ZWBPD006006, 6 mm planetary-gear stepper, 1 stage
+**Bench pod drive = NFP-608-26.45-SGM** (section 1.0 below has the drawing numbers), **coaxial** with the M1.6 x 0.35 leadscrew through a **sleeve coupler**: d3.0 x 6.0 brass tube (turned/cut, SEARCH-TERM
+"brass tube 3 mm OD 2 mm ID", ream D / tap M1.6) or the SLA printed `coupler` (`out/bench/fab`): D-bore d2.04 with flat 1.5, 3.2 deep, on the motor shaft (one drop CA or Loctite 638), M1.6 bore d1.64,
+2.8 deep, on the screw. Free shaft length (5.3) and pin block position are DERIVED from the not-to-scale drawing (VERIFY with calipers on the real motor). Pod gets longer by the motor chain (about 23 mm).
+
+**Duckbill check valve** in the outlet path before the 30G needle: miniature silicone duckbill, OD <= 3.0 mm x about 3.4 mm; SEARCH-TERMs (nothing was fetched, VERIFY): "Minivalve silicone duckbill valve micro",
+"Vernay miniature duckbill check valve", "silicone duckbill check valve 3mm AliExpress"; typical cracking pressure 1-5 kPa (0.15-0.7 psi), 1-4 USD each (estimates). Pocket in the dock end block, see `REFILL.md`.
+
+**Superseded (notes only):** SMA ratchet drive (stencil ratchet z=56 OD 5.6, 0.0466 U/tooth, pawls, wedge slider, half-nut refill, hex rewind with slip clutch; see `gear-selection.md`): concept work was
+dropped on 2026-11-19 (too many fine custom parts); a standard module 0.1 spur gear (~56 T, OD 5.8) can still serve as a Rev B ratchet wheel (section 7).
+
+### 1.0 PRIMARY: NFP-608-26.45-SGM, 6 mm planetary-gear stepper (drawing data)
+
+Source: nfpshop.com, datasheet `stepper-gear-motor-spec-NFP-608-26.45-SGM.pdf` (official outline drawing). Numbers below are read from the drawing (**VERIFIED-DATASHEET** unless marked); the drawing is not to scale.
+
+| item | value | status |
+|---|---|---|
+| body | diameter 6.0 +-0.1, total length **15.1** = gearbox **8.1** +-0.1 + motor **8.0** +-0.1 | VERIFIED-DATASHEET |
+| output shaft | diameter **2.0** (+0/-0.05) with D-flat to **1.5** (+0/-0.05), flat length **2.5** +-0.05; 11.7 +-0.1 from the shaft reference line (start of the flat) to the gearbox/motor junction | VERIFIED-DATASHEET |
+| front boss | diameter 3.5 x 0.8 (gearbox face) | VERIFIED-DATASHEET |
+| rear boss | diameter 2.6, short (0.7 mm assumed) | DERIVED, VERIFY |
+| free shaft length | ~5.3 mm beyond the front boss (derived from the not-to-scale drawing). The CAD cuts the shaft at x = 1.2 (`drive.shaft_cut_x`, shaft passes gear A); trim to fit | DERIVED, **VERIFY with calipers** |
+| terminals | 4 pins at **1.2 mm pitch (3 x 1.2)** on the motor section, pointing radially "down" in the end view, order B, A-, B+, A; pin length ~1.05 mm beyond the terminal block (block 3.4 x 4.6 x 0.65, 11.0 mm behind the front face) | VERIFIED-DATASHEET / pin and block size DERIVED, VERIFY |
+| lead | factory lead 4 x 30 AWG soldered to the pins + JST 1.25 mm plug | per coordinator |
+| steps / ratio | 20 steps/rev (18 deg), planetary ratio **26.45** | per datasheet |
+| resolution | with the 1:1 gear pair: 0.35 / (20 x 26.45) = 0.662 um/step -> **0.00494 U/step** (U100; 74.6 mm2 bore). Min pulse 0.05 U = 10 steps | computed (`op_layout.u_per_step`) |
+
+Bench pod: the **factory lead is kept** (soldered to the pins by the maker). Because the motor now lies coaxially on the lane the terminal pins point **+Y** (row along Z) and the lead leaves through a
+3 x 2.4 mm slot in the +Y wall (strain relief: two staggered posts, the wires weave between them); the JST 1.25 plug goes to the bench controller board. Rev B: bare-pin or FPC-tail motor, pin coordinates in
+`out/bench/OP-*.layout.json -> motor.motor_pins_pod`.
+
+CAD: `drive.active_preset = nfp_608_26` (`params.json`). The Zhaowei ZWBPD006006 below is the **backup** (6.43-class listing).
+
+### 1.1 BACKUP: Zhaowei ZWBPD006006, 6 mm planetary-gear stepper, 1 stage
 
 | item | value | status |
 |---|---|---|
@@ -72,7 +104,8 @@ magnet turn per screw turn). 100 U needs 13.4 mm = 38 300 full steps at ratio 5.
 
 | item | spec | source | status / price |
 |---|---|---|---|
-| 2 spur gears | **module 0.3, 18 teeth** (pitch dia 5.4, tip dia 6.0, centre distance 5.4), brass/steel, width 1.2 (CAD shows root circle 4.65). Gear A bore = gearbox output shaft (TODO-VERIFY, ream), gear B bore 1.5 reamed to press onto the M1.6 rod (press-fit, **no glue**) | AliExpress "0.3M 18T spur gear" / KHK SS0.3-18 class | SEARCH-TERM, ~3 USD / 10 |
+| 2 spur gears (purchased, NOT printed) | **module 0.3, 18 teeth, 1:1**: pitch dia 5.4, OD 6.0 (z+2)*0.3, centre distance 5.4, width ~1.2, brass or POM. Motor gear: **2.0 mm D-hole** (shaft d2.0 with flat 1.5) - or a plain 2.0 bore plus one drop of cyanoacrylate; leadscrew gear: bore **1.5** (press on the M1.6 rod, no glue) or 1.6 if offered. CAD models the root circle d4.65, bore d2.04 / d1.64. Both gears within the 8.5 mm height: OD 6.0 at the leadscrew lane (z 4.2 +- 3.0 = 1.2 .. 7.2) | search terms: "0.3 modulus 18 teeth spur gear 2mm D hole", "0.3M 18T brass pinion gear", "POM micro gear 0.3 mod 18T 1.5mm bore", "0.2M spur gear set 2.0mm D shaft" | SEARCH-TERM; ~3-6 USD / 10 (estimates). **VERIFY every listing** (AliExpress OD/bore/tooth data is unreliable): buy a mixed micro-gear assortment (0.2 / 0.3 module, bores 0.7 / 1.0 / 1.5 / 2.0) and measure before ordering the final set |
+| gear alternatives | module 0.2 x 27 T (OD 5.8, pitch 5.4): same centre distance, finer teeth, bores 2.0 D / 1.5; ratio 1:1. Module 0.3 x 16 T (OD 5.4, centre 4.8) fits the envelope but the carriage lane then collides with the motor (not used). Unequal pairs change the resolution: **U/step = 0.35 / (20 x 26.45 x gear_ratio) x 74.6 / 10**; gear_ratio = teeth_leadscrew / teeth_motor (e.g. 18/20 -> 0.9 -> 0.00549 U/step, 20/18 -> 1.11 -> 0.00445 U/step) | same | DERIVED |
 | 2 bushings | PTFE or brass sleeve **OD 3.0, ID 1.7, 1.0 long** (cut slices from tube) | AliExpress "PTFE tube OD 3 ID 1.6" | SEARCH-TERM, ~2 USD. **Fallback with zero parts:** print the block with a dia 1.7 bore and run the screw directly (add silicone oil) |
 | magnet | **dia 2 x 1 mm NdFeB N35, DIAMETRICALLY magnetised** (axial magnets will not work with the hall angle sensor); glued/pressed to the screw end - use friction fit in a 2.0 pocket or a drop of cyanoacrylate (no UV) | AliExpress "2x1 diametrically magnetized neodymium", K&J-class | SEARCH-TERM, ~3-5 USD / 10 |
 | hall sensors | TMAG5273 (I2C) + 2x DRV5032 - see `../electronics/bom.csv`; positions in `out/OP-xx.layout.json` (`hall`, `drv5032`) | electronics | |
@@ -129,3 +162,8 @@ pouch cells with nickel tabs (e.g. 301012-class, 3.0 x 10 x 12) from AliExpress/
 
 ZW motor 10-25 + rod/nuts 1 + gears 2 + bushings 1 + magnet 1 + needle 1 + septum 1 + screws 1 + silicone/sheet 3 =
 **about 20-40 USD per pump, most of it reusable** (motor, gears, screw, magnet). Battery, PCB, coil: electronics BOM.
+
+
+## 7. Rev B note: SMA ratchet wheel from a standard micro gear
+
+A standard **module 0.1 spur gear (about 56 teeth, pitch dia 5.6, OD 5.8, bore 1.0-2.0)** (search "0.1 modulus 56T spur gear 1mm bore", AliExpress/KHK-class, SEARCH-TERM, ~2-4 USD, VERIFY OD/teeth) can serve as the ratchet wheel of the SMA drive: tooth pitch 0.314 mm, a **stencil-cut stainless (50-100 um) pawl** driven by the SMA wire advances one tooth per stroke. With the 0.35 mm leadscrew pitch one tooth = 0.35/56 mm of carriage travel (6.25 um) = 0.466 ul = 0.0466 U per tooth (U100, 74.6 mm2): about one pulse = the 0.05 U minimum. Not part of Rev A.

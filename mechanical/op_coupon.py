@@ -60,7 +60,7 @@ def build_coupon(p: dict) -> tuple[Script, list[dict]]:
         xr = 0.4
         yc = CELL_Y * i + CELL_Y / 2
         q["dock"]["y_c"] = yc
-        L = {"x_r1": xr, "wall": wall, "length": CELL_X}
+        L = {"x_r1": xr, "wall": wall, "length": CELL_X, "mode": "bench"}
         L["dock"] = dock_geometry(q, xr, wall)
         cell = Script()
         joins = build_dock_joins(cell, q, L)

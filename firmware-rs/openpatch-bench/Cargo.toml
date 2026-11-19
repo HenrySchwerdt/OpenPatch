@@ -1,0 +1,92 @@
+[package]
+name = "openpatch-bench"
+version = "0.1.0"
+edition = "2021"
+license = "GPL-3.0-or-later"
+publish = false
+description = "OpenPatch bench controller firmware (Embassy, nRF52840). TEST PROJECT, never to be worn; bench tests with WATER ONLY."
+
+# Separate workspace: never built by the host workspace in ../Cargo.toml.
+[workspace]
+
+[features]
+# NO implicit drive default: the drive feature must be given explicitly (compile_error! otherwise).
+default = ["board-bench-e73", "angle-tmag"]
+
+# ---- board (exactly one) ----
+board-bench-e73 = []        # electronics/bench/pin-assignment.md (Ebyte E73-2G4M08S1CX)
+board-nrf52840-dk = []      # Nordic nRF52840-DK, no motor driver / interlock (docs/boards.md)
+
+# ---- drive calibration preset (exactly one, no default; stored on first boot, compared at every boot) ----
+drive-nfp-608-26-45 = []          # primary: NFP-608-26.45-SGM + M1.6x0.35 leadscrew
+drive-zwbpd006006-6-43 = []
+drive-zwbpd006006-4-8 = []
+drive-faulhaber-adm0620-16 = []
+
+# ---- absolute leadscrew angle source (exactly one) ----
+angle-tmag = []                   # TMAG5273 over I2C 0x35 (P0.26 / P0.06), the real channel
+# Synthesizes angle counts from the two DRV5032 hall switches (quadrature, 1024 counts per edge, one
+# pole pair placeholder). NOT sufficient for the 3 %/revolution check: expect deviation faults.
+angle-qdec-fallback = []
+# Optional coarse cross-check: keep the QDEC task running and log raw counts per burst.
+coarse-qdec = []
+
+# ---- bench / development ----
+# DEVELOPMENT ONLY: accept plaintext frames and use the fixed dev session key. Never for anything
+# but bench work (docs/bench-testing.md, docs/stubs.md).
+dev-plaintext = []
+# Start the bench sequence at boot with the compile-time defaults (env OPENPATCH_BENCH_*).
+bench-autostart = []
+
+[dependencies]
+embassy-executor = { version = "=0.10.0", features = ["platform-cortex-m", "executor-thread", "executor-interrupt", "defmt"] }
+embassy-time = { version = "=0.5.1", features = ["defmt", "defmt-timestamp-uptime"] }
+embassy-nrf = { version = "=0.11.0", features = ["defmt", "time-driver-rtc1", "gpiote", "unstable-pac", "rt", "nrf52840"] }
+embassy-sync = { version = "=0.8.0", features = ["defmt"] }
+embassy-futures = "=0.1.2"
+embassy-embedded-hal = "=0.6.0"
+embassy-boot = { version = "=0.7.0", default-features = false, features = ["ed25519-salty"] }
+
+nrf-sdc = { version = "=0.4.0", default-features = false, features = ["defmt", "peripheral", "nrf52840"] }
+nrf-mpsl = { version = "=0.4.0", default-features = false, features = ["defmt", "critical-section-impl", "nrf52840"] }
+bt-hci = { version = "=0.10.1", default-features = false, features = ["defmt"] }
+trouble-host = { version = "=0.8.0", default-features = false, features = ["derive", "gatt", "peripheral", "default-packet-pool", "default-packet-pool-mtu-251", "security", "defmt"] }
+
+sequential-storage = "=8.0.2"
+embedded-storage = "=0.3.2"
+embedded-storage-async = "=0.4.2"
+
+defmt = "=1.2.0"
+defmt-rtt = "=1.3.1"
+panic-probe = { version = "=1.0.0", features = ["print-defmt"] }
+cortex-m = { version = "=0.7.10", features = ["inline-asm"] }
+cortex-m-rt = "=0.7.7"
+static_cell = "=2.1.1"
+
+openpatch-core = { path = "../openpatch-core", features = ["defmt"] }
+openpatch-proto = { path = "../openpatch-proto", features = ["defmt", "aes-ccm"] }
+
+[profile.release]
+opt-level = "s"
+lto = "fat"
+codegen-units = 1
+debug = 2
+panic = "abort"
+incremental = false
+
+[profile.dev]
+opt-level = "s"
+debug = 2
+panic = "abort"
+
+# LE Secure Connections uses P-256 ECDH on the Cortex-M4. The faster assembly implementation
+# (`trouble-host/security-p256-cortex-m4`) needs `arm-none-eabi-gcc` at build time; the pure Rust
+# one is compiled for speed instead of size (pairing only happens inside the button window).
+[profile.release.package.p256]
+opt-level = 3
+[profile.release.package.primeorder]
+opt-level = 3
+[profile.release.package.crypto-bigint]
+opt-level = 3
+[profile.release.package.elliptic-curve]
+opt-level = 3

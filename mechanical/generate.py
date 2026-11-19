@@ -49,17 +49,18 @@ COLORS = ["--body", "top:opacity=0.18,color=#9fb3c8", "--body", "bottom:opacity=
 
 BENCH_EXPLODE = {
     "top": (0, 0, 22), "ffc_cable": (14, 0, 16), "ffc_conn": (0, 0, 14), "hall_drv0": (0, 0, 12), "hall_drv1": (0, 0, 12),
-    "pod_board": (0, 0, 8), "hall_tmag": (0, 0, 6), "hall_dock": (0, 0, 6), "spring0": (0, 0, 5), "spring1": (0, 0, 5),
-    "spring2": (0, 0, 5), "spring3": (0, 0, 5), "motor_strip": (0, 0, 3), "gasket": (0, 0, 12),
+    "pod_board": (0, 0, 8), "hall_tmag": (0, 0, 6), "hall_dock": (0, 0, 6), "gasket": (0, 0, 12),
     "carriage": (0, 0, 14), "nut": (0, 0, 14), "plunger_core": (0, 0, 10), "seal_a": (0, 0, 10), "seal_b": (0, 0, 10),
-    "leadscrew": (0, 0, 8), "magnet": (0, 0, 8), "bush_dry": (0, 0, 8), "bush_far": (0, 0, 8), "reservoir": (0, 0, 4),
-    "septum": (0, -8, 4), "needle": (0, 0, -6), "needle_hub": (0, 0, -3), "motor": (0, 0, 4), "gearhead": (0, 0, 4),
-    "gear_a": (0, 0, 8), "gear_b": (0, 0, 12), "dock_magnet": (0, 0, -16), "cannula_adapter": (0, 0, -12), "bottom": (0, 0, -6),
+    "leadscrew": (0, 0, 8), "magnet": (0, 0, 8), "bush_far": (0, 0, 8), "reservoir": (0, 0, 4),
+    "motor": (0, 0, 10), "gearhead": (0, 0, 10), "motor_boss": (0, 0, 10), "motor_shaft": (0, 0, 10), "motor_rear_boss": (0, 0, 10),
+    "motor_term": (0, 6, 10), "motor_pins": (0, 6, 10), "coupler": (0, 0, 14), "duckbill_valve": (0, 0, 12),
+    "septum": (0, -8, 4), "needle": (0, 0, -6), "needle_hub": (0, 0, -3), "dock_magnet": (0, 0, -16),
+    "cannula_adapter": (0, 0, -12), "bottom": (0, 0, -6),
 }
 BENCH_COLORS = ["--body", "top:opacity=0.18,color=#9fb3c8", "--body", "bottom:opacity=0.55,color=#c9d3dd",
                 "--body", "reservoir:opacity=0.5,color=#7fd0e0", "--body", "plunger_core:color=#e0803a",
                 "--body", "carriage:color=#f0c040", "--body", "pod_board:color=#2e8b57", "--body", "cannula_adapter:color=#7a5cc7",
-                "--body", "ffc_cable:color=#e8c36a", "--body", "ffc_conn:color=#222222", "--body", "motor_strip:color=#b87333",
+                "--body", "ffc_cable:color=#e8c36a", "--body", "ffc_conn:color=#222222", "--body", "motor:color=#888888", "--body", "gearhead:color=#aaaaaa", "--body", "coupler:color=#d4a017", "--body", "duckbill_valve:color=#5ec8e8",
                 "--body", "dock_magnet:color=#cc2222", "--body", "magnet:color=#cc2222", "--body", "gasket:color=#111111"]
 
 
@@ -119,7 +120,8 @@ def generate_size(p: dict, variant: str, outdir: Path, snapshots: bool) -> dict:
     bench = L["mode"] == "bench"
     MFG_PARTS, PART_NAMES, _ = part_sets(L["mode"])
     tag = variant
-    asm = [b for b in PART_NAMES if b != "pcb_keepout"]
+    from op_build import NFP_PARTS
+    asm = [b for b in PART_NAMES if b != "pcb_keepout" and (L["nfp"] or b not in NFP_PARTS)]
     s.export_step(str(outdir / f"{tag}_assembly.step"), asm)
     for part, bodies in MFG_PARTS.items():
         s.export_step(str(outdir / f"{tag}_{part}.step"), bodies)
@@ -215,9 +217,12 @@ def main() -> None:
 
     p = apply_overrides(load_params(Path(args.params) if args.params else None), args.set, args.coil_d, args.preset)
     p["mode"] = args.variant
+    if args.variant == "bench":
+        p["shell"]["width"] = p["bench"]["width"]          # narrower pod (no motor lane)
     if args.coupon:
         generate_coupon(p)
         return
+
     sizes = args.sizes or list(p["variants"])
     out = Path(args.outdir or (HERE / "out" / "bench" if args.variant == "bench" else HERE / "out"))
     out.mkdir(parents=True, exist_ok=True)

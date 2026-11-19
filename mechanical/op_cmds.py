@@ -51,6 +51,22 @@ class Script:
         self.add("solid.extrude", distance=z[1] - z[0], body_name=name, name=name)
         return name
 
+    def prism_yz(self, name: str, pts: list[tuple[float, float]], x0: float, x1: float) -> str:
+        """Polygon in (y, z) extruded along +X from x0 to x1."""
+        self.add("sketch.create", plane="YZ", offset=x0)
+        self.add("sketch.line", points=[[round(a, 5), round(b, 5)] for a, b in pts], closed=True)
+        self.add("sketch.finish")
+        self.add("solid.extrude", distance=x1 - x0, body_name=name, name=name)
+        return name
+
+    def prism_xz(self, name: str, pts: list[tuple[float, float]], y0: float, y1: float) -> str:
+        """Polygon in (x, z) extruded along +Y from y0 to y1 (the XZ sketch plane maps (a, b) -> x = a, z = -b)."""
+        self.add("sketch.create", plane="XZ", offset=y0)
+        self.add("sketch.line", points=[[round(a, 5), round(-b, 5)] for a, b in pts], closed=True)
+        self.add("sketch.finish")
+        self.add("solid.extrude", distance=y1 - y0, body_name=name, name=name)
+        return name
+
     def stadium(self, name: str, x: tuple[float, float], yc: float, zc: float,
                 w: float, h: float) -> str:
         """Langloch-Querschnitt (w in Y, h in Z), extrudiert entlang +X."""

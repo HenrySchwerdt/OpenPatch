@@ -61,6 +61,9 @@ BENCH_PARTS["bottom"] = (PARTS["bottom"][0], "PA12", "grey (natural)", "bead-bla
                          "FFC exit slot is in the lid. Porous: NOT watertight.", True)
 BENCH_PARTS["top"] = (PARTS["top"][0], "PA12", "grey (natural)", "bead-blasted standard", 1,
                       "+-0.2 mm. FFC slot 8.0 x 1.1 mm in the +X wall, dome mouth in the lap. Screw holes dia 1.4 may need a drill.", True)
+BENCH_PARTS["coupler"] = ("SLA (tough resin) - or turned brass tube (preferred)", "tough resin / brass", "any", "no coating", 2,
+                          "+-0.05 mm. Sleeve coupler d3.0 x 6.0: D-bore d2.04 / flat 1.5 (3.2 deep) for the NFP shaft, M1.6 bore d1.64 (2.8 deep) for the leadscrew; "
+                          "retain with one drop of cyanoacrylate / Loctite 638. VERIFY the shaft D-flat on the real motor.", True)
 BENCH_PARTS["cannula_adapter"] = ("SLA (JLC3DP resin 8001-type; PCBWay SLA)", "tough resin", "clear or white", "support marks off the dome sides and the notches",
                                   2, "+-0.1 mm. Dummy cannula head (dome d 10, base plate, side septum recess d 3.6, two latch notches, hose barb d 1.6, magnet "
                                      "pocket d 2.1 x 1.05 in the rear lug). Glue a d2x1 N52 magnet (CA drop) and press a punched d2 silicone plug "
@@ -93,7 +96,7 @@ def write_bench_readme(p: dict, vols: dict, sizes: list, PARTS: dict) -> None:
         if PARTS[part][0].startswith("MJF"):
             return qty * max(MJF_MIN_PART, vol * PA12_DENSITY * MJF_BILL_FACTOR * MJF_PER_G)
         return qty * max(SLA_MIN_PART, vol * SLA_BILL_FACTOR * SLA_PER_CM3 * 4)
-    cols = [("bottom", 1), ("top", 1), ("carriage", 2), ("plunger_core", 2), ("reservoir", 1), ("cannula_adapter", 2)]
+    cols = [("bottom", 1), ("top", 1), ("carriage", 2), ("plunger_core", 2), ("reservoir", 1), ("cannula_adapter", 2), ("coupler", 2)]
     lines = ["| size | " + " | ".join(f"{c} x{q}" for c, q in cols) + " | subtotal |", "|---|" + "---|" * (len(cols) + 1)]
     tot = 0.0
     sub = {}
@@ -151,7 +154,7 @@ def main() -> None:
     PARTS = BENCH_PARTS if BENCH else globals()["PARTS"]
     if FAB.exists():
         for child in FAB.iterdir():          # keep dock-coupon/ (built by generate.py --coupon)
-            if child.name != "dock-coupon":
+            if child.name not in ("dock-coupon", "stencil"):
                 shutil.rmtree(child) if child.is_dir() else child.unlink()
     FAB.mkdir(parents=True, exist_ok=True)
     rows, vols = [], {}

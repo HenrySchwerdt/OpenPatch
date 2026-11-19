@@ -21,13 +21,15 @@ def build_bottom(s: Script, p: dict, L: dict) -> None:
     # ---- Kanülenturm, Septum-Boss ---------------------------------------------------
     from op_dock import build_dock_cuts, build_dock_joins, build_mouth_cut
     joins = build_dock_joins(s, p, L)
-    joins.append(s.cyl("t_boss", "Y", (L["x_s"], 0, sp["z"]), sp["boss_d"], wall - 0.1, L["y_r0"]))
+    if L["mode"] != "bench":
+        joins.append(s.cyl("t_boss", "Y", (L["x_s"], 0, sp["z"]), sp["boss_d"], wall - 0.1, L["y_r0"]))
 
     # ---- Spindellager-Böcke (trocken: in der Stirnwand, nass: hinter dem Reservoir) ------
     bh = dr["bush_od"] + 2 * 0.675
     z_top_blk = zc + bh / 2
     yb = (ys - bh / 2, ys + bh / 2)
-    joins.append(s.box("t_dblk", (wall + 0.02, dr["gear_x0"] - 0.05), yb, (wall - 0.1, z_top_blk)))
+    if L["mode"] != "bench":
+        joins.append(s.box("t_dblk", (wall + 0.02, dr["gear_x0"] - 0.05), yb, (wall - 0.1, z_top_blk)))
     fb = L["far_block"]
     joins.append(s.box("t_fblk", (fb[0], fb[1]), yb, (wall - 0.1, z_top_blk)))
     # Führungsschiene für den Schlitten
@@ -35,14 +37,19 @@ def build_bottom(s: Script, p: dict, L: dict) -> None:
                        (wall - 0.1, dr["rail_top"])))
     # Motor-Sättel (Schalen) unter Getriebekopf/Motor
     ym, zr = L["y_m"], dr["motor_d"] / 2
-    saddles = [L["gh_x"][0] + 3.0, L["mo_x"][0] + 2.0, L["mo_x"][1] - 2.0]
+    saddles = [L["gh_x"][0] + 3.0, L["mo_x"][0] + (0.6 if L["nfp"] else 2.0), L["mo_x"][1] - 2.0]
+    if L["mode"] == "bench":                     # coaxial motor: cradles under the motor / gearbox on the lane axis
+        C = L["coax"]
+        ym = ys
+        saddles = [C["x_m0"] + 1.2, C["x_m1"] + 1.5, C["x_g1"] - 1.8]
     for i, cx in enumerate(saddles):
         joins.append(s.box(f"t_sad{i}", (cx - dr["cradle_t"] / 2, cx + dr["cradle_t"] / 2), (ym - 2.2, ym + 2.2),
                            (wall - 0.1, wall + dr["cradle_up"] + 0.2)))
     # Kontakt-Regal für Motor-FPC
     bench = L["mode"] == "bench"
-    sf = L["bench"]["shelf"] if bench else L["contacts"]["motor_shelf"]
-    joins.append(s.box("t_shelf", tuple(sf["x"]), tuple(sf["y"]), (wall - 0.1, sf["z_top"])))
+    if not bench:
+        sf = L["contacts"]["motor_shelf"]
+        joins.append(s.box("t_shelf", tuple(sf["x"]), tuple(sf["y"]), (wall - 0.1, sf["z_top"])))
     # Akku-Taschenrippen (Kabel-/Laschenkanal = Lücke bei y der Schraube C)
     rt = bt["rib_t"]
     rx = (L["bat_x0"] - 0.15 - rt, L["bat_x0"] - 0.15)
@@ -61,19 +68,28 @@ def build_bottom(s: Script, p: dict, L: dict) -> None:
         for i, q in enumerate(mt["posts"] + [mt["screw"]]):
             d = mt["post_d"] if i < len(mt["posts"]) else mt["boss_d"]
             joins.append(s.cyl(f"t_bpost{i}", "Z", (L["x_r1"] + q[0], q[1], 0), d, wall - 0.1, z_b))
+        from op_coax import build_coax_joins
+        joins.extend(build_coax_joins(s, p, L))
     s.join("bottom", joins)
 
     cut = []
-    cut.append(s.cyl("t_sb", "Y", (L["x_s"], 0, sp["z"]), sp["d"] + 2 * sp["bore_clr"], -0.1, sp["len"] + 0.3))
-    cut.append(s.cyl("t_sc", "Y", (L["x_s"], 0, sp["z"]), sp["port_d"], sp["len"] + 0.2, L["y_r0"] + 0.01))
+    if L["mode"] != "bench":
+        cut.append(s.cyl("t_sb", "Y", (L["x_s"], 0, sp["z"]), sp["d"] + 2 * sp["bore_clr"], -0.1, sp["len"] + 0.3))
+        cut.append(s.cyl("t_sc", "Y", (L["x_s"], 0, sp["z"]), sp["port_d"], sp["len"] + 0.2, L["y_r0"] + 0.01))
+    else:       # fill-needle access hole in the -Y wall in front of the cap septum
+        cut.append(s.cyl("t_fillacc", "Y", (L["x_r1"] + p["dock"]["cap"]["septum_x"], 0, L["dock"]["z_n"]), p["dock"]["cap"]["wall_hole_d"], -0.1, wall + 0.1))
     # Lager-Bohrungen
     bb = dr["bush_od"] + dr["bush_bore_clr"]
-    cut.append(s.cyl("t_dbore", "X", (0, ys, zc), bb, L["dry_bush"][0], dr["gear_x0"] + 0.05))
+    if L["mode"] != "bench":
+        cut.append(s.cyl("t_dbore", "X", (0, ys, zc), bb, L["dry_bush"][0], dr["gear_x0"] + 0.05))
     cut.append(s.cyl("t_fbore", "X", (0, ys, zc), bb, fb[0] - 0.1, fb[1] + 0.1))
     # Sattel-Mulden (Motor Ø6.1)
     for i in range(len(saddles)):
         pass
-    cut.append(s.cyl("t_mcut", "X", (0, ym, zc), dr["motor_d"] + 0.1, L["gh_x"][0] - 0.2, L["mot_end"] + 0.5 - dr["motor_tail"]))
+    if L["mode"] != "bench":
+        cut.append(s.cyl("t_mcut", "X", (0, ym, zc), dr["motor_d"] + 0.1, L["gh_x"][0] - 0.2, L["mot_end"] + 0.5 - dr["motor_tail"]))
+    else:
+        cut.append(s.cyl("t_mcut", "X", (0, ys, zc), dr["motor_d"] + 0.1, L["coax"]["x_m0"] - 0.1, L["coax"]["x_fb0"] + 0.1))
     # Schrauben-Pilotlöcher M1.2 (Ø1.0)
     for i, sp_ in enumerate(L["screws"]):
         cut.append(s.cyl(f"t_pil{i}", "Z", (sp_["x"], sp_["y"], 0), sc["pilot"], z_stop - sc["len"] + 2.0, z_stop + 0.1))
@@ -81,6 +97,8 @@ def build_bottom(s: Script, p: dict, L: dict) -> None:
         mt, bd = p["bench"]["mount"], L["bench"]
         q = mt["screw"]
         cut.append(s.cyl("t_bscrew", "Z", (L["x_r1"] + q[0], q[1], 0), sc["pilot"], bd["z0"] - 3.4, bd["z0"] + 0.1))
+        from op_coax import build_coax_cuts, build_valve_cut
+        cut.extend(build_coax_cuts(s, p, L))
     cut.append(s.rrect("t_vel", (L["x_r0"] + vc["margin_x"], L["x_r1"] - 1.5), (vc["y0"], vc["y1"]), vc["r"], (-0.1, vc["depth"])))
     s.cut("bottom", cut)
     dock_cuts = build_dock_cuts(s, p, L) + build_mouth_cut(s, p, L, "t_kmouth")
@@ -118,6 +136,15 @@ def build_top(s: Script, p: dict, L: dict) -> None:
         cuts.append(s.box("t_ffcslot", (w - wall - 0.2, w + 0.1), (fl["v"] - fl["slot_w"] / 2, fl["v"] + fl["slot_w"] / 2),
                           tuple(fl["slot_z"])))
         cuts.extend(build_mouth_cut(s, p, L, "t_kmouth_top", top_part=True))
+        # fill window over the carriage lane + scale (tick every 10 U delivered, long every 50 U; 1 U = 10 mm3)
+        ys_, mm10 = L["y_s"], 100.0 / 74.63
+        cuts.append(s.box("t_fillwin", (L["xrear_full"] + 0.5, L["xrear_empty"] + 3.5), (ys_ - 1.0, ys_ + 1.0), (zt - wall - 0.1, zt + 0.1)))
+        k = 0
+        while k * mm10 <= L["stroke"] + 1e-6:
+            x = L["xrear_full"] + k * mm10
+            ln = 1.0 if k % 5 == 0 else 0.5
+            cuts.append(s.box(f"t_tick{k}", (x - 0.12, x + 0.12), (ys_ + 1.3, ys_ + 1.3 + ln), (zt - 0.3, zt + 0.1)))
+            k += 1
         s.cut("top", cuts)
         return
     # Spulensitz: 4 Pratzen außerhalb der Spule

@@ -1,0 +1,11 @@
+target/
+**/target/
+keys/
+*.pem
+*.key
+*.profraw
+*.profdata
+lcov.info
+
+# signing keys must never be committed, wherever they are generated
+**/ed25519-secret*

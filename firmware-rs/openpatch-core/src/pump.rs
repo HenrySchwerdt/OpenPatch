@@ -1,0 +1,897 @@
+//! Pump controller: wires delivery engine, safety supervisor, reservoir and log to the HAL and
+//! exposes command-level operations plus the protocol dispatcher. The only module that knows all
+//! the others. Behaviour is identical to `firmware/core/src/pump_controller.c` (differential tests).
+
+use crate::delivery::{BasalSchedule, BasalSeg, DeliveryEngine, EngineEvents};
+use crate::drive_cal::DriveCal;
+use crate::faults::Faults;
+use crate::hal::{Buzzer, Hal};
+use crate::limits::*;
+use crate::log::{EventLog, EventType, REL_CHARGER, REL_COMMAND};
+use crate::pod::{ActivateArgs, DeliveryState, PodState, Role};
+use crate::reservoir::Reservoir;
+use crate::safety::{Observation, SafetySupervisor};
+use crate::units::*;
+use heapless as _;
+use openpatch_proto::{
+    self as proto, st, Ccm, Command, CommandBody, Error, History, Response, Session, Status, FRAME_MAX,
+    HIST_MAX_PER_RESPONSE, RSP_BIT, SUBOP_FILL, SUBOP_PRIME,
+};
+
+/// Behaviour switches. `STRICT` is the production setting; `RELAXED` is an explicit opt-in for unit
+/// tests and first bench bring-up.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct PumpConfig {
+    /// After every fill / draw, `Resume` is refused until a prime has completed.
+    pub require_prime_after_fill: bool,
+}
+
+impl PumpConfig {
+    pub const STRICT: PumpConfig = PumpConfig { require_prime_after_fill: true };
+    pub const RELAXED: PumpConfig = PumpConfig { require_prime_after_fill: false };
+}
+
+/// Unsolicited notification for the Alert characteristic.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Notification {
+    /// Draw progress: volume confirmed so far (mU).
+    DrawProgress(u32),
+    /// Draw finished: actual drawn volume (mU).
+    DrawDone(u32),
+    /// Draw ended early by a stall / end-stop: actual drawn volume (mU).
+    DrawStalled(u32),
+    /// Fault bits newly latched.
+    Fault(u16),
+}
+
+/// Draw job states (wire values of `DRAW_STATE`).
+pub use proto::draw as draw_state;
+
+#[derive(Clone, Copy, Debug, Default)]
+pub(crate) struct DrawJob {
+    pub(crate) state: u8,
+    pub(crate) requested_mu: u32,
+    pub(crate) remaining_steps: u32,
+    /// Reverse steps commanded and executed so far.
+    pub(crate) executed_steps: u32,
+    /// Reverse steps confirmed by the angle sensor so far (conservative: min per chunk).
+    pub(crate) confirmed_steps: u32,
+    pub(crate) high_current: u8,
+    pub(crate) drawn_mu: u32,
+}
+
+pub struct Pump<H: Hal> {
+    pub(crate) hal: H,
+    pub(crate) pod: PodState,
+    pub(crate) cal: DriveCal,
+    pub(crate) cal_valid: bool,
+    pub(crate) pcal: PulseCal,
+    pub(crate) cfg: PumpConfig,
+    pub(crate) de: DeliveryEngine,
+    pub(crate) sv: SafetySupervisor,
+    pub(crate) res: Reservoir,
+    pub(crate) log: EventLog,
+    pub(crate) last_tick: Millis,
+    pub(crate) low_res_reported: bool,
+    pub(crate) low_batt_reported: bool,
+    pub(crate) tick_overruns: u32,
+    pub(crate) prime_required: bool,
+    pub(crate) draw: DrawJob,
+    pub(crate) notes: heapless::Deque<Notification, 8>,
+    pub(crate) notify_seq: u16,
+}
+
+impl<H: Hal> Pump<H> {
+    /// `cal = None` or an invalid record leaves the pump permanently without delivery:
+    /// `NO_CALIBRATION` is latched and cannot be acknowledged. Uses [`PumpConfig::STRICT`].
+    pub fn new(mut hal: H, cal: Option<&DriveCal>, capacity: MilliUnits, restored_next_event_id: u32) -> Self {
+        let pcal = cal.filter(|_| DriveCal::validate(cal).is_ok()).and_then(|c| c.pulse_cal());
+        let cal_valid = pcal.is_some();
+        let cal_rec = match (cal_valid, cal) {
+            (true, Some(c)) => *c,
+            _ => DriveCal::default(),
+        };
+        let pcal = pcal.unwrap_or(PulseCal::NONE);
+        let t = hal.time_ms();
+        let ang = hal.angle_read().unwrap_or(AngleCounts(0));
+        let mut p = Pump {
+            pod: PodState::default(),
+            cal: cal_rec,
+            cal_valid,
+            pcal,
+            cfg: PumpConfig::STRICT,
+            de: DeliveryEngine::new(pcal),
+            sv: SafetySupervisor::new(t, ang, pcal),
+            res: Reservoir::new(capacity, pcal),
+            log: EventLog::restore(restored_next_event_id),
+            last_tick: t,
+            low_res_reported: false,
+            low_batt_reported: false,
+            tick_overruns: 0,
+            prime_required: false,
+            draw: DrawJob::default(),
+            notes: heapless::Deque::new(),
+            notify_seq: 0,
+            hal,
+        };
+        p.pod.docked = p.hal_docked(); // no event for the boot state
+        p.sv.set_docked(p.pod.docked);
+        p.hal.motor_enable(false);
+        p.hal.buzzer(Buzzer::Off);
+        p.log_ev(EventType::Boot, 0, 0);
+        p.observe();
+        if !p.sv.faults().is_empty() {
+            p.sync_faults(Faults::NONE); // e.g. NO_CALIBRATION: log + alarm, driver stays off
+        }
+        p
+    }
+
+    pub fn set_config(&mut self, cfg: PumpConfig) {
+        self.cfg = cfg;
+    }
+    pub fn config(&self) -> PumpConfig {
+        self.cfg
+    }
+    pub fn pulse_cal(&self) -> PulseCal {
+        self.pcal
+    }
+    pub fn prime_required(&self) -> bool {
+        self.prime_required
+    }
+    pub fn draw_state(&self) -> u8 {
+        self.draw.state
+    }
+    /// Volume drawn so far / in the last finished draw job (step-exact, conservative), mU.
+    pub fn draw_drawn(&self) -> MilliUnits {
+        MilliUnits(self.draw.drawn_mu)
+    }
+    pub fn draw_running(&self) -> bool {
+        self.draw.state == draw_state::DRAWING
+    }
+    /// Next pending notification for the Alert characteristic.
+    pub fn take_notification(&mut self) -> Option<Notification> {
+        self.notes.pop_front()
+    }
+    pub(crate) fn notify(&mut self, n: Notification) {
+        if self.notes.is_full() {
+            let _ = self.notes.pop_front();
+        }
+        let _ = self.notes.push_back(n);
+    }
+
+    /// Encode + seal the next pending notification as a frame (type 0x90, own nonce direction).
+    pub fn notification_frame<C: Ccm>(&mut self, session: &mut Session<C>, encrypt: bool, out: &mut [u8]) -> Option<Result<usize, Error>> {
+        let n = self.take_notification()?;
+        let (kind, arg) = match n {
+            Notification::DrawProgress(v) => (proto::notify::DRAW_PROGRESS, v),
+            Notification::DrawDone(v) => (proto::notify::DRAW_DONE, v),
+            Notification::DrawStalled(v) => (proto::notify::DRAW_STALLED, v),
+            Notification::Fault(b) => (proto::notify::FAULT, b as u32),
+        };
+        let mut body = [0u8; 16];
+        let r = proto::encode_notification_payload(kind, arg, &mut body).and_then(|l| {
+            let seq = self.notify_seq;
+            self.notify_seq = if seq >= proto::SEQ_MAX { 0 } else { seq + 1 };
+            session.seal_notification(proto::notify::FRAME_TYPE, seq, encrypt, &body[..l], out)
+        });
+        Some(r)
+    }
+
+    // ---- accessors ---------------------------------------------------------------
+    pub fn hal(&self) -> &H {
+        &self.hal
+    }
+    pub fn hal_mut(&mut self) -> &mut H {
+        &mut self.hal
+    }
+    pub fn pod(&self) -> &PodState {
+        &self.pod
+    }
+    pub fn engine(&self) -> &DeliveryEngine {
+        &self.de
+    }
+    pub fn supervisor(&self) -> &SafetySupervisor {
+        &self.sv
+    }
+    pub fn reservoir(&self) -> &Reservoir {
+        &self.res
+    }
+    pub fn log(&self) -> &EventLog {
+        &self.log
+    }
+    pub fn calibration(&self) -> Option<&DriveCal> {
+        self.cal_valid.then_some(&self.cal)
+    }
+    pub fn tick_overruns(&self) -> u32 {
+        self.tick_overruns
+    }
+    /// Direct access for the platform layer and tests (limits, thresholds, restores).
+    #[doc(hidden)]
+    pub fn supervisor_mut(&mut self) -> &mut SafetySupervisor {
+        &mut self.sv
+    }
+    #[doc(hidden)]
+    pub fn engine_mut(&mut self) -> &mut DeliveryEngine {
+        &mut self.de
+    }
+    #[doc(hidden)]
+    pub fn reservoir_mut(&mut self) -> &mut Reservoir {
+        &mut self.res
+    }
+
+    // ---- helpers -----------------------------------------------------------------
+    pub(crate) fn now(&mut self) -> Millis {
+        self.hal.time_ms()
+    }
+    fn now_s(&mut self) -> u32 {
+        (self.now().0 / 1000) as u32
+    }
+    pub(crate) fn log_ev(&mut self, kind: EventType, a: i32, b: i32) {
+        let t = self.now_s();
+        self.log.append(t, kind, a, b);
+    }
+
+
+    /// New faults: log, stop all delivery, alarm, keep the driver off, notify the phone.
+    pub(crate) fn sync_faults(&mut self, before: Faults) {
+        let added = self.sv.faults() & !before;
+        if added.is_empty() {
+            return;
+        }
+        self.log_ev(EventType::Fault, added.bits() as i32, 0);
+        self.de.suspend();
+        self.hal.motor_enable(false);
+        self.hal.buzzer(Buzzer::Alarm);
+        self.notify(Notification::Fault(added.bits()));
+    }
+
+    pub(crate) fn observe(&mut self) {
+        let t = self.now();
+        let battery_mv = self.hal.battery_mv();
+        let reservoir = self.res_for_observe();
+        let angle = match self.hal.angle_read() {
+            Some(a) => a,
+            None => {
+                // angle sensor lost: nothing can be verified any more
+                if self.pod.active && !self.de.is_suspended() {
+                    self.sv.latch(Faults::INTERNAL);
+                }
+                self.sv.last_angle()
+            }
+        };
+        self.sv.observe(t, &Observation { battery_mv, reservoir, angle });
+        if self.sv.battery_low() && !self.low_batt_reported {
+            self.low_batt_reported = true;
+            let mv = self.hal.battery_mv();
+            self.log_ev(EventType::LowBattery, mv as i32, 0);
+        } else if !self.sv.battery_low() {
+            self.low_batt_reported = false;
+        }
+    }
+
+    /// Unfilled reservoirs are not monitored (no alarm at first boot).
+    fn res_for_observe(&self) -> Option<MilliUnits> {
+        self.res.is_filled().then(|| self.res.remaining())
+    }
+
+    /// Supervisor approval, plus: never step without the angle sensor (latches INTERNAL instead).
+    fn approve_blind_safe(&mut self, now: Millis, requested: Pulses) -> Pulses {
+        if requested.0 > 0 && self.hal.angle_read().is_none() {
+            self.sv.latch(Faults::INTERNAL);
+            return Pulses(0);
+        }
+        self.sv.approve_steps(now, requested, self.res.remaining())
+    }
+
+    fn run_motor(&mut self, steps: Pulses) -> Pulses {
+        self.hal.motor_enable(true);
+        let n = self.hal.motor_step(steps);
+        self.hal.motor_enable(false);
+        let done = Pulses(n.0.min(steps.0));
+        self.res.consume(done);
+        let peak = self.hal.motor_current_peak_ma();
+        self.sv.observe_motor_burst(done, peak);
+        done
+    }
+
+    // ---- two-pod helpers ---------------------------------------------------------------
+    pub(crate) fn hal_docked(&mut self) -> bool {
+        self.hal.docked()
+    }
+    pub(crate) fn hal_charger(&mut self) -> bool {
+        self.hal.charger_present()
+    }
+
+    /// Sample the DOCKED input into the supervisor. Called before every action that could move
+    /// the motor.
+    pub(crate) fn refresh_dock(&mut self) {
+        let d = self.hal_docked();
+        self.sv.set_docked(d);
+        if d == self.pod.docked {
+            return;
+        }
+        self.pod.docked = d;
+        self.log_ev(if d { EventType::Docked } else { EventType::Undocked }, 0, 0);
+        if !d && self.de.bolus_active() {
+            // a bolus is never resumed or "caught up" after an undock
+            let left = self.de.cancel_bolus();
+            self.log_ev(EventType::BolusCancel, left.0 as i32, 0);
+        }
+    }
+
+    fn act_delivered(&self) -> MilliUnits {
+        self.pcal.pulses_to_mu(Pulses(self.de.delivered_steps().0.wrapping_sub(self.pod.act_base_steps.0)))
+    }
+
+    pub(crate) fn release_now(&mut self, reason: i32) {
+        self.de.suspend(); // also cancels bolus and temp basal
+        self.hal.motor_enable(false);
+        self.pod.active = false;
+        self.pod.pending_temp = None;
+        self.sv.set_active(false);
+        self.pod.last_release = self.act_delivered();
+        let v = self.pod.last_release.0 as i32;
+        self.log_ev(EventType::Release, v, reason);
+    }
+
+    fn wear_step(&mut self, dt: Millis) {
+        if !self.pod.active {
+            return;
+        }
+        self.pod.wear.0 += dt.0;
+        let minutes = (self.pod.wear.0 / 60_000) as i32;
+        if !self.pod.wear_warned && self.pod.wear >= WEAR_WARN {
+            self.pod.wear_warned = true;
+            self.log_ev(EventType::WearWarning, minutes, 0);
+            if self.sv.faults().is_empty() {
+                self.hal.buzzer(Buzzer::Beep);
+            }
+        }
+        let was = self.sv.wear_expired();
+        self.sv.observe_wear(self.pod.wear);
+        if self.sv.wear_expired() && !was {
+            self.log_ev(EventType::WearExpired, minutes, 0);
+        }
+    }
+
+    // ---- lifecycle ------------------------------------------------------------------------
+    /// Call every ~1 s from the safety task. Also services the watchdog (last action).
+    pub fn tick(&mut self) {
+        let t = self.now();
+        let mut dt = Millis(t.0.saturating_sub(self.last_tick.0));
+        let wear_dt = dt; // a stalled loop still wears the pod: never clamped
+        self.last_tick = t;
+        if dt > TICK_MAX_DT {
+            // stalled loop: never "catch up" with a burst
+            dt = TICK_MAX_DT;
+            self.tick_overruns += 1;
+        }
+        let before = self.sv.faults();
+
+        self.refresh_dock();
+        if self.pod.active && self.hal_charger() {
+            self.release_now(REL_CHARGER); // on a charger: forced released
+        }
+        self.wear_step(wear_dt);
+
+        let requested = self.de.tick(dt);
+        let approved = self.approve_blind_safe(t, requested);
+        let executed = if approved.0 > 0 { self.run_motor(approved) } else { Pulses(0) };
+        self.de.commit(executed);
+        if executed < approved {
+            self.sv.latch(Faults::INTERNAL);
+        }
+        self.draw_step();
+
+        let ev = self.de.take_events();
+        if ev.has(EngineEvents::BOLUS_DONE) {
+            self.log_ev(EventType::BolusDone, 0, 0);
+        }
+        if ev.has(EngineEvents::TEMP_DONE) {
+            self.log_ev(EventType::TempDone, 0, 0);
+        }
+        if ev.has(EngineEvents::TEMP_COMM_FALLBACK) {
+            self.log_ev(EventType::TempCommFallback, 0, 0);
+        }
+
+        if self.res.is_low() && !self.low_res_reported {
+            self.low_res_reported = true;
+            let rem = self.res.remaining().0 as i32;
+            self.log_ev(EventType::LowReservoir, rem, 0);
+        }
+        self.observe();
+        self.sync_faults(before);
+        self.hal.watchdog_kick();
+    }
+
+    // ---- commands ----------------------------------------------------------------------------
+    fn require_active(&self) -> Result<(), Error> {
+        if self.pod.active {
+            Ok(())
+        } else {
+            Err(Error::Released)
+        }
+    }
+
+    pub fn set_schedule(&mut self, s: &BasalSchedule) -> Result<(), Error> {
+        self.sv.check_basal_schedule(s)?;
+        self.require_active()?;
+        self.de.set_schedule(s)?;
+        self.log_ev(EventType::BasalSet, s.count() as i32, 0);
+        Ok(())
+    }
+
+    pub fn set_temp_basal(&mut self, rate: MilliUnitsPerHour, duration: Minutes) -> Result<(), Error> {
+        self.sv.check_temp_basal(rate, duration)?;
+        self.require_active()?;
+        self.de.start_temp_basal(rate, duration)?;
+        self.log_ev(EventType::TempStart, rate.0 as i32, duration.0 as i32);
+        Ok(())
+    }
+
+    pub fn cancel_temp_basal(&mut self) -> Result<(), Error> {
+        if !self.de.cancel_temp_basal() {
+            return Err(Error::NotFound);
+        }
+        self.log_ev(EventType::TempCancel, 0, 0);
+        Ok(())
+    }
+
+    pub fn bolus(&mut self, amount: MilliUnits) -> Result<(), Error> {
+        self.refresh_dock();
+        let t = self.now();
+        let rem = self.res.remaining();
+        self.sv.check_bolus(t, amount, rem)?;
+        self.de.start_bolus(amount)?;
+        self.log_ev(EventType::BolusStart, amount.0 as i32, 0);
+        Ok(())
+    }
+
+    pub fn cancel_bolus(&mut self) -> Result<(), Error> {
+        if !self.de.bolus_active() {
+            return Err(Error::NotFound);
+        }
+        let left = self.de.cancel_bolus();
+        self.log_ev(EventType::BolusCancel, left.0 as i32, 0);
+        Ok(())
+    }
+
+    pub fn suspend(&mut self) -> Result<(), Error> {
+        if !self.de.is_suspended() {
+            self.log_ev(EventType::Suspend, 0, 0);
+        }
+        self.de.suspend();
+        Ok(())
+    }
+
+    /// Emergency stop (button hold >= 3 s): cancel bolus, suspend, stop the driver. Never fails.
+    pub fn emergency_stop(&mut self) {
+        if self.de.bolus_active() {
+            let left = self.de.cancel_bolus();
+            self.log_ev(EventType::BolusCancel, left.0 as i32, 0);
+        }
+        let _ = self.suspend();
+        self.draw_abort();
+        self.hal.motor_enable(false);
+    }
+
+    pub fn resume(&mut self) -> Result<(), Error> {
+        self.refresh_dock();
+        if !self.sv.motor_allowed() {
+            return Err(Error::Fault);
+        }
+        if !self.pod.active {
+            return Err(Error::Released);
+        }
+        if !self.pod.docked {
+            return Err(Error::NotDocked);
+        }
+        if self.draw_running() {
+            return Err(Error::Busy);
+        }
+        if self.prime_required {
+            return Err(Error::PrimeRequired);
+        }
+        if self.de.is_suspended() {
+            self.log_ev(EventType::Resume, 0, 0);
+        }
+        self.de.resume();
+        if let Some((rate, min)) = self.pod.pending_temp.take() {
+            // temp basal handed over by Activate
+            self.de.start_temp_basal(rate, min)?;
+            self.log_ev(EventType::TempStart, rate.0 as i32, min.0 as i32);
+        }
+        Ok(())
+    }
+
+    /// Set the reservoir level after a manual (syringe) fill. Suspended only. Mandatory priming
+    /// follows when [`PumpConfig::require_prime_after_fill`].
+    pub fn fill(&mut self, fill: MilliUnits) -> Result<(), Error> {
+        if !self.de.is_suspended() {
+            return Err(Error::NotSuspended);
+        }
+        if self.draw_running() {
+            return Err(Error::Busy);
+        }
+        self.res.fill(fill)?;
+        let ang = self.hal.angle_read().unwrap_or(AngleCounts(0));
+        self.sv.rebaseline(ang); // the piston moved while filling
+        self.low_res_reported = self.res.is_low();
+        if self.cfg.require_prime_after_fill {
+            self.prime_required = true;
+        }
+        self.log_ev(EventType::Fill, fill.0 as i32, 0);
+        Ok(())
+    }
+
+    /// Prime the cannula connector: `steps` forward steps, delivered through the safety supervisor
+    /// and verified by the angle sensor. Suspended + active + docked only. Clears `prime_required`.
+    pub fn prime(&mut self, steps: Pulses) -> Result<(), Error> {
+        if steps.0 == 0 {
+            return Err(Error::BadArg);
+        }
+        if steps > self.sv.calibration().mu_to_pulses(MAX_PRIME) {
+            return Err(Error::Limit);
+        }
+        if !self.de.is_suspended() {
+            return Err(Error::NotSuspended);
+        }
+        if !self.res.is_filled() {
+            return Err(Error::Reservoir);
+        }
+        self.refresh_dock();
+        if !self.pod.active {
+            return Err(Error::Released); // only the active pod primes, and only docked
+        }
+        if !self.pod.docked {
+            return Err(Error::NotDocked);
+        }
+        if self.draw_running() {
+            return Err(Error::Busy);
+        }
+        let before = self.sv.faults();
+        let t = self.now();
+        let approved = self.approve_blind_safe(t, steps);
+        let executed = if approved.0 > 0 { self.run_motor(approved) } else { Pulses(0) };
+        if executed < approved {
+            self.sv.latch(Faults::INTERNAL);
+        }
+        if executed == steps {
+            self.log_ev(EventType::Prime, steps.0 as i32, 0);
+            self.observe(); // the angle sensor verifies the prime like any other delivery
+        }
+        self.sync_faults(before);
+        if executed == steps && self.sv.faults() == before {
+            self.prime_required = false;
+            Ok(())
+        } else {
+            Err(Error::Fault)
+        }
+    }
+
+    pub fn acknowledge(&mut self, mask: Faults) -> Result<(), Error> {
+        let before = self.sv.faults();
+        let e = self.sv.acknowledge(mask);
+        let cleared = before & !self.sv.faults();
+        if !cleared.is_empty() {
+            self.log_ev(EventType::Ack, cleared.bits() as i32, 0);
+        }
+        if self.sv.faults().is_empty() {
+            self.hal.buzzer(Buzzer::Off);
+        }
+        e
+    }
+
+    /// Silence an active alarm buzzer without clearing any fault (button short press).
+    pub fn silence_alarm(&mut self) {
+        self.hal.buzzer(Buzzer::Off);
+    }
+
+    pub fn get_status(&mut self) -> Status {
+        let rep = self.de.report();
+        let mut f: u16 = 0;
+        if self.de.is_suspended() {
+            f |= st::SUSPENDED;
+        }
+        if self.de.bolus_active() {
+            f |= st::BOLUS_ACTIVE;
+        }
+        if self.de.temp_active() {
+            f |= st::TEMP_ACTIVE;
+        }
+        if self.de.has_schedule() {
+            f |= st::HAS_SCHEDULE;
+        }
+        if self.res.is_low() {
+            f |= st::LOW_RESERVOIR;
+        }
+        if !self.sv.faults().is_empty() {
+            f |= st::ALARM;
+        }
+        if self.res.is_filled() {
+            f |= st::FILLED;
+        }
+        if self.sv.battery_low() {
+            f |= st::LOW_BATTERY;
+        }
+        if self.pod.docked {
+            f |= st::DOCKED;
+        }
+        if self.pod.active {
+            f |= st::ACTIVE;
+        }
+        if self.pod.wear_warned && self.pod.active {
+            f |= st::WEAR_WARNING;
+        }
+        if self.draw_running() {
+            f |= st::DRAWING;
+        }
+        if self.prime_required {
+            f |= st::PRIME_REQUIRED;
+        }
+        let delivery_state = if !self.pod.active {
+            DeliveryState::Released
+        } else if self.sv.wear_expired() {
+            DeliveryState::StoppedWear
+        } else if !self.pod.docked {
+            DeliveryState::PausedUndocked
+        } else {
+            DeliveryState::Active
+        };
+        let mut s = Status {
+            flags: f,
+            faults: self.sv.faults().bits(),
+            reservoir_mu: self.res.remaining().0,
+            battery_mv: self.hal.battery_mv(),
+            bolus_remaining_mu: self.de.bolus_remaining().0,
+            temp_rate_mu_h: if self.de.temp_active() { self.de.temp_rate().0 as u16 } else { 0 },
+            temp_remaining_min: self.de.temp_remaining().0 as u16,
+            current_rate_mu_h: self.de.current_rate().0 as u16,
+            delivered_mu: rep.delivered.0,
+            scheduled_mu: rep.scheduled.0,
+            next_event_id: self.log.next_id(),
+            fw_version: FW_VERSION,
+            pair_id: self.pod.pair_id,
+            role: self.pod.role,
+            wear_s: (self.pod.wear.0 / 1000) as u32,
+            delivery_state: delivery_state as u8,
+            ..Default::default()
+        };
+        if self.cal_valid {
+            s.cal_drive_id = self.cal.drive_id;
+            s.cal_uu_per_step = self.pcal.micro_u_floor();
+            s.cal_steps_per_rev = self.cal.steps_per_rev;
+            s.cal_gear_ratio_x100 = self.cal.gear_ratio_x100; // else all zero: the app must refuse
+        }
+        s.draw_state = self.draw.state;
+        s.draw_requested_mu = self.draw.requested_mu;
+        s.draw_done_mu = self.draw.drawn_mu;
+        s
+    }
+
+    // ---- two-pod commands ---------------------------------------------------------------------
+    /// Only a released pod accepts pairing; `pair_id` 0 and unknown roles are rejected.
+    pub fn set_pairing(&mut self, pair_id: u32, role: u8) -> Result<(), Error> {
+        if pair_id == 0 || (role != Role::A as u8 && role != Role::B as u8) {
+            return Err(Error::BadArg);
+        }
+        if self.pod.active {
+            return Err(Error::AlreadyActive); // never re-pair a delivering pod
+        }
+        self.pod.pair_id = pair_id;
+        self.pod.role = role;
+        self.log_ev(EventType::Paired, role as i32, pair_id as i32);
+        Ok(())
+    }
+
+    /// Become the active pod. Refused unless paired (matching pair id), docked, filled, not on a
+    /// charger, fault free (except an old wear fault) and not already active. The same activation
+    /// id on an already active pod is an `Ok` no-op (lost response). Delivery stays SUSPENDED: the
+    /// app primes the connector, then sends Resume (which also starts the temp basal).
+    pub fn activate(&mut self, a: &ActivateArgs) -> Result<(), Error> {
+        if self.pod.pair_id == 0 || a.pair_id != self.pod.pair_id {
+            return Err(Error::Pair);
+        }
+        if self.pod.active {
+            return if a.activation_id == self.pod.activation_id { Ok(()) } else { Err(Error::AlreadyActive) };
+        }
+        if a.activation_id == 0 {
+            return Err(Error::BadArg);
+        }
+        self.refresh_dock();
+        if self.hal_charger() {
+            return Err(Error::Charging);
+        }
+        if !self.pod.docked {
+            return Err(Error::NotDocked);
+        }
+        if self.sv.faults() & !Faults::WEAR_EXPIRED != Faults::NONE {
+            return Err(Error::Fault);
+        }
+        if !self.res.is_filled() {
+            return Err(Error::Reservoir);
+        }
+        // validate everything before touching anything: Activate is all or nothing; an old wear
+        // fault must not hide schedule errors, so check against a fault-free copy
+        self.sv.fault_free_probe().check_basal_schedule(&a.schedule)?;
+        if let Some((rate, min)) = a.temp {
+            if min.0 == 0
+                || min.0 > TEMP_MAX_MIN
+                || min.0 % TEMP_GRANULARITY_MIN != 0
+                || rate.0 % RATE_GRANULARITY.0 != 0
+                || rate > self.sv.max_basal()
+            {
+                return Err(if rate > self.sv.max_basal() { Error::Limit } else { Error::BadArg });
+            }
+        }
+        self.de.set_schedule(&a.schedule)?;
+        self.de.suspend(); // stays suspended until Resume, so the connector can be primed first
+        self.pod.pending_temp = a.temp;
+        self.sv.reset_wear();
+        self.pod.wear = Millis(0);
+        self.pod.wear_warned = false;
+        self.pod.activation_id = a.activation_id;
+        self.pod.act_base_steps = self.de.delivered_steps();
+        self.pod.last_release = MilliUnits(0);
+        self.pod.active = true;
+        self.sv.set_active(true);
+        self.hal.buzzer(Buzzer::Off);
+        self.log_ev(EventType::BasalSet, a.schedule.count() as i32, 0);
+        let role = self.pod.role as i32;
+        self.log_ev(EventType::Activate, role, a.activation_id as i32);
+        Ok(())
+    }
+
+    /// Stop delivering and become released. Idempotent. Returns the insulin delivered since the
+    /// activation.
+    pub fn release(&mut self, pair_id: u32) -> Result<MilliUnits, Error> {
+        if self.pod.pair_id == 0 || pair_id != self.pod.pair_id {
+            return Err(Error::Pair);
+        }
+        if self.pod.active {
+            self.release_now(REL_COMMAND);
+        }
+        Ok(self.pod.last_release)
+    }
+
+    /// Boot: restore what the platform persisted. The pod comes up suspended even if it was active.
+    pub fn restore_pod(&mut self, pair_id: u32, role: u8, active: bool, activation_id: u32, wear: Millis) {
+        self.pod.pair_id = pair_id;
+        self.pod.role = role;
+        self.pod.active = active;
+        self.pod.activation_id = activation_id;
+        self.pod.wear = if active { wear } else { Millis(0) };
+        self.pod.wear_warned = active && wear >= WEAR_WARN;
+        self.sv.set_active(active);
+        if active {
+            self.sv.observe_wear(self.pod.wear);
+            if !self.sv.faults().is_empty() {
+                self.sync_faults(Faults::NONE);
+            }
+        }
+    }
+
+    // ---- protocol -----------------------------------------------------------------------------
+    fn schedule_from_wire(segs: &proto::BasalSegs) -> Result<BasalSchedule, Error> {
+        let mut s = BasalSchedule::new();
+        for g in segs.iter() {
+            s.segs
+                .push(BasalSeg { start_slot: g.start_slot, rate: MilliUnitsPerHour(g.rate_mu_h as u32) })
+                .map_err(|_| Error::BadArg)?;
+        }
+        Ok(s)
+    }
+
+    /// Execute an already-decoded command.
+    pub fn execute(&mut self, c: &Command) -> Response {
+        let mut rsp = Response { type_: c.body.type_id(), seq: c.seq, ..Default::default() };
+        if let Some(t) = c.time_of_day_ms {
+            self.de.set_time_of_day(Millis(t as u64));
+        }
+        let r: Result<(), Error> = match &c.body {
+            CommandBody::GetStatus => {
+                rsp.status = Some(self.get_status());
+                Ok(())
+            }
+            CommandBody::SetBasalSchedule(segs) => match Self::schedule_from_wire(segs) {
+                Ok(s) => self.set_schedule(&s),
+                Err(e) => Err(e),
+            },
+            CommandBody::SetTempBasal { rate_mu_h, duration_min } => {
+                self.set_temp_basal(MilliUnitsPerHour(*rate_mu_h as u32), Minutes(*duration_min as u32))
+            }
+            CommandBody::CancelTempBasal => self.cancel_temp_basal(),
+            CommandBody::Bolus { amount_mu } => self.bolus(MilliUnits(*amount_mu)),
+            CommandBody::CancelBolus => self.cancel_bolus(),
+            CommandBody::Suspend => self.suspend(),
+            CommandBody::Resume => self.resume(),
+            CommandBody::FillPrime { sub_op, fill_mu, prime_steps } => match *sub_op {
+                SUBOP_FILL => self.fill(MilliUnits(*fill_mu)),
+                SUBOP_PRIME => self.prime(Pulses(*prime_steps as u32)),
+                _ => Err(Error::BadArg),
+            },
+            CommandBody::Acknowledge { fault_mask } => self.acknowledge(Faults(*fault_mask)),
+            CommandBody::SetPairing { pair_id, role } => self.set_pairing(*pair_id, *role),
+            CommandBody::Activate { pair_id, activation_id, schedule, temp } => {
+                let r = match Self::schedule_from_wire(schedule) {
+                    Ok(s) => {
+                        let a = ActivateArgs {
+                            pair_id: *pair_id,
+                            activation_id: *activation_id,
+                            schedule: s,
+                            temp: temp.map(|(r, m)| (MilliUnitsPerHour(r as u32), Minutes(m as u32))),
+                        };
+                        self.activate(&a)
+                    }
+                    Err(e) => Err(e),
+                };
+                rsp.status = Some(self.get_status());
+                r
+            }
+            CommandBody::FillDraw { amount_mu } => self.fill_draw(MilliUnits(*amount_mu)),
+            CommandBody::Release { pair_id } => {
+                let r = self.release(*pair_id);
+                if let Ok(mu) = r {
+                    rsp.act_delivered_mu = Some(mu.0);
+                }
+                rsp.status = Some(self.get_status()); // final totals + reservoir
+                r.map(|_| ())
+            }
+            CommandBody::GetHistory { from_id, max_events } => {
+                let mut max = *max_events as usize;
+                if max == 0 || max > HIST_MAX_PER_RESPONSE {
+                    max = HIST_MAX_PER_RESPONSE;
+                }
+                let mut buf = [crate::log::Event::default(); HIST_MAX_PER_RESPONSE];
+                let n = self.log.read(*from_id, &mut buf[..max]);
+                let mut h = History {
+                    next_event_id: self.log.next_id(),
+                    oldest_event_id: self.log.oldest_id(),
+                    ..Default::default()
+                };
+                for e in &buf[..n] {
+                    let _ = h.events.push((*e).into());
+                }
+                rsp.history = Some(h);
+                Ok(())
+            }
+        };
+        rsp.result = Error::result_code(&r);
+        rsp
+    }
+
+    /// Full protocol path: decode/authenticate -> execute -> response frame. Returns the response
+    /// length, or the error when no response can be produced (undecodable / unauthenticated /
+    /// replayed frames are dropped silently, without side effects).
+    pub fn handle_frame<C: Ccm>(&mut self, session: &mut Session<C>, input: &[u8], out: &mut [u8]) -> Result<usize, Error> {
+        let mut plain = [0u8; FRAME_MAX];
+        let (ftype, fseq, fflags, mut rsp) = {
+            let f = session.open(input, &mut plain)?;
+            self.de.comm_heartbeat(); // authenticated + fresh = the phone is alive
+            let rsp = match proto::decode_command(f.type_, f.seq, f.payload) {
+                Err(e) => Response { type_: f.type_, seq: f.seq, result: e.code(), ..Default::default() },
+                Ok(c) => self.execute(&c),
+            };
+            (f.type_, f.seq, f.flags, rsp)
+        };
+        if let Some(s) = rsp.status.as_mut() {
+            s.last_seq = session.last_rx_seq(); // lets the phone resync after a pod reboot
+        }
+        let mut body = [0u8; FRAME_MAX];
+        let n = proto::encode_response_payload(&rsp, &mut body)?;
+        session.seal(true, ftype | RSP_BIT, fseq, fflags & proto::FLAG_ENCRYPTED != 0, &body[..n], out)
+    }
+}
+
+impl<H: Hal> Pump<H> {
+    /// `true` while no fault is latched.
+    pub fn sv_ok(&self) -> bool {
+        self.sv.motor_allowed()
+    }
+
+    /// Direct log access for tests (inject events).
+    #[doc(hidden)]
+    pub fn log_mut(&mut self) -> &mut EventLog {
+        &mut self.log
+    }
+}

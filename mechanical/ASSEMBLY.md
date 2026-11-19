@@ -91,61 +91,56 @@ cycles.
 
 ---
 
-# Bench pod assembly (Rev A bench split, spec 4a)
+# Bench pod assembly (Rev A bench split, spec 4a; NFP geared stepper, coaxial, spec 4)
 
-EXPERIMENTAL bench test sample: **water only, never connect to a person.** The integrated sequence above (steps 4-7: battery, main PCB, coil,
-Qi) does **not** apply to the bench pod, and its cannula pocket is superseded by the slide-on dock below. Files: `python3 generate.py --variant bench`
--> `out/bench/` (`OP-xx.layout.json` = board layout for the electronics, `OP-xx.mech.json` = full mechanical layout), upload package `out/bench/fab/`.
+EXPERIMENTAL bench test sample: **water only, never connect to a person.** The integrated sequence above (battery, main PCB, coil, Qi, gears) does **not** apply.
+Files: `python3 generate.py --variant bench` -> `out/bench/` (`OP-xx.layout.json` = pod board layout, `OP-xx.mech.json` = full mechanical layout), upload package `out/bench/fab/`
+(printed parts, mould, `dock-coupon/`). Refill: `REFILL.md` (automatic draw mode).
 
-Tools: **tweezers, small screwdriver (PH000 / 1.5 mm slotted)**, 0.5 / 1.0 / 2.0 mm drills in a pin vise, deburring tool, UV lamp (hub fallback only),
-4 mm biopsy punch + 2 mm punch (septum plugs), razor blade. **No soldering iron:** the pod sensor board arrives assembled (JLC PCBA, spring contacts, hall
-sensors and the FFC connector already reflowed).
+Tools: **tweezers, small screwdriver (PH000 / 1.5 mm slotted)**, 0.5 / 1.0 / 2.0 mm drills in a pin vise, deburring tool, cyanoacrylate (thread-locker 638 optional), 4 mm + 2 mm biopsy punches,
+razor blade. **No soldering iron:** the pod sensor board arrives assembled (JLC PCBA); the motor keeps its factory lead with the JST 1.25 plug (soldered by the manufacturer).
 
-Parts per pod: printed bottom, top, carriage, reservoir, plunger core, cannula adapter; cast lip seals + gasket; purchased drive (see `parts.md`),
-pod sensor board (OP-100, one board for all sizes), 1x spindle magnet d2x1 diametric, 1x dock magnet d2x1 axial (goes into the adapter), motor tail strip,
-10-pin 0.5 mm FFC cable, 30G needle with press-fit hub, 4 mm fill septum, M1.2 screws (4x6 mm lid, 1x4 mm board).
+Parts per pod: printed bottom, top, carriage, reservoir, plunger core, cannula adapter, sleeve coupler; cast lip seals + gasket; NFP-608-26.45-SGM motor with lead; M1.6 leadscrew + M1.6 nut;
+duckbill check valve (OD <= 3 mm); pod sensor board (OP-100, same for all sizes); magnets d2x1: spindle (diametric), dock (axial, goes into the adapter); 10-pin FFC cable; 30G needle with press-fit hub;
+4 mm fill septum; M1.2 screws (6 x 6 mm lid, 2 x 4 mm board).
 
 ## B0. Dock fit test (once per cannula head design, before ordering pods)
 Test-fit the printed `dock-coupon` to a spare cannula head as described in `cannula-measurement.md` and enter the winning values in `params.json`.
 
 ## B1. Incoming inspection (15 min)
-1. Wash printed parts, blow out all bores: needle hub bore d2.0 (dock), fluid channel d0.7, pilot holes d1.0 (3 dry-end posts + 1 board boss), bearing bores 3.05.
-2. Check the dock: the two snap arms (0.8 mm) must be free (a 0.3 mm feeler must pass between the arm and the floor opening edge); flex each arm by hand 2 mm and release.
-3. Check the adapter: magnet pocket d2.1, septum bore d0.5 free, hose barb channel d0.7 free (pin through it).
+1. Wash printed parts, blow out all bores: coupler bores (d2.04 D-bore, d1.64 M1.6), pilot holes d1.0 (lid posts, board boss), bearing bore 3.05, needle hub bore d2.0, valve bore d3.05.
+2. Dock: flex each snap arm by hand 2 mm and release. Adapter: magnet pocket d2.1, septum bore d0.5, hose barb channel d0.7.
+3. Motor: measure the shaft (d2.0 with D-flat 1.5), free shaft length and the pin block position on the real part; correct `drive_presets.nfp_608_26` if different, regenerate.
 
-## B2. Plunger, seal, reservoir, drive train
-Identical to the integrated build: sections 1-3 above (cast the lip seals in `mould/`, reservoir into the bottom, gears, bushings, carriage + nut, leadscrew, spindle magnet,
-motor in the saddles). The outlet channel d0.7 now runs from the reservoir end port **at z = 3.0 (septum axis height)** into the dock end block.
+## B2. Plunger, seal, reservoir, carriage
+Cast the lip seals in `mould/`, assemble plunger core + seals, push into the reservoir (sections 1-2 above). Carriage with the **fixed M1.6 nut** (press into the hex pocket).
 
-## B3. Needle and hub (horizontal)
-1. Press the 30G needle into the hub (needle pointing toward the dock mouth), tip protruding 3.5 mm from the hub face.
-2. Insert the hub from the dock mouth into the d2.0 bore of the guard tube until it bottoms (hub face at x_r1 + 1.5). Check the tip: it must sit 2.9 mm
-   in front of the septum face reference (recess depth 1.0 + needle depth 1.9, TODO-MEASURE).
-3. If the hub weeps: one drop of UV adhesive at the hub rim, UV lamp 30 s.
+## B3. Motor, coupler, leadscrew
+1. Lay the motor in the three cradles of the lane (rear boss toward the dry end wall, **terminal pins pointing to the +Y wall**). The lead (4 wires) goes through the slot in the +Y wall:
+   weave the wires between the two printed posts (strain relief), then out through the slot. Do not pull on the wires; the solder joints must never carry load.
+2. Sleeve coupler: slide it over the shaft (D-bore matches the flat), one drop of cyanoacrylate on the shaft only. Brass tube alternative: same dimensions.
+3. Thread the M1.6 leadscrew through the carriage nut (turn it by hand) into the coupler (M1.6 bore; or press fit) and through the far bearing; put the **spindle magnet** (diametric, d2 x 1) on the screw end.
+4. Turn the screw by hand: the carriage must run between the rear stop blocks and the far bearing block without binding.
 
-## B4. Pod sensor board
-1. Lay the motor tail strip (4 pads) on the **motor shelf** (`bench.shelf`, top z 4.65) with the pad centres at the layout `motor_contacts.mating_strip` positions; keep the strip flat.
-2. Seat the board over the two locating pins (d1.0, from the pin posts) and the two support posts; the leg overhangs the dock channel. Check that the four spring contacts land on the strip pads and the spindle
-   hall sensors sit above-and-beyond the magnet end (`hall_sensors` in the layout).
-3. One **M1.2 x 4 screw** into the board boss (hole d1.4 in the board, pilot d1.0 in the post). Stop when the head touches the board; do not over-torque.
-4. Insert the FFC cable into the ZIF connector (flip-lock down), cable leaving toward the +X end wall.
+## B4. Duckbill valve and needle
+1. Drop the **duckbill valve** into the open slot of the dock end block (flow direction toward the needle, i.e. toward +X), push it into the d3.05 bore with tweezers.
+2. Needle in its hub (tip protruding 3.5 mm), hub into the bore of the guard tube from the dock mouth, until it bottoms. Check the tip position as in section B7 of the coupon notes.
 
-## B5. Closing
-1. Place the gasket on the bottom tongue (the cut-out for the dome mouth faces the +X end).
-2. Lower the lid straight down: the three lid pads touch the board top (hold-down), the FFC leaves through the slot in the +X wall, the dome mouth lines up with the floor opening.
-3. Four M1.2 x 6 lid screws (3 at the dry end, 1 at x_r1 + 3.0).
+## B5. Pod sensor board
+1. Seat the board over the 2 locating pins and the support posts; the leg overhangs the dock channel. The TMAG5273 must sit under the spindle magnet end.
+2. One **M1.2 x 4 screw** into the board boss. FFC cable into the ZIF connector (flip-lock), cable leaving toward the +X end wall.
 
-## B6. Cannula adapter (stands in for the Insight Flex head)
-1. Press the d2x1 axial magnet into the rear lug pocket (CA drop if loose), flat face up.
-2. Punch a d2 plug from 1 mm silicone sheet, press it into the septum bore behind the recess (needle zone).
-3. Slip 1/16" ID silicone tubing on the d1.6 hose barb (rear), other end to the collection vessel.
-4. **Dock:** hold the pod flat, mouth first, and push the pod onto the adapter along the table: the dome enters the channel, the arms spread (about 2 N), then snap behind the dome; the needle enters the septum.
-   Release by pulling the pod straight back (hook ramps); note the effort for the coupon log.
+## B6. Closing
+Gasket on the bottom tongue, lower the lid (the hold-down pads touch the board, the FFC leaves through its slot, the fill window sits over the carriage lane), 6 lid screws (M1.2 x 6).
 
-## B7. Function check (water)
-1. Connect the FFC to the bench controller, power from USB-C. The dock hall (above the adapter lug) must read DOCKED only with the adapter latched; pull the adapter 5 mm back: NOT docked.
-2. Fill the reservoir through the septum with water (30G syringe), prime until water appears at the barb, weigh delivery (1 mg = 1 ul = 0.1 U), calibrate steps against the spindle hall counts.
-3. Occlusion test: pinch the hose, check the current/stall alarm.
+## B7. Cannula adapter and dock
+Magnet d2x1 axial into the rear lug pocket (CA drop), punched d2 silicone plug into the septum bore, 1/16" ID silicone tubing on the d1.6 barb. **Dock:** push the pod flat, mouth first, onto the adapter along
+the table: the dome enters the channel, the arms spread (under 1 N), snap behind the dome, the needle enters the septum. Release by pulling the pod straight back.
 
-## B8. Disassembly
-Reverse order. Reusable: motor, gears, screws, magnets, sensor board, FFC. Consumed: lip seals, gasket, septum plugs; needle hubs after 3-5 cycles.
+## B8. Function check (water)
+1. FFC to the bench controller, motor lead (JST 1.25) into the controller board, USB-C power. Dock hall reads DOCKED only when latched; TMAG angle changes when the screw turns.
+2. Draw water (REFILL.md), prime, then deliver steps: 0.00494 U/step, weigh (1 mg = 1 ul = 0.1 U), calibrate steps/U against the weight.
+3. Occlusion: pinch the hose; the current/angle monitor must alarm.
+
+## B9. Disassembly
+Reverse order. Reusable: motor, sensor board, magnets, FFC, screws, coupler (brass), duckbill valve (check). Consumed: lip seals, gasket, septum plugs, needle hubs after 3-5 cycles.

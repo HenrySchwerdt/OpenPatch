@@ -7,8 +7,8 @@ Frames
           Viewed from the TOP (lid side), X right, Y up (mathematical).  KiCad import: flip Y.
           F.Cu = top (+Z, lid side), B.Cu = bottom (-Z, floor side).
 
-One board for all sizes: every board feature is expressed relative to x_r1 (the motor terminal strip is a flex tail that
-is routed to the same board-relative pads on every size), so the board file is identical; only the pod offset
+One board for all sizes: every board feature is expressed relative to x_r1 (the motor is wired by its factory lead
+to the controller, not to this board), so the board file is identical; only the pod offset
 x0 = x_r1 + u_left changes per size.
 """
 from __future__ import annotations
@@ -72,7 +72,7 @@ def bench_geometry(p: dict, L: dict) -> dict:
         "z_body_pod": [round(z0 - tm["pkg"][2], 3), z0], "z_sensing_pod": round(tz_mid, 3),
         "sensing_axes": "3-axis. Package Z (out of the marking face) = -Z_pod because the part hangs under the board; "
                         "package X/Y lie in the board plane (pin row along pod Y).",
-        "optional": True, "air_gap_to_magnet_end_face_mm": round(tm["u"] - tm["pkg"][0] / 2 - (L["mag_x"][1] - xr), 3),
+        "optional": False, "mandatory_reason": "per-pulse angle check (6.43 deg per tooth); the DRV pair is only a coarse second channel", "air_gap_to_magnet_end_face_mm": round(tm["u"] - tm["pkg"][0] / 2 - (L["mag_x"][1] - xr), 3),
         "dist_to_magnet_centre_mm": round(math.hypot(dx_t, tz_mid - zc), 3),
         "expected_field_mT": round(abs(diametric_field_mT((dx_t, 0.0, tz_mid - zc), 0.0)[2]), 1),
         "note": "On the spindle axis (end-of-shaft angle sensing): B rotates in the Y-Z plane with the magnet, "
@@ -134,26 +134,20 @@ def bench_geometry(p: dict, L: dict) -> dict:
         "assumed_Br_T": 1.3,
     }
 
-    # ---- motor contacts --------------------------------------------------------------------------
-    c = b["contacts"]
-    ct_pos = []
-    k = 0
-    for vv in c["v"]:
-        for uu in c["u"]:
-            k += 1
-            ct_pos.append({"id": f"MC{k}", "center_board_mm": brd(uu, vv), "center_pod_mm": pod(uu, vv)})
-    pad_top = c["shelf_top"] + c["strip_t"]
+    # ---- motor (NFP, coaxial) and its factory lead -----------------------------------------------------------
+    C = L["coax"]
+    cx = p["coax"]
     contacts = {
-        "count": 4, "count_note": "ZWBPD006006 is a 2-phase stepper: 4 terminals (A+, A-, B+, B-); 2 contacts would only drive a DC motor",
-        "tips": ct_pos, "assignment": "free (swap by firmware/jumper; board routes MC1..MC4 to the driver outputs)",
-        "contact_body_mm": c["body"], "contact_body_orientation": "long axis (3.5) along pod X",
-        "candidate_part": "BWCD-L3.5W2.0H1.0 SMD spring contact (LCSC C2826547) - VERIFY footprint/force",
-        "free_height_mm": c["body"][2], "compressed_height_mm": round(z0 - pad_top, 3), "preload_compression_mm": round(c["body"][2] - (z0 - pad_top), 3),
-        "mating_strip": {"description": "motor tail strip (flex or 0.2 mm FR4 offcut) with 4 pads lying on the shelf; user-made, "
-                                        "TODO-VERIFY against the real ZWBPD006006 terminal geometry",
-                         "pad_mm": c["strip_pad"], "pad_top_z_pod": round(pad_top, 3), "strip_t_mm": c["strip_t"],
-                         "shelf_top_z_pod": c["shelf_top"]},
-        "board_pad_note": "tip positions = centre of the SMD contact body; board footprint per chosen part",
+        "bench_variant": "NO motor contacts on the pod sensor board: the NFP motor keeps its factory lead (4 x 30 AWG soldered to the 4 pins, JST 1.25 plug). "
+                         "The lead runs along -X to a slot in the dry end wall and plugs into the bench controller board (not into this board).",
+        "motor_pins_pod": {"x_pod": round(C["pin_x"], 3), "z_pod_B_Aminus_Bplus_A": [round(z, 3) for z in C["pin_z"]], "y_tip_pod": round(C["pin_tip_y"], 3),
+                           "direction": "-Y", "pitch_mm": p["drive"]["term_pitch"], "note": "pins point -Y (into the empty area beside the motor), row along Z; y_s = %.2f" % L["y_s"]},
+        "lead_exit_slot": {"wall": "dry end wall (x = 0)", "x_pod": [-0.1, L["wall"] + 0.1], "y_pod": [round(C["pin_tip_y"] - cx["slot_w"] / 2, 3), round(C["pin_tip_y"] + cx["slot_w"] / 2, 3)],
+                           "z_pod": cx["slot_z"],
+                           "strain_relief": "2 staggered posts d%.1f at (x%+.1f, y%+.2f) and (x%+.1f, y%+.2f) from the pin tips: the wires weave between them" % (cx["post_d"], -1.2, 0.45, -2.4, -0.45)},
+        "motor_chain_pod_x": {"rear_boss": round(C["x_rb0"], 3), "motor": [round(C["x_m0"], 3), round(C["x_m1"], 3)], "gearbox": [round(C["x_m1"], 3), round(C["x_g1"], 3)],
+                              "shaft_tip": round(C["x_tip"], 3), "coupler": [round(C["c0"], 3), round(C["c1"], 3)]},
+        "u_per_step": L["drive"]["u_per_step"], "note": "TMAG5273 is MANDATORY (angle per revolution = 1 leadscrew turn = 0.35 mm = 2.61 U / 26.45... see REFILL.md); DRV pair optional.",
     }
 
     # ---- FFC connector, cable and exit slot --------------------------------------------------------
@@ -204,9 +198,9 @@ def bench_geometry(p: dict, L: dict) -> dict:
         {"region": "wing (spindle sensors)", "rect_board": [round(U0 - U0, 3), round(wv[0] - V0, 3), round(lobe - U0, 3), round(wv[1] - V0, 3)],
          "top_max_mm": round(top_free - 0.2, 2), "bottom_max_mm": 1.5,
          "note": "bottom: TMAG5273 1.45 mm hangs in free air (floor is 4.0 mm below)"},
-        {"region": "body (contacts, connector, free area)", "rect_board": [round(lobe - U0, 3), round(bv[0] - V0, 3), round(u_right - U0, 3), round(bv[1] - V0, 3)],
+        {"region": "body (connector, free area)", "rect_board": [round(lobe - U0, 3), round(bv[0] - V0, 3), round(u_right - U0, 3), round(bv[1] - V0, 3)],
          "top_max_mm": round(top_free - 0.2, 2), "bottom_max_mm": 1.0,
-         "note": "bottom: spring contacts (free height 1.0 mm) over the shelf; elsewhere free air; top: connector 1.0 mm"},
+         "note": "bottom: free air (floor is 4.4 mm below); top: FFC connector 1.0 mm"},
         {"region": "leg over the dock channel", "rect_board": [round(lu[0] - U0, 3), round(b["leg_v0"] - V0, 3), round(lu[1] - U0, 3), round(bv[0] - V0, 3)],
          "top_max_mm": round(top_free - 0.2, 2), "bottom_max_mm": 0.4,
          "note": "bottom: ONLY HALL_DOCK (0.4 mm). The dome (top at z=%.1f) and the adapter lug (top z=%.1f) slide under this leg, board bottom z=%.1f" % (p["cannula"]["B_dome_h"], ad["lug_top"], z0)},
@@ -222,8 +216,7 @@ def bench_geometry(p: dict, L: dict) -> dict:
         "xr": xr, "X0": X0, "V0": V0, "ztop": ztop, "z0": z0, "t": t, "u_right": u_right,
         "outline": clean, "width": width, "height": height, "sensors": sensors, "magnets": magnets, "contacts": contacts,
         "ffc": ffc, "mount": mount, "keepouts": keepouts, "excl_circles": excl_circles,
-        "x_dock": x_dock, "shelf": {"x": [L["mot_end"] + 0.3, xr + c["u"][1] + c["strip_pad"][0] / 2 + 0.2],
-                                   "y": b["shelf_y"], "z_top": c["shelf_top"]},
+        "x_dock": x_dock,
         "motor_clearance_mm": {"board_vs_motor_axis_edge": round((ys + 0) * 0 + L["y_m"] - 3.0 - wv[1], 3),
                                "note": "wing top edge to motor body (Ø6, y_m-3), at x < motor end + 0.3"},
     }
@@ -236,9 +229,8 @@ def layout_json(p: dict, L: dict, B: dict) -> dict:
         "schema": SCHEMA, "variant": L["variant"], "kind": "pod_sensor_board", "drawing_no": "OP-100",
         "units": "mm", "status": "generated by mechanical/generate.py --variant bench; geometry is CAD-verified by check.py",
         "one_board_for_all_sizes": True,
-        "one_board_note": ("All board-frame numbers below (outline, sensors, contacts, FFC, holes) are IDENTICAL for OP-70, OP-100 "
-                           "and OP-200; only transform.board_origin_in_pod_mm differs. Motor terminals are reached through a "
-                           "flex tail to the same board-relative pads on every size."),
+        "one_board_note": ("All board-frame numbers below (outline, sensors, FFC, holes) are IDENTICAL for OP-70, OP-100 "
+                           "and OP-200; only transform.board_origin_in_pod_mm differs. The motor is NOT on this board (factory lead to the controller)."),
         "frames": {
             "pod": "X length, Y width, Z up (Z=0 skin side); same as the integrated pod",
             "board": "bx,by = pod x,y minus board_origin_in_pod_mm, board viewed from the TOP (lid side), X right, Y up; KiCad: flip Y",
@@ -257,7 +249,7 @@ def layout_json(p: dict, L: dict, B: dict) -> dict:
                         "bottom_free_mm_over_open_floor": round(B["z0"] - L["wall"], 2)},
         "keepout_heights_mm": B["keepouts"], "keepout_circles": B["excl_circles"],
         "hall_sensors": B["sensors"], "magnets": B["magnets"],
-        "motor_contacts": B["contacts"], "ffc_connector": B["ffc"],
+        "motor": B["contacts"], "ffc_connector": B["ffc"],
         "mounting": B["mount"],
         "adapter": {"part": "cannula_adapter (dummy dome, printed)", "magnet_pocket": {"d_mm": b["adapter"]["magnet_d"] + b["adapter"]["magnet_clr"],
                                                                  "depth_mm": b["adapter"]["magnet_t"] + 0.05},
@@ -307,19 +299,6 @@ def build_bench_electronics(s: Script, p: dict, L: dict) -> None:
         zr = sen["z_body_pod"]
         name = {"HALL_3D": "hall_tmag", "HALL_A": "hall_drv0", "HALL_B": "hall_drv1", "HALL_DOCK": "hall_dock"}[sen["id"]]
         s.box(name, (cx - bx / 2, cx + bx / 2), (cy - by / 2, cy + by / 2), tuple(zr))
-
-    # ---- spring contacts (compressed state) on the motor tail strip ---------------------------------------
-    cb = b["contacts"]["body"]
-    pad_top = b["contacts"]["shelf_top"] + b["contacts"]["strip_t"]
-    for i, tip in enumerate(B["contacts"]["tips"]):
-        cx, cy = tip["center_pod_mm"]
-        s.box(f"spring{i}", (cx - cb[0] / 2, cx + cb[0] / 2), (cy - cb[1] / 2, cy + cb[1] / 2), (pad_top, z0))
-    sp = B["contacts"]["mating_strip"]
-    ux = b["contacts"]["u"]
-    uv = b["contacts"]["v"]
-    pw, ph = sp["pad_mm"]
-    s.box("motor_strip", (X(ux[0]) - pw / 2, X(ux[1]) + pw / 2), (uv[0] - ph / 2, uv[1] + ph / 2),
-          (b["contacts"]["shelf_top"], pad_top))
 
     # ---- FFC connector + cable ----------------------------------------------------------------------------
     f = b["ffc"]

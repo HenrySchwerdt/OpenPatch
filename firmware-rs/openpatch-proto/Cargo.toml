@@ -1,0 +1,23 @@
+[package]
+name = "openpatch-proto"
+description = "OpenPatch wire protocol v1: frame/TLV codec, CRC-16, session (replay + CCM trait). no_std, no alloc."
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[features]
+default = []
+# Real AES-128-CCM (RFC 3610, M = 8, L = 2) via RustCrypto `aes` + `ccm`.
+aes-ccm = ["dep:aes", "dep:ccm"]
+std = []
+defmt = ["dep:defmt"]
+
+[dependencies]
+heapless = { workspace = true }
+aes = { version = "0.8.4", optional = true, default-features = false }
+ccm = { version = "0.5.0", optional = true, default-features = false }
+defmt = { version = "0.3.8", optional = true }
+
+[dev-dependencies]
+proptest = { workspace = true }

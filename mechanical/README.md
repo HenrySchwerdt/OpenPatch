@@ -124,3 +124,6 @@ plunger_seal,gasket}.step/.stl`, `{mould_lower,mould_upper}.step/.stl`, `{reserv
   needle-free fit-test strip `out/fab/dock-coupon/`.
 * The **integrated variant does not pass `check.py` with the new dock**: the dome channel (12 x 18 mm footprint, 5.0 mm high) takes most of the old battery / PCB / RF area. It is
   postponed to Rev B together with the SMA drive; `out/OP-xx*` files are the pre-dock state.
+
+* **Drive (final 2026-11-19): NFP-608-26.45-SGM geared stepper, coaxial with the leadscrew via a sleeve coupler** (`op_coax.py`), fixed nut, duckbill check valve (`REFILL.md`: automatic draw mode, water only).
+  The bench pod is therefore longer (OP-70/100/200: 63.2 / 67.2 / 80.6 mm) and narrower (30.0 mm); envelope targets for the bench variant are in `params.json -> bench.length_targets`.

@@ -122,7 +122,7 @@
   "groove_d": 0.5,
   "cradle_t": 1.2,
   "cradle_up": 1.2,
-  "active_preset": "zw_pd6_1stage",
+  "active_preset": "nfp_608_26",
   "_note": "Zhaowei ZWBPD006006 6mm planetary-gear stepper, 1 stage (listed 5/6:1; 5.0 assumed). Gearbox 9.7 mm, total 23.7 mm (vendor page). 20 steps/rev ASSUMED (TODO-VERIFY with seller)."
  },
  "battery": {
@@ -201,7 +201,7 @@
   "dry_y": [
    4.2,
    11.7,
-   19.0
+   14.5
   ],
   "dry_x": 2.0,
   "c_dx": 3.0,
@@ -286,7 +286,7 @@
  },
  "drive_presets": {
   "zw_pd6_1stage": {
-   "_note": "Zhaowei ZWBPD006006 6mm planetary-gear stepper, 1 stage (listed 5/6:1; 5.0 assumed). Gearbox 9.7 mm, total 23.7 mm (vendor page). 20 steps/rev ASSUMED (TODO-VERIFY with seller).",
+   "_note": "BACKUP motor (Zhaowei ZWBPD006006 / '6.43' 6 mm planetary stepper). Zhaowei ZWBPD006006 6mm planetary-gear stepper, 1 stage (listed 5/6:1; 5.0 assumed). Gearbox 9.7 mm, total 23.7 mm (vendor page). 20 steps/rev ASSUMED (TODO-VERIFY with seller).",
    "gearhead_len": 9.7,
    "motor_len": 14.0,
    "gh_ratio": 5.0,
@@ -307,6 +307,33 @@
    "gh_ratio": 16.0,
    "steps_per_rev": 20,
    "motor_tail": 1.0
+  },
+  "nfp_608_26": {
+   "_note": "NFP-608-26.45-SGM (nfpshop.com, datasheet stepper-gear-motor-spec-NFP-608-26.45-SGM.pdf outline drawing): body d6.0+-0.1, length 15.1 = gearbox 8.1 + motor 8.0, front boss d3.5 x 0.8, rear boss d2.6 (short, 0.7 VERIFY), shaft d2.0 with D-flat 1.5 over 2.5 mm, 11.7 from the shaft reference line to the gearbox/motor junction (drawing not to scale), 4 terminal pins 1.2 pitch on the motor section pointing 'down' in the end view (order B, A-, B+, A), 20 steps/rev, ratio 26.45. Free shaft length is DERIVED from the drawing (VERIFY with calipers); shaft is cut to shaft_cut_x in the pod.",
+   "gearhead_len": 8.1,
+   "motor_len": 8.0,
+   "gh_ratio": 26.45,
+   "steps_per_rev": 20,
+   "motor_tail": 0.7,
+   "boss_front": 0.8,
+   "boss_d": 3.5,
+   "rear_boss_d": 2.6,
+   "shaft_d": 2.0,
+   "shaft_flat": 1.5,
+   "shaft_flat_len": 2.5,
+   "shaft_free": 5.3,
+   "shaft_cut_x": 1.2,
+   "term_x": 11.0,
+   "term_pitch": 1.2,
+   "term_block": [
+    3.4,
+    4.6,
+    0.65
+   ],
+   "pin_len": 1.05,
+   "pin_trim_len": 0.15,
+   "pin_tab_len": 1.4,
+   "pin_tab_t": 0.15
   }
  },
  "bench": {
@@ -321,11 +348,11 @@
   ],
   "body_v": [
    14.5,
-   30.5
+   25.5
   ],
   "leg_u": [
-   11.0,
-   15.8
+   14.0,
+   18.4
   ],
   "leg_v0": 4.6,
   "corner_r": 2.5,
@@ -357,34 +384,9 @@
     0.4
    ]
   },
-  "contacts": {
-   "u": [
-    11.2,
-    15.0
-   ],
-   "v": [
-    25.7,
-    28.3
-   ],
-   "body": [
-    3.5,
-    2.0,
-    1.0
-   ],
-   "strip_pad": [
-    2.6,
-    1.8
-   ],
-   "strip_t": 0.1,
-   "shelf_top": 4.65
-  },
-  "shelf_y": [
-   25.0,
-   29.8
-  ],
   "ffc": {
-   "u": 15.0,
-   "v": 20.5,
+   "u": 15.8,
+   "v": 18.5,
    "conn": [
     4.0,
     7.4,
@@ -404,11 +406,11 @@
    "pins": [
     [
      10.6,
-     15.8
+     18.0
     ],
     [
-     16.4,
-     22.5
+     17.2,
+     22.0
     ]
    ],
    "pin_d": 1.0,
@@ -423,28 +425,28 @@
    "screw_len": 4.0,
    "posts": [
     [
-     6.2,
+     7.0,
      22.4
     ],
     [
-     16.2,
-     15.6
+     17.2,
+     16.0
     ]
    ],
    "post_d": 1.6,
    "boss_d": 2.2,
    "hd": [
     [
-     6.2,
+     6.5,
      22.4
     ],
     [
      12.9,
-     27.0
+     22.8
     ],
     [
      16.2,
-     15.6
+     13.3
     ]
    ],
    "hd_d": 1.2,
@@ -464,17 +466,25 @@
    "barb_d": 1.6,
    "barb_len": 5.0
   },
-  "board_z0": 5.3
+  "board_z0": 5.3,
+  "revB_motor_contacts_note": "Rev B spring-contact variant: order the NFP motor WITHOUT lead; pins B,A-,B+,A at 1.2 mm pitch, see layout.json motor_pins_revB",
+  "width": 27.0,
+  "tail_len": 19.0,
+  "length_targets": {
+   "OP-70": 65.5,
+   "OP-100": 69.5,
+   "OP-200": 83.0
+  }
  },
  "dock": {
   "_comment": "pod side of the slide-on dock. y_c = dock axis in pod Y. arm_in = relaxed inner half spacing of the snap arms.",
-  "y_c": 10.3,
-  "hub_x0": 0.8,
+  "y_c": 11.5,
+  "hub_x0": 4.8,
   "hub_t": 0.7,
   "hub_d": 2.0,
   "hub_clr": 0.0,
   "needle_free": 3.5,
-  "block_len": 1.5,
+  "block_len": 4.4,
   "block_half_y": 3.0,
   "block_up": 2.2,
   "arm_t": 0.8,
@@ -488,6 +498,59 @@
   "dome_clr": 0.1,
   "mouth_over": 0.6,
   "arm_gap_clr": 0.2,
-  "hook_ramp": 0.4
+  "hook_ramp": 0.4,
+  "valve_x0": 0.6,
+  "cap": {
+   "septum_x": 2.2,
+   "spigot_len": 2.0,
+   "spigot_d": 1.98,
+   "block_y0": 1.0,
+   "block_up_y": 3.0,
+   "jog_x": 0.3,
+   "wall_hole_d": 2.0
+  }
+ },
+ "coax": {
+  "_comment": "Coaxial NFP motor + sleeve coupler (see op_coax.py). All lengths VERIFY with the real motor.",
+  "rear_gap": 1.9,
+  "shaft_engage": 3.0,
+  "len": 5.6,
+  "od": 3.0,
+  "screw_gap": 0.2,
+  "carriage_gap": 0.3,
+  "valve_d": 3.0,
+  "valve_len": 3.4,
+  "post_d": 0.8,
+  "slot_w": 3.0,
+  "slot_z": [
+   2.4,
+   4.8
+  ]
+ },
+ "reservoir_frozen": {
+  "_comment": "FROZEN INTERFACE of the CNC polypropylene reservoir (one order per size). Everything else (cap, septum, duckbill, needle, dock, housing) adapts to these numbers; do not change after the order.",
+  "bore_w": 16.0,
+  "bore_h": 5.0,
+  "bore_tol_plus": 0.05,
+  "bore_tol_minus": 0.0,
+  "bore_corner_r": 2.5,
+  "wall": 0.8,
+  "end_wall": 2.5,
+  "port_d": 2.0,
+  "port_tol": "H7 (+0.012/0)",
+  "port_chamfer": 0.2,
+  "port_pos": "centre of the closed end face (y = bore centre, z = bore axis)",
+  "outer_w": 17.6,
+  "outer_h": 6.6,
+  "outer_tol": "+-0.1",
+  "length_tol": "+-0.1",
+  "Ra_bore_um": 0.8,
+  "Ra_other_um": 1.6,
+  "qty": 2,
+  "material": "Polypropylene homopolymer (PP-H), natural, USP Class VI / medical grade if available",
+  "tool_d": 5.0,
+  "tool_extra_flute": 1.0,
+  "slot_z_clr": 0.1,
+  "datums": "A = open dry-end face (x = 0); B = bottom flat (z = 0 at the lower outer flat); C = bore centre plane (y = 0)"
  }
 }
