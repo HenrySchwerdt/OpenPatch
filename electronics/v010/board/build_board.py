@@ -77,7 +77,7 @@ def main():
     b.keepout(ak[0], Y(ak[3]), ak[2], Y(ak[1]), "ANT_KEEPOUT")
     # ---- legalize per side
     forbid_b = [rect_y(ZONES["dock_insert_reserve"]["rect"]), rect_y(ZONES["battery_bay"]["rect"]), rect_y(ZONES["spindle_magnet_strip"]["rect"])]
-    forbid_both = [rect_y(ak)]
+    forbid_both = [rect_y(ak), rect_y(ZONES["notch"]["rect"])]
     bottom_allowed = set(("U1", "U4A", "U4B", "U10T", "SP1", "SP2", "J1", "BZ1", "U8", "L1", "D6", "R55", "R56", "C31"))
     legalize2(b, fps, set(fixed), forbid_b, forbid_both, bottom_allowed)
     # silkscreen
@@ -189,12 +189,12 @@ def legalize2(b, fps, fixed, forbid_b, forbid_both, bottom_allowed, margin=0.12,
             if r not in bottom_allowed:
                 c = f.GetPosition()
                 f.Flip(c, pcbnew.FLIP_DIRECTION_LEFT_RIGHT)
-                f.Move(pcbnew.VECTOR2I(MM(bl.OX + 28.0) - c.x, MM(bl.OY + H / 2) - c.y))
+                f.Move(pcbnew.VECTOR2I(MM(bl.OX + 30.0) - c.x, MM(bl.OY + 12.0) - c.y))
                 sd2 = side(f)
                 b0 = bl_boxes(f)
                 for dx, dy in cand:
                     b1 = [b0[0] + dx, b0[1] + dy, b0[2] + dx, b0[3] + dy]
-                    if b1[0] < 17.6 or b1[1] < edge or b1[2] > W - edge or b1[3] > H - edge:
+                    if b1[0] < edge or b1[1] < edge or b1[2] > W - edge or b1[3] > H - edge:
                         continue
                     if any(ov(b1, p) for p in placed[sd2]):
                         continue
