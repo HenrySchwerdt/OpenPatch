@@ -113,7 +113,7 @@ The fully integrated pod board does not route on 17.1 × 29 mm (see `electronics
 ## 6. Radio / protocols
 
 1. **OpenPatch protocol (native)** – dedicated BLE GATT profile, openly documented in `docs/04-protocol.md`, Trio integration via the dedicated LoopKit PumpManager kit `OpenPatchKit`.
-2. **DASH compatibility mode** – pod-side emulation of the Omnipod DASH BLE protocol, so that Trio talks through the existing `OmnipodKit` (loopandlearn). Reference implementation: `nightscout/ESP-Sim` (GPL-3.0 → firmware part is then GPL-3.0).
+2. **DASH compatibility mode** – pod-side emulation of the Omnipod DASH BLE protocol, so that Trio talks through the existing `OmnipodKit` (loopandlearn). Behavioural reference only: `nightscout/ESP-Sim` (GPL-3.0). **Licensing note:** the DASH mode must be an independent clean-room implementation of the protocol; no GPL code from nightscout/ESP-Sim may be copied, otherwise it cannot be combined with the PolyForm Noncommercial firmware (see `LICENSE.md`).
 3. **Omnipod 5**: is NOT emulated – O5 pairing uses P-256/ECDSA-signed transcripts and an external key manager with App Attest; DASH mode covers Trio.
 
 Note: In DASH mode Trio "sees" a 200 U pod with 80 h lifetime; reservoir display from < 50 U, as with DASH. Native mode shows real values, battery, reusability.
