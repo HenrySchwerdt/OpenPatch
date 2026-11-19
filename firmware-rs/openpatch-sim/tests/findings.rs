@@ -98,3 +98,16 @@ fn the_needle_never_sees_more_than_15_u_in_an_hour() {
     assert!(l.max_rolling_hour_core_mu > 13_900.0 && l.max_rolling_hour_core_mu <= 14_423.0, "precondition: the core is at its cap ({:?})", l);
     assert!(l.max_rolling_hour_actual_mu <= 15_000.0, "needle saw {:.0} mU in an hour", l.max_rolling_hour_actual_mu);
 }
+
+/// F7 (OPEN, assisted fill, spec 3c): the user does not push the syringe. The retracting plunger draws AIR through the open
+/// outlet needle (no check valve) and the pod books the travel as water: current and angle do not separate this from a healthy
+/// fill on this hardware (peak 134 mA against 136 mA), so the reservoir model is over-stated until a gravimetric / prime check.
+/// A detector needs a signal the pod does not have (plunger position independent of the carriage, or the pressure). Mitigations
+/// today: prime required before docking, positive-pressure procedure in the build guide. Enable when a detector exists.
+#[test]
+#[ignore = "open finding F7: no signal separates a pushed fill from a vacuum fill (assisted fill, no check valve)"]
+fn a_fill_nobody_pushes_is_stopped_and_not_booked() {
+    let o = run("assisted_fill_user_does_not_push");
+    let d = &o.verdict.draws[0];
+    assert_eq!(d.core_state, openpatch_proto::draw::STALLED, "{d:?}");
+}

@@ -21,7 +21,7 @@ scenario (TOML / JSON) -> Runner -> Device -> Pump<SimHal> (openpatch-core, unch
 | `plant.rs` | step-by-step mechanics + hydraulics; a step is lost when the load torque exceeds the pull-out torque at that rate and supply |
 | `electrical.rs` | battery, TMAG5273 sampling (13 bit -> 12 bit, noise, nonlinearity, magnet strength) and the 12 bit unwrap of `hal/angle.rs` |
 | `flash.rs` | settings records with write latency and power-loss injection (A/B atomic or pessimistic) |
-| `world.rs` | simulation clock, interlock gate `MCU_EN AND latch AND (DOCKED OR DIR_REVERSE)`, TPL5010, brown-out, `SimHal: Hal` |
+| `world.rs` | simulation clock, interlock gate `MCU_EN AND latch AND (DOCKED XOR DIR_REVERSE)`, TPL5010, brown-out, `SimHal: Hal` |
 | `device.rs` | boot + restore from flash (pod, reservoir, basal schedule, temp basal), 1 s tick, the persistence policy of `openpatch-bench` (the same `openpatch_core::persist` code), a phone that talks the real protocol path |
 | `scenario.rs`, `scenarios.rs`, `scenarios/*.toml` | scenario format and the built-in library (25 scenarios) |
 | `runner.rs` | executes a scenario, writes the CSV time series and the JSON verdict |

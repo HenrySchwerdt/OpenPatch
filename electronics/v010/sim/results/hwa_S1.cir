@@ -1,0 +1,60 @@
+* HW-A S1
+.model adc adc_bridge(in_low=1.0 in_high=2.0)
+.model dac dac_bridge(out_low=0.0 out_high=3.3)
+.model ff d_dff(ic=0)
+.model inv d_inverter
+.model and2 d_and
+.model or2 d_or
+.model pd d_pulldown
+.model pu d_pullup
+.model SWm sw(vt=0 vh=0.02 ron=100 roff=1e12)
+Varm arm_a 0 PWL(0 0 0.1 0 0.1001 3.3 0.15 3.3 0.1501 0)
+Vstck stck_a 0 PWL(0 0 0.1200000 0 0.1200010 3.3 0.1225000 3.3 0.1225010 0 0.1250000 0 0.1250010 3.3 0.1275000 3.3 0.1275010 0 0.1300000 0 0.1300010 3.3 0.1325000 3.3 0.1325010 0 0.1350000 0 0.1350010 3.3 0.1375000 3.3 0.1375010 0 0.1400000 0 0.1400010 3.3 0.1425000 3.3 0.1425010 0 0.1450000 0 0.1450010 3.3 0.1475000 3.3 0.1475010 0 0.1500000 0 0.1500010 3.3 0.1525000 3.3 0.1525010 0 0.1550000 0 0.1550010 3.3 0.1575000 3.3 0.1575010 0 0.1600000 0 0.1600010 3.3 0.1625000 3.3 0.1625010 0 0.1650000 0 0.1650010 3.3 0.1675000 3.3 0.1675010 0 0.1700000 0 0.1700010 3.3 0.1725000 3.3 0.1725010 0 0.1750000 0 0.1750010 3.3 0.1775000 3.3 0.1775010 0 0.1800000 0 0.1800010 3.3 0.1825000 3.3 0.1825010 0 0.1850000 0 0.1850010 3.3 0.1875000 3.3 0.1875010 0 0.1900000 0 0.1900010 3.3 0.1925000 3.3 0.1925010 0 0.1950000 0 0.1950010 3.3 0.1975000 3.3 0.1975010 0 0.2000000 0 0.2000010 3.3 0.2025000 3.3 0.2025010 0 0.2050000 0 0.2050010 3.3 0.2075000 3.3 0.2075010 0 0.2100000 0 0.2100010 3.3 0.2125000 3.3 0.2125010 0 0.2150000 0 0.2150010 3.3 0.2175000 3.3 0.2175010 0 0.2200000 0 0.2200010 3.3 0.2225000 3.3 0.2225010 0 0.2250000 0 0.2250010 3.3 0.2275000 3.3 0.2275010 0 0.2300000 0 0.2300010 3.3 0.2325000 3.3 0.2325010 0 0.2350000 0 0.2350010 3.3 0.2375000 3.3 0.2375010 0 0.2400000 0 0.2400010 3.3 0.2425000 3.3 0.2425010 0 0.2450000 0 0.2450010 3.3 0.2475000 3.3 0.2475010 0 0.2500000 0 0.2500010 3.3 0.2525000 3.3 0.2525010 0 0.2550000 0 0.2550010 3.3 0.2575000 3.3 0.2575010 0 0.2600000 0 0.2600010 3.3 0.2625000 3.3 0.2625010 0 0.2650000 0 0.2650010 3.3 0.2675000 3.3 0.2675010 0 0.2700000 0 0.2700010 3.3 0.2725000 3.3 0.2725010 0 0.2750000 0 0.2750010 3.3 0.2775000 3.3 0.2775010 0 0.2800000 0 0.2800010 3.3 0.2825000 3.3 0.2825010 0 0.2850000 0 0.2850010 3.3 0.2875000 3.3 0.2875010 0 0.2900000 0 0.2900010 3.3 0.2925000 3.3 0.2925010 0 0.2950000 0 0.2950010 3.3 0.2975000 3.3 0.2975010 0 0.3000000 0 0.3000010 3.3 0.3025000 3.3 0.3025010 0 0.3050000 0 0.3050010 3.3 0.3075000 3.3 0.3075010 0 0.3100000 0 0.3100010 3.3 0.3125000 3.3 0.3125010 0 0.3150000 0 0.3150010 3.3 0.3175000 3.3 0.3175010 0)
+Vrev rev_a 0 DC 0
+A1 [arm_a] [arm] adc
+A2 [stck_a] [stck] adc
+A3 [rev_a] [rev] adc
+Az zero pd
+Ao one pu
+Ainv_fwd rev fwd inv
+* window FF U13: D=1, CLK=ARM, reset (active high here) = not TS
+Ats_n ts ts_n inv
+Awin one arm zero ts_n win win_n ff
+* RC timer: WIN_N -> 500k -> TN, C = 1uF, Schmitt buffer -> TS
+Adac1 [win_n] [winn_a] dac
+Rt winn_a tn 500000.0
+Ct tn 0 1e-06
+* Schmitt buffer U14 (VT+ = 1.9 V, VT- = 1.0 V) as an analog latch
+Bs1 cs 0 V=v(tn)-1.9
+Bs2 cr 0 V=1.0-v(tn)
+Vh vhi 0 3.3
+Ssh vhi ts_a cs 0 SWm
+Ssl ts_a 0 cr 0 SWm
+Cts ts_a 0 1n IC=0
+Rts ts_a 0 1e9
+A4 [ts_a] [ts] adc
+* gating
+Afull_n full full_n inv
+Ax [win full_n] x and2
+Ay [rev x] y or2
+Ag [stck y] stck_g and2
+Ac [stck_g fwd] cnt_clk and2
+* 6-stage ripple counter, reset by WIN_N (U15), counts on falling edges of CNT_CLK
+Ack cnt_clk clk1 inv
+As1 qb1 clk1 zero win_n q1 qb1 ff
+As2 qb2 qb1 zero win_n q2 qb2 ff
+As3 qb3 qb2 zero win_n q3 qb3 ff
+As4 qb4 qb3 zero win_n q4 qb4 ff
+As5 qb5 qb4 zero win_n q5 qb5 ff
+As6 qb6 qb5 zero win_n full qb6 ff
+Adac2 [stck_g] [stckg_a] dac
+Adac3 [win] [win_a] dac
+Adac4 [full] [full_a] dac
+Adac5 [stck] [stck_ma] dac
+.tran 20u 0.6
+.control
+set noaskquit
+run
+wrdata electronics/v010/sim/results/hwa_S1.csv v(stck_ma) v(stckg_a) v(win_a) v(full_a) v(tn)
+.endc
+.end

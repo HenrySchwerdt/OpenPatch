@@ -36,6 +36,11 @@ pub struct Plant {
     pub phase_open: bool,
     /// Draw: the fill needle is in the septum and the vial supplies fluid at ambient pressure.
     pub fill_needle: bool,
+    /// Assisted fill: gauge pressure the user's syringe holds on the septum (kPa). 0 = suction from a vial at ambient pressure.
+    pub fill_push_kpa: f64,
+    /// Water that came in through the fill needle minus what left at the needle tip (ul): the net fill, including any
+    /// water held compressed by the syringe pressure (`compressed_ul`).
+    pub net_in_ul: f64,
     // ---- derived constants ----
     steps_per_turn: f64,
     backlash_rad: f64,
@@ -86,6 +91,8 @@ impl Plant {
         Plant {
             phase_open: false,
             fill_needle: false,
+            fill_push_kpa: 0.0,
+            net_in_ul: 0.0,
             steps_per_turn,
             backlash_rad: backlash_deg.to_radians(),
             // pull-out torque at the run current (torque ~ phase current; the datasheet figure is at the rated current)
@@ -94,7 +101,7 @@ impl Plant {
             stroke,
             gap: backlash_deg.to_radians() / 2.0, // loaded forward at assembly
             theta_s: 0.0,
-            delta: 0.0,
+            delta: p.drive.socket_play_mm / 2.0, // loaded forward at assembly: the first reversal crosses the whole socket play
             plunger_x: 0.0,
             sliding: 0,
             rotor_steps: 0,
@@ -179,14 +186,28 @@ impl Plant {
     /// Plunger response to a carriage move of `dc` mm: returns (delta_out, plunger_move signed
     /// forward-positive, slipped, breakaway force N). Pressure coupling is solved linearly (the
     /// plunger moving changes the pressure that holds it back).
+    /// Spring deflection that carries force: the free socket play (`socket_play_mm`) is a dead band around zero.
+    fn eff(&self, delta: f64) -> f64 {
+        let h = self.p.drive.socket_play_mm / 2.0;
+        if delta > h {
+            delta - h
+        } else if delta < -h {
+            delta + h
+        } else {
+            0.0
+        }
+    }
+
     fn plunger_response(&self, dc: f64) -> (f64, f64, Option<f64>) {
         let d = &self.p.drive;
+        let h = d.socket_play_mm / 2.0;
         let k = d.axial_stiffness_n_mm;
         let pn = self.pressure_force(self.pressure_kpa);
         let a = d.area_mm2;
         let c = self.compliance(self.pressure_kpa);
         let beta = a * a * 1e-3 / (k * c);
-        let dtrial = self.delta + dc;
+        let dtrial_full = self.delta + dc;
+        let dtrial = self.eff(dtrial_full);
         for s in [1i8, -1i8] {
             let sf = s as f64;
             let f_thr = if self.sliding == s { d.seal_dynamic_n } else { d.seal_static_n };
@@ -206,13 +227,13 @@ impl Plant {
                     dp = self.plunger_x - self.stroke;
                 }
                 if dp != 0.0 {
-                    return (dtrial - dp, dp, Some(hold));
+                    return (dtrial - dp + sf * h, dp, Some(hold));
                 }
                 // pushed against a stop: stuck, spring takes the load
-                return (dtrial, 0.0, None);
+                return (dtrial_full, 0.0, None);
             }
         }
-        (dtrial, 0.0, None)
+        (dtrial_full, 0.0, None)
     }
 
     fn apply_plunger(&mut self, dp: f64, delta_out: f64, slipped: bool) {
@@ -268,7 +289,7 @@ impl Plant {
             let dc = c_new - self.carriage_pos(self.theta_s);
             let (delta_out, dp, brk) = self.plunger_response(dc);
             let k = self.p.drive.axial_stiffness_n_mm;
-            let spring_after = d * k * delta_out;
+            let spring_after = d * k * self.eff(delta_out);
             // The screw must supply the break-away force (static friction + pressure) at the moment the
             // plunger lets go; with the plunger stuck it supplies the spring force. An assisting spring
             // (reverse motion unloading it) costs nothing. Friction in the lane always opposes.
@@ -328,15 +349,23 @@ impl Plant {
         let p0 = self.pressure_kpa;
         let s0 = self.s_of_p(p0);
         // ---- inflow from the vial (negative pressure, needle in the septum) ----
-        if self.fill_needle && p0 < 0.0 {
+        // (assisted fill: the syringe holds `fill_push_kpa` on the septum, 0 for suction from a vial)
+        let p_src = self.fill_push_kpa.max(0.0);
+        if self.fill_needle && p0 < p_src {
             let a = dt / (f.fill_needle_r * c);
-            let vin = dt / f.fill_needle_r * (-p0) / (1.0 + a); // linearised backward Euler, ul
-            self.pressure_kpa = self.p_of_s(s0 + vin).min(0.0);
+            let vin = dt / f.fill_needle_r * (p_src - p0) / (1.0 + a); // linearised backward Euler, ul
+            self.pressure_kpa = self.p_of_s(s0 + vin).min(p_src);
             self.liquid_ul += vin;
             self.drawn_ul += vin;
-            self.bubble_ul += vin * f.draw_air_ul_per_ml / 1000.0;
-            return;
+            self.net_in_ul += vin;
+            if p_src <= 0.0 {
+                self.bubble_ul += vin * f.draw_air_ul_per_ml / 1000.0;
+            }
+            if p0 < 0.0 {
+                return;
+            }
         }
+        let (p0, s0) = (self.pressure_kpa, self.s_of_p(self.pressure_kpa));
         // ---- closed reservoir under vacuum: air creeps in through the outlet ----
         if p0 < 0.0 {
             let p_new = p0 * (-dt / f.vacuum_leak_tau_s.max(1e-3)).exp();
@@ -376,7 +405,20 @@ impl Plant {
         let liq = rest.min(self.liquid_ul.max(0.0));
         self.liquid_ul -= liq;
         self.out_ul += liq;
+        self.net_in_ul -= liq;
         self.out_air_ul += rest - liq; // reservoir ran dry: air is pumped
+    }
+
+    /// Volume pressed into the system by the current gauge pressure (ul): lumped compliance plus compressed air.
+    pub fn compressed_ul(&self) -> f64 {
+        self.s_of_p(self.pressure_kpa.max(0.0))
+    }
+
+    /// Water that really sits behind the plunger (ul): the cavity the plunger opened (`plunger_x` x area) less the air that
+    /// came in with it (bubble and line air). Independent of the syringe pressure and of what leaks at the needle tip, so
+    /// it is the fill as a gravimetric check would see it.
+    pub fn filled_ul(&self) -> f64 {
+        self.p.drive.area_mm2 * self.plunger_x - self.bubble_ul - self.line_air_ul
     }
 
     /// Fluid still held under pressure (not yet delivered), ul.
@@ -427,7 +469,9 @@ mod tests {
         // plunger travel x area = drawn volume (the first ~6 steps only take up the backlash)
         let want = pl.plunger_x * pl.p.drive.area_mm2;
         assert!((pl.drawn_ul - want).abs() / want < 0.02, "drawn {} vs travel {}", pl.drawn_ul, want);
-        assert!((pl.drawn_ul / 10.0 - 3000.0 * pl.p.true_u_per_step()).abs() < 0.4, "{}", pl.drawn_ul);
+        // from the as-assembled state (loaded forward) the whole socket play (0.30 mm) of the first reversal is lost motion
+        let lost_u = pl.p.drive.socket_play_mm * pl.p.drive.area_mm2 / 10.0;
+        assert!((pl.drawn_ul / 10.0 - (3000.0 * pl.p.true_u_per_step() - lost_u)).abs() < 0.4, "{}", pl.drawn_ul);
     }
 
     #[test]
@@ -441,7 +485,7 @@ mod tests {
         assert!(n > 900, "{n}");
         assert!(pl.plunger_x > 5.0);
         pl.relax(5.0);
-        assert!(pl.drawn_ul > 30.0, "drawn {}", pl.drawn_ul); // 1000 steps x 3.95 mU = 39 ul
+        assert!(pl.drawn_ul > 12.0, "drawn {}", pl.drawn_ul); // 1000 steps x 3.95 mU = 39 ul less the 0.30 mm of socket play (22 ul)
     }
 
     #[test]

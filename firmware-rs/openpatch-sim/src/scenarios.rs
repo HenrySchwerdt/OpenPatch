@@ -36,6 +36,17 @@ lib!(
     "comms_loss_temp",
     "gear_preset_mismatch",
     "limits_stress",
+    "assisted_fill_user_pushes",
+    "assisted_fill_user_does_not_push",
+    "assisted_fill_user_pushes_hard",
+    "post_clean",
+    "post_stuck_latch",
+    "post_stuck_q4",
+    "post_dock_gate_stuck",
+    "post_ffc_unplugged",
+    "post_oc_leg_stuck",
+    "post_dir_polarity",
+    "post_xor_lost",
 );
 
 pub fn names() -> Vec<&'static str> {

@@ -18,7 +18,7 @@ fn at_us(w: &Rc<RefCell<World>>, us: u64) {
 }
 
 #[test]
-fn interlock_gate_is_mcu_en_and_latch_and_docked_or_reverse() {
+fn interlock_gate_is_mcu_en_and_latch_and_docked_xor_reverse() {
     let w = world();
     for bits in 0..16u32 {
         let (en, latch, docked, rev) = (bits & 1 != 0, bits & 2 != 0, bits & 4 != 0, bits & 8 != 0);
@@ -27,7 +27,7 @@ fn interlock_gate_is_mcu_en_and_latch_and_docked_or_reverse() {
         x.latch_q = latch;
         x.docked_phys = docked;
         x.dir_reverse = rev;
-        assert_eq!(x.vmot_on(), en && latch && (docked || rev), "en {en} latch {latch} docked {docked} rev {rev}");
+        assert_eq!(x.vmot_on(), en && latch && (docked != rev), "en {en} latch {latch} docked {docked} rev {rev}");
     }
 }
 
@@ -62,6 +62,7 @@ fn burst_time_is_steps_over_rate_and_the_clock_is_monotonic() {
     h.motor_step(Pulses(100));
     let dt = h.time_ms().0 - t0;
     assert_eq!(dt, 500, "100 steps at 200 Hz"); // 5 ms each
+    w.borrow_mut().docked_phys = false; // H14: reverse only undocked
     h.motor_step_reverse(Pulses(600));
     assert_eq!(h.time_ms().0 - t0 - dt, 1000, "600 steps at 600 Hz");
 }
@@ -254,8 +255,9 @@ fn angle_noise_is_about_the_configured_value_and_the_unwrap_tracks_a_burst() {
     let after = h.angle_read().unwrap().0;
     let want = 800.0 / w.borrow().params.steps_per_screw_turn() * 4096.0; // 661.25 steps per turn (16:20)
     assert!(((after - before) as f64 - want).abs() < 30.0, "moved {} want {want}", after - before);
-    // reverse with the fill needle in the septum (without it the closed reservoir would pull a vacuum)
+    // reverse with the fill needle in the septum (without it the closed reservoir would pull a vacuum), undocked (H14)
     w.borrow_mut().plant.fill_needle = true;
+    w.borrow_mut().docked_phys = false;
     for _ in 0..2 {
         h.watchdog_kick();
         h.motor_step_reverse(Pulses(400));

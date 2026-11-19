@@ -56,6 +56,27 @@
 - **Build height 8.5 mm** (8.0 is not achievable with the 16×5 reservoir: stack = 8.4 mm; only with 0.6 mm reservoir wall + 0.75 mm shell) including housing wall and Velcro surface. Corners R ≥ 4 mm, top slightly domed (pillow shape).
 - Housing wall thickness: 0.9 mm (MJF PA12 or SLA resin for prototype; later injection-molded PC/PP).
 
+## 2b. Size targets for the integrated pod v0.1.0 (decision 2026-11-19, user: "nobody wants a 7 cm pump")
+
+- Hard targets incl. battery and electronics: **OP-100 ≤ 45 mm**, **OP-200 ≤ 54 mm with the full 200 U** (user decision 2026-11-19 after the drive study showed ≤ 52 mm would cap OP-200 at ~180 U) (Omnipod DASH: 52 × 39 × 14.5 mm, 200 U), width ≤ 32 mm, height ≤ 8.5 mm. A design that misses them is not accepted silently; the gap and the next lever are reported.
+- Levers, in order: (1) stack battery + board above the dock tunnel (≈ 3 mm free above the cannula head) instead of a tail; (2) low-profile radio (≤ 1.3 mm) on the lid side + spring contacts instead of connectors; (3) coaxial leadscrew in the reservoir axis (Omnipod-style) + wider bore → shorter stroke; (4) minimal fluid path without valve (§3c).
+
+## 2c. Sizes for v0.1.0 (decision 2026-11-19, user)
+
+- **Two sizes only: OP-100 and OP-200.** OP-70 is dropped (with OP-100 ≤ 45 mm a separate 70 U pod is not worth the extra CAD, tests and reservoir orders). Existing OP-70 bench files stay as history; new work targets OP-100 and OP-200.
+
+## 2d. USB-C instead of charge pads; split boards allowed (decision 2026-11-19, user)
+
+- v0.1.0 gets a **waterproof USB-C receptacle (IPX7-rated with gasket)** at a pod edge where the height allows (~3.2 mm body): charging (5 V → charger), **firmware flashing via the nRF52840's native USB** (USB bootloader/DFU; the debug probe is only needed for debugging), and a USB serial log for bench data. Charge pads, the charging cradle and pogo pins are dropped. This replaces the earlier "no connector hole" rationale of §1 for v0.1.0; Qi/pads may return in a later revision.
+- The electronics may be **split into several small boards** (e.g. main: radio + safety chain + motor driver above the dock tunnel; USB/charger board at the edge; sensor board at the spindle magnet), connected **without soldering** (FPC/FFC + ZIF, or spring contacts), produced as one JLC panel.
+- The safety chain stays complete; firmware updates over USB must use the signed-image bootloader (no unsigned code path), and USB data must never be able to command delivery without the same authorisation as BLE.
+
+## 2a. Transparent lid (decision 2026-11-19, user)
+
+- The lid is printed in **clear resin** (JLC3DP clear SLA, polished/clear-coated outside) so reservoir, water level, plunger and drive are visible. The **fill window slot in the lid is removed**; the fill scale (ticks every 10 U, long every 50 U) becomes a shallow engraving on the lid inner face above the plunger travel.
+- Everything under the lid is therefore visible: tidy cable routing, no labels needed inside; light-sensitive parts (none in the bench pod) must be checked for v0.1.0 (e.g. hall sensors are fine, the TMAG is fine; LEDs may light up the housing).
+- Wall thickness and stiffness rules unchanged; clear resin is water-only like all printed parts.
+
 ## 3. Reservoir (flat, "stadium" cross-section)
 
 - Rigid reservoir with **stadium cross-section (slot) 16.0 × 5.0 mm inside** → area A = 5·11 + π·2.5² = **74.6 mm²**.
@@ -74,6 +95,32 @@
 - Before ordering: independent DFM review of the drawing + PCBWay's quote DFM feedback.
 - **Water only (decision 2026-11-19): the pump is never filled with insulin or any drug, not even into containers.** The wetted-path material choice (PP reservoir, medical platinum-cure silicone seals/septum/duckbill, stainless needle; never printed resin) is kept only as design preparation for a future legal manufacturer; the CNC PP reservoir is optional for this project.
 
+## 3b. Plunger coupling: closed reservoir required; same-envelope drive under study (2026-11-19)
+
+- Finding: the previous side-slot coupling (carriage tongue through a slot in the +Y reservoir wall) leaks: the slot must span the whole stroke, so at a full reservoir about 12 mm of slot lie in front of the seal, in the water. It also pushed the plunger 7.2 mm off-axis (cocking).
+- Magnetic coupling through a closed wall (keeps the dimensions) was **rejected by simulation** (`mechanical/sim/studies/magnetic_coupling.py`, magpylib, N52): about 1.2 N maximum shear for magnets that fit the plunger (1.2 mm gap), about 3 N with a doubled plunger length, versus about 1.6 N needed just to move (seal breakaway + duckbill) and about 7 N with occlusion back-pressure (30 kPa × 74.6 mm²) and a safety factor of 2.
+- **Status (2026-11-19, user): the form factor must stay (OP-100 47 × 32 × 8.4 mm).** A same-envelope sealed drive (tape-spring push band turning 180° around the open end, chain, telescoping screw, …) is being studied (`mechanical/studies/drive/`). The rigid push rod below is the **fallback only**.
+- Fallback: the carriage (beside the reservoir) carries a rigid yoke behind the open dry end and a **push rod on the bore axis** that engages the plunger centre (push and pull, for draw mode). The reservoir is a **closed tube without any wall opening** (only the port at the closed end; re-freeze `reservoir_frozen` before ordering). Width and height stay; length grows by about one stroke (OP-100 about 47 → 60 mm).
+- Study for a later, shorter revision: a flexible push element (spring-steel band or beaded chain in a U-shaped guide) turning around the open end (about +5 mm instead of +stroke).
+
+## 3c. Fluid path without a check valve: Omnipod-style pressure fill (decision 2026-11-19, user)
+
+- Reference: Omnipod (Eros teardown arXiv 1709.06026, US 7,128,727 / 7,144,384) has no check valve in the sources found; free flow is prevented by a non-back-drivable drive and a closed outlet; filling is done by syringe pressure through a small septum while the plunger moves back.
+- **No check valve.** Anti-siphon / anti-free-flow comes from the **self-locking drive** (M1.6 × 0.35 leadscrew + 26.45:1 gearhead cannot be back-driven by reservoir pressure; verify by a bench test: 50 kPa on the reservoir, no plunger motion with the motor unpowered).
+- **Refill = pressure fill:** pod undocked + suspended; the user pushes water with a syringe through the fill septum while the motor **retracts the plunger at a fixed rate** (firmware "assisted fill"); the reservoir stays at positive pressure so no air can enter through the outlet needle; excess exits as drops at the needle tip, which also primes it. Suction draw (motor pulling a vacuum) is **not used** any more. Replaces the earlier automatic draw-mode decision.
+- **Fluid module = minimal:** reservoir port → small septum chamber (fill) → outlet needle, held by a printed clamp ring with defined septum squeeze and an O-ring/face seal to the reservoir; no valve, no branching channels.
+- Firmware: the reverse motion during fill is rate-limited and stall-monitored; the fill volume is booked from the plunger travel; a prime follows before docking.
+
+## 3d. Drive for v0.1.0 = coaxial translating leadscrew (decision 2026-11-19)
+
+- From `mechanical/studies/drive/SEALED-DRIVE-STUDY.md`: the M1.6 leadscrew lies on the bore axis and pushes a socket in the plunger centre (push only; pressure fill §3c pushes the plunger back); a nut glued to the front face of the driven gear turns it; anti-rotation = slot in the screw tip engaging a tab in the plunger socket. Closed reservoir, no yaw lever, lost motion ≈ thread backlash only. CAD: `generate.py --variant bench --drive coaxial` (16 × 5 bore: OP-100 58.5 mm, OP-200 85.3 mm, PASS incl. fluid-boundary check).
+- To reach §2b: wider bore (≈ 22.4 × 5 with the NFP-608, ≈ 25 × 5 with a Zhaowei Ø3.4 motor beside the reservoir; analytic OP-100 41.6–43.7 mm, OP-200 ≈ 54 mm) + compact front (§3c) + internal squeezes; requires re-freezing the CNC reservoir (wider bore, port offset) and moving the angle sensor/magnet to the motor axis.
+
+## 3e. Fill port inaccessible while docked (hazard H14, 2026-11-19)
+
+- **Decision (user, 2026-11-19): Omnipod-style — the fill septum is on the pod underside, inside the footprint that lies on the Velcro patch / dock**, so it is covered while docked and only reachable with the pod removed and turned over.
+- Because the fill septum sits upstream of the outlet without a valve, a syringe pushed into it while the pod is docked would deliver directly into the cannula. The septum must therefore be **physically unreachable while docked** (e.g. on the underside, covered by the dock insert / cannula base, as Omnipod places its fill port inside the adhesive area). `check.py` must prove that no straight needle path reaches the septum with the pod docked.
+
 ## 4. Drive — geared micro stepper + direct leadscrew, automatic refill (decision 2026-11-19)
 
 Rationale: buildability beats minimal size (builders are not watchmakers). No off-the-shelf integrated micro linear actuator meets force/drawing/orderability (`mechanical/linear-actuator-selection.md`); the SMA ratchet needs too many fine custom parts. SMA research stays as a later option for minimal size.
@@ -83,11 +130,21 @@ Rationale: buildability beats minimal size (builders are not watchmakers). No of
 - **Leadscrew/carriage/reservoir:** M1.6 × 0.35 leadscrew in its own lane, fixed nut in the carriage, carriage arm pushes the stadium plunger (unchanged).
 - **Resolution:** U/step = 0.35 × (16/20) / (20 × 26.45) × 74.63 / 10 = **0.003951 U/step** (16:20 pair); 0.05 U ≈ 12.7 steps; exact rational in firmware, no default.
 - **Thrust:** pull-out 1.6 gf·cm × 26.45 × ~0.64 gear eff. ≈ 2.65 N·mm → ≈ 9.5 N at 20 % screw efficiency (≥ 5 N required; verify on the bench).
-- **Refill = automatic draw mode (no crank, no slider):** pod undocked + suspended → user selects the fill amount in the app → holds the syringe/vial needle in the septum → the motor **retracts exactly that volume and draws the insulin in**, then stops by itself (100 U ≈ 20 s). A **one-way duckbill check valve in the outlet** prevents air being drawn in through the outlet needle (and adds anti-siphon / anti-free-flow protection). Rear end-stop on the housing + stall detection; fill level known exactly from step count + encoder.
+- **(superseded by §3c: pressure fill, no check valve)** Refill = automatic draw mode (no crank, no slider): pod undocked + suspended → user selects the fill amount in the app → holds the syringe/vial needle in the septum → the motor **retracts exactly that volume and draws the insulin in**, then stops by itself (100 U ≈ 20 s). A **one-way duckbill check valve in the outlet** prevents air being drawn in through the outlet needle (and adds anti-siphon / anti-free-flow protection). Rear end-stop on the housing + stall detection; fill level known exactly from step count + encoder.
 - **Encoder:** TMAG5273 angle sensor on a diametric magnet at the leadscrew end (per-revolution verification and stall detection); DRV5032 pair optional.
 - **Occlusion:** encoder slip + motor-current rise; duckbill cracking pressure accounted for.
 - **Connection:** Rev A bench: factory lead + JST 1.25 into the controller board; Rev B: motor with FPC tail into a ZIF connector (group buy) — no soldering, no cable in the pod (§1c).
 - Superseded concepts: SMA ratchet (`mechanical/gear-selection.md`), half-nut pressure refill, hex rewind.
+
+## 4b. Motor candidates for v0.1.0 (2026-11-19, `docs/MOTOR-RESEARCH-2026-11-19.md`)
+
+- On a 1-cell Li-Po without boost the NFP-608-26.45 (26.5 Ω, rated 4.8 V) loses up to ~30 % torque at 3.0 V; v0.1.0 therefore needs either a **5 V boost / current-regulated drive** or a low-voltage motor.
+- Size candidate: **Zhaowei Ø3.4 mm stepper + planetary gearbox (ZWBMD004004-36 / -216)**, 3.0 V / 50 mA rated, 13.3–14.8 mm long, driving the screw directly (coaxial). Pull-out torque/resistance/price unverified → order samples and measure thrust on the real screw (water only) before adopting. Fallbacks: Faulhaber FDM0620, or NFP-608 + boost.
+
+## 4c. Only the integrated pod is built (decision 2026-11-19, user)
+
+- With USB-C (§2d) the integrated v0.1.0 pod covers power, charging, flashing and data logging, so the **bench split (pod + external controller board, §4a) is no longer built or ordered**. The bench controller design (`electronics/bench/`, DRC 0) is **parked** as a fallback and debug fixture; the bench mechanical variant remains the development base for the drive/fluid geometry.
+- v0.1.0 must therefore keep bench-level observability: test pads for motor current, motor supply, every interlock/supervisor signal, the battery and USB rails; SWD pads; a USB CDC log of all bench data.
 
 ## 4a. Rev A = bench split (decision 2026-11-19)
 
@@ -130,7 +187,8 @@ Note: In DASH mode Trio "sees" a 200 U pod with 80 h lifetime; reservoir display
 
 ## 7a. Diagnostics and hardware independence (requirement, 2026-11-19)
 
-- **Hardware independence:** the motor supply is gated in hardware (`MCU_EN AND watchdog latch AND (DOCKED OR DIR_REV)`, TPL5010, hardware over-current cut that clears the latch) so that a firmware fault cannot hold the motor on beyond one watchdog interval, and an undocked pod cannot deliver forward. **Hardware step budget (HW-A, decided 2026-11-19):** an arm window + pulse budget in discrete logic bounds a runaway inside the watchdog window to ≈ 1.6 U; Rev B adds an independent monitor for the hourly limit. Firmware must **prove at runtime** that each gate can still cut the supply (rotating single-gate disarm, POST-A). A proven-stuck gate or a dead watchdog latches the pod; no delivery with a degraded protection layer. The dose limits of §7 are additionally enforced by the firmware supervisor.
+- **Hardware independence:** the motor supply is gated in hardware (`MCU_EN AND watchdog latch AND (DOCKED XOR DIR_REV)` (XOR since 2026-11-19, hazard H15: reverse only when undocked, forward only when docked), TPL5010, hardware over-current cut that clears the latch) so that a firmware fault cannot hold the motor on beyond one watchdog interval, and an undocked pod cannot deliver forward. **Hardware step budget (HW-A, decided 2026-11-19, mandatory for v0.1.0; the bench controller Rev A does not have it — documented residual risk in `electronics/bench/INTERLOCK.md`):** an arm window + pulse budget in discrete logic bounds a runaway inside the watchdog window to ≈ 1.6 U; Rev B adds an independent monitor for the hourly limit. Firmware must **prove at runtime** that each gate can still cut the supply (rotating single-gate disarm, POST-A). A proven-stuck gate or a dead watchdog latches the pod; no delivery with a degraded protection layer. The dose limits of §7 are additionally enforced by the firmware supervisor.
+- **v0.1.0 safety architecture (decision 2026-11-19, user):** a **tiny independent supervisor MCU** (≈ 2 × 2 mm, e.g. MSP430FR2000 or STM32C011; own firmware, own clock, own supply rail) implements the watchdog window and the HW-A step budget (counts STCK itself) and can cut the motor supply on its own; the **over-current cut and the two series supply switches stay pure hardware**; dock = 2-of-2 hall sensors. The main MCU can never switch the motor on without the supervisor's consent. The supervisor firmware is separate, minimal, test-first and fully specified (state machine in `electronics/v010/INTERLOCK.md`).
 - **Diagnostic codes:** every anomaly gets a 32-bit code (layer, component, fault, instance) with severity (info, warning, fault, latched), field-replaceable unit (FRU) and recommended action; the catalogue (`docs/06-diagnostics.md`, generated source `spec/diag-codes.csv`) is the single source for firmware, protocol and app. Codes are never reused. Unknown codes are treated as faults. Latched codes have **no service override**; they clear only when their verification test passes.
 - **Propagation:** no layer may swallow a code. A layer that acts on a lower-layer fault raises its own record with a cause pointer. Records persist in a pod fault log, are readable with `GetFaultLog`, and are pushed as alerts. The 8 legacy fault bits remain as a derived projection.
 - **Presentation:** Trio shows the pod (A/B), the faulty part and the action ("Replace the controller board"), and a component health view (green/yellow/red per FRU). A part is green only after a passing proof; unproven is grey.

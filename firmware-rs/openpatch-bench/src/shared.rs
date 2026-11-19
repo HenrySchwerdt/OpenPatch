@@ -6,7 +6,7 @@
 //! * The BLE task only moves frames through [`FRAME_IN`] / [`FRAME_OUT`]; it never touches the pump.
 //! * Flash is written only by the persistence task (and the DFU updater).
 use core::fmt::Write;
-use core::sync::atomic::{AtomicBool, AtomicI32};
+use core::sync::atomic::{AtomicBool, AtomicI32, AtomicU32};
 use embassy_sync::blocking_mutex::raw::CriticalSectionRawMutex as Raw;
 use embassy_sync::channel::Channel;
 use embassy_sync::signal::Signal;
@@ -123,8 +123,15 @@ pub static DOUBLE_BEEP_REQ: AtomicBool = AtomicBool::new(false);
 pub static DOCK_SIM: AtomicBool = AtomicBool::new(false);
 /// QDEC edge counter (written by the encoder task, read by the HAL).
 pub static ENC_COUNTS: AtomicI32 = AtomicI32::new(0);
-/// TPL5010 WAKE seen and not yet answered with DONE (set by the helper task, cleared by the HAL).
-pub static WAKE_PENDING: AtomicBool = AtomicBool::new(false);
+/// TPL5010 DONE permit: the millisecond timestamp (`embassy_time`, wrapping u32) until which the WAKE interrupt may answer
+/// with a DONE pulse. Written only by the safety task after a verified tick (`hal::BenchHal::service_watchdog`) and by the
+/// POST (`BenchPins::kick`); read by the WAKE interrupt (`hal::wdt`). Starts expired: no DONE before the first verified tick.
+pub static DONE_PERMIT_UNTIL_MS: AtomicU32 = AtomicU32::new(0);
+/// WAKE edges seen / DONE pulses issued (written by the WAKE interrupt; diagnostics, `1-04-001` interval checks).
+#[allow(dead_code)]
+pub static WAKE_COUNT: AtomicU32 = AtomicU32::new(0);
+#[allow(dead_code)]
+pub static DONE_COUNT: AtomicU32 = AtomicU32::new(0);
 /// Status for the LEDs (written by the safety task / BLE task).
 pub static BLE_CONNECTED: AtomicBool = AtomicBool::new(false);
 pub static DELIVERING: AtomicBool = AtomicBool::new(false);

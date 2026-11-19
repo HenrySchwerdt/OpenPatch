@@ -1,0 +1,15 @@
+name = "post_dock_gate_stuck"
+description = "The DOCKED_H gate input sticks high (Q7 off) while the pod is off the dock: the gate believes docked. POST-S sees DOCKED_H against DOCK_N (1-07-003). The dock hall itself stuck at docked is the separate single point of failure of hall_stuck_docked."
+seed = 74
+duration_s = 60.0
+events = [
+  { at_s = 3.0, action = "suspend" },
+  { at_s = 4.0, action = "dock", on = false },
+  { at_s = 6.0, action = "board_fault", fault = "docked_h_stuck_high", on = true },
+  { at_s = 10.0, action = "self_test", sub_op = 1 },
+  { at_s = 14.0, action = "self_test", sub_op = 2 },
+]
+
+[setup]
+fill_u = 40.0
+basal = [[0.0, 1.0]]

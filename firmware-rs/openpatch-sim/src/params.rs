@@ -99,6 +99,9 @@ pub struct DriveParams {
     pub carriage_friction_n: f64,
     /// Axial stiffness carriage -> plunger incl. seal shear (N/mm) (ASSUMPTION).
     pub axial_stiffness_n_mm: f64,
+    /// Free travel between the carriage and the plunger at a reversal (mm): socket 0.8 mm less shim 0.5 mm = 0.30 mm
+    /// (independent review 2026-11-19, item 5). The firmware's post-draw take-up (`limits::LOST_MOTION_*`) recovers it.
+    pub socket_play_mm: f64,
     /// Static (break-away) friction of the plunger seal (N) (spec 3: biggest development risk).
     pub seal_static_n: f64,
     /// Dynamic friction of the plunger seal (N).
@@ -125,6 +128,7 @@ impl Default for DriveParams {
             screw_eff: 0.20,
             carriage_friction_n: 0.3,
             axial_stiffness_n_mm: 40.0,
+            socket_play_mm: 0.30,
             seal_static_n: 1.5,
             seal_dynamic_n: 0.8,
             area_mm2: 74.6,

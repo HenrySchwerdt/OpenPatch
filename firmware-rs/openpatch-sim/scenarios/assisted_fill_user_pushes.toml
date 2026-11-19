@@ -1,0 +1,18 @@
+name = "assisted_fill_user_pushes"
+description = "Assisted (pressure) fill, spec 3c: pod undocked and suspended, the user pushes water with a syringe (30 kPa) while the motor retracts the plunger at the fixed 200 pps; 20 U are booked from the travel, a prime follows before docking and resume."
+seed = 141
+duration_s = 700.0
+events = [
+  { at_s = 100.0, action = "suspend" },
+  { at_s = 110.0, action = "dock", on = false },
+  { at_s = 119.0, action = "fill_push", kpa = 30.0 },
+  { at_s = 120.0, action = "draw", units = 20.0 },
+  { at_s = 300.0, action = "dock", on = true },
+  { at_s = 310.0, action = "prime", units = 0.4 },
+  { at_s = 400.0, action = "prime", units = 0.4 },
+  { at_s = 500.0, action = "resume" },
+]
+
+[setup]
+fill_u = 30.0
+basal = [[0.0, 1.0]]

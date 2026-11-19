@@ -1,4 +1,4 @@
-//! Draw mode (automatic refill): `Pump::fill_draw` / protocol command 0x0F `FillDraw`.
+//! Draw mode (automatic refill): `Pump::assisted_fill` / protocol command 0x0F `AssistedFill`.
 //! Gates, chunked execution, step-exact volume, stalls, aborts, mandatory priming, notifications.
 mod common;
 use common::*;
@@ -78,7 +78,7 @@ fn docked_pod_never_draws() {
     let (mut p, h) = new_pump();
     p.fill(MilliUnits(10_000)).unwrap();
     assert!(h.st().docked);
-    assert_eq!(p.fill_draw(MilliUnits(1_000)), Err(Error::Docked));
+    assert_eq!(p.assisted_fill(MilliUnits(1_000)), Err(Error::Docked));
     assert_eq!(Error::Docked.code(), 27);
     assert_eq!(p.draw_state(), ds::IDLE);
     run_secs(&mut p, &h, 5);
@@ -88,9 +88,9 @@ fn docked_pod_never_draws() {
 #[test]
 fn delivering_pod_refuses_with_not_suspended_before_anything_else() {
     let (mut p, h) = running(50_000, 1000);
-    assert_eq!(p.fill_draw(MilliUnits(1_000)), Err(Error::NotSuspended), "docked and delivering");
+    assert_eq!(p.assisted_fill(MilliUnits(1_000)), Err(Error::NotSuspended), "docked and delivering");
     h.st().docked = false;
-    assert_eq!(p.fill_draw(MilliUnits(1_000)), Err(Error::NotSuspended), "undocked but not suspended");
+    assert_eq!(p.assisted_fill(MilliUnits(1_000)), Err(Error::NotSuspended), "undocked but not suspended");
     assert_eq!(p.draw_state(), ds::IDLE);
 }
 
@@ -98,19 +98,19 @@ fn delivering_pod_refuses_with_not_suspended_before_anything_else() {
 fn latched_fault_refuses_with_fault() {
     let (mut p, h) = undocked(10_000);
     p.supervisor_mut().latch(Faults::OCCLUSION);
-    assert_eq!(p.fill_draw(MilliUnits(1_000)), Err(Error::Fault));
+    assert_eq!(p.assisted_fill(MilliUnits(1_000)), Err(Error::Fault));
     assert_eq!(p.draw_state(), ds::IDLE);
     assert_eq!(h.st().total_reverse_steps, 0);
     // acknowledged: allowed again
     p.acknowledge(Faults::OCCLUSION).unwrap();
-    assert_eq!(p.fill_draw(MilliUnits(1_000)), Ok(()));
+    assert_eq!(p.assisted_fill(MilliUnits(1_000)), Ok(()));
 }
 
 #[test]
 fn second_start_while_running_is_busy_and_keeps_the_first_job() {
     let (mut p, h) = undocked(10_000);
-    p.fill_draw(MilliUnits(40_000)).unwrap();
-    assert_eq!(p.fill_draw(MilliUnits(1_000)), Err(Error::Busy));
+    p.assisted_fill(MilliUnits(40_000)).unwrap();
+    assert_eq!(p.assisted_fill(MilliUnits(1_000)), Err(Error::Busy));
     run_draw(&mut p, &h);
     assert_eq!(p.get_status().draw_requested_mu, 40_000, "the first job was not replaced");
     assert_eq!(count_ev(&p, EventType::DrawStart), 1);
@@ -119,36 +119,36 @@ fn second_start_while_running_is_busy_and_keeps_the_first_job() {
 #[test]
 fn amount_zero_cancels_a_running_draw_and_is_not_found_when_idle() {
     let (mut p, h) = undocked(10_000);
-    assert_eq!(p.fill_draw(MilliUnits(0)), Err(Error::NotFound));
-    p.fill_draw(MilliUnits(40_000)).unwrap();
+    assert_eq!(p.assisted_fill(MilliUnits(0)), Err(Error::NotFound));
+    p.assisted_fill(MilliUnits(40_000)).unwrap();
     run_secs(&mut p, &h, 1);
-    assert_eq!(p.fill_draw(MilliUnits(0)), Ok(()));
+    assert_eq!(p.assisted_fill(MilliUnits(0)), Ok(()));
     assert_eq!(p.draw_state(), ds::ABORTED);
     assert!(!p.draw_running());
-    assert_eq!(p.fill_draw(MilliUnits(0)), Err(Error::NotFound), "nothing running any more");
+    assert_eq!(p.assisted_fill(MilliUnits(0)), Err(Error::NotFound), "nothing running any more");
 }
 
 #[test]
 fn amount_above_the_room_is_a_limit_error_exactly_at_the_room_it_is_fine() {
     let (mut p, _h) = undocked(95_000);
-    assert_eq!(p.fill_draw(MilliUnits(5_001)), Err(Error::Limit));
-    assert_eq!(p.fill_draw(MilliUnits(200_000)), Err(Error::Limit));
+    assert_eq!(p.assisted_fill(MilliUnits(5_001)), Err(Error::Limit));
+    assert_eq!(p.assisted_fill(MilliUnits(200_000)), Err(Error::Limit));
     assert_eq!(p.draw_state(), ds::IDLE);
-    assert_eq!(p.fill_draw(MilliUnits(5_000)), Ok(()));
+    assert_eq!(p.assisted_fill(MilliUnits(5_000)), Ok(()));
     // an empty reservoir has the whole capacity as room
     let (mut p, _h) = undocked(0);
-    assert_eq!(p.fill_draw(MilliUnits(100_001)), Err(Error::Limit));
-    assert_eq!(p.fill_draw(MilliUnits(100_000)), Ok(()));
+    assert_eq!(p.assisted_fill(MilliUnits(100_001)), Err(Error::Limit));
+    assert_eq!(p.assisted_fill(MilliUnits(100_000)), Ok(()));
 }
 
 #[test]
 fn amount_below_one_step_is_bad_arg() {
     let (mut p, _h) = undocked(10_000);
     // one step = 26.1 mU
-    assert_eq!(p.fill_draw(MilliUnits(1)), Err(Error::BadArg));
-    assert_eq!(p.fill_draw(MilliUnits(26)), Err(Error::BadArg));
+    assert_eq!(p.assisted_fill(MilliUnits(1)), Err(Error::BadArg));
+    assert_eq!(p.assisted_fill(MilliUnits(26)), Err(Error::BadArg));
     assert_eq!(p.draw_state(), ds::IDLE);
-    assert_eq!(p.fill_draw(MilliUnits(27)), Ok(()));
+    assert_eq!(p.assisted_fill(MilliUnits(27)), Ok(()));
     assert_eq!(p.get_status().draw_requested_mu, 27);
 }
 
@@ -156,7 +156,7 @@ fn amount_below_one_step_is_bad_arg() {
 fn missing_angle_sensor_refuses_to_start() {
     let (mut p, h) = undocked(10_000);
     h.st().angle_missing = true;
-    assert_eq!(p.fill_draw(MilliUnits(1_000)), Err(Error::Fault));
+    assert_eq!(p.assisted_fill(MilliUnits(1_000)), Err(Error::Fault));
     assert_eq!(p.draw_state(), ds::IDLE);
     run_secs(&mut p, &h, 3);
     assert_eq!(h.st().total_reverse_steps, 0);
@@ -165,7 +165,7 @@ fn missing_angle_sensor_refuses_to_start() {
 #[test]
 fn a_refused_start_leaves_no_trace() {
     let (mut p, h) = new_pump();
-    assert_eq!(p.fill_draw(MilliUnits(1_000)), Err(Error::Docked));
+    assert_eq!(p.assisted_fill(MilliUnits(1_000)), Err(Error::Docked));
     assert_eq!(count_ev(&p, EventType::DrawStart), 0);
     assert!(drain(&mut p).is_empty());
     assert!(reverse_calls(&h).is_empty());
@@ -178,8 +178,8 @@ fn a_refused_start_leaves_no_trace() {
 fn protocol_command_reports_every_gate() {
     let (mut p, h) = new_pump();
     p.fill(MilliUnits(95_000)).unwrap();
-    let cmd = |mu: u32| Command::new(0, CommandBody::FillDraw { amount_mu: mu });
-    assert_eq!(proto::cmd::FILL_DRAW, 0x0F);
+    let cmd = |mu: u32| Command::new(0, CommandBody::AssistedFill { amount_mu: mu });
+    assert_eq!(proto::cmd::ASSISTED_FILL, 0x0F);
     assert_eq!(p.execute(&cmd(1_000)).result, Error::Docked.code());
     h.st().docked = false;
     assert_eq!(p.execute(&cmd(0)).result, Error::NotFound.code());
@@ -190,7 +190,7 @@ fn protocol_command_reports_every_gate() {
     h.st().angle_missing = false;
     let ok = p.execute(&cmd(2_000));
     assert_eq!(ok.result, 0);
-    assert_eq!(ok.type_, proto::cmd::FILL_DRAW);
+    assert_eq!(ok.type_, proto::cmd::ASSISTED_FILL);
     assert_eq!(p.execute(&cmd(1_000)).result, Error::Busy.code());
     assert_eq!(p.execute(&cmd(0)).result, 0, "cancel");
     assert_eq!(p.draw_state(), ds::ABORTED);
@@ -199,7 +199,7 @@ fn protocol_command_reports_every_gate() {
 #[test]
 fn protocol_not_suspended() {
     let (mut p, _h) = running(50_000, 1000);
-    let rsp = p.execute(&Command::new(0, CommandBody::FillDraw { amount_mu: 1_000 }));
+    let rsp = p.execute(&Command::new(0, CommandBody::AssistedFill { amount_mu: 1_000 }));
     assert_eq!(rsp.result, Error::NotSuspended.code());
 }
 
@@ -208,7 +208,7 @@ fn protocol_not_suspended() {
 #[test]
 fn draw_runs_in_chunks_of_500_steps_one_per_tick() {
     let (mut p, h) = undocked(0);
-    p.fill_draw(MilliUnits(40_000)).unwrap(); // 1532 steps
+    p.assisted_fill(MilliUnits(40_000)).unwrap(); // 1532 steps
     let total = steps_of(&p, 40_000);
     assert_eq!(total, 1532);
     assert!(reverse_calls(&h).is_empty(), "starting does not move the motor");
@@ -234,7 +234,7 @@ fn draw_runs_in_chunks_of_500_steps_one_per_tick() {
 fn every_chunk_is_at_most_500_steps_for_any_size() {
     for amount in [27u32, 13_050, 13_051, 99_999] {
         let (mut p, h) = undocked(0);
-        p.fill_draw(MilliUnits(amount)).unwrap();
+        p.assisted_fill(MilliUnits(amount)).unwrap();
         run_draw(&mut p, &h);
         let calls = reverse_calls(&h);
         assert!(calls.iter().all(|c| *c >= 1 && *c <= DRAW_CHUNK_STEPS), "{calls:?}");
@@ -263,7 +263,7 @@ fn drawn_volume_is_exactly_steps_times_uu_floor_for_every_preset() {
             let pc = p.pulse_cal();
             let steps = pc.mu_to_pulses(MilliUnits(amount)).0;
             let want = (steps as u64 * preset.uu_num as u64 / (preset.uu_den as u64 * 1000)) as u32;
-            p.fill_draw(MilliUnits(amount)).unwrap();
+            p.assisted_fill(MilliUnits(amount)).unwrap();
             run_draw(&mut p, &hal);
             let id = preset.id as u16;
             assert_eq!(p.draw_state(), ds::DONE, "{id:#x} {amount}");
@@ -284,7 +284,7 @@ fn preset_step_mu_ceil(p: &drive_cal::Preset) -> u32 {
 fn drawn_never_exceeds_requested_and_is_within_one_step() {
     for amount in [27u32, 100, 5_000, 12_345, 50_000] {
         let (mut p, h) = undocked(0);
-        p.fill_draw(MilliUnits(amount)).unwrap();
+        p.assisted_fill(MilliUnits(amount)).unwrap();
         run_draw(&mut p, &h);
         let d = p.draw_drawn().0;
         assert!(d <= amount);
@@ -296,7 +296,7 @@ fn drawn_never_exceeds_requested_and_is_within_one_step() {
 #[test]
 fn level_is_existing_plus_drawn_and_unfilled_pumps_become_filled() {
     let (mut p, h) = undocked(20_000);
-    p.fill_draw(MilliUnits(10_000)).unwrap();
+    p.assisted_fill(MilliUnits(10_000)).unwrap();
     run_draw(&mut p, &h);
     let drawn = p.draw_drawn().0;
     assert_eq!(drawn, mu_of(&p, 383));
@@ -306,7 +306,7 @@ fn level_is_existing_plus_drawn_and_unfilled_pumps_become_filled() {
 
     let (mut p, h) = undocked(0);
     assert!(!p.reservoir().is_filled());
-    p.fill_draw(MilliUnits(10_000)).unwrap();
+    p.assisted_fill(MilliUnits(10_000)).unwrap();
     run_draw(&mut p, &h);
     assert!(p.reservoir().is_filled());
     assert_eq!(p.reservoir().remaining().0, p.draw_drawn().0);
@@ -315,7 +315,7 @@ fn level_is_existing_plus_drawn_and_unfilled_pumps_become_filled() {
 #[test]
 fn level_never_exceeds_capacity() {
     let (mut p, h) = undocked(99_000);
-    p.fill_draw(MilliUnits(1_000)).unwrap();
+    p.assisted_fill(MilliUnits(1_000)).unwrap();
     run_draw(&mut p, &h);
     assert!(p.reservoir().remaining() <= p.reservoir().capacity());
     // the clamp itself (a draw larger than the room, e.g. a mis-measured chunk)
@@ -336,7 +336,7 @@ fn consumed_counter_shrinks_first_then_the_level_rises() {
     h.st().docked = false;
 
     // 10 steps < consumed: only the consumed counter moves
-    p.fill_draw(MilliUnits(280)).unwrap();
+    p.assisted_fill(MilliUnits(280)).unwrap();
     run_draw(&mut p, &h);
     assert_eq!(p.draw_state(), ds::DONE);
     assert_eq!(p.reservoir().consumed().0, consumed - 10);
@@ -346,7 +346,7 @@ fn consumed_counter_shrinks_first_then_the_level_rises() {
 
     // 76 steps > the remaining consumed: counter to zero, the excess raises the level
     let c = p.reservoir().consumed().0;
-    p.fill_draw(MilliUnits(2_000)).unwrap();
+    p.assisted_fill(MilliUnits(2_000)).unwrap();
     run_draw(&mut p, &h);
     assert_eq!(p.reservoir().consumed().0, 0);
     let extra = 76 - c;
@@ -359,7 +359,7 @@ fn consumed_counter_shrinks_first_then_the_level_rises() {
 #[test]
 fn completed_draw_events_notifications_beep_and_status() {
     let (mut p, h) = undocked(0);
-    p.fill_draw(MilliUnits(40_000)).unwrap();
+    p.assisted_fill(MilliUnits(40_000)).unwrap();
     let start = find_ev(&p, EventType::DrawStart).unwrap();
     assert_eq!((start.a, start.b), (40_000, 1532));
     assert!(p.get_status().flags & st::DRAWING != 0);
@@ -388,10 +388,10 @@ fn completed_draw_events_notifications_beep_and_status() {
 #[test]
 fn a_new_draw_after_a_finished_one_starts_a_fresh_job() {
     let (mut p, h) = undocked(0);
-    p.fill_draw(MilliUnits(5_000)).unwrap();
+    p.assisted_fill(MilliUnits(5_000)).unwrap();
     run_draw(&mut p, &h);
     let first = p.draw_drawn().0;
-    p.fill_draw(MilliUnits(3_000)).unwrap();
+    p.assisted_fill(MilliUnits(3_000)).unwrap();
     assert_eq!(p.get_status().draw_done_mu, 0, "counters restart");
     run_draw(&mut p, &h);
     assert_eq!(p.draw_drawn().0, mu_of(&p, steps_of(&p, 3_000)));
@@ -403,7 +403,7 @@ fn a_new_draw_after_a_finished_one_starts_a_fresh_job() {
 #[test]
 fn short_chunk_is_a_stall_with_the_actual_drawn_volume() {
     let (mut p, h) = undocked(10_000);
-    p.fill_draw(MilliUnits(40_000)).unwrap();
+    p.assisted_fill(MilliUnits(40_000)).unwrap();
     run_secs(&mut p, &h, 1);
     h.st().reverse_limit = 100; // rear end-stop: the motor cannot move on
     run_secs(&mut p, &h, 1);
@@ -428,7 +428,7 @@ fn short_chunk_is_a_stall_with_the_actual_drawn_volume() {
 fn a_stall_with_zero_progress_books_nothing() {
     let (mut p, h) = undocked(10_000);
     h.st().reverse_limit = 0;
-    p.fill_draw(MilliUnits(20_000)).unwrap();
+    p.assisted_fill(MilliUnits(20_000)).unwrap();
     run_secs(&mut p, &h, 1);
     assert_eq!(p.draw_state(), ds::STALLED);
     assert_eq!(p.draw_drawn().0, 0);
@@ -441,7 +441,7 @@ fn angle_confirmed_volume_not_commanded_volume_is_booked() {
     // the motor "runs" but the leadscrew only turns 30 %: the angle sensor decides
     let (mut p, h) = undocked(10_000);
     h.st().reverse_pct = 30;
-    p.fill_draw(MilliUnits(40_000)).unwrap();
+    p.assisted_fill(MilliUnits(40_000)).unwrap();
     run_secs(&mut p, &h, 1);
     assert_eq!(p.draw_state(), ds::STALLED, "less than 50 % of the commanded travel");
     assert_eq!(h.st().total_reverse_steps, 500, "500 steps were commanded");
@@ -457,7 +457,7 @@ fn partial_slip_above_half_continues_and_books_only_confirmed_steps() {
     h.st().reverse_pct = 60;
     let amount = 39_150; // exactly 1500 steps
     assert_eq!(steps_of(&p, amount), 1500);
-    p.fill_draw(MilliUnits(amount)).unwrap();
+    p.assisted_fill(MilliUnits(amount)).unwrap();
     run_draw(&mut p, &h);
     assert_eq!(p.draw_state(), ds::DONE);
     assert_eq!(h.st().total_reverse_steps, 1500);
@@ -470,7 +470,7 @@ fn partial_slip_above_half_continues_and_books_only_confirmed_steps() {
 fn three_chunks_of_high_current_are_a_stall() {
     let (mut p, h) = undocked(0);
     h.st().current_ma = Some(OCCLUSION_CURRENT_MA + 60);
-    p.fill_draw(MilliUnits(90_000)).unwrap(); // 3448 steps = 7 chunks
+    p.assisted_fill(MilliUnits(90_000)).unwrap(); // 3448 steps = 7 chunks
     run_secs(&mut p, &h, 2);
     assert!(p.draw_running(), "two bursts are not enough");
     run_secs(&mut p, &h, 1);
@@ -484,7 +484,7 @@ fn three_chunks_of_high_current_are_a_stall() {
 #[test]
 fn a_low_current_chunk_resets_the_stall_counter() {
     let (mut p, h) = undocked(0);
-    p.fill_draw(MilliUnits(90_000)).unwrap();
+    p.assisted_fill(MilliUnits(90_000)).unwrap();
     let hi = Some(OCCLUSION_CURRENT_MA + 1);
     let lo = Some(OCCLUSION_CURRENT_MA);
     for cur in [hi, hi, lo, hi, hi, lo, lo] {
@@ -499,7 +499,7 @@ fn a_low_current_chunk_resets_the_stall_counter() {
 fn no_current_sensor_never_stalls_on_current() {
     let (mut p, h) = undocked(0);
     h.st().current_ma = None;
-    p.fill_draw(MilliUnits(90_000)).unwrap();
+    p.assisted_fill(MilliUnits(90_000)).unwrap();
     run_draw(&mut p, &h);
     assert_eq!(p.draw_state(), ds::DONE);
 }
@@ -509,7 +509,7 @@ fn no_current_sensor_never_stalls_on_current() {
 #[test]
 fn docking_mid_draw_aborts_and_books_the_partial_volume() {
     let (mut p, h) = undocked(10_000);
-    p.fill_draw(MilliUnits(40_000)).unwrap();
+    p.assisted_fill(MilliUnits(40_000)).unwrap();
     run_secs(&mut p, &h, 1);
     h.st().docked = true;
     run_secs(&mut p, &h, 1);
@@ -530,7 +530,7 @@ fn docking_mid_draw_aborts_and_books_the_partial_volume() {
 #[test]
 fn a_fault_latched_before_the_chunk_aborts_without_moving() {
     let (mut p, h) = undocked(10_000);
-    p.fill_draw(MilliUnits(40_000)).unwrap();
+    p.assisted_fill(MilliUnits(40_000)).unwrap();
     run_secs(&mut p, &h, 1);
     p.supervisor_mut().latch(Faults::OCCLUSION);
     run_secs(&mut p, &h, 1);
@@ -543,7 +543,7 @@ fn a_fault_latched_before_the_chunk_aborts_without_moving() {
 #[test]
 fn a_fault_raised_during_the_draw_stops_it_within_one_chunk() {
     let (mut p, h) = undocked(10_000);
-    p.fill_draw(MilliUnits(40_000)).unwrap();
+    p.assisted_fill(MilliUnits(40_000)).unwrap();
     run_secs(&mut p, &h, 1);
     h.st().battery_mv = 3_000; // critical: latched at the end of the next tick
     run_secs(&mut p, &h, 1);
@@ -562,7 +562,7 @@ fn a_fault_raised_during_the_draw_stops_it_within_one_chunk() {
 #[test]
 fn losing_the_angle_sensor_mid_draw_latches_internal_and_aborts() {
     let (mut p, h) = undocked(10_000);
-    p.fill_draw(MilliUnits(40_000)).unwrap();
+    p.assisted_fill(MilliUnits(40_000)).unwrap();
     run_secs(&mut p, &h, 1);
     h.st().angle_missing = true;
     run_secs(&mut p, &h, 1);
@@ -575,7 +575,7 @@ fn losing_the_angle_sensor_mid_draw_latches_internal_and_aborts() {
 #[test]
 fn emergency_stop_aborts_immediately() {
     let (mut p, h) = undocked(10_000);
-    p.fill_draw(MilliUnits(40_000)).unwrap();
+    p.assisted_fill(MilliUnits(40_000)).unwrap();
     run_secs(&mut p, &h, 1);
     p.emergency_stop();
     assert_eq!(p.draw_state(), ds::ABORTED);
@@ -589,8 +589,8 @@ fn emergency_stop_aborts_immediately() {
 fn cancel_before_the_first_chunk_books_nothing_and_needs_no_prime() {
     let (mut p, h) = undocked(10_000);
     p.set_config(PumpConfig::STRICT);
-    p.fill_draw(MilliUnits(40_000)).unwrap();
-    p.fill_draw(MilliUnits(0)).unwrap();
+    p.assisted_fill(MilliUnits(40_000)).unwrap();
+    p.assisted_fill(MilliUnits(0)).unwrap();
     assert_eq!(p.draw_state(), ds::ABORTED);
     assert_eq!(p.draw_drawn().0, 0);
     assert_eq!(p.reservoir().remaining().0, 10_000);
@@ -605,7 +605,7 @@ fn cancel_before_the_first_chunk_books_nothing_and_needs_no_prime() {
 fn strict_draw_requires_a_prime_before_resume() {
     let (mut p, h) = active_undocked(50_000);
     p.set_config(PumpConfig::STRICT);
-    p.fill_draw(MilliUnits(5_000)).unwrap();
+    p.assisted_fill(MilliUnits(5_000)).unwrap();
     assert!(!p.prime_required(), "required once the level changed, not at the start");
     run_draw(&mut p, &h);
     assert!(p.prime_required());
@@ -617,7 +617,7 @@ fn strict_draw_requires_a_prime_before_resume() {
     run_secs(&mut p, &h, 1);
     assert_eq!(p.resume(), Err(Error::PrimeRequired));
     assert_eq!(Error::PrimeRequired.code(), 26);
-    assert_eq!(p.prime(Pulses(2)), Ok(()));
+    prime_all(&mut p, &h, 2);
     assert!(!p.prime_required());
     assert!(p.get_status().flags & st::PRIME_REQUIRED == 0);
     assert_eq!(p.resume(), Ok(()));
@@ -632,7 +632,7 @@ fn strict_draw_requires_a_prime_before_resume() {
 #[test]
 fn relaxed_draw_needs_no_prime() {
     let (mut p, h) = active_undocked(50_000);
-    p.fill_draw(MilliUnits(5_000)).unwrap();
+    p.assisted_fill(MilliUnits(5_000)).unwrap();
     run_draw(&mut p, &h);
     assert!(!p.prime_required());
     h.st().docked = true;
@@ -643,9 +643,9 @@ fn relaxed_draw_needs_no_prime() {
 fn a_stalled_or_aborted_draw_with_progress_also_requires_a_prime() {
     let (mut p, h) = active_undocked(50_000);
     p.set_config(PumpConfig::STRICT);
-    p.fill_draw(MilliUnits(40_000)).unwrap();
+    p.assisted_fill(MilliUnits(40_000)).unwrap();
     run_secs(&mut p, &h, 1);
-    p.fill_draw(MilliUnits(0)).unwrap();
+    p.assisted_fill(MilliUnits(0)).unwrap();
     assert!(p.prime_required());
     h.st().docked = true;
     assert_eq!(p.resume(), Err(Error::PrimeRequired));
@@ -656,7 +656,7 @@ fn a_stalled_or_aborted_draw_with_progress_also_requires_a_prime() {
 #[test]
 fn no_delivery_command_is_possible_while_drawing() {
     let (mut p, h) = active_undocked(50_000);
-    p.fill_draw(MilliUnits(40_000)).unwrap();
+    p.assisted_fill(MilliUnits(40_000)).unwrap();
     run_secs(&mut p, &h, 1);
     assert_eq!(p.bolus(MilliUnits(500)), Err(Error::NotDocked));
     assert_eq!(p.resume(), Err(Error::NotDocked));
@@ -677,7 +677,7 @@ fn no_delivery_command_is_possible_while_drawing() {
 fn no_forward_steps_for_a_whole_draw_even_with_a_schedule() {
     let (mut p, h) = active_undocked(50_000);
     p.set_schedule(&BasalSchedule::flat(MilliUnitsPerHour(5_000))).unwrap();
-    p.fill_draw(MilliUnits(45_000)).unwrap();
+    p.assisted_fill(MilliUnits(45_000)).unwrap();
     run_draw(&mut p, &h);
     assert_eq!(h.st().total_steps, 0);
     assert!(h.st().total_reverse_steps > 1500);
@@ -686,7 +686,7 @@ fn no_forward_steps_for_a_whole_draw_even_with_a_schedule() {
 #[test]
 fn watchdog_is_serviced_on_every_tick_of_a_draw() {
     let (mut p, h) = undocked(0);
-    p.fill_draw(MilliUnits(60_000)).unwrap();
+    p.assisted_fill(MilliUnits(60_000)).unwrap();
     let before = h.st().kicks;
     let mut ticks = 0;
     while p.draw_running() && ticks < 100 {
@@ -714,10 +714,10 @@ fn rpc(p: &mut Pump<MockHal>, s: &mut Session<NoCrypto>, seq: u16, body: Command
 }
 
 #[test]
-fn fill_draw_over_frames_and_status_tags() {
+fn assisted_fill_over_frames_and_status_tags() {
     let (mut p, h) = undocked(10_000);
     let mut s = Session::new(NoCrypto, false, [9, 9, 9, 9], true);
-    let r = rpc(&mut p, &mut s, 1, CommandBody::FillDraw { amount_mu: 40_000 });
+    let r = rpc(&mut p, &mut s, 1, CommandBody::AssistedFill { amount_mu: 40_000 });
     assert_eq!(r.result, 0);
     let st0 = rpc(&mut p, &mut s, 2, CommandBody::GetStatus).status.unwrap();
     assert_eq!((st0.draw_state, st0.draw_requested_mu, st0.draw_done_mu), (ds::DRAWING, 40_000, 0));
@@ -733,7 +733,7 @@ fn fill_draw_over_frames_and_status_tags() {
     assert_eq!(proto::tag::DRAW_REQUESTED_MU, 0x22);
     assert_eq!(proto::tag::DRAW_DONE_MU, 0x23);
     // gates over frames
-    let bad = rpc(&mut p, &mut s, 5, CommandBody::FillDraw { amount_mu: 0 });
+    let bad = rpc(&mut p, &mut s, 5, CommandBody::AssistedFill { amount_mu: 0 });
     assert_eq!(bad.result, Error::NotFound.code());
 }
 
@@ -742,7 +742,7 @@ fn strict_prime_required_flag_over_frames() {
     let (mut p, h) = active_undocked(50_000);
     p.set_config(PumpConfig::STRICT);
     let mut s = Session::new(NoCrypto, false, [9, 9, 9, 9], true);
-    assert_eq!(rpc(&mut p, &mut s, 1, CommandBody::FillDraw { amount_mu: 2_000 }).result, 0);
+    assert_eq!(rpc(&mut p, &mut s, 1, CommandBody::AssistedFill { amount_mu: 2_000 }).result, 0);
     run_draw(&mut p, &h);
     h.st().docked = true;
     run_secs(&mut p, &h, 1);
@@ -750,9 +750,19 @@ fn strict_prime_required_flag_over_frames() {
     assert_eq!(r.result, Error::PrimeRequired.code());
     let flags = rpc(&mut p, &mut s, 3, CommandBody::GetStatus).status.unwrap().flags;
     assert!(flags & st::PRIME_REQUIRED != 0);
-    let pr = rpc(&mut p, &mut s, 4, CommandBody::FillPrime { sub_op: proto::SUBOP_PRIME, fill_mu: 0, prime_steps: 2 });
-    assert_eq!(pr.result, 0);
-    assert_eq!(rpc(&mut p, &mut s, 5, CommandBody::Resume).result, 0);
+    // the take-up after the draw is recovered over several prime commands (per-minute cap): repeat like a phone
+    let mut seq = 4;
+    loop {
+        let pr = rpc(&mut p, &mut s, seq, CommandBody::FillPrime { sub_op: proto::SUBOP_PRIME, fill_mu: 0, prime_steps: 2 });
+        seq += 1;
+        if pr.result == 0 {
+            break;
+        }
+        assert_eq!(pr.result, Error::Hourly.code(), "only the cap may refuse");
+        assert!(seq < 12);
+        run_secs(&mut p, &h, 61);
+    }
+    assert_eq!(rpc(&mut p, &mut s, seq, CommandBody::Resume).result, 0);
 }
 
 fn parse_notification(payload: &[u8]) -> (u8, u32) {
@@ -774,7 +784,7 @@ fn notification_frames_are_type_0x90_and_decode() {
     let mut s = Session::new(NoCrypto, false, [1, 2, 3, 4], true);
     let mut out = [0u8; FRAME_MAX];
     assert!(p.notification_frame(&mut s, false, &mut out).is_none());
-    p.fill_draw(MilliUnits(40_000)).unwrap();
+    p.assisted_fill(MilliUnits(40_000)).unwrap();
     run_draw(&mut p, &h);
     let expect = [
         (notify::DRAW_PROGRESS, mu_of(&p, 500)),
@@ -799,7 +809,7 @@ fn notification_frames_are_type_0x90_and_decode() {
 fn stalled_and_fault_notifications_are_framed() {
     let (mut p, h) = undocked(10_000);
     h.st().reverse_limit = 0;
-    p.fill_draw(MilliUnits(20_000)).unwrap();
+    p.assisted_fill(MilliUnits(20_000)).unwrap();
     run_secs(&mut p, &h, 1);
     h.st().battery_mv = 3_000;
     run_secs(&mut p, &h, 1);
@@ -855,7 +865,7 @@ impl Ccm for FakeCcm {
 fn encrypted_notification_uses_nonce_direction_two() {
     let salt = [5u8, 6, 7, 8];
     let (mut p, h) = undocked(0);
-    p.fill_draw(MilliUnits(40_000)).unwrap();
+    p.assisted_fill(MilliUnits(40_000)).unwrap();
     run_secs(&mut p, &h, 1);
     let mut s = Session::new(FakeCcm, true, salt, false);
     let mut out = [0u8; FRAME_MAX];
@@ -884,7 +894,7 @@ fn encrypted_notification_uses_nonce_direction_two() {
 #[test]
 fn encrypting_without_a_session_key_fails_but_consumes_the_notification() {
     let (mut p, h) = undocked(0);
-    p.fill_draw(MilliUnits(40_000)).unwrap();
+    p.assisted_fill(MilliUnits(40_000)).unwrap();
     run_secs(&mut p, &h, 1);
     let mut s = Session::new(NoCrypto, false, [0; 4], true);
     let mut out = [0u8; FRAME_MAX];

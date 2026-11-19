@@ -116,7 +116,7 @@ def check_bench(p: dict, L: dict, bodies: list) -> tuple[list, list]:
     b, B = p["bench"], L["bench"]
     by = {x["name"]: x for x in bodies}
     for need in ("pod_board", "hall_tmag", "hall_drv0", "hall_drv1", "hall_dock", "ffc_conn", "ffc_cable",
-                 "cannula_adapter", "dock_magnet", "motor", "gearhead", "motor_shaft", "motor_pins", "duckbill_valve", "end_cap", "dock_insert", "valve_plug", "plunger_nose", "tongue_shim") + (("coupler",) if L["coax"] else ("gear_a", "gear_b", "thrust_sleeve", "thrust_collar")):
+                 "cannula_adapter", "dock_magnet", "motor", "gearhead", "motor_shaft", "motor_pins", "duckbill_valve", "end_cap", "dock_insert", "valve_plug", "plunger_nose") + (() if L.get("inline") else ("tongue_shim",)) + (("coupler",) if L["coax"] else ("gear_a", "gear_b", "thrust_sleeve", "thrust_collar")):
         if need not in by:
             problems.append(f"bench body missing: {need}")
     for gone in ("battery", "qi_coil", "rf_module", "pcb", "buzzer", "ratchet_wheel", "sma_slider"):
@@ -156,12 +156,21 @@ def check_bench(p: dict, L: dict, bodies: list) -> tuple[list, list]:
         if G["centre"] < p["bench"]["gears"]["min_centre"] - 1e-6:
             problems.append(f"gear centre distance {G['centre']:.2f} mm < {p['bench']['gears']['min_centre']} (motor body would hit the carriage lane)")
         mo = by["motor"]["bbox"]
-        car = by["carriage"]["bbox"]
+        car = by["carriage"]["bbox"] if "carriage" in by else by["reservoir"]["bbox"]
         if mo["min"][1] < car["max"][1] + 0.1:
-            problems.append("motor body closer than 0.1 mm to the carriage lane")
+            problems.append("motor body closer than 0.1 mm to the carriage lane / reservoir")
         if by["motor_pins"]["bbox"]["min"][2] < p["bench"]["lead"]["pocket_floor"] - 1e-6:
             problems.append("motor pin tabs below the floor pocket")
-    if not L["coax"]:
+    if L.get("inline"):         # sealed on-axis cup drive: own checks (op_inline.py) incl. the fluid-boundary check
+        from op_inline import check_inline, fluid_boundary
+        pi_, wi_ = check_inline(p, L, by)
+        problems += pi_
+        warns += wi_
+        rv_ = by["reservoir"]
+        pf_, nf_ = fluid_boundary(p, L, rv_["volume_mm3"], rv_["bbox"])
+        problems += pf_
+        warns += nf_
+    elif not L["coax"]:
         # axial stack of the leadscrew: thrust sleeve on the dry bush face, front collar on the far bush face, magnet behind the collar
         sl, co_, bd, bf, mg, rd, nu, ca = (by[k]["bbox"] for k in ("thrust_sleeve", "thrust_collar", "bush_dry", "bush_far", "magnet", "leadscrew", "nut", "carriage"))
         if not (0.0 <= sl["min"][0] - bd["max"][0] <= 0.15):
@@ -303,6 +312,9 @@ def check_real_models(outdir: Path, variant: str) -> tuple[list, list]:
 def check_size(outdir: Path, variant: str, p: dict, ignore_length: bool, with_variants: bool = False) -> dict:
     mode = p.get("mode", "integrated")
     MFG_PARTS, _, EXCLUDE_PAIRS = part_sets(mode)
+    if p.get("drive_mode") in ("inline", "coaxial"):
+        from op_inline import INLINE_EXCLUDE
+        EXCLUDE_PAIRS = EXCLUDE_PAIRS + INLINE_EXCLUDE
     results = eval_design(outdir / f"{variant}.sc", EXCLUDE_PAIRS)
     measure = next(r for r in results if "bodies" in r and "body_count" in r)
     interf = next(r for r in results if "interferences" in r)
@@ -342,7 +354,7 @@ def check_size(outdir: Path, variant: str, p: dict, ignore_length: bool, with_va
     pr, wr = check_bench(p, L, bodies) if mode == "bench" else check_extra(p, L, bodies)
     problems += pr
     warns += wr
-    if mode == "bench" and not L["coax"]:
+    if mode == "bench" and not L["coax"] and not L.get("inline"):
         pr_, wr_ = check_real_models(outdir, variant)
         problems += pr_
         warns += wr_
@@ -350,8 +362,8 @@ def check_size(outdir: Path, variant: str, p: dict, ignore_length: bool, with_va
         pv, wv = check_insert_variants(outdir, variant, p, L)
         problems += pv
         warns += wv
-    exports = ["bottom", "top", "carriage", "reservoir", "plunger_core", "plunger_seal", "gasket", "mould_lower", "mould_upper"]
-    exports += ["cannula_adapter", "dock_insert", "plunger_nose", "valve_plug", "thrust_sleeve", "thrust_collar"] if mode == "bench" else ["reservoir_cnc_lower", "reservoir_cnc_upper"]
+    exports = ["bottom", "top"] + ([] if L.get("inline") else ["carriage"]) + ["reservoir", "plunger_core", "plunger_seal", "gasket", "mould_lower", "mould_upper"]
+    exports += (["cannula_adapter", "dock_insert", "plunger_nose", "valve_plug", "thrust_sleeve", "thrust_collar"] + ((["plunger_plate"] if L["inline"].get("variant") != "coaxial" else []) + ["thrust_sleeve2"] if L.get("inline") else [])) if mode == "bench" else ["reservoir_cnc_lower", "reservoir_cnc_upper"]
     for part in exports:
         for ext in ("step", "stl"):
             if not (outdir / f"{variant}_{part}.{ext}").exists():
@@ -362,13 +374,17 @@ def check_size(outdir: Path, variant: str, p: dict, ignore_length: bool, with_va
 
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--variant", choices=["integrated", "bench"], default="integrated")
+    ap.add_argument("--variant", choices=["integrated", "bench", "v010"], default="integrated")
     ap.add_argument("--outdir")
     ap.add_argument("--sizes", nargs="*")
     ap.add_argument("--ignore-length", action="store_true")
+    ap.add_argument("--drive", choices=["standard", "inline", "coaxial"], default="standard", help="inline / coaxial: check out/bench-inline / out/bench-coaxial (sealed on-axis drives)")
     ap.add_argument("-v", "--verbose", action="store_true")
     args = ap.parse_args()
-    out = Path(args.outdir or (HERE / "out" / "bench" if args.variant == "bench" else HERE / "out"))
+    if args.variant == "v010":          # additive variant (v010_check.py)
+        import v010_check
+        sys.exit(v010_check.main(args))
+    out = Path(args.outdir or (HERE / "out" / ({"inline": "bench-inline", "coaxial": "bench-coaxial"}.get(args.drive, "bench")) if args.variant == "bench" else HERE / "out"))
     p = load_params(out / "params.used.json") if (out / "params.used.json").exists() else load_params()
     p["mode"] = args.variant
     sizes = args.sizes or list(p["variants"])

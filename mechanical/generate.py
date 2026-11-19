@@ -124,6 +124,9 @@ def reservoir_cnc_script(p: dict, L: dict, tag: str, outdir: Path) -> Script:
 
 def generate_size(p: dict, variant: str, outdir: Path, snapshots: bool) -> dict:
     outdir.mkdir(parents=True, exist_ok=True)
+    if p.get("drive_mode") in ("inline", "coaxial"):
+        from op_inline import apply_variant
+        apply_variant(p, variant)
     s, L = build_model(p, variant)
     bench = L["mode"] == "bench"
     MFG_PARTS, PART_NAMES, _ = part_sets(L["mode"])
@@ -141,7 +144,7 @@ def generate_size(p: dict, variant: str, outdir: Path, snapshots: bool) -> dict:
     sc = outdir / f"{tag}.sc"
     run_cli("run", str(script), "--save", str(sc), "--quiet")
     real_sc = None
-    if bench and not L["coax"]:
+    if bench and not L["coax"] and not L.get("inline"):      # real-model replacement is specific to the carriage drive
         from op_models import REPLACED, glb_cmds, real_model_cmds
         mcmds = real_model_cmds(p, L, variant) + glb_cmds(os.path.relpath(outdir / f"{tag}_assembly.glb", HERE))
         mjson = outdir / f"{tag}.models.script.json"
@@ -244,7 +247,7 @@ def generate_coupon(p: dict) -> None:
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--sizes", nargs="*")
-    ap.add_argument("--variant", choices=["integrated", "bench"], default="integrated",
+    ap.add_argument("--variant", choices=["integrated", "bench", "v010"], default="integrated",
                     help="bench = bench pod (sensor board + FFC, no battery/coil/RF), writes to out/bench/")
     ap.add_argument("--outdir")
     ap.add_argument("--params")
@@ -252,13 +255,40 @@ def main() -> None:
     ap.add_argument("--coil-d", type=float)
     ap.add_argument("--set", action="append", default=[], metavar="group.key=value")
     ap.add_argument("--no-snapshots", action="store_true")
+    ap.add_argument("--snapshot-sizes", nargs="*", default=["OP-100"], help="v010: sizes that get renders (default OP-100)")
+    ap.add_argument("--drive", choices=["standard", "inline", "coaxial"], default="standard",
+                    help="inline = sealed on-axis 'cup' drive (op_inline.py, studies/drive/SEALED-DRIVE-STUDY.md), bench only, default outdir out/bench-inline")
     ap.add_argument("--coupon", action="store_true", help="only build the dock insert variant set + fit-test fixture (out/bench/fab/dock-inserts/)")
     args = ap.parse_args()
 
     p = apply_overrides(load_params(Path(args.params) if args.params else None), args.set, args.coil_d, args.preset)
+    if args.variant == "v010":          # additive variant: bench pod + electronics strip (op_v010.py, v010_gen.py)
+        import v010_gen
+        v010_gen.main(p, args.sizes, args.outdir, args.no_snapshots, args.snapshot_sizes)
+        return
     p["mode"] = args.variant
     if args.variant == "bench":
         p["shell"]["width"] = p["bench"]["width_by_layout"][p["bench"]["drive_layout"]]
+    if args.drive in ("inline", "coaxial"):
+        assert args.variant == "bench", "--drive inline/coaxial is a bench-pod option"
+        from op_inline import apply_inline
+        apply_inline(p, args.drive)
+        args.outdir = args.outdir or str(HERE / "out" / ("bench-inline" if args.drive == "inline" else "bench-coaxial"))
+    if args.coupon and args.drive in ("inline", "coaxial"):
+        from op_inline_coupon import build_coupon
+        d = HERE / "studies" / "drive" / ("coupon" if args.drive == "inline" else "coupon-coaxial")
+        d.mkdir(parents=True, exist_ok=True)
+        s = Script()
+        info = build_coupon(s, p, mode=args.drive)
+        for nm in info["printed"]:
+            s.export_step(str(d / f"{nm}.step"), [nm])
+            s.export_stl(str(d / f"{nm}.stl"), [nm])
+        sj = d / "_c.script.json"
+        sj.write_text(json.dumps(s.dumps()), encoding="utf-8")
+        run_cli("run", str(sj), "--save", str(d / "drive_coupon.sc"), "--quiet")
+        sj.unlink()
+        print(f"drive coupon written: {d} ({info})")
+        return
     if args.coupon:
         generate_coupon(p)
         return
@@ -276,7 +306,7 @@ def main() -> None:
         extra = "" if args.variant == "bench" else f" battery={L['bat_x']:.1f}x{p['battery']['y']}x{p['battery']['t']}"
         print(f"{v}: L={L['length']:.2f} W={L['width']:.1f} H={L['height']:.1f}{extra} "
               f"U/step={L['drive']['u_per_step']:.5f} env={L['envelope']['bbox_volume_ml']} ml -> {out}")
-    if args.variant == "bench" and not args.sizes:
+    if args.variant == "bench" and not args.sizes and args.drive == "standard":
         generate_coupon(p)
 
 

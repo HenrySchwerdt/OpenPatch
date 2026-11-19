@@ -130,6 +130,8 @@ def compute_layout(p: dict, variant: str) -> dict:
     screws = [{"x": sc["dry_x"], "y": y} for y in dry_y] + [{"x": c_x, "y": sc["c_y"]}]
     if bench and layout == "coaxial":           # long pod: two more lid screws beside the motor (free area y < 19)
         screws += [{"x": 14.0, "y": 4.2}, {"x": 14.0, "y": 16.5}]
+    if p.get("v010_active"):                     # v0.1.0 hook (op_v010.py): extra lid screws along the longer pod
+        screws += [{"x": x_r1 + u, "y": y} for u, y in p["v010"]["extra_screws"]]
 
     bat_x0 = max(x_r1 + bt["margin"], mot_end + 0.3, c_x + sc["boss_d"] / 2 + 0.3, mag_x[1] + 0.3)
     bat_x1 = x_end - bt["margin"]
@@ -230,6 +232,9 @@ def compute_layout(p: dict, variant: str) -> dict:
         "drive": {"gh_ratio_nominal": dr["gh_ratio"], "u_per_step": u_per_step(p, dr["gh_ratio"] * (gears["ratio_motor_to_screw"] if layout == "side_gears" else 1.0)),
                   "gear_ratio_motor_to_screw": gears["ratio_motor_to_screw"]},
     }
+    if p.get("drive_mode") in ("inline", "coaxial"):          # optional sealed on-axis drive (op_inline.py); default pod untouched
+        from op_inline import inline_layout
+        out["inline"] = inline_layout(p, out)
     if out["mode"] == "bench":
         from op_bench import bench_geometry          # lazy: op_bench needs only the finished layout dict
         out["bench"] = bench_geometry(p, out)

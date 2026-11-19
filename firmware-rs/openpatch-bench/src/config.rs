@@ -112,22 +112,27 @@ pub const MAX_REVERSE_BURST_STEPS: u32 = 600;
 /// Extra time allowed on top of `steps / rate` before a burst is declared failed.
 pub const BURST_TIMEOUT_MARGIN_MS: u64 = 25;
 
-/// STSPIN220 MODE1/MODE2/MODE3(STCK)/MODE4(DIR) latched when leaving standby. All low = full step
-/// (one core step = one full motor step; 20 steps/rev). Table 8 of DS11633.
-pub const MODE1_LEVEL_HIGH: bool = false;
-pub const MODE2_LEVEL_HIGH: bool = false;
-/// DIR level for forward (piston advancing) motion. Flip if the motor is wired the other way round.
-pub const DIR_FORWARD_HIGH: bool = true;
+/// STSPIN220 step mode: MODE1 and MODE2 are strapped to GND on the board (R114 / R115), which FORCES full step whatever
+/// MODE3 (STCK) / MODE4 (DIR) are (DS11633 6.2, Table 8). One core step = one full motor step (20 steps/rev); there is
+/// no firmware pin and no sequencing requirement on DIR or STCK.
+///
+/// `MOT_DIR` level for FORWARD (piston advancing) motion, set by the board option fitted (electronics/bench/INTERLOCK.md):
+/// * R96 fitted (DEFAULT hardware): DIR high = reverse, so forward = LOW, `DIR_FORWARD_HIGH = false`;
+/// * R97 fitted instead of R96: forward = HIGH, cargo feature `dir-forward-high`.
+/// The default is the restrictive one. Which level physically retracts depends on lead order, gear pair and thread hand:
+/// confirm in bench test T5 (docs/bench-testing.md). A wrong choice is caught by POST (`DIR_REV` readback, `4-40-003`).
+pub const DIR_FORWARD_HIGH: bool = cfg!(feature = "dir-forward-high");
 /// tMODEsu is 1 us; wake-up of the control logic after STBY high (EN/FAULT is forced low meanwhile).
 pub const STBY_WAKE_US: u64 = 2_000;
 /// Give the driver this long to release EN/FAULT after leaving standby, else "not ready".
 pub const DRIVER_READY_TIMEOUT_MS: u64 = 10;
 /// Supply settling time after the interlock closed, before leaving standby.
 pub const VMOT_SETTLE_MS: u64 = 3;
-/// VMOT_SENSE (x2, divider 100k/100k) above this = supply applied; below `OFF` = supply cut.
+/// VMOT_SENSE (x2, divider 100k/100k) above this = supply applied; below `OFF` = supply cut (the POST uses the
+/// stricter levels of `openpatch_core::bench_ctl::th`).
 pub const VMOT_ON_MIN_MV: u32 = 3_000;
 pub const VMOT_OFF_MAX_MV: u32 = 1_500;
-/// Time allowed for the supply to collapse after KILL_N / MCU_EN were dropped.
+/// Time allowed for the supply to collapse after the disarm (MCU_EN and / or LATCH_CLR_N).
 pub const VMOT_FALL_TIMEOUT_MS: u64 = 20;
 
 // ---------------------------------------------------------------------------------------------
@@ -136,8 +141,9 @@ pub const VMOT_FALL_TIMEOUT_MS: u64 = 20;
 /// 12 bit, gain 1/6, internal 0.6 V reference: full scale 3.6 V = 4096 counts.
 pub const ADC_FULL_SCALE_MV: u32 = 3_600;
 pub const ADC_COUNTS: u32 = 4_096;
-/// INA180A1: 20 V/V across the 1.0 ohm shunt => 20 mV per mA of motor supply current.
-pub const I_SENSE_MV_PER_MA: u32 = 20;
+/// Motor supply current: INA180A1 (20 V/V) on the 0.333 ohm shunt (R31 / R39 / R47) => 6.67 mV per mA. The one constant
+/// lives in the core (`limits::I_SENSE_UV_PER_MA`, tied to `controller/parts.json` by a host test); use
+/// `openpatch_core::limits::isense_mv_to_ma`.
 /// VBUS_SENSE and VMOT_SENSE are 100k/100k dividers.
 pub const DIVIDER_RATIO: u32 = 2;
 /// ADC samples per burst are taken back to back; this caps the loop (about 100 us per 3-channel scan).
@@ -160,6 +166,17 @@ pub const ANGLE_POLL_MS: u64 = 20;
 /// TMAG5273 I2C CRC (datasheet 6.5.1.3.6). Off by default: the CRC coverage of the standard 4 byte read
 /// is taken from the datasheet text and untested on a device; enable it on the bench once verified.
 pub const TMAG_CRC_EN: bool = false;
+/// Sensor axes of the angle: the spindle magnet rotates its field in the pod Y-Z plane, so the default is Y-Z
+/// (`openpatch_core::tmag5273::AnglePlane`); the cargo features `tmag-plane-xy` / `tmag-plane-xz` select the other pairs
+/// after the bench check with a hand-turned rod (docs/bench-testing.md T12). +-80 mT on both axes (field estimate 34 to 41 mT).
+pub const TMAG_PLANE: openpatch_core::tmag5273::AnglePlane = if cfg!(feature = "tmag-plane-xy") {
+    openpatch_core::tmag5273::AnglePlane::XY
+} else if cfg!(feature = "tmag-plane-xz") {
+    openpatch_core::tmag5273::AnglePlane::XZ
+} else {
+    openpatch_core::tmag5273::DEFAULT_PLANE
+};
+pub const TMAG_RANGE_80MT: bool = !cfg!(feature = "tmag-range-40mt");
 /// I2C transaction timeout.
 pub const TMAG_TIMEOUT_MS: u64 = 5;
 /// Consecutive failed reads before the sensor is declared missing (`angle_read` -> None).
@@ -184,6 +201,9 @@ pub const BEEP_MS: u64 = 120;
 pub const BUZZER_HZ: u32 = 2_700;
 /// Consecutive good safety ticks before the new image is confirmed (`mark_booted`).
 pub const BOOT_OK_TICKS: u32 = 30;
+/// TPL5010 DONE permit: the safety task grants it after every verified tick; the WAKE interrupt issues the DONE pulse only
+/// inside this window (shorter than the TPL5010 interval of about 2 s). A hung safety task stops refreshing it.
+pub const DONE_PERMIT_MS: u32 = 1_500;
 
 // ---------------------------------------------------------------------------------------------
 // Persistence policy (protocol section 6.1)

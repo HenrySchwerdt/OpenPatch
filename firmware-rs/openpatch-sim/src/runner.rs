@@ -166,6 +166,17 @@ pub struct InterlockVerdict {
     pub last_forward_motion_undocked_s: Option<f64>,
 }
 
+/// One `RunSelfTest` of a scenario and what was active afterwards (`1-06-001` style codes).
+#[derive(Clone, Debug, Serialize)]
+pub struct SelfTestRecord {
+    pub t_s: f64,
+    pub sub_op: u8,
+    pub result: u8,
+    pub steps_passed: u16,
+    pub steps_failed: u16,
+    pub codes: Vec<String>,
+}
+
 #[derive(Clone, Debug, Serialize)]
 pub struct ResetRecord {
     pub t_s: f64,
@@ -202,6 +213,7 @@ pub struct Verdict {
     pub limits: LimitVerdict,
     pub interlock: InterlockVerdict,
     pub resets: Vec<ResetRecord>,
+    pub selftests: Vec<SelfTestRecord>,
     pub boots: Vec<BootSummary>,
     pub draws: Vec<DrawResult>,
     pub reservoir_end_model_mu: u32,
@@ -258,6 +270,7 @@ pub struct Runner {
     boluses: Vec<BolusResult>,
     faults: Vec<FaultRecord>,
     prev_faults: u16,
+    selftests: Vec<SelfTestRecord>,
     injections: Vec<Injection>,
     draws: Vec<DrawResult>,
     draw_base: Option<(f64, u32, f64)>, // t_s, requested, drawn_ul base
@@ -309,6 +322,7 @@ impl Runner {
             boluses: Vec::new(),
             faults: Vec::new(),
             prev_faults: 0,
+            selftests: Vec::new(),
             injections: Vec::new(),
             draws: Vec::new(),
             draw_base: None,
@@ -367,9 +381,9 @@ impl Runner {
         // 1. undock, draw the water in
         self.dev.world.borrow_mut().docked_phys = false;
         self.run_s(2.0);
-        let r = self.dev.cmd(CommandBody::FillDraw { amount_mu: fill_mu });
+        let r = self.dev.cmd(CommandBody::AssistedFill { amount_mu: fill_mu });
         if r != 0 {
-            return Err(format!("FillDraw refused: {r}"));
+            return Err(format!("AssistedFill refused: {r}"));
         }
         self.dev.world.borrow_mut().plant.fill_needle = true;
         for _ in 0..900 {
@@ -405,12 +419,20 @@ impl Runner {
         // 3. prime the connector
         let steps = self.dev.pump().pulse_cal().mu_to_pulses(openpatch_core::MilliUnits((self.sc.setup.prime_u * 1000.0) as u32)).0;
         if steps > 0 {
-            let r = self.dev.cmd(CommandBody::FillPrime { sub_op: SUBOP_PRIME, fill_mu: 0, prime_steps: steps as u16 });
+            // The prime after a draw first recovers the lost motion of the mechanics (0.33 mm = 2.5 U), which counts against the
+            // 1.7 U per minute backstop: the pod answers `Hourly` (16) after the part that fits and the app repeats the prime
+            // a minute later, exactly like a phone.
+            let mut r = 255;
+            for _ in 0..6 {
+                r = self.dev.cmd(CommandBody::FillPrime { sub_op: SUBOP_PRIME, fill_mu: 0, prime_steps: steps as u16 });
+                if r != 16 {
+                    break;
+                }
+                self.run_s(62.0);
+            }
             if r != 0 {
                 return Err(format!("Prime refused: {r}"));
             }
-            // The prime after a draw runs the backlash take-up first (0.63 U) and counts against the 1.7 U per minute
-            // backstop: the app's attach / confirm step takes more than a minute, so wait for the next minute before Resume.
             self.run_s(62.0);
         }
         // 4. resume
@@ -524,7 +546,7 @@ impl Runner {
         // draw completion
         if let (Some((t0, req, base)), Some(p)) = (self.draw_base, self.dev.pump.as_ref()) {
             if !p.draw_running() {
-                let drawn_now = self.dev.world.borrow().plant.drawn_ul;
+                let drawn_now = self.dev.world.borrow().plant.filled_ul();
                 let actual = (drawn_now - base) * MU_PER_UL;
                 let core_drawn = p.draw_drawn().0;
                 self.draws.push(DrawResult {
@@ -665,12 +687,12 @@ impl Runner {
             }
             Action::Draw { units } => {
                 let mu = (units * 1000.0).round() as u32;
-                let r = self.dev.cmd(CommandBody::FillDraw { amount_mu: mu });
+                let r = self.dev.cmd(CommandBody::AssistedFill { amount_mu: mu });
                 self.note_result("draw", r);
                 if r == 0 {
                     let mut w = self.dev.world.borrow_mut();
                     w.plant.fill_needle = true;
-                    self.draw_base = Some((t_s, mu, w.plant.drawn_ul));
+                    self.draw_base = Some((t_s, mu, w.plant.filled_ul()));
                 }
             }
             Action::Activate => {
@@ -731,6 +753,27 @@ impl Runner {
             Action::ForceSteps { n } => {
                 let _ = self.dev.force_forward_steps(*n);
             }
+            Action::BoardFault { fault, on } => {
+                let mut w = self.dev.world.borrow_mut();
+                if fault == "r97_fitted" {
+                    w.board.r97_fitted = *on;
+                } else if let Err(e) = w.board.f.set(fault, *on) {
+                    drop(w);
+                    self.notes.push(e);
+                }
+            }
+            Action::SelfTest { sub_op } => {
+                let rsp = self.dev.send(CommandBody::RunSelfTest { sub_op: *sub_op });
+                let result = rsp.as_ref().map_or(255, |r| r.result);
+                let st = rsp.as_ref().and_then(|r| r.selftest).unwrap_or_default();
+                self.note_result("self_test", result);
+                let codes = self.dev.pump.as_ref().map_or(vec![], |p| {
+                    p.supervisor().diag().active().iter().map(|a| format!("{:X}-{:02X}-{:03X}", a.code.layer(), a.code.component(), a.code.fault())).collect()
+                });
+                self.selftests.push(SelfTestRecord { t_s, sub_op: *sub_op, result, steps_passed: st.steps_passed, steps_failed: st.steps_failed, codes });
+            }
+            Action::FillPush { kpa } => self.dev.world.borrow_mut().plant.fill_push_kpa = *kpa,
+            Action::FillNeedle { in_septum } => self.dev.world.borrow_mut().plant.fill_needle = *in_septum,
             Action::Mark { name } => self.dev.world.borrow_mut().mark(name),
         }
     }
@@ -766,6 +809,7 @@ impl Runner {
             actual_vs_core_pct: if core > 0 { Some((out_mu / core as f64 - 1.0) * 100.0) } else { None },
             boluses: self.boluses.clone(),
             faults: self.faults.clone(),
+            selftests: self.selftests.clone(),
             reservoir_end_model_mu: res,
             reservoir_end_actual_mu: w.plant.liquid_ul * MU_PER_UL,
             battery_end_mv: w.battery_idle_mv(),

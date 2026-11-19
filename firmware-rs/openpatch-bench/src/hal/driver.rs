@@ -1,305 +1,210 @@
-//! STSPIN220 control and the hardware interlock sequence (bench controller board).
+//! STSPIN220 control and the hardware interlock, bench controller board. The decisions (power-up plan, rotating
+//! single-gate disarm, readback classification, POST) live in `openpatch_core::bench_ctl` and are host tested; this file
+//! only binds the controller to the pins ([`EmbassyPins`]).
 //!
-//! `VMOT = MCU_EN AND TPL5010_LATCH AND (DOCKED OR DIR_REVERSE)` (spec 4a, decision 2026-11-19).
-//! DIR is therefore part of the supply gate: the plan in `openpatch_core::interlock::power_up_plan`
-//! (host-tested) always sets DIR first. Power-up order (`power_up`), immediately before a burst and
-//! only from the safety task:
-//!  0. refuse forward while undocked / reverse while docked (`interlock::check_request`),
-//!  1. DIR to the requested direction, release KILL_N, MCU_EN high, one ARM_CLK rising edge,
-//!  2. LATCH_Q_MON must read high (latch set) and VMOT_SENSE must show the supply,
-//!  3. STBY high (MODE pins latched, full step), wait, release EN/FAULT and wait until it reads high,
-//!  4. the caller emits the step burst.
-//! A DIR change while powered (`change_direction`) and the end of every burst re-check VMOT against
-//! the gate model: missing supply = fault, supply where the gate must be open = interlock failure.
-//! Power-down (`power_off`): STBY low, EN/FAULT driven low, MCU_EN low, KILL_N low (clears the latch),
-//! ARM_CLK low, then LATCH_Q_MON must read low and VMOT must collapse. If not, `failed` is latched:
-//! the safety task stops answering the TPL5010 and the hardware resets the MCU, which clears the
-//! latch independently of the firmware. DIR returns to forward only after that.
+//! `MOT_ALLOW = MCU_EN AND LATCH_Q AND OC_OK AND (DOCKED_H XOR DIR_REV)` (INTERLOCK.md). DIR is part of the gate: the plan
+//! always sets it first, and it returns to forward only after the supply is verified cut. Power-down rotates the cutting
+//! gate (MCU_EN only, LATCH_CLR_N only, both) and verifies the collapse; STBY is low whenever the driver is idle (the
+//! motor would dissipate about 1.4 W at 160 mA in both phases).
 //!
-//! OPEN (datasheet, not checked here): the STSPIN220 latches MODE4/DIR at the STBY rising edge. In a
-//! draw DIR is at the reverse level at that edge. Confirm in DS11633 that full step does not depend
-//! on MODE4, else the DIR level at the STBY edge must be handled (docs/stubs.md).
+//! Board without the interlock (DK): the controller runs with `CtlCfg::NO_INTERLOCK` (direction, STBY, EN/FAULT only).
+use core::sync::atomic::Ordering;
 use embassy_nrf::gpio::{AnyPin, Flex, Input, Level, Output, OutputDrive, Pull};
 use embassy_nrf::Peri;
 use embassy_time::{block_for, Duration, Instant};
-use openpatch_core::hal::{MotorDir, MotorFault};
-use openpatch_core::interlock::{self, power_up_plan, check_supply, vmot_expected, Refusal, Step, SupplyCheck};
+use openpatch_core::bench_ctl::{BenchCtl, BenchPins, CtlCfg, PinRead};
 
-use super::adc::{divided_to_mv, Adc};
+use super::adc::{divided_to_mv, raw_to_mv, Adc};
 use crate::board::{InterlockPins, HAS_INTERLOCK, HAS_MOTOR_DRIVER};
 use crate::config::*;
+use crate::shared::TMAG_PRESENT;
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq, defmt::Format)]
-pub enum PowerError {
-    /// A previous power-down could not be verified; no further power-up until reset.
-    InterlockFailed,
-    /// Direction / dock combination refused before any pin was touched.
-    Refused(Refusal),
-    /// LATCH_Q_MON did not follow ARM_CLK.
-    LatchNotSet,
-    /// VMOT_SENSE does not show the supply although the interlock is closed.
-    NoSupply,
-    /// VMOT present where the gate must be open.
-    UnexpectedSupply,
-    /// EN/FAULT stayed low (STSPIN220 fault or not ready).
-    DriverFault,
+/// The interlock pins (E73 bench board only).
+struct IlPins {
+    arm_clk: Flex<'static>,
+    latch_clr_n: Flex<'static>,
+    mcu_en: Flex<'static>,
+    latch_q: Input<'static>,
+    oc_ok: Input<'static>,
+    pgate_mon: Input<'static>,
+    dir_rev: Input<'static>,
+    docked_h: Input<'static>,
+    dock_test: Output<'static>,
+    oc_test: Output<'static>,
+    pod_id_n: Input<'static>,
 }
 
-struct Interlock {
-    arm_clk: Output<'static>,
-    kill_n: Output<'static>,
-    mcu_en: Output<'static>,
-    latch_mon: Input<'static>,
-}
-
-pub struct Driver {
+/// `BenchPins` over the embassy GPIO and the SAADC.
+pub struct EmbassyPins {
+    pub adc: Adc,
     dir: Output<'static>,
-    /// MODE1/MODE2 are only written at construction (latched by the STSPIN220 at the STBY edge);
-    /// kept so the pins stay configured as outputs.
-    #[allow(dead_code)]
-    mode1: Output<'static>,
-    #[allow(dead_code)]
-    mode2: Output<'static>,
-    stby: Output<'static>,
+    stby: Flex<'static>,
     en_fault: Flex<'static>,
-    il: Option<Interlock>,
-    pub powered: bool,
-    pub failed: bool,
-    /// Direction the driver is powered for (valid while `powered`).
-    dir_state: MotorDir,
-    /// Cause of the last refused / failed power-up or burst, taken by `Hal::motor_fault`.
-    pub fault: Option<MotorFault>,
+    il: Option<IlPins>,
+    /// DOCK_N (pod dock hall, low = docked); `None` on boards that simulate DOCKED.
+    pub dock_n: Option<Input<'static>>,
+    /// Keeps WDT_DONE configured as an output, idle low. The pulse itself is issued by the WAKE interrupt (`hal::wdt`).
+    _done: Option<Output<'static>>,
 }
 
-impl PowerError {
-    pub fn to_fault(self) -> MotorFault {
-        match self {
-            PowerError::InterlockFailed => MotorFault::InterlockFailed,
-            PowerError::Refused(r) => r.into(),
-            PowerError::LatchNotSet | PowerError::NoSupply => MotorFault::SupplyMissing,
-            PowerError::UnexpectedSupply => MotorFault::SupplyUnexpected,
-            PowerError::DriverFault => MotorFault::Driver,
-        }
+fn flex_out(pin: Peri<'static, AnyPin>, level: Level, drive: OutputDrive) -> Flex<'static> {
+    let mut f = Flex::new(pin);
+    if level == Level::High {
+        f.set_high();
+    } else {
+        f.set_low();
     }
+    // input buffer connected while driven: the own-pin readback of the diagnostics (RB9)
+    f.set_as_input_output(Pull::None, drive);
+    f
 }
 
-fn short_delay_us(us: u32) {
-    // 64 MHz core, ~4 cycles per loop iteration margin included
-    cortex_m::asm::delay(us * 64);
-}
-
-impl Driver {
-    /// All outputs are put into the fail-safe state: driver in standby, supply gates open.
-    pub fn new(
-        dir: Peri<'static, AnyPin>,
-        mode1: Peri<'static, AnyPin>,
-        mode2: Peri<'static, AnyPin>,
-        stby: Peri<'static, AnyPin>,
-        en_fault: Peri<'static, AnyPin>,
-        il: Option<InterlockPins>,
-    ) -> Self {
-        let il = il.map(|p| Interlock {
-            arm_clk: Output::new(p.arm_clk, Level::Low, OutputDrive::Standard),
-            // Open drain: low pulls the latch clear, "high" releases the line (board pull-up). Never driven high.
-            kill_n: Output::new(p.kill_n, Level::Low, OutputDrive::Standard0Disconnect1),
-            mcu_en: Output::new(p.mcu_en, Level::Low, OutputDrive::Standard),
-            latch_mon: Input::new(p.latch_q_mon, Pull::None),
-        });
-        let mut en_fault = Flex::new(en_fault);
-        en_fault.set_low();
-        en_fault.set_as_output(OutputDrive::Standard0Disconnect1);
-        Self {
-            dir: Output::new(dir, Level::from(DIR_FORWARD_HIGH), OutputDrive::Standard),
-            mode1: Output::new(mode1, Level::from(MODE1_LEVEL_HIGH), OutputDrive::Standard),
-            mode2: Output::new(mode2, Level::from(MODE2_LEVEL_HIGH), OutputDrive::Standard),
-            stby: Output::new(stby, Level::Low, OutputDrive::Standard),
-            en_fault,
-            il,
-            powered: false,
-            failed: false,
-            dir_state: MotorDir::Forward,
-            fault: None,
+impl BenchPins for EmbassyPins {
+    fn set_mot_dir(&mut self, high: bool) {
+        self.dir.set_level(Level::from(high));
+    }
+    fn set_mcu_en(&mut self, high: bool) {
+        if let Some(il) = self.il.as_mut() {
+            il.mcu_en.set_level(Level::from(high));
         }
     }
-
-    fn wait_until(timeout_ms: u64, mut cond: impl FnMut() -> bool) -> bool {
-        let t0 = Instant::now();
-        loop {
-            if cond() {
-                return true;
-            }
-            if Instant::now() - t0 > Duration::from_millis(timeout_ms) {
-                return false;
-            }
+    fn arm_edge(&mut self) {
+        if let Some(il) = self.il.as_mut() {
+            il.arm_clk.set_high(); // rising edge = ARM
+            cortex_m::asm::delay(64 * 5);
+            il.arm_clk.set_low();
         }
     }
-
-    /// DIR level for forward (piston advancing) or reverse (draw) motion. On the bench board DIR is
-    /// an input of the supply gate: only call it as part of the plan / `change_direction`, or idle.
-    pub fn set_direction(&mut self, forward: bool) {
-        self.dir.set_level(Level::from(forward == DIR_FORWARD_HIGH));
-    }
-
-    fn vmot_check(&mut self, adc: &mut Adc, expected_on: bool) -> SupplyCheck {
-        check_supply(expected_on, adc_vmot_mv(adc), VMOT_ON_MIN_MV, VMOT_OFF_MAX_MV)
-    }
-
-    /// Power the driver for motion in `dir`. DIR is set BEFORE MCU_EN is requested (the gate needs
-    /// it in a draw); forward needs DOCKED, reverse needs UNDOCKED (`interlock::check_request`).
-    pub fn power_up(&mut self, adc: &mut Adc, docked: bool, dir: MotorDir) -> Result<(), PowerError> {
-        if self.failed {
-            return Err(PowerError::InterlockFailed);
-        }
-        interlock::check_request(dir, docked).map_err(PowerError::Refused)?;
-        for step in power_up_plan(dir) {
-            match step {
-                Step::SetDir(d) => {
-                    self.set_direction(d == MotorDir::Forward);
-                    self.dir_state = d;
-                }
-                Step::ReleaseKill => {
-                    if let Some(il) = self.il.as_mut() {
-                        il.kill_n.set_high(); // release
-                    }
-                }
-                Step::McuEnHigh => {
-                    if let Some(il) = self.il.as_mut() {
-                        il.mcu_en.set_high();
-                        short_delay_us(50);
-                    }
-                }
-                Step::ArmEdge => {
-                    if let Some(il) = self.il.as_mut() {
-                        il.arm_clk.set_high(); // rising edge = ARM
-                        short_delay_us(5);
-                        il.arm_clk.set_low();
-                        short_delay_us(50);
-                    }
-                }
-                Step::CheckLatchSet => {
-                    if self.il.as_ref().is_some_and(|il| il.latch_mon.is_low()) {
-                        self.power_off(adc);
-                        return Err(PowerError::LatchNotSet);
-                    }
-                }
-                Step::CheckVmotUp => {
-                    if self.il.is_some() {
-                        block_for(Duration::from_millis(VMOT_SETTLE_MS));
-                        // the plan only reaches here with a request the gate must satisfy
-                        if self.vmot_check(adc, true) != SupplyCheck::Ok {
-                            self.power_off(adc);
-                            return Err(PowerError::NoSupply);
-                        }
-                    }
-                }
-                Step::DriverOn => {
-                    // Without a driver (DK) EN/FAULT is a floating pin: pull it up and skip the readiness check.
-                    self.en_fault.set_as_input(if HAS_MOTOR_DRIVER { Pull::None } else { Pull::Up });
-                    self.stby.set_high();
-                    block_for(Duration::from_micros(STBY_WAKE_US));
-                    let ready = !HAS_MOTOR_DRIVER || {
-                        let en = &self.en_fault;
-                        Self::wait_until(DRIVER_READY_TIMEOUT_MS, || en.is_high())
-                    };
-                    if !ready {
-                        self.power_off(adc);
-                        return Err(PowerError::DriverFault);
-                    }
-                }
-            }
-        }
-        self.powered = true;
-        Ok(())
-    }
-
-    /// Direction change while powered. The supply must follow the gate model afterwards: present
-    /// where the model says ON (else `NoSupply`), absent where it says OFF (else the gate did not
-    /// open: `failed` latched, `UnexpectedSupply`).
-    pub fn change_direction(&mut self, adc: &mut Adc, docked: bool, dir: MotorDir) -> Result<(), PowerError> {
-        interlock::check_request(dir, docked).map_err(PowerError::Refused)?;
-        if self.dir_state == dir {
-            return Ok(());
-        }
-        self.set_direction(dir == MotorDir::Forward);
-        self.dir_state = dir;
-        self.verify_supply(adc, docked)
-    }
-
-    /// Compare VMOT with the gate model for the current direction (`latch` and `MCU_EN` are set while powered).
-    pub fn verify_supply(&mut self, adc: &mut Adc, docked: bool) -> Result<(), PowerError> {
-        if self.il.is_none() {
-            return Ok(());
-        }
-        let expected = vmot_expected(true, true, docked, self.dir_state);
-        block_for(Duration::from_millis(VMOT_SETTLE_MS));
-        match self.vmot_check(adc, expected) {
-            SupplyCheck::Ok => Ok(()),
-            SupplyCheck::Missing => {
-                self.power_off(adc);
-                Err(PowerError::NoSupply)
-            }
-            SupplyCheck::Unexpected => {
-                self.failed = true;
-                defmt::error!("INTERLOCK: supply present where the gate must be open");
-                self.power_off(adc);
-                Err(PowerError::UnexpectedSupply)
-            }
+    fn set_latch_clear(&mut self, asserted: bool) {
+        if let Some(il) = self.il.as_mut() {
+            // open drain: low clears the latch, "high" releases the line (board pull-up). Never driven high.
+            il.latch_clr_n.set_level(Level::from(!asserted));
         }
     }
-
-    /// `true` if the supply is verified cut. A failed verification latches `failed`.
-    pub fn power_off(&mut self, adc: &mut Adc) -> bool {
-        self.powered = false;
-        self.stby.set_low();
-        self.en_fault.set_low();
-        self.en_fault.set_as_output(OutputDrive::Standard0Disconnect1);
-        let Some(il) = self.il.as_mut() else {
-            self.set_direction(true);
-            self.dir_state = MotorDir::Forward;
-            return true;
-        };
-        il.mcu_en.set_low();
-        il.kill_n.set_low();
-        il.arm_clk.set_low();
-        let cut = Self::wait_until(VMOT_FALL_TIMEOUT_MS, || {
-            il.latch_mon.is_low() && adc_vmot_mv(adc) <= VMOT_OFF_MAX_MV
-        });
-        if !cut {
-            self.failed = true;
-            defmt::error!("INTERLOCK: supply not verified cut after KILL_N/MCU_EN low");
+    fn set_dock_test(&mut self, on: bool) {
+        if let Some(il) = self.il.as_mut() {
+            il.dock_test.set_level(Level::from(on));
         }
-        // DIR is an input of the supply gate: back to forward only now that the supply is cut.
-        self.set_direction(true);
-        self.dir_state = MotorDir::Forward;
-        cut
     }
-
-    /// Idle check (once per tick): with the driver off the latch must be clear and VMOT absent.
-    pub fn verify_idle(&mut self, adc: &mut Adc) -> bool {
-        if self.powered {
-            return true;
+    fn set_oc_test(&mut self, on: bool) {
+        if let Some(il) = self.il.as_mut() {
+            il.oc_test.set_level(Level::from(on));
         }
-        let Some(il) = self.il.as_ref() else { return true };
-        let ok = il.latch_mon.is_low() && adc_vmot_mv(adc) <= VMOT_OFF_MAX_MV;
-        if !ok {
-            self.failed = true;
-            defmt::error!("INTERLOCK: latch or VMOT active while the driver is off");
+    }
+    fn set_stby(&mut self, active: bool) {
+        self.stby.set_level(Level::from(active));
+    }
+    fn drive_en_fault_low(&mut self, low: bool) {
+        if low {
+            self.en_fault.set_low();
+            self.en_fault.set_as_output(OutputDrive::Standard0Disconnect1);
+        } else {
+            // without a driver (DK) EN/FAULT is a floating pin: pull it up
+            self.en_fault.set_as_input(if HAS_MOTOR_DRIVER { Pull::None } else { Pull::Up });
         }
-        ok
     }
-
-    /// `true` if EN/FAULT reads low while the driver should be running (STSPIN220 over-current /
-    /// thermal protection disabled the power stage).
-    pub fn fault_asserted(&self) -> bool {
-        HAS_MOTOR_DRIVER && self.powered && self.en_fault.is_low()
+    fn read(&mut self) -> PinRead {
+        let en_fault_high = self.en_fault.is_high();
+        let dock_n_low = self.dock_n.as_ref().is_some_and(|p| p.is_low());
+        let stby = self.stby.is_high();
+        match self.il.as_ref() {
+            Some(il) => PinRead {
+                latch_q: il.latch_q.is_high(),
+                oc_ok: il.oc_ok.is_high(),
+                mot_allow: il.pgate_mon.is_low(),
+                docked_h: il.docked_h.is_high(),
+                dir_rev: il.dir_rev.is_high(),
+                mcu_en: il.mcu_en.is_high(),
+                stby,
+                arm_clk: il.arm_clk.is_high(),
+                latch_clr: il.latch_clr_n.is_low(),
+                dock_n_low,
+                pod_present: il.pod_id_n.is_low(),
+                en_fault_high,
+            },
+            None => PinRead { stby, dock_n_low, en_fault_high, oc_ok: true, ..PinRead::default() },
+        }
     }
-
-    #[allow(dead_code)]
-    pub fn has_interlock(&self) -> bool {
-        HAS_INTERLOCK && self.il.is_some()
+    fn vmot_mv(&mut self) -> u32 {
+        divided_to_mv(self.adc.scan().vmot)
+    }
+    fn isense_mv(&mut self) -> u32 {
+        raw_to_mv(self.adc.scan().isense)
+    }
+    fn vbus_mv(&mut self) -> u32 {
+        divided_to_mv(self.adc.scan().vbus)
+    }
+    fn vdd_mv(&mut self) -> u32 {
+        raw_to_mv(self.adc.scan().vdd)
+    }
+    fn tmag_ack(&mut self) -> bool {
+        TMAG_PRESENT.load(Ordering::Relaxed)
+    }
+    fn now_us(&mut self) -> u64 {
+        Instant::now().as_micros()
+    }
+    fn delay_us(&mut self, us: u32) {
+        block_for(Duration::from_micros(us as u64));
+    }
+    /// During a long proof the POST is itself verifying: refresh the DONE permit (no idle verification here).
+    fn kick(&mut self) {
+        super::wdt::grant_permit();
     }
 }
 
-fn adc_vmot_mv(adc: &mut Adc) -> u32 {
-    divided_to_mv(adc.scan().vmot)
+fn ctl_cfg() -> CtlCfg {
+    CtlCfg {
+        forward_high: DIR_FORWARD_HIGH,
+        vmot_on_min_mv: VMOT_ON_MIN_MV,
+        vmot_off_max_mv: VMOT_OFF_MAX_MV,
+        settle_ms: VMOT_SETTLE_MS as u32,
+        fall_timeout_ms: VMOT_FALL_TIMEOUT_MS as u32,
+        stby_wake_us: STBY_WAKE_US as u32,
+        driver_ready_ms: DRIVER_READY_TIMEOUT_MS as u32,
+        interlock: HAS_INTERLOCK,
+        driver: HAS_MOTOR_DRIVER,
+    }
+}
+
+/// The driver: the host-tested controller over the embassy pins.
+pub type Driver = BenchCtl<EmbassyPins>;
+
+/// All outputs are put into the fail-safe state: driver in standby, supply gates open, latch held clear, test pins low,
+/// DIR at the forward level.
+pub fn new_driver(
+    adc: Adc,
+    dir: Peri<'static, AnyPin>,
+    stby: Peri<'static, AnyPin>,
+    en_fault: Peri<'static, AnyPin>,
+    il: Option<InterlockPins>,
+    dock_n: Option<Peri<'static, AnyPin>>,
+    done: Option<Peri<'static, AnyPin>>,
+) -> Driver {
+    let il = il.map(|p| IlPins {
+        arm_clk: flex_out(p.arm_clk, Level::Low, OutputDrive::Standard),
+        // Open drain: low pulls the latch clear (held clear at idle), "high" releases the line. Never driven high.
+        latch_clr_n: flex_out(p.latch_clr_n, Level::Low, OutputDrive::Standard0Disconnect1),
+        mcu_en: flex_out(p.mcu_en, Level::Low, OutputDrive::Standard),
+        latch_q: Input::new(p.latch_q_mon, Pull::None),
+        oc_ok: Input::new(p.oc_ok, Pull::None),
+        pgate_mon: Input::new(p.pgate_mon, Pull::None),
+        dir_rev: Input::new(p.dir_rev, Pull::None),
+        docked_h: Input::new(p.docked_h, Pull::None),
+        dock_test: Output::new(p.dock_test, Level::Low, OutputDrive::Standard),
+        oc_test: Output::new(p.oc_test, Level::Low, OutputDrive::Standard),
+        pod_id_n: Input::new(p.pod_id_n, Pull::None),
+    });
+    let mut en_fault = Flex::new(en_fault);
+    en_fault.set_low();
+    en_fault.set_as_output(OutputDrive::Standard0Disconnect1);
+    let pins = EmbassyPins {
+        adc,
+        dir: Output::new(dir, Level::from(DIR_FORWARD_HIGH), OutputDrive::Standard),
+        stby: flex_out(stby, Level::Low, OutputDrive::Standard),
+        en_fault,
+        il,
+        dock_n: dock_n.map(|p| Input::new(p, Pull::None)),
+        _done: done.map(|p| Output::new(p, Level::Low, OutputDrive::Standard)),
+    };
+    BenchCtl::new(pins, ctl_cfg())
 }

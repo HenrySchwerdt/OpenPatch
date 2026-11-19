@@ -1,8 +1,10 @@
 //! Model of the bench controller's hardware motor-supply interlock and the power-up plan the HAL
 //! executes. Pure (no hardware), so the ordering and the gate logic are host-tested.
 //!
-//! Hardware (decision 2026-11-19, `electronics/bench`):
-//! `VMOT = MCU_EN AND TPL5010_LATCH AND (DOCKED OR DIR_REVERSE)`.
+//! Hardware (Rev A, `electronics/bench/INTERLOCK.md`):
+//! `MOT_ALLOW = MCU_EN AND LATCH_Q AND OC_OK AND (DOCKED XOR DIR_REVERSE)` (H14: forward only docked, reverse only undocked), `VMOT = VBUS` through the
+//! P-FET Q4 while `MOT_ALLOW`. `OC_OK` is the hardware over-current latch (trip about 450 mA, cleared only
+//! by cycling `MCU_EN` low).
 //! `DIR_REVERSE` is the STSPIN220 DIR line at its REVERSE level, a direct hardware input of the
 //! gate. Consequences enforced here and in `openpatch-bench/src/hal/driver.rs`:
 //!
@@ -19,9 +21,21 @@
 
 use crate::hal::{MotorDir, MotorFault};
 
-/// Combinational gate of the supply switch.
+/// Combinational gate of the supply switch without the over-current leg (`OC_OK` = 1).
 pub const fn vmot_expected(latch: bool, mcu_en: bool, docked: bool, dir: MotorDir) -> bool {
-    latch && mcu_en && (docked || matches!(dir, MotorDir::Reverse))
+    mot_allow(latch, mcu_en, true, docked, matches!(dir, MotorDir::Reverse))
+}
+
+/// The complete gate network: every leg in series, the last one is the `DOCKED_H XOR DIR_REV` pair (H14): forward only
+/// docked, reverse only undocked, both wrong combinations are cut in hardware.
+pub const fn mot_allow(latch_q: bool, mcu_en: bool, oc_ok: bool, docked_h: bool, dir_rev: bool) -> bool {
+    latch_q && mcu_en && oc_ok && (docked_h != dir_rev)
+}
+
+/// `MOT_DIR` pin level for a direction. `forward_high` is the board polarity (`DIR_FORWARD_HIGH`: `false` with R96
+/// fitted, `true` with R97 instead, INTERLOCK.md). The gate input `DIR_REV` is high for REVERSE in both variants.
+pub const fn dir_level_high(dir: MotorDir, forward_high: bool) -> bool {
+    matches!(dir, MotorDir::Forward) == forward_high
 }
 
 /// Why a power-up (or a direction change while powered) is refused before any pin is touched.
@@ -58,30 +72,33 @@ impl From<Refusal> for MotorFault {
 pub enum Step {
     /// Drive DIR to the level of this direction (before the supply gate is requested).
     SetDir(MotorDir),
-    /// Release KILL_N (open drain).
-    ReleaseKill,
+    /// Release LATCH_CLR_N (open drain).
+    ReleaseLatchClear,
     /// MCU_EN high (second series gate).
     McuEnHigh,
     /// One ARM_CLK rising edge: sets the latch.
     ArmEdge,
     /// LATCH_Q_MON must read high.
     CheckLatchSet,
-    /// Wait for the supply to settle, then VMOT_SENSE must show the supply (the model says ON).
+    /// Wait for the supply to settle, then PGATE_MON must show MOT_ALLOW and VMOT_SENSE the supply (the model says ON).
     CheckVmotUp,
+    /// OC_OK must still read high (the over-current latch has not tripped).
+    CheckOcOk,
     /// STSPIN220 STBY high, release EN/FAULT, wait until it reads high.
     DriverOn,
 }
 
 /// The power-up plan for a direction. DIR is ALWAYS the first step: the direction is part of the
 /// supply gate, so it has to be right before MCU_EN is requested.
-pub const fn power_up_plan(dir: MotorDir) -> [Step; 7] {
+pub const fn power_up_plan(dir: MotorDir) -> [Step; 8] {
     [
         Step::SetDir(dir),
-        Step::ReleaseKill,
+        Step::ReleaseLatchClear,
         Step::McuEnHigh,
         Step::ArmEdge,
         Step::CheckLatchSet,
         Step::CheckVmotUp,
+        Step::CheckOcOk,
         Step::DriverOn,
     ]
 }
@@ -110,5 +127,59 @@ pub const fn check_supply(expected_on: bool, vmot_mv: u32, on_min_mv: u32, off_m
         SupplyCheck::Ok
     } else {
         SupplyCheck::Unexpected
+    }
+}
+
+/// Why a power-up (or a direction change while powered) failed.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
+pub enum PowerError {
+    /// A previous power-down could not be verified; no further power-up until reset.
+    InterlockFailed,
+    /// Direction / dock combination refused before any pin was touched.
+    Refused(Refusal),
+    /// LATCH_Q_MON did not follow ARM_CLK.
+    LatchNotSet,
+    /// VMOT_SENSE does not show the supply although the interlock is closed.
+    NoSupply,
+    /// VMOT present where the gate must be open.
+    UnexpectedSupply,
+    /// EN/FAULT stayed low (STSPIN220 fault or not ready) or the over-current latch tripped.
+    DriverFault,
+}
+
+impl PowerError {
+    pub fn to_fault(self) -> MotorFault {
+        match self {
+            PowerError::InterlockFailed => MotorFault::InterlockFailed,
+            PowerError::Refused(r) => r.into(),
+            PowerError::LatchNotSet | PowerError::NoSupply => MotorFault::SupplyMissing,
+            PowerError::UnexpectedSupply => MotorFault::SupplyUnexpected,
+            PowerError::DriverFault => MotorFault::Driver,
+        }
+    }
+}
+
+/// Which gate cuts the supply in a power-down. The HAL rotates through the three so a single stuck gate
+/// can never hide behind the other one (docs/06-diagnostics.md 3.4).
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
+pub enum Disarm {
+    /// `MCU_EN` low only; the latch stays armed until the supply is verified cut.
+    McuEnOnly,
+    /// `LATCH_CLR_N` low only; `MCU_EN` stays high until the supply is verified cut.
+    LatchOnly,
+    /// Both at once (the fast path).
+    Both,
+}
+
+impl Disarm {
+    /// The `n`-th power-down uses this mode (round robin).
+    pub const fn nth(n: u8) -> Disarm {
+        match n % 3 {
+            0 => Disarm::McuEnOnly,
+            1 => Disarm::LatchOnly,
+            _ => Disarm::Both,
+        }
     }
 }

@@ -16,3 +16,4 @@ electronics/tools/*.jar
 site/dist/
 *.erc
 *.log
+electronics/v010/sim/results/*.csv

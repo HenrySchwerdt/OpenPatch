@@ -12,9 +12,9 @@ pub mod rmock;
 pub mod rng;
 
 /// Command ids that exist only in the Rust protocol (C answers `Unsupported` at decode time):
-/// 0x0F FillDraw and the diagnostics commands 0x20..0x22 (docs/06-diagnostics.md 5.4). They never
+/// 0x0F AssistedFill and the diagnostics commands 0x20..0x22 (docs/06-diagnostics.md 5.4). They never
 /// occur in streams shared with the C reference; each has its own Rust-only tests.
 pub fn rust_only_cmd(t: u8) -> bool {
     use openpatch_proto::cmd;
-    t == cmd::FILL_DRAW || (cmd::GET_FAULT_LOG..=cmd::CLEAR_DIAG).contains(&t)
+    t == cmd::ASSISTED_FILL || (cmd::GET_FAULT_LOG..=cmd::CLEAR_DIAG).contains(&t)
 }

@@ -1,0 +1,14 @@
+name = "post_stuck_q4"
+description = "The supply P-FET Q4 is shorted drain-source: VMOT can not be cut by the board. POST latches 1-06-001, the controller is quarantined (STBY low, no power-up) and the pod must be replaced; a reset would not help."
+seed = 73
+duration_s = 60.0
+events = [
+  { at_s = 3.0, action = "suspend" },
+  { at_s = 6.0, action = "board_fault", fault = "q4_short", on = true },
+  { at_s = 10.0, action = "self_test", sub_op = 1 },
+  { at_s = 14.0, action = "self_test", sub_op = 2 },
+]
+
+[setup]
+fill_u = 40.0
+basal = [[0.0, 1.0]]

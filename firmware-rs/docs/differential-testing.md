@@ -77,7 +77,7 @@ event comparison in the pump runs impossible, so the pump runs start at most 2 M
 |---|---|---|
 | 1 | `DRIVE_CAL` status bytes: C preset ids 1/2, 20 steps/rev, ratio 500/1600; Rust test calibrations 0x7F01/0x7F02, 16 steps/rev, ratio 1600 | only the uU/step floor (identical) is compared; the other three fields are pinned to differ |
 | 2 | Rust: status tags 0x21..0x23 (draw state/requested/done), `FW_VERSION` 0x0200 (C 0x0100), flags bits 11/12 (`DRAWING`, `PRIME_REQUIRED`) | tags/bits removed before comparing, then everything else is byte-identical; the Rust side uses `PumpConfig::RELAXED` (no mandatory prime) so bit 12 never appears anyway |
-| 3 | Rust command 0x0F `FillDraw`, error codes 26 (`PrimeRequired`) and 27 (`Docked`); C answers 0x0F with UNSUPPORTED (9) | never generated in shared streams (a mutated frame whose type byte becomes 0x0F is rewritten to GetStatus); pinned on both sides in `documented_differences.rs`; Rust-only behaviour covered by the `openpatch-core` tests |
+| 3 | Rust command 0x0F `AssistedFill`, error codes 26 (`PrimeRequired`) and 27 (`Docked`); C answers 0x0F with UNSUPPORTED (9) | never generated in shared streams (a mutated frame whose type byte becomes 0x0F is rewritten to GetStatus); pinned on both sides in `documented_differences.rs`; Rust-only behaviour covered by the `openpatch-core` tests |
 | 4 | Rust per-leadscrew-revolution angle check (4096 counts +-3 % per commanded revolution) and motor-current occlusion (disabled: the mock returns `None`) | knob `delivered_pct` restricted to {100, 100, 100, 50, 0}; once degraded it stays until an encoder/occlusion fault tripped, so C's 10 %/1 U window fires as well. A short degraded episode (or a window misaligned with the revolution) can still trip only the Rust check (e.g. a 5 % shortfall: C tolerates 10 %, Rust faults after one revolution, pinned in `documented_differences.rs`). When that happens the run **stops** at that operation (counted as `documented_rev_stops`; everything before was compared strictly): 0 of 400 seeds in the committed run, 5 of 16 000 in the soak. |
 | 5 | Pending-temp rate/minutes remain stale in C after use; Rust clears them | compared only while `pending_temp` is set |
 
@@ -90,7 +90,7 @@ minutes); their exact values are still verified indirectly through the step coun
   `op_drive_cal_validate` accepts only records equal to its two presets (magic + CRC + preset equality), so a C calibration with arbitrary uU cannot be built
   by the shim. Rust-only coverage: `openpatch-core/tests/{presets,calibration}.rs`. (The engine and reservoir comparisons *do* use arbitrary integer uU values because
   those modules take a plain number.)
-* SMA / ratchet drive code, draw mode (`FillDraw` and the reverse motor path), the per-revolution check and motor-current occlusion, the mandatory
+* SMA / ratchet drive code, draw mode (`AssistedFill` and the reverse motor path), the per-revolution check and motor-current occlusion, the mandatory
   prime after fill (`PumpConfig::STRICT`), notifications (frame type 0x90), `emergency_stop`, `silence_alarm`: Rust-only features, covered by `openpatch-core` tests.
 * AES-CCM / encrypted sessions (the C core only has a hook; both sides run plaintext sessions here; an encrypted frame is dropped with AUTH by both).
 * Sensor-missing behaviour (`angle_read() == None`) and a motor-current sensor: the mock always provides an angle and never a current.

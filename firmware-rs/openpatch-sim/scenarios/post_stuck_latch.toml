@@ -1,0 +1,14 @@
+name = "post_stuck_latch"
+description = "The interlock latch output sticks high (U6 Q stuck 1). POST-S names it (1-05-003); POST-A also fails."
+seed = 72
+duration_s = 60.0
+events = [
+  { at_s = 3.0, action = "suspend" },
+  { at_s = 6.0, action = "board_fault", fault = "latch_stuck_high", on = true },
+  { at_s = 10.0, action = "self_test", sub_op = 1 },
+  { at_s = 14.0, action = "self_test", sub_op = 2 },
+]
+
+[setup]
+fill_u = 40.0
+basal = [[0.0, 1.0]]

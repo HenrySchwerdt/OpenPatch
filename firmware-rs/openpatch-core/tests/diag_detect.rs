@@ -387,6 +387,48 @@ fn diag_1_06_001_vmot_stuck_on() {
 }
 
 #[test]
+fn diag_5_54_001_pressure_anomaly_while_docked() {
+    // H15: docked, nothing commanded, the leadscrew angle moves: the self-locking drive was back-driven from the reservoir side
+    // (possible manual injection into the cannula). Latched, stops delivery.
+    let (mut p, h) = running(50_000, 0);
+    run_secs(&mut p, &h, 3);
+    assert!(p.supervisor().faults().is_empty());
+    // normal noise of the angle sensor is not an anomaly
+    h.st().angle_x100 += 5 * 100;
+    run_secs(&mut p, &h, 2);
+    assert!(p.supervisor().faults().is_empty(), "{:?}", p.supervisor().faults());
+    // a large uncommanded move is
+    h.st().angle_x100 += 600 * 100;
+    run_secs(&mut p, &h, 2);
+    let r = record_of(&p, codes::PRESSURE_ANOMALY_WHILE_DOCKED);
+    assert_catalogue(&r, codes::PRESSURE_ANOMALY_WHILE_DOCKED);
+    assert!(r.is_latched());
+    assert!(p.supervisor().faults().contains(Faults::INTERNAL));
+}
+
+#[test]
+fn a_commanded_bolus_or_an_undocked_pod_is_not_a_pressure_anomaly() {
+    let (mut p, h) = running(50_000, 2_000);
+    p.bolus(MilliUnits(2_000)).unwrap();
+    run_secs(&mut p, &h, 60);
+    assert!(p.supervisor().diag().active().iter().all(|a| a.code.identity() != codes::PRESSURE_ANOMALY_WHILE_DOCKED.identity()));
+}
+
+#[test]
+fn diag_7_70_008_reverse_requested_while_docked() {
+    // H14: a reverse step while docked is refused by the HAL before any pin moves (and cut by the hardware XOR gate anyway);
+    // the core raises its own code and stops delivery
+    let (mut p, h) = running(50_000, 2_000);
+    h.st().fault = Some(MotorFault::ReverseWhileDocked);
+    h.st().steps_limit = 0;
+    p.bolus(MilliUnits(500)).unwrap();
+    run_secs(&mut p, &h, 3);
+    let r = record_of(&p, codes::REVERSE_REQUESTED_WHILE_DOCKED);
+    assert_catalogue(&r, codes::REVERSE_REQUESTED_WHILE_DOCKED);
+    assert!(p.supervisor().faults().contains(Faults::INTERNAL));
+}
+
+#[test]
 fn diag_7_76_001_interlock_failed_latch() {
     let (mut p, h) = running(50_000, 2_000);
     h.st().fault = Some(MotorFault::InterlockFailed);
@@ -420,23 +462,23 @@ fn draw_pump() -> (Pump<MockHal>, MockHal) {
 fn diag_7_73_001_draw_aborted() {
     // cancelled (inst 3)
     let (mut p, h) = draw_pump();
-    p.fill_draw(MilliUnits(40_000)).unwrap();
+    p.assisted_fill(MilliUnits(40_000)).unwrap();
     run_secs(&mut p, &h, 1);
-    p.fill_draw(MilliUnits(0)).unwrap();
+    p.assisted_fill(MilliUnits(0)).unwrap();
     let r = record_of(&p, codes::DRAW_ABORTED);
     assert_catalogue(&r, codes::DRAW_ABORTED);
     assert_eq!(r.code.inst(), 3);
     assert!(p.supervisor().faults().is_empty(), "W: refill stopped early, no fault");
     // docked meanwhile (inst 1)
     let (mut p, h) = draw_pump();
-    p.fill_draw(MilliUnits(40_000)).unwrap();
+    p.assisted_fill(MilliUnits(40_000)).unwrap();
     h.st().docked = true;
     run_secs(&mut p, &h, 2);
     assert_eq!(record_of(&p, codes::DRAW_ABORTED).code.inst(), 1);
     // stall (inst 4): the sensor sees too little reverse travel
     let (mut p, h) = draw_pump();
     h.st().reverse_pct = 10;
-    p.fill_draw(MilliUnits(40_000)).unwrap();
+    p.assisted_fill(MilliUnits(40_000)).unwrap();
     run_draw(&mut p, &h);
     assert_eq!(record_of(&p, codes::DRAW_ABORTED).code.inst(), 4);
 }
@@ -445,7 +487,7 @@ fn diag_7_73_001_draw_aborted() {
 fn diag_7_73_002_draw_blocked_no_vmot() {
     let (mut p, h) = draw_pump();
     h.st().fault = Some(MotorFault::SupplyMissing);
-    p.fill_draw(MilliUnits(2_000)).unwrap();
+    p.assisted_fill(MilliUnits(2_000)).unwrap();
     run_draw(&mut p, &h);
     let r = record_of(&p, codes::DRAW_BLOCKED_NO_VMOT);
     assert_catalogue(&r, codes::DRAW_BLOCKED_NO_VMOT);
@@ -457,7 +499,7 @@ fn diag_7_73_002_draw_blocked_no_vmot() {
 fn diag_4_40_003_dir_inverted() {
     let (mut p, h) = draw_pump();
     h.st().reverse_pct = -100; // reverse pulses INCREASE the angle: wrong DIR polarity
-    p.fill_draw(MilliUnits(2_000)).unwrap();
+    p.assisted_fill(MilliUnits(2_000)).unwrap();
     run_draw(&mut p, &h);
     let r = record_of(&p, codes::DIR_INVERTED);
     assert_catalogue(&r, codes::DIR_INVERTED);

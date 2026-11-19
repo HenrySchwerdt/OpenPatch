@@ -44,7 +44,7 @@ pub mod cmd {
     pub const RELEASE: u8 = 0x0E;
     /// Rust extension: automatic draw (refill) of `FILL_MU` mU; amount 0 cancels a running draw.
     /// Only suspended + undocked.
-    pub const FILL_DRAW: u8 = 0x0F;
+    pub const ASSISTED_FILL: u8 = 0x0F;
     // ---- diagnostics (docs/06-diagnostics.md 5.4), additive ----
     // Ids 0x20..0x22 (responses 0xA0..0xA2): the first draft used 0x10..0x12, whose response types
     // 0x90..0x92 collided with the Alert notification frame type 0x90 (`GetFaultLog` 0x10 | 0x80).
@@ -74,7 +74,7 @@ pub const COMMAND_IDS: [u8; 18] = [
     cmd::SET_PAIRING,
     cmd::ACTIVATE,
     cmd::RELEASE,
-    cmd::FILL_DRAW,
+    cmd::ASSISTED_FILL,
     cmd::GET_FAULT_LOG,
     cmd::RUN_SELF_TEST,
     cmd::CLEAR_DIAG,
@@ -204,7 +204,7 @@ pub mod draw {
     pub const DONE: u8 = 2;
     /// Ended early by a stall (rear end-stop or jam): `DRAW_DONE_MU` is what was actually drawn.
     pub const STALLED: u8 = 3;
-    /// Cancelled (FillDraw 0, dock, fault, emergency stop): partial volume in `DRAW_DONE_MU`.
+    /// Cancelled (AssistedFill 0, dock, fault, emergency stop): partial volume in `DRAW_DONE_MU`.
     pub const ABORTED: u8 = 4;
 }
 

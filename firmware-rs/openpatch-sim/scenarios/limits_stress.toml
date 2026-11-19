@@ -1,11 +1,11 @@
 name = "limits_stress"
-description = "Try to break the limits: 10 U boluses back to back on top of a 2 U/h basal, with +2 % area and +1.5 % lead tolerance. The commanded side must stay within the cap (15 U/h less the 4 % tolerance margin) and the needle <= 15 U/h."
+description = "Try to break the limits: 8 to 10 U boluses back to back on top of a 2 U/h basal (the first hour after the setup refill also carries the 2.5 U post-draw take-up, which counts against the cap), with +2 % area and +1.5 % lead tolerance. The commanded side must stay within the cap (15 U/h less the 4 % tolerance margin) and the needle <= 15 U/h."
 seed = 121
 duration_s = 7200.0
 events = [
-  { at_s = 600.0,  action = "bolus", units = 10.0 },
-  { at_s = 1000.0, action = "bolus", units = 10.0 },
-  { at_s = 1400.0, action = "bolus", units = 10.0 },
+  { at_s = 600.0,  action = "bolus", units = 8.0 },
+  { at_s = 1000.0, action = "bolus", units = 8.0 },
+  { at_s = 1400.0, action = "bolus", units = 8.0 },
   { at_s = 1800.0, action = "bolus", units = 5.0 },
   { at_s = 4300.0, action = "bolus", units = 10.0 },
 ]

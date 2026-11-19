@@ -173,8 +173,6 @@ async fn main(spawner: Spawner) {
 
     let drv = BoardIoDriver {
         dir: io.mot_dir,
-        mode1: io.mot_mode1,
-        mode2: io.mot_mode2,
         stby: io.mot_stby,
         en_fault: io.mot_en_fault,
         interlock: io.interlock.take(),
@@ -185,9 +183,22 @@ async fn main(spawner: Spawner) {
     };
     shared::DOCK_SIM.store(DOCK_SIM_INITIAL, core::sync::atomic::Ordering::Relaxed);
     let dock_pin = io.dock_n.take().filter(|_| !DOCK_FROM_SOFTWARE);
-    let hal = BenchHal::new(stepper, adc, angle, drv, dock_pin, done_pin);
-    if let Some(w) = wake_pin {
-        spawner.spawn(hal::wake_task(embassy_nrf::gpio::Input::new(w, embassy_nrf::gpio::Pull::None)).unwrap());
+    let mut hal = BenchHal::new(stepper, adc, angle, drv, dock_pin, done_pin);
+    // TPL5010: WAKE edge -> GPIOTE ch7 -> PPI ch2 -> EGU3 interrupt -> ONE DONE pulse while the permit holds (hal/wdt.rs).
+    // The WAKE pin itself is configured by the GPIOTE channel; `common.gpiote_ch7` / `ppi_ch2` are claimed here so nothing
+    // else can take them.
+    let _claimed = (common.gpiote_ch7, common.ppi_ch2);
+    if wake_pin.is_some() {
+        hal::wdt::init();
+        // Provisional permit for the boot: the TPL5010 must not time out while the rest of the firmware starts (BLE, flash
+        // settings). It lapses after `DONE_PERMIT_MS`; the first verified safety tick renews it, a failed POST-S revokes it.
+        hal::wdt::grant_permit();
+    }
+    // POST-S (passive): rails, supply absent, latch clear, gate closed, own pins, FFC / pod, dock path. Findings are
+    // raised by the core on its first tick.
+    hal.boot_post_s();
+    if hal.watchdog_must_lapse() {
+        hal::wdt::revoke_permit();
     }
 
     // ---- pump + session ----

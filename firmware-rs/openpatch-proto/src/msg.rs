@@ -37,7 +37,7 @@ pub enum CommandBody {
     },
     Release { pair_id: u32 },
     /// Rust extension: automatic draw of `amount_mu` (0 = cancel).
-    FillDraw { amount_mu: u32 },
+    AssistedFill { amount_mu: u32 },
     /// Diagnostics: records from `from_id` on. `max_events` as on the wire (0 or above 4 gives 4).
     GetFaultLog { from_id: u32, max_events: u8 },
     /// Diagnostics: `selftest::SUBOP_*`.
@@ -63,7 +63,7 @@ impl CommandBody {
             CommandBody::SetPairing { .. } => cmd::SET_PAIRING,
             CommandBody::Activate { .. } => cmd::ACTIVATE,
             CommandBody::Release { .. } => cmd::RELEASE,
-            CommandBody::FillDraw { .. } => cmd::FILL_DRAW,
+            CommandBody::AssistedFill { .. } => cmd::ASSISTED_FILL,
             CommandBody::GetFaultLog { .. } => cmd::GET_FAULT_LOG,
             CommandBody::RunSelfTest { .. } => cmd::RUN_SELF_TEST,
             CommandBody::ClearDiag { .. } => cmd::CLEAR_DIAG,
