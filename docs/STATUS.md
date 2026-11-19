@@ -68,6 +68,9 @@ All dimensions and components are in [spec/design-parameters.md](../spec/design-
 
 ## Decision log (user)
 
+- 2026-11-19: **Goal v0.1.0 beta = integrated pod without the bench controller board**, parts ~98 % final before ordering, as much verification as possible in simulation (virtual pod, mechanical calcs, SPICE), then one order and bench tests only (still a test sample, never worn). The bench controller board stays as an optional test fixture.
+- 2026-11-19: **Cost target ≤ 200 € all-in per complete pump, AliExpress-first** (spec §1d).
+- 2026-11-19: **Hardware safety independent of software + component-level diagnostics**: discrete interlock, over-current cut, readbacks for every safety element, structured fault codes forwarded through every layer, Trio shows the faulty component and asks to replace it (`docs/06-diagnostics.md`, in progress).
 - 2026-11-19: **Drive = geared stepper NFP-608-26.45 + sleeve coupler + leadscrew, refill = automatic draw mode** (app selects amount, motor retracts and draws insulin through the septum; duckbill check valve in the outlet). SMA ratchet and half-nut dropped for buildability.
 
 - 2026-11-19: **Buildability beats minimal size**: builders are not watchmakers. If an off-the-shelf micro linear stepper actuator (motor + gearhead + leadscrew + slider, ideally FPC/ZIF) with a full drawing, ≥ 5 N and ≤ 0.03 U/step is found, it replaces the SMA ratchet (SMA stays a later option for minimal size). Research: `mechanical/linear-actuator-selection.md`.
