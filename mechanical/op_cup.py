@@ -99,7 +99,7 @@ def geometry(p: dict, variant: str) -> dict:
     K = dock.layout(p, x_t0, y_r)
     bat, u, bd = c["battery"], c["usb"], c["board"]
     xl2 = xc + 3.4
-    length = max(K["x_far"] + w, xl2 + bat["l"] + 0.3 + u["w"] + 3.1 + w)    # lane 2 (cell + USB-C on the +Y wall + corner) must fit; lane 1 sets the minimum
+    length = max(K["x_far"] + w, xl2 + bat["l"] + 3.1 + w)    # lane 2 (cell + USB-C on the +Y wall + corner) must fit; lane 1 sets the minimum
     lane2_y = [w + res_w + 0.2, W - w - 0.1]
     bat, u, bd = c["battery"], c["usb"], c["board"]
     x_l2 = xl2
@@ -111,17 +111,18 @@ def geometry(p: dict, variant: str) -> dict:
          "ratio": g["z_motor"] / g["z_rod"],
          "u_per_step": dr["screw_pitch"] * (g["z_motor"] / g["z_rod"]) / (dr["steps_per_rev"] * dr["gh_ratio"]) * p["cup_bore_area"] / 10.0}
     xb1 = x_l2 + bat["l"]
-    L["battery"] = {"x": [x_l2, xb1], "y": [lane2_y[0], lane2_y[0] + bat["w"]], "z": [bat["z0"], bat["z0"] + bat["t"]]}
-    xu0 = xb1 + 0.3
-    L["usb"] = {"x": [xu0, xu0 + u["w"]], "y": [W - w - u["d"], W - w], "z": [u["z_c"] - u["h"] / 2, u["z_c"] + u["h"] / 2]}
-    L["board"] = {"x": [x_l2, xb1], "y": list(lane2_y), "z": [bat["z0"] + bat["t"] + 0.3, bd["z1"]]}
-    L["aux"] = {"x": [xu0, length - 3.6], "y": list(lane2_y), "z": [4.9, bd["z1"]]}
+    tb = bat["z0"] + bat["t"]                                                    # cell top incl. 0.2 swell allowance (3.0 + 0.2)
+    L["battery"] = {"x": [x_l2, xb1], "y": [lane2_y[0], lane2_y[0] + bat["w"]], "z": [bat["z0"], tb]}
+    L["usb"] = {"x": [x_l2, x_l2 + u["w"]], "y": [W - w - u["d"], W - w], "z": [tb + 0.1, tb + 0.1 + u["h"]]}      # USB-C stacked ABOVE the front end of the cell
+    L["board"] = {"x": [x_l2 + u["w"] + 0.3, xb1], "y": list(lane2_y), "z": [tb + 0.1, tb + 0.1 + 0.8 + 1.3]}      # main board above the rest of the cell
+    xa0 = xb1 + 0.3
+    L["aux"] = {"x": [xa0, max(xa0 + 0.5, length - 3.6)], "y": list(lane2_y), "z": [4.9, bd["z1"]]}
     L["io"] = {"x": [w + 3.1, x_dry - 0.2], "y": [w + 0.1, ty - tm["pkg"][1] / 2 - 0.2], "z": [w + 0.1, bd["z1"]]}
     hy = K["half"] + p["cup"]["dock"]["pocket_wall"] + 0.1
     L["side_a"] = {"x": [K["x_bf"], length - 3.8], "y": [w + 0.1, y_r - hy], "z": [w + 0.1, bd["z1"]]}
     L["side_b"] = {"x": [K["x_bf"], length - w - 0.3], "y": [y_r + hy, w + res_w - 0.1], "z": [w + 0.1, bd["z1"]]}
     L["dock_board"] = {"x": [K["x_d"] - 3.0, K["x_d"] + 3.0], "y": [y_r - 3.0, y_r + 3.0], "z": [5.3, 5.9]}
-    L["lane2_fit"] = {"need_x": xu0 + u["w"] - x_l2, "have_x": length - w - x_l2}
+    L["lane2_fit"] = {"need_x": bat["l"] + 3.1, "have_x": length - w - x_l2}
     L["envelope"] = {"bbox_mm": [round(length, 2), W, H], "bbox_volume_ml": round(length * W * H / 1000.0, 2)}
     return L
 
@@ -226,7 +227,7 @@ def build_housing(s: Script, p: dict, L: dict) -> None:
     cuts.append(s.box("t_grelief2", (xc - 3.2, xc + 3.2), (L["gear_a_y"][0] - 0.3, L["gear_a_y"][1] + 0.3), (w - g["floor_relief"], w + 0.01)))
     u, usb = L["usb"], c["usb"]
     xu = (u["x"][0] + u["x"][1]) / 2
-    cuts.append(s.box("t_usb_open", (xu - usb["open_w"] / 2, xu + usb["open_w"] / 2), (W - w - 0.1, W + 0.1), (usb["z_c"] - usb["open_h"] / 2, usb["z_c"] + usb["open_h"] / 2)))
+    cuts.append(s.box("t_usb_open", (xu - usb["open_w"] / 2, xu + usb["open_w"] / 2), (W - w - 0.1, W + 0.1), ((u["z"][0] + u["z"][1]) / 2 - usb["open_h"] / 2, (u["z"][0] + u["z"][1]) / 2 + usb["open_h"] / 2)))
     bx, by, bh = dr["term_block"]
     yt = L["gearhead_y"][0] + dr["term_x"]
     cuts.append(s.box("t_pin_pocket", (xc - by / 2 - 0.4, xc + by / 2 + 0.4), (yt - bx / 2 - 0.4, yt + dr["pin_tab_len"] + 0.4), (0.35, w + 0.01)))

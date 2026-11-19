@@ -90,7 +90,7 @@ def draw(p: dict, L: dict, svg_path: Path) -> Path:
         (sum(L["magnet"]) / 2, yr - 0.2, "Diametric magnet on gear B's rear face", "#cc2222"),
         (sum(L["tmag"]) / 2, L["tmag_y"], "TMAG5273 beside the magnet (0.5 mm gap), tiny sensor tab", "#ffd400"),
         (sum(L["battery"]["x"]) / 2, L["battery"]["y"][0] + 5, "Battery keep-out: Ampul 301030 (3.0 x 10 x 30, 90 mAh, PCM)", "#3a5fcd"),
-        (sum(L["usb"]["x"]) / 2, sum(L["usb"]["y"]) / 2, "USB-C keep-out (+Y long wall of lane 2)", "#8a3fd0"),
+        (sum(L["usb"]["x"]) / 2, sum(L["usb"]["y"]) / 2, "USB-C stacked ABOVE the front end of the cell (opening in the +Y long wall)", "#8a3fd0"),
         (sum(L["board"]["x"]) / 2, L["board"]["y"][1] - 1.5, "Main board keep-out above the battery", "#2e8b57"),
         (sum(L["aux"]["x"]) / 2, L["aux"]["y"][1] - 2.0, "Piezo / button / aux keep-out", "#7fbf7f"),
         (sum(L["io"]["x"]) / 2, sum(L["io"]["y"]) / 2, "Rear-corner keep-out: button, LED, buzzer, charger strip (full height)", "#d09020"),
