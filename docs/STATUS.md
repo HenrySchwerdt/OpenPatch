@@ -129,3 +129,4 @@ All dimensions and components are in [spec/design-parameters.md](../spec/design-
 - After every unit of work, update this file and push.
 
 - 2026-11-19 (user, design review): **v0.1.0 layout = two lanes.** Lane 1 in one row rear→front: transverse motor + right-angle gear → one rotating rod + cup plunger (concept B) → closed CNC tank → end cap (fill septum on the underside) → dock directly after the end cap (place-down pocket + 3–4 mm slide, 12 × 10 mm, U-clip like the original Insight connector, spring-steel clips). Lane 2 (+Y): battery, board, USB-C, piezo, button. Superseded: slot/carriage drive, second shaft, full-length dock tunnel, frozen dock interface.
+- 2026-11-19 (user): size levers for the two-lane layout: **dock in lane 2 beside the end cap** (lane 1 ends at the end cap) and **wider/taller tank bore ≈ 22 × 5.5** (un-freezes the not-yet-ordered CNC reservoir) to hit OP-100 ≤ 45 mm / OP-200 ≤ 52 mm.
