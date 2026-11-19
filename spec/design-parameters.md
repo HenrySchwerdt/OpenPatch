@@ -14,6 +14,13 @@
 - Inductively chargeable (no connector hole → easier to make waterproof).
 - Three variants that differ ONLY in reservoir/housing length: **70 U, 100 U, 200 U**.
 
+## 1c. Builder experience for the final design (Rev B, requirement, 2026-11-19)
+
+- Anyone must be able to build the final pod **without a soldering iron and without loose cables inside the pod**.
+- Rev A (bench) may use the motor's factory lead into the controller board; this is a bench-only shortcut.
+- Rev B primary: **SMA (nitinol) ratchet drive** — wire ends in crimp ferrules clamped by screws/spring terminals on the PCB (drive and contact in one, no motor, no cable).
+- Rev B fallback if a motor stays: motor with a **short FPC tail into a ZIF connector** (custom NFP option, MOQ 100–500 → organised as a community group buy), or motor pins THT-soldered by the PCBA house (consigned motors) so builders receive the board with the motor already fitted.
+
 ## 1b. Two-pod system (concept v0.2, proposed by the user 2026-11-18)
 
 - A user owns **two identical pods (A/B)**. One is docked on the cannula and delivers; the other sits on the Qi charger and is refilled.
