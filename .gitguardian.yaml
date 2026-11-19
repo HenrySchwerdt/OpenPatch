@@ -1,0 +1,12 @@
+# GitGuardian configuration (approved by the repository owner 2026-11-19).
+# The paths below contain only PUBLIC cryptographic test vectors (RFC 7748 / RFC 5869 / RFC 3610
+# known-answer values and deterministic test keys made of sequential bytes such as 1011..2f).
+# They are not credentials and protect nothing; they must stay in the repo so Rust, Swift and
+# Python can prove byte-identical key derivation (docs/04-protocol.md §5.2).
+# Production pods generate keys with the hardware RNG. Do not add real secrets anywhere.
+version: 2
+secret:
+  ignored_paths:
+    - docs/vectors/**
+    - firmware-rs/openpatch-proto/tests/**
+    - ios/OpenPatchKit/OpenPatchCore/Tests/**

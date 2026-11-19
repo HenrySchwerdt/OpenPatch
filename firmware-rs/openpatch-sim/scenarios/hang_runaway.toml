@@ -1,0 +1,12 @@
+name = "hang_runaway"
+description = "Worst case firmware crash: the safety task hangs mid-bolus with the driver armed and the step generator still running at 200 Hz. The TPL5010 must cut the motor supply."
+seed = 71
+duration_s = 600.0
+events = [
+  { at_s = 100.0, action = "bolus", units = 5.0 },
+  { at_s = 130.0, action = "hang", runaway_hz = 200.0 },
+]
+
+[setup]
+fill_u = 40.0
+basal = [[0.0, 0.5]]

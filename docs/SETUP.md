@@ -46,7 +46,7 @@ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 rustup target add thumbv7em-none-eabihf
 cargo install probe-rs-tools --locked     # then install the probe-rs udev rules (see probe.rs docs)
 ```
-- SolidCraft: use the Linux build or the browser app from the vendor; `solidcraft-cli` is part of it. CADCraft is optional (any DXF viewer works).
+- SolidCraft: download the AppImage (`https://github.com/tangency-labs/solidcraft/releases/latest/download/solidcraft-linux-x86_64.AppImage`), `chmod +x` it, and either run it or (containers without FUSE) `--appimage-extract` and link `squashfs-root/usr/bin/solidcraft-cli` into `PATH`; `sudo snap install solidcraft` also works where snapd runs. Scripts find the CLI via `SOLIDCRAFT_CLI`, then `PATH`, then the macOS path. CADCraft is optional (any DXF viewer works).
 - iOS kit: not buildable on Linux (needs Xcode); the pure-Swift core `OpenPatchCore` can be tested with the Swift toolchain for Linux (`swift test`).
 
 ## Windows 10/11

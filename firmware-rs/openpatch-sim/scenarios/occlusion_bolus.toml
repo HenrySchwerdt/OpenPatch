@@ -1,0 +1,12 @@
+name = "occlusion_bolus"
+description = "Cannula blocked 60 s into an 8 U bolus (1.5 U/min)."
+seed = 33
+duration_s = 3600.0
+events = [
+  { at_s = 600.0, action = "bolus", units = 8.0 },
+  { at_s = 660.0, action = "occlude" },
+]
+
+[setup]
+fill_u = 60.0
+basal = [[0.0, 0.5]]

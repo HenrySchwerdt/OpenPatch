@@ -1,7 +1,16 @@
 """Kleiner Emitter für SolidCraft-Kommandoskripte (JSON-Liste von {command, params})."""
 from __future__ import annotations
 
+import os
+from pathlib import Path
 from typing import Iterable
+
+_ROOT = Path(__file__).resolve().parent
+
+
+def _rel(path: str) -> str:
+    """Repo-relative (mechanical/-relative) path for committed scripts; the CLI is run with cwd = mechanical/."""
+    return os.path.relpath(path, _ROOT) if os.path.isabs(path) else path
 
 
 class Script:
@@ -109,12 +118,12 @@ class Script:
     # ---- Export -------------------------------------------------------------------
     def export_step(self, path: str, bodies: list[str] | None = None) -> None:
         if bodies:
-            self.add("file.export_step", path=path, bodies=bodies)
+            self.add("file.export_step", path=_rel(path), bodies=bodies)
         else:
-            self.add("file.export_step", path=path)
+            self.add("file.export_step", path=_rel(path))
 
     def export_stl(self, path: str, bodies: list[str]) -> None:
-        self.add("file.export_stl", path=path, bodies=bodies, quality="fine")
+        self.add("file.export_stl", path=_rel(path), bodies=bodies, quality="fine")
 
     def dumps(self) -> list[dict]:
         return self.cmds

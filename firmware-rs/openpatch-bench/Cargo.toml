@@ -2,7 +2,7 @@
 name = "openpatch-bench"
 version = "0.1.0"
 edition = "2021"
-license = "GPL-3.0-or-later"
+license = "PolyForm-Noncommercial-1.0.0"
 publish = false
 description = "OpenPatch bench controller firmware (Embassy, nRF52840). TEST PROJECT, never to be worn; bench tests with WATER ONLY."
 

@@ -1,0 +1,542 @@
+[
+{
+"command": "solid.box",
+"params": {
+"length": 2.9,
+"width": 1.6,
+"height": 1.05,
+"corner": [
+-1.45,
+-0.8,
+0.05
+],
+"body_name": "body",
+"name": "body"
+}
+},
+{
+"command": "solid.cylinder",
+"params": {
+"diameter": 0.35,
+"height": 0.15000000000000013,
+"base": [
+-0.95,
+0.4,
+1.05
+],
+"axis": "Z",
+"body_name": "dimple_body",
+"name": "dimple_body"
+}
+},
+{
+"command": "solid.combine",
+"params": {
+"target": "body",
+"tools": [
+"dimple_body"
+],
+"operation": "cut",
+"name": "cut body"
+}
+},
+{
+"command": "sketch.create",
+"params": {
+"plane": "YZ",
+"offset": -1.15
+}
+},
+{
+"command": "sketch.line",
+"params": {
+"points": [
+[
+0.8,
+0.5975
+],
+[
+1.1,
+0.5975
+],
+[
+1.0,
+0.15
+],
+[
+1.4,
+0.15
+],
+[
+1.4,
+0.0
+],
+[
+0.9,
+0.0
+],
+[
+0.75,
+0.4475
+],
+[
+0.8,
+0.4475
+]
+],
+"closed": true
+}
+},
+{
+"command": "sketch.finish",
+"params": {}
+},
+{
+"command": "solid.extrude",
+"params": {
+"distance": 0.3999999999999999,
+"body_name": "lead1",
+"name": "lead1"
+}
+},
+{
+"command": "sketch.create",
+"params": {
+"plane": "YZ",
+"offset": -1.15
+}
+},
+{
+"command": "sketch.line",
+"params": {
+"points": [
+[
+-0.8,
+0.5975
+],
+[
+-1.1,
+0.5975
+],
+[
+-1.0,
+0.15
+],
+[
+-1.4,
+0.15
+],
+[
+-1.4,
+0.0
+],
+[
+-0.9,
+0.0
+],
+[
+-0.75,
+0.4475
+],
+[
+-0.8,
+0.4475
+]
+],
+"closed": true
+}
+},
+{
+"command": "sketch.finish",
+"params": {}
+},
+{
+"command": "solid.extrude",
+"params": {
+"distance": 0.3999999999999999,
+"body_name": "lead4",
+"name": "lead4"
+}
+},
+{
+"command": "sketch.create",
+"params": {
+"plane": "YZ",
+"offset": -0.2
+}
+},
+{
+"command": "sketch.line",
+"params": {
+"points": [
+[
+0.8,
+0.5975
+],
+[
+1.1,
+0.5975
+],
+[
+1.0,
+0.15
+],
+[
+1.4,
+0.15
+],
+[
+1.4,
+0.0
+],
+[
+0.9,
+0.0
+],
+[
+0.75,
+0.4475
+],
+[
+0.8,
+0.4475
+]
+],
+"closed": true
+}
+},
+{
+"command": "sketch.finish",
+"params": {}
+},
+{
+"command": "solid.extrude",
+"params": {
+"distance": 0.4,
+"body_name": "lead2",
+"name": "lead2"
+}
+},
+{
+"command": "sketch.create",
+"params": {
+"plane": "YZ",
+"offset": -0.2
+}
+},
+{
+"command": "sketch.line",
+"params": {
+"points": [
+[
+-0.8,
+0.5975
+],
+[
+-1.1,
+0.5975
+],
+[
+-1.0,
+0.15
+],
+[
+-1.4,
+0.15
+],
+[
+-1.4,
+0.0
+],
+[
+-0.9,
+0.0
+],
+[
+-0.75,
+0.4475
+],
+[
+-0.8,
+0.4475
+]
+],
+"closed": true
+}
+},
+{
+"command": "sketch.finish",
+"params": {}
+},
+{
+"command": "solid.extrude",
+"params": {
+"distance": 0.4,
+"body_name": "lead5",
+"name": "lead5"
+}
+},
+{
+"command": "sketch.create",
+"params": {
+"plane": "YZ",
+"offset": 0.75
+}
+},
+{
+"command": "sketch.line",
+"params": {
+"points": [
+[
+0.8,
+0.5975
+],
+[
+1.1,
+0.5975
+],
+[
+1.0,
+0.15
+],
+[
+1.4,
+0.15
+],
+[
+1.4,
+0.0
+],
+[
+0.9,
+0.0
+],
+[
+0.75,
+0.4475
+],
+[
+0.8,
+0.4475
+]
+],
+"closed": true
+}
+},
+{
+"command": "sketch.finish",
+"params": {}
+},
+{
+"command": "solid.extrude",
+"params": {
+"distance": 0.3999999999999999,
+"body_name": "lead3",
+"name": "lead3"
+}
+},
+{
+"command": "sketch.create",
+"params": {
+"plane": "YZ",
+"offset": 0.75
+}
+},
+{
+"command": "sketch.line",
+"params": {
+"points": [
+[
+-0.8,
+0.5975
+],
+[
+-1.1,
+0.5975
+],
+[
+-1.0,
+0.15
+],
+[
+-1.4,
+0.15
+],
+[
+-1.4,
+0.0
+],
+[
+-0.9,
+0.0
+],
+[
+-0.75,
+0.4475
+],
+[
+-0.8,
+0.4475
+]
+],
+"closed": true
+}
+},
+{
+"command": "sketch.finish",
+"params": {}
+},
+{
+"command": "solid.extrude",
+"params": {
+"distance": 0.3999999999999999,
+"body_name": "lead6",
+"name": "lead6"
+}
+},
+{
+"command": "appearance.assign",
+"params": {
+"bodies": [
+"body"
+],
+"color": "#1a1a1c",
+"pbr": {
+"metallic": 0.0,
+"roughness": 0.45,
+"dielectric_ior": 1.5
+}
+}
+},
+{
+"command": "appearance.assign",
+"params": {
+"bodies": [
+"lead1"
+],
+"color": "#d4d6d9",
+"pbr": {
+"metallic": 1.0,
+"roughness": 0.3,
+"dielectric_ior": 1.5
+}
+}
+},
+{
+"command": "appearance.assign",
+"params": {
+"bodies": [
+"lead4"
+],
+"color": "#d4d6d9",
+"pbr": {
+"metallic": 1.0,
+"roughness": 0.3,
+"dielectric_ior": 1.5
+}
+}
+},
+{
+"command": "appearance.assign",
+"params": {
+"bodies": [
+"lead2"
+],
+"color": "#d4d6d9",
+"pbr": {
+"metallic": 1.0,
+"roughness": 0.3,
+"dielectric_ior": 1.5
+}
+}
+},
+{
+"command": "appearance.assign",
+"params": {
+"bodies": [
+"lead5"
+],
+"color": "#d4d6d9",
+"pbr": {
+"metallic": 1.0,
+"roughness": 0.3,
+"dielectric_ior": 1.5
+}
+}
+},
+{
+"command": "appearance.assign",
+"params": {
+"bodies": [
+"lead3"
+],
+"color": "#d4d6d9",
+"pbr": {
+"metallic": 1.0,
+"roughness": 0.3,
+"dielectric_ior": 1.5
+}
+}
+},
+{
+"command": "appearance.assign",
+"params": {
+"bodies": [
+"lead6"
+],
+"color": "#d4d6d9",
+"pbr": {
+"metallic": 1.0,
+"roughness": 0.3,
+"dielectric_ior": 1.5
+}
+}
+},
+{
+"command": "file.export_step",
+"params": {
+"path": "ic_tpl5010_sot23_6.step",
+"bodies": [
+"body",
+"lead1",
+"lead4",
+"lead2",
+"lead5",
+"lead3",
+"lead6"
+]
+}
+},
+{
+"command": "file.export_stl",
+"params": {
+"path": "ic_tpl5010_sot23_6.stl",
+"bodies": [
+"body",
+"lead1",
+"lead4",
+"lead2",
+"lead5",
+"lead3",
+"lead6"
+],
+"quality": "standard"
+}
+},
+{
+"command": "file.export",
+"params": {
+"path": "ic_tpl5010_sot23_6.glb",
+"bodies": [
+"body",
+"lead1",
+"lead4",
+"lead2",
+"lead5",
+"lead3",
+"lead6"
+],
+"quality": "standard"
+}
+}
+]

@@ -1,0 +1,12 @@
+name = "battery_depletion"
+description = "Cell voltage collapses: LOW_BATTERY below 3.5 V, BATTERY_CRITICAL below 3.3 V stops delivery."
+seed = 82
+duration_s = 3600.0
+events = [
+  { at_s = 600.0, action = "battery_ocv", mv = 3450.0 },
+  { at_s = 1200.0, action = "battery_ocv", mv = 3250.0 },
+]
+
+[setup]
+fill_u = 40.0
+basal = [[0.0, 1.5]]

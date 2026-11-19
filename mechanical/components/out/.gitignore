@@ -1,0 +1,7 @@
+# Large generated files (regenerate: build_all.py / gen_boards.py). Everything else in out/ is committed.
+rod_m1p6_*.step
+rod_m1p6_*.stl
+boards/bench_controller_board.step
+boards/bench_controller_board.glb
+boards/bench_controller_board.stl
+.*.json

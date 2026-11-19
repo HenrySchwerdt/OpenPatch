@@ -21,14 +21,15 @@ PART_NAMES = [b for v in MFG_PARTS.values() for b in v] + PURCHASED + ["pcb_keep
 # ---- bench pod (spec 4a): no battery / coil / RF / main PCB; sensor board + FFC + cannula adapter -------------
 BENCH_MFG_PARTS = {
     "bottom": ["bottom"], "top": ["top"], "carriage": ["carriage"], "reservoir": ["reservoir"],
-    "cannula_adapter": ["cannula_adapter"], "plunger_core": ["plunger_core"], "coupler": ["coupler"], "end_cap": ["end_cap"],
+    "cannula_adapter": ["cannula_adapter"], "dock_insert": ["dock_insert"], "plunger_core": ["plunger_core"], "plunger_nose": ["plunger_nose"], "coupler": ["coupler"], "end_cap": ["end_cap"],
     "plunger_seal": ["seal_a", "seal_b"], "gasket": ["gasket"],
 }
 COAX_PARTS = ["motor", "gearhead", "motor_boss", "motor_shaft", "motor_rear_boss", "motor_term", "motor_pins", "duckbill_valve", "gear_a", "gear_b", "bush_dry"]
-BENCH_PURCHASED = ["leadscrew", "nut", "bush_far", "magnet", "septum", "needle", "needle_hub", "pod_board",
+BENCH_PURCHASED = ["tongue_shim", "leadscrew", "nut", "bush_far", "magnet", "septum", "needle", "needle_hub", "pod_board",
                    "hall_tmag", "hall_drv0", "hall_drv1", "hall_dock", "ffc_conn", "ffc_cable", "dock_magnet"] + COAX_PARTS
 BENCH_PART_NAMES = [b for v in BENCH_MFG_PARTS.values() for b in v] + BENCH_PURCHASED
-BENCH_EXCLUDE_PAIRS = [["needle_hub", "end_cap"], ["needle", "end_cap"], ["duckbill_valve", "end_cap"]]
+BENCH_EXCLUDE_PAIRS = [["gear_a", "gear_b"],     # meshing teeth: both modelled as tip circles, overlap = tooth engagement
+                       ["needle_hub", "end_cap"], ["needle", "end_cap"], ["duckbill_valve", "end_cap"]]
 
 
 def part_sets(mode: str) -> tuple[dict, list, list]:
@@ -94,6 +95,8 @@ def build_model(p: dict, variant: str) -> tuple[Script, dict]:
         from op_bench import build_bench_electronics
         build_bench_electronics(s, p, L)
         build_septum_needle(s, p, L)
+        from op_dock import build_insert
+        build_insert(s, p, L, "dock_insert")      # nominal insert (no ID digits)
     else:
         build_electronics(s, p, L)
     return s, L

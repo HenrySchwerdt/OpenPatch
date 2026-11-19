@@ -1,0 +1,316 @@
+[
+{
+"command": "solid.box",
+"params": {
+"length": 5.6,
+"width": 3.5999999999999996,
+"height": 2.0,
+"corner": [
+-2.8,
+-4.6,
+0.85
+],
+"body_name": "plug",
+"name": "plug"
+}
+},
+{
+"command": "solid.cylinder",
+"params": {
+"diameter": 0.45,
+"height": 30.1,
+"base": [
+-1.875,
+-34.6,
+1.85
+],
+"axis": "Y",
+"body_name": "wire1",
+"name": "wire1"
+}
+},
+{
+"command": "solid.cylinder",
+"params": {
+"diameter": 0.25,
+"height": 1.5,
+"base": [
+-1.875,
+-36.1,
+1.85
+],
+"axis": "Y",
+"body_name": "strip1",
+"name": "strip1"
+}
+},
+{
+"command": "solid.cylinder",
+"params": {
+"diameter": 0.45,
+"height": 30.1,
+"base": [
+-0.625,
+-34.6,
+1.85
+],
+"axis": "Y",
+"body_name": "wire2",
+"name": "wire2"
+}
+},
+{
+"command": "solid.cylinder",
+"params": {
+"diameter": 0.25,
+"height": 1.5,
+"base": [
+-0.625,
+-36.1,
+1.85
+],
+"axis": "Y",
+"body_name": "strip2",
+"name": "strip2"
+}
+},
+{
+"command": "solid.cylinder",
+"params": {
+"diameter": 0.45,
+"height": 30.1,
+"base": [
+0.625,
+-34.6,
+1.85
+],
+"axis": "Y",
+"body_name": "wire3",
+"name": "wire3"
+}
+},
+{
+"command": "solid.cylinder",
+"params": {
+"diameter": 0.25,
+"height": 1.5,
+"base": [
+0.625,
+-36.1,
+1.85
+],
+"axis": "Y",
+"body_name": "strip3",
+"name": "strip3"
+}
+},
+{
+"command": "solid.cylinder",
+"params": {
+"diameter": 0.45,
+"height": 30.1,
+"base": [
+1.875,
+-34.6,
+1.85
+],
+"axis": "Y",
+"body_name": "wire4",
+"name": "wire4"
+}
+},
+{
+"command": "solid.cylinder",
+"params": {
+"diameter": 0.25,
+"height": 1.5,
+"base": [
+1.875,
+-36.1,
+1.85
+],
+"axis": "Y",
+"body_name": "strip4",
+"name": "strip4"
+}
+},
+{
+"command": "appearance.assign",
+"params": {
+"bodies": [
+"wire1"
+],
+"color": "#222222",
+"pbr": {
+"metallic": 0.0,
+"roughness": 0.5,
+"dielectric_ior": 1.5
+}
+}
+},
+{
+"command": "appearance.assign",
+"params": {
+"bodies": [
+"wire2"
+],
+"color": "#c92a2a",
+"pbr": {
+"metallic": 0.0,
+"roughness": 0.5,
+"dielectric_ior": 1.5
+}
+}
+},
+{
+"command": "appearance.assign",
+"params": {
+"bodies": [
+"wire3"
+],
+"color": "#d8c12a",
+"pbr": {
+"metallic": 0.0,
+"roughness": 0.5,
+"dielectric_ior": 1.5
+}
+}
+},
+{
+"command": "appearance.assign",
+"params": {
+"bodies": [
+"wire4"
+],
+"color": "#e6e6e6",
+"pbr": {
+"metallic": 0.0,
+"roughness": 0.5,
+"dielectric_ior": 1.5
+}
+}
+},
+{
+"command": "appearance.assign",
+"params": {
+"bodies": [
+"plug"
+],
+"color": "#efeee6",
+"pbr": {
+"metallic": 0.0,
+"roughness": 0.5,
+"dielectric_ior": 1.5
+}
+}
+},
+{
+"command": "appearance.assign",
+"params": {
+"bodies": [
+"strip1"
+],
+"color": "#d4d6d9",
+"pbr": {
+"metallic": 1.0,
+"roughness": 0.3,
+"dielectric_ior": 1.5
+}
+}
+},
+{
+"command": "appearance.assign",
+"params": {
+"bodies": [
+"strip2"
+],
+"color": "#d4d6d9",
+"pbr": {
+"metallic": 1.0,
+"roughness": 0.3,
+"dielectric_ior": 1.5
+}
+}
+},
+{
+"command": "appearance.assign",
+"params": {
+"bodies": [
+"strip3"
+],
+"color": "#d4d6d9",
+"pbr": {
+"metallic": 1.0,
+"roughness": 0.3,
+"dielectric_ior": 1.5
+}
+}
+},
+{
+"command": "appearance.assign",
+"params": {
+"bodies": [
+"strip4"
+],
+"color": "#d4d6d9",
+"pbr": {
+"metallic": 1.0,
+"roughness": 0.3,
+"dielectric_ior": 1.5
+}
+}
+},
+{
+"command": "file.export_step",
+"params": {
+"path": "lead_picoblade_plug.step",
+"bodies": [
+"wire1",
+"wire2",
+"wire3",
+"wire4",
+"plug",
+"strip1",
+"strip2",
+"strip3",
+"strip4"
+]
+}
+},
+{
+"command": "file.export_stl",
+"params": {
+"path": "lead_picoblade_plug.stl",
+"bodies": [
+"wire1",
+"wire2",
+"wire3",
+"wire4",
+"plug",
+"strip1",
+"strip2",
+"strip3",
+"strip4"
+],
+"quality": "standard"
+}
+},
+{
+"command": "file.export",
+"params": {
+"path": "lead_picoblade_plug.glb",
+"bodies": [
+"wire1",
+"wire2",
+"wire3",
+"wire4",
+"plug",
+"strip1",
+"strip2",
+"strip3",
+"strip4"
+],
+"quality": "standard"
+}
+}
+]

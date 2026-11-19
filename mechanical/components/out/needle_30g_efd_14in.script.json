@@ -1,0 +1,205 @@
+[
+{
+"command": "sketch.create",
+"params": {
+"plane": "XZ",
+"offset": 0
+}
+},
+{
+"command": "sketch.line",
+"params": {
+"points": [
+[
+0,
+0
+],
+[
+0.8,
+0
+],
+[
+2.1,
+2.8
+],
+[
+3.2,
+2.8
+],
+[
+3.2,
+7.2
+],
+[
+4.0,
+7.2
+],
+[
+4.0,
+8.1
+],
+[
+0,
+8.1
+]
+],
+"closed": true
+}
+},
+{
+"command": "sketch.finish",
+"params": {}
+},
+{
+"command": "solid.revolve",
+"params": {
+"axis": "Z",
+"angle": 360,
+"body_name": "hub",
+"name": "hub"
+}
+},
+{
+"command": "solid.box",
+"params": {
+"length": 1.7000000000000002,
+"width": 10,
+"height": 0.9999999999999991,
+"corner": [
+3.3,
+-5,
+-8.2
+],
+"body_name": "flat_a",
+"name": "flat_a"
+}
+},
+{
+"command": "solid.box",
+"params": {
+"length": 1.7000000000000002,
+"width": 10,
+"height": 0.9999999999999991,
+"corner": [
+-5,
+-5,
+-8.2
+],
+"body_name": "flat_b",
+"name": "flat_b"
+}
+},
+{
+"command": "solid.combine",
+"params": {
+"target": "hub",
+"tools": [
+"flat_a",
+"flat_b"
+],
+"operation": "cut",
+"name": "cut hub"
+}
+},
+{
+"command": "solid.cylinder",
+"params": {
+"diameter": 0.31,
+"height": 9.35,
+"base": [
+0,
+0,
+-3.0
+],
+"axis": "Z",
+"body_name": "needle",
+"name": "needle"
+}
+},
+{
+"command": "solid.cylinder",
+"params": {
+"diameter": 0.15,
+"height": 9.649999999999999,
+"base": [
+0,
+0,
+-3.2
+],
+"axis": "Z",
+"body_name": "needle_bore",
+"name": "needle_bore"
+}
+},
+{
+"command": "solid.combine",
+"params": {
+"target": "needle",
+"tools": [
+"needle_bore"
+],
+"operation": "cut",
+"name": "cut needle"
+}
+},
+{
+"command": "appearance.assign",
+"params": {
+"bodies": [
+"hub"
+],
+"color": "#b79be0",
+"pbr": {
+"metallic": 0.0,
+"roughness": 0.45,
+"dielectric_ior": 1.5
+}
+}
+},
+{
+"command": "appearance.assign",
+"params": {
+"bodies": [
+"needle"
+],
+"color": "#c5c8cc",
+"pbr": {
+"metallic": 1.0,
+"roughness": 0.28,
+"dielectric_ior": 1.5
+}
+}
+},
+{
+"command": "file.export_step",
+"params": {
+"path": "needle_30g_efd_14in.step",
+"bodies": [
+"hub",
+"needle"
+]
+}
+},
+{
+"command": "file.export_stl",
+"params": {
+"path": "needle_30g_efd_14in.stl",
+"bodies": [
+"hub",
+"needle"
+],
+"quality": "standard"
+}
+},
+{
+"command": "file.export",
+"params": {
+"path": "needle_30g_efd_14in.glb",
+"bodies": [
+"hub",
+"needle"
+],
+"quality": "standard"
+}
+}
+]

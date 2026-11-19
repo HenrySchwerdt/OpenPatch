@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: CERN-OHL-P-2.0
 """Slide-on dock for the Insight Flex cannula head (dome with side septum), shared by both pod variants.
 
 The pod is pushed FLAT along the skin onto the dome.  The dome enters a channel that is open at the +X end wall
@@ -32,6 +33,8 @@ def dock_geometry(p: dict, xr: float, wall: float) -> dict:
     arm_in = R + dk["arm_gap_clr"]                        # relaxed inner half spacing of the arms
     floor_half = arm_in + dk["arm_t"] + 0.1               # floor opening clears plate AND the arms (no fusing in MJF)
     mouth_half = max(cn["J_base_w"] / 2 + 0.3, R + 0.3)
+    if "dock_interface_frozen" in p and p.get("mode") == "bench":
+        mouth_half = p["dock_interface_frozen"]["mouth_half"]       # pod end-wall mouth is frozen; the insert adapts inside it
     x_arm0 = xr + dk["block_len"] + dk["root_len"]         # start of the free (flexing) length (behind the cap and the bridge)
     x_hook = x_d + cn["G_latch_dx"]
     flex_len = x_hook - x_arm0                            # free length root -> hook centre
@@ -129,4 +132,80 @@ def build_adapter(s: Script, p: dict, L: dict, name: str = "cannula_adapter", lu
         cuts.append(s.cyl("t_ad_vert", "Z", (xv, yc, 0), ad["channel_d"], ad["channel_z"] - ad["channel_d"] / 2, zn))
         cuts.append(s.cyl("t_ad_chan", "X", (0, yc, ad["channel_z"]), ad["channel_d"], xv - 0.3, xm + ad["lug_half_x"] + ad["barb_len"] + 0.1))
         cuts.append(s.cyl("t_ad_mag", "Z", (xm, yc, 0), ad["magnet_d"] + ad["magnet_clr"], zl - ad["magnet_t"] - 0.05, zl + 0.1))
+    s.cut(name, cuts)
+
+
+# ======================================================================================================
+# Modular dock (spec 8a): frozen pod-side interface + swappable dock insert
+# ======================================================================================================
+SEG = {0: "abcdef", 1: "bc", 2: "abdeg", 3: "abcdg", 4: "bcfg", 5: "acdfg", 6: "acdefg", 7: "abc", 8: "abcdefg", 9: "abcdfg"}
+
+
+def pod_interface_geometry(p: dict, L: dict) -> dict:
+    F, dk = p["dock_interface_frozen"], p["dock"]
+    xr, yc = L["x_r1"], L["dock"]["y_c"]
+    return {"x0": xr + F["x0_u"], "x1": L["length"] + 0.1, "yc": yc, "win_half": F["win_half"], "pocket_half": F["pocket_half"],
+            "ledge_top": F["ledge_z"][1], "x_det": xr + F["detent"]["x_u"]}
+
+
+def build_pod_dock_interface(s: Script, p: dict, L: dict) -> tuple[list[str], list[str]]:
+    """Pod side of the frozen interface (bottom shell): through window + flange pocket (cuts) and two detent bumps (joins)."""
+    F, wall = p["dock_interface_frozen"], L["wall"]
+    G = pod_interface_geometry(p, L)
+    top = wall + F["insert_top_gap"]
+    cuts = [s.box("t_dwin", (G["x0"], G["x1"]), (G["yc"] - G["win_half"], G["yc"] + G["win_half"]), (-0.1, top)),
+            s.box("t_dpocket", (G["x0"], G["x1"]), (G["yc"] - G["pocket_half"], G["yc"] + G["pocket_half"]), (G["ledge_top"], top))]
+    ym = (G["win_half"] + G["pocket_half"]) / 2
+    bz = F["detent"]["z"]
+    joins = [s.cyl(f"t_dbump{k}", "Z", (G["x_det"], G["yc"] + sg * ym, 0), F["detent"]["d_bump"], bz[0], bz[1])
+             for k, sg in enumerate((-1, 1))]
+    return joins, cuts
+
+
+def build_insert(s: Script, p: dict, L: dict, name: str = "dock_insert", vid: int | None = None) -> None:
+    """The swappable dock insert: tile (floor of the dock window) + T-slot flanges + root bridge + two snap arms with hooks
+    + guard-tube bore; everything that depends on the cannula (cannula.* values) lives here."""
+    cn, dk, D, F = p["cannula"], p["dock"], L["dock"], p["dock_interface_frozen"]
+    xr, yc, zn, wall = L["x_r1"], D["y_c"], D["z_n"], L["wall"]
+    za, zb = dk["arm_z"]
+    ai = D["arm_in"]
+    G = pod_interface_geometry(p, L)
+    c, top = F["clr"], wall - F["insert_top_gap"]
+    xa, xb = G["x0"] + c, L["length"] - 0.05
+    bx1 = xr + dk["block_len"] + dk["root_len"]
+    s.box(name, (xa, xb), (yc - G["win_half"] + c, yc + G["win_half"] - c), (0, top))
+    joins = [s.box(f"t_ifl{k}", (xa, xb), tuple(sorted((yc + sg * (G["win_half"] - 0.3), yc + sg * (G["pocket_half"] - c)))),
+                   (F["ledge_z"][1] + 0.05, top)) for k, sg in enumerate((-1, 1))]
+    joins.append(s.box("t_ibridge", (xa, bx1), (yc - ai - dk["arm_t"], yc + ai + dk["arm_t"]), (top - 0.1, zn + dk["block_up"])))
+    for k, sg in enumerate((-1, 1)):
+        y0, y1 = sorted((yc + sg * ai, yc + sg * (ai + dk["arm_t"])))
+        joins.append(s.box(f"t_iarm{k}", (bx1 - 0.3, D["arm_x"][1]), (y0, y1), (za, zb)))
+        w2, rmp = dk["hook_w"] / 2, dk["hook_ramp"]
+        ri, ra = D["hook_in"], ai + 0.1
+        prof = [(-w2, ra), (-w2, ri + rmp), (-w2 + rmp, ri), (w2 - rmp, ri), (w2, ri + rmp), (w2, ra)]
+        pts = [(D["x_hook"] + dx, yc + sg * r) for dx, r in prof]
+        joins.append(s.polyprism(f"t_ihook{k}", pts, (zn - cn["N_hook_h"] / 2, zn + cn["N_hook_h"] / 2)))
+    if vid is not None:             # raised ID digits (7 segments, reading along +X) on the outer face of the -Y snap arm
+        digits = [int(ch) for ch in str(vid)]
+        wd, ht, w, rz = 1.0, 2.0, 0.35, 0.3
+        y_face = yc - ai - dk["arm_t"]
+        zc_ = (za + zb) / 2
+        x0d = D["x_arm0"] + 2.5
+        for di, dg in enumerate(digits):
+            cx = x0d + di * 1.6
+            for sg_ in SEG[dg]:
+                if sg_ in "adg":
+                    zz = {"a": ht / 2 - w / 2, "g": 0.0, "d": -(ht / 2 - w / 2)}[sg_]
+                    bx, bz = (cx - wd / 2, cx + wd / 2), (zc_ + zz - w / 2, zc_ + zz + w / 2)
+                else:
+                    xx = -(wd / 2 - w / 2) if sg_ in "fe" else (wd / 2 - w / 2)
+                    zz = ht / 4 if sg_ in "fb" else -ht / 4
+                    bx, bz = (cx + xx - w / 2, cx + xx + w / 2), (zc_ + zz - ht / 4 - w / 2 + 0.0, zc_ + zz + ht / 4 + w / 2 - 0.0)
+                joins.append(s.box(f"t_id{di}{sg_}", bx, (y_face - rz, y_face + 0.05), bz))
+    s.join(name, joins)
+    cuts = [s.cyl("t_ishr", "X", (0, yc, zn), cn["O_cyl_od"] + 0.2, xa - 0.1, bx1 + 0.1),       # guard tube of the end cap
+            s.box("t_ifloor", (bx1, L["length"] + 0.1), (yc - D["floor_half"], yc + D["floor_half"]), (-0.1, za))]
+    ym = (G["win_half"] + G["pocket_half"]) / 2
+    for k, sg in enumerate((-1, 1)):
+        cuts.append(s.cyl(f"t_ihole{k}", "Z", (G["x_det"], yc + sg * ym, 0), F["detent"]["hole_d"], F["ledge_z"][1] + 0.01, top + 0.1))
     s.cut(name, cuts)

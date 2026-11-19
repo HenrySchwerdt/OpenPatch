@@ -1,0 +1,13 @@
+name = "flash_power_loss"
+description = "Power cut in the middle of a flash write (reservoir / pod record) during basal; A/B atomic records."
+seed = 91
+duration_s = 3600.0
+events = [
+  { at_s = 1500.0, action = "flash_power_loss", frac = 0.5, off_ms = 400.0 },
+  { at_s = 1700.0, action = "set_basal", profile = [[0.0, 2.0]] },
+  { at_s = 1800.0, action = "resume" },
+]
+
+[setup]
+fill_u = 40.0
+basal = [[0.0, 2.0]]

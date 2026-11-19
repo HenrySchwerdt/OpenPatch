@@ -1,0 +1,20 @@
+# 02 Known use errors and use-related hazards from the design (IEC 62366-1 5.2, 5.3)
+
+> Test project. These are **design-derived use-error candidates** for a manufacturer's use-related risk analysis. They contain no instructions and no on-body tasks. Evidence refers to the design and simulated pod/app tests only.
+
+| # | Use scenario (function) | Foreseeable use error | Possible hazard (`../RISK/`) | Existing design mitigation | Gap / open |
+|---|---|---|---|---|---|
+| U1 | **Dock**: pod attached to the cannula head | pod not fully latched; fit differs with cannula tolerance; dock insert of wrong variant | H2 (leak, no delivery), H9 | dock hall gate (no forward delivery if undocked), snap arms, alarm after 15 min undocked, fit-test coupon and insert variants; sim 3.3 to 3.5, 4.1 to 4.3 | cannula geometry unmeasured; hall switches about 4 mm early; no user trials |
+| U2 | **Dock**: undock during bolus | bolus interrupted without noticing | H2 | dock loss cancels a running bolus and reports it (`dock_loss_cancels_running_bolus_and_blocks_new_ones`); app alert | alert reach to the user |
+| U3 | **Refill (draw mode)**: choose an amount in the app, hold the filling needle in the septum | needle not in the septum or removed too early; wrong amount; air drawn in; pod still docked (draw refused by design) | H4, H5 | draw only undocked and suspended; angle-confirmed volume booked; stall detection; duckbill valve; priming required after draw (strict) | suction pressure vs needle gauge (sim 1.7: 36 kPa WARN); user cannot see air; no air sensing |
+| U4 | **Refill**: wrong drug concentration or type | non-U100 filled | H5 | app asks for U100 and insulin type (process only) | pod cannot detect concentration (manufacturer risk; the project never fills any drug) |
+| U5 | **Priming** | skipped or incomplete prime; confusion between prime and bolus amounts | H4 | resume refused until prime completed in strict config; prime limited to 0.524 U per command | prime path 2.2 U exceeds the command limit (sim 5.1 FAIL) |
+| U6 | **Two-pod swap** | removing the old pod before release is confirmed; both pods on the body; wrong pod activated; app closed mid-swap; spare not charged/filled/calibrated | H1 (two active), H2 | explicit Release then Activate; pod refuses Activate while the other has not confirmed release; swap blocked when spare not ready; swap-back; app restart resumes; tests in `PairSwapTests` | user understanding of A/B roles; wear warnings (44 h, 52 h) reach the user |
+| U7 | **Alarms** | alarm not heard (Rev A has no buzzer, phone muted, Do Not Disturb); alarm acknowledged without action; alarm fatigue from false positives (H12) | H3 | pod boots suspended and alarms; phone critical alerts need an Apple entitlement (open); severity classes I/W/F/L; "alarm not heard" code `1-0C-002` | priority mapping to IEC 60601-1-8; Rev B audible alarm; distributed-alarm verification |
+| U8 | **Pairing** | pairing at the wrong time or with the wrong pod; pressing the button by mistake | H7 | button-gated 60 s window, one pairing per press, key confirmation, OOB code option | no OOB code on bench; user cannot verify identity of the pod |
+| U9 | **Fault handling** | ignoring the FRU instruction ("replace controller board"); attempt to override a latched fault | H11, H12 | latched codes have no service override; unknown state is grey, not green | wording of actions is written by the manufacturer for users |
+| U10 | **Charging** | charging while docked; wrong charger | H8 | charge detection forces release; charger decouples delivery | Rev B contact charging pads exposed to moisture |
+| U11 | **Controller/algorithm mismatch** | user sets doses in the wrong unit or app; algorithm app changes without notice | H1 | pod-side limits; unit conversion tests | interface specification and version control with the host app |
+| U12 | **Storage / disposal** | pod stored with fluid in the path; battery disposal | H8, new | none | manufacturer |
+
+Use errors must be re-derived by the manufacturer's task analysis with real users. This list is a seed, not a complete use-related risk analysis.

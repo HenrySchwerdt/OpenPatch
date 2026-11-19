@@ -58,7 +58,7 @@ Full line-item tables, sources and assumptions: **`docs/SHOPPING.md` §0**. All 
 | A. Design as frozen (2 PCBA projects, CNC PP reservoir x2) | 358 - 607 | 95 - 150 |
 | B. Recommended (sensor tab on controller panel, <= 6 extended parts, one JLC cart, water-only printed reservoir) | 223 - 366 (central ~295) | 65 - 95 |
 | B+. Stretch (verified AliExpress motor, 5 parcels, trimmed BOM) | 176 - 288 (central ~232) | 60 - 90 |
-| C. B + PCBWay CNC PP reservoir (insulin tests) | 273 - 456 | 85 - 130 |
+| C. B + PCBWay CNC PP reservoir (optional material preparation; water only) | 273 - 456 | 85 - 130 |
 
 **The <= 200 EUR first-pump target is not reliably reachable**; it is reachable for each further pump. Top drivers (A): JLCPCB PCBA fixed/extended fees + shipping (130 - 193), PCBWay CNC PP reservoir (55 - 96), JLC3DP prints + coupon (39 - 71), motor shipping (31 - 53), duty lines on many AliExpress parcels (25 - 45). Cuts and the smallest design changes are in SHOPPING.md §0.5 - §0.6. The older "one bench iteration" figure below (130 - 150 USD) is **superseded** for budgeting: it omitted shipping, VAT/duty, PCBA fees and minimum orders.
 
