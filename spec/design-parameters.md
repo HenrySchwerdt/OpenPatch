@@ -56,6 +56,12 @@
 - **Build height 8.5 mm** (8.0 is not achievable with the 16×5 reservoir: stack = 8.4 mm; only with 0.6 mm reservoir wall + 0.75 mm shell) including housing wall and Velcro surface. Corners R ≥ 4 mm, top slightly domed (pillow shape).
 - Housing wall thickness: 0.9 mm (MJF PA12 or SLA resin for prototype; later injection-molded PC/PP).
 
+## 2a. Transparent lid (decision 2026-11-19, user)
+
+- The lid is printed in **clear resin** (JLC3DP clear SLA, polished/clear-coated outside) so reservoir, water level, plunger and drive are visible. The **fill window slot in the lid is removed**; the fill scale (ticks every 10 U, long every 50 U) becomes a shallow engraving on the lid inner face above the plunger travel.
+- Everything under the lid is therefore visible: tidy cable routing, no labels needed inside; light-sensitive parts (none in the bench pod) must be checked for v0.1.0 (e.g. hall sensors are fine, the TMAG is fine; LEDs may light up the housing).
+- Wall thickness and stiffness rules unchanged; clear resin is water-only like all printed parts.
+
 ## 3. Reservoir (flat, "stadium" cross-section)
 
 - Rigid reservoir with **stadium cross-section (slot) 16.0 × 5.0 mm inside** → area A = 5·11 + π·2.5² = **74.6 mm²**.
@@ -82,6 +88,14 @@
 - Fallback: the carriage (beside the reservoir) carries a rigid yoke behind the open dry end and a **push rod on the bore axis** that engages the plunger centre (push and pull, for draw mode). The reservoir is a **closed tube without any wall opening** (only the port at the closed end; re-freeze `reservoir_frozen` before ordering). Width and height stay; length grows by about one stroke (OP-100 about 47 → 60 mm).
 - Study for a later, shorter revision: a flexible push element (spring-steel band or beaded chain in a U-shaped guide) turning around the open end (about +5 mm instead of +stroke).
 
+## 3c. Fluid path without a check valve: Omnipod-style pressure fill (decision 2026-11-19, user)
+
+- Reference: Omnipod (Eros teardown arXiv 1709.06026, US 7,128,727 / 7,144,384) has no check valve in the sources found; free flow is prevented by a non-back-drivable drive and a closed outlet; filling is done by syringe pressure through a small septum while the plunger moves back.
+- **No check valve.** Anti-siphon / anti-free-flow comes from the **self-locking drive** (M1.6 × 0.35 leadscrew + 26.45:1 gearhead cannot be back-driven by reservoir pressure; verify by a bench test: 50 kPa on the reservoir, no plunger motion with the motor unpowered).
+- **Refill = pressure fill:** pod undocked + suspended; the user pushes water with a syringe through the fill septum while the motor **retracts the plunger at a fixed rate** (firmware "assisted fill"); the reservoir stays at positive pressure so no air can enter through the outlet needle; excess exits as drops at the needle tip, which also primes it. Suction draw (motor pulling a vacuum) is **not used** any more. Replaces the earlier automatic draw-mode decision.
+- **Fluid module = minimal:** reservoir port → small septum chamber (fill) → outlet needle, held by a printed clamp ring with defined septum squeeze and an O-ring/face seal to the reservoir; no valve, no branching channels.
+- Firmware: the reverse motion during fill is rate-limited and stall-monitored; the fill volume is booked from the plunger travel; a prime follows before docking.
+
 ## 4. Drive — geared micro stepper + direct leadscrew, automatic refill (decision 2026-11-19)
 
 Rationale: buildability beats minimal size (builders are not watchmakers). No off-the-shelf integrated micro linear actuator meets force/drawing/orderability (`mechanical/linear-actuator-selection.md`); the SMA ratchet needs too many fine custom parts. SMA research stays as a later option for minimal size.
@@ -91,7 +105,7 @@ Rationale: buildability beats minimal size (builders are not watchmakers). No of
 - **Leadscrew/carriage/reservoir:** M1.6 × 0.35 leadscrew in its own lane, fixed nut in the carriage, carriage arm pushes the stadium plunger (unchanged).
 - **Resolution:** U/step = 0.35 × (16/20) / (20 × 26.45) × 74.63 / 10 = **0.003951 U/step** (16:20 pair); 0.05 U ≈ 12.7 steps; exact rational in firmware, no default.
 - **Thrust:** pull-out 1.6 gf·cm × 26.45 × ~0.64 gear eff. ≈ 2.65 N·mm → ≈ 9.5 N at 20 % screw efficiency (≥ 5 N required; verify on the bench).
-- **Refill = automatic draw mode (no crank, no slider):** pod undocked + suspended → user selects the fill amount in the app → holds the syringe/vial needle in the septum → the motor **retracts exactly that volume and draws the insulin in**, then stops by itself (100 U ≈ 20 s). A **one-way duckbill check valve in the outlet** prevents air being drawn in through the outlet needle (and adds anti-siphon / anti-free-flow protection). Rear end-stop on the housing + stall detection; fill level known exactly from step count + encoder.
+- **(superseded by §3c: pressure fill, no check valve)** Refill = automatic draw mode (no crank, no slider): pod undocked + suspended → user selects the fill amount in the app → holds the syringe/vial needle in the septum → the motor **retracts exactly that volume and draws the insulin in**, then stops by itself (100 U ≈ 20 s). A **one-way duckbill check valve in the outlet** prevents air being drawn in through the outlet needle (and adds anti-siphon / anti-free-flow protection). Rear end-stop on the housing + stall detection; fill level known exactly from step count + encoder.
 - **Encoder:** TMAG5273 angle sensor on a diametric magnet at the leadscrew end (per-revolution verification and stall detection); DRV5032 pair optional.
 - **Occlusion:** encoder slip + motor-current rise; duckbill cracking pressure accounted for.
 - **Connection:** Rev A bench: factory lead + JST 1.25 into the controller board; Rev B: motor with FPC tail into a ZIF connector (group buy) — no soldering, no cable in the pod (§1c).
@@ -138,7 +152,7 @@ Note: In DASH mode Trio "sees" a 200 U pod with 80 h lifetime; reservoir display
 
 ## 7a. Diagnostics and hardware independence (requirement, 2026-11-19)
 
-- **Hardware independence:** the motor supply is gated in hardware (`MCU_EN AND watchdog latch AND (DOCKED OR DIR_REV)`, TPL5010, hardware over-current cut that clears the latch) so that a firmware fault cannot hold the motor on beyond one watchdog interval, and an undocked pod cannot deliver forward. **Hardware step budget (HW-A, decided 2026-11-19):** an arm window + pulse budget in discrete logic bounds a runaway inside the watchdog window to ≈ 1.6 U; Rev B adds an independent monitor for the hourly limit. Firmware must **prove at runtime** that each gate can still cut the supply (rotating single-gate disarm, POST-A). A proven-stuck gate or a dead watchdog latches the pod; no delivery with a degraded protection layer. The dose limits of §7 are additionally enforced by the firmware supervisor.
+- **Hardware independence:** the motor supply is gated in hardware (`MCU_EN AND watchdog latch AND (DOCKED OR DIR_REV)`, TPL5010, hardware over-current cut that clears the latch) so that a firmware fault cannot hold the motor on beyond one watchdog interval, and an undocked pod cannot deliver forward. **Hardware step budget (HW-A, decided 2026-11-19, mandatory for v0.1.0; the bench controller Rev A does not have it — documented residual risk in `electronics/bench/INTERLOCK.md`):** an arm window + pulse budget in discrete logic bounds a runaway inside the watchdog window to ≈ 1.6 U; Rev B adds an independent monitor for the hourly limit. Firmware must **prove at runtime** that each gate can still cut the supply (rotating single-gate disarm, POST-A). A proven-stuck gate or a dead watchdog latches the pod; no delivery with a degraded protection layer. The dose limits of §7 are additionally enforced by the firmware supervisor.
 - **Diagnostic codes:** every anomaly gets a 32-bit code (layer, component, fault, instance) with severity (info, warning, fault, latched), field-replaceable unit (FRU) and recommended action; the catalogue (`docs/06-diagnostics.md`, generated source `spec/diag-codes.csv`) is the single source for firmware, protocol and app. Codes are never reused. Unknown codes are treated as faults. Latched codes have **no service override**; they clear only when their verification test passes.
 - **Propagation:** no layer may swallow a code. A layer that acts on a lower-layer fault raises its own record with a cause pointer. Records persist in a pod fault log, are readable with `GetFaultLog`, and are pushed as alerts. The 8 legacy fault bits remain as a derived projection.
 - **Presentation:** Trio shows the pod (A/B), the faulty part and the action ("Replace the controller board"), and a component health view (green/yellow/red per FRU). A part is green only after a passing proof; unproven is grey.

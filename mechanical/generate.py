@@ -244,7 +244,7 @@ def generate_coupon(p: dict) -> None:
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--sizes", nargs="*")
-    ap.add_argument("--variant", choices=["integrated", "bench"], default="integrated",
+    ap.add_argument("--variant", choices=["integrated", "bench", "v010"], default="integrated",
                     help="bench = bench pod (sensor board + FFC, no battery/coil/RF), writes to out/bench/")
     ap.add_argument("--outdir")
     ap.add_argument("--params")
@@ -252,10 +252,15 @@ def main() -> None:
     ap.add_argument("--coil-d", type=float)
     ap.add_argument("--set", action="append", default=[], metavar="group.key=value")
     ap.add_argument("--no-snapshots", action="store_true")
+    ap.add_argument("--snapshot-sizes", nargs="*", default=["OP-100"], help="v010: sizes that get renders (default OP-100)")
     ap.add_argument("--coupon", action="store_true", help="only build the dock insert variant set + fit-test fixture (out/bench/fab/dock-inserts/)")
     args = ap.parse_args()
 
     p = apply_overrides(load_params(Path(args.params) if args.params else None), args.set, args.coil_d, args.preset)
+    if args.variant == "v010":          # additive variant: bench pod + electronics strip (op_v010.py, v010_gen.py)
+        import v010_gen
+        v010_gen.main(p, args.sizes, args.outdir, args.no_snapshots, args.snapshot_sizes)
+        return
     p["mode"] = args.variant
     if args.variant == "bench":
         p["shell"]["width"] = p["bench"]["width_by_layout"][p["bench"]["drive_layout"]]

@@ -200,6 +200,9 @@ def write_shim(p: dict, out: Path, fab: Path, rows: list) -> None:
 
 
 def main() -> None:
+    if "--variant" in sys.argv and sys.argv[sys.argv.index("--variant") + 1] == "v010":      # additive variant (v010_fab.py)
+        import v010_fab
+        return v010_fab.main()
     p = load_params(OUT / "params.used.json") if (OUT / "params.used.json").exists() else load_params()
     PARTS = BENCH_PARTS if BENCH else globals()["PARTS"]
     if FAB.exists():

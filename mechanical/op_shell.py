@@ -113,8 +113,10 @@ def build_bottom(s: Script, p: dict, L: dict) -> None:
         ld = p["bench"]["lead"]
         m = ld["pocket_margin"]
         cut.append(s.box("t_tpocket", (n["block_x"][0] - m, n["block_x"][1] + m), (n["block_y"][0] - m, n["block_y"][1] + m), (ld["pocket_floor"], wall + 0.05)))
-        cut.append(s.box("t_leadch", (n["x_center"], L["length"] - wall - 0.2), (ld["groove_y"] - ld["groove_w"] / 2, ld["groove_y"] + ld["groove_w"] / 2), (ld["groove_floor"], ld["groove_top"])))
-        cut.append(s.box("t_leadslot", (L["length"] - wall - 0.3, L["length"] + 0.1), (ld["groove_y"] - ld["slot_w"] / 2, ld["groove_y"] + ld["slot_w"] / 2), (ld["groove_floor"], ld["slot_z_top"])))
+        v10 = p.get("v010_active")       # v0.1.0 hook: the lead ends at the board connector, no slot through the end wall
+        cut.append(s.box("t_leadch", (n["x_center"], (L["x_r1"] + p["v010_plan"]["lead_end_u"]) if v10 else L["length"] - wall - 0.2), (ld["groove_y"] - ld["groove_w"] / 2, ld["groove_y"] + ld["groove_w"] / 2), (ld["groove_floor"], ld["groove_top"])))
+        if not v10:
+            cut.append(s.box("t_leadslot", (L["length"] - wall - 0.3, L["length"] + 0.1), (ld["groove_y"] - ld["slot_w"] / 2, ld["groove_y"] + ld["slot_w"] / 2), (ld["groove_floor"], ld["slot_z_top"])))
     s.cut("bottom", cut)
     if bench and n and not L["coax"]:
         ld = p["bench"]["lead"]
@@ -167,12 +169,14 @@ def build_top(s: Script, p: dict, L: dict) -> None:
         for i, sp_ in enumerate(L["screws"]):
             cuts.append(s.cyl(f"t_lh{i}", "Z", (sp_["x"], sp_["y"], 0), sc["clear"], z_stop - 0.1, zt + 0.1))
             cuts.append(s.cyl(f"t_lc{i}", "Z", (sp_["x"], sp_["y"], 0), sc["head_d"], zt - sc["head_depth"], zt + 0.1))
-        cuts.append(s.box("t_ffcslot", (w - wall - 0.2, w + 0.1), (fl["v"] - fl["slot_w"] / 2, fl["v"] + fl["slot_w"] / 2),
-                          tuple(fl["slot_z"])))
+        if not p.get("v010_active"):       # v0.1.0 has no FFC cable (hook, op_v010.py)
+            cuts.append(s.box("t_ffcslot", (w - wall - 0.2, w + 0.1), (fl["v"] - fl["slot_w"] / 2, fl["v"] + fl["slot_w"] / 2),
+                              tuple(fl["slot_z"])))
         cuts.extend(build_mouth_cut(s, p, L, "t_kmouth_top", top_part=True))
         # fill window over the carriage lane + scale (tick every 10 U delivered, long every 50 U; 1 U = 10 mm3)
         ys_, mm10 = L["y_s"], 100.0 / 74.63
-        cuts.append(s.box("t_fillwin", (L["xrear_full"] + 0.5, L["xrear_empty"] + 3.5), (ys_ - 1.0, ys_ + 1.0), (zt - wall - 0.1, zt + 0.1)))
+        if not p.get("v010_active"):       # v0.1.0 (spec 2a): clear lid, no fill-window slot
+            cuts.append(s.box("t_fillwin", (L["xrear_full"] + 0.5, L["xrear_empty"] + 3.5), (ys_ - 1.0, ys_ + 1.0), (zt - wall - 0.1, zt + 0.1)))
         k = 0
         while k * mm10 <= L["stroke"] + 1e-6:
             x = L["xrear_full"] + k * mm10
