@@ -9,13 +9,13 @@
 
 **Current architecture (decided):** Rev A = bench split (pod with mechanics + small pod sensor board, FFC to a ~40 × 50 mm bench controller board with nRF52840 module). Drive = **NFP-608-26.45 geared stepper + sleeve coupler + M1.6 leadscrew**, refill = **automatic draw mode** (motor reverses, duckbill check valve in the outlet). Reservoir = **frozen CNC polypropylene part** (spec §3a), septum/valve/needle in a separate end cap. Cannula = Accu-Chek Insight Flex, horizontal slide-on dock (dimensions not public → dock fit-test coupon). Firmware = **Rust** (`firmware-rs/`, Embassy). Two-pod system (48 h per pod). Tests with water or insulin **into containers only, never a person**.
 
-**Work in progress at handoff (on branch `wip/2026-11-19-handoff`, NOT on main):** three agents were mid-task when the session ended:
+**Work in progress at handoff (merged to main on user request as WIP snapshots `a2913ac`/`b2afa23`; branch `wip/2026-11-19-handoff` kept):** three agents were mid-task when the session ended — tests and checks of this snapshot are NOT verified:
 1. `mechanical/`: stepper/coaxial redesign, envelope shrink (target width ~25–27 mm), annotated top view, CNC-PP reservoir drawings + PCBWay order README (`out/bench/fab/reservoir-cnc/`), end cap with septum + duckbill. `check.py --variant bench` must pass.
 2. `electronics/bench/`: controller board (STSPIN220 + current sense, interlock incl. DOCKED, TPL5010 2 s, PicoBlade 4-pin motor header) and pod sensor board (TMAG5273 mandatory, dock hall, FFC) → DRC 0, JLCPCB packages, `pin-assignment.md`, `ORDER.md`, `COST.md`. Then an **independent layout review** (antenna keep-out all layers, motor loop, shunt Kelvin, decoupling, unbroken GND).
-3. `firmware-rs/`: port of the C core (all 173 behaviours) + property + differential tests, stepper preset NFP_608_2645 (exact rational, no default), FillDraw refill mode, Embassy app for bench + nRF52840-DK. **At handoff the workspace did NOT compile** (agent was mid-edit: `Status` new fields, `rng` borrow in differential tests).
+3. `firmware-rs/`: port of the C core (all 173 behaviours) + property + differential tests, stepper preset NFP_608_2645 (exact rational, no default), FillDraw refill mode, Embassy app for bench + nRF52840-DK. At snapshot `b2afa23` the workspace compiles (`cargo build --workspace`); `cargo test` was not re-run.
 
 **Next steps (in order):**
-1. Check out the WIP branch, finish/repair the three areas above, get all tests green, merge to main.
+1. Finish the three areas above on main and get everything green: `cargo test --workspace`, `check.py --variant bench`, KiCad DRC 0 for both bench boards, `npm run build`.
 2. Independent DFM review of the CNC reservoir drawings; independent PCB layout review; fix findings.
 3. Write `SHOPPING.md`: one complete bench iteration (JLCPCB boards, JLC3DP prints, PCBWay CNC reservoir ×2 per size, NFP motors, M1.6 rod/nuts, magnets, duckbill valves, 30G needles, silicone, FFC, programmer) with links, qty, prices.
 4. User: print the dock fit-test coupon first, test against a real Insight Flex head, enter the winning variant.
