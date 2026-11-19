@@ -69,8 +69,8 @@ BENCH_PARTS["coupler"] = ("SLA (tough resin) - or turned brass tube (preferred)"
                           "retain with one drop of cyanoacrylate / Loctite 638. VERIFY the shaft D-flat on the real motor.", True)
 BENCH_PARTS["plunger_nose"] = ("SLA (JLC3DP resin 8001-type)", "tough resin", "any", "no coating", 2,
                                "+-0.1 mm. 0.7 mm stadium disc (14.6 x 3.6) glued (CA) onto the plunger front: dead layer 0.3 mm. WATER ONLY.", True)
-BENCH_PARTS["valve_plug"] = ("SLA (JLC3DP resin 8001-type)", "tough resin", "any", "no coating", 2,
-                             "+-0.05 mm. Press-fit plug (0.04 mm interference per side) that closes the duckbill insertion slot in the end cap; flush with the cap top.", True)
+BENCH_PARTS["end_cap_lid"] = ("SLA (JLC3DP resin 8001-type)", "tough resin", "any", "no coating", 2,
+                              "+-0.05 mm. Upper half of the clamped fluid sandwich: flat underside on the lands, valve / septum ceiling recesses, O-ring half groove, 2 x M1.2 x 6 clamp screws. WATER ONLY.", True)
 BENCH_PARTS["thrust_sleeve"] = ("SLA, or brass tube d2.0 x d1.6 x 2.05 (cut + deburr)", "tough resin / brass", "any", "no coating", 2,
                                 "+-0.05 mm. Gear carrier and rear thrust shoulder: slides on the rod, rear face on the dry bush, GHW 753020 (bore 2.0) glued on it (Loctite 638). "
                                 "Printed d2.0 walls are thin: brass tube recommended.", True)
@@ -111,7 +111,7 @@ def write_bench_readme(p: dict, vols: dict, sizes: list, PARTS: dict) -> None:
         if PARTS[part][0].startswith("MJF"):
             return qty * max(MJF_MIN_PART, vol * PA12_DENSITY * MJF_BILL_FACTOR * MJF_PER_G)
         return qty * max(SLA_MIN_PART, vol * SLA_BILL_FACTOR * SLA_PER_CM3 * 4)
-    cols = [("bottom", 1), ("top", 1), ("carriage", 2), ("plunger_core", 2), ("plunger_nose", 2), ("reservoir", 1), ("cannula_adapter", 2), ("end_cap", 2), ("valve_plug", 2), ("thrust_sleeve", 2), ("thrust_collar", 2)]
+    cols = [("bottom", 1), ("top", 1), ("carriage", 2), ("plunger_core", 2), ("plunger_nose", 2), ("reservoir", 1), ("cannula_adapter", 2), ("end_cap", 2), ("end_cap_lid", 2), ("thrust_sleeve", 2), ("thrust_collar", 2)]
     lines = ["| size | " + " | ".join(f"{c} x{q}" for c, q in cols) + " | subtotal |", "|---|" + "---|" * (len(cols) + 1)]
     tot = 0.0
     sub = {}
@@ -212,7 +212,7 @@ def main() -> None:
     for sz in sizes:
         d = FAB / sz
         d.mkdir()
-        v = volumes(OUT / f"{sz}.sc", ["bottom", "top", "carriage", "plunger_core", "plunger_nose", "reservoir", "cannula_adapter", "end_cap", "valve_plug", "thrust_sleeve", "thrust_collar"])
+        v = volumes(OUT / f"{sz}.sc", ["bottom", "top", "carriage", "plunger_core", "plunger_nose", "reservoir", "cannula_adapter", "end_cap", "end_cap_lid", "thrust_sleeve", "thrust_collar"])
         vols[sz] = v
         for part, (proc, mat, col, fin, qty, tol, upload) in PARTS.items():
             if not upload:

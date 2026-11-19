@@ -21,16 +21,17 @@ PART_NAMES = [b for v in MFG_PARTS.values() for b in v] + PURCHASED + ["pcb_keep
 # ---- bench pod (spec 4a): no battery / coil / RF / main PCB; sensor board + FFC + cannula adapter -------------
 BENCH_MFG_PARTS = {
     "bottom": ["bottom"], "top": ["top"], "carriage": ["carriage"], "reservoir": ["reservoir"],
-    "cannula_adapter": ["cannula_adapter"], "dock_insert": ["dock_insert"], "plunger_core": ["plunger_core"], "plunger_nose": ["plunger_nose"], "thrust_sleeve": ["thrust_sleeve"], "thrust_collar": ["thrust_collar"], "valve_plug": ["valve_plug"], "coupler": ["coupler"], "end_cap": ["end_cap"],
+    "cannula_adapter": ["cannula_adapter"], "dock_insert": ["dock_insert"], "plunger_core": ["plunger_core"], "plunger_nose": ["plunger_nose"], "thrust_sleeve": ["thrust_sleeve"], "thrust_collar": ["thrust_collar"], "end_cap_lid": ["end_cap_lid"], "coupler": ["coupler"], "end_cap": ["end_cap"],
     "plunger_seal": ["seal_a", "seal_b"], "gasket": ["gasket"],
 }
 COAX_PARTS = ["motor", "gearhead", "motor_boss", "motor_shaft", "motor_rear_boss", "motor_term", "motor_pins", "duckbill_valve", "gear_a", "gear_b", "bush_dry"]
-BENCH_PURCHASED = ["cap_oring", "tongue_shim", "leadscrew", "nut", "bush_far", "magnet", "septum", "needle", "needle_hub", "pod_board",
+BENCH_PURCHASED = ["cap_gasket", "cap_oring", "tongue_shim", "leadscrew", "nut", "bush_far", "magnet", "septum", "needle", "needle_hub", "pod_board",
                    "hall_tmag", "hall_drv0", "hall_drv1", "hall_dock", "ffc_conn", "ffc_cable", "dock_magnet"] + COAX_PARTS
 BENCH_PART_NAMES = [b for v in BENCH_MFG_PARTS.values() for b in v] + BENCH_PURCHASED
-BENCH_EXCLUDE_PAIRS = [["gear_a", "gear_b"], ["valve_plug", "end_cap"],     # meshing teeth: both modelled as tip circles, overlap = tooth engagement
+BENCH_EXCLUDE_PAIRS = [["gear_a", "gear_b"],     # meshing teeth: both modelled as tip circles, overlap = tooth engagement
                        ["needle_hub", "end_cap"], ["needle", "end_cap"], ["duckbill_valve", "end_cap"],
-                       ["septum", "end_cap"], ["septum", "bottom"], ["cap_oring", "reservoir"], ["cap_oring", "end_cap"]]
+                       ["septum", "end_cap"], ["septum", "end_cap_lid"], ["septum", "bottom"], ["cap_oring", "reservoir"], ["cap_oring", "end_cap"], ["cap_oring", "end_cap_lid"],
+                       ["duckbill_valve", "end_cap_lid"], ["cap_gasket", "end_cap"], ["cap_gasket", "end_cap_lid"], ["end_cap", "end_cap_lid"], ["needle", "end_cap_lid"]]
 
 
 def part_sets(mode: str) -> tuple[dict, list, list]:
@@ -75,16 +76,13 @@ def build_septum_needle(s: Script, p: dict, L: dict) -> None:
     from op_cap import build_cap, cap_geometry
     sp = p["septum"]
     G = build_cap(s, p, L)
-    ysd = G["y_block"][0] + p["dock"]["cap"]["septum_depth"]       # disc seated on the cavity bottom (no air pocket behind it), 0.2 proud of the cap face
+    ysd = G["y_block"][0] + p["dock"]["cap"]["sandwich"]["septum"]["depth"]       # disc seated on the cavity end (no air pocket behind it), 0.2 proud of the cap face
     s.cyl("septum", "Y", (G["x_sept"], 0, L["dock"]["z_n"]), sp["d"], ysd - sp["len"], ysd)
     from op_cap import build_oring
     build_oring(s, p, L)
     D, dk = L["dock"], p["dock"]
     s.cyl("duckbill_valve", "X", (0, D["y_c"], D["z_n"]), p["coax"]["valve_d"], L["x_r1"] + dk["valve_x0"], L["x_r1"] + dk["valve_x0"] + p["coax"]["valve_len"])
     build_needle(s, p, L)
-    if L["mode"] == "bench":
-        from op_cap import build_valve_plug
-        build_valve_plug(s, p, L)
 
 
 def build_model(p: dict, variant: str) -> tuple[Script, dict]:

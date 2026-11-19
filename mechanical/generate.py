@@ -58,7 +58,7 @@ BENCH_EXPLODE = {
     "cannula_adapter": (0, 0, -12), "dock_insert": (0, 0, -9), "bottom": (0, 0, -6),
     "gearbox": (0, 0, 10), "motor_can": (0, 0, 10), "front_boss": (0, 0, 10), "shaft": (0, 0, 10), "rear_boss": (0, 0, 10), "term_block": (0, 0, 10),
     "pin1": (0, 0, 10), "pin2": (0, 0, 10), "pin3": (0, 0, 10), "pin4": (0, 0, 10), "gear": (0, 0, 13), "gear (2)": (0, 0, 9), "rod": (0, 0, 8),
-    "S_half": (0, 0, 8), "N_half": (0, 0, 8), "sleeve": (0, 0, 12), "thrust_sleeve": (0, 0, 11), "thrust_collar": (0, 0, 11), "valve_plug": (0, 0, 16),
+    "S_half": (0, 0, 8), "N_half": (0, 0, 8), "sleeve": (0, 0, 12), "thrust_sleeve": (0, 0, 11), "thrust_collar": (0, 0, 11), "end_cap_lid": (0, 0, 16), "cap_gasket": (0, 0, 8), "cap_oring": (-3, 0, 4),
     "plunger_nose": (0, 0, 10), "tongue_shim": (0, 0, 16),
 }
 BENCH_COLORS = ["--body", "top:opacity=0.18,color=#9fb3c8", "--body", "bottom:opacity=0.55,color=#c9d3dd",

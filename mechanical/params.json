@@ -662,14 +662,14 @@
   "mouth_over": 0.6,
   "arm_gap_clr": 0.2,
   "hook_ramp": 0.5,
-  "valve_x0": 0.6,
+  "valve_x0": 1.4,
   "cap": {
    "septum_x": 2.2,
    "spigot_len": 2.4,
    "spigot_d": 1.98,
    "block_y0": 1.0,
    "block_up_y": 3.0,
-   "jog_x": 0.45,
+   "jog_x": 0.9,
    "wall_hole_d": 2.0,
    "prime_d": 0.6,
    "oring": {
@@ -681,12 +681,52 @@
     "_note": "catalogue O-ring 2.0 x 0.5 (NBR/silicone) in a face groove of the cap, sealing against the flat PP end face of the reservoir around the port: stretched 10 % on d2.2, cross-section 0.477, axial squeeze (0.477-0.40)/0.477 = 16 %. The d1.98 spigot only locates (clearance fit, NOT a seal)."
    },
    "block_up": 3.4,
-   "septum_compress": 0.15,
-   "septum_depth": 1.8,
    "hub_press": 0.08,
-   "fill_d": 0.8,
    "lane_off": 2.5,
-   "_note_2026_11_19_review": "septum bore = disc d x (1 - septum_compress) = 3.4 (radial compression 15 %), cavity 1.8 deep for a 2.0 disc (0.2 protrudes: the shell wall compresses it 0.1 axially, no air pocket behind it); needle hub bore = hub_d - hub_press (0.04 interference per side); main path channels d0.6 (L/D <= 5.3, flushable from both ends), fill branch d0.8 (drill/print straight legs)."
+   "_note_2026_11_19_review": "septum bore = disc d x (1 - septum_compress) = 3.4 (radial compression 15 %), cavity 1.8 deep for a 2.0 disc (0.2 protrudes: the shell wall compresses it 0.1 axially, no air pocket behind it); needle hub bore = hub_d - hub_press (0.04 interference per side); main path channels d0.6 (L/D <= 5.3, flushable from both ends), fill branch d0.8 (drill/print straight legs).",
+   "sandwich": {
+    "_comment": "clamped two-part sandwich (op_cap.py). valve: pocket for a duckbill OR a cylindrical check-valve cartridge (coax.valve_d / valve_len + compress); septum: disc (septum.d / len) or a bought septum/port (change d / len / depth); needle: hub press fit or bare needle (dock.hub_d, cap.hub_press).",
+    "slot_w": 0.8,
+    "via_d": 0.8,
+    "plenum_d": 1.2,
+    "gasket": {
+     "t": 0.5,
+     "recess": 0.4,
+     "x": [
+      0.25,
+      4.3
+     ],
+     "y_margin": 0.3
+    },
+    "valve": {
+     "type": "duckbill",
+     "compress": 0.08,
+     "float": 0.1
+    },
+    "septum": {
+     "type": "disc",
+     "compress": 0.15,
+     "float": 0.1,
+     "depth": 1.8
+    },
+    "screws": {
+     "d": 1.2,
+     "pilot": 1.0,
+     "clear": 1.4,
+     "head_d": 2.4,
+     "head_depth": 0.5,
+     "pos": [
+      [
+       3.6,
+       2.2
+      ],
+      [
+       3.6,
+       -2.5
+      ]
+     ]
+    }
+   }
   },
   "guard_lead_in": 0.4
  },
@@ -699,7 +739,7 @@
   "screw_gap": 0.2,
   "carriage_gap": 0.3,
   "valve_d": 3.0,
-  "valve_len": 3.4,
+  "valve_len": 2.8,
   "post_d": 0.8,
   "slot_w": 3.0,
   "slot_z": [

@@ -17,32 +17,37 @@ def cyl(d, l):
 
 
 def path_volume(ctx: Ctx):
-    """Wetted volume downstream of the reservoir chamber, from the cap geometry in op_cap.py and the frozen port (mm3).
-    Returns {name: (volume, group)}; group 'prime' = main path chamber -> needle tip (air to expel at the prime), 'fill' = dead-end fill branch (filled by the draw)."""
+    """Wetted volume downstream of the reservoir chamber for the clamped sandwich module (op_cap.py) and the frozen port (mm3).
+    Returns {name: (volume, group)}; 'prime' = main path chamber -> needle tip (air to expel at the prime), 'fill' = dead-end fill branch (filled by the draw)."""
     P = ctx.P
-    fz, nd, dk, cp, cx, cn = P["reservoir_frozen"], P["needle"], P["dock"], P["dock"]["cap"], P["coax"], P["cannula"]
-    d = nd["channel_d"]
-    dp = cp.get("prime_d", d)
-    zn = cn["C_septum_axis_z"]
+    fz, nd, dk, cp, cx = P["reservoir_frozen"], P["needle"], P["dock"], P["dock"]["cap"], P["coax"]
+    sw = cp["sandwich"]
+    dp = cp["prime_d"]
+    ws, gt = sw["slot_w"], sw["gasket"]["t"]
+    zn = P["cannula"]["C_septum_axis_z"]
     zp = ctx.mech[ctx.sizes[0]]["z_axis"] if ctx.sizes[0] in ctx.mech else 4.2
-    rem = max(fz["end_wall"] - cp["spigot_len"], 0.0)               # open port bore left in front of the pressed-in spigot
+    rem = max(fz["end_wall"] - cp["spigot_len"], 0.0)               # open port bore left in front of the locating spigot
     env_v = cyl(cx["valve_d"], cx["valve_len"])
-    lane = cp.get("lane_off", 2.0)
+    vx0 = dk["valve_x0"]
+    jx = cp["jog_x"]
     y0 = cp["block_y0"]
     yc = P["dock"]["y_c"]
-    ya_len = (yc - lane + 0.2) - (y0 + cp.get("septum_depth", 3.5) - 0.1)
-    L_fill = (lane + 0.4) + ((cp["septum_x"] - cp["jog_x"]) + 0.4) + ya_len
-    L_pc = cp["spigot_len"] + 0.1 + cp["jog_x"] + 0.2
-    L_jv = max(cx and (P["dock"]["valve_x0"] - cp["jog_x"] + 0.3), 0.0)
+    lane = cp["lane_off"]
+    sd = sw["septum"]["depth"]
+    ya_len = (yc - lane + ws / 2) - (y0 + sd - 0.1)
+    L_fill = (lane + ws) + ((cp["septum_x"] - jx) + ws) + ya_len
+    via_L = zp - sw["gasket"]["recess"] - zn + 0.3
+    plen = vx0 + 0.05 - (jx - 0.4)
     return {
         "frozen port d%.1f, %.2f mm left in front of the spigot" % (fz["port_d"], rem): (cyl(fz["port_d"], rem), "prime"),
-        "spigot + cap port channel d%.2f x %.2f" % (dp, L_pc): (cyl(dp, L_pc), "prime"),
-        "jog down to the needle axis d%.2f x %.2f" % (dp, zp - zn + 0.4): (cyl(dp, zp - zn + 0.4), "prime"),
-        "junction -> valve d%.2f x %.2f" % (dp, L_jv): (cyl(dp, L_jv), "prime"),
-        "duckbill internal cavity, %.0f %% of the envelope [ASM] (pocket bore has interference, no annulus)" % (100 * C["valve_void_frac"]): (C["valve_void_frac"] * env_v, "prime"),
-        "valve -> hub d%.2f x 1.0" % dp: (cyl(dp, 1.0), "prime"),
+        "O-ring face recess + spigot half grooves d%.2f x %.2f" % (dp, cp["spigot_len"] + sw["gasket"]["x"][0]): (cyl(dp, cp["spigot_len"] + sw["gasket"]["x"][0]), "prime"),
+        "gasket port slot %.1f x %.1f x %.2f" % (ws, jx + ws / 2 - sw["gasket"]["x"][0], gt): (ws * gt * (jx + ws / 2 - sw["gasket"]["x"][0]), "prime"),
+        "via d%.1f x %.1f" % (sw["via_d"], via_L): (cyl(sw["via_d"], via_L), "prime"),
+        "valve inlet plenum d%.1f x %.1f" % (sw["plenum_d"], plen): (cyl(sw["plenum_d"], plen), "prime"),
+        "check valve internal cavity, %.0f %% of the envelope [ASM] (compressed in its pocket, no annulus)" % (100 * C["valve_void_frac"]): (C["valve_void_frac"] * env_v, "prime"),
+        "valve outlet -> hub d%.2f x 0.7" % dp: (cyl(dp, 0.7), "prime"),
         "needle lumen d0.159 x 4.2": (cyl(0.159, 4.2), "prime"),
-        "fill side branch d%.1f (c+b+a) x %.1f" % (cp.get("fill_d", d), L_fill): (cyl(cp.get("fill_d", d), L_fill), "fill"),
+        "fill branch: 3 gasket slots %.1f x %.1f, total length %.1f" % (ws, gt, L_fill): (ws * gt * L_fill, "fill"),
     }
 
 

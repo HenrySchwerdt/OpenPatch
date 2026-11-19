@@ -24,7 +24,7 @@ NFP_BODIES = ["gearbox", "motor_can", "front_boss", "shaft", "rear_boss", "term_
 NFP_INTERNAL = [[a, b] for i, a in enumerate(NFP_BODIES) for b in NFP_BODIES[i + 1:]]
 
 # interference pairs that are intentional between real models (bores sized to the shaft, thread in the nut, press fits)
-REAL_EXCLUDE = [["gear", "shaft"], ["gear (2)", "thrust_sleeve"], ["rod", "nut"], ["sleeve", "end_cap"], ["needle", "end_cap"],
+REAL_EXCLUDE = [["gear", "shaft"], ["gear (2)", "thrust_sleeve"], ["rod", "nut"], ["sleeve", "end_cap"], ["needle", "end_cap"], ["dbv", "end_cap"], ["dbv", "end_cap_lid"], ["needle", "end_cap_lid"],
                 ["needle", "needle_hub"], ["gear", "gear (2)"]] + NFP_INTERNAL
 
 

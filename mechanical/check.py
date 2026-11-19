@@ -156,7 +156,7 @@ def check_bench(p: dict, L: dict, bodies: list) -> tuple[list, list]:
     b, B = p["bench"], L["bench"]
     by = {x["name"]: x for x in bodies}
     for need in ("pod_board", "hall_tmag", "hall_drv0", "hall_drv1", "hall_dock", "ffc_conn", "ffc_cable",
-                 "cannula_adapter", "dock_magnet", "motor", "gearhead", "motor_shaft", "motor_pins", "duckbill_valve", "end_cap", "dock_insert", "valve_plug", "tongue_shim", "cap_oring") + (("coupler",) if L["coax"] else ("gear_a", "gear_b", "thrust_sleeve", "thrust_collar")):
+                 "cannula_adapter", "dock_magnet", "motor", "gearhead", "motor_shaft", "motor_pins", "duckbill_valve", "end_cap", "end_cap_lid", "cap_gasket", "dock_insert", "tongue_shim", "cap_oring") + (("coupler",) if L["coax"] else ("gear_a", "gear_b", "thrust_sleeve", "thrust_collar")):
         if need not in by:
             problems.append(f"bench body missing: {need}")
     for gone in ("battery", "qi_coil", "rf_module", "pcb", "buzzer", "ratchet_wheel", "sma_slider"):
@@ -395,7 +395,7 @@ def check_size(outdir: Path, variant: str, p: dict, ignore_length: bool, with_va
         problems += pv
         warns += wv
     exports = ["bottom", "top", "carriage", "reservoir", "plunger_core", "plunger_seal", "gasket", "mould_lower", "mould_upper"]
-    exports += ["cannula_adapter", "dock_insert", "valve_plug", "thrust_sleeve", "thrust_collar"] if mode == "bench" else ["reservoir_cnc_lower", "reservoir_cnc_upper"]
+    exports += ["cannula_adapter", "dock_insert", "end_cap_lid", "thrust_sleeve", "thrust_collar"] if mode == "bench" else ["reservoir_cnc_lower", "reservoir_cnc_upper"]
     for part in exports:
         for ext in ("step", "stl"):
             if not (outdir / f"{variant}_{part}.{ext}").exists():
