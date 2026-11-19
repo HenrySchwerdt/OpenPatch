@@ -88,6 +88,14 @@
 - Fallback: the carriage (beside the reservoir) carries a rigid yoke behind the open dry end and a **push rod on the bore axis** that engages the plunger centre (push and pull, for draw mode). The reservoir is a **closed tube without any wall opening** (only the port at the closed end; re-freeze `reservoir_frozen` before ordering). Width and height stay; length grows by about one stroke (OP-100 about 47 → 60 mm).
 - Study for a later, shorter revision: a flexible push element (spring-steel band or beaded chain in a U-shaped guide) turning around the open end (about +5 mm instead of +stroke).
 
+## 3c. Fluid path without a check valve: Omnipod-style pressure fill (decision 2026-11-19, user)
+
+- Reference: Omnipod (Eros teardown arXiv 1709.06026, US 7,128,727 / 7,144,384) has no check valve in the sources found; free flow is prevented by a non-back-drivable drive and a closed outlet; filling is done by syringe pressure through a small septum while the plunger moves back.
+- **No check valve.** Anti-siphon / anti-free-flow comes from the **self-locking drive** (M1.6 × 0.35 leadscrew + 26.45:1 gearhead cannot be back-driven by reservoir pressure; verify by a bench test: 50 kPa on the reservoir, no plunger motion with the motor unpowered).
+- **Refill = pressure fill:** pod undocked + suspended; the user pushes water with a syringe through the fill septum while the motor **retracts the plunger at a fixed rate** (firmware "assisted fill"); the reservoir stays at positive pressure so no air can enter through the outlet needle; excess exits as drops at the needle tip, which also primes it. Suction draw (motor pulling a vacuum) is **not used** any more. Replaces the earlier automatic draw-mode decision.
+- **Fluid module = minimal:** reservoir port → small septum chamber (fill) → outlet needle, held by a printed clamp ring with defined septum squeeze and an O-ring/face seal to the reservoir; no valve, no branching channels.
+- Firmware: the reverse motion during fill is rate-limited and stall-monitored; the fill volume is booked from the plunger travel; a prime follows before docking.
+
 ## 4. Drive — geared micro stepper + direct leadscrew, automatic refill (decision 2026-11-19)
 
 Rationale: buildability beats minimal size (builders are not watchmakers). No off-the-shelf integrated micro linear actuator meets force/drawing/orderability (`mechanical/linear-actuator-selection.md`); the SMA ratchet needs too many fine custom parts. SMA research stays as a later option for minimal size.
@@ -97,7 +105,7 @@ Rationale: buildability beats minimal size (builders are not watchmakers). No of
 - **Leadscrew/carriage/reservoir:** M1.6 × 0.35 leadscrew in its own lane, fixed nut in the carriage, carriage arm pushes the stadium plunger (unchanged).
 - **Resolution:** U/step = 0.35 × (16/20) / (20 × 26.45) × 74.63 / 10 = **0.003951 U/step** (16:20 pair); 0.05 U ≈ 12.7 steps; exact rational in firmware, no default.
 - **Thrust:** pull-out 1.6 gf·cm × 26.45 × ~0.64 gear eff. ≈ 2.65 N·mm → ≈ 9.5 N at 20 % screw efficiency (≥ 5 N required; verify on the bench).
-- **Refill = automatic draw mode (no crank, no slider):** pod undocked + suspended → user selects the fill amount in the app → holds the syringe/vial needle in the septum → the motor **retracts exactly that volume and draws the insulin in**, then stops by itself (100 U ≈ 20 s). A **one-way duckbill check valve in the outlet** prevents air being drawn in through the outlet needle (and adds anti-siphon / anti-free-flow protection). Rear end-stop on the housing + stall detection; fill level known exactly from step count + encoder.
+- **(superseded by §3c: pressure fill, no check valve)** Refill = automatic draw mode (no crank, no slider): pod undocked + suspended → user selects the fill amount in the app → holds the syringe/vial needle in the septum → the motor **retracts exactly that volume and draws the insulin in**, then stops by itself (100 U ≈ 20 s). A **one-way duckbill check valve in the outlet** prevents air being drawn in through the outlet needle (and adds anti-siphon / anti-free-flow protection). Rear end-stop on the housing + stall detection; fill level known exactly from step count + encoder.
 - **Encoder:** TMAG5273 angle sensor on a diametric magnet at the leadscrew end (per-revolution verification and stall detection); DRV5032 pair optional.
 - **Occlusion:** encoder slip + motor-current rise; duckbill cracking pressure accounted for.
 - **Connection:** Rev A bench: factory lead + JST 1.25 into the controller board; Rev B: motor with FPC tail into a ZIF connector (group buy) — no soldering, no cable in the pod (§1c).
