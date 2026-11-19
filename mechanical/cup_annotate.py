@@ -47,7 +47,7 @@ def draw(p: dict, L: dict, svg_path: Path) -> Path:
     rect(K["x_d"] - 0.55, yr - 0.7, K["x_d"] + 0.55, yr + 0.7, "#ff7f00", "#703000")
     line(K["x_hub"][0], yr, K["x_tip"], yr, "#000", 1.6)
     rect(K["guard_dock"][0], yr - 0.7, K["guard_dock"][1], yr + 0.7, "#5ec8e8", "#046")
-    for k, (fill, st) in {"board": ("#2e8b57", "#145a32"), "aux": ("#7fbf7f", "#145a32"), "io": ("#d09020", "#704000"), "battery": ("#3a5fcd", "#1a2f80"), "usb": ("#8a3fd0", "#40206a")}.items():
+    for k, (fill, st) in {"board": ("#2e8b57", "#145a32"), "aux": ("#7fbf7f", "#145a32"), "io": ("#d09020", "#704000"), "side_a": ("#c0a060", "#604000"), "side_b": ("#c0a060", "#604000"), "battery": ("#3a5fcd", "#1a2f80"), "usb": ("#8a3fd0", "#40206a")}.items():
         b = L[k]
         rect(b["x"][0], b["y"][0], b["x"][1], b["y"][1], fill, st, op=0.45, dash="5,3", sw=1.5)
     # lane 1: tank, plunger (FULL), nut, seals, rod, collar/bush, gear B + magnet + TMAG, motor column
@@ -94,6 +94,7 @@ def draw(p: dict, L: dict, svg_path: Path) -> Path:
         (sum(L["board"]["x"]) / 2, L["board"]["y"][1] - 1.5, "Main board keep-out above the battery", "#2e8b57"),
         (sum(L["aux"]["x"]) / 2, L["aux"]["y"][1] - 2.0, "Piezo / button / aux keep-out", "#7fbf7f"),
         (sum(L["io"]["x"]) / 2, sum(L["io"]["y"]) / 2, "Rear-corner keep-out: button, LED, buzzer, charger strip (full height)", "#d09020"),
+        (sum(L["side_b"]["x"]) / 2, sum(L["side_b"]["y"]) / 2, "Beside the dock: piezo, button, LED, ICs (keep-out)", "#c0a060"),
         (L["bush"][0] + 0.5, yr - 1.5, "Collar + bush + printed rib (thrust bearing)", "#b0701c"),
     ]
     n_rows = (len(items) + 1) // 2

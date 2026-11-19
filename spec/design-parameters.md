@@ -136,7 +136,7 @@ Rationale: buildability beats minimal size (builders are not watchmakers). No of
 - **Connection:** Rev A bench: factory lead + JST 1.25 into the controller board; Rev B: motor with FPC tail into a ZIF connector (group buy) — no soldering, no cable in the pod (§1c).
 - Superseded concepts: SMA ratchet (`mechanical/gear-selection.md`), half-nut pressure refill, hex rewind.
 
-- **v0.1.0 cup pod (mechanical, 2026-11-19, concept B, `mechanical/V010-CUP.md`):** one rotating M1.6 rod on the tank axis (axially fixed), driven by the NFP-608-26.45 through a miter pair z16:z16 (motor transverse behind the tank, rod ends at gear B), plunger = long cup (rod screws into it from behind, never wet). U/step = 0.35 x 1.0 / (20 x 26.45) x A / 10 = 0.00565 with the cup-pod bore 16.7 x 5.5 (A = 85.4 mm2); thrust about 8.6 N vs 4.3 N needed (ratio 0.8 option: 10.7 N). The cup-pod tank is not frozen (`reservoir_frozen` stays for the bench pod).
+- **v0.1.0 cup pod (mechanical, 2026-11-19, concept B, `mechanical/V010-CUP.md`):** one rotating M1.6 rod on the tank axis (axially fixed), driven by the NFP-608-26.45 through a miter pair z16:z16 (motor transverse behind the tank, rod ends at gear B), plunger = long cup (rod screws into it from behind, never wet). U/step = 0.35 x 1.0 / (20 x 26.45) x A / 10 = 0.00703 with the cup-pod bore 20.3 x 5.5 (A = 106 mm2); thrust about 8.6 N vs 5.2 N needed (ratio 0.8 option: 10.7 N). The cup-pod tank is not frozen (`reservoir_frozen` stays for the bench pod).
 
 ## 4b. Motor candidates for v0.1.0 (2026-11-19, `docs/MOTOR-RESEARCH-2026-11-19.md`)
 

@@ -34,7 +34,9 @@ def prepare(p0: dict) -> dict:
     p = copy.deepcopy(p0)
     c, sh = p["cup"], p["shell"]
     w, W, rz = sh["wall"], c["width"], c["reservoir"]
-    outer = min(W - 2 * w - 0.1 - c["lane2_inner"], 2 * (W - w - 0.1 - c["motor_y_ext"] - w))
+    lane2 = c["battery"]["w"] + 0.4                                       # lane 2 = cell width + clearance
+    c["lane2_inner"] = lane2
+    outer = min(W - 2 * w - 0.1 - lane2, 2 * (W - w - 0.1 - c["motor_y_ext"] - w))
     outer = math.floor(outer * 10) / 10
     bore_w = round(outer - 2 * rz["wall"], 3)
     fz = p["reservoir_frozen"]
@@ -46,6 +48,7 @@ def prepare(p0: dict) -> dict:
     p["mode"], p["cup_active"] = "bench", True
     sh["width"], sh["height"] = W, c["height"]
     p["cup_bore_area"] = area
+    p["reservoir"]["w_in"], p["reservoir"]["h_in"] = bore_w, rz["bore_h"]          # seal mould + CNC data follow the cup-pod bore
     dr = dict(p["drive"])
     dr.update(p["drive_presets"][dr.get("active_preset") or "nfp_608_26"])
     p["drive_nfp"] = dr
@@ -94,10 +97,12 @@ def geometry(p: dict, variant: str) -> dict:
     x_s = x_t0 - 1.6
     y_s = y_r + fl["septum_dy"]
     K = dock.layout(p, x_t0, y_r)
-    length = K["x_far"] + w
+    bat, u, bd = c["battery"], c["usb"], c["board"]
+    xl2 = xc + 3.4
+    length = max(K["x_far"] + w, xl2 + bat["l"] + 0.3 + u["w"] + 3.1 + w)    # lane 2 (cell + USB-C on the +Y wall + corner) must fit; lane 1 sets the minimum
     lane2_y = [w + res_w + 0.2, W - w - 0.1]
     bat, u, bd = c["battery"], c["usb"], c["board"]
-    x_l2 = xc + 3.4
+    x_l2 = xl2
     L = {"variant": variant, "stroke": s, "length": length, "width": W, "height": H, "wall": w, "zc": zc, "y_r": y_r, "res_w_out": res_w, "res_h_out": res_h,
          "xc": xc, "x_dry": x_dry, "x_pr": x_pr, "x_pf_full": x_pf_full, "x_pf_empty": x_pf_empty, "x_in": x_in, "x_t0": x_t0, "x_tip": x_tip, "x_s": x_s, "y_s": y_s, "L_pl": L_pl, "nut_zone": nut_zone,
          "tank_len": x_t0 - x_dry, "collar": [x_col0, x_col1], "gear_b": [x_gb0, x_gb1], "gear_a_y": [y_g0, y_g1], "bush": [x_b0, x_b1], "magnet": [x_m0, x_m1], "tmag": [x_h0, x_h1], "tmag_y": ty,
@@ -112,6 +117,9 @@ def geometry(p: dict, variant: str) -> dict:
     L["board"] = {"x": [x_l2, xb1], "y": list(lane2_y), "z": [bat["z0"] + bat["t"] + 0.3, bd["z1"]]}
     L["aux"] = {"x": [xu0, length - 3.6], "y": list(lane2_y), "z": [4.9, bd["z1"]]}
     L["io"] = {"x": [w + 3.1, x_dry - 0.2], "y": [w + 0.1, ty - tm["pkg"][1] / 2 - 0.2], "z": [w + 0.1, bd["z1"]]}
+    hy = K["half"] + p["cup"]["dock"]["pocket_wall"] + 0.1
+    L["side_a"] = {"x": [K["x_bf"], length - 3.8], "y": [w + 0.1, y_r - hy], "z": [w + 0.1, bd["z1"]]}
+    L["side_b"] = {"x": [K["x_bf"], length - w - 0.3], "y": [y_r + hy, w + res_w - 0.1], "z": [w + 0.1, bd["z1"]]}
     L["dock_board"] = {"x": [K["x_d"] - 3.0, K["x_d"] + 3.0], "y": [y_r - 3.0, y_r + 3.0], "z": [5.3, 5.9]}
     L["lane2_fit"] = {"need_x": xu0 + u["w"] - x_l2, "have_x": length - w - x_l2}
     L["envelope"] = {"bbox_mm": [round(length, 2), W, H], "bbox_volume_ml": round(length * W * H / 1000.0, 2)}
@@ -189,7 +197,7 @@ def build_drive(s: Script, p: dict, L: dict) -> None:
 def build_electronics_boxes(s: Script, p: dict, L: dict) -> None:
     tm, K = p["cup"]["tmag"], L["dock"]
     zc = L["zc"]
-    for nm, k in (("ko_board", "board"), ("ko_aux", "aux"), ("ko_io", "io"), ("ko_battery", "battery"), ("ko_usb", "usb"), ("ko_dock_board", "dock_board")):
+    for nm, k in (("ko_board", "board"), ("ko_aux", "aux"), ("ko_io", "io"), ("ko_side_a", "side_a"), ("ko_side_b", "side_b"), ("ko_battery", "battery"), ("ko_usb", "usb"), ("ko_dock_board", "dock_board")):
         b = L[k]
         s.box(nm, tuple(b["x"]), tuple(b["y"]), tuple(b["z"]))
     s.box("ko_tmag_board", tuple(L["tmag"]), (L["tmag_y"] - tm["pkg"][1] / 2 - 0.2, L["tmag_y"] + tm["pkg"][1] / 2 + 0.2), (zc + tm["pkg"][2] / 2, zc + tm["pkg"][2] / 2 + tm["board_t"]))
@@ -257,6 +265,6 @@ MFG_PARTS = {"bottom": ["bottom"], "top": ["top"], "reservoir": ["reservoir"], "
              "thrust_sleeve": ["thrust_sleeve"], "thrust_collar": ["thrust_collar"]}
 PURCHASED = ["nut", "rod", "bush_rod", "gear_a", "gear_b", "motor", "gearhead", "motor_boss", "motor_shaft", "motor_rear_boss", "motor_term", "magnet", "hall_tmag", "septum",
              "needle", "needle_hub", "needle_guard", "cannula_adapter", "dock_magnet", "dock_clip", "hall_dock"]
-KEEPOUT = ["ko_board", "ko_aux", "ko_io", "ko_battery", "ko_usb", "ko_tmag_board", "ko_dock_board"]
+KEEPOUT = ["ko_board", "ko_aux", "ko_io", "ko_side_a", "ko_side_b", "ko_battery", "ko_usb", "ko_tmag_board", "ko_dock_board"]
 PART_NAMES = [b for v in MFG_PARTS.values() for b in v] + PURCHASED + KEEPOUT
 EXCLUDE_PAIRS = [["gear_a", "gear_b"], ["needle_guard", "needle_hub"], ["needle_hub", "reservoir"]]

@@ -14,17 +14,17 @@
    "stroke": 9.4
   },
   "OP-100": {
-   "stroke": 11.72
+   "stroke": 9.41
   },
   "OP-200": {
-   "stroke": 23.43
+   "stroke": 18.82
   }
  },
  "shell": {
   "wall": 0.9,
   "corner_r": 4.0,
   "top_fillet": 1.0,
-  "width": 32.0,
+  "width": 34.6,
   "height": 8.5,
   "lap_low": 5.0,
   "lap_high": 5.5,
@@ -48,8 +48,8 @@
   "r": 1.5
  },
  "reservoir": {
-  "w_in": 16.0,
-  "h_in": 5.0,
+  "w_in": 20.5,
+  "h_in": 5.5,
   "wall": 0.8,
   "dead": 0.02,
   "plunger_len": 4.76,
@@ -769,7 +769,7 @@
  },
  "reservoir_frozen": {
   "_comment": "CUP variant only (op_cup.prepare): un-frozen wide tank; bench keeps 16 x 5",
-  "bore_w": 16.7,
+  "bore_w": 20.5,
   "bore_h": 5.5,
   "bore_tol_plus": 0.05,
   "bore_tol_minus": 0.0,
@@ -780,7 +780,7 @@
   "port_tol": "H7 (+0.012/0)",
   "port_chamfer": 0.2,
   "port_pos": "centre of the closed end face (y = bore centre, z = bore axis)",
-  "outer_w": 17.9,
+  "outer_w": 21.7,
   "outer_h": 6.7,
   "outer_tol": "+-0.1",
   "length_tol": "+-0.1",
@@ -1249,18 +1249,19 @@
    "screw_y_above": 1.0
   },
   "battery": {
-   "part": "thin pouch cell 2.0 x 10 x 30 mm class (PowerStream GM201030, ~43 mAh seller value; envelope incl. 0.2 swell + 0.2 pad)",
-   "l": 30.6,
-   "w": 10.4,
-   "t": 2.2,
-   "z0": 1.0
+   "part": "PLACEHOLDER until mechanical/battery-selection.md: 401012 (4.0 x 10 x 12, 40 mAh, PCM; ampul.eu listing 3.23 EUR, VERIFY); envelope incl. swell + pad",
+   "l": 13.0,
+   "w": 10.6,
+   "t": 4.4,
+   "z0": 1.0,
+   "mAh": 40.0
   },
-  "width": 32.0,
+  "width": 34.6,
   "volume_ml": {
    "OP-100": 1.0,
    "OP-200": 2.0
   },
-  "lane2_inner": 10.5,
+  "lane2_inner": 11.0,
   "motor_y_ext": 21.1,
   "reservoir": {
    "_comment": "CUP-POD tank, NOT frozen/ordered (user 2026-11-19): wider bore -> shorter stroke and cup. Overrides reservoir_frozen only inside the cup variant (bench keeps 16 x 5).",
@@ -1377,7 +1378,7 @@
  },
  "mode": "bench",
  "cup_active": true,
- "cup_bore_area": 85.3582944427728,
+ "cup_bore_area": 106.25829444277281,
  "drive_nfp": {
   "screw_d": 1.6,
   "nut_hole_d": 1.7,

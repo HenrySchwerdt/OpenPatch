@@ -222,8 +222,15 @@ def check_size(outdir: Path, variant: str, p: dict) -> dict:
     th = thrust(p, L)
     if th["F_avail_N"] < THRUST_MIN_N:
         problems.append(f"thrust {th['F_avail_N']} N < {THRUST_MIN_N} N")
+    if th["F_avail_N"] < 1.5 * th["F_need_N"]:
+        problems.append(f"thrust margin {th['F_avail_N'] / th['F_need_N']:.2f}x < 1.5x: use the 16:20 ratio (z_rod 20)")
+    warns.append(f"thrust margin {th['F_avail_N'] / th['F_need_N']:.2f}x (available {th['F_avail_N']} N / needed {th['F_need_N']} N)")
+    guide = (L["L_pl"] / (L["bore_w"] - 0.2))
+    if guide < 0.5:
+        problems.append(f"plunger guide length/width {guide:.2f} < 0.5: add guide fins")
+    warns.append(f"anti-tilt: cup body {L['L_pl']:.1f} mm sliding on {L['bore_w'] - 0.2:.1f} mm width (L/W {guide:.2f}) + 2 rings {p['cup']['plunger']['ring_front_a'][0] - p['cup']['plunger']['ring_front_b'][0]:.2f} mm apart")
     if th["F_avail_N"] < th["F_need_SF2_N"]:
-        warns.append(f"thrust {th['F_avail_N']} N covers the {th['F_need_N']} N need (seal {th['F_seal_N']} + 30 kPa occlusion {th['F_occ_N']}) but NOT a safety factor 2 ({th['F_need_SF2_N']} N): faster-reduction option z16:z20 miter needed (+25 %)")
+        warns.append(f"thrust {th['F_avail_N']} N covers the {th['F_need_N']} N need (seal {th['F_seal_N']} + 30 kPa occlusion {th['F_occ_N']}) but NOT a safety factor 2 ({th['F_need_SF2_N']} N): z16:z20 pair (+25 %) is the margin option")
     warns.append(f"thrust: rod torque {th['T_rod_Nmm']} N mm, screw eta 0.2, bevel eta 0.9 -> {th['F_avail_N']} N available (>= {THRUST_MIN_N} required); seal perimeter {th['perimeter_mm']} mm")
     warns.append(f"U/step = {L['u_per_step']:.5f} (0.35 mm x {L['ratio']:.2f} / (20 x 26.45) x {L['bore_area']:.1f} mm2 / 10); 1 mm of plunger = {L['bore_area'] / 10:.1f} U; plunger aspect {L['aspect']:.1f} (limit 4.5)")
     if L["aspect"] > 4.5:

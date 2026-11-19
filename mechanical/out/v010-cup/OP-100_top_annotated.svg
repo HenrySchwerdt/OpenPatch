@@ -1,133 +1,139 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1109" height="990" viewBox="0 0 1109 990" font-family="Helvetica,Arial,sans-serif">
+<svg xmlns="http://www.w3.org/2000/svg" width="1011" height="1061" viewBox="0 0 1011 1061" font-family="Helvetica,Arial,sans-serif">
 <rect width="100%" height="100%" fill="#ffffff"/>
-<text x="50" y="24" font-size="17" font-weight="bold">OpenPatch v0.1.0 cup pod OP-100: top view, 53.2 x 32.0 x 8.5 mm (lane 1 bottom, lane 2 top; motor at the rear/left)</text>
+<text x="50" y="24" font-size="17" font-weight="bold">OpenPatch v0.1.0 cup pod OP-100: top view, 48.0 x 34.6 x 8.5 mm (lane 1 bottom, lane 2 top; motor at the rear/left)</text>
 <text x="50" y="42" font-size="11" fill="#555">to scale; TEST ONLY, water only, never worn. Plunger at FULL. Keep-out boxes = reserved volumes (no PCB). Dock/head dimensions TODO-MEASURE (photo estimate). Dashed circle = head before the slide.</text>
-<rect x="50.0" y="50.0" width="1009.9" height="608.0" rx="76.0" fill="#f4f6f8" fill-opacity="1.0" stroke="#222" stroke-width="1.5"/>
-<rect x="67.1" y="67.1" width="975.7" height="573.8" rx="58.9" fill="#ffffff" fill-opacity="1.0" stroke="#aaa" stroke-width="1.0"/>
-<line x1="67.1" y1="298.9" x2="1042.8" y2="298.9" stroke="#888" stroke-width="1.0" stroke-dasharray="6,4"/>
-<rect x="816.7" y="370.2" width="226.1" height="201.4" rx="0.0" fill="#e8f0ff" fill-opacity="0.5" stroke="#4a6a9a" stroke-width="1.0"/>
-<rect x="816.7" y="377.8" width="226.1" height="186.2" rx="0.0" fill="#ffffff" fill-opacity="0.9" stroke="#4a6a9a" stroke-width="1.0" stroke-dasharray="5,3"/>
-<circle cx="963.0" cy="470.8" r="76.0" fill="none" fill-opacity="1.0" stroke="#2a6a9a" stroke-width="1" stroke-dasharray="4,3"/>
-<circle cx="896.5" cy="470.8" r="76.0" fill="#e8f6ff" fill-opacity="0.6" stroke="#2a6a9a" stroke-width="1"/>
-<rect x="811.0" y="385.3" width="171.0" height="171.0" rx="0.0" fill="none" fill-opacity="1.0" stroke="#7a5cc7" stroke-width="1.0" stroke-dasharray="3,3"/>
-<rect x="896.5" y="548.8" width="143.4" height="1.9" rx="0.0" fill="#b8c0c8" fill-opacity="1.0" stroke="#445" stroke-width="2"/>
-<rect x="890.8" y="545.0" width="11.4" height="-5.7" rx="0.0" fill="#445" fill-opacity="1.0" stroke="#000" stroke-width="1.0"/>
-<rect x="896.5" y="391.1" width="143.4" height="1.9" rx="0.0" fill="#b8c0c8" fill-opacity="1.0" stroke="#445" stroke-width="2"/>
-<rect x="890.8" y="392.9" width="11.4" height="13.3" rx="0.0" fill="#445" fill-opacity="1.0" stroke="#000" stroke-width="1.0"/>
-<rect x="886.0" y="457.6" width="20.9" height="26.6" rx="0.0" fill="#ff7f00" fill-opacity="1.0" stroke="#703000" stroke-width="1.0"/>
-<line x1="792.9" y1="470.8" x2="866.1" y2="470.8" stroke="#000" stroke-width="1.6"/>
-<rect x="816.7" y="457.6" width="19.0" height="26.6" rx="0.0" fill="#5ec8e8" fill-opacity="1.0" stroke="#046" stroke-width="1.0"/>
-<rect x="210.4" y="69.0" width="581.4" height="228.0" rx="0.0" fill="#2e8b57" fill-opacity="0.45" stroke="#145a32" stroke-width="1.5" stroke-dasharray="5,3"/>
-<rect x="797.5" y="69.0" width="194.0" height="228.0" rx="0.0" fill="#7fbf7f" fill-opacity="0.45" stroke="#145a32" stroke-width="1.5" stroke-dasharray="5,3"/>
-<rect x="126.0" y="556.4" width="124.3" height="82.6" rx="0.0" fill="#d09020" fill-opacity="0.45" stroke="#704000" stroke-width="1.5" stroke-dasharray="5,3"/>
-<rect x="210.4" y="99.4" width="581.4" height="197.6" rx="0.0" fill="#3a5fcd" fill-opacity="0.45" stroke="#1a2f80" stroke-width="1.5" stroke-dasharray="5,3"/>
-<rect x="797.5" y="67.1" width="169.9" height="139.7" rx="0.0" fill="#8a3fd0" fill-opacity="0.45" stroke="#40206a" stroke-width="1.5" stroke-dasharray="5,3"/>
-<rect x="254.1" y="300.8" width="561.6" height="340.1" rx="0.0" fill="#bfe8f2" fill-opacity="0.75" stroke="#2a7f96" stroke-width="1.0"/>
-<rect x="254.1" y="312.2" width="514.1" height="317.3" rx="0.0" fill="#e8f8fc" fill-opacity="0.8" stroke="#2a7f96" stroke-width="1.0" stroke-dasharray="3,2"/>
-<rect x="261.7" y="314.1" width="283.5" height="313.5" rx="0.0" fill="#e0803a" fill-opacity="0.85" stroke="#a04a10" stroke-width="1.0"/>
-<rect x="261.7" y="451.8" width="266.4" height="38.0" rx="0.0" fill="#3b2a1a" fill-opacity="0.9" stroke="#000" stroke-width="1.0"/>
-<rect x="462.3" y="311.2" width="11.4" height="319.2" rx="0.0" fill="#dd2222" fill-opacity="0.9" stroke="#880000" stroke-width="1.0"/>
-<rect x="524.1" y="311.2" width="11.4" height="319.2" rx="0.0" fill="#dd2222" fill-opacity="0.9" stroke="#880000" stroke-width="1.0"/>
-<rect x="263.6" y="439.5" width="24.7" height="62.7" rx="0.0" fill="#f0c040" fill-opacity="1.0" stroke="#806000" stroke-width="1.0"/>
-<line x1="168.6" y1="470.8" x2="520.5" y2="470.8" stroke="#111" stroke-width="3.0"/>
-<rect x="231.3" y="448.1" width="19.0" height="45.6" rx="0.0" fill="#d4a017" fill-opacity="1.0" stroke="#7a5a00" stroke-width="1.0"/>
-<rect x="211.3" y="442.3" width="19.0" height="57.0" rx="0.0" fill="#b0701c" fill-opacity="1.0" stroke="#5a3000" stroke-width="1.0"/>
-<rect x="168.6" y="419.6" width="41.8" height="102.6" rx="0.0" fill="#f2d020" fill-opacity="1.0" stroke="#806000" stroke-width="1.0"/>
-<rect x="149.6" y="451.8" width="19.0" height="38.0" rx="0.0" fill="#cc2222" fill-opacity="1.0" stroke="#660000" stroke-width="1.0"/>
-<rect x="111.6" y="499.3" width="55.1" height="53.2" rx="0.0" fill="#ffd400" fill-opacity="1.0" stroke="#806000" stroke-width="1.0"/>
-<rect x="94.5" y="406.2" width="102.6" height="41.8" rx="0.0" fill="#e8b000" fill-opacity="1.0" stroke="#806000" stroke-width="1.0"/>
-<rect x="126.8" y="404.3" width="38.0" height="1.9" rx="0.0" fill="#444" fill-opacity="1.0" stroke="#222" stroke-width="1.0"/>
-<rect x="112.5" y="389.2" width="66.5" height="15.2" rx="0.0" fill="#999" fill-opacity="1.0" stroke="#444" stroke-width="1.0"/>
-<rect x="88.8" y="235.2" width="114.0" height="153.9" rx="0.0" fill="#b9bec6" fill-opacity="1.0" stroke="#444" stroke-width="1.0"/>
-<rect x="88.8" y="83.2" width="114.0" height="152.0" rx="0.0" fill="#8a8f98" fill-opacity="1.0" stroke="#444" stroke-width="1.0"/>
-<rect x="121.1" y="70.0" width="49.4" height="13.3" rx="0.0" fill="#666" fill-opacity="1.0" stroke="#333" stroke-width="1.0"/>
-<circle cx="785.3" cy="546.8" r="19.0" fill="#f2a0c0" fill-opacity="0.95" stroke="#a03060" stroke-width="1"/>
-<circle cx="145.8" cy="159.2" r="8.5" fill="#c00" fill-opacity="0.9"/>
-<text x="145.8" y="163.2" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">1</text>
-<rect x="50.0" y="719" width="12" height="12" fill="#8a8f98" stroke="#333"/>
-<text x="70.0" y="730" font-size="12" fill="#222"><tspan fill="#c00" font-weight="bold">1</tspan>  Motor NFP-608-26.45 TRANSVERSE (axis Y), last element at the rear, spans both lanes</text>
-<circle cx="145.8" cy="427.2" r="8.5" fill="#c00" fill-opacity="0.9"/>
-<text x="145.8" y="431.2" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">2</text>
-<rect x="554.9333027321247" y="719" width="12" height="12" fill="#e8b000" stroke="#333"/>
-<text x="574.9333027321247" y="730" font-size="12" fill="#222"><tspan fill="#c00" font-weight="bold">2</tspan>  Gear A: miter bevel z16 on the motor shaft</text>
-<circle cx="189.5" cy="432.8" r="8.5" fill="#c00" fill-opacity="0.9"/>
-<text x="189.5" y="436.8" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">3</text>
-<rect x="50.0" y="741" width="12" height="12" fill="#f2d020" stroke="#333"/>
-<text x="70.0" y="752" font-size="12" fill="#222"><tspan fill="#c00" font-weight="bold">3</tspan>  Gear B: miter bevel z16 on the rod (only 2 gears)</text>
-<circle cx="236.0" cy="470.8" r="8.5" fill="#c00" fill-opacity="0.9"/>
-<text x="236.0" y="474.8" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">4</text>
-<rect x="554.9333027321247" y="741" width="12" height="12" fill="#111111" stroke="#333"/>
-<text x="574.9333027321247" y="752" font-size="12" fill="#222"><tspan fill="#c00" font-weight="bold">4</tspan>  Rod M1.6 x 0.35 ENDS at gear B, rotating, axially fixed (18.5 mm)</text>
-<circle cx="403.4" cy="394.8" r="8.5" fill="#c00" fill-opacity="0.9"/>
-<text x="403.4" y="398.8" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">5</text>
-<rect x="50.0" y="763" width="12" height="12" fill="#e0803a" stroke="#333"/>
-<text x="70.0" y="774" font-size="12" fill="#222"><tspan fill="#c00" font-weight="bold">5</tspan>  Plunger cup 16.5 x 5.3, 14.9 mm long, blind bore (drawn at FULL)</text>
-<circle cx="276.9" cy="439.5" r="8.5" fill="#c00" fill-opacity="0.9"/>
-<text x="276.9" y="443.5" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">6</text>
-<rect x="554.9333027321247" y="763" width="12" height="12" fill="#f0c040" stroke="#333"/>
-<text x="574.9333027321247" y="774" font-size="12" fill="#222"><tspan fill="#c00" font-weight="bold">6</tspan>  Brass nut M1.6 in the hex pocket (rear of the cup)</text>
-<circle cx="530.0" cy="629.5" r="8.5" fill="#c00" fill-opacity="0.9"/>
-<text x="530.0" y="633.5" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">7</text>
-<rect x="50.0" y="785" width="12" height="12" fill="#dd2222" stroke="#333"/>
-<text x="70.0" y="796" font-size="12" fill="#222"><tspan fill="#c00" font-weight="bold">7</tspan>  Two lip seals at the closed front end</text>
-<circle cx="314.9" cy="537.3" r="8.5" fill="#c00" fill-opacity="0.9"/>
-<text x="314.9" y="541.3" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">8</text>
-<rect x="554.9333027321247" y="785" width="12" height="12" fill="#7fd0e0" stroke="#333"/>
-<text x="574.9333027321247" y="796" font-size="12" fill="#222"><tspan fill="#c00" font-weight="bold">8</tspan>  Tank 16.7 x 5.5 bore, closed walls, NO slot, open dry rim</text>
-<circle cx="804.3" cy="461.3" r="8.5" fill="#c00" fill-opacity="0.9"/>
-<text x="804.3" y="465.3" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">9</text>
-<rect x="50.0" y="807" width="12" height="12" fill="#1a6fd0" stroke="#333"/>
-<text x="70.0" y="818" font-size="12" fill="#222"><tspan fill="#c00" font-weight="bold">9</tspan>  Outlet through the front wall straight into the needle hub (+X)</text>
-<circle cx="858.5" cy="482.2" r="8.5" fill="#c00" fill-opacity="0.9"/>
-<text x="858.5" y="486.2" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">10</text>
-<rect x="554.9333027321247" y="807" width="12" height="12" fill="#000000" stroke="#333"/>
-<text x="574.9333027321247" y="818" font-size="12" fill="#222"><tspan fill="#c00" font-weight="bold">10</tspan>  30G needle (+X) with spring guard</text>
-<circle cx="785.3" cy="546.8" r="8.5" fill="#c00" fill-opacity="0.9"/>
-<text x="785.3" y="550.8" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">11</text>
-<rect x="50.0" y="829" width="12" height="12" fill="#f2a0c0" stroke="#333"/>
-<text x="70.0" y="840" font-size="12" fill="#222"><tspan fill="#c00" font-weight="bold">11</tspan>  Fill septum, UNDERSIDE of the front wall</text>
-<circle cx="925.0" cy="423.3" r="8.5" fill="#c00" fill-opacity="0.9"/>
-<text x="925.0" y="427.3" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">12</text>
-<rect x="554.9333027321247" y="829" width="12" height="12" fill="#e07ac0" stroke="#333"/>
-<text x="574.9333027321247" y="840" font-size="12" fill="#222"><tspan fill="#c00" font-weight="bold">12</tspan>  Dock: place-down pocket 11.9 x 9.8, slide 3.5 mm, head latched</text>
-<circle cx="896.5" cy="389.2" r="8.5" fill="#c00" fill-opacity="0.9"/>
-<text x="896.5" y="393.2" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">13</text>
-<rect x="50.0" y="851" width="12" height="12" fill="#b8c0c8" stroke="#333"/>
-<text x="70.0" y="862" font-size="12" fill="#222"><tspan fill="#c00" font-weight="bold">13</tspan>  U-clip (301 FH 0.1 mm) arms + teeth in the dome notches</text>
-<circle cx="896.5" cy="499.3" r="8.5" fill="#c00" fill-opacity="0.9"/>
-<text x="896.5" y="503.3" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">14</text>
-<rect x="554.9333027321247" y="851" width="12" height="12" fill="#ff7f00" stroke="#333"/>
-<text x="574.9333027321247" y="862" font-size="12" fill="#222"><tspan fill="#c00" font-weight="bold">14</tspan>  Dock magnet in the head + dock hall above the pocket roof</text>
-<circle cx="159.1" cy="474.7" r="8.5" fill="#c00" fill-opacity="0.9"/>
-<text x="159.1" y="478.7" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">15</text>
-<rect x="50.0" y="873" width="12" height="12" fill="#cc2222" stroke="#333"/>
-<text x="70.0" y="884" font-size="12" fill="#222"><tspan fill="#c00" font-weight="bold">15</tspan>  Diametric magnet on gear B's rear face</text>
-<circle cx="139.1" cy="526.0" r="8.5" fill="#c00" fill-opacity="0.9"/>
-<text x="139.1" y="530.0" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">16</text>
-<rect x="554.9333027321247" y="873" width="12" height="12" fill="#ffd400" stroke="#333"/>
-<text x="574.9333027321247" y="884" font-size="12" fill="#222"><tspan fill="#c00" font-weight="bold">16</tspan>  TMAG5273 beside the magnet (0.5 mm gap), tiny sensor tab</text>
-<circle cx="501.1" cy="202.0" r="8.5" fill="#c00" fill-opacity="0.9"/>
-<text x="501.1" y="206.0" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">17</text>
-<rect x="50.0" y="895" width="12" height="12" fill="#3a5fcd" stroke="#333"/>
-<text x="70.0" y="906" font-size="12" fill="#222"><tspan fill="#c00" font-weight="bold">17</tspan>  Battery keep-out (thin cell 2.2 x 10.4 x 30.6)</text>
-<circle cx="882.4" cy="136.9" r="8.5" fill="#c00" fill-opacity="0.9"/>
-<text x="882.4" y="140.9" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">18</text>
-<rect x="554.9333027321247" y="895" width="12" height="12" fill="#8a3fd0" stroke="#333"/>
-<text x="574.9333027321247" y="906" font-size="12" fill="#222"><tspan fill="#c00" font-weight="bold">18</tspan>  USB-C keep-out (+Y long wall of lane 2)</text>
-<circle cx="501.1" cy="97.5" r="8.5" fill="#c00" fill-opacity="0.9"/>
-<text x="501.1" y="101.5" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">19</text>
-<rect x="50.0" y="917" width="12" height="12" fill="#2e8b57" stroke="#333"/>
-<text x="70.0" y="928" font-size="12" fill="#222"><tspan fill="#c00" font-weight="bold">19</tspan>  Main board keep-out above the battery</text>
-<circle cx="894.5" cy="107.0" r="8.5" fill="#c00" fill-opacity="0.9"/>
-<text x="894.5" y="111.0" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">20</text>
-<rect x="554.9333027321247" y="917" width="12" height="12" fill="#7fbf7f" stroke="#333"/>
-<text x="574.9333027321247" y="928" font-size="12" fill="#222"><tspan fill="#c00" font-weight="bold">20</tspan>  Piezo / button / aux keep-out</text>
-<circle cx="188.1" cy="597.7" r="8.5" fill="#c00" fill-opacity="0.9"/>
-<text x="188.1" y="601.7" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">21</text>
-<rect x="50.0" y="939" width="12" height="12" fill="#d09020" stroke="#333"/>
-<text x="70.0" y="950" font-size="12" fill="#222"><tspan fill="#c00" font-weight="bold">21</tspan>  Rear-corner keep-out: button, LED, buzzer, charger strip (full height)</text>
-<circle cx="220.8" cy="499.3" r="8.5" fill="#c00" fill-opacity="0.9"/>
-<text x="220.8" y="503.3" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">22</text>
-<rect x="554.9333027321247" y="939" width="12" height="12" fill="#b0701c" stroke="#333"/>
-<text x="574.9333027321247" y="950" font-size="12" fill="#222"><tspan fill="#c00" font-weight="bold">22</tspan>  Collar + bush + printed rib (thrust bearing)</text>
+<rect x="50.0" y="50.0" width="911.3" height="657.4" rx="76.0" fill="#f4f6f8" fill-opacity="1.0" stroke="#222" stroke-width="1.5"/>
+<rect x="67.1" y="67.1" width="877.1" height="623.2" rx="58.9" fill="#ffffff" fill-opacity="1.0" stroke="#aaa" stroke-width="1.0"/>
+<line x1="67.1" y1="276.1" x2="944.2" y2="276.1" stroke="#888" stroke-width="1.0" stroke-dasharray="6,4"/>
+<rect x="718.1" y="383.5" width="226.1" height="201.4" rx="0.0" fill="#e8f0ff" fill-opacity="0.5" stroke="#4a6a9a" stroke-width="1.0"/>
+<rect x="718.1" y="391.1" width="226.1" height="186.2" rx="0.0" fill="#ffffff" fill-opacity="0.9" stroke="#4a6a9a" stroke-width="1.0" stroke-dasharray="5,3"/>
+<circle cx="864.4" cy="484.2" r="76.0" fill="none" fill-opacity="1.0" stroke="#2a6a9a" stroke-width="1" stroke-dasharray="4,3"/>
+<circle cx="797.9" cy="484.2" r="76.0" fill="#e8f6ff" fill-opacity="0.6" stroke="#2a6a9a" stroke-width="1"/>
+<rect x="712.4" y="398.7" width="171.0" height="171.0" rx="0.0" fill="none" fill-opacity="1.0" stroke="#7a5cc7" stroke-width="1.0" stroke-dasharray="3,3"/>
+<rect x="797.9" y="562.1" width="143.4" height="1.9" rx="0.0" fill="#b8c0c8" fill-opacity="1.0" stroke="#445" stroke-width="2"/>
+<rect x="792.2" y="558.2" width="11.4" height="-5.7" rx="0.0" fill="#445" fill-opacity="1.0" stroke="#000" stroke-width="1.0"/>
+<rect x="797.9" y="404.4" width="143.4" height="1.9" rx="0.0" fill="#b8c0c8" fill-opacity="1.0" stroke="#445" stroke-width="2"/>
+<rect x="792.2" y="406.2" width="11.4" height="13.3" rx="0.0" fill="#445" fill-opacity="1.0" stroke="#000" stroke-width="1.0"/>
+<rect x="787.5" y="470.9" width="20.9" height="26.6" rx="0.0" fill="#ff7f00" fill-opacity="1.0" stroke="#703000" stroke-width="1.0"/>
+<line x1="694.4" y1="484.2" x2="767.5" y2="484.2" stroke="#000" stroke-width="1.6"/>
+<rect x="718.1" y="470.9" width="19.0" height="26.6" rx="0.0" fill="#5ec8e8" fill-opacity="1.0" stroke="#046" stroke-width="1.0"/>
+<rect x="199.6" y="69.0" width="247.0" height="205.2" rx="0.0" fill="#2e8b57" fill-opacity="0.45" stroke="#145a32" stroke-width="1.5" stroke-dasharray="5,3"/>
+<rect x="452.3" y="69.0" width="440.6" height="205.2" rx="0.0" fill="#7fbf7f" fill-opacity="0.45" stroke="#145a32" stroke-width="1.5" stroke-dasharray="5,3"/>
+<rect x="126.0" y="569.6" width="113.5" height="118.7" rx="0.0" fill="#d09020" fill-opacity="0.45" stroke="#704000" stroke-width="1.5" stroke-dasharray="5,3"/>
+<rect x="718.1" y="586.8" width="171.0" height="101.6" rx="0.0" fill="#c0a060" fill-opacity="0.45" stroke="#604000" stroke-width="1.5" stroke-dasharray="5,3"/>
+<rect x="718.1" y="279.9" width="220.4" height="101.6" rx="0.0" fill="#c0a060" fill-opacity="0.45" stroke="#604000" stroke-width="1.5" stroke-dasharray="5,3"/>
+<rect x="199.6" y="72.8" width="247.0" height="201.4" rx="0.0" fill="#3a5fcd" fill-opacity="0.45" stroke="#1a2f80" stroke-width="1.5" stroke-dasharray="5,3"/>
+<rect x="452.3" y="67.1" width="169.9" height="139.7" rx="0.0" fill="#8a3fd0" fill-opacity="0.45" stroke="#40206a" stroke-width="1.5" stroke-dasharray="5,3"/>
+<rect x="243.3" y="278.0" width="473.9" height="412.3" rx="0.0" fill="#bfe8f2" fill-opacity="0.75" stroke="#2a7f96" stroke-width="1.0"/>
+<rect x="243.3" y="289.4" width="426.4" height="389.5" rx="0.0" fill="#e8f8fc" fill-opacity="0.8" stroke="#2a7f96" stroke-width="1.0" stroke-dasharray="3,2"/>
+<rect x="250.9" y="291.3" width="239.6" height="385.7" rx="0.0" fill="#e0803a" fill-opacity="0.85" stroke="#a04a10" stroke-width="1.0"/>
+<rect x="250.9" y="465.2" width="222.5" height="38.0" rx="0.0" fill="#3b2a1a" fill-opacity="0.9" stroke="#000" stroke-width="1.0"/>
+<rect x="407.6" y="288.5" width="11.4" height="391.4" rx="0.0" fill="#dd2222" fill-opacity="0.9" stroke="#880000" stroke-width="1.0"/>
+<rect x="469.4" y="288.5" width="11.4" height="391.4" rx="0.0" fill="#dd2222" fill-opacity="0.9" stroke="#880000" stroke-width="1.0"/>
+<rect x="252.8" y="452.8" width="24.7" height="62.7" rx="0.0" fill="#f0c040" fill-opacity="1.0" stroke="#806000" stroke-width="1.0"/>
+<line x1="157.8" y1="484.2" x2="465.8" y2="484.2" stroke="#111" stroke-width="3.0"/>
+<rect x="220.5" y="461.4" width="19.0" height="45.6" rx="0.0" fill="#d4a017" fill-opacity="1.0" stroke="#7a5a00" stroke-width="1.0"/>
+<rect x="200.5" y="455.7" width="19.0" height="57.0" rx="0.0" fill="#b0701c" fill-opacity="1.0" stroke="#5a3000" stroke-width="1.0"/>
+<rect x="157.8" y="432.9" width="41.8" height="102.6" rx="0.0" fill="#f2d020" fill-opacity="1.0" stroke="#806000" stroke-width="1.0"/>
+<rect x="138.8" y="465.2" width="19.0" height="38.0" rx="0.0" fill="#cc2222" fill-opacity="1.0" stroke="#660000" stroke-width="1.0"/>
+<rect x="100.8" y="512.7" width="55.1" height="53.2" rx="0.0" fill="#ffd400" fill-opacity="1.0" stroke="#806000" stroke-width="1.0"/>
+<rect x="83.7" y="419.6" width="102.6" height="41.8" rx="0.0" fill="#e8b000" fill-opacity="1.0" stroke="#806000" stroke-width="1.0"/>
+<rect x="116.0" y="417.7" width="38.0" height="1.9" rx="0.0" fill="#444" fill-opacity="1.0" stroke="#222" stroke-width="1.0"/>
+<rect x="101.7" y="402.4" width="66.5" height="15.2" rx="0.0" fill="#999" fill-opacity="1.0" stroke="#444" stroke-width="1.0"/>
+<rect x="78.0" y="248.6" width="114.0" height="153.9" rx="0.0" fill="#b9bec6" fill-opacity="1.0" stroke="#444" stroke-width="1.0"/>
+<rect x="78.0" y="96.6" width="114.0" height="152.0" rx="0.0" fill="#8a8f98" fill-opacity="1.0" stroke="#444" stroke-width="1.0"/>
+<rect x="110.3" y="83.2" width="49.4" height="13.3" rx="0.0" fill="#666" fill-opacity="1.0" stroke="#333" stroke-width="1.0"/>
+<circle cx="686.8" cy="560.2" r="19.0" fill="#f2a0c0" fill-opacity="0.95" stroke="#a03060" stroke-width="1"/>
+<circle cx="135.0" cy="172.6" r="8.5" fill="#c00" fill-opacity="0.9"/>
+<text x="135.0" y="176.6" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">1</text>
+<rect x="50.0" y="768" width="12" height="12" fill="#8a8f98" stroke="#333"/>
+<text x="70.0" y="779" font-size="12" fill="#222"><tspan fill="#c00" font-weight="bold">1</tspan>  Motor NFP-608-26.45 TRANSVERSE (axis Y), last element at the rear, spans both lanes</text>
+<circle cx="135.0" cy="440.5" r="8.5" fill="#c00" fill-opacity="0.9"/>
+<text x="135.0" y="444.5" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">2</text>
+<rect x="505.65054148052894" y="768" width="12" height="12" fill="#e8b000" stroke="#333"/>
+<text x="525.650541480529" y="779" font-size="12" fill="#222"><tspan fill="#c00" font-weight="bold">2</tspan>  Gear A: miter bevel z16 on the motor shaft</text>
+<circle cx="178.7" cy="446.2" r="8.5" fill="#c00" fill-opacity="0.9"/>
+<text x="178.7" y="450.2" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">3</text>
+<rect x="50.0" y="790" width="12" height="12" fill="#f2d020" stroke="#333"/>
+<text x="70.0" y="801" font-size="12" fill="#222"><tspan fill="#c00" font-weight="bold">3</tspan>  Gear B: miter bevel z16 on the rod (only 2 gears)</text>
+<circle cx="225.2" cy="484.2" r="8.5" fill="#c00" fill-opacity="0.9"/>
+<text x="225.2" y="488.2" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">4</text>
+<rect x="505.65054148052894" y="790" width="12" height="12" fill="#111111" stroke="#333"/>
+<text x="525.650541480529" y="801" font-size="12" fill="#222"><tspan fill="#c00" font-weight="bold">4</tspan>  Rod M1.6 x 0.35 ENDS at gear B, rotating, axially fixed (16.2 mm)</text>
+<circle cx="370.7" cy="408.2" r="8.5" fill="#c00" fill-opacity="0.9"/>
+<text x="370.7" y="412.2" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">5</text>
+<rect x="50.0" y="812" width="12" height="12" fill="#e0803a" stroke="#333"/>
+<text x="70.0" y="823" font-size="12" fill="#222"><tspan fill="#c00" font-weight="bold">5</tspan>  Plunger cup 20.3 x 5.3, 12.6 mm long, blind bore (drawn at FULL)</text>
+<circle cx="266.1" cy="452.8" r="8.5" fill="#c00" fill-opacity="0.9"/>
+<text x="266.1" y="456.8" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">6</text>
+<rect x="505.65054148052894" y="812" width="12" height="12" fill="#f0c040" stroke="#333"/>
+<text x="525.650541480529" y="823" font-size="12" fill="#222"><tspan fill="#c00" font-weight="bold">6</tspan>  Brass nut M1.6 in the hex pocket (rear of the cup)</text>
+<circle cx="475.3" cy="678.9" r="8.5" fill="#c00" fill-opacity="0.9"/>
+<text x="475.3" y="682.9" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">7</text>
+<rect x="50.0" y="834" width="12" height="12" fill="#dd2222" stroke="#333"/>
+<text x="70.0" y="845" font-size="12" fill="#222"><tspan fill="#c00" font-weight="bold">7</tspan>  Two lip seals at the closed front end</text>
+<circle cx="304.1" cy="550.7" r="8.5" fill="#c00" fill-opacity="0.9"/>
+<text x="304.1" y="554.7" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">8</text>
+<rect x="505.65054148052894" y="834" width="12" height="12" fill="#7fd0e0" stroke="#333"/>
+<text x="525.650541480529" y="845" font-size="12" fill="#222"><tspan fill="#c00" font-weight="bold">8</tspan>  Tank 20.5 x 5.5 bore, closed walls, NO slot, open dry rim</text>
+<circle cx="705.8" cy="474.7" r="8.5" fill="#c00" fill-opacity="0.9"/>
+<text x="705.8" y="478.7" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">9</text>
+<rect x="50.0" y="856" width="12" height="12" fill="#1a6fd0" stroke="#333"/>
+<text x="70.0" y="867" font-size="12" fill="#222"><tspan fill="#c00" font-weight="bold">9</tspan>  Outlet through the front wall straight into the needle hub (+X)</text>
+<circle cx="759.9" cy="495.6" r="8.5" fill="#c00" fill-opacity="0.9"/>
+<text x="759.9" y="499.6" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">10</text>
+<rect x="505.65054148052894" y="856" width="12" height="12" fill="#000000" stroke="#333"/>
+<text x="525.650541480529" y="867" font-size="12" fill="#222"><tspan fill="#c00" font-weight="bold">10</tspan>  30G needle (+X) with spring guard</text>
+<circle cx="686.8" cy="560.2" r="8.5" fill="#c00" fill-opacity="0.9"/>
+<text x="686.8" y="564.2" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">11</text>
+<rect x="50.0" y="878" width="12" height="12" fill="#f2a0c0" stroke="#333"/>
+<text x="70.0" y="889" font-size="12" fill="#222"><tspan fill="#c00" font-weight="bold">11</tspan>  Fill septum, UNDERSIDE of the front wall</text>
+<circle cx="826.4" cy="436.7" r="8.5" fill="#c00" fill-opacity="0.9"/>
+<text x="826.4" y="440.7" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">12</text>
+<rect x="505.65054148052894" y="878" width="12" height="12" fill="#e07ac0" stroke="#333"/>
+<text x="525.650541480529" y="889" font-size="12" fill="#222"><tspan fill="#c00" font-weight="bold">12</tspan>  Dock: place-down pocket 11.9 x 9.8, slide 3.5 mm, head latched</text>
+<circle cx="797.9" cy="402.4" r="8.5" fill="#c00" fill-opacity="0.9"/>
+<text x="797.9" y="406.4" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">13</text>
+<rect x="50.0" y="900" width="12" height="12" fill="#b8c0c8" stroke="#333"/>
+<text x="70.0" y="911" font-size="12" fill="#222"><tspan fill="#c00" font-weight="bold">13</tspan>  U-clip (301 FH 0.1 mm) arms + teeth in the dome notches</text>
+<circle cx="797.9" cy="512.7" r="8.5" fill="#c00" fill-opacity="0.9"/>
+<text x="797.9" y="516.7" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">14</text>
+<rect x="505.65054148052894" y="900" width="12" height="12" fill="#ff7f00" stroke="#333"/>
+<text x="525.650541480529" y="911" font-size="12" fill="#222"><tspan fill="#c00" font-weight="bold">14</tspan>  Dock magnet in the head + dock hall above the pocket roof</text>
+<circle cx="148.3" cy="487.9" r="8.5" fill="#c00" fill-opacity="0.9"/>
+<text x="148.3" y="491.9" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">15</text>
+<rect x="50.0" y="922" width="12" height="12" fill="#cc2222" stroke="#333"/>
+<text x="70.0" y="933" font-size="12" fill="#222"><tspan fill="#c00" font-weight="bold">15</tspan>  Diametric magnet on gear B's rear face</text>
+<circle cx="128.3" cy="539.2" r="8.5" fill="#c00" fill-opacity="0.9"/>
+<text x="128.3" y="543.2" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">16</text>
+<rect x="505.65054148052894" y="922" width="12" height="12" fill="#ffd400" stroke="#333"/>
+<text x="525.650541480529" y="933" font-size="12" fill="#222"><tspan fill="#c00" font-weight="bold">16</tspan>  TMAG5273 beside the magnet (0.5 mm gap), tiny sensor tab</text>
+<circle cx="323.1" cy="179.2" r="8.5" fill="#c00" fill-opacity="0.9"/>
+<text x="323.1" y="183.2" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">17</text>
+<rect x="50.0" y="944" width="12" height="12" fill="#3a5fcd" stroke="#333"/>
+<text x="70.0" y="955" font-size="12" fill="#222"><tspan fill="#c00" font-weight="bold">17</tspan>  Battery keep-out (thin cell 2.2 x 10.4 x 30.6)</text>
+<circle cx="537.2" cy="136.9" r="8.5" fill="#c00" fill-opacity="0.9"/>
+<text x="537.2" y="140.9" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">18</text>
+<rect x="505.65054148052894" y="944" width="12" height="12" fill="#8a3fd0" stroke="#333"/>
+<text x="525.650541480529" y="955" font-size="12" fill="#222"><tspan fill="#c00" font-weight="bold">18</tspan>  USB-C keep-out (+Y long wall of lane 2)</text>
+<circle cx="323.1" cy="97.5" r="8.5" fill="#c00" fill-opacity="0.9"/>
+<text x="323.1" y="101.5" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">19</text>
+<rect x="50.0" y="966" width="12" height="12" fill="#2e8b57" stroke="#333"/>
+<text x="70.0" y="977" font-size="12" fill="#222"><tspan fill="#c00" font-weight="bold">19</tspan>  Main board keep-out above the battery</text>
+<circle cx="672.6" cy="107.0" r="8.5" fill="#c00" fill-opacity="0.9"/>
+<text x="672.6" y="111.0" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">20</text>
+<rect x="505.65054148052894" y="966" width="12" height="12" fill="#7fbf7f" stroke="#333"/>
+<text x="525.650541480529" y="977" font-size="12" fill="#222"><tspan fill="#c00" font-weight="bold">20</tspan>  Piezo / button / aux keep-out</text>
+<circle cx="182.7" cy="629.0" r="8.5" fill="#c00" fill-opacity="0.9"/>
+<text x="182.7" y="633.0" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">21</text>
+<rect x="50.0" y="988" width="12" height="12" fill="#d09020" stroke="#333"/>
+<text x="70.0" y="999" font-size="12" fill="#222"><tspan fill="#c00" font-weight="bold">21</tspan>  Rear-corner keep-out: button, LED, buzzer, charger strip (full height)</text>
+<circle cx="828.3" cy="330.7" r="8.5" fill="#c00" fill-opacity="0.9"/>
+<text x="828.3" y="334.7" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">22</text>
+<rect x="505.65054148052894" y="988" width="12" height="12" fill="#c0a060" stroke="#333"/>
+<text x="525.650541480529" y="999" font-size="12" fill="#222"><tspan fill="#c00" font-weight="bold">22</tspan>  Beside the dock: piezo, button, LED, ICs (keep-out)</text>
+<circle cx="210.0" cy="512.7" r="8.5" fill="#c00" fill-opacity="0.9"/>
+<text x="210.0" y="516.7" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">23</text>
+<rect x="50.0" y="1010" width="12" height="12" fill="#b0701c" stroke="#333"/>
+<text x="70.0" y="1021" font-size="12" fill="#222"><tspan fill="#c00" font-weight="bold">23</tspan>  Collar + bush + printed rib (thrust bearing)</text>
 </svg>
