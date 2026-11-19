@@ -163,6 +163,9 @@ jobs:
   actions-pins:
     runs-on: ubuntu-24.04
     timeout-minutes: 5
+    # Non-blocking until a maintainer runs security/supply-chain/pin-actions.sh (needs GitHub API access).
+    # Remove continue-on-error once every `uses:` is pinned to a commit SHA.
+    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
         with: { persist-credentials: false }

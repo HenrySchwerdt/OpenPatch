@@ -379,8 +379,13 @@ name = "openpatch-core"
 version = "0.1.0"
 dependencies = [
  "heapless",
+ "openpatch-diag",
  "openpatch-proto",
 ]
+
+[[package]]
+name = "openpatch-diag"
+version = "0.1.0"
 
 [[package]]
 name = "openpatch-proto"
@@ -391,6 +396,7 @@ dependencies = [
  "heapless",
  "hkdf",
  "hmac",
+ "openpatch-diag",
  "rand_core 0.6.4",
  "sha2",
  "subtle",
