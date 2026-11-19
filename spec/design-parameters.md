@@ -128,6 +128,14 @@ Note: In DASH mode Trio "sees" a 200 U pod with 80 h lifetime; reservoir display
 - Communication loss: temp basal continues for max. 30 min, then falls back to the programmed basal rate (DASH semantics)
 - Encoder deviation > 10 % over 1 U → delivery stop + alarm
 
+## 7a. Diagnostics and hardware independence (requirement, 2026-11-19)
+
+- **Hardware independence:** the motor supply is gated in hardware (`MCU_EN AND watchdog latch AND (DOCKED OR DIR_REV)`, TPL5010, hardware over-current cut that clears the latch) so that a firmware fault cannot hold the motor on beyond one watchdog interval, and an undocked pod cannot deliver forward. **Hardware step budget (HW-A, decided 2026-11-19):** an arm window + pulse budget in discrete logic bounds a runaway inside the watchdog window to ≈ 1.6 U; Rev B adds an independent monitor for the hourly limit. Firmware must **prove at runtime** that each gate can still cut the supply (rotating single-gate disarm, POST-A). A proven-stuck gate or a dead watchdog latches the pod; no delivery with a degraded protection layer. The dose limits of §7 are additionally enforced by the firmware supervisor.
+- **Diagnostic codes:** every anomaly gets a 32-bit code (layer, component, fault, instance) with severity (info, warning, fault, latched), field-replaceable unit (FRU) and recommended action; the catalogue (`docs/06-diagnostics.md`, generated source `spec/diag-codes.csv`) is the single source for firmware, protocol and app. Codes are never reused. Unknown codes are treated as faults. Latched codes have **no service override**; they clear only when their verification test passes.
+- **Propagation:** no layer may swallow a code. A layer that acts on a lower-layer fault raises its own record with a cause pointer. Records persist in a pod fault log, are readable with `GetFaultLog`, and are pushed as alerts. The 8 legacy fault bits remain as a derived projection.
+- **Presentation:** Trio shows the pod (A/B), the faulty part and the action ("Replace the controller board"), and a component health view (green/yellow/red per FRU). A part is green only after a passing proof; unproven is grey.
+- **Rule for changes:** adding a failure mode requires a catalogue row with hazard link and test; relaxing a severity or a threshold requires an entry in `docs/STATUS.md`.
+
 ## 8. Cannula interface (Insight Flex)
 
 - According to the Roche IFU: tubing is pushed onto the connector plate of the cannula head, release by squeezing two side wings → **two-wing snap hook**, not Luer.
