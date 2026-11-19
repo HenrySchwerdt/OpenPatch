@@ -16,3 +16,7 @@ A reusable, very flat pod (target ≤ 8.5 mm, Omnipod DASH: 14.5 mm). It plugs d
 ## Tools
 - **SolidCraft** (3D, MCP server: `solidcraft-cli mcp`) for the housing
 - **CADCraft** (2D DWG/DXF) for drawings and the board outline
+
+## License
+
+Hardware CERN-OHL-S-2.0, software GPL-3.0-or-later, documentation CC-BY-SA-4.0 — see [LICENSE.md](LICENSE.md). Not a medical device; see [DISCLAIMER.md](DISCLAIMER.md).
