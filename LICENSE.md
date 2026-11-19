@@ -18,6 +18,7 @@ Contributors grant the maintainer the right to offer their contributions under t
 | Hardware design: CAD, generators' output, PCB, Gerbers, BOMs, fab packages, specification | `mechanical/`, `electronics/`, `spec/` | `CC-BY-NC-SA-4.0` | [`LICENSES/CC-BY-NC-SA-4.0.txt`](LICENSES/CC-BY-NC-SA-4.0.txt) |
 | Documentation, images, renders, website text | `docs/`, `*.md`, `site/` (content and images) | `CC-BY-NC-SA-4.0` | same |
 | Software: firmware (Rust and C reference), tools and scripts, website code | `firmware-rs/`, `firmware/`, `tools/`, `**/*.py`, `**/*.sh`, `site/` (code) | `PolyForm-Noncommercial-1.0.0` | [`LICENSES/PolyForm-Noncommercial-1.0.0.txt`](LICENSES/PolyForm-Noncommercial-1.0.0.txt) |
+| **Exception:** dock insert / cannula adapter and the dock interface spec (free for everyone, also commercially; each manufacturer approves its own adapter) | `mechanical/op_dock.py`, `mechanical/op_coupon.py`, `mechanical/out/**/dock-inserts/`, `mechanical/out/**/dock-coupon/`, `mechanical/cannula-measurement.md`, spec §8a | `CERN-OHL-P-2.0` | [`LICENSES/CERN-OHL-P-2.0.txt`](LICENSES/CERN-OHL-P-2.0.txt) |
 | **Exception:** iOS kit (OpenPatchKit) | `ios/` | `GPL-3.0-or-later` | [`LICENSES/GPL-3.0-or-later.txt`](LICENSES/GPL-3.0-or-later.txt) |
 
 Python generator scripts inside `mechanical/` and `electronics/` are software (PolyForm Noncommercial); the geometry and boards they produce are hardware (CC BY-NC-SA 4.0).

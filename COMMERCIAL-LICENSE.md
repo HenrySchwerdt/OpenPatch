@@ -20,6 +20,10 @@ The community licences ([`LICENSE.md`](LICENSE.md)) cover non-commercial use onl
 
 Grant: non-exclusive, non-transferable, worldwide, revocable only per section 11, to make, have made, sell and service products using the Licensed Material, including contributions covered by [`CLA.md`](CLA.md).
 
+## 1a. Excluded: dock insert / cannula adapter
+
+The **dock insert (cannula adapter)** and the **pod-side dock interface specification** are deliberately excluded from this licence and from all of its obligations (price cap, levy, recoupment, share-back). They are licensed permissively under **CERN-OHL-P-2.0** (see [`LICENSE.md`](LICENSE.md)). Reason: the cannula is a third-party consumable, every manufacturer will adapt the insert to the infusion set it supports, and **each manufacturer must obtain regulatory approval for its own adapter / infusion-set combination anyway**. Recoupment under section 3a therefore never covers adapter or infusion-set approval work. The safety obligations of section 4 still apply to the pump: an insert must meet the frozen dock interface (needle alignment, dock-magnet position for the DOCKED interlock) and pass the dock-related conformance tests.
+
 ## 2. Price cap (maximum price)
 
 2.1 The end-customer price of a Product (net of taxes) must not exceed **fully-loaded unit cost + 30 %**.
@@ -48,9 +52,9 @@ Grant: non-exclusive, non-transferable, worldwide, revocable only per section 11
 
 3a.2 **Recoupment payment.** Every **other** commercial licensee that distributes an OpenPatch-based product relying on, or benefiting from, the Sponsor's approval work or clinical evidence (a "Payer") pays a fixed share of its margin, **draft value 30 % of its gross margin per unit** *(placeholder, adjustable)*, to the Sponsor via the administrator, until the Sponsor's **verified, audited investment is recovered**. Gross margin per unit = end-customer price (net of taxes) minus fully-loaded unit cost (section 2.2), as shown in the Payer's audited cost statement.
 
-3a.3 **Pro-rata.** Recoupment is shared among all paying Payers pro rata to their payments; the Sponsor's own sales do not repay it. The Sponsor receives no more than its verified investment.
+3a.3 **Pro-rata.** Recoupment is shared among all paying Payers pro rata to their payments; the Sponsor's own sales do not repay it. The Sponsor receives no more than its verified investment plus the capped return (3a.4).
 
-3a.4 **No profit by default.** No profit or interest in the default draft. *[Optional placeholder: a modest capped return of e.g. [x] % of the investment.]*
+3a.4 **Capped first-mover return.** On top of the verified investment the Sponsor may recover a **capped return of 20 % of the recoverable investment** *(draft value, decision 2026-11-19)*, to reward being first to approve. No interest beyond this cap; the total recoverable amount is investment × 1.20.
 
 3a.5 **Automatic end.** The obligation ends automatically once the verified investment (plus any agreed capped return) is covered. The administrator tracks repayment and publishes the status.
 
@@ -63,9 +67,9 @@ Grant: non-exclusive, non-transferable, worldwide, revocable only per section 11
 3a.9 **Interaction with the levy (section 3).** The 5 % clinical-trial fund may co-finance Sponsor trials. **Amounts funded by the levy are excluded from the Sponsor's recoverable investment** (no double recovery).
 
 3a.10 **Worked example (illustrative numbers only).**
-- Sponsor invests EUR 2,000,000 in approval and trials; EUR 500,000 of it is funded by the levy fund, so the recoverable investment is **EUR 1,500,000**.
+- Sponsor invests EUR 2,000,000 in approval and trials; EUR 500,000 of it is funded by the levy fund, so the recoverable investment is **EUR 1,500,000**, plus the capped 20 % return = **EUR 1,800,000** total recoverable.
 - Payer A and Payer B each sell products at unit cost EUR 100, price cap EUR 130 (cost + 30 %), i.e. gross margin EUR 30 per unit. Recoupment = 30 % of EUR 30 = **EUR 9 per unit**; Payer keeps EUR 21; the price stays EUR 130.
-- Payer A sells 100,000 units (EUR 900,000), Payer B sells 80,000 units (EUR 720,000). Together EUR 1,620,000, but only EUR 1,500,000 is owed. The administrator stops the obligation at EUR 1,500,000 (e.g. A pays 55.56 % = EUR 833,333, B pays 44.44 % = EUR 666,667, pro rata to payments due) and the excess is not collected or is refunded. From then on the clinical data and reports are published openly and Payers keep the full EUR 30 margin.
+- Payer A sells 100,000 units (EUR 900,000), Payer B sells 80,000 units (EUR 720,000). Together EUR 1,620,000, which is below the EUR 1,800,000 owed, so both keep paying EUR 9 per unit on further sales until a further EUR 180,000 is collected (e.g. 20,000 more units in total). Then the obligation ends automatically, pro rata to payments due; any excess is not collected or is refunded. From then on the clinical data and reports are published openly and Payers keep the full EUR 30 margin.
 - The 5 % levy is separate: it is 5 % of net revenue (EUR 6.50 per unit at price EUR 130) and goes to the fund, not the Sponsor.
 
 ## 4. Safety obligations
