@@ -800,6 +800,9 @@
    "OP-200"
   ],
   "height": 8.5,
+  "corner_r_outer": 4.8,
+  "top_fillet": 1.8,
+  "bottom_break": 0.3,
   "board": {
    "t": 0.8,
    "layers": 4,
@@ -1164,6 +1167,9 @@
    "OP-200"
   ],
   "height": 8.5,
+  "corner_r_outer": 4.8,
+  "top_fillet": 1.8,
+  "bottom_break": 0.3,
   "tank_to_arm_clr": 0.1,
   "pocket_edge": 0.45,
   "gears": {

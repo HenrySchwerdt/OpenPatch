@@ -778,6 +778,7 @@
   "_comment": "v0.1.0 INTEGRATED pod = bench pod + electronics strip beside the dock tunnel (mechanical/op_v010.py, V010.md). Additive: reservoir_frozen and dock_interface_frozen are NOT touched. u = x - x_r1 (pod frame), y absolute. All positions derive from the computed bench layout; only the numbers below are v0.1.0 choices.",
   "sizes": ["OP-100", "OP-200"],
   "height": 8.5,
+  "corner_r_outer": 4.8, "top_fillet": 1.8, "bottom_break": 0.3,
   "board": {"t": 0.8, "layers": 4, "y0": 1.5, "y1": 30.5, "corner_r": 3.0, "left_y0": 20.3, "left_to_u": 12.0, "right_gap": 0.6, "screw_hole_d": 3.0},
   "strip": {"arm_clear": 0.5, "e73_end_gap": 0.8, "gap": 0.8, "y_hi": 30.5},
   "e73": {"w": 13.0, "l": 18.0, "h": 2.25, "part": "Ebyte E73-2G4M08S1C (nRF52840, ceramic antenna), LCSC C356849", "antenna_keepout_l": 5.5},
@@ -812,7 +813,7 @@
  "cup": {
   "_comment": "v0.1.0 'cup' pod (--drive cup, op_cup.py, V010-CUP.md): ONE M1.6 x 0.35 rod on the tank axis, rotating + axially fixed (bush behind the gear pair), driven by the NFP-608-26.45 through exactly TWO gears (z16 -> z20). The plunger is a long cup (stadium 15.8 x 4.8, seals at the closed front end, blind bore d2.0, brass nut in a hex pocket at the rear): the rod screws INTO it from behind and never touches the liquid. Tank = frozen CNC bore without slot. Dock tunnel BESIDE the tank, running the whole pod length, mouth in the rear (dry) end wall; end cap / needle at the front end. Battery, USB-C, boards = reserved keep-out boxes (ko_*). Coordinates: x = 0 at the OUTLET (front) end, +X toward the dry end; y = 0 at the -Y wall; z = 0 skin side.",
   "sizes": ["OP-100", "OP-200"],
-  "height": 8.5,
+  "height": 8.5, "corner_r_outer": 4.8, "top_fillet": 1.8, "bottom_break": 0.3,
   "tank_to_arm_clr": 0.1,
   "pocket_edge": 0.45,
   "gears": {"z_motor": 16, "z_rod": 16, "module": 0.3, "type": "miter (bevel 1:1, 90 deg)", "bevel_back": 3.4, "tip_od": 5.4, "motor_r": 3.0, "clr_tank": 0.2, "clr_boss": 0.1, "sleeve_od": 2.0, "sleeve_id": 1.64, "bore_clr": 0.04, "floor_relief": 0.2},

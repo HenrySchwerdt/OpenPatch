@@ -19,7 +19,7 @@ FROM_BELOW = {"hub_oring", "needle_hub", "needle", "needle_guard", "dock_clip", 
 
 def corner_posts(L: dict) -> list[tuple[float, float]]:
     w, Lp, W = L["wall"], L["length"], L["width"]
-    return [(w + 1.5, w + 1.5), (Lp - w - 1.5, w + 1.5), (Lp - w - 1.5, W - w - 1.5)]
+    return [(w + 1.65, w + 1.65), (Lp - w - 1.65, w + 1.65), (Lp - w - 1.65, W - w - 1.65)]
 
 
 def build(s: Script, p: dict, L: dict) -> None:
@@ -30,14 +30,16 @@ def build(s: Script, p: dict, L: dict) -> None:
     bu, usb, bat = c["bush"], c["usb"], c["battery"]
     posts = corner_posts(L)
     joins, cuts, tcuts = [], [], []
-    # ---- (1) lid closure: 3 tall posts (thread-forming M1.2 into d1.0 pilots, 4 mm deep), lid roof rests on them, flat 0.5 mm gasket on the rim, lid clearance cut at the corner
+    # ---- (1) lid closure from the TOP: 3 posts in the bottom corners (thread-forming M1.2 into d1.0 pilots, 4 mm deep); flush countersunk heads in the clear lid, sealed under the head by a
+    #          0.3 mm silicone washer; the lid roof rests on the post tops; flat silicone gasket on the rim
+    rr = c["corner_r_outer"]
     for k, (px, py) in enumerate(posts):
         joins.append(s.cyl(f"t_post{k}", "Z", (px, py, 0), 2.0, w - 0.1, H - w - 0.05))
         cuts.append(s.cyl(f"t_pilot{k}", "Z", (px, py, 0), 1.0, H - w - 4.0, H - w))
         tcuts += [s.cyl(f"t_tcl{k}", "Z", (px, py, 0), 2.4, lap + 0.3, H - w + 0.05), s.cyl(f"t_thole{k}", "Z", (px, py, 0), 1.4, H - w - 0.1, H + 0.1),
-                  s.cyl(f"t_thead{k}", "Z", (px, py, 0), 2.4, H - 0.5, H + 0.1)]
-    s.rrect("lid_gasket", (0.15, Lp - 0.15), (0.15, W - 0.15), p["shell"]["corner_r"] - 0.15, (lap, lap + 0.5))
-    s.rrect("t_gk_in", (0.65, Lp - 0.65), (0.65, W - 0.65), p["shell"]["corner_r"] - 0.65, (lap - 0.1, lap + 0.6))
+                  s.cyl(f"t_thead{k}", "Z", (px, py, 0), 2.4, H - 0.6, H + 0.1)]
+    s.rrect("lid_gasket", (0.15, Lp - 0.15), (0.15, W - 0.15), rr - 0.15, (lap, lap + 0.5))
+    s.rrect("t_gk_in", (0.55, Lp - 0.55), (0.55, W - 0.55), rr - 0.55, (lap - 0.1, lap + 0.6))
     s.cut("lid_gasket", ["t_gk_in"])
     # ---- (2) motor cradle: saddles exist (U, open top); lid posts hold the can; FPC groove from the pin pocket toward lane 2
     ys = [L["gearhead_y"][0] + 0.5, L["motor_y"][1] - 2.2]
@@ -76,12 +78,6 @@ def build(s: Script, p: dict, L: dict) -> None:
     # ---- (9) U-clip bridge slot in the pocket end wall (clip is pressed in from below), pocket mouth lead-in chamfer on the window edge
     z0 = K["clip"]["z0"]
     cuts.append(s.box("t_clip_slot", (K["x_far"] - 0.2, K["x_far"] + 0.3), (yr - K["R"] - 0.6, yr + K["R"] + 0.6), (z0 - 0.1, z0 + K["clip"]["b"] + 0.1)))
-    # ---- (10) piezo port + membrane recess and button membrane in the lid roof (over the aux zone)
-    ax = L["aux"]["x"]
-    xm = (ax[0] + ax[1]) / 2
-    pz, bn, pt = (xm - 1.0, L["lane2_y"][1] - 2.8), (xm + 1.0, L["lane2_y"][0] + 3.0), p["port"]
-    tcuts += [s.cyl("t_pz", "Z", (pz[0], pz[1], 0), pt["hole_d"], H - w - 0.1, H + 0.1), s.cyl("t_pzr", "Z", (pz[0], pz[1], 0), pt["recess_d"], H - w - 0.1, H - w + pt["recess_depth"]),
-              s.cyl("t_bm", "Z", (bn[0], bn[1], 0), p["button"]["d_memb"], H - (w - p["button"]["memb_t"]), H + 0.1)]
     s.join("bottom", joins)
     s.cut("bottom", cuts)
     s.cut("top", tcuts)

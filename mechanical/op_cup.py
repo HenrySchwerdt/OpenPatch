@@ -214,7 +214,9 @@ def build_housing(s: Script, p: dict, L: dict) -> None:
     zc, yr, xc, K = L["zc"], L["y_r"], L["xc"], L["dock"]
     dr = p["drive_nfp"]
     half, dk = K["half"], c["dock"]
-    s.rrect("bottom", (0, Lp), (0, W), r, (0, lap))
+    rr = c["corner_r_outer"]                                                    # outer vertical corner radius (pebble); inner cavity keeps R3.1
+    s.rrect("bottom", (0, Lp), (0, W), rr, (0, lap))
+    s.fillet_chain("bottom", (Lp / 2, 0.0, 0.0), c["bottom_break"])             # flat bottom, 0.3 mm edge break only
     s.rrect("t_cav", (w, Lp - w), (w, W - w), r - w, (w, lap + 0.1))
     s.cut("bottom", ["t_cav"])
     z_roof0 = dk["head"]["B_dome_h"] + dk["clr"]
@@ -244,13 +246,10 @@ def build_housing(s: Script, p: dict, L: dict) -> None:
         cuts.append(s.cyl(f"t_sad_bore{k}", "Y", (xc, 0, zc), 6.0 + 2 * c["motor"]["saddle_clr"], y0 - 0.05, y0 + sl + 0.05))
     s.cut("bottom", cuts)
     lap_t = lap + 0.4                                                           # lid starts 0.4 above the rim: flat gasket between
-    s.rrect("top", (0, Lp), (0, W), r, (lap_t, H))
+    s.rrect("top", (0, Lp), (0, W), rr, (lap_t, H))
+    s.fillet_chain("top", (Lp / 2, 0.0, H), c["top_fillet"])                    # smooth pebble top: largest fillet the unchanged inner cavity allows (min wall 0.5)
     s.rrect("t_cavt", (w, Lp - w), (w, W - w), r - w, (lap_t - 0.1, H - w))
     s.cut("top", ["t_cavt"])
-    v = c["vent"]
-    xv = L["aux"]["x"][1] - 2.0
-    yv = (L["lane2_y"][0] + L["lane2_y"][1]) / 2
-    s.cut("top", [s.cyl("t_vent", "Z", (xv, yv, 0), v["hole_d"], H - w - 0.1, H + 0.1), s.cyl("t_vrec", "Z", (xv, yv, 0), v["recess_d"], H - w - 0.1, H - w + v["recess_depth"])])
 
 
 def build(p: dict, variant: str) -> tuple[Script, dict]:
