@@ -1,0 +1,20 @@
+* TI's own start-up test circuit for the TPS61023 PSpice model (SLVMD68, Startup.net) run in ngspice-42 with the converted model.
+* Expected: VOUT -> 5 V in ~0.7 ms with the input current following the load. Observed: VOUT runs away with ~0 input current (energy not conserved).
+.param ss=0
+.include @MODELS@/TPS61023_ng.lib
+Vin vin 0 PWL(0 0 100u 3.6 1.2m 3.6)
+Cin1 vin 0 150u IC=1n
+Cin2 vin 0 22u
+L1 vin sw 1.1u
+XU vin fb 0 sw vin vout TPS61023_Symbol
+R1 vout fb 733k
+R2 fb 0 100k
+Cb vout 0 66u IC=0
+Rl vout 0 500
+.options method=gear reltol=0.005 itl4=200 gmin=1e-10 cshunt=1f
+.tran 20n 1.2m
+.control
+run
+wrdata @RES@/c0_vendor.csv v(vout) v(sw) i(Vin)
+.endc
+.end

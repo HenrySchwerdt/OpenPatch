@@ -20,3 +20,12 @@ electronics/v010/sim/results/*.csv
 
 # assembly-checker per-body meshes (regenerated, about 50 MB)
 mechanical/out/**/assembly-check/meshes/
+
+# cup SPICE: vendor models (TI licence) and bulk results
+electronics/v010/cup/sim/models/
+electronics/v010/cup/sim/results/*.csv
+electronics/v010/cup/sim/results/*.raw
+electronics/v010/cup/sim/results/*.cir
+electronics/v010/cup/sim/results/*.log
+electronics/v010/cup/sim/results/*.out
+electronics/v010/cup/sim/__pycache__/

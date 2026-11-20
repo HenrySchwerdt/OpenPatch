@@ -1,0 +1,96 @@
+{
+ "rates": {
+  "5": {
+   "ia_pk_a": 0.184088576,
+   "ib_pk_a": 0.183651643,
+   "isupply_pk_a": 0.367549402,
+   "isupply_min_a": 0.0074628143,
+   "isupply_mean_a": 0.367302115386268,
+   "vmot_max_v": 5.01820784,
+   "vmot_min_v": 4.84984539,
+   "icell_pk_a": 0.657744953,
+   "fault": false
+  },
+  "50": {
+   "ia_pk_a": 0.184095901,
+   "ib_pk_a": 0.184093286,
+   "isupply_pk_a": 0.367549402,
+   "isupply_min_a": 0.00642686793,
+   "isupply_mean_a": 0.36407021430088216,
+   "vmot_max_v": 5.01898551,
+   "vmot_min_v": 4.84596309,
+   "icell_pk_a": 0.657744953,
+   "fault": false
+  },
+  "200": {
+   "ia_pk_a": 0.184096475,
+   "ib_pk_a": 0.184096016,
+   "isupply_pk_a": 0.367549402,
+   "isupply_min_a": 0.00641021549,
+   "isupply_mean_a": 0.35301683019441427,
+   "vmot_max_v": 5.01911845,
+   "vmot_min_v": 4.84432899,
+   "icell_pk_a": 0.657744953,
+   "fault": false
+  },
+  "500": {
+   "ia_pk_a": 0.184091441,
+   "ib_pk_a": 0.184089772,
+   "isupply_pk_a": 0.367541846,
+   "isupply_min_a": 0.00612740668,
+   "isupply_mean_a": 0.3312099085282178,
+   "vmot_max_v": 5.01920186,
+   "vmot_min_v": 4.84392152,
+   "icell_pk_a": 0.65772838,
+   "fault": false
+  }
+ },
+ "L": {
+  "2": {
+   "ia_pk_a": 0.184290667,
+   "ib_pk_a": 0.1842886,
+   "isupply_pk_a": 0.367549402,
+   "isupply_min_a": 0.0171228812,
+   "isupply_mean_a": 0.361481631127249,
+   "vmot_max_v": 5.0151053,
+   "vmot_min_v": 4.85250199,
+   "icell_pk_a": 0.657744953,
+   "fault": false
+  },
+  "15": {
+   "ia_pk_a": 0.184108465,
+   "ib_pk_a": 0.184107669,
+   "isupply_pk_a": 0.367503969,
+   "isupply_min_a": 0.00132226609,
+   "isupply_mean_a": 0.326605094032793,
+   "vmot_max_v": 5.02161813,
+   "vmot_min_v": 4.83671956,
+   "icell_pk_a": 0.657647397,
+   "fault": false
+  }
+ },
+ "rcoil": {
+  "0.9": {
+   "ia_pk_a": 0.204173947,
+   "ib_pk_a": 0.204173493,
+   "isupply_pk_a": 0.407526293,
+   "isupply_min_a": 0.00602884897,
+   "isupply_mean_a": 0.38988378339291274,
+   "vmot_max_v": 5.02599025,
+   "vmot_min_v": 4.82956989,
+   "icell_pk_a": 0.625918951,
+   "fault": false
+  },
+  "1.1": {
+   "ia_pk_a": 0.167623864,
+   "ib_pk_a": 0.167623864,
+   "isupply_pk_a": 0.334719127,
+   "isupply_min_a": 0.00636720178,
+   "isupply_mean_a": 0.3227290991452949,
+   "vmot_max_v": 5.01389668,
+   "vmot_min_v": 4.85529995,
+   "icell_pk_a": 0.50167983,
+   "fault": false
+  }
+ }
+}

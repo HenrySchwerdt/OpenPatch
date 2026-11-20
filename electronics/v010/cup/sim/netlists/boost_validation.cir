@@ -1,0 +1,19 @@
+* Validation of the behavioural TPS61023 model against the datasheet: tSS = 700 us at VIN = 2.5 V, VOUT = 5 V, COUT_EFF = 10 uF, no load
+.include @LIB@/tps61023_beh.inc
+Vcell vc 0 2.5
+Rint vc vbat 0.01
+Cin vbat 0 6u
+L1 vbat sw 1u
+Ven en 0 PWL(0 0 100u 0 100.001u 3.3)
+XU en fb 0 sw vbat vpre TPS61023_BEH
+R55 vpre fb 220k
+R56 fb 0 30k
+Cb vpre 0 10u
+Rl vpre 0 1e6
+.options method=gear reltol=0.002 gmin=1e-12
+.tran 0.5u 2m
+.control
+run
+wrdata @RES@/c1_validation.csv v(vpre) v(vbat) i(Vcell)
+.endc
+.end
