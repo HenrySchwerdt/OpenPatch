@@ -21,6 +21,7 @@ dsn, ses = base + ".dsn", base + ".ses"
 step = sys.argv[2]
 MM = pcbnew.FromMM
 P4 = os.environ.get("OP_P4", "0") == "1"
+P4NET = os.environ.get("OP_P4_NET", "GND")      # In4 plane net (cup board: 3V3)
 FREEROUTING = os.environ.get("FREEROUTING_JAR") or bl.FREEROUTING
 
 
@@ -89,7 +90,7 @@ if step == "prep":
             b.Remove(z)
     zone(b, "GND_In1", pcbnew.In1_Cu)
     if P4:
-        zone(b, "GND_In4", pcbnew.In4_Cu)
+        zone(b, P4NET + "_In4", pcbnew.In4_Cu, net=P4NET)
     pcbnew.SaveBoard(pcb, b)
     pcbnew.ExportSpecctraDSN(b, dsn)
     t = open(dsn).read()
@@ -123,10 +124,12 @@ elif step == "finish":
     old_zones = [z for z in b.Zones() if not z.GetIsRuleArea()]      # removed AFTER the new zones exist (KiCad 10 python: ZONE.Outline() breaks after a Remove)
     ls = [("GND_F", pcbnew.F_Cu), ("GND_In1", pcbnew.In1_Cu), ("GND_In2", pcbnew.In2_Cu)]
     if b.GetCopperLayerCount() == 6:
-        ls += [("GND_In3", pcbnew.In3_Cu), ("GND_In4", pcbnew.In4_Cu)]
+        ls += [("GND_In3", pcbnew.In3_Cu)] + ([] if (P4 and P4NET != "GND") else [("GND_In4", pcbnew.In4_Cu)])
     ls.append(("GND_B", pcbnew.B_Cu))
     for nm, l in ls:
         zone(b, nm, l)
+    if P4 and P4NET != "GND" and b.GetCopperLayerCount() == 6:
+        zone(b, P4NET + "_In4", pcbnew.In4_Cu, net=P4NET)
     for z in old_zones:
         b.Remove(z)
     for z in b.Zones():

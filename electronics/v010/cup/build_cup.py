@@ -35,7 +35,7 @@ NAME = "cup"
 PCB = os.path.join(HERE, NAME + ".kicad_pcb")
 
 
-U1_VIA_D, U1_VIA_H = 0.30, 0.15       # filled + capped via in pad (JLC POFV, free on 6-layer boards); 0.65 mm pad pitch leaves 0.35 mm between these vias = one 0.10 track
+U1_VIA_D, U1_VIA_H = 0.35, 0.15       # filled + capped via in pad (JLC POFV, free on 6-layer boards); 0.35 copper keeps 0.2 mm hole-to-track with 0.1 copper clearance
 
 
 def u1_fanout(b, fps):
@@ -201,6 +201,23 @@ def main():
             ech.Append(MM(bl.OX + px), MM(bl.OY + py))
         b.b.Add(ez)
     print("U1 vias in pad:", u1_fanout(b, fps))
+    # filled vias in the wire pads (motor + cell leads sit straight above the driver on the underside) and in the four USB data pads
+    # (D+ / D- alternate in the receptacle pad row, A6-B6 and A7-B7 are joined on an inner layer)
+    nvp = 0
+    for ref, pads_, d, h in (("MP1", ("1",), 0.45, 0.2), ("MP2", ("1",), 0.45, 0.2), ("MP3", ("1",), 0.45, 0.2), ("MP4", ("1",), 0.45, 0.2),
+                             ("SP1", ("1",), 0.45, 0.2), ("SP2", ("1",), 0.45, 0.2), ("JU1", ("A7", "B7"), U1_VIA_D, U1_VIA_H)):
+        for pd in fps[ref].Pads():
+            if pd.GetNumber() in pads_:
+                v = pcbnew.PCB_VIA(b.b); v.SetPosition(pd.GetPosition()); v.SetNet(pd.GetNet()); v.SetViaType(pcbnew.VIATYPE_THROUGH)
+                v.SetWidth(MM(d)); v.SetDrill(MM(h)); b.b.Add(v); nvp += 1
+    print("vias in wire / USB pads:", nvp)
+    # USB D+: B6 and A6 joined on F.Cu by a U-loop just south of the pad row (D- uses the two pad vias above, joined on an inner layer)
+    up = {pd.GetNumber(): pd.GetPosition() for pd in fps["JU1"].Pads()}
+    dp = fps["JU1"].Pads()[0].GetBoard().FindNet("USB_DP") if False else b.b.FindNet("USB_DP")
+    yl = up["B6"].y + MM(0.98)
+    pts = [up["B6"], pcbnew.VECTOR2I(up["B6"].x, yl), pcbnew.VECTOR2I(up["A6"].x, yl), up["A6"]]
+    for k in range(3):
+        t = pcbnew.PCB_TRACK(b.b); t.SetStart(pts[k]); t.SetEnd(pts[k + 1]); t.SetLayer(pcbnew.F_Cu); t.SetWidth(MM(0.15)); t.SetNet(dp); b.b.Add(t)
     print("gnd fanout vias:", gnd_fanout(b, fps) if os.environ.get("OP_FANOUT", "1") == "1" else "skipped (OP_FANOUT=0: Freerouting places the GND vias itself)")
     for ref, lab in (("SP1", "+"), ("SP2", "-")):
         c = fps[ref].GetPosition(); b.text(lab, T(c.x) - bl.OX, T(c.y) - bl.OY - 2.1, 1.3, thick=0.2)       # large + / - at the cell pads (review m5)
