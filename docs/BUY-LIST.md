@@ -92,6 +92,8 @@ Big-ticket items that can be dropped: Z4 casting silicone (26.80, only if the se
 
 ## 6. Parts that do NOT exist as specified (CAD / spec must change)
 
+> CAD status 2026-11-20: items 1-8 and 11 (hub) are adapted in `params.json -> cup` / `op_cup.py` (table "Parts adaptation" in `mechanical/V010-CUP.md`). Item 9 (washers) cannot be solved in the 0.9 mm lid roof: no washer, seal the heads with silicone. Open: guard spring (11), 3.3 mm punch for the flat hub ring (8). New rod length 16.4 / 25.9 mm.
+
 1. **Miter pair m0.3 z16 1:1**: not a catalogue part. Use **m0.3 z12** (OD 4.02, drawing in §0) or **m0.4 z12** (same pitch cone as today's CAD). Module 0.5 1:1 does not fit the 6.7 mm cavity. Update `cup.gears` (z, tip_od, front 0.96 / back 4.22 or 3.32) and the PARTS-LOCK row 3 (still lists the old GHW spur pair).
 2. **Angle magnet d2 in the apex**: collides with z12 gear fronts (0.96 < r 1.0). Face the gear fronts 0.25 mm or use d1 x 0.5 / relocate.
 3. **M1.6 nut AF 3.2**: brass DIN 934 M1.6 is **AF 3.5** (GHW); the only AF <= 3.2 found is GHW A2 "ähnlich DIN 934" **AF 3.0**. Either keep the 3.2 pocket with the A2 nut + glue, or change the pocket to 3.5 for brass.
