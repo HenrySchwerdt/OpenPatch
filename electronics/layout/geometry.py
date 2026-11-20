@@ -1,6 +1,6 @@
-"""Gemeinsame Geometrie: liest mechanical/out/<VARIANT>.layout.json und mechanical/params.json (nur lesend)
-und rechnet den PCB-Umriss genau wie mechanical/op_build.py::build_electronics (Koordinaten im Mechanik-Frame:
-x = Laenge, y = Breite, z = Hoehe ueber Boden; Ursprung = Aussenecke des Gehaeuses)."""
+"""Shared geometry: reads mechanical/out/<VARIANT>.layout.json and mechanical/params.json (read-only)
+and computes the PCB outline exactly like mechanical/op_build.py::build_electronics (coordinates in the mechanical frame:
+x = length, y = width, z = height above the floor; origin = outer corner of the housing)."""
 import json, os
 HERE = os.path.dirname(os.path.abspath(__file__))
 MECH = os.path.abspath(os.path.join(HERE, "..", "..", "mechanical"))
@@ -14,7 +14,7 @@ def load(variant="OP-100"):
     G["housing"] = (L["length"], L["width"], L["height"])
     G["pcb"] = dict(x0=L["x_r1"] + co["gap_x"], x1=L["x_end"] - pc["margin"], y0=wall + pc["margin"], y1=L["yi1"] - pc["margin"],
                     r=p["shell"]["corner_r"] - wall - pc["margin"], z0=pc["z0"], t=pc["t"], keepout=pc["keepout"])
-    G["notch"] = dict(x1=L["x_r1"] + pc["notch_x"] + (sp["boss_d"] / 2 - 0.6), y1=wall + pc["notch_y"] + 0.4)  # ab pcb.x0/y0
+    G["notch"] = dict(x1=L["x_r1"] + pc["notch_x"] + (sp["boss_d"] / 2 - 0.6), y1=wall + pc["notch_y"] + 0.4)  # relative to pcb.x0/y0
     G["battery"] = dict(x0=L["x_r1"] + m, x1=L["x_r1"] + m + L["bat_x"], y0=L["yi1"] - m - bt["y"], y1=L["yi1"] - m,
                         z0=wall + p["fit"]["bat_gap"], t=bt["t"])
     G["coil"] = dict(cx=L["coil_cx"], cy=L["coil_cy"], d=co["d"], z0=co["z0"], t=co["t"])

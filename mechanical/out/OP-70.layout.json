@@ -116,7 +116,7 @@
     "on_module": true
    }
   ],
-  "note": "Federkontakte (<=1.2 mm) auf PCB-Unterseite; Deckelpads (z 5.55..7.6) halten die Platine nieder (Vorspannung)."
+  "note": "Spring contacts (<=1.2 mm) on the PCB underside; lid pads (z 5.55..7.6) hold the board down (preload)."
  },
  "bat_vol_mm3": 308.22399999999993,
  "gear_x1": 3.2,

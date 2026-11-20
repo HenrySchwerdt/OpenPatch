@@ -1,7 +1,7 @@
 #!/usr/bin/env python
-"""PCB-Umriss aus der Mechanik-Geometrie -> ../board-outline.dxf (mm, Mechanik-Frame).
-Rechteck (x0..x1, y0..y1, Ecken R) minus L-foermige Aussparung an der Ecke (x0,y0) fuer den Kanuelen-Turm.
-Aufruf: ../.venv/bin/python board_outline.py [OP-100|OP-70|OP-200]"""
+"""PCB outline from the mechanical geometry -> ../board-outline.dxf (mm, mechanical frame).
+Rectangle (x0..x1, y0..y1, corners R) minus an L-shaped cutout at the corner (x0,y0) for the cannula tower.
+Usage: ../.venv/bin/python board_outline.py [OP-100|OP-70|OP-200]"""
 import math, os, sys
 import ezdxf
 from ezdxf.math import Vec2
@@ -25,7 +25,7 @@ def outline_points(G):
             (c["x0"], ny, 0.5), (nx, ny, 0.5)]            # CCW
 
 def holes(G):
-    c = G["pcb"]   # Positionen mit mechanical/ abstimmen (Gehaeuse-Domen), hier Platzhalter am Rand
+    c = G["pcb"]   # positions to be agreed with mechanical/ (housing domes); placeholders at the edge here
     return [(c["x1"] - 1.6, c["y0"] + 1.7), (c["x1"] - 1.6, 12.5)]
 
 def main(variant="OP-100"):
@@ -46,7 +46,7 @@ def main(variant="OP-100"):
     b = G["battery"]; msp.add_lwpolyline([(b["x0"], b["y0"]), (b["x1"], b["y0"]), (b["x1"], b["y1"]), (b["x0"], b["y1"])], close=True, dxfattribs={"layer": "REF_BATTERY"})
     z = G["buzzer"]; msp.add_lwpolyline([(z["x0"], z["y0"]), (z["x1"], z["y0"]), (z["x1"], z["y1"]), (z["x0"], z["y1"])], close=True, dxfattribs={"layer": "REF_BUZZER"})
     msp.add_circle(G["needle"], 0.5, dxfattribs={"layer": "REF_CANNULA_NEEDLE"})
-    ax1, ay0 = 30.0, 21.2                # Antennen-Keepout ueber der ISP1807-Kante (+y); Masse TBD laut Datenblatt (Platzhalter)
+    ax1, ay0 = 30.0, 21.2                # antenna keep-out above the ISP1807 edge (+y); dimensions TBD per datasheet (placeholder)
     ax0 = 24.5
     msp.add_lwpolyline([(ax0, ay0), (ax1, ay0), (ax1, ay0 + 4.3), (ax0, ay0 + 4.3)], close=True, dxfattribs={"layer": "KEEPOUT_ANTENNA"})
     msp.add_lwpolyline([(23.5, 13.2), (31.5, 13.2), (31.5, 21.2), (23.5, 21.2)], close=True, dxfattribs={"layer": "REF_ISP1807_8x8"})
@@ -60,7 +60,7 @@ def main(variant="OP-100"):
     d2 = ezdxf.readfile(path); aud = d2.audit()
     pl = list(d2.modelspace().query("LWPOLYLINE[layer=='BOARD_OUTLINE']"))[0]
     pts = [(x, y) for x, y, *_ in pl.get_points("xyb")]; xs = [p[0] for p in pts]; ys = [p[1] for p in pts]
-    print("DXF:", path); print("Audit-Fehler:", len(aud.errors), "Entities:", len(d2.modelspace()))
+    print("DXF:", path); print("Audit errors:", len(aud.errors), "Entities:", len(d2.modelspace()))
     print("PCB-BBox %.2f x %.2f mm (x %.2f..%.2f, y %.2f..%.2f)" % (max(xs) - min(xs), max(ys) - min(ys), min(xs), max(xs), min(ys), max(ys)))
 
 if __name__ == "__main__":

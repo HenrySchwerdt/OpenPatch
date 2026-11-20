@@ -5810,7 +5810,7 @@
 				)
 			)
 		)
-		(property "Value" "Qi-Rx-Spule O17.6 ~6-8uH"
+		(property "Value" "Qi Rx coil O17.6 ~6-8uH"
 			(at 0 5.2 0)
 			(layer "F.Fab")
 			(uuid "cc40112d-3992-469b-91f6-75c547d2838e")
@@ -7590,7 +7590,7 @@
 				)
 			)
 		)
-		(property "Value" "Taster 3.0x2.5x1.2"
+		(property "Value" "Button 3.0x2.5x1.2"
 			(at 0 2.5 0)
 			(layer "F.Fab")
 			(uuid "b3d8f9b0-ad5d-41db-b095-43111fc0ce7b")
@@ -14285,7 +14285,7 @@
 				(justify mirror)
 			)
 		)
-		(property "Value" "Akku 2-Pad"
+		(property "Value" "Battery 2-Pad"
 			(at 0 -5.2 180)
 			(layer "B.Fab")
 			(uuid "62856a20-9015-40f4-9268-20848cf25781")

@@ -1,7 +1,7 @@
 """GHW-Modellbau brass spur gears, module 0.3, true involute teeth (parametric).
 
 Local frame: Z = bore axis. Toothed section spans z = 0 .. width; a hub (if any) extends below, z = -hub_l .. 0
-(GHW lists "Nabenlaenge" separately from "Breite"; hub taken as protruding beyond the tooth width - VERIFY on sample).
+(GHW lists the hub length separately from the face width; hub taken as protruding beyond the tooth width - VERIFY on sample).
 Tooth 0 is centred on +X; `phase` rotates the whole gear (rad) so a mating pair can be phased in the assembly.
 """
 from __future__ import annotations

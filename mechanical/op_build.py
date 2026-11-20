@@ -1,4 +1,4 @@
-"""Baut das OpenPatch-Modell (Rev A) als SolidCraft-Kommandoskript."""
+"""Builds the OpenPatch model (Rev A) as a SolidCraft command script."""
 from __future__ import annotations
 
 from op_cmds import Script
@@ -7,7 +7,7 @@ from op_elec import build_electronics
 from op_layout import compute_layout
 from op_shell import build_bottom, build_gasket, build_top
 
-# Teile zum Fertigen / Gießen (Export je Datei STEP+STL)
+# Parts for manufacturing / casting (exported per file as STEP+STL)
 MFG_PARTS = {
     "bottom": ["bottom"], "top": ["top"], "carriage": ["carriage"], "reservoir": ["reservoir"],
     "plunger_core": ["plunger_core"], "plunger_seal": ["seal_a", "seal_b"], "gasket": ["gasket"],
@@ -41,7 +41,7 @@ def part_sets(mode: str) -> tuple[dict, list, list]:
         return BENCH_MFG_PARTS, BENCH_PART_NAMES, BENCH_EXCLUDE_PAIRS
     return MFG_PARTS, PART_NAMES, EXCLUDE_PAIRS
 
-# Paare, die sich konstruktiv berühren/überlappen dürfen
+# Pairs that are allowed to touch/overlap by design
 EXCLUDE_PAIRS = [
     ["buzzer", "pcb_keepout"], ["rf_module", "pcb_keepout"], ["switch", "pcb_keepout"],
     ["top", "pcb_keepout"], ["bottom", "pcb_keepout"], ["qi_coil", "pcb_keepout"],
@@ -68,7 +68,7 @@ def add_parameter_table(s: Script, p: dict, lay: dict) -> None:
     rows.append(("p_stroke", lay["stroke"]))
     rows.append(("p_length", lay["length"]))
     for name, val in rows:
-        s.parameter(name, val, "Generator-Wert (Info). Änderungen: params.json + generate.py")
+        s.parameter(name, val, "Generator value (info). Changes: params.json + generate.py")
 
 
 def build_septum_needle(s: Script, p: dict, L: dict) -> None:

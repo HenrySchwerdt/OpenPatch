@@ -1,4 +1,4 @@
-# Aufruf: make all   (benoetigt .venv: UV_HTTP_TIMEOUT=300 uv venv .venv && uv pip install --python .venv/bin/python -r requirements.txt)
+# Usage: make all   (needs .venv: UV_HTTP_TIMEOUT=300 uv venv .venv && uv pip install --python .venv/bin/python -r requirements.txt)
 PY=.venv/bin/python
 all: netlist check dxf svg
 netlist:

@@ -1,4 +1,4 @@
-"""Kleiner Emitter für SolidCraft-Kommandoskripte (JSON-Liste von {command, params})."""
+"""Small emitter for SolidCraft command scripts (JSON list of {command, params})."""
 from __future__ import annotations
 
 import os
@@ -31,7 +31,7 @@ class Script:
 
     def cyl(self, name: str, axis: str, c: tuple[float, float, float], d: float,
             a0: float, a1: float) -> str:
-        """Zylinder entlang 'axis' von a0 bis a1; c = Mittelpunkt in den beiden anderen Achsen."""
+        """Cylinder along 'axis' from a0 to a1; c = centre in the two other axes."""
         base = {"X": [a0, c[1], c[2]], "Y": [c[0], a0, c[2]], "Z": [c[0], c[1], a0]}[axis]
         self.add("solid.cylinder", diameter=d, height=a1 - a0, base=base, axis=axis,
                  body_name=name, name=name)
@@ -106,7 +106,7 @@ class Script:
 
     def hexprism(self, name: str, x: tuple[float, float], yc: float, zc: float, apothem: float,
                  angle: float = 0.0) -> str:
-        """Sechskant-Prisma entlang +X (Schlüsselweite = 2*apothem)."""
+        """Hexagonal prism along +X (width across flats = 2*apothem)."""
         self.add("sketch.create", plane="YZ", offset=x[0])
         self.add("sketch.polygon.circumscribed", center=[yc, zc], radius=apothem, sides=6, angle=angle)
         self.add("sketch.finish")
