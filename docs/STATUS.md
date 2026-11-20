@@ -156,3 +156,30 @@ All dimensions and components are in [spec/design-parameters.md](../spec/design-
 - 2026-11-20 (user): motor socket J1 dropped; motor lead plug cut, 4 wires soldered to pads at the board's west edge next to the motor (like the cell leads). Motor driver to be swapped STSPIN220 → DRV8835 (26.5 Ω coil, full steps, no chopper needed); part audit (PART-AUDIT.md) to remove legacy parts.
 - 2026-11-20: **Buy list for the cup pod hardware** (2 pods + spares, carts AliExpress / GHW-Modellbau / Amazon.de / nfpshop): `docs/BUY-LIST.md`. Key finding: no m0.3 z16 miter pair exists; m0.3 z12 (OD 4.02, drawing read) or m0.4 z12 instead, CAD `cup.gears` must change; 12 further spec mismatches listed there (§6).
 - 2026-11-20: handoff written: docs/HANDOFF-2026-11-20.md (current design + ordered open work). Branch merged into main.
+- 2026-11-20 (cloud coordinator): **Independent netlist review of the 45-part cup board.** Verdict: the architecture is sound, but these fixes are needed before ordering. They have been passed to the board agent.
+  - **C1:** R26 10 k → 6.8 k. The TPL5010 interval was 7.6 s instead of 2 s.
+  - **C2:** U33 NAND → 74AUP1G86 XOR, so the hardware gate becomes `DOCKED XOR DIR_REVERSE` (spec §7, H15; the board implemented OR).
+  - **C3:** add 4.7 µF on the HJ-840 REG0 3V3 rail and verify the load on the bench.
+  - **M1:** U36 → 3-input AND including `MCU_EN`, plus a pull-down. This restores the CLAUDE.md rule "motor only with MCU enable AND watchdog" in hardware.
+  - **M4/M5:** supervisor recovery pads and interlock test pads.
+  - **M6:** capacitors rated 10 V.
+  - **Minor:** I2C pull-ups, cell and motor polarity silkscreen, regenerated pin map, part audit and FMEA.
+  - **Bench item:** measure the dock-hall margin at pre-slide and undocked positions.
+- 2026-11-20: **Cup CAD on real BUY-LIST parts.**
+  - m0.3 z12:z12 miter, so U/step is unchanged.
+  - Nut AF 3.5 DIN 934, no thrust sleeve (gear B tapped on the rod), bonded bush, tube collar/bush/hub, flat silicone ring.
+  - `elec_interface` unchanged.
+  - OP-200 target in `cup_check` aligned to 54 mm.
+  - Dropping the TMAG rear strip is not feasible: about 0.3 mT at the board (`mechanical/studies/cup_magnet_tmag.py`).
+  - Clean checkout PASS. OP-100 47.96 / OP-200 66.78 × 34.6 × 8.5 mm.
+  - Open: thrust margin 1.65 (< 2); steel rod behind the angle magnet (compare with brass on the bench); head washers do not fit (silicone dab); guard spring is not a catalogue part.
+- 2026-11-20: **firmware-rs for the cup v4 board.** 845 host tests green; diag catalogue 154 codes, schema 3; Swift core 257 green.
+  - DRV8835 full-step phase driver.
+  - `board-cup-v4` pin map from `netlist_v4.py`.
+  - VDDHDIV5 battery reading and REGOUT0 3.3 V.
+  - Burst stepping; cell limits are placeholders until measured on the bench.
+  - Occlusion by angle shortfall only (new warning 5-53-004).
+  - New crate `openpatch-supervisor`: phase-edge step budget, permit/latch, mandatory POST vector (declared reverse with forward phases → permit drop), ROM-bootloader flashing only with the motor supply cut.
+  - New crate `openpatch-boot-policy`: Ed25519 signed manifest v2, rollback counter in UICR.
+  - LED state machine.
+  - Open: port the pump application to the cup board, the STM32C0 platform shell, USB DFU glue.
