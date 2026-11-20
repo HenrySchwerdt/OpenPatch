@@ -36,10 +36,10 @@ HJ_PIN = {
     "G1": "D-", "G2": "DECUSB", "G3": "P0.12", "G4": "P1.09", "G5": "P0.05", "G6": "P0.01", "G7": "P0.26", "G8": "P0.06",
     "H1": "DCCH", "H2": "VDDH", "H3": "VDD", "H4": "VDD", "H5": "P0.08", "H6": "DEC1", "H7": "P0.04", "H8": "GND"}
 HJ_FIXED = {"A1": "GND", "H8": "GND", "A7": "ANT_A", "A8": "ANT_B", "H2": "3V3", "H3": "3V3", "H4": "3V3", "F1": "USB_DP", "G1": "USB_DM", "F2": "VBUS_P",
-            "E1": "NRST", "C2": "SWDIO", "C3": "SWDCLK", "G5": "VBAT_SENSE", "E6": "SNSA", "H7": "VMOT_SENSE"}
+            "E1": "NRST", "C2": "SWDIO", "C3": "SWDCLK", "G5": "VBAT_SENSE", "H7": "VMOT_SENSE"}
 # signals that go to GPIO pads (the pad is chosen by cup/pinassign.py, initial order below); NFC pins B4/C5 are not used
-HJ_SIGNALS = ["MOT_STBY", "STCK_MCU", "DOCKED_H", "CHG_STAT", "OC_OK", "LATCH_Q", "DOCK_N", "SUP_OK", "LED_R", "LED_G", "LED_B", "SUP_TXD", "SUP_RXD",
-              "SUP_BOOT0", "SUP_NRST", "MOT_DIR", "MOT_EN_FAULT", "BTN_N", "I2C_SCL", "I2C_SDA", "ARM_CLK", "MCU_EN", "BUZ_A"]
+HJ_SIGNALS = ["APHASE", "BPHASE", "AENBL_MCU", "BENBL_MCU", "DOCKED_H", "CHG_STAT", "OC_OK", "LATCH_Q", "DOCK_N", "SUP_OK", "LED_R", "LED_G", "LED_B", "SUP_TXD", "SUP_RXD",
+              "SUP_BOOT0", "SUP_NRST", "MOT_DIR", "BTN_N", "I2C_SCL", "I2C_SDA", "ARM_CLK", "MCU_EN", "BUZ_A"]
 HJ_GPIO_POOL = [k for k, v in HJ_PIN.items() if v.startswith("P") and k not in HJ_FIXED and k not in ("B4", "C5") and v != "P0.18/RESET"]
 ISP = dict(HJ_FIXED)
 import os as _os, json as _json
@@ -83,8 +83,6 @@ def build():
     # ---------------------------------------------------------------- MCU
     new("U1", "HJ-840 nRF52840 SiP", ("V010", "HJ840"), dict(ISP), "C50052094", "HJ-840", group="mcu",
         note="HJSIP HJ-840 LGA64 6.2 x 7.0 x 1.0, JLC stock about 90, integrated antenna (A7 ANT -> pi match -> A8 BOARD_ANT), normal-voltage mode: VDD = VDDH = 3V3 from the LDO; DCCH, DEC1, DEC5, DECUSB not connected (module has its own filter capacitors; DC/DC off, LDO mode: VERIFY with figure 2.4 of the manual); NFC pins not used; no parts under the module, no copper in the antenna area")
-    C("C1", "100nF", "3V3", "GND", "mcu")
-    R("R1", "100k", "3V3", "NRST", "mcu")
     new("PI1", "pi match shunt C (DNP)", C0402, {1: "ANT_A", 2: "GND"}, "C1525", "CL05B104KO5NNNC", group="mcu", dnp=True, note="pi match shunt, value to be tuned (about 0.5 to 1 pF), DNP")
     new("PI2", "pi match series 0R", R0402, {1: "ANT_A", 2: "ANT_B"}, "C17168", "0402WGF0000TCE", group="mcu", note="series element: 0 ohm connects A7 to A8 (internal antenna)")
     new("PI3", "pi match shunt C (DNP)", C0402, {1: "ANT_B", 2: "GND"}, "C1525", "CL05B104KO5NNNC", group="mcu", dnp=True, note="pi match shunt, DNP")
@@ -103,21 +101,21 @@ def build():
     take("R3", "chg", pins={"1": "CHG_PROG", "2": "GND"}, value="47k", note="PROG 47k -> about 21 mA charge current")
     # VBAT sense (always on, 1M/1M = 1.9 uA, 100 nF holds the SAADC sample)
     R("R6", "1M", "VBAT", "VBAT_SENSE", "sense"); R("R7", "1M", "VBAT_SENSE", "GND", "sense"); C("C10", "100nF", "VBAT_SENSE", "GND", "sense")
-    # ---------------------------------------------------------------- driver (unchanged from v3)
-    for ref in ("U7", "R34", "R35", "R36", "R37", "R38", "C19", "R39", "R40", "R43", "C21"):
-        take(ref, "drv")
-    pr = {p["ref"]: p for p in parts}
-    parts[:] = [p for p in parts if p["ref"] != "R38"]
-    new("R38", "5.1k", R0402, {1: "MOT_REF", 2: "GND"}, "C25905", "0402WGF5101TCE", group="drv", note="VREF = 3.3 V x 5.1k/105.1k = 0.160 V -> current limit about 0.16 A with 1.0 ohm sense (motor 0.18 A/phase; basic part instead of 5.6k = 0.175 A); datasheet formula VERIFY")
-    # ---------------------------------------------------------------- motor spring pads / FPC pads (motor via the REAR strip)
-    new("J1", "PicoBlade A1251WR-S-4P (CJT, plug of the NFP-608 factory lead)", ("V010", "A1251WR-S-4P"),
-        {1: "MOT_B2", 2: "MOT_A2", 3: "MOT_B1", 4: "MOT_A1"}, "C225113", "A1251WR-S-4P-LCP", side="B", group="mot",
-        note="4-pin 1.25 mm right-angle socket for the factory plug, PCBA-soldered, bottom side (about 2.8 mm tall: fits only in the side_a/side_b blocks below the board, NOT over the cell/adapter); pin order and plug fit VERIFY")
+    # ---------------------------------------------------------------- motor driver: DRV8835 (no chopper: 26.5 ohm coil, 5 V -> about 0.18 A per phase, resistance limited), full steps
+    new("U7", "DRV8835DSSR", ("Package_SON", "WSON-12-1EP_3x2mm_P0.5mm_EP1x2.65"),
+        {1: "VMOT", 2: "MOT_A1", 3: "MOT_A2", 4: "MOT_B1", 5: "MOT_B2", 6: "GND", 7: "BENBL", 8: "BPHASE", 9: "AENBL", 10: "APHASE", 11: "3V3", 12: "3V3", 13: "GND"},
+        "C129328", "DRV8835DSSR", group="drv",
+        note="dual H-bridge, VM 0-11 V, VCC 2-7 V, 1.5 A per bridge, MODE tied to VCC = PHASE/ENABLE (ENABLE low = brake: both outputs low); no current sense / limit (TI SLVSB18H): the current is set by the 26.5 ohm coil; pin map from the datasheet, land pattern = KiCad WSON-12 3x2 EP 1x2.65: VERIFY")
+    C("C23", "100nF", "VMOT", "GND", "drv"); C("C19", "100nF", "3V3", "GND", "drv")
+    R("R43", "100k", "AENBL_MCU", "GND", "drv"); R("R93", "100k", "BENBL_MCU", "GND", "drv")
+    take("C21", "drv")
+    for i, (net, lab) in enumerate((("MOT_A1", "A+"), ("MOT_A2", "A-"), ("MOT_B1", "B+"), ("MOT_B2", "B-"))):
+        new("MP%d" % (i + 1), "motor lead pad %s" % lab, ("V010", "Wire_Pad_1.0x1.8"), {1: net}, bom=False, group="mot",
+            note="hand-solder pad 1.0 x 1.8 for the motor lead %s (cut the JST plug of the NFP-608 lead, solder 4 wires, strain relief by glue/tie), silkscreen label, west edge next to the motor lead exit (x 7.5 to 13, y about 24); VERIFY against the motor CAD" % lab)
     for i, net in enumerate(("3V3", "GND", "I2C_SDA", "I2C_SCL")):
         new("TL%d" % (i + 1), "REAR strip pad (%s)" % net, ("V010", "FPC_Pad_1.2x0.6"), {1: net}, bom=False, side="B", group="rear",
             note="ENIG pad pair with the REAR flex strip (TMAG5273 at gear B)")
-    R("R67", "4.7k", "3V3", "I2C_SDA", "rear"); R("R68", "4.7k", "3V3", "I2C_SCL", "rear")
-    # ---------------------------------------------------------------- UI: LED, button, piezo
+        # ---------------------------------------------------------------- UI: LED, button, piezo
     new("LD1", "RGB LED SZYY1615RGB-B (common anode)", ("V010", "LED_RGB_1615_4P"), {1: "LED_R", 2: "LED_G", 3: "LED_B", 4: "LED_A"}, "C3029071", "SZYY1615RGB-B", group="ui",
         note="top-facing status RGB LED under the clear lid, common anode through ONE 1k from VBAT (GPIO high = off even at 4.2 V, no idle current); one lit channel about 0.7 to 1.7 mA; pad order and polarity VERIFY")
     R("R74", "1k", "VBAT", "LED_A", "ui")
@@ -134,12 +132,15 @@ def build():
     R("R21", "100k", "3V3", "DOCKED_H", DOCK_LEG)
     # ---------------------------------------------------------------- supervisor + step gate + TPL5010 latch
     new("U30", "STM32C011F4U6", ("V010", "UFQFPN-20_3x3_P0.5"),
-        {1: "MCU_EN", 2: "SUP_DONE", 3: "SUP_WAKE", 4: "3V3", 5: "GND", 6: "SUP_NRST", 7: "ARM_CLK", 8: "STCK_MCU", 9: "MOT_DIR", 10: "OC_OK", 11: "SUP_STCK_EN",
-         12: "SUP_PERMIT", 13: "SUP_OK", 14: "NRST", 16: "SUP_TXD", 17: "SUP_RXD", 19: "SUP_BOOT0", 20: "DOCKED_H", 21: "GND"}, "C5456188", "STM32C011F4U6", group="sup",
+        {1: "MCU_EN", 2: "SUP_DONE", 3: "SUP_WAKE", 4: "3V3", 5: "GND", 6: "SUP_NRST", 7: "ARM_CLK", 8: "APHASE", 9: "MOT_DIR", 10: "OC_OK", 11: "SUP_STCK_EN",
+         12: "SUP_PERMIT", 13: "SUP_OK", 14: "NRST", 16: "SUP_TXD", 17: "SUP_RXD", 18: "BPHASE", 19: "SUP_BOOT0", 20: "DOCKED_H", 21: "GND"}, "C5456188", "STM32C011F4U6", group="sup",
         note="independent supervisor (INTERLOCK.md H, I); UFQFPN-20 pin map assumed = TSSOP-20 map, pins 2/3 (SUP_DONE/SUP_WAKE) newly assigned: VERIFY against DS13866")
     C("C50", "100nF", "3V3", "GND", "sup")
-    R("R80", "100k", "SUP_NRST", "3V3", "sup"); R("R79", "100k", "SUP_BOOT0", "GND", "sup"); R("R81", "100k", "SUP_STCK_EN", "GND", "sup")
-    take("U31", "sup")
+    R("R79", "100k", "SUP_BOOT0", "GND", "sup"); R("R81", "100k", "SUP_STCK_EN", "GND", "sup")
+    new("U31", "SN74AUP1G08DCKR (AND, A bridge)", SC70_5, {1: "AENBL_MCU", 2: "SUP_STCK_EN", 3: "GND", 4: "AENBL", 5: "3V3"}, "C507223", "SN74AUP1G08DCKR", group="sup",
+        note="AENBL = AENBL_MCU AND SUP_STCK_EN: the supervisor can brake bridge A (no torque change, no motion)")
+    new("U35", "TP74AUP1G08S5 (AND, B bridge)", SC70_5, {1: "BENBL_MCU", 2: "SUP_STCK_EN", 3: "GND", 4: "BENBL", 5: "3V3"}, "C48886815", "TP74AUP1G08S5", group="sup",
+        note="BENBL = BENBL_MCU AND SUP_STCK_EN")
     new("U5", "TPL5010DDCR", SOT236, {1: "3V3", 2: "GND", 3: "WDT_DELAY", 4: "SUP_DONE", 5: "SUP_WAKE", 6: "SUP_NRST"}, "C473912", "TPL5010DDCR", group="wdt",
         note="independent timer now watches the SUPERVISOR: no DONE after WAKE -> RSTn low: resets the supervisor and clears the latch")
     R("R26", "10k", "WDT_DELAY", "GND", "wdt")
@@ -147,7 +148,7 @@ def build():
         "C140267", "SN74AUP1G74DCUR", group="wdt", note="interlock latch: set by an ARM_CLK edge, cleared by LATCH_CLR_N (power-up, TPL5010 timeout, supervisor reset, over-current)")
     new("U32", "TP74AUP1G08S5 (AND)", SC70_5, {1: "SUP_NRST", 2: "OC_OK", 3: "GND", 4: "LATCH_CLR_N", 5: "3V3"}, "C48886815", "TP74AUP1G08S5", group="wdt",
         note="LATCH_CLR_N = SUP_NRST AND OC_OK: any supervisor reset / TPL5010 timeout or an over-current trip clears the latch (no diodes)")
-    R("R29", "100k", "ARM_CLK", "GND", "wdt"); R("R18", "100k", "MCU_EN", "GND", "wdt")
+    R("R29", "100k", "ARM_CLK", "GND", "wdt")
     # ---------------------------------------------------------------- motor supply: boost (supervisor EN) -> current-limited load switch (hardware EN) -> VMOT
     R("R82", "100k", "SUP_PERMIT", "GND", "sw")
     R("R16", "100k", "MOT_DIR", "GND", "sw")
@@ -160,10 +161,10 @@ def build():
     R("R90", "100k", "MOT_ALLOW", "GND", "sw")
     new("U20", "TPS2553DBVR", SOT236, {1: "VMOT_PRE", 2: "GND", 3: "MOT_ALLOW", 4: "OC_OK", 5: "ILIM", 6: "VMOT"}, "C55266", "TPS2553DBVR", group="sw",
         note="current-limited high-side switch 2.5-6.5 V, 85 mohm, EN active high (hardware cut), FAULT open drain = OC_OK (low when the limit is active > deglitch), NOT the -1 latch variant; pinout 1 IN 2 GND 3 EN 4 FAULT 5 ILIM 6 OUT: VERIFY")
-    new("R91", "56k", R0402, {1: "ILIM", 2: "GND"}, "C25796", "0402WGF5602TCE", group="sw", note="ILIM resistor: I_OS about 23950 / R^1.0056 (kohm -> mA) = about 0.42 A typ (datasheet table, tolerance about +-10 to 15 %, VERIFY); motor needs 0.35 A")
+    new("R91", "47k", R0402, {1: "ILIM", 2: "GND"}, "C25792", "0402WGF4702TCE", group="sw", note="ILIM resistor 47k: TI table 49.9k = 475/520/565 mA, scaled by 49.9/47 = about 504/552/600 mA (min/typ/max): above the worst-case motor current 0.40 A (5 V, 23.9 ohm coil, 1 ohm bridge), well below the 1.5 A bridge rating")
     R("R92", "100k", "3V3", "OC_OK", "sw")
     C("C60", "100nF", "VMOT_PRE", "GND", "sw")
-    R("R24", "10k", "VMOT_PRE", "GND", "sw"); R("R25", "10k", "VMOT", "GND", "sw")
+    R("R25", "10k", "VMOT", "GND", "sw")
     take("R57", "oc"); take("R58", "oc")
     # ---------------------------------------------------------------- 5 V boost (motor NFP-608-26.45-SGM, 4.8 V rated), EN = supervisor permission
     new("U8", "TPS61023DRLR", ("Package_TO_SOT_SMD", "SOT-563"), {1: "SUP_PERMIT", 2: "GND", 3: "BST_SW", 4: "VBAT", 5: "VMOT_PRE", 6: "BST_FB"}, "C919459", "TPS61023DRLR", group="boost",
@@ -173,7 +174,7 @@ def build():
     new("R56", "30k", R0402, {1: "BST_FB", 2: "GND"}, "C25776", "0402WGF3002TCE", group="boost")
     take("DZ1", "boost", pins={"1": "VMOT_PRE", "2": "GND"})
     C0805 = ("Capacitor_SMD", "C_0805_2012Metric")
-    for i in (1, 2):
+    for i in (1,):
         new("CB%d" % i, "22uF 6.3V X5R 0805", C0805, {1: "VMOT_PRE", 2: "GND"}, "C45783", "CL21A226MAQNNNE", group="boost",
             note="bulk on the boost output (basic part); about 8 uF effective at 5 V DC bias")
     new("C31", "10uF", C0603, {1: "VMOT_PRE", 2: "GND"}, "C19702", "CL10A106KP8NNNC", group="boost")
@@ -181,8 +182,6 @@ def build():
     swd = [("SWDIO", "SWDIO"), ("SWDCLK", "SWDCLK"), ("NRST", "NRST"), ("GND", "GND"), ("3V3", "3V3")]
     for i, (v, n) in enumerate(swd):
         new("J%d" % (10 + i), "SWD pad " + v, ("V010", "TP_Pad_D0.8"), {1: n}, bom=False, group="swd", note="SWD pad (spring probe jig)")
-    for i, n in enumerate(("VMOT", "STCK_DRV")):
-        new("TP%d" % (i + 1), n, ("V010", "TP_Pad_D0.8"), {1: n}, bom=False, group="tp", note="test pad")
     # ---------------------------------------------------------------- REAR flex strip (separate FPC, own netlist)
     rear = []
 

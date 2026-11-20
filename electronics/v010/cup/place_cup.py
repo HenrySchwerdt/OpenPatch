@@ -156,15 +156,16 @@ def main():
     for i in range(4):                              # REAR strip pad row (TMAG only), bottom side, 0.8 pitch
         fix(["TL1", "TL2", "TL3", "TL4"][i], 9.2 + 0.8 * i, 23.8, 0, "B")
     fix("SW1", 39.8, 3.0, 180)
-    fix("J1", 39.8, 4.7, 180, "B")
+    for i in range(4):                             # motor lead pads (A+, A-, B+, B-), top side, west edge strip next to the motor lead exit
+        fix("MP%d" % (i + 1), 8.45 + 1.25 * i, 24.1, 90)
     fix("BZ1", 39.0, 20.2, 0, "B")                 # motor socket, bottom side, side_a block (only place tall enough below the board)
     fix("LD1", 32.0, 31.2, 0)                      # RGB LED, top side, clear view through the lid (no tall part within 2 mm, piezo disc is at x < 28)
     fix("U4A", 39.36, 11.75, 0, "B")
     movable = [p["ref"] for p in parts if p["ref"] not in fixed]
     # side rules
     top_only = {p["ref"] for p in parts if p["group"] in ("swd", "tp") or p["ref"] in ("PZ1", "PZ2", "LD1", "SP1", "SP2")}
-    bot_only = {"J1", "BZ1"}
-    anchors = {"PZ1": (21.0, 30.0), "PZ2": (21.0, 27.0), "SP1": (37.0, 24.6), "SP2": (37.0, 27.6), "J1": (39.0, 4.0), "BZ1": (39.0, 20.0)}
+    bot_only = {"BZ1"}
+    anchors = {"PZ1": (21.0, 30.0), "PZ2": (21.0, 27.0), "SP1": (37.0, 24.6), "SP2": (37.0, 27.6), "BZ1": (39.0, 20.0)}
     for p in parts:
         if p["group"] in ("swd", "tp"):
             anchors[p["ref"]] = (39.0, 13.0)

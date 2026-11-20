@@ -164,11 +164,22 @@ Removed rows (parts gone): Q13/Q14/U12 over-current latch and `OC_TEST`, XOR net
 |---|---|---|---|---|---|---|
 | FM5-U20-1 | U20 TPS2553 | output shorted to input (always on) | the hardware EN no longer cuts; the supervisor still holds the boost EN low (`SUP_PERMIT`): VMOT_PRE collapses after the boost caps bleed (about 1.5 s) | yes (second cut: supervisor + boost EN) | `VMOT_SENSE` while commanded off | 1-06-001 |
 | FM5-U20-2 | U20 | stuck off / open | no motor supply | yes (fail-safe) | `VMOT_SENSE` | 1-06-002 |
-| FM5-U20-3 | U20, R91 | ILIM resistor open / shorted | limit goes to minimum or maximum (about 0 A or 1.5 A class): no motion / limit lost, chopper limit 0.16 A per phase remains | yes (chopper) | stall test | 6-62-001 |
+| FM5-U20-3 | U20, R91 | ILIM resistor open / shorted | limit goes to the minimum or maximum of the family (110 mA at 210 k, 1.3 A at 20 k class): no motion / limit lost, chopper limit 0.16 A per phase remains | yes (chopper) | stall test | 6-62-001 |
 | FM5-U8-1 | U8 (boost), R82 | EN stuck high / R82 open | boost on without permission: the load switch EN (latch AND docked) still cuts | yes | `VMOT_SENSE`, test pad `VMOT` | 1-06-001 |
 | FM5-U33-1 | U33 (OR) | output stuck high | dock leg lost: undocked forward not blocked by the hardware; latch, AND U34 and the supervisor boost EN remain | NO if firmware and supervisor also command it | `DOCKED_H` vs `MOT_ALLOW` | 1-07-003 |
 | FM5-U34-1 | U34 (AND) | output stuck high | latch and dock leg lost: only the supervisor boost EN cuts | NO if firmware and supervisor both fail | `LATCH_Q` vs `MOT_ALLOW` | 1-07-002 |
 | FM5-U34-2 | U34, R90 | output stuck low | no motor supply | yes (fail-safe) | `OC_OK`, `VMOT_SENSE` | 1-07-005 |
-| FM5-OC-1 | U20 FAULT, R92, U32 | FAULT stuck high (no OC report) | limit still active (0.42 A), latch not cleared by over-current; supervisor sees nothing | yes (limit remains) | none | 1-0D-001 NEW |
+| FM5-OC-1 | U20 FAULT, R92, U32 | FAULT stuck high (no OC report) | limit still active (0.42 to 0.51 A), latch not cleared by over-current; supervisor sees nothing | yes (limit remains) | none | 1-0D-001 NEW |
 | FM5-OC-2 | U20 FAULT | stuck low | latch cleared permanently: no motion | yes (fail-safe) | `OC_OK` low | 1-0D-002 NEW |
 Rows FM4-QL/QD/QR (discrete legs), FM4-U11 (comparator) and the bleeder rows are void. The remaining FM4 rows for the hall, U5/U6/U32 and the supervisor apply unchanged (the dock leg is now U33).
+
+## v4 DRV8835 addendum (2026-11-20; replaces the STSPIN220 rows)
+| FM id | Ref | Failure mode | Effect | Single-fault safe? | Readback | Code |
+|---|---|---|---|---|---|---|
+| FM6-U7-1 | U7 DRV8835 | output stuck / bridge shorted | motor winding shorted or driven: the load switch limits to 0.50 to 0.60 A and reports on FAULT; no motion without VM | yes (limit + cut path) | `OC_OK`, TMAG | 1-03-001 |
+| FM6-U7-2 | U7 | input stuck (a PHASE line stuck) | steps are lost or the sequence stalls: the supervisor decodes fewer/more transitions than commanded and the TMAG angle disagrees | yes (no uncommanded forward steps beyond the budget: the budget counts transitions) | supervisor count vs TMAG | 1-0F-002 |
+| FM6-U31-1 | U31 / U35 | AND output stuck high | the supervisor can no longer brake bridge A/B: the budget count still runs and the cut path (EN of the load switch) remains | NO if the main MCU also runs away; the latch and dock leg still cut | `AENBL`/`BENBL` readback via the supervisor | 1-0F-002 |
+| FM6-U31-2 | U31 / U35 | output stuck low | no motion | yes (fail-safe) | TMAG | 1-03-002 |
+| FM6-R91-1 | R91 | ILIM wrong | limit 0.50 to 0.60 A shifts; at the minimum of the family the limit could cut the motor | yes | `OC_OK` | 6-62-001 |
+| FM6-MP-1 | MP1..4 | solder joint / lead open | winding open | yes | TMAG angle shortfall | 3-31-001 |
+STSPIN220-specific rows (EN/FAULT, VREF, STBY, TOFF, current limit) are void.

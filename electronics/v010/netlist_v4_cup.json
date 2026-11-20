@@ -21,31 +21,31 @@
    "C2": "SWDIO",
    "C3": "SWDCLK",
    "G5": "VBAT_SENSE",
-   "E6": "SNSA",
    "H7": "VMOT_SENSE",
-   "F5": "MOT_STBY",
-   "F8": "STCK_MCU",
-   "D7": "DOCKED_H",
-   "G3": "CHG_STAT",
-   "D8": "OC_OK",
-   "E7": "LATCH_Q",
-   "C8": "DOCK_N",
-   "F4": "SUP_OK",
-   "F3": "LED_R",
-   "E2": "LED_G",
-   "E3": "LED_B",
-   "H5": "SUP_TXD",
-   "G6": "SUP_RXD",
-   "E4": "SUP_BOOT0",
-   "E8": "SUP_NRST",
-   "F7": "MOT_DIR",
-   "G4": "MOT_EN_FAULT",
-   "B8": "BTN_N",
-   "D6": "I2C_SCL",
-   "G7": "I2C_SDA",
-   "E5": "ARM_CLK",
-   "G8": "MCU_EN",
-   "F6": "BUZ_A"
+   "A2": "APHASE",
+   "A3": "BPHASE",
+   "A4": "AENBL_MCU",
+   "A5": "BENBL_MCU",
+   "A6": "DOCKED_H",
+   "B1": "CHG_STAT",
+   "B2": "OC_OK",
+   "B3": "LATCH_Q",
+   "B5": "DOCK_N",
+   "B6": "SUP_OK",
+   "B7": "LED_R",
+   "B8": "LED_G",
+   "C1": "LED_B",
+   "C6": "SUP_TXD",
+   "C7": "SUP_RXD",
+   "C8": "SUP_BOOT0",
+   "D1": "SUP_NRST",
+   "D2": "MOT_DIR",
+   "D3": "BTN_N",
+   "D4": "I2C_SCL",
+   "D5": "I2C_SDA",
+   "D6": "ARM_CLK",
+   "D7": "MCU_EN",
+   "D8": "BUZ_A"
   },
   "lcsc": "C50052094",
   "mpn": "HJ-840",
@@ -53,46 +53,6 @@
   "bom": true,
   "dnp": false,
   "note": "HJSIP HJ-840 LGA64 6.2 x 7.0 x 1.0, JLC stock about 90, integrated antenna (A7 ANT -> pi match -> A8 BOARD_ANT), normal-voltage mode: VDD = VDDH = 3V3 from the LDO; DCCH, DEC1, DEC5, DECUSB not connected (module has its own filter capacitors; DC/DC off, LDO mode: VERIFY with figure 2.4 of the manual); NFC pins not used; no parts under the module, no copper in the antenna area",
-  "group": "mcu",
-  "board": "CUP"
- },
- {
-  "ref": "C1",
-  "value": "100nF",
-  "fp": [
-   "Capacitor_SMD",
-   "C_0402_1005Metric"
-  ],
-  "pins": {
-   "1": "3V3",
-   "2": "GND"
-  },
-  "lcsc": "C1525",
-  "mpn": "CL05B104KO5NNNC",
-  "side": "F",
-  "bom": true,
-  "dnp": false,
-  "note": "",
-  "group": "mcu",
-  "board": "CUP"
- },
- {
-  "ref": "R1",
-  "value": "100k",
-  "fp": [
-   "Resistor_SMD",
-   "R_0402_1005Metric"
-  ],
-  "pins": {
-   "1": "3V3",
-   "2": "NRST"
-  },
-  "lcsc": "C25741",
-  "mpn": "0402WGF1003TCE",
-  "side": "F",
-  "bom": true,
-  "dnp": false,
-  "note": "",
   "group": "mcu",
   "board": "CUP"
  },
@@ -497,128 +457,44 @@
  },
  {
   "ref": "U7",
-  "value": "STSPIN220",
+  "value": "DRV8835DSSR",
   "fp": [
-   "Package_DFN_QFN",
-   "QFN-16-1EP_3x3mm_P0.5mm_EP1.7x1.7mm"
+   "Package_SON",
+   "WSON-12-1EP_3x2mm_P0.5mm_EP1x2.65"
   ],
   "pins": {
-   "1": "MOT_DIR",
-   "2": "STCK_DRV",
-   "3": "MOT_A1",
-   "4": "SNSA",
-   "5": "MOT_A2",
-   "6": "VMOT",
-   "7": "GND",
-   "8": "MOT_B2",
-   "9": "SNSB",
-   "10": "MOT_B1",
-   "11": "MOT_REF",
-   "12": "TOFF",
-   "13": "MOT_EN_FAULT",
-   "14": "MOT_STBY",
-   "15": "GND",
-   "16": "GND",
-   "17": "GND"
+   "1": "VMOT",
+   "2": "MOT_A1",
+   "3": "MOT_A2",
+   "4": "MOT_B1",
+   "5": "MOT_B2",
+   "6": "GND",
+   "7": "BENBL",
+   "8": "BPHASE",
+   "9": "AENBL",
+   "10": "APHASE",
+   "11": "3V3",
+   "12": "3V3",
+   "13": "GND"
   },
-  "lcsc": "C2150516",
-  "mpn": "STSPIN220",
+  "lcsc": "C129328",
+  "mpn": "DRV8835DSSR",
   "side": "F",
   "bom": true,
   "dnp": false,
-  "note": "MODE1/MODE2 hard-wired to GND (full step), the 10 k resistors R41/R42 are dropped (area)",
+  "note": "dual H-bridge, VM 0-11 V, VCC 2-7 V, 1.5 A per bridge, MODE tied to VCC = PHASE/ENABLE (ENABLE low = brake: both outputs low); no current sense / limit (TI SLVSB18H): the current is set by the 26.5 ohm coil; pin map from the datasheet, land pattern = KiCad WSON-12 3x2 EP 1x2.65: VERIFY",
   "group": "drv",
   "board": "CUP"
  },
  {
-  "ref": "R34",
-  "value": "1.0R",
-  "fp": [
-   "Resistor_SMD",
-   "R_0603_1608Metric"
-  ],
-  "pins": {
-   "1": "SNSA",
-   "2": "GND"
-  },
-  "lcsc": "C174300",
-  "mpn": "RS-03L1R00FT",
-  "side": "F",
-  "bom": true,
-  "dnp": false,
-  "note": "",
-  "group": "drv",
-  "board": "CUP"
- },
- {
-  "ref": "R35",
-  "value": "1.0R",
-  "fp": [
-   "Resistor_SMD",
-   "R_0603_1608Metric"
-  ],
-  "pins": {
-   "1": "SNSB",
-   "2": "GND"
-  },
-  "lcsc": "C174300",
-  "mpn": "RS-03L1R00FT",
-  "side": "F",
-  "bom": true,
-  "dnp": false,
-  "note": "",
-  "group": "drv",
-  "board": "CUP"
- },
- {
-  "ref": "R36",
-  "value": "47k",
-  "fp": [
-   "Resistor_SMD",
-   "R_0402_1005Metric"
-  ],
-  "pins": {
-   "1": "TOFF",
-   "2": "GND"
-  },
-  "lcsc": "C25792",
-  "mpn": "0402WGF4702TCE",
-  "side": "F",
-  "bom": true,
-  "dnp": false,
-  "note": "",
-  "group": "drv",
-  "board": "CUP"
- },
- {
-  "ref": "R37",
-  "value": "100k",
-  "fp": [
-   "Resistor_SMD",
-   "R_0402_1005Metric"
-  ],
-  "pins": {
-   "1": "MOT_STBY",
-   "2": "MOT_REF"
-  },
-  "lcsc": "C25741",
-  "mpn": "0402WGF1003TCE",
-  "side": "F",
-  "bom": true,
-  "dnp": false,
-  "note": "VREF divider is fed from MOT_STBY: no idle current",
-  "group": "drv",
-  "board": "CUP"
- },
- {
-  "ref": "C19",
+  "ref": "C23",
   "value": "100nF",
   "fp": [
    "Capacitor_SMD",
    "C_0402_1005Metric"
   ],
   "pins": {
-   "1": "MOT_REF",
+   "1": "VMOT",
    "2": "GND"
   },
   "lcsc": "C1525",
@@ -631,38 +507,18 @@
   "board": "CUP"
  },
  {
-  "ref": "R39",
-  "value": "100k",
+  "ref": "C19",
+  "value": "100nF",
   "fp": [
-   "Resistor_SMD",
-   "R_0402_1005Metric"
-  ],
-  "pins": {
-   "1": "MOT_STBY",
-   "2": "GND"
-  },
-  "lcsc": "C25741",
-  "mpn": "0402WGF1003TCE",
-  "side": "F",
-  "bom": true,
-  "dnp": false,
-  "note": "",
-  "group": "drv",
-  "board": "CUP"
- },
- {
-  "ref": "R40",
-  "value": "10k",
-  "fp": [
-   "Resistor_SMD",
-   "R_0402_1005Metric"
+   "Capacitor_SMD",
+   "C_0402_1005Metric"
   ],
   "pins": {
    "1": "3V3",
-   "2": "MOT_EN_FAULT"
+   "2": "GND"
   },
-  "lcsc": "C25744",
-  "mpn": "0402WGF1002TCE",
+  "lcsc": "C1525",
+  "mpn": "CL05B104KO5NNNC",
   "side": "F",
   "bom": true,
   "dnp": false,
@@ -678,7 +534,27 @@
    "R_0402_1005Metric"
   ],
   "pins": {
-   "1": "STCK_MCU",
+   "1": "AENBL_MCU",
+   "2": "GND"
+  },
+  "lcsc": "C25741",
+  "mpn": "0402WGF1003TCE",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "drv",
+  "board": "CUP"
+ },
+ {
+  "ref": "R93",
+  "value": "100k",
+  "fp": [
+   "Resistor_SMD",
+   "R_0402_1005Metric"
+  ],
+  "pins": {
+   "1": "BENBL_MCU",
    "2": "GND"
   },
   "lcsc": "C25741",
@@ -711,44 +587,78 @@
   "board": "CUP"
  },
  {
-  "ref": "R38",
-  "value": "5.1k",
+  "ref": "MP1",
+  "value": "motor lead pad A+",
   "fp": [
-   "Resistor_SMD",
-   "R_0402_1005Metric"
+   "V010",
+   "Wire_Pad_1.0x1.8"
   ],
   "pins": {
-   "1": "MOT_REF",
-   "2": "GND"
+   "1": "MOT_A1"
   },
-  "lcsc": "C25905",
-  "mpn": "0402WGF5101TCE",
+  "lcsc": null,
+  "mpn": null,
   "side": "F",
-  "bom": true,
+  "bom": false,
   "dnp": false,
-  "note": "VREF = 3.3 V x 5.1k/105.1k = 0.160 V -> current limit about 0.16 A with 1.0 ohm sense (motor 0.18 A/phase; basic part instead of 5.6k = 0.175 A); datasheet formula VERIFY",
-  "group": "drv",
+  "note": "hand-solder pad 1.0 x 1.8 for the motor lead A+ (cut the JST plug of the NFP-608 lead, solder 4 wires, strain relief by glue/tie), silkscreen label, west edge next to the motor lead exit (x 7.5 to 13, y about 24); VERIFY against the motor CAD",
+  "group": "mot",
   "board": "CUP"
  },
  {
-  "ref": "J1",
-  "value": "PicoBlade A1251WR-S-4P (CJT, plug of the NFP-608 factory lead)",
+  "ref": "MP2",
+  "value": "motor lead pad A-",
   "fp": [
    "V010",
-   "A1251WR-S-4P"
+   "Wire_Pad_1.0x1.8"
   ],
   "pins": {
-   "1": "MOT_B2",
-   "2": "MOT_A2",
-   "3": "MOT_B1",
-   "4": "MOT_A1"
+   "1": "MOT_A2"
   },
-  "lcsc": "C225113",
-  "mpn": "A1251WR-S-4P-LCP",
-  "side": "B",
-  "bom": true,
+  "lcsc": null,
+  "mpn": null,
+  "side": "F",
+  "bom": false,
   "dnp": false,
-  "note": "4-pin 1.25 mm right-angle socket for the factory plug, PCBA-soldered, bottom side (about 2.8 mm tall: fits only in the side_a/side_b blocks below the board, NOT over the cell/adapter); pin order and plug fit VERIFY",
+  "note": "hand-solder pad 1.0 x 1.8 for the motor lead A- (cut the JST plug of the NFP-608 lead, solder 4 wires, strain relief by glue/tie), silkscreen label, west edge next to the motor lead exit (x 7.5 to 13, y about 24); VERIFY against the motor CAD",
+  "group": "mot",
+  "board": "CUP"
+ },
+ {
+  "ref": "MP3",
+  "value": "motor lead pad B+",
+  "fp": [
+   "V010",
+   "Wire_Pad_1.0x1.8"
+  ],
+  "pins": {
+   "1": "MOT_B1"
+  },
+  "lcsc": null,
+  "mpn": null,
+  "side": "F",
+  "bom": false,
+  "dnp": false,
+  "note": "hand-solder pad 1.0 x 1.8 for the motor lead B+ (cut the JST plug of the NFP-608 lead, solder 4 wires, strain relief by glue/tie), silkscreen label, west edge next to the motor lead exit (x 7.5 to 13, y about 24); VERIFY against the motor CAD",
+  "group": "mot",
+  "board": "CUP"
+ },
+ {
+  "ref": "MP4",
+  "value": "motor lead pad B-",
+  "fp": [
+   "V010",
+   "Wire_Pad_1.0x1.8"
+  ],
+  "pins": {
+   "1": "MOT_B2"
+  },
+  "lcsc": null,
+  "mpn": null,
+  "side": "F",
+  "bom": false,
+  "dnp": false,
+  "note": "hand-solder pad 1.0 x 1.8 for the motor lead B- (cut the JST plug of the NFP-608 lead, solder 4 wires, strain relief by glue/tie), silkscreen label, west edge next to the motor lead exit (x 7.5 to 13, y about 24); VERIFY against the motor CAD",
   "group": "mot",
   "board": "CUP"
  },
@@ -825,46 +735,6 @@
   "bom": false,
   "dnp": false,
   "note": "ENIG pad pair with the REAR flex strip (TMAG5273 at gear B)",
-  "group": "rear",
-  "board": "CUP"
- },
- {
-  "ref": "R67",
-  "value": "4.7k",
-  "fp": [
-   "Resistor_SMD",
-   "R_0402_1005Metric"
-  ],
-  "pins": {
-   "1": "3V3",
-   "2": "I2C_SDA"
-  },
-  "lcsc": "C25900",
-  "mpn": "0402WGF4701TCE",
-  "side": "F",
-  "bom": true,
-  "dnp": false,
-  "note": "",
-  "group": "rear",
-  "board": "CUP"
- },
- {
-  "ref": "R68",
-  "value": "4.7k",
-  "fp": [
-   "Resistor_SMD",
-   "R_0402_1005Metric"
-  ],
-  "pins": {
-   "1": "3V3",
-   "2": "I2C_SCL"
-  },
-  "lcsc": "C25900",
-  "mpn": "0402WGF4701TCE",
-  "side": "F",
-  "bom": true,
-  "dnp": false,
-  "note": "",
   "group": "rear",
   "board": "CUP"
  },
@@ -1069,7 +939,7 @@
    "5": "GND",
    "6": "SUP_NRST",
    "7": "ARM_CLK",
-   "8": "STCK_MCU",
+   "8": "APHASE",
    "9": "MOT_DIR",
    "10": "OC_OK",
    "11": "SUP_STCK_EN",
@@ -1078,6 +948,7 @@
    "14": "NRST",
    "16": "SUP_TXD",
    "17": "SUP_RXD",
+   "18": "BPHASE",
    "19": "SUP_BOOT0",
    "20": "DOCKED_H",
    "21": "GND"
@@ -1104,26 +975,6 @@
   },
   "lcsc": "C1525",
   "mpn": "CL05B104KO5NNNC",
-  "side": "F",
-  "bom": true,
-  "dnp": false,
-  "note": "",
-  "group": "sup",
-  "board": "CUP"
- },
- {
-  "ref": "R80",
-  "value": "100k",
-  "fp": [
-   "Resistor_SMD",
-   "R_0402_1005Metric"
-  ],
-  "pins": {
-   "1": "SUP_NRST",
-   "2": "3V3"
-  },
-  "lcsc": "C25741",
-  "mpn": "0402WGF1003TCE",
   "side": "F",
   "bom": true,
   "dnp": false,
@@ -1173,16 +1024,16 @@
  },
  {
   "ref": "U31",
-  "value": "SN74AUP1G08DCKR",
+  "value": "SN74AUP1G08DCKR (AND, A bridge)",
   "fp": [
    "Package_TO_SOT_SMD",
    "SOT-353_SC-70-5"
   ],
   "pins": {
-   "1": "STCK_MCU",
+   "1": "AENBL_MCU",
    "2": "SUP_STCK_EN",
    "3": "GND",
-   "4": "STCK_DRV",
+   "4": "AENBL",
    "5": "3V3"
   },
   "lcsc": "C507223",
@@ -1190,7 +1041,30 @@
   "side": "F",
   "bom": true,
   "dnp": false,
-  "note": "STCK_DRV = STCK_MCU AND SUP_STCK_EN (SC-70-5 TI part, same pinout as the clone)",
+  "note": "AENBL = AENBL_MCU AND SUP_STCK_EN: the supervisor can brake bridge A (no torque change, no motion)",
+  "group": "sup",
+  "board": "CUP"
+ },
+ {
+  "ref": "U35",
+  "value": "TP74AUP1G08S5 (AND, B bridge)",
+  "fp": [
+   "Package_TO_SOT_SMD",
+   "SOT-353_SC-70-5"
+  ],
+  "pins": {
+   "1": "BENBL_MCU",
+   "2": "SUP_STCK_EN",
+   "3": "GND",
+   "4": "BENBL",
+   "5": "3V3"
+  },
+  "lcsc": "C48886815",
+  "mpn": "TP74AUP1G08S5",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "BENBL = BENBL_MCU AND SUP_STCK_EN",
   "group": "sup",
   "board": "CUP"
  },
@@ -1296,26 +1170,6 @@
   ],
   "pins": {
    "1": "ARM_CLK",
-   "2": "GND"
-  },
-  "lcsc": "C25741",
-  "mpn": "0402WGF1003TCE",
-  "side": "F",
-  "bom": true,
-  "dnp": false,
-  "note": "",
-  "group": "wdt",
-  "board": "CUP"
- },
- {
-  "ref": "R18",
-  "value": "100k",
-  "fp": [
-   "Resistor_SMD",
-   "R_0402_1005Metric"
-  ],
-  "pins": {
-   "1": "MCU_EN",
    "2": "GND"
   },
   "lcsc": "C25741",
@@ -1501,7 +1355,7 @@
  },
  {
   "ref": "R91",
-  "value": "56k",
+  "value": "47k",
   "fp": [
    "Resistor_SMD",
    "R_0402_1005Metric"
@@ -1510,12 +1364,12 @@
    "1": "ILIM",
    "2": "GND"
   },
-  "lcsc": "C25796",
-  "mpn": "0402WGF5602TCE",
+  "lcsc": "C25792",
+  "mpn": "0402WGF4702TCE",
   "side": "F",
   "bom": true,
   "dnp": false,
-  "note": "ILIM resistor: I_OS about 23950 / R^1.0056 (kohm -> mA) = about 0.42 A typ (datasheet table, tolerance about +-10 to 15 %, VERIFY); motor needs 0.35 A",
+  "note": "ILIM resistor 47k: TI table 49.9k = 475/520/565 mA, scaled by 49.9/47 = about 504/552/600 mA (min/typ/max): above the worst-case motor current 0.40 A (5 V, 23.9 ohm coil, 1 ohm bridge), well below the 1.5 A bridge rating",
   "group": "sw",
   "board": "CUP"
  },
@@ -1552,26 +1406,6 @@
   },
   "lcsc": "C1525",
   "mpn": "CL05B104KO5NNNC",
-  "side": "F",
-  "bom": true,
-  "dnp": false,
-  "note": "",
-  "group": "sw",
-  "board": "CUP"
- },
- {
-  "ref": "R24",
-  "value": "10k",
-  "fp": [
-   "Resistor_SMD",
-   "R_0402_1005Metric"
-  ],
-  "pins": {
-   "1": "VMOT_PRE",
-   "2": "GND"
-  },
-  "lcsc": "C25744",
-  "mpn": "0402WGF1002TCE",
   "side": "F",
   "bom": true,
   "dnp": false,
@@ -1764,26 +1598,6 @@
   "board": "CUP"
  },
  {
-  "ref": "CB2",
-  "value": "22uF 6.3V X5R 0805",
-  "fp": [
-   "Capacitor_SMD",
-   "C_0805_2012Metric"
-  ],
-  "pins": {
-   "1": "VMOT_PRE",
-   "2": "GND"
-  },
-  "lcsc": "C45783",
-  "mpn": "CL21A226MAQNNNE",
-  "side": "F",
-  "bom": true,
-  "dnp": false,
-  "note": "bulk on the boost output (basic part); about 8 uF effective at 5 V DC bias",
-  "group": "boost",
-  "board": "CUP"
- },
- {
   "ref": "C31",
   "value": "10uF",
   "fp": [
@@ -1896,44 +1710,6 @@
   "dnp": false,
   "note": "SWD pad (spring probe jig)",
   "group": "swd",
-  "board": "CUP"
- },
- {
-  "ref": "TP1",
-  "value": "VMOT",
-  "fp": [
-   "V010",
-   "TP_Pad_D0.8"
-  ],
-  "pins": {
-   "1": "VMOT"
-  },
-  "lcsc": null,
-  "mpn": null,
-  "side": "F",
-  "bom": false,
-  "dnp": false,
-  "note": "test pad",
-  "group": "tp",
-  "board": "CUP"
- },
- {
-  "ref": "TP2",
-  "value": "STCK_DRV",
-  "fp": [
-   "V010",
-   "TP_Pad_D0.8"
-  ],
-  "pins": {
-   "1": "STCK_DRV"
-  },
-  "lcsc": null,
-  "mpn": null,
-  "side": "F",
-  "bom": false,
-  "dnp": false,
-  "note": "test pad",
-  "group": "tp",
   "board": "CUP"
  }
 ]

@@ -69,3 +69,7 @@ Files: `cup/fab/` (Gerber zip, `BOM-jlcpcb.csv`, `CPL-jlcpcb.csv`, `NOT-ASSEMBLE
 | TPS61023DRLR (5 V boost, SOT-563) | `C919459` | **51** | **`C1852149` TPS61023DRLT**, same part and pinout, other reel, stock 188: drop-in; set both in the BOM (JLC picks what is in stock) |
 | HJ-840 (nRF52840 SiP) | `C50052094` | **91** | none pin-compatible; fallback = bare nRF52840-QIAA `C190794` with the area penalty in `cup/MCU-CHOICE.md` |
 | DRV5032FA | `C2152496` | 2124 | AJ variant `C2152498` (stock 0) is footprint-identical |
+
+
+## Motor connection (2026-11-20): cut the plug, solder four wires
+The NFP-608 factory lead ends in a JST plug that is **cut off**; the four wires are soldered to the pads MP1 (A+), MP2 (A-), MP3 (B+), MP4 (B-) (1.0 x 1.8 mm ENIG, 1.25 mm pitch, silkscreen labels, west edge of the board next to the motor lead exit); strain relief with a drop of glue or a cable tie to the board edge. The cell wires go to SP1 (+) and SP2 (-) the same way. No connector is fitted (the motor socket J1 was dropped: it sat at the far end of the pod). Pad positions follow the placement (`cup/placement.json`); check the lead length against the motor CAD.
