@@ -1,0 +1,19 @@
+[package]
+name = "openpatch-supervisor"
+description = "OpenPatch supervisor (STM32C011) logic: PHASE-edge step counting, step budget windows, permit drop and latch, and the ST ROM bootloader flashing protocol with its supply-cut precondition. Platform independent, no_std, no alloc, no unsafe."
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[features]
+default = []
+defmt = ["dep:defmt"]
+
+# No dependency on openpatch-core in the library: the supervisor is a diverse, independent implementation of the same
+# contract. The agreement with the core's phase table and limits is checked by the integration tests (dev-dependency).
+[dependencies]
+defmt = { version = "0.3.8", optional = true }
+
+[dev-dependencies]
+openpatch-core = { path = "../openpatch-core" }

@@ -138,13 +138,11 @@ fn button_is_ignored_while_on_a_cable() {
 }
 
 #[test]
-fn charger_state_from_the_two_stat_reads() {
-    assert_eq!(charger_state(true, false, false), Charger::Charging);
-    assert_eq!(charger_state(true, true, true), Charger::Done);
-    assert_eq!(charger_state(true, false, true), Charger::None, "floating = no supply / shutdown");
-    assert_eq!(charger_state(true, true, false), Charger::None, "not physical");
-    assert_eq!(charger_state(false, false, false), Charger::None, "no cable");
-    assert_eq!(charger_state(false, true, true), Charger::None);
+fn charger_state_from_usb_detect_and_stat() {
+    assert_eq!(charger_state(true, true), Charger::Charging);
+    assert_eq!(charger_state(true, false), Charger::Done);
+    assert_eq!(charger_state(false, false), Charger::None, "STAT is high-Z without VBUS: not 'done'");
+    assert_eq!(charger_state(false, true), Charger::None, "no cable wins whatever STAT reads");
 }
 
 #[test]

@@ -80,17 +80,16 @@ pub enum Charger {
     Done,
 }
 
-/// MCP73832 STAT: low = charging, high = charge complete, high-Z = no supply or shutdown. The pin is read twice, with the internal
-/// pull-down and then the internal pull-up: a driven low reads (0, 0), a driven high (1, 1), a floating pin follows the pull (0, 1).
-/// A cable (`vbus_present`) is required for either charging state; (1, 0) is not physical and reads as `None`.
-pub const fn charger_state(vbus_present: bool, stat_with_pulldown: bool, stat_with_pullup: bool) -> Charger {
-    if !vbus_present {
-        return Charger::None;
-    }
-    match (stat_with_pulldown, stat_with_pullup) {
-        (false, false) => Charger::Charging,
-        (true, true) => Charger::Done,
-        _ => Charger::None,
+/// Charger state from `USBDETECTED` (the HJ-840 VBUS pad, `VBUS_P`) and the MCP73832 STAT pin. STAT is low while charging, high
+/// when done and high-Z with no VBUS: STAT alone cannot tell "done" from "no cable" (review 2026-11-20), so the cable comes from
+/// `USBDETECTED`: no cable = `None`; cable and STAT low = `Charging`; cable and STAT not low = `Done`.
+pub const fn charger_state(usb_detected: bool, stat_low: bool) -> Charger {
+    if !usb_detected {
+        Charger::None
+    } else if stat_low {
+        Charger::Charging
+    } else {
+        Charger::Done
     }
 }
 
