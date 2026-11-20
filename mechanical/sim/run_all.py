@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run all bench-pod simulations and write mechanical/sim/REPORT.md (+ plots/).
+"""Run the simulations: default = v0.1.0 integrated pod (REPORT-v010.md, v010_sim.py); --bench = bench pod (REPORT.md, + plots/).
 
     python3 mechanical/sim/run_all.py            # all sizes in params.json
     python3 mechanical/sim/run_all.py --sizes OP-100
@@ -31,7 +31,12 @@ def natural(r):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--sizes", nargs="*")
+    ap.add_argument("--bench", action="store_true", help="the bench-pod simulations (REPORT.md); default = the v0.1.0 integrated pod (v010_sim.py, REPORT-v010.md)")
     args = ap.parse_args()
+    if not args.bench:
+        import v010_sim
+        v010_sim.run(args.sizes)
+        return
     ctx = Ctx(args.sizes)
     t0 = time.time()
     # dependency order: A1 (thrust, seal) -> A4 (stiffness) -> A2 / A3 / A5

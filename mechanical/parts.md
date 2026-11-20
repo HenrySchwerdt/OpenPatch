@@ -1,4 +1,29 @@
-# OpenPatch Rev A - purchased and made parts (mechanical)
+# v0.1.0 integrated pod - purchased and made parts (current)
+
+> TEST PROJECT: water only, never on a person. Bench-pod parts (Rev A) follow below as history.
+
+| item | specification | notes |
+|---|---|---|
+| Drive screw | M1.6 x 0.35 A2 stainless rod, cut to **14.5 mm (OP-100) / 23.0 mm (OP-200)**, 0.4 x 1.0 mm slot across the tip | the only rod of the pod; stroke 8.62 / 17.23 mm; length = stroke + 5.9 |
+| Nut | DIN 934 M1.6 brass, AF 3.2, glued (Loctite 638) on the front face of the nut gear | |
+| Gears | GHW module 0.3: 390754 (z16, motor, bore 2.0) : 753020 (z20, nut gear, hub turned off), centre 5.51 mm | direct mesh, ratio 0.8 screw turns per motor turn; firmware preset g16-20, **mm/step unchanged (0.000529)**, U/step 0.00614 at A = 116.05 mm2 |
+| Motor | NFP-608-26.45-SGM, terminal pins facing +Y (option `zw34`: Zhaowei d3.4 x 13.3 mm, envelope only, unverified) | rear zone beside the screw tail |
+| Sleeve / bush | brass tube d2.0 x d1.7 x 3.1 (thrust sleeve), bush d3.0 x d1.7 x 1.0 | screw runs in both (running fit) |
+| Angle magnet | diametric ring N45/N52 d5 x d2 x 1.5 mm, glued on the sleeve | custom order: VERIFY availability |
+| Angle sensor | TMAG5273 (A2 range: field 35-75 mT) on the SENSOR board beside the ring | side-shaft, YZ angle |
+| Reservoir | CNC PP, 25.7 x 4.7 bore, wall 1.0, end wall 2.0, port d2.0 H7 at the dock axis | `reservoir_frozen_v010`, 2 per size |
+| Plunger | SLA core 4.5 x 25.5 x 4.76 + cast silicone bead (S2) | mould for the wider bore: `out/v010/fab/mould/` |
+| Fluid module | sandwich cap (end_cap, end_cap_lid), 0.5 mm silicone gasket, O-ring 2.0 x 0.7, septum d3.2 x 2, 30G needle + hub | no valve |
+| Boards | MAIN (ISP1807 8 x 8 x 1.0, outline in `OP-xx.layout.json`), POWER, SENSOR (TMAG + 2 dock halls), USB board, motor contact card, FPC spine | electronics agent |
+| Cell | Li-Po 301012 class (3.0 x 10 x 12 + PCM), 0.6 mm foam tape | beside the dock tunnel under the MAIN wing |
+| USB-C | waterproof mid-mount 8.94 x 7.35 x 3.26 mm, silicone gasket frame 0.5 x 0.8 | rear wall |
+| Spring contacts | SMD, 1.0-1.2 mm free height: 2 (cell), 4 (motor card), 8 (spine) | |
+| Misc | piezo 9 x 9 x 1.0, ePTFE vent disc d5, PU film d4, silicone stopper d2.4 (rear hole), M1.2 x 6 screws (7 lid + 2 clamp + 0) | |
+
+---
+
+# Bench pod (Rev A) - purchased and made parts (history)
+
 
 EXPERIMENTAL DIY device, not a medical device. Rev A is a bench/water-test build.
 

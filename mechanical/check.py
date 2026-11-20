@@ -153,7 +153,7 @@ def check_fluid_boundary(p: dict, L: dict) -> tuple[list, list]:
             problems.append(f"fluid: front seal contact line x={line:.2f} outside the bore {L['x_r0']:.2f}..{L['x_in1']:.2f} at the {tag} position")
         if xr + rs["plunger_len"] > L["x_in1"] + 1e-6:
             problems.append(f"fluid: plunger front {xr + rs['plunger_len']:.2f} beyond the chamber end {L['x_in1']:.2f} at the {tag} position")
-        for op in wall_openings(p, L):
+        for op in ([] if L.get("inline") else wall_openings(p, L)):      # closed sealed-drive reservoir: op_inline.fluid_boundary proves there is no wall opening
             if op["x"][1] > line - 1e-6 and op["x"][0] < L["x_in1"]:
                 known.append(f"fluid boundary: wall opening '{op['name']}' x {op['x'][0]:.1f}..{op['x'][1]:.1f} reaches {op['x'][1] - line:.1f} mm in front of the "
                              f"front seal contact line (x={line:.1f}) at the {tag} position: the wetted zone leaks into the pod through it")

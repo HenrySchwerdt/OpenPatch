@@ -92,10 +92,11 @@ def build_mouth_cut(s: Script, p: dict, L: dict, name: str, top_part: bool = Fal
     ztop = p["cannula"]["B_dome_h"] + dk["mouth_over"]
     lap = p["shell"]["lap_low"]
     x0 = L["length"] - L["wall"] - 0.3
+    xe = L["length"] + 0.1 if p.get("v010_pod") else L["length"] - 0.05          # v0.1.0: cut right through (the 0.05 mm skin of the bench pod is a DFM hard-floor violation)
     if top_part:        # lid: skirt (z 5.01..) only
-        return [s.box(name, (x0, L["length"] - 0.05), (y0, y1), (lap - 0.1, ztop))]
+        return [s.box(name, (x0, xe), (y0, y1), (lap - 0.1, ztop + 0.03))]
     return [s.box(name + "a", (x0, L["length"] + 0.1), (y0, y1), (-0.1, lap - 0.05)),
-            s.box(name + "b", (x0, L["length"] - 0.05), (y0, y1), (lap - 0.1, ztop))]
+            s.box(name + "b", (x0, xe), (y0, y1), (lap - 0.17, ztop + 0.03))]
 
 
 def build_needle(s: Script, p: dict, L: dict) -> None:
@@ -132,6 +133,8 @@ def build_adapter(s: Script, p: dict, L: dict, name: str = "cannula_adapter", lu
         cuts.append(s.cyl("t_ad_vert", "Z", (xv, yc, 0), ad["channel_d"], ad["channel_z"] - ad["channel_d"] / 2, zn))
         cuts.append(s.cyl("t_ad_chan", "X", (0, yc, ad["channel_z"]), ad["channel_d"], xv - 0.3, xm + ad["lug_half_x"] + ad["barb_len"] + 0.1))
         cuts.append(s.cyl("t_ad_mag", "Z", (xm, yc, 0), ad["magnet_d"] + ad["magnet_clr"], zl - ad["magnet_t"] - 0.05, zl + 0.1))
+        if p.get("v010_pod"):       # relief in the dome rim above the pocket: the magnet drops in vertically (assembly check A1)
+            cuts.append(s.cyl("t_ad_magrel", "Z", (xm, yc, 0), ad["magnet_d"] + ad["magnet_clr"] + 0.4, zl + 0.05, cn["B_dome_h"] + 0.1))
     s.cut(name, cuts)
 
 
@@ -187,7 +190,7 @@ def build_insert(s: Script, p: dict, L: dict, name: str = "dock_insert", vid: in
         joins.append(s.polyprism(f"t_ihook{k}", pts, (zn - cn["N_hook_h"] / 2, zn + cn["N_hook_h"] / 2)))
     if vid is not None:             # raised ID digits (7 segments, reading along +X) on the outer face of the -Y snap arm
         digits = [int(ch) for ch in str(vid)]
-        wd, ht, w, rz = 1.0, 2.0, 0.35, 0.3
+        wd, ht, w, rz = 1.0, 2.0, p["dock"].get("digit_w", 0.35), p["dock"].get("digit_h", 0.3)
         y_face = yc - ai - dk["arm_t"]
         zc_ = (za + zb) / 2
         x0d = D["x_arm0"] + 2.5

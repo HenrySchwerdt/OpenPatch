@@ -1,7 +1,7 @@
 # Project status & handover
 
 > This file is the **entry point for every new session** (another machine, another Claude subscription, another person).
-> It is updated on every push. Last updated: **2026-11-19 (cloud session, milestone 1 merged)**.
+> It is updated on every push. Last updated: **2026-11-19 (cloud session, v0.1.0 integrated model merged)**.
 
 ## Take-up is a travel, converted per preset (2026-11-19, electronics worktree, firmware-rs)
 - Fixed bug: `plunger_um_to_mu` used a global 74.63 mm^2 area, so the 0.33 mm take-up after a reversal was 350 steps on the cup pod instead of 499. Each `Preset` now carries `bore_area_x100` (cup 106.26 mm^2); `LOST_MOTION_TOTAL_UM` / `TAKEUP_UM_AFTER_REVERSAL` is a travel, `Preset::travel_um_to_steps` converts it exactly (rounded up), `PumpConfig::takeup_um` replaces `takeup_mu`. Applied after every assisted fill / draw. Golden vector `docs/vectors/wire-v1-scenarios.json` regenerated (one more cup prime retry); Swift golden count 40 -> 41. Open: the real cup backlash is still unmeasured.
@@ -92,6 +92,10 @@ All dimensions and components are in [spec/design-parameters.md](../spec/design-
 
 ## Decision log (user)
 
+- 2026-11-19 (coordinator, cloud session): **Coaxial comparison model** (`generate.py/check.py --variant v010`, `mechanical/V010.md`). **Superseded for v0.1.0 by the owner's cup pod, layout A (`--drive cup`)**; it is kept only as a measured comparison. It has one coaxial rod, a closed wide bore of 25.7 × 4.7 mm with a 1.0 mm wall, the motor in the rear zone, no idler, a ring magnet with TMAG, USB-C in the rear wall, a clear lid on a flat gasket joint with 6 screws, and the fill septum on the underside (d3.2).
+  - **Verified from a clean checkout:** `check.py --variant v010` PASS for both sizes. That covers fluid boundary, H14, one-rod, 54 bodies with no interference and 12 dock inserts. `--assembly` reports 0 blocking findings.
+  - **Length targets missed:** OP-100 is **58.2 mm** against 45, OP-200 is **66.9 mm** against 54. The cause is the dry tail of the translating screw. All levers together reach about 49 / 58 mm. Compared with the cup pod (OP-100 47.96 / OP-200 66.78 × 34.6 mm), the coaxial model is 10 mm longer at OP-100, about equal at OP-200, but 2.6 mm narrower. The length-closure study was stopped in favour of the cup pod.
+  - **Other open findings:** thrust margin 1.14 (target ≥ 2); the U/step firmware constant must be rescaled for the 116 mm² bore; the POWER board (572 mm²) does not fit the ~190 mm² pocket; the ring magnet is a custom part; the TMAG needs the A2 range plus a lookup calibration; the v010 dock inserts are not interchangeable with the bench inserts (z interface changed); cannula dome height still unmeasured.
 - 2026-11-19: **v0.1.0 radio = Insight SiP ISP1807** (8 × 8 × 1, integrated certified antenna, consigned to JLC) on a MAIN board ≤ 400 mm²; button = small side-actuated tact switch on the POWER board edge (coordinator choice; a magnet tap near the TMAG would disturb the angle sensor). Partition per electronics/v010/MINIATURIZATION.md §11.
 - 2026-11-19: **New hazards H14/H15** (docs/02-safety.md): manual septum injection while docked would bypass all limits → septum must be unreachable when docked (spec §3e); reverse while docked → interlock becomes `DOCKED XOR DIR_REVERSE`.
 - 2026-11-19: **Only the integrated v0.1.0 pod is built** (spec §4c); the bench controller board is parked as a fallback/debug fixture (not ordered).

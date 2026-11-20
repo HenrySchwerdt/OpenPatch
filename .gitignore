@@ -17,3 +17,6 @@ site/dist/
 *.erc
 *.log
 electronics/v010/sim/results/*.csv
+
+# assembly-checker per-body meshes (regenerated, about 50 MB)
+mechanical/out/**/assembly-check/meshes/
