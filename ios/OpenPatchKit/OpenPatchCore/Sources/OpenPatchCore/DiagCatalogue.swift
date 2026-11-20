@@ -5,7 +5,7 @@ import Foundation
 
 public enum DiagCatalogueData {
     /// Catalogue version (matches `DiagSummary.schema` of a pod with the same catalogue).
-    public static let schemaVersion: UInt16 = 3
+    public static let schemaVersion: UInt16 = 4
 
     public static let entries: [DiagCatalogueEntry] = [
         DiagCatalogueEntry(code: DiagCode(raw: 0x10100100), name: "FLASH_IMAGE_BAD", severity: .fault, action: .updateFw, fru: .fw, fru2: nil, legacyBit: 5, hazards: 0x0002, text: "Firmware image damaged."),
@@ -153,6 +153,7 @@ public enum DiagCatalogueData {
         DiagCatalogueEntry(code: DiagCode(raw: 0xAA000100), name: "BATTERY_LOW", severity: .warning, action: .checkPower, fru: .batt, fru2: .usb, legacyBit: nil, hazards: 0x0008, text: "Pod battery low."),
         DiagCatalogueEntry(code: DiagCode(raw: 0xAA000200), name: "BATTERY_CRITICAL", severity: .fault, action: .checkPower, fru: .batt, fru2: .usb, legacyBit: 3, hazards: 0x0008, text: "Pod battery critical."),
         DiagCatalogueEntry(code: DiagCode(raw: 0xAA000300), name: "BATTERY_OVERVOLT", severity: .latched, action: .replace, fru: .batt, fru2: nil, legacyBit: 5, hazards: 0x0900, text: "Pod battery damaged."),
+        DiagCatalogueEntry(code: DiagCode(raw: 0xAA000400), name: "CELL_SAG_UNDER_LOAD", severity: .fault, action: .checkPower, fru: .batt, fru2: nil, legacyBit: 3, hazards: 0x0008, text: "Battery too weak for the motor. Charge or replace the cell."),
         DiagCatalogueEntry(code: DiagCode(raw: 0xAA100100), name: "CHARGER_FAULT", severity: .fault, action: .replace, fru: .chg, fru2: nil, legacyBit: 5, hazards: 0x0100, text: "Charging fault."),
         DiagCatalogueEntry(code: DiagCode(raw: 0xAA200100), name: "USB_SUPPLY_LOW", severity: .warning, action: .checkPower, fru: .usb, fru2: nil, legacyBit: nil, hazards: 0x0008, text: "USB power is weak."),
         DiagCatalogueEntry(code: DiagCode(raw: 0xAA200200), name: "USB_OVERVOLT", severity: .latched, action: .replace, fru: .usb, fru2: nil, legacyBit: 5, hazards: 0x0800, text: "USB supply voltage too high."),
@@ -456,6 +457,8 @@ extension DiagCode {
     public static let batteryCritical = DiagCode(raw: 0xAA000200)
     /// `A-A0-003`
     public static let batteryOvervolt = DiagCode(raw: 0xAA000300)
+    /// `A-A0-004`
+    public static let cellSagUnderLoad = DiagCode(raw: 0xAA000400)
     /// `A-A1-001`
     public static let chargerFault = DiagCode(raw: 0xAA100100)
     /// `A-A2-001`

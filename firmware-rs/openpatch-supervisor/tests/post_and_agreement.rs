@@ -114,7 +114,7 @@ fn a_burst_longer_than_the_budget_is_cut_by_the_supervisor() {
 
 #[test]
 fn bursts_from_the_plan_fit_the_window_and_the_budget() {
-    for mv in [3_400u16, 3_800, 4_200] {
+    for mv in [3_700u16, 3_800, 4_200] {
         let plan = plan_burst(CellParams::default(), MotorLoad::default(), mv, 5_000, CFG.fwd_budget).unwrap();
         assert!(plan.steps <= CFG.fwd_budget);
         assert!(plan.burst_ms <= CFG.window_ms, "the burst fits the armed window");

@@ -191,6 +191,15 @@ Note: In DASH mode Trio "sees" a 200 U pod with 80 h lifetime; reservoir display
 - Communication loss: temp basal continues for max. 30 min, then falls back to the programmed basal rate (DASH semantics)
 - Encoder deviation > 10 % over 1 U → delivery stop + alarm
 
+Tightening items from the cup board SPICE report (`electronics/v010/cup/sim/REPORT.md` F2, F3, F7, 2026-11-20). All three are new limits that only tighten; no existing limit changes (the 3.4 V resting floor and the 3.0 V check after 20 steps stay as they are). Code: `firmware-rs/openpatch-core/src/battery.rs`, `firmware-rs/openpatch-supervisor/src/logic.rs`; board notes: `firmware-rs/docs/board-cup-v4.md`.
+
+| Limit | Value | Configurable | Reason |
+|---|---|---|---|
+| No move starts when the **resting** cell voltage is below | **3.7 V** (`MOTOR_REST_MIN_MV`) | 3.4 to 4.15 V, never below the boost enable minimum | F2, interim conservative value until the cell ESR is measured (at 1.2 Ω or more the 3.4 V rest lockout still lets VBAT fall below the nRF VDDH minimum of 2.5 V). Raises `A-A0-004` instance 2. |
+| A move is **stopped** when VBAT under load, measured after the first step of each burst, is below | **2.8 V** (`MOTOR_LOAD_ABORT_MV`) | 2.6 to 3.0 V | F2. Raises `A-A0-004` instance 1 (cell sag under load; FRU = cell, action = charge or replace the cell). The existing 3.0 V check after 20 steps remains. |
+| The boost converter is enabled only when the **resting** cell voltage is at least | **3.4 V** (`BOOST_ENABLE_MIN_MV`) | no | F3: the boost pre-charge draws about 1 A. The start gate checks it before the 3.7 V rule, so it holds for every configuration of the rest threshold. |
+| `SUP_PERMIT` stays low after any reset or brown-out for at least | **10 ms** (`MIN_RESET_HOLDOFF_MS`) | longer only | F7: a short 3V3 dip must not be followed by an immediate permit. Provisioning also sets the supervisor option byte BOR level = highest, next to nBOOT_SEL. |
+
 ## 7a. Diagnostics and hardware independence (requirement, 2026-11-19)
 
 - **Hardware independence:** the motor supply is gated in hardware (`MCU_EN AND watchdog latch AND (DOCKED XOR DIR_REV)` (XOR since 2026-11-19, hazard H15: reverse only when undocked, forward only when docked), TPL5010, hardware over-current cut that clears the latch) so that a firmware fault cannot hold the motor on beyond one watchdog interval, and an undocked pod cannot deliver forward. **Hardware step budget (HW-A, decided 2026-11-19, mandatory for v0.1.0; the bench controller Rev A does not have it — documented residual risk in `electronics/bench/INTERLOCK.md`):** an arm window + pulse budget in discrete logic bounds a runaway inside the watchdog window to ≈ 1.6 U; Rev B adds an independent monitor for the hourly limit. Firmware must **prove at runtime** that each gate can still cut the supply (rotating single-gate disarm, POST-A). A proven-stuck gate or a dead watchdog latches the pod; no delivery with a degraded protection layer. The dose limits of §7 are additionally enforced by the firmware supervisor.

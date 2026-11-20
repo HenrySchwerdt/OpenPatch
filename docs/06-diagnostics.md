@@ -575,13 +575,14 @@ Firmware codes are raised by the module named in the component. When a firmware 
 | `9-95-001` | POD_FW_UNSUPPORTED | pod firmware older than the app minimum | APP | W | FW: UPDATE_FW | H13 | S | Pod firmware too old for this app. |
 | `9-95-002` | UNKNOWN_POD_CODE | the pod reported a code that is not in the app's catalogue; the record's own severity, FRU and action are used and the raw code is shown | APP | W | NONE: UPDATE_APP | H13 | S | Unknown pod error, update the app. |
 
-### 4.7 Layer A: power (6 codes) and layer B: environment (6 codes)
+### 4.7 Layer A: power (7 codes) and layer B: environment (6 codes)
 
 | Code | Name | Detection and threshold | By | Sev | FRU: action | Haz | Test | Trio text |
 |---|---|---|---|---|---|---|---|---|
 | `A-A0-001` | BATTERY_LOW | at or below 3.5 V (`BATTERY_LOW_MV`, 100 mV hysteresis); inst 1 = bench VBUS source | FW-core | W | BATT (USB): CHARGE | H3 | C, D, B18 | Pod battery low. |
 | `A-A0-002` | BATTERY_CRITICAL | below 3.3 V (`BATTERY_CRITICAL_MV`); inst 1 = bench VBUS source; blocks resume until recovered | FW-core | F | BATT (USB): CHARGE | H3 | C, D, B18 | Pod battery critical. |
 | `A-A0-003` | BATTERY_OVERVOLT | Rev B: cell above 4.3 V or below 2.5 V persistently | FW-HAL | L | BATT: REPLACE | H8, H11 | C | Pod battery damaged. |
+| `A-A0-004` | CELL_SAG_UNDER_LOAD | VBAT under load below `MOTOR_LOAD_ABORT_MV` (2.8 V, configurable) after the first step of a burst: the move is stopped (inst 1; ctx_a = mV, ctx_b = limit, ctx_c = steps made); or resting VBAT below `MOTOR_REST_MIN_MV` (3.7 V interim, configurable) at move start: no move is started (inst 2) | FW-core | F | BATT: CHARGE | H3 | C | Battery too weak for the motor. Charge or replace the cell. |
 | `A-A1-001` | CHARGER_FAULT | Rev B: charge controller fault or charge timeout | FW-HAL | F | CHG: REPLACE | H8 | C | Charging fault. |
 | `A-A2-001` | USB_SUPPLY_LOW | bench: `VBUS_SENSE` below 4.4 V (the 3.5 V and 3.3 V levels use `A-A0-001/002` with inst 1) | FW-HAL | W | USB: CHECK_POWER | H3 | C, B18 | USB power is weak. |
 | `A-A2-002` | USB_OVERVOLT | `VBUS_SENSE` above 5.6 V | FW-HAL | L | USB: REPLACE | H11 | H, B18 | USB supply voltage too high. |
@@ -607,9 +608,9 @@ Catalogue size by layer: see the count table in 4.8.
 | 7 FW | 41 | supervisor 7, engine 3, reservoir model 2, draw 2, pod 6, storage 4, interlock HAL 2, stepper HAL 3, ADC 1, I2C 1, boot 1, timing 3, diagnostics 3, calibration 3 |
 | 8 PROTO | 9 | |
 | 9 APP | 13 | |
-| A POWER | 6 | |
+| A POWER | 7 | |
 | B ENV | 6 | |
-| **Total** | **150** | severity: 2 I, 54 W, 68 F, 26 L |
+| **Total** | **155** | severity: 2 I, 55 W, 70 F, 28 L |
 
 Reserved and not yet allocated: layer 1 components `0F` (HW-A step budget) and `10` (HW-B monitor), layer `C` to `E`, FRU ids 19 and up (Rev B). Codes needed by the electronics FMEA (3.6) or found in bench runs are appended to their component (rule 2.8).
 
@@ -696,7 +697,7 @@ Compatibility: frame `version` stays **1**; frame layout, CRC, TLV encoding, AAD
 Worked example (TLV level, frame header/CRC omitted; code `1-06-001` = `0x10600100`, little endian `00 01 60 10`):
 
 ```
-DIAG_SUMMARY  27 0E | 00 01 60 10 | 03 08 01 01 01 03 | 06 00 | 03 00
+DIAG_SUMMARY  27 0E | 00 01 60 10 | 03 08 01 01 01 03 | 06 00 | 04 00
                      top_code      sev act fru nL nA post  head   schema
 DIAG_RECORD   29 20 | 05 00 00 00 | 00 01 60 10 | 03 08 01 00 | 2C 01 00 00 | 30 07 00 00 | E8 03 00 00 | 39 30 00 00 | 01 43 00 00
                      rec_id 5      code          sev act fru fru2  t_s=300       ctx_a=1840 mV ctx_b=1000 mV  ctx_c=12345   cnt flags cause

@@ -53,9 +53,26 @@ pub struct Config {
     /// margin) and over one minute (1.7 U/min).
     pub hour_cap_steps: u32,
     pub minute_cap_steps: u32,
+    /// F7 (SPICE report): after ANY reset or brown-out (the supervisor's own power-up, a reset of the main MCU, a brown-out event)
+    /// `SUP_PERMIT` stays low for at least this long before the first permit can be granted, ms. Values below
+    /// [`MIN_RESET_HOLDOFF_MS`] are raised to it: the hold-off cannot be configured away.
+    pub reset_holdoff_ms: u32,
 }
 
+/// Shortest permit hold-off after a reset or brown-out (F7): a 5 ms 3V3 dip that does not reset the latch must not be followed by an
+/// immediate permit. Spec section 7, tightening item.
+pub const MIN_RESET_HOLDOFF_MS: u32 = 10;
+
 impl Config {
+    /// The hold-off in force: never below [`MIN_RESET_HOLDOFF_MS`].
+    pub const fn effective_reset_holdoff_ms(&self) -> u32 {
+        if self.reset_holdoff_ms < MIN_RESET_HOLDOFF_MS {
+            MIN_RESET_HOLDOFF_MS
+        } else {
+            self.reset_holdoff_ms
+        }
+    }
+
     /// Cup drive `nfp-608-26-45-cup-miter-1-1` (id 0x26, 7.0303 mU per step): 15 U/h reduced by the 4 % calibration margin
     /// (`limits::HOURLY_CAL_MARGIN_PCT`) = 14 423 mU = 2051 steps; 1.7 U/min = 241 steps. The integration test recomputes both from
     /// the core's limits and calibration, so a change of the drive or of the limits breaks it.
@@ -72,6 +89,7 @@ impl Config {
         lock_window_ms: 600_000,
         hour_cap_steps: 2_051,
         minute_cap_steps: 241,
+        reset_holdoff_ms: MIN_RESET_HOLDOFF_MS,
     };
 }
 
@@ -161,6 +179,8 @@ pub enum ArmReject {
     UndockedForward,
     /// A bucket has less room than one full forward budget.
     BucketFull,
+    /// F7: less than the reset hold-off ([`MIN_RESET_HOLDOFF_MS`] at least) since the last reset or brown-out.
+    ResetHoldoff,
 }
 
 /// Leaky bucket in micro-steps.
@@ -214,6 +234,8 @@ pub struct Supervisor {
     rev_in_window: u32,
     /// The last window ended because its step budget was used up (a further step is then a budget violation, not a stray step).
     budget_used: bool,
+    /// F7: no permit before this time (power-up, main MCU reset, brown-out + the hold-off).
+    holdoff_until: u64,
     /// When DEAD began.
     dead_since: u64,
     /// Last activity (input change, step edge) for the FAULT hold.
@@ -247,6 +269,7 @@ impl Supervisor {
             fwd_in_window: 0,
             rev_in_window: 0,
             budget_used: false,
+            holdoff_until: now_ms + cfg.effective_reset_holdoff_ms() as u64,
             dead_since: 0,
             quiet_since: now_ms,
             fault_times: [0; 8],
@@ -445,6 +468,9 @@ impl Supervisor {
         if self.state != State::Idle {
             return Err(ArmReject::State(self.state));
         }
+        if self.now < self.holdoff_until {
+            return Err(ArmReject::ResetHoldoff);
+        }
         if let Some(t) = self.last_arm_at {
             if self.now - t < self.cfg.min_arm_interval_ms as u64 {
                 return Err(ArmReject::TooSoon);
@@ -536,15 +562,30 @@ impl Supervisor {
 
     /// The main MCU was reset (by the supervisor's own `NRST` pulse or seen on the reset line). Its pins float: the permit drops, the
     /// PHASE decoder resyncs to `a`, `b` without counting, the state goes to IDLE after the dead time (never straight to ARMED).
-    /// A FAULT / LOCKED state stays.
+    /// A FAULT / LOCKED state stays. F7: whatever the state, no permit is granted for the reset hold-off (>= 10 ms) after this call.
     pub fn on_main_reset(&mut self, now_ms: u64, a: bool, b: bool) -> Outputs {
         self.advance(now_ms);
+        self.reset_event(a, b);
+        self.outputs()
+    }
+
+    /// A brown-out of the 3V3 rail that the platform shell saw (BOR / PVD flag, or a dip seen on a supply monitor) without a full
+    /// reset of this chip (F7). Same as a reset of the main MCU: the permit drops at once, the PHASE decoder resyncs, an armed or idle
+    /// supervisor goes to DEAD, and no permit can be granted for the reset hold-off (at least [`MIN_RESET_HOLDOFF_MS`]) even if the
+    /// dead time is shorter. The supervisor's own reset needs no call: [`Supervisor::new`] starts the same hold-off.
+    pub fn on_brown_out(&mut self, now_ms: u64, a: bool, b: bool) -> Outputs {
+        self.advance(now_ms);
+        self.reset_event(a, b);
+        self.outputs()
+    }
+
+    fn reset_event(&mut self, a: bool, b: bool) {
         self.dec.resync(a, b);
+        self.holdoff_until = self.holdoff_until.max(self.now + self.cfg.effective_reset_holdoff_ms() as u64);
         if matches!(self.state, State::Armed | State::Idle) {
             self.state = State::Dead;
             self.dead_since = self.now;
         }
-        self.outputs()
     }
 
     /// Everything the status frame needs.

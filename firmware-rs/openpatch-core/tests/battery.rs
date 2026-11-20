@@ -63,8 +63,10 @@ fn battery_classes_follow_the_limits() {
 
 #[test]
 fn motor_start_policy() {
-    assert!(motor_start_allowed(3_400, false));
-    assert!(!motor_start_allowed(3_399, false));
+    // F2: the interim rest threshold is 3.7 V (3.4 V is now only the floor under it); more in `supply_limits.rs`
+    assert!(motor_start_allowed(3_700, false));
+    assert!(!motor_start_allowed(3_699, false));
+    assert!(!motor_start_allowed(3_400, false));
     assert!(!motor_start_allowed(4_200, true), "never on a cable (H8)");
     assert!(loaded_voltage_ok(3_000));
     assert!(!loaded_voltage_ok(2_999));

@@ -3,12 +3,12 @@ import XCTest
 
 /// Catalogue integrity (docs/06-diagnostics.md 2.8, 6.1): the generated Swift catalogue equals spec/diag-codes.csv.
 final class DiagCatalogueTests: XCTestCase {
-    func testCatalogueHas154CodesWithTheDocumentedSeveritySplit() {
+    func testCatalogueHas155CodesWithTheDocumentedSeveritySplit() {
         let entries = DiagCatalogue.entries
-        XCTAssertEqual(entries.count, 154)
+        XCTAssertEqual(entries.count, 155)
         func count(_ s: DiagSeverity) -> Int { entries.filter { $0.severity == s }.count }
-        XCTAssertEqual([count(.info), count(.warning), count(.fault), count(.latched)], [2, 55, 69, 28])
-        XCTAssertEqual(DiagCatalogue.schemaVersion, 3)
+        XCTAssertEqual([count(.info), count(.warning), count(.fault), count(.latched)], [2, 55, 70, 28])
+        XCTAssertEqual(DiagCatalogue.schemaVersion, 4)
     }
 
     func testSortedUniqueAndInstanceFree() {

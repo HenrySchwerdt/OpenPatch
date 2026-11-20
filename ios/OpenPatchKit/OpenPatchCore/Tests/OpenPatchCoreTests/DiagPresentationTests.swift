@@ -61,7 +61,7 @@ final class DiagPresentationTests: XCTestCase {
             XCTAssertEqual(plan.body.contains("Delivery is stopped"), entry.severity.stopsDelivery, name)
             XCTAssertLessThan(plan.body.count, 260, "\(name): alert body too long")
         }
-        XCTAssertEqual(identifiers.count, 154)
+        XCTAssertEqual(identifiers.count, 155)
     }
 
     // MARK: Forward compatibility

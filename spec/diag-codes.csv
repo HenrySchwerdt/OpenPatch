@@ -144,6 +144,7 @@ code,name,detection,by,sev,fru,fru2,action,haz,test,text,legacy_bit,waiver
 A-A0-001,BATTERY_LOW,"at or below 3.5 V (`BATTERY_LOW_MV`, 100 mV hysteresis); inst 1 = bench VBUS source",FW-core,W,BATT,USB,CHECK_POWER,H3,C D B18,Pod battery low.,,
 A-A0-002,BATTERY_CRITICAL,below 3.3 V (`BATTERY_CRITICAL_MV`); inst 1 = bench VBUS source; blocks resume until recovered,FW-core,F,BATT,USB,CHECK_POWER,H3,C D B18,Pod battery critical.,3,
 A-A0-003,BATTERY_OVERVOLT,Rev B: cell above 4.3 V or below 2.5 V persistently,FW-HAL,L,BATT,,REPLACE,H8 H11,C,Pod battery damaged.,5,
+A-A0-004,CELL_SAG_UNDER_LOAD,"VBAT under load below `MOTOR_LOAD_ABORT_MV` (2.8 V, configurable) after the first step of a burst: the move is stopped (inst 1; ctx_a = mV, ctx_b = limit, ctx_c = steps made); or resting VBAT below `MOTOR_REST_MIN_MV` (3.7 V interim, configurable) at move start: no move is started (inst 2)",FW-core,F,BATT,,CHECK_POWER,H3,C,Battery too weak for the motor. Charge or replace the cell.,3,
 A-A1-001,CHARGER_FAULT,Rev B: charge controller fault or charge timeout,FW-HAL,F,CHG,,REPLACE,H8,C,Charging fault.,5,
 A-A2-001,USB_SUPPLY_LOW,bench: `VBUS_SENSE` below 4.4 V (the 3.5 V and 3.3 V levels use `A-A0-001/002` with inst 1),FW-HAL,W,USB,,CHECK_POWER,H3,C B18,USB power is weak.,,
 A-A2-002,USB_OVERVOLT,`VBUS_SENSE` above 5.6 V,FW-HAL,L,USB,,REPLACE,H11,H B18,USB supply voltage too high.,5,

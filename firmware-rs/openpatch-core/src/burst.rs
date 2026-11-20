@@ -12,7 +12,7 @@
 //! chosen conservatively from the numbers above and has to be confirmed on the bench (cell voltage under the burst, cell
 //! temperature, PCM trip); change them in [`CellParams`], not in the logic.
 
-use crate::battery::MOTOR_MIN_VBAT_MV;
+use crate::battery::{start_gate, MotorSupplyLimits};
 
 /// Electrical limits of the cell for pulsed discharge. All fields configurable.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -28,12 +28,22 @@ pub struct CellParams {
     pub avg_limit_ma: u16,
     /// Shortest rest gap after any burst, ms (cell voltage recovery, the protection chip's overcurrent timer resets).
     pub min_rest_ms: u16,
+    /// Rest-voltage start threshold and loaded-voltage abort threshold (SPICE F2/F3; interim until the cell resistance is measured).
+    /// Plan with [`plan_burst`], guard the running burst with `battery::LoadGuard::new(cell.supply)`.
+    pub supply: MotorSupplyLimits,
 }
 
 impl CellParams {
     /// Ampul 301030 defaults (PLACEHOLDERS, see the module documentation).
     pub const AMPUL_301030: CellParams =
-        CellParams { capacity_mah: 60, max_pulse_ma: 700, max_pulse_ms: 150, avg_limit_ma: 90, min_rest_ms: 250 };
+        CellParams {
+            capacity_mah: 60,
+            max_pulse_ma: 700,
+            max_pulse_ms: 150,
+            avg_limit_ma: 90,
+            min_rest_ms: 250,
+            supply: MotorSupplyLimits::DEFAULT,
+        };
 }
 
 impl Default for CellParams {
@@ -110,7 +120,8 @@ impl BurstPlan {
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub enum BurstRefusal {
-    /// Cell below [`MOTOR_MIN_VBAT_MV`] (open circuit, measured at rest): no motor start.
+    /// Resting cell voltage below the start threshold (`cell.supply`, default 3.7 V; never below the 3.4 V boost enable minimum):
+    /// no motor start. Raise `A-A0-004` instance 2 (`battery::rest_refusal_raise`).
     BatteryLow,
     /// The burst current at this cell voltage exceeds `max_pulse_ma`.
     CellCannotSupply,
@@ -135,7 +146,9 @@ pub fn rest_for_burst(cell: CellParams, cell_ma: u32, burst_ms: u32) -> u32 {
 ///
 /// * the burst never exceeds `cell.max_pulse_ms` (alignment period included) nor `max_steps` (the supervisor's step budget
 ///   per armed window, 32);
-/// * refused below [`MOTOR_MIN_VBAT_MV`] and when the burst current exceeds `cell.max_pulse_ma`.
+/// * refused when `vbat_mv` (the cell at REST, no load) is below `cell.supply.rest_min_mv` (default 3.7 V, interim until the cell
+///   resistance is measured; `battery::start_gate` also enforces the 3.4 V boost enable minimum, F3) and when the burst current
+///   exceeds `cell.max_pulse_ma`.
 pub fn plan_burst(
     cell: CellParams,
     load: MotorLoad,
@@ -143,7 +156,7 @@ pub fn plan_burst(
     period_us: u32,
     max_steps: u32,
 ) -> Result<BurstPlan, BurstRefusal> {
-    if vbat_mv < MOTOR_MIN_VBAT_MV {
+    if start_gate(cell.supply, vbat_mv, false).is_err() {
         return Err(BurstRefusal::BatteryLow);
     }
     let cell_ma = cell_current_ma(load, vbat_mv);

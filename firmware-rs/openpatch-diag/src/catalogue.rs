@@ -5,10 +5,10 @@
 use crate::{Action, CodeInfo, DiagCode, Fru, Severity};
 
 /// Catalogue version, reported in `DIAG_SUMMARY.schema`.
-pub const SCHEMA_VERSION: u16 = 3;
+pub const SCHEMA_VERSION: u16 = 4;
 
 /// All catalogue rows, sorted by `code.identity()` (binary search).
-pub static CATALOGUE: [CodeInfo; 154] = [
+pub static CATALOGUE: [CodeInfo; 155] = [
     CodeInfo { code: DiagCode(0x10100100), name: "FLASH_IMAGE_BAD", severity: Severity::Fault, action: Action::UpdateFw, fru: Fru::Fw, fru2: Fru::None, legacy_bit: 5, hazards: 0x0002 },
     CodeInfo { code: DiagCode(0x10100200), name: "BROWNOUT_RESET", severity: Severity::Warning, action: Action::CheckPower, fru: Fru::Usb, fru2: Fru::Ctrl, legacy_bit: 0xFF, hazards: 0x0008 },
     CodeInfo { code: DiagCode(0x10100300), name: "UICR_RESET_PIN_WRONG", severity: Severity::Fault, action: Action::Reprovision, fru: Fru::Fw, fru2: Fru::Ctrl, legacy_bit: 5, hazards: 0x0002 },
@@ -154,6 +154,7 @@ pub static CATALOGUE: [CodeInfo; 154] = [
     CodeInfo { code: DiagCode(0xAA000100), name: "BATTERY_LOW", severity: Severity::Warning, action: Action::CheckPower, fru: Fru::Batt, fru2: Fru::Usb, legacy_bit: 0xFF, hazards: 0x0008 },
     CodeInfo { code: DiagCode(0xAA000200), name: "BATTERY_CRITICAL", severity: Severity::Fault, action: Action::CheckPower, fru: Fru::Batt, fru2: Fru::Usb, legacy_bit: 3, hazards: 0x0008 },
     CodeInfo { code: DiagCode(0xAA000300), name: "BATTERY_OVERVOLT", severity: Severity::Latched, action: Action::Replace, fru: Fru::Batt, fru2: Fru::None, legacy_bit: 5, hazards: 0x0900 },
+    CodeInfo { code: DiagCode(0xAA000400), name: "CELL_SAG_UNDER_LOAD", severity: Severity::Fault, action: Action::CheckPower, fru: Fru::Batt, fru2: Fru::None, legacy_bit: 3, hazards: 0x0008 },
     CodeInfo { code: DiagCode(0xAA100100), name: "CHARGER_FAULT", severity: Severity::Fault, action: Action::Replace, fru: Fru::Chg, fru2: Fru::None, legacy_bit: 5, hazards: 0x0100 },
     CodeInfo { code: DiagCode(0xAA200100), name: "USB_SUPPLY_LOW", severity: Severity::Warning, action: Action::CheckPower, fru: Fru::Usb, fru2: Fru::None, legacy_bit: 0xFF, hazards: 0x0008 },
     CodeInfo { code: DiagCode(0xAA200200), name: "USB_OVERVOLT", severity: Severity::Latched, action: Action::Replace, fru: Fru::Usb, fru2: Fru::None, legacy_bit: 5, hazards: 0x0800 },
@@ -458,6 +459,8 @@ pub mod codes {
     pub const BATTERY_CRITICAL: DiagCode = DiagCode(0xAA000200);
     /// `A-A0-003`
     pub const BATTERY_OVERVOLT: DiagCode = DiagCode(0xAA000300);
+    /// `A-A0-004`
+    pub const CELL_SAG_UNDER_LOAD: DiagCode = DiagCode(0xAA000400);
     /// `A-A1-001`
     pub const CHARGER_FAULT: DiagCode = DiagCode(0xAA100100);
     /// `A-A2-001`

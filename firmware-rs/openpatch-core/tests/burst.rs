@@ -1,5 +1,5 @@
 //! Burst stepping for the cell's peak current (`burst`): timing as a pure function, configurable cell parameters.
-use openpatch_core::battery::MOTOR_MIN_VBAT_MV;
+use openpatch_core::battery::{MotorSupplyLimits, MOTOR_MIN_VBAT_MV, MOTOR_REST_MIN_MV};
 use openpatch_core::burst::*;
 
 const P: u32 = 5_000; // 200 pps
@@ -37,7 +37,7 @@ fn default_plan_is_short_bursts_with_long_rests() {
 
 #[test]
 fn average_current_is_bounded_over_the_whole_voltage_range() {
-    for mv in (MOTOR_MIN_VBAT_MV..=4_200).step_by(25) {
+    for mv in (MOTOR_REST_MIN_MV..=4_200).step_by(25) {
         let plan = plan_burst(CellParams::AMPUL_301030, MotorLoad::NFP_608_26_45, mv, P, 32).unwrap();
         assert!(plan.average_ma() <= CellParams::AMPUL_301030.avg_limit_ma as u32, "{mv} mV: {} mA", plan.average_ma());
         assert!(plan.cell_ma <= CellParams::AMPUL_301030.max_pulse_ma as u32);
@@ -48,17 +48,31 @@ fn average_current_is_bounded_over_the_whole_voltage_range() {
 #[test]
 fn lower_cell_voltage_means_longer_rest() {
     let rest = |mv| plan_burst(CellParams::default(), MotorLoad::default(), mv, P, 32).unwrap().rest_ms;
-    assert!(rest(3_400) > rest(3_800));
+    assert!(rest(3_700) > rest(3_800));
     assert!(rest(3_800) > rest(4_200));
 }
 
 #[test]
-fn refused_below_the_motor_start_limit_and_when_the_cell_cannot_supply() {
-    assert_eq!(plan_burst(CellParams::default(), MotorLoad::default(), 3_399, P, 32), Err(BurstRefusal::BatteryLow));
-    assert!(plan_burst(CellParams::default(), MotorLoad::default(), 3_400, P, 32).is_ok());
+fn refused_below_the_rest_threshold_and_when_the_cell_cannot_supply() {
+    // F2: interim rest threshold 3.7 V (was 3.4 V); the old limit is now only the floor under the configurable threshold
+    assert_eq!(plan_burst(CellParams::default(), MotorLoad::default(), 3_699, P, 32), Err(BurstRefusal::BatteryLow));
+    assert!(plan_burst(CellParams::default(), MotorLoad::default(), 3_700, P, 32).is_ok());
     let weak = CellParams { max_pulse_ma: 500, ..CellParams::default() };
-    assert_eq!(plan_burst(weak, MotorLoad::default(), 3_400, P, 32), Err(BurstRefusal::CellCannotSupply));
+    assert_eq!(plan_burst(weak, MotorLoad::default(), 3_700, P, 32), Err(BurstRefusal::CellCannotSupply));
     assert!(plan_burst(weak, MotorLoad::default(), 4_200, P, 32).is_ok(), "471 mA at 4.2 V");
+}
+
+#[test]
+fn the_rest_threshold_is_configurable_but_never_below_the_boost_minimum() {
+    let lenient = CellParams { supply: MotorSupplyLimits::new(3_400, 2_800).unwrap(), ..CellParams::default() };
+    assert!(plan_burst(lenient, MotorLoad::default(), 3_400, P, 32).is_ok(), "bench setting after the ESR is measured");
+    assert_eq!(plan_burst(lenient, MotorLoad::default(), 3_399, P, 32), Err(BurstRefusal::BatteryLow));
+    // a hand-built value below the floor does not relax anything
+    let hacked = CellParams { supply: MotorSupplyLimits { rest_min_mv: 0, load_abort_mv: 0 }, ..CellParams::default() };
+    assert_eq!(plan_burst(hacked, MotorLoad::default(), MOTOR_MIN_VBAT_MV - 1, P, 32), Err(BurstRefusal::BatteryLow));
+    let strict = CellParams { supply: MotorSupplyLimits::new(3_900, 2_800).unwrap(), ..CellParams::default() };
+    assert_eq!(plan_burst(strict, MotorLoad::default(), 3_800, P, 32), Err(BurstRefusal::BatteryLow));
+    assert!(plan_burst(strict, MotorLoad::default(), 3_900, P, 32).is_ok());
 }
 
 #[test]
@@ -74,7 +88,7 @@ fn step_budget_cap_and_period_limits() {
 
 #[test]
 fn parameters_are_configurable() {
-    let cell = CellParams { capacity_mah: 90, max_pulse_ma: 900, max_pulse_ms: 60, avg_limit_ma: 200, min_rest_ms: 100 };
+    let cell = CellParams { capacity_mah: 90, max_pulse_ma: 900, max_pulse_ms: 60, avg_limit_ma: 200, min_rest_ms: 100, supply: MotorSupplyLimits::DEFAULT };
     let plan = plan_burst(cell, MotorLoad::default(), 3_800, P, 32).unwrap();
     assert_eq!((plan.steps, plan.burst_ms), (11, 60));
     assert_eq!(plan.rest_ms, 100.max((60 * (521 - 200) as u32).div_ceil(200)));
@@ -132,7 +146,7 @@ fn burst_ms_for_rounds_up_and_counts_the_alignment_period() {
 fn bolus_rate_is_well_inside_what_the_cell_allows() {
     // 1.5 U/min bolus on the cup drive = 213 steps/min = 3.6 steps/s; the burst capacity is about 30 steps/s
     let cell = CellParams::default();
-    let plan = plan_burst(cell, MotorLoad::default(), 3_600, P, 32).unwrap();
+    let plan = plan_burst(cell, MotorLoad::default(), 3_700, P, 32).unwrap();
     let capacity = plan.steps as u64 * 1_000 / (plan.burst_ms + plan.rest_ms) as u64;
     assert!(capacity >= 10, "capacity {capacity} steps/s");
 }
