@@ -920,7 +920,7 @@
  },
  {
   "ref": "BZ1",
-  "value": "FUET-4020 SMD magnetic sounder (DNP)",
+  "value": "FUET-4020 SMD magnetic sounder",
   "fp": [
    "V010",
    "BZ_4020"
@@ -932,15 +932,15 @@
   "lcsc": "C391027",
   "mpn": "FUET-4020",
   "side": "B",
-  "bom": false,
-  "dnp": true,
-  "note": "DNP footprint 4 x 4 x 2.0 mm (no sounder <= 1.5 mm tall exists at JLC; the smallest are 4 x 4 x 2.0), bottom side of the side_b block; fit by hand or order as an extra part; driven by QBA + D6, off by default",
+  "bom": true,
+  "dnp": false,
+  "note": "fitted: 4 x 4 x 2.0 mm SMD magnetic sounder on the bottom side of the side_b block (2.0 mm part, 4.3 mm free below the board, 2.3 mm spare), pod position about (39.0, 20.2), z 3.3 to 5.3; driven by QBA + D6, off by default; loudness about 80 dB at 10 cm (class figure, VERIFY); alternatives MLT-5020 C94598 (5 x 5), Cy-SMD-4020-3040 C968744",
   "group": "ui",
   "board": "CUP"
  },
  {
   "ref": "D6",
-  "value": "1N4148W (sounder flyback, DNP)",
+  "value": "1N4148W (sounder flyback)",
   "fp": [
    "Diode_SMD",
    "D_SOD-123"
@@ -952,9 +952,9 @@
   "lcsc": "C81598",
   "mpn": "1N4148W",
   "side": "F",
-  "bom": false,
-  "dnp": true,
-  "note": "flyback across the sounder coil (cathode pad 1 on VBAT); fit with BZ1",
+  "bom": true,
+  "dnp": false,
+  "note": "flyback across the sounder coil (cathode pad 1 on VBAT)",
   "group": "ui",
   "board": "CUP"
  },

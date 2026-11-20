@@ -1,0 +1,25 @@
+> TEST ONLY - NOT FOR HUMAN USE (see ../../../DISCLAIMER.md). Water only, never worn.
+
+# MCU choice: a JLC-stocked replacement for the consigned ISP1807 (2026-11-20)
+
+Stock and prices read live from the JLCPCB parts API (`tools/jlcq.py`) on 2026-11-20. Embassy: `embassy-nrf` supports nRF52840 and nRF52833 (both with native USB for DFU).
+
+## Candidates
+
+| # | Part | LCSC | Package | Stock | Price | Antenna | Extra parts (about) | Total area incl. antenna + keep-out (estimate) | Verdict |
+|---|---|---|---|---|---|---|---|---|---|
+| 0 | Insight ISP1807-LR (current) | none (consigned) | LGA-78 8 x 8 x 1.0 | n/a | n/a | integrated | 4 (C1, C2, R1 + bridge) | **64 mm2** (module, antenna half overhangs the board) | not JLC-stocked: **must go** |
+| 1 | **HJSIP HJ-840** (nRF52840 SiP) | **C50052094** | LGA 6.2 x 7 x 0.9 | **91** (another listing 0) | USD 7.94 | integrated (external optional) | about 4 | **about 43 mm2** (saves about 21 mm2) | **recommended if the stock holds: smallest, nothing else needed**; stock is below the 100 target (a prototype needs 3 to 5 pieces) |
+| 2 | Nordic nRF52840-QIAA (aQFN73 7 x 7) | **C190794** (also C1851953 R7 stock 2108) | aQFN-73 7 x 7 | **43,283** | USD 5.58 | chip antenna 2.0 x 1.25 + pi match, or PCB antenna | about 28: 32 MHz crystal (+2 load caps), 32 kHz optional (internal LFRC), 10 to 12 decoupling caps (DEC1 to DEC6, DECUSB, VDDH...), DC/DC 10 uH + 15 nH (or LDO mode, higher current), antenna + 3 match parts | about 49 + 30 + 18 + keep-out 20 = **about 117 mm2** (**+53 mm2 more than the ISP1807**) | stocked fallback; costs area |
+| 3 | nRF52840-CKAA WLCSP-93 3.5 x 3.6 | C3606750 (stock 1747, USD 7.30); C3606764 stock 1366; C3606910 and C3606882 stock 0 | WLCSP 0.35 mm pitch | 1747 | USD 7.30 | chip antenna + match | same 28 support parts | 12.6 + 30 + 18 + 20 = **about 80 mm2** (**+16 mm2**) | **not recommended**: 0.35 mm pitch needs laser microvias (HDI) and via-in-pad; JLC's standard 6-layer process (0.2 mm drill, 0.4 mm pad) cannot fan out 0.35 mm pads, **JLC HDI and WLCSP assembly capability at 0.35 mm are unverified** (check the JLC capability page / ask; PCBWay HDI is the fallback); extra cost and risk |
+| 4 | nRF52833-QDAA (QFN-40 5 x 5) | C2895249 (stock 17,135, USD 6.35); C3007767 stock 2454 USD 4.89 | QFN-40 5 x 5 | 17k | USD 4.9 to 6.4 | chip antenna + match | about 24 | about 25 + 26 + 18 + 20 = **about 89 mm2** (+25 mm2) | stocked and smaller than the aQFN, but 128 kB RAM less, fewer GPIO (32): the pin budget (about 45 signals) does not fit without dropping features |
+| 5 | Minew MS88SF2 / MS88SF21, Raytac MDBT50Q family | C2836129, C19711689, C5118826 ... | 17 x 23, 12.5 x 18.5, 10.5 x 15.5 | **0** | | integrated | | larger than the ISP1807 | not stocked, larger |
+| 6 | Holyiot / HooRii HRN71 (10 x 10) | not found at JLC | | | | | | | not available |
+
+Total area = chip + crystal + decoupling + DC/DC parts + antenna + antenna keep-out, with 0402 basic passives (0201 would save about 20 percent of the support area at the price of extended parts). The module options win on area because crystals, DC/DC, matching and antenna are inside the package; a bare chip needs 25 to 30 external parts (the current board has 98 parts in total).
+
+## Recommendation
+**HJ-840 (C50052094)**: 43 mm2 against 64 mm2 (saves about 21 mm2, one third of the module + antenna area), no external parts besides decoupling, integrated antenna, native USB pins, 0.9 mm tall; USD 7.94 (ISP1807 is more). **Not yet built into the netlist**: the HJ-840 pad table (LGA-64 pin list, antenna side, NFC/USB pins) is not in the repository and the vendor datasheet could not be fetched offline (searches only returned distributor pages; Nordic lists the module as 6.2 x 7 x 0.9 mm, 48 GPIO), and a pin list must never be invented for a safety board. **Next step:** put the HJSIP datasheet into the session (or the JLC footprint of C50052094), then build `V010:HJ840` and map the pads with the same signal list as `ISP_PADS` in `design/netlist_v4.py` (48 GPIO cover the 40 signals used). If the stock of C50052094 (91) is too low at order time, the stocked fallback is the aQFN73 chip C190794 with the area penalty above (the board outline would have to grow by about 50 mm2, which the current layout cannot do) or a TSSOP-style two-board split.
+
+## JLC stock check of every other BOM line (`fab/cost_v4.json`)
+All BOM lines except U1 have an LCSC number and stock >= 100, with these exceptions: **U1 ISP1807 (consigned, no LCSC)**, **STM32C011F4U6 `C5456188` stock 47** (alternative: the TSSOP-20 `C5452432`, stock 238 in earlier lookups, needs a bigger footprint and the pin map of the 20-pin TSSOP), **TPS61023DRLR `C919459` stock 51** (alternative `C1852149` DRLT stock 198, same pinout). Hand-placed, not assembled by JLC by design: the cell lead pads (no part), REAR strip pads (no part). The DRV5032FA `C2152496` is stocked (2124). Unverified pad maps remain for J1, SW1, LD1, BZ1 (footprints are approximations): see `ORDER.md`.

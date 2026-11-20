@@ -60,3 +60,6 @@ JLC setup fee per extended line ($3, estimate): **26 x 3 = USD 78 per order**, t
 | Stock warnings | `C2152498` DRV5032AJDMRR stock 0 (fallback `C2152496` DRV5032FADMRR, threshold fires about 4 mm early, PARTS-LOCK 10), `C5456188` STM32C011F4U6 stock 47 |
 
 Order of 5 boards, 3 assembled (estimate, before VAT): parts 3 x (10.1 + ISP 11) = 63 + minimum-quantity overage 25 + extended fees 130 + PCB 6L 65 + SMT setup 25 + assembly 10 + FPC strips 15 + shipping 25 = **about USD 360 (about USD 430 with 19 % VAT, about EUR 400)**, about EUR 130 per assembled pod averaged over 3. **All numbers are estimates; confirm in the JLC quote.**
+
+### Update 2026-11-20 (98-part netlist, basic passives, `fab/cost_v4.json`)
+Parts per board (CUP + REAR strip, without the ISP1807 and the cell/motor): **USD 13.9**, 42 BOM lines of which **26 are extended** (was 43): setup fees about USD 78 per order instead of 130. The MCU module is the open item (`cup/MCU-CHOICE.md`): HJ-840 USD 7.94, aQFN73 chip USD 5.58 plus about 28 support parts. Stock warnings: STM32C011 `C5456188` 47, TPS61023 `C919459` 51, HJ-840 `C50052094` 91; the DRV5032FA `C2152496` is stocked.

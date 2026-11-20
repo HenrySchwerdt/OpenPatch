@@ -106,9 +106,9 @@ def build():
     take("D5", "ui", pins={"1": "CHG_STAT", "2": "LED_R"}, note="diode-OR: MCP73832 STAT low (charging) pulls the red cathode low even while the MCU sleeps (cathode pad 1 = STAT)")
     new("SW1", "SKRPACE010 side tact", ("V010", "SW_SKRPACE010_4.2x3.2"), {1: "BTN_N", 2: "BTN_N", 3: "GND", 4: "GND"}, "C139797", "SKRPACE010", group="ui",
         note="ALPS side-actuated tact 4.2 x 3.2 x 1.4, actuator toward the -Y long wall; pad mapping VERIFY; internal nRF pull-up, no external resistor")
-    new("BZ1", "FUET-4020 SMD magnetic sounder (DNP)", ("V010", "BZ_4020"), {1: "VBAT", 2: "PZ_A"}, "C391027", "FUET-4020", side="B", group="ui", dnp=True,
-        note="DNP footprint 4 x 4 x 2.0 mm (no sounder <= 1.5 mm tall exists at JLC; the smallest are 4 x 4 x 2.0), bottom side of the side_b block; fit by hand or order as an extra part; driven by QBA + D6, off by default")
-    new("D6", "1N4148W (sounder flyback, DNP)", ("Diode_SMD", "D_SOD-123"), {1: "VBAT", 2: "PZ_A"}, "C81598", "1N4148W", group="ui", dnp=True, note="flyback across the sounder coil (cathode pad 1 on VBAT); fit with BZ1")
+    new("BZ1", "FUET-4020 SMD magnetic sounder", ("V010", "BZ_4020"), {1: "VBAT", 2: "PZ_A"}, "C391027", "FUET-4020", side="B", group="ui",
+        note="fitted: 4 x 4 x 2.0 mm SMD magnetic sounder on the bottom side of the side_b block (2.0 mm part, 4.3 mm free below the board, 2.3 mm spare), pod position about (39.0, 20.2), z 3.3 to 5.3; driven by QBA + D6, off by default; loudness about 80 dB at 10 cm (class figure, VERIFY); alternatives MLT-5020 C94598 (5 x 5), Cy-SMD-4020-3040 C968744")
+    new("D6", "1N4148W (sounder flyback)", ("Diode_SMD", "D_SOD-123"), {1: "VBAT", 2: "PZ_A"}, "C81598", "1N4148W", group="ui", note="flyback across the sounder coil (cathode pad 1 on VBAT)")
     R("RDA", "100k", "BUZ_A", "GND", "ui")
     # ---------------------------------------------------------------- dock hall (single, see INTERLOCK.md section I: 2oo2 dropped, one magnet) + inverter into DOCKED_H
     new("U4A", "DRV5032FADMRR", ("Bench", "DRV5032_X2SON-4_DMR0004B"), {1: "3V3", 2: "GND", 4: "DOCK_N", 5: "GND"}, "C2152496", "DRV5032FADMRR", side="B", group=DOCK_LEG,
