@@ -183,3 +183,15 @@ All dimensions and components are in [spec/design-parameters.md](../spec/design-
   - New crate `openpatch-boot-policy`: Ed25519 signed manifest v2, rollback counter in UICR.
   - LED state machine.
   - Open: port the pump application to the cup board, the STM32C0 platform shell, USB DFU glue.
+- 2026-11-20: **SPICE of the corrected cup board** (`electronics/v010/cup/sim/REPORT.md`, `run_all.sh`).
+  - **Passed:** enable logic 32/32 (docked XOR reverse now blocks docked + reverse in hardware), TPS2553 limit 0.552 A, FAULT → latch clear → cut in < 1 µs, TPL5010 timeout cut, 3V3 collapse cut, DRV8835 full step 0.18 A per coil.
+  - **Model note:** the TI TPS61023 model is not physical in ngspice, so a labelled behavioural model is used.
+  - **Hardware findings passed to the board agent:**
+    - F1: 100 k pull-up on `DOCK_N`. Without it, an open hall joint enables forward motion undocked.
+    - F3: second 10 µF on VBAT.
+    - F5: 100 k pull-up on `SUP_NRST`.
+    - F6: 100 nF at the DRV8835 VM pin.
+    - F4: ILIM doc range 0.50–0.62 A.
+  - **Firmware follow-ups:**
+    - F2: loaded-VBAT abort below 2.8 V, and a 3.7 V rest threshold until the cell ESR is measured.
+    - F7: STM32C011 BOR at its highest level, `SUP_PERMIT` held low for 10 ms after any reset.
