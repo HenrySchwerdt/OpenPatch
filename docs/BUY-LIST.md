@@ -50,7 +50,8 @@ Note: `docs/PARTS-LOCK.md` #8 says the dock magnet is d2 x 1; the current CAD (`
 | G6 | Thrust collar | `cup.collar` 2.4 / 1.64 x 1.0 | Messing Rundrohr MS63 **2.5 x 0.45** (ID 1.6) x 500, art. 913025, https://ghw-modellbau.de/Messing-Rundrohr-MS63-alle-Groessen | 2.95 | 1 | 1 | 2.95 | VERIFIED (OD 2.5 instead of 2.4) |
 | G7 | Bush (thrust bearing in the U rib) | `cup.bush` 3.0 / 1.7 x 1.0 | same page, **3 x 1.0** (ID 1.0) x 500, art. 913031, drill to 1.7 | 5.95 | 1 | 1 | 5.95 | VERIFIED (needs a 1.7 drill; no 3.0 / 1.7 tube exists) |
 | G8 | Needle hub sleeve | `cup.dock.hub` d1.5 x 0.7, press 0.08 | same page, **1.5 x 0.2** (ID 1.1) x 500, art. 913015; 30G needle bonded in with CA | 1.95 | 1 | 1 | 1.95 | VERIFIED tube; use as hub = CANDIDATE (CAD has no hub part spec) |
-| | | | | | | | **43.85** | + shipping (amount only shown in the cart, not read) |
+| G9 | Board screws (added 2026-11-20) | M1.2 x 4 cheese head (ISO 1207 / DIN 84, head d2.0 x 0.8), **brass** (non-magnetic, near the HJ-840), 2 per pod, thread-forming into a d0.95 resin pilot | GHW DIN 84 Zylinderkopf **Messing** M1.2 x 4 (same shop family as G5) | n/v | n/v | 1 | n/v | CANDIDATE (listing not opened in this pass; A2 is weakly magnetic, titanium M1.2 is the other option) |
+| | | | | | | | **43.85** + G9 | + shipping (amount only shown in the cart, not read) |
 
 GHW also sells the A2 DIN 975 rod only from M2 (sold out): **no stainless M1.6 rod found in any EU shop** (also not on AliExpress: the only M1.6 "full thread" listing, 1005013654231446, was sold out for M1.6).
 

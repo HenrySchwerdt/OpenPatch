@@ -72,6 +72,26 @@ def draw(p: dict, L: dict, svg_path: Path) -> Path:
     rect(xc - 3, L["motor_y"][0], xc + 3, L["motor_y"][1], "#8a8f98", "#444")
     rect(xc - 1.3, L["rear_boss_y"][0], xc + 1.3, L["rear_boss_y"][1], "#666", "#333")
     circ(L["x_s"], L["y_s"], 1.0, "#f2a0c0", "#a03060", op=0.95)
+    # board interface (board review 2026-11-20): USB-C opening, wire channel, supports + lid ribs, board screws, button flex window + nub
+    E, bs = L["elec_interface"], c["board_support"]
+    uo = E["usb_opening"]
+    rect(uo["x"][0], W - w, uo["x"][1], W, "#8a3fd0", "#40206a", op=0.9)
+    wc = E["wire_channel"]
+    rect(wc["x"][0], L["lane2_y"][0], wc["x"][1], L["lane2_y"][1], "#ffb0b0", "#a02020", op=0.5, dash="2,2")
+    for x, y in bs["ledges"]:
+        circ(x, y, bs["pad_d"] / 2, "none", "#c00", dash="2,2")
+        circ(x, y, bs["ledge_d"] / 2, "#555", "#000")
+    rect(bs["shelf_x"][0], bs["shelf_y0"], bs["shelf_x"][1], W - w, "#555", "#000")
+    tb_ = bs["west_tab"]
+    rect(tb_["x"][0], tb_["y"][0], tb_["x"][1], tb_["y"][1], "#2e8b57", "#145a32", op=0.45)
+    for x, y in L["board_screws"]:
+        circ(x, y, bs["ring_d"] / 2, "none", "#c00", dash="2,2")
+        circ(x, y, bs["boss_d"] / 2, "#999", "#000")
+        circ(x, y, bs["hole_d"] / 2, "#f0c040", "#806000")
+    bw = E["button"]["flex_window"]
+    rect(bw["x"][0], W - w + bw["wall_left"], bw["x"][1], W, "#ff9900", "#804000", op=0.9)
+    nb = E["button"]["nub"]
+    rect(nb["x"][0], nb["contact_face_y"], nb["x"][1], W - w, "#804000", "#000")
     items = [
         (xc, (L["motor_y"][0] + L["motor_y"][1]) / 2, "Motor NFP-608-26.45 TRANSVERSE (axis Y), last element at the rear, spans both lanes", "#8a8f98"),
         (xc, L["gear_a_y"][0] + 1.1, "Gear A: miter bevel z16 on the motor shaft", "#e8b000"),
@@ -89,13 +109,19 @@ def draw(p: dict, L: dict, svg_path: Path) -> Path:
         (K["x_d"], yr - 1.5, "Dock magnet in the head + dock hall above the pocket roof", "#ff7f00"),
         (sum(L["magnet"]) / 2, yr - 0.2, "Diametric magnet on gear B's rear face", "#cc2222"),
         (sum(L["tmag"]) / 2, L["tmag_y"], "TMAG5273 beside the magnet (0.5 mm gap), tiny sensor tab", "#ffd400"),
-        (sum(L["battery"]["x"]) / 2, L["battery"]["y"][0] + 5, "Battery keep-out: Ampul 301030 (3.0 x 10 x 30, 90 mAh, PCM)", "#3a5fcd"),
-        (sum(L["usb"]["x"]) / 2, sum(L["usb"]["y"]) / 2, "USB-C stacked ABOVE the front end of the cell (opening in the +Y long wall)", "#8a3fd0"),
-        (sum(L["board"]["x"]) / 2, L["board"]["y"][1] - 1.5, "Main board keep-out above the battery", "#2e8b57"),
-        (sum(L["aux"]["x"]) / 2, L["aux"]["y"][1] - 2.0, "Piezo / button / aux keep-out", "#7fbf7f"),
+        (sum(L["battery"]["x"]) / 2, L["battery"]["y"][0] + 5, "Cell Ampul 301030 x %.1f-%.1f, leads WEST (VERIFY on sample)" % tuple(L["battery"]["x"]), "#3a5fcd"),
+        (sum(L["usb"]["x"]) / 2, sum(L["usb"]["y"]) / 2, "USB-C mid-mount in a board notch, opening x %.1f-%.1f in the +Y wall, z %.2f-%.2f" % (L["elec_interface"]["usb_opening"]["x"][0], L["elec_interface"]["usb_opening"]["x"][1], L["elec_interface"]["usb_opening"]["z"][0], L["elec_interface"]["usb_opening"]["z"][1]), "#8a3fd0"),
+        (sum(L["board"]["x"]) / 2, L["board"]["y"][1] - 1.5, "Main board x 7.8-43.4 z 5.3-6.1 (+ top parts to 7.55)", "#2e8b57"),
+        (sum(L["aux"]["x"]) / 2, L["aux"]["y"][1] - 2.0, "Antenna clearance east of the board (no parts)", "#7fbf7f"),
         (sum(L["io"]["x"]) / 2, sum(L["io"]["y"]) / 2, "Rear-corner keep-out: button, LED, buzzer, charger strip (full height)", "#d09020"),
         (sum(L["side_b"]["x"]) / 2, sum(L["side_b"]["y"]) / 2, "Beside the dock: piezo, button, LED, ICs (keep-out)", "#c0a060"),
         (L["bush"][0] + 0.5, yr - 1.5, "Collar + bush + printed rib (thrust bearing)", "#b0701c"),
+        (sum(L["elec_interface"]["wire_channel"]["x"]) / 2, 28.0, "Wire channel x %.1f-%.1f: motor 4 + cell 2 (soldered) + TMAG strip" % tuple(L["elec_interface"]["wire_channel"]["x"]), "#ffb0b0"),
+        (c["board_support"]["ledges"][0][0], c["board_support"]["ledges"][0][1], "Board ledges d1.0 top z 5.3 + lid ribs above (part-free pads d1.6)", "#555555"),
+        (sum(c["board_support"]["shelf_x"]) / 2, c["board_support"]["shelf_y0"] + 0.3, "West wall shelf z 5.3 + lid rib above (part-free pad)", "#555555"),
+        (L["board_screws"][0][0], L["board_screws"][0][1], "Board screw W: M1.2x4 brass into boss d1.8 (board tab x 7.8-10.0)", "#f0c040"),
+        (L["board_screws"][1][0], L["board_screws"][1][1], "Board screw E: M1.2x4 brass into boss d1.8 (side_b leg)", "#f0c040"),
+        (c["button"]["x_c"], W - w - 0.5, "Side button SW1 (+Y): lid flex window 0.45 wall + 0.3 nub, z 5.6-6.7", "#ff9900"),
     ]
     n_rows = (len(items) + 1) // 2
     H = int(W * S + 2 * M + 40 + 22 * n_rows)

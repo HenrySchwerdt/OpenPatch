@@ -37,6 +37,7 @@
 - All electronics are assembled by PCBWay; battery and motor are contacted via **SMD spring contacts (≤ 1.2 mm)** that the lid presses on.
 - Qi coil: trace coil on the board or assembled by PCBWay.
 - Housing: screws/snap hooks; tools: tweezers, small screwdriver, UV lamp.
+- **Exception (user decision 2026-11-20, v0.1.0 cup pod):** the motor (4 wires, JST plug cut off) and the cell (2 wires) are **soldered to board pads** at the west end of the main board (top side, reachable with the lid off). Everything else stays solder-free: PCBA by the assembler, board screwed down (2 x M1.2), lid screwed. A soldering iron is therefore a required tool for the cup pod.
 
 ## 1d. Cost target (decision 2026-11-19, user)
 

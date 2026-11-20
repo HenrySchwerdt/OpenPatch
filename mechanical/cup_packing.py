@@ -28,7 +28,7 @@ def run(outdir: Path, variant: str) -> dict:
             for i in range(max(0, int((x0 - w) / CELL)), min(nx, int(math.ceil((x1 - w) / CELL)))):
                 occ[j][i] = True
     for b in bodies:
-        if b["name"] in ("bottom", "top"):
+        if b["name"] in ("bottom", "top", "lid_gasket", "usb_gasket"):          # shells and the rim gaskets (ring bbox = whole plan) are not contents
             continue
         mn, mx = b["bbox"]["min"], b["bbox"]["max"]
         if mx[2] <= z0 + 1e-6 or mn[2] >= z1 - 1e-6:

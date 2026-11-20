@@ -3,6 +3,9 @@
 > This file is the **entry point for every new session** (another machine, another Claude subscription, another person).
 > It is updated on every push. Last updated: **2026-11-19 (cloud session, v0.1.0 integrated model merged)**.
 
+## Cup pod housing vs main board (2026-11-20, electronics worktree, mechanics)
+- Board review fixes applied in `op_cup.py` / `op_cup_asm.py` (both sizes PASS `check.py --variant v010 --drive cup --assembly`, H 8.5): USB-C opening moved east (x 18.8-28.2, centred x 23.5 / z 5.7 on the board mid-plane); cell shifted 1.5 mm east (x 9.37-40.87, lead end WEST, VERIFY on sample) for a wire channel x 7.5-9.4; board 3-point support at z 5.3 (2 ledges + west wall shelf) with 3 lid hold-down ribs; **board screwed down with 2 x M1.2 x 4 brass** (W 8.9/21.5 on a board tab, E 37.40/20.0 in the side_b leg); lane-2 motor saddle lip cut to z 5.2 (230 degree wrap kept); side button moved to the +Y lid wall (flex window, VERIFY stiffness). Spec §1a records the soldered motor + cell exception. All coordinates: `mechanical/V010-CUP.md` (board interface table) and `mech.json -> elec_interface`. `cup_packing.py` no longer counts the rim gaskets as contents (it reported 0 free area before).
+
 ## Take-up is a travel, converted per preset (2026-11-19, electronics worktree, firmware-rs)
 - Fixed bug: `plunger_um_to_mu` used a global 74.63 mm^2 area, so the 0.33 mm take-up after a reversal was 350 steps on the cup pod instead of 499. Each `Preset` now carries `bore_area_x100` (cup 106.26 mm^2); `LOST_MOTION_TOTAL_UM` / `TAKEUP_UM_AFTER_REVERSAL` is a travel, `Preset::travel_um_to_steps` converts it exactly (rounded up), `PumpConfig::takeup_um` replaces `takeup_mu`. Applied after every assisted fill / draw. Golden vector `docs/vectors/wire-v1-scenarios.json` regenerated (one more cup prime retry); Swift golden count 40 -> 41. Open: the real cup backlash is still unmeasured.
 

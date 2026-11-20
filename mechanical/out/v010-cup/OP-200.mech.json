@@ -123,8 +123,8 @@
  "u_per_step": 0.007030321938557747,
  "battery": {
   "x": [
-   7.873214892687258,
-   39.37321489268726
+   9.373214892687258,
+   40.87321489268726
   ],
   "y": [
    22.799999999999997,
@@ -137,35 +137,41 @@
  },
  "usb": {
   "x": [
-   7.873214892687258,
-   16.813214892687256
+   19.03,
+   27.97
   ],
   "y": [
    26.35,
    33.7
   ],
   "z": [
-   4.2,
-   7.46
-  ]
+   4.12,
+   7.33
+  ],
+  "z_c": 5.7,
+  "x_c": 23.5
  },
  "board": {
   "x": [
-   17.113214892687257,
-   39.37321489268726
+   7.8,
+   43.4
   ],
   "y": [
-   22.799999999999997,
-   33.6
+   22.9,
+   33.5
   ],
   "z": [
-   4.2,
-   6.3
+   4.12,
+   7.55
+  ],
+  "pcb_z": [
+   5.3,
+   6.1
   ]
  },
  "aux": {
   "x": [
-   39.673214892687255,
+   43.5,
    63.18321489268725
   ],
   "y": [
@@ -233,9 +239,192 @@
    5.9
   ]
  },
+ "board_screws": [
+  [
+   8.9,
+   21.5
+  ],
+  [
+   56.223,
+   20.0
+  ]
+ ],
  "lane2_fit": {
   "need_x": 34.6,
-  "have_x": 58.00999999999999
+  "have_x": 56.50999999999999
+ },
+ "elec_interface": {
+  "_comment": "pod frame (x = 0 motor/rear end, y = 0 tank-side wall, z = 0 skin side), mm; agreed with the electronics agent (board review 2026-11-20)",
+  "board_west_edge_min_x": 7.8,
+  "board_z": [
+   5.3,
+   6.1
+  ],
+  "lid_inner_z": 7.6,
+  "top_parts_max_z": 7.55,
+  "usb_opening": {
+   "x": [
+    18.8,
+    28.2
+   ],
+   "z": [
+    4.0,
+    7.4
+   ],
+   "x_c": 23.5,
+   "z_c": 5.7,
+   "wall_inner_y": 33.7,
+   "gasket_recess": {
+    "x": [
+     17.900000000000002,
+     29.099999999999998
+    ],
+    "depth_y": 0.4
+   }
+  },
+  "usb_receptacle_keepout": {
+   "x": [
+    19.03,
+    27.97
+   ],
+   "y": [
+    26.35,
+    33.7
+   ],
+   "z": [
+    4.12,
+    7.33
+   ],
+   "z_c": 5.7,
+   "x_c": 23.5
+  },
+  "wire_channel": {
+   "x": [
+    7.5,
+    9.37
+   ],
+   "y": [
+    22.799999999999997,
+    33.6
+   ],
+   "z": [
+    0.9,
+    5.3
+   ],
+   "note": "motor 4 + cell 2 + TMAG strip; no bottom-side parts over it"
+  },
+  "cell": {
+   "x": [
+    9.373214892687258,
+    40.87321489268726
+   ],
+   "y": [
+    22.799999999999997,
+    33.4
+   ],
+   "z": [
+    0.9,
+    4.1000000000000005
+   ],
+   "lead_end": "WEST (VERIFY-ON-SAMPLE)"
+  },
+  "support_pads": [
+   {
+    "x": 41.5,
+    "y": 24.3,
+    "kind": "floor ledge below (d1.0, top z 5.3) + lid rib above (d1.0, bottom z 6.1)",
+    "part_free_d_both_faces": 1.6
+   },
+   {
+    "x": 41.5,
+    "y": 32.1,
+    "kind": "floor ledge below (d1.0, top z 5.3) + lid rib above (d1.0, bottom z 6.1)",
+    "part_free_d_both_faces": 1.6
+   },
+   {
+    "x": 8.6,
+    "y": 33.2,
+    "kind": "wall shelf below + wall rib above, contact x 8.0-9.2, y 32.9-board edge",
+    "part_free_rect_both_faces": {
+     "x": [
+      7.7,
+      9.5
+     ],
+     "y": [
+      32.6,
+      33.5
+     ]
+    }
+   }
+  ],
+  "button": {
+   "actuator_x": 30.0,
+   "flex_window": {
+    "x": [
+     29.4,
+     31.5
+    ],
+    "z": [
+     5.6,
+     6.7
+    ],
+    "wall_left": 0.45,
+    "part": "lid"
+   },
+   "nub": {
+    "x": [
+     29.6,
+     30.4
+    ],
+    "z": [
+     6.15,
+     6.65
+    ],
+    "contact_face_y": 33.4
+   }
+  },
+  "board_screws": [
+   {
+    "x": 8.9,
+    "y": 21.5,
+    "hole_d_npth": 1.4,
+    "keepout_ring_d_both_faces": 2.8,
+    "boss_d": 1.8,
+    "boss_top_z": 5.3,
+    "pilot": "d0.95 x 3.6 deep",
+    "screw": "M1.2 x 4 cheese head (ISO 1207 / DIN 84: head d2.0 x 0.8), BRASS (non-magnetic; titanium as option), thread-forming into the resin pilot d0.95 x 3.6 (2.4 mm = 2 d engagement below the board); head top z 6.9 (lid inner 7.6)"
+   },
+   {
+    "x": 56.223,
+    "y": 20.0,
+    "hole_d_npth": 1.4,
+    "keepout_ring_d_both_faces": 2.8,
+    "boss_d": 1.8,
+    "boss_top_z": 5.3,
+    "pilot": "d0.95 x 3.6 deep",
+    "screw": "M1.2 x 4 cheese head (ISO 1207 / DIN 84: head d2.0 x 0.8), BRASS (non-magnetic; titanium as option), thread-forming into the resin pilot d0.95 x 3.6 (2.4 mm = 2 d engagement below the board); head top z 6.9 (lid inner 7.6)"
+   }
+  ],
+  "west_tab": {
+   "x": [
+    7.8,
+    10.0
+   ],
+   "y": [
+    20.1,
+    22.9
+   ]
+  },
+  "lane2_saddle": {
+   "y": [
+    29.95,
+    31.45
+   ],
+   "x_max": 7.843,
+   "lip_top_z": 5.2,
+   "x_at_lip_top": 7.707,
+   "bore_r": 3.05
+  }
  },
  "envelope": {
   "bbox_mm": [

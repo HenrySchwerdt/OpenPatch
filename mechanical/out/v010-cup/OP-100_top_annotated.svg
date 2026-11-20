@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1011" height="1061" viewBox="0 0 1011 1061" font-family="Helvetica,Arial,sans-serif">
+<svg xmlns="http://www.w3.org/2000/svg" width="1011" height="1127" viewBox="0 0 1011 1127" font-family="Helvetica,Arial,sans-serif">
 <rect width="100%" height="100%" fill="#ffffff"/>
 <text x="50" y="24" font-size="17" font-weight="bold">OpenPatch v0.1.0 cup pod OP-100: top view, 48.0 x 34.6 x 8.5 mm (lane 1 bottom, lane 2 top; motor at the rear/left)</text>
 <text x="50" y="42" font-size="11" fill="#555">to scale; TEST ONLY, water only, never worn. Plunger at FULL. Keep-out boxes = reserved volumes (no PCB). Dock/head dimensions TODO-MEASURE (photo estimate). Dashed circle = head before the slide.</text>
@@ -17,13 +17,13 @@
 <rect x="787.5" y="470.9" width="20.9" height="26.6" rx="0.0" fill="#ff7f00" fill-opacity="1.0" stroke="#703000" stroke-width="1.0"/>
 <line x1="694.4" y1="484.2" x2="767.5" y2="484.2" stroke="#000" stroke-width="1.6"/>
 <rect x="718.1" y="470.9" width="19.0" height="26.6" rx="0.0" fill="#5ec8e8" fill-opacity="1.0" stroke="#046" stroke-width="1.0"/>
-<rect x="375.2" y="69.0" width="422.9" height="205.2" rx="0.0" fill="#2e8b57" fill-opacity="0.45" stroke="#145a32" stroke-width="1.5" stroke-dasharray="5,3"/>
-<rect x="803.8" y="69.0" width="89.1" height="205.2" rx="0.0" fill="#7fbf7f" fill-opacity="0.45" stroke="#145a32" stroke-width="1.5" stroke-dasharray="5,3"/>
+<rect x="198.2" y="70.9" width="676.4" height="201.4" rx="0.0" fill="#2e8b57" fill-opacity="0.45" stroke="#145a32" stroke-width="1.5" stroke-dasharray="5,3"/>
+<rect x="876.5" y="69.0" width="16.4" height="205.2" rx="0.0" fill="#7fbf7f" fill-opacity="0.45" stroke="#145a32" stroke-width="1.5" stroke-dasharray="5,3"/>
 <rect x="126.0" y="569.6" width="113.5" height="118.7" rx="0.0" fill="#d09020" fill-opacity="0.45" stroke="#704000" stroke-width="1.5" stroke-dasharray="5,3"/>
 <rect x="718.1" y="586.8" width="171.0" height="101.6" rx="0.0" fill="#c0a060" fill-opacity="0.45" stroke="#604000" stroke-width="1.5" stroke-dasharray="5,3"/>
 <rect x="718.1" y="279.9" width="220.4" height="101.6" rx="0.0" fill="#c0a060" fill-opacity="0.45" stroke="#604000" stroke-width="1.5" stroke-dasharray="5,3"/>
-<rect x="199.6" y="72.8" width="598.5" height="201.4" rx="0.0" fill="#3a5fcd" fill-opacity="0.45" stroke="#1a2f80" stroke-width="1.5" stroke-dasharray="5,3"/>
-<rect x="199.6" y="67.1" width="169.9" height="139.7" rx="0.0" fill="#8a3fd0" fill-opacity="0.45" stroke="#40206a" stroke-width="1.5" stroke-dasharray="5,3"/>
+<rect x="228.1" y="72.8" width="598.5" height="201.4" rx="0.0" fill="#3a5fcd" fill-opacity="0.45" stroke="#1a2f80" stroke-width="1.5" stroke-dasharray="5,3"/>
+<rect x="411.6" y="67.1" width="169.9" height="139.7" rx="0.0" fill="#8a3fd0" fill-opacity="0.45" stroke="#40206a" stroke-width="1.5" stroke-dasharray="5,3"/>
 <rect x="243.3" y="278.0" width="473.9" height="412.3" rx="0.0" fill="#bfe8f2" fill-opacity="0.75" stroke="#2a7f96" stroke-width="1.0"/>
 <rect x="243.3" y="289.4" width="426.4" height="389.5" rx="0.0" fill="#e8f8fc" fill-opacity="0.8" stroke="#2a7f96" stroke-width="1.0" stroke-dasharray="3,2"/>
 <rect x="250.9" y="291.3" width="239.6" height="385.7" rx="0.0" fill="#e0803a" fill-opacity="0.85" stroke="#a04a10" stroke-width="1.0"/>
@@ -44,6 +44,22 @@
 <rect x="78.0" y="96.6" width="114.0" height="152.0" rx="0.0" fill="#8a8f98" fill-opacity="1.0" stroke="#444" stroke-width="1.0"/>
 <rect x="110.3" y="83.2" width="49.4" height="13.3" rx="0.0" fill="#666" fill-opacity="1.0" stroke="#333" stroke-width="1.0"/>
 <circle cx="686.8" cy="560.2" r="19.0" fill="#f2a0c0" fill-opacity="0.95" stroke="#a03060" stroke-width="1"/>
+<rect x="407.2" y="50.0" width="178.6" height="17.1" rx="0.0" fill="#8a3fd0" fill-opacity="0.9" stroke="#40206a" stroke-width="1.0"/>
+<rect x="192.5" y="69.0" width="35.5" height="205.2" rx="0.0" fill="#ffb0b0" fill-opacity="0.5" stroke="#a02020" stroke-width="1.0" stroke-dasharray="2,2"/>
+<circle cx="838.5" cy="245.7" r="15.2" fill="none" fill-opacity="1.0" stroke="#c00" stroke-width="1" stroke-dasharray="2,2"/>
+<circle cx="838.5" cy="245.7" r="9.5" fill="#555" fill-opacity="1.0" stroke="#000" stroke-width="1"/>
+<circle cx="838.5" cy="97.5" r="15.2" fill="none" fill-opacity="1.0" stroke="#c00" stroke-width="1" stroke-dasharray="2,2"/>
+<circle cx="838.5" cy="97.5" r="9.5" fill="#555" fill-opacity="1.0" stroke="#000" stroke-width="1"/>
+<rect x="202.0" y="67.1" width="22.8" height="15.2" rx="0.0" fill="#555" fill-opacity="1.0" stroke="#000" stroke-width="1.0"/>
+<rect x="198.2" y="272.3" width="41.8" height="53.2" rx="0.0" fill="#2e8b57" fill-opacity="0.45" stroke="#145a32" stroke-width="1.0"/>
+<circle cx="219.1" cy="298.9" r="26.6" fill="none" fill-opacity="1.0" stroke="#c00" stroke-width="1" stroke-dasharray="2,2"/>
+<circle cx="219.1" cy="298.9" r="17.1" fill="#999" fill-opacity="1.0" stroke="#000" stroke-width="1"/>
+<circle cx="219.1" cy="298.9" r="13.3" fill="#f0c040" fill-opacity="1.0" stroke="#806000" stroke-width="1"/>
+<circle cx="760.7" cy="327.4" r="26.6" fill="none" fill-opacity="1.0" stroke="#c00" stroke-width="1" stroke-dasharray="2,2"/>
+<circle cx="760.7" cy="327.4" r="17.1" fill="#999" fill-opacity="1.0" stroke="#000" stroke-width="1"/>
+<circle cx="760.7" cy="327.4" r="13.3" fill="#f0c040" fill-opacity="1.0" stroke="#806000" stroke-width="1"/>
+<rect x="608.6" y="50.0" width="39.9" height="8.5" rx="0.0" fill="#ff9900" fill-opacity="0.9" stroke="#804000" stroke-width="1.0"/>
+<rect x="612.4" y="67.1" width="15.2" height="5.7" rx="0.0" fill="#804000" fill-opacity="1.0" stroke="#000" stroke-width="1.0"/>
 <circle cx="135.0" cy="172.6" r="8.5" fill="#c00" fill-opacity="0.9"/>
 <text x="135.0" y="176.6" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">1</text>
 <rect x="50.0" y="768" width="12" height="12" fill="#8a8f98" stroke="#333"/>
@@ -108,22 +124,22 @@
 <text x="128.3" y="543.2" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">16</text>
 <rect x="505.65054148052894" y="922" width="12" height="12" fill="#ffd400" stroke="#333"/>
 <text x="525.650541480529" y="933" font-size="12" fill="#222"><tspan fill="#c00" font-weight="bold">16</tspan>  TMAG5273 beside the magnet (0.5 mm gap), tiny sensor tab</text>
-<circle cx="498.8" cy="179.2" r="8.5" fill="#c00" fill-opacity="0.9"/>
-<text x="498.8" y="183.2" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">17</text>
+<circle cx="527.3" cy="179.2" r="8.5" fill="#c00" fill-opacity="0.9"/>
+<text x="527.3" y="183.2" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">17</text>
 <rect x="50.0" y="944" width="12" height="12" fill="#3a5fcd" stroke="#333"/>
-<text x="70.0" y="955" font-size="12" fill="#222"><tspan fill="#c00" font-weight="bold">17</tspan>  Battery keep-out: Ampul 301030 (3.0 x 10 x 30, 90 mAh, PCM)</text>
-<circle cx="284.5" cy="136.9" r="8.5" fill="#c00" fill-opacity="0.9"/>
-<text x="284.5" y="140.9" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">18</text>
+<text x="70.0" y="955" font-size="12" fill="#222"><tspan fill="#c00" font-weight="bold">17</tspan>  Cell Ampul 301030 x 9.4-40.9, leads WEST (VERIFY on sample)</text>
+<circle cx="496.5" cy="136.9" r="8.5" fill="#c00" fill-opacity="0.9"/>
+<text x="496.5" y="140.9" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">18</text>
 <rect x="505.65054148052894" y="944" width="12" height="12" fill="#8a3fd0" stroke="#333"/>
-<text x="525.650541480529" y="955" font-size="12" fill="#222"><tspan fill="#c00" font-weight="bold">18</tspan>  USB-C stacked ABOVE the front end of the cell (opening in the +Y long wall)</text>
-<circle cx="586.6" cy="97.5" r="8.5" fill="#c00" fill-opacity="0.9"/>
-<text x="586.6" y="101.5" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">19</text>
+<text x="525.650541480529" y="955" font-size="12" fill="#222"><tspan fill="#c00" font-weight="bold">18</tspan>  USB-C mid-mount in a board notch, opening x 18.8-28.2 in the +Y wall, z 4.00-7.40</text>
+<circle cx="536.4" cy="99.4" r="8.5" fill="#c00" fill-opacity="0.9"/>
+<text x="536.4" y="103.4" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">19</text>
 <rect x="50.0" y="966" width="12" height="12" fill="#2e8b57" stroke="#333"/>
-<text x="70.0" y="977" font-size="12" fill="#222"><tspan fill="#c00" font-weight="bold">19</tspan>  Main board keep-out above the battery</text>
-<circle cx="848.3" cy="107.0" r="8.5" fill="#c00" fill-opacity="0.9"/>
-<text x="848.3" y="111.0" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">20</text>
+<text x="70.0" y="977" font-size="12" fill="#222"><tspan fill="#c00" font-weight="bold">19</tspan>  Main board x 7.8-43.4 z 5.3-6.1 (+ top parts to 7.55)</text>
+<circle cx="884.7" cy="107.0" r="8.5" fill="#c00" fill-opacity="0.9"/>
+<text x="884.7" y="111.0" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">20</text>
 <rect x="505.65054148052894" y="966" width="12" height="12" fill="#7fbf7f" stroke="#333"/>
-<text x="525.650541480529" y="977" font-size="12" fill="#222"><tspan fill="#c00" font-weight="bold">20</tspan>  Piezo / button / aux keep-out</text>
+<text x="525.650541480529" y="977" font-size="12" fill="#222"><tspan fill="#c00" font-weight="bold">20</tspan>  Antenna clearance east of the board (no parts)</text>
 <circle cx="182.7" cy="629.0" r="8.5" fill="#c00" fill-opacity="0.9"/>
 <text x="182.7" y="633.0" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">21</text>
 <rect x="50.0" y="988" width="12" height="12" fill="#d09020" stroke="#333"/>
@@ -136,4 +152,28 @@
 <text x="210.0" y="516.7" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">23</text>
 <rect x="50.0" y="1010" width="12" height="12" fill="#b0701c" stroke="#333"/>
 <text x="70.0" y="1021" font-size="12" fill="#222"><tspan fill="#c00" font-weight="bold">23</tspan>  Collar + bush + printed rib (thrust bearing)</text>
+<circle cx="210.3" cy="175.4" r="8.5" fill="#c00" fill-opacity="0.9"/>
+<text x="210.3" y="179.4" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">24</text>
+<rect x="505.65054148052894" y="1010" width="12" height="12" fill="#ffb0b0" stroke="#333"/>
+<text x="525.650541480529" y="1021" font-size="12" fill="#222"><tspan fill="#c00" font-weight="bold">24</tspan>  Wire channel x 7.5-9.4: motor 4 + cell 2 (soldered) + TMAG strip</text>
+<circle cx="838.5" cy="245.7" r="8.5" fill="#c00" fill-opacity="0.9"/>
+<text x="838.5" y="249.7" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">25</text>
+<rect x="50.0" y="1032" width="12" height="12" fill="#555555" stroke="#333"/>
+<text x="70.0" y="1043" font-size="12" fill="#222"><tspan fill="#c00" font-weight="bold">25</tspan>  Board ledges d1.0 top z 5.3 + lid ribs above (part-free pads d1.6)</text>
+<circle cx="213.4" cy="76.6" r="8.5" fill="#c00" fill-opacity="0.9"/>
+<text x="213.4" y="80.6" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">26</text>
+<rect x="505.65054148052894" y="1032" width="12" height="12" fill="#555555" stroke="#333"/>
+<text x="525.650541480529" y="1043" font-size="12" fill="#222"><tspan fill="#c00" font-weight="bold">26</tspan>  West wall shelf z 5.3 + lid rib above (part-free pad)</text>
+<circle cx="219.1" cy="298.9" r="8.5" fill="#c00" fill-opacity="0.9"/>
+<text x="219.1" y="302.9" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">27</text>
+<rect x="50.0" y="1054" width="12" height="12" fill="#f0c040" stroke="#333"/>
+<text x="70.0" y="1065" font-size="12" fill="#222"><tspan fill="#c00" font-weight="bold">27</tspan>  Board screw W: M1.2x4 brass into boss d1.8 (board tab x 7.8-10.0)</text>
+<circle cx="760.7" cy="327.4" r="8.5" fill="#c00" fill-opacity="0.9"/>
+<text x="760.7" y="331.4" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">28</text>
+<rect x="505.65054148052894" y="1054" width="12" height="12" fill="#f0c040" stroke="#333"/>
+<text x="525.650541480529" y="1065" font-size="12" fill="#222"><tspan fill="#c00" font-weight="bold">28</tspan>  Board screw E: M1.2x4 brass into boss d1.8 (side_b leg)</text>
+<circle cx="620.0" cy="76.6" r="8.5" fill="#c00" fill-opacity="0.9"/>
+<text x="620.0" y="80.6" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">29</text>
+<rect x="50.0" y="1076" width="12" height="12" fill="#ff9900" stroke="#333"/>
+<text x="70.0" y="1087" font-size="12" fill="#222"><tspan fill="#c00" font-weight="bold">29</tspan>  Side button SW1 (+Y): lid flex window 0.45 wall + 0.3 nub, z 5.6-6.7</text>
 </svg>

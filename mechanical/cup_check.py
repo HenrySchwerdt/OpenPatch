@@ -239,6 +239,36 @@ def check_size(outdir: Path, variant: str, p: dict) -> dict:
     warns.append(f"dead volume at empty ~ {dv:.2f} U (outlet bore d{fl['out_d']} through the front wall + gap {dead} mm x {L['bore_area']:.0f} mm2)")
     warns.append(f"layout A: motor column x {L['xc'] - 3:.1f}..{L['xc'] + 3:.1f} (rear), tank x {L['x_dry']:.1f}..{L['x_t0']:.1f} ({L['tank_len']:.1f}), dock x {K['x_bf']:.1f}..{K['x_far']:.1f}; lane 2 y {L['lane2_y'][0]:.1f}..{L['lane2_y'][1]:.1f}: "
                  f"battery x {L['battery']['x'][0]:.1f}..{L['battery']['x'][1]:.1f}, board above, USB-C (+Y wall) x {L['usb']['x'][0]:.1f}..{L['usb']['x'][1]:.1f}, aux/piezo/button x {L['aux']['x'][0]:.1f}..{L['aux']['x'][1]:.1f}")
+    # ---- board interface (board review 2026-11-20): saddle below the board, USB-C on the board mid-plane and inside the lid, button window below the fillet,
+    #      support / screw tops at the board underside, screws >= 3 mm from the HJ-840 antenna band, wire channel open
+    cb, mo, us, bt, bsu = p["cup"]["board"], p["cup"]["motor"], p["cup"]["usb"], p["cup"]["button"], p["cup"]["board_support"]
+    zb0, zb1 = cb["pcb_z"]
+    if mo["lane2_lip_z"] >= zb0 - 0.05:
+        problems.append(f"lane-2 saddle lip z {mo['lane2_lip_z']} not below the board underside {zb0}")
+    if L["xc"] + mo["lane2_r_out"] > L["battery"]["x"][0] - 0.03:
+        problems.append("lane-2 saddle reaches into the cell envelope")
+    if abs(us["z_c"] - (zb0 + zb1) / 2) > 0.05:
+        problems.append(f"USB-C centre z {us['z_c']} off the board mid-plane {(zb0 + zb1) / 2}")
+    if us["z_c"] + us["open_h"] / 2 > L["height"] - w - 0.1:
+        problems.append("USB-C opening reaches the lid roof")
+    lap_t = p["shell"]["lap_low"] + 0.4
+    if bt["win_z"][1] > L["height"] - p["cup"]["top_fillet"] + 1e-6 or bt["win_z"][0] < lap_t + 0.1:
+        problems.append(f"button window z {bt['win_z']} not on the flat lid wall ({lap_t + 0.1:.2f}..{L['height'] - p['cup']['top_fillet']:.2f})")
+    if bt["win_x"][0] < us["x_c"] + us["open_w"] / 2 + 0.9 + 0.2:
+        problems.append("button window overlaps the USB-C gasket recess in x (thin sliver)")
+    if bsu["z_top"] != zb0:
+        problems.append("support tops not at the board underside")
+    if (L["height"] - w) - zb1 < 0.8 + 0.3:
+        problems.append("no head clearance for the board screws under the lid")
+    for (sx, sy) in L["board_screws"]:
+        dx, dy = max(0.0, 42.85 - sx, sx - 43.4), max(0.0, 24.0 - sy, sy - 32.0)
+        if math.hypot(dx, dy) < 3.0:
+            problems.append(f"board screw ({sx}, {sy}) closer than 3 mm to the HJ-840 antenna band")
+    wc = L["elec_interface"]["wire_channel"]["x"]
+    if wc[1] - wc[0] < 1.8:
+        problems.append(f"wire channel x {wc} narrower than 1.8 mm")
+    warns.append(f"board interface: USB-C opening x {us['x_c'] - us['open_w'] / 2:.1f}..{us['x_c'] + us['open_w'] / 2:.1f}, z {us['z_c'] - us['open_h'] / 2:.2f}..{us['z_c'] + us['open_h'] / 2:.2f}; "
+                 f"wire channel x {wc[0]}..{wc[1]}; cell x {L['battery']['x'][0]:.2f}..{L['battery']['x'][1]:.2f}; board screws {L['board_screws']}; button nub x {bt['x_c']} face y {L['elec_interface']['button']['nub']['contact_face_y']}")
     # ---- assembly: every group drops in from above in ORDER (drop path = own bbox x-y swept from the part bottom to the cavity ceiling, free of the housing and of earlier groups)
     import op_cup_asm
     tools = Script()
@@ -250,7 +280,9 @@ def check_size(outdir: Path, variant: str, p: dict) -> dict:
         if n in ("bottom", "top", "lid_gasket", "usb_gasket") or n in op_cup_asm.FROM_BELOW or n not in by or gi >= 6:
             continue
         mn, mx = bb(n)["min"], bb(n)["max"]
-        z_lo = zc + p["cup"]["motor"]["snap_h"] if n in ("motor", "gearhead", "motor_boss", "motor_rear_boss") else zc if n == "bush_rod" else mn[2] + 0.01          # round parts in U seats: test from the axis up
+        z_lo = zc + p["cup"]["motor"]["snap_h"] if n in ("motor", "gearhead", "motor_boss", "motor_rear_boss") else zc if n == "bush_rod" else mn[2] + 0.01
+        if n in ("ko_board", "ko_side_b"):
+            z_lo = p["cup"]["board"]["pcb_z"][0] + 0.01          # bottom parts sit between the part-free support pads; the bbox sweep tests the PCB from its underside up          # round parts in U seats: test from the axis up
         tools.box(f"drop_{n}", (mn[0], mx[0]), (mn[1], mx[1]), (z_lo, L["height"] - 0.9))
     names_t = [x for x in grp if f"drop_{x}" in {c_["params"].get("body_name") for c_ in tools.dumps()}]
     ex3 = excl + [[f"drop_{a}", f"drop_{b}"] for a in names_t for b in names_t if a < b] + [[f"drop_{a}", a] for a in names_t] + [["drop_gear_a", "gear_b"], ["drop_gear_b", "gear_a"]]

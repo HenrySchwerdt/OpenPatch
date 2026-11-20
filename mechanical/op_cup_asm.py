@@ -10,7 +10,7 @@ ORDER = [
     ("2 tank + plunger + rod cartridge", ["reservoir", "plunger_core", "seal_a", "seal_b", "nut", "rod", "thrust_sleeve", "gear_b", "bush_rod", "thrust_collar", "magnet", "septum"]),
     ("3 motor + gear A", ["motor", "gearhead", "motor_boss", "motor_rear_boss", "motor_shaft", "gear_a", "motor_term"]),
     ("4 battery (301030)", ["ko_battery"]),
-    ("5 board + USB-C + piezo/button (PCBA)", ["ko_board", "ko_usb", "ko_aux", "ko_io", "ko_side_a", "ko_side_b", "ko_tmag_board", "hall_tmag", "ko_dock_board", "hall_dock"]),
+    ("5 board + USB-C + piezo/button (PCBA; motor 4 + cell 2 wires soldered to its west-end pads first)", ["ko_board", "ko_board_tab", "ko_usb", "ko_aux", "ko_io", "ko_side_a", "ko_side_b", "ko_tmag_board", "hall_tmag", "ko_dock_board", "hall_dock"]),
     ("6 gaskets + lid + 3 screws", ["lid_gasket", "usb_gasket", "top"]),
     ("7 dock parts from BELOW through the pocket window", ["hub_oring", "needle_hub", "needle", "needle_guard", "dock_clip"]),
 ]
@@ -29,7 +29,7 @@ def build(s: Script, p: dict, L: dict) -> None:
     dr = p["drive_nfp"]
     bu, usb, bat = c["bush"], c["usb"], c["battery"]
     posts = corner_posts(L)
-    joins, cuts, tcuts = [], [], []
+    joins, cuts, tcuts, tjoins = [], [], [], []
     # ---- (1) lid closure from the TOP: 3 posts in the bottom corners (thread-forming M1.2 into d1.0 pilots, 4 mm deep); flush countersunk heads in the clear lid, sealed under the head by a
     #          0.3 mm silicone washer; the lid roof rests on the post tops; flat silicone gasket on the rim
     rr = c["corner_r_outer"]
@@ -56,13 +56,25 @@ def build(s: Script, p: dict, L: dict) -> None:
     # ---- (6) battery tray: 0.4 mm floor recess (swell / wire reserve, lateral retention)
     b = L["battery"]
     cuts.append(s.box("t_bat_tray", (b["x"][0] - 0.1, b["x"][1] + 0.1), (b["y"][0] + 0.2, b["y"][1] + 0.05), (w - 0.4, w + 0.01)))
-    # ---- (7) board ledges (z up to 4.15, under the aux zone; the board outline itself is not touched)
-    xb = b["x"][1]
-    for k, y in enumerate((L["lane2_y"][0] + 1.5, L["lane2_y"][1] - 1.5)):
-        joins.append(s.cyl(f"t_ledge{k}", "Z", (xb + 1.2, y, 0), 1.8, w - 0.1, 4.15))
-    # ---- (8) USB-C seat: opening through bottom wall AND lid wall, gasket recess 0.4 deep in the wall inner face, silicone frame
+    # ---- (7) board 3-point support (board review 2026-11-20 fix 5): two d1.0 floor ledges east of the cell + one shelf on the +Y wall at the west end, all with top z 5.3
+    #          (= board underside); three lid hold-down ribs press the board top (z 6.1) at the same x/y (rib 1.5 = lid inner 7.6 - 6.1, nominal zero gap, VERIFY on the print)
+    bs = c["board_support"]
+    zb1 = c["board"]["pcb_z"][1]
+    for k, (x, y) in enumerate(bs["ledges"]):
+        joins.append(s.cyl(f"t_ledge{k}", "Z", (x, y, 0), bs["ledge_d"], w - 0.1, bs["z_top"]))
+        tjoins.append(s.cyl(f"t_hold{k}", "Z", (x, y, 0), bs["rib_d"], zb1, H - w + 0.05))
+    for k, (x, y) in enumerate(L["board_screws"]):                                   # board screw bosses (top = board underside), thread-forming pilot from the top
+        joins.append(s.cyl(f"t_sboss{k}", "Z", (x, y, 0), bs["boss_d"], w - 0.1, bs["z_top"]))
+        cuts.append(s.cyl(f"t_spilot{k}", "Z", (x, y, 0), bs["pilot_d"], bs["z_top"] - bs["pilot_depth"], bs["z_top"] + 0.01))
+    joins.append(s.box("t_shelf", tuple(bs["shelf_x"]), (bs["shelf_y0"], W - w + 0.05), (w - 0.1, bs["z_top"])))
+    tjoins.append(s.box("t_hold_w", tuple(bs["shelf_x"]), (bs["shelf_y0"], W - w + 0.05), (zb1, H - w + 0.05)))
+    # ---- (7b) side button (fix 6): flex window in the +Y LID wall, recessed from outside to a 0.45 mm membrane (below the R1.8 top fillet), 0.3 mm inner nub on the SW1 actuator
+    bt = c["button"]
+    tcuts.append(s.box("t_btn_win", tuple(bt["win_x"]), (W - w + bt["wall_left"], W + 0.1), tuple(bt["win_z"])))
+    tjoins.append(s.box("t_btn_nub", (bt["x_c"] - bt["nub_w"] / 2, bt["x_c"] + bt["nub_w"] / 2), (W - w - bt["nub_t"], W - w + 0.05), tuple(bt["nub_z"])))
+    # ---- (8) USB-C seat: opening through bottom wall AND lid wall, gasket recess 0.4 deep in the wall inner face, silicone frame (centre x 23.5, board mid-plane z 5.7)
     u = L["usb"]
-    xu, zu = (u["x"][0] + u["x"][1]) / 2, (u["z"][0] + u["z"][1]) / 2
+    xu, zu = u["x_c"], u["z_c"]
     cuts.append(s.box("t_usb_rec", (xu - usb["open_w"] / 2 - 0.9, xu + usb["open_w"] / 2 + 0.9), (W - w - 0.05, W - w + 0.4), (zu - usb["open_h"] / 2 - 0.9, min(lap, zu + usb["open_h"] / 2 + 0.9))))
     tcuts += [s.box("t_usb_open_t", (xu - usb["open_w"] / 2, xu + usb["open_w"] / 2), (W - w - 0.1, W + 0.1), (lap, zu + usb["open_h"] / 2)),
               s.box("t_usb_rec_t", (xu - usb["open_w"] / 2 - 0.9, xu + usb["open_w"] / 2 + 0.9), (W - w - 0.05, W - w + 0.4), (lap + 0.4, zu + usb["open_h"] / 2 + 0.9))]
@@ -74,4 +86,5 @@ def build(s: Script, p: dict, L: dict) -> None:
     cuts.append(s.box("t_clip_slot", (K["x_far"] - 0.2, K["x_far"] + 0.3), (yr - K["R"] - 0.6, yr + K["R"] + 0.6), (z0 - 0.1, z0 + K["clip"]["b"] + 0.1)))
     s.join("bottom", joins)
     s.cut("bottom", cuts)
+    s.join("top", tjoins)
     s.cut("top", tcuts)
