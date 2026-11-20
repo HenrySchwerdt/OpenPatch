@@ -93,8 +93,10 @@ def run(plot=True):
         for rint in (0.5, 0.8, 1.2, 1.6):
             w, log = one(ocv, rint, tag="v%g_r%g" % (ocv, rint))
             pmax = ocv * ocv / (4 * rint)
-            if w is not None:
+            if w is not None and not w.aborted and w["vbat"][w.t > 8e-3].min() > 1.0:
                 m = metrics(w)
+            elif w is not None:
+                m = {"collapse": True, "vbat_at_stop": float(w["vbat"][-1]), "icell_at_stop": float(-w["icell"][-1]), "t_stop_ms": float(w.t[-1] * 1e3)}
             else:    # no solution: constant-power load beyond the maximum power the cell can deliver (physical collapse), check analytically
                 m = {"collapse": True, "log": log[-300:]}
             m["p_max_w"] = pmax

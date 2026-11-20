@@ -1,0 +1,1540 @@
+{
+ "vendor_tps61023": {
+  "vout_max_v": 6.04309167,
+  "iin_max_a": 6.1920226,
+  "expected_vout_v": 5.0,
+  "physical": false
+ },
+ "case1_boost": {
+  "grid": {
+   "3_0.5": {
+    "t_boost_ms": 0.6905188553382394,
+    "inrush_a": 1.00097218,
+    "vbat_min_boost": 2.49951391,
+    "dip_us_below_2v5": 2.0000000000000484,
+    "vpre_max_boost": 4.95833309,
+    "vbat_min_motor": 2.59902574,
+    "icell_peak_motor": 0.801948526,
+    "vpre_min_motor": 4.95770622,
+    "vmot_ss": 4.921870759999999,
+    "vpre_ss": 4.95833309,
+    "icell_ss": 0.8019485270000002,
+    "vbat_ss": 2.5990257400000005,
+    "vpre_ripple": 0.0,
+    "fault_seen": false,
+    "p_max_w": 4.5,
+    "p_need_w": 2.09
+   },
+   "3_0.8": {
+    "t_boost_ms": 0.6905166885207592,
+    "inrush_a": 0.94197619,
+    "vbat_min_boost": 2.24641905,
+    "dip_us_below_2v5": 15.620000000000044,
+    "vpre_max_boost": 4.95833309,
+    "vbat_min_motor": 2.26414462,
+    "icell_peak_motor": 0.919819229,
+    "vpre_min_motor": 4.95770622,
+    "vmot_ss": 4.921870759999999,
+    "vpre_ss": 4.95833309,
+    "icell_ss": 0.9198192300000001,
+    "vbat_ss": 2.2641446199999997,
+    "vpre_ripple": 0.0,
+    "fault_seen": false,
+    "p_max_w": 2.8125,
+    "p_need_w": 2.09
+   },
+   "3_1.2": {
+    "collapse": true,
+    "vbat_at_stop": 2.99397375,
+    "icell_at_stop": 0.00502187446,
+    "t_stop_ms": 25.0,
+    "p_max_w": 1.875,
+    "p_need_w": 2.09
+   },
+   "3_1.6": {
+    "collapse": true,
+    "vbat_at_stop": 2.64066485,
+    "icell_at_stop": 0.224584468,
+    "t_stop_ms": 25.0,
+    "p_max_w": 1.40625,
+    "p_need_w": 2.09
+   },
+   "3.4_0.5": {
+    "t_boost_ms": 0.6905528442553192,
+    "inrush_a": 1.00481786,
+    "vbat_min_boost": 2.89759107,
+    "dip_us_below_2v5": 0.0,
+    "vpre_max_boost": 4.95833309,
+    "vbat_min_motor": 3.05893458,
+    "icell_peak_motor": 0.682130835,
+    "vpre_min_motor": 4.95770622,
+    "vmot_ss": 4.921870759999999,
+    "vpre_ss": 4.95833309,
+    "icell_ss": 0.6821308359999998,
+    "vbat_ss": 3.0589345799999994,
+    "vpre_ripple": 0.0,
+    "fault_seen": false,
+    "p_max_w": 5.779999999999999,
+    "p_need_w": 2.09
+   },
+   "3.4_0.8": {
+    "t_boost_ms": 0.6905683501450229,
+    "inrush_a": 0.975729381,
+    "vbat_min_boost": 2.61941649,
+    "dip_us_below_2v5": 0.0,
+    "vpre_max_boost": 4.95833309,
+    "vbat_min_motor": 2.80532512,
+    "icell_peak_motor": 0.743343603,
+    "vpre_min_motor": 4.95770622,
+    "vmot_ss": 4.921870759999999,
+    "vpre_ss": 4.95833309,
+    "icell_ss": 0.7433436039999999,
+    "vbat_ss": 2.805325119999999,
+    "vpre_ripple": 0.0,
+    "fault_seen": false,
+    "p_max_w": 3.6124999999999994,
+    "p_need_w": 2.09
+   },
+   "3.4_1.2": {
+    "t_boost_ms": 0.6905697045281978,
+    "inrush_a": 0.88902755,
+    "vbat_min_boost": 2.33316694,
+    "dip_us_below_2v5": 10.188840000000063,
+    "vpre_max_boost": 4.95833309,
+    "vbat_min_motor": 2.32490756,
+    "icell_peak_motor": 0.895910367,
+    "vpre_min_motor": 4.95770622,
+    "vmot_ss": 4.921870759999999,
+    "vpre_ss": 4.95833309,
+    "icell_ss": 0.8959103689999999,
+    "vbat_ss": 2.32490756,
+    "vpre_ripple": 0.0,
+    "fault_seen": false,
+    "p_max_w": 2.408333333333333,
+    "p_need_w": 2.09
+   },
+   "3.4_1.6": {
+    "collapse": true,
+    "vbat_at_stop": 3.38938484,
+    "icell_at_stop": 0.00663447218,
+    "t_stop_ms": 25.0,
+    "p_max_w": 1.8062499999999997,
+    "p_need_w": 2.09
+   },
+   "3.7_0.5": {
+    "t_boost_ms": 0.6905143119151586,
+    "inrush_a": 1.00506152,
+    "vbat_min_boost": 3.19746924,
+    "dip_us_below_2v5": 0.0,
+    "vpre_max_boost": 4.95833309,
+    "vbat_min_motor": 3.39219542,
+    "icell_peak_motor": 0.615609159,
+    "vpre_min_motor": 4.95770622,
+    "vmot_ss": 4.921870759999999,
+    "vpre_ss": 4.95833309,
+    "icell_ss": 0.6156091600000001,
+    "vbat_ss": 3.39219542,
+    "vpre_ripple": 0.0,
+    "fault_seen": false,
+    "p_max_w": 6.845000000000001,
+    "p_need_w": 2.09
+   },
+   "3.7_0.8": {
+    "t_boost_ms": 0.6901760242528805,
+    "inrush_a": 0.989745651,
+    "vbat_min_boost": 2.90820348,
+    "dip_us_below_2v5": 0.0,
+    "vpre_max_boost": 4.95833309,
+    "vbat_min_motor": 3.17391969,
+    "icell_peak_motor": 0.657600391,
+    "vpre_min_motor": 4.95770622,
+    "vmot_ss": 4.921870759999999,
+    "vpre_ss": 4.95833309,
+    "icell_ss": 0.657600391,
+    "vbat_ss": 3.17391969,
+    "vpre_ripple": 0.0,
+    "fault_seen": false,
+    "p_max_w": 4.278125,
+    "p_need_w": 2.09
+   },
+   "3.7_1.2": {
+    "t_boost_ms": 0.690579090341982,
+    "inrush_a": 0.909123904,
+    "vbat_min_boost": 2.60905131,
+    "dip_us_below_2v5": 0.0,
+    "vpre_max_boost": 4.95833309,
+    "vbat_min_motor": 2.80921426,
+    "icell_peak_motor": 0.742321451,
+    "vpre_min_motor": 4.95770622,
+    "vmot_ss": 4.921870759999999,
+    "vpre_ss": 4.95833309,
+    "icell_ss": 0.7423214519999999,
+    "vbat_ss": 2.8092142600000005,
+    "vpre_ripple": 0.0,
+    "fault_seen": false,
+    "p_max_w": 2.8520833333333337,
+    "p_need_w": 2.09
+   },
+   "3.7_1.6": {
+    "t_boost_ms": 0.6902901087105604,
+    "inrush_a": 0.814676367,
+    "vbat_min_boost": 2.39651781,
+    "dip_us_below_2v5": 5.811309999999943,
+    "vpre_max_boost": 4.95833309,
+    "vbat_min_motor": 2.15205022,
+    "icell_peak_motor": 0.967468613,
+    "vpre_min_motor": 4.95770622,
+    "vmot_ss": 4.921870759999999,
+    "vpre_ss": 4.95833309,
+    "icell_ss": 0.9674686179999998,
+    "vbat_ss": 2.1520502099999996,
+    "vpre_ripple": 0.0,
+    "fault_seen": false,
+    "p_max_w": 2.1390625,
+    "p_need_w": 2.09
+   },
+   "4.2_0.5": {
+    "t_boost_ms": 0.7064116274642586,
+    "inrush_a": 1.00507629,
+    "vbat_min_boost": 3.69746186,
+    "dip_us_below_2v5": 0.0,
+    "vpre_max_boost": 4.95925554,
+    "vbat_min_motor": 3.93425902,
+    "icell_peak_motor": 0.531481969,
+    "vpre_min_motor": 4.95770622,
+    "vmot_ss": 4.921870759999999,
+    "vpre_ss": 4.95833309,
+    "icell_ss": 0.5314819699999999,
+    "vbat_ss": 3.934259019980004,
+    "vpre_ripple": 0.0,
+    "fault_seen": false,
+    "p_max_w": 8.82,
+    "p_need_w": 2.09
+   },
+   "4.2_0.8": {
+    "t_boost_ms": 0.7089286880710547,
+    "inrush_a": 0.998325695,
+    "vbat_min_boost": 3.40133944,
+    "dip_us_below_2v5": 0.0,
+    "vpre_max_boost": 4.95910127,
+    "vbat_min_motor": 3.75466947,
+    "icell_peak_motor": 0.556663165,
+    "vpre_min_motor": 4.95770622,
+    "vmot_ss": 4.921870759999999,
+    "vpre_ss": 4.95833309,
+    "icell_ss": 0.556663166,
+    "vbat_ss": 3.75466947,
+    "vpre_ripple": 0.0,
+    "fault_seen": false,
+    "p_max_w": 5.5125,
+    "p_need_w": 2.09
+   },
+   "4.2_1.2": {
+    "t_boost_ms": 0.7054003807818224,
+    "inrush_a": 0.954610856,
+    "vbat_min_boost": 3.05446697,
+    "dip_us_below_2v5": 0.0,
+    "vpre_max_boost": 4.95888678,
+    "vbat_min_motor": 3.47969309,
+    "icell_peak_motor": 0.600255756,
+    "vpre_min_motor": 4.95770622,
+    "vmot_ss": 4.921870759999999,
+    "vpre_ss": 4.95833309,
+    "icell_ss": 0.6002557570000001,
+    "vbat_ss": 3.47969309,
+    "vpre_ripple": 0.0,
+    "fault_seen": false,
+    "p_max_w": 3.6750000000000003,
+    "p_need_w": 2.09
+   },
+   "4.2_1.6": {
+    "t_boost_ms": 0.7074546942062738,
+    "inrush_a": 0.878985166,
+    "vbat_min_boost": 2.79362373,
+    "dip_us_below_2v5": 0.0,
+    "vpre_max_boost": 4.95955692,
+    "vbat_min_motor": 3.13481437,
+    "icell_peak_motor": 0.665741021,
+    "vpre_min_motor": 4.95770622,
+    "vmot_ss": 4.921870759999999,
+    "vpre_ss": 4.95833309,
+    "icell_ss": 0.6657410219999997,
+    "vbat_ss": 3.1348143599999996,
+    "vpre_ripple": 0.0,
+    "fault_seen": false,
+    "p_max_w": 2.75625,
+    "p_need_w": 2.09
+   }
+  },
+  "bulk": {
+   "2": {
+    "t_boost_ms": 0.6905799274904006,
+    "inrush_a": 0.68519948,
+    "vbat_min_boost": 2.85184042,
+    "dip_us_below_2v5": 0.0,
+    "vpre_max_boost": 4.95833309,
+    "vbat_min_motor": 2.80532512,
+    "icell_peak_motor": 0.743343603,
+    "vpre_min_motor": 4.95771659,
+    "vmot_ss": 4.921870759999999,
+    "vpre_ss": 4.95833309,
+    "icell_ss": 0.7433436039999999,
+    "vbat_ss": 2.805325119999999,
+    "vpre_ripple": 0.0,
+    "fault_seen": false
+   },
+   "4": {
+    "t_boost_ms": 0.6905366293035624,
+    "inrush_a": 0.875797556,
+    "vbat_min_boost": 2.69936196,
+    "dip_us_below_2v5": 0.0,
+    "vpre_max_boost": 4.95833309,
+    "vbat_min_motor": 2.80532512,
+    "icell_peak_motor": 0.743343603,
+    "vpre_min_motor": 4.95770432,
+    "vmot_ss": 4.921870759999999,
+    "vpre_ss": 4.95833309,
+    "icell_ss": 0.7433436039999999,
+    "vbat_ss": 2.805325119999999,
+    "vpre_ripple": 0.0,
+    "fault_seen": false
+   },
+   "8": {
+    "t_boost_ms": 0.6905683501450229,
+    "inrush_a": 0.975729381,
+    "vbat_min_boost": 2.61941649,
+    "dip_us_below_2v5": 0.0,
+    "vpre_max_boost": 4.95833309,
+    "vbat_min_motor": 2.80532512,
+    "icell_peak_motor": 0.743343603,
+    "vpre_min_motor": 4.95770622,
+    "vmot_ss": 4.921870759999999,
+    "vpre_ss": 4.95833309,
+    "icell_ss": 0.7433436039999999,
+    "vbat_ss": 2.805325119999999,
+    "vpre_ripple": 0.0,
+    "fault_seen": false
+   },
+   "15": {
+    "t_boost_ms": 0.688953327385907,
+    "inrush_a": 1.00344656,
+    "vbat_min_boost": 2.59724275,
+    "dip_us_below_2v5": 0.0,
+    "vpre_max_boost": 4.95833309,
+    "vbat_min_motor": 2.80532512,
+    "icell_peak_motor": 0.743343603,
+    "vpre_min_motor": 4.95758213,
+    "vmot_ss": 4.921870759999999,
+    "vpre_ss": 4.95833309,
+    "icell_ss": 0.7433436039999999,
+    "vbat_ss": 2.805325119999999,
+    "vpre_ripple": 0.0,
+    "fault_seen": false
+   },
+   "30": {
+    "t_boost_ms": 0.7082514717170834,
+    "inrush_a": 2.6724927,
+    "vbat_min_boost": 1.26200584,
+    "dip_us_below_2v5": 22.54958999999999,
+    "vpre_max_boost": 4.96083731,
+    "vbat_min_motor": 2.80532512,
+    "icell_peak_motor": 0.743343603,
+    "vpre_min_motor": 4.87420648,
+    "vmot_ss": 4.921870759999999,
+    "vpre_ss": 4.95833309,
+    "icell_ss": 0.7433436039999999,
+    "vbat_ss": 2.805325119999999,
+    "vpre_ripple": 0.0,
+    "fault_seen": false
+   }
+  },
+  "sweep": {
+   "0.5": {
+    "ocv_vpre_lt_4v5": null,
+    "ocv_vbat_lt_2v5": 2.916735,
+    "ocv_vbat_lt_2v9": 3.259595,
+    "ocv_collapse": null
+   },
+   "0.8": {
+    "ocv_vpre_lt_4v5": 2.5763610500000005,
+    "ocv_vbat_lt_2v5": 3.1667750000000003,
+    "ocv_vbat_lt_2v9": 3.4753550000000004,
+    "ocv_collapse": null
+   },
+   "1.2": {
+    "ocv_vpre_lt_4v5": 3.1561670950000003,
+    "ocv_vbat_lt_2v5": 3.5001550000000003,
+    "ocv_vbat_lt_2v9": 3.7630350000000004,
+    "ocv_collapse": null
+   },
+   "1.6": {
+    "ocv_vpre_lt_4v5": 3.6452020450000004,
+    "ocv_vbat_lt_2v5": 3.8335150000000002,
+    "ocv_vbat_lt_2v9": 4.050695,
+    "ocv_collapse": null
+   }
+  },
+  "valid": {
+   "t_start_us": 740.0295044584933,
+   "datasheet_us": 700
+  }
+ },
+ "case2_switch": {
+  "u32_stuck": {
+   "no_supervisor": {
+    "vmot_60_80ms": 0.265919522,
+    "isw_60_80ms_a": 0.5516933789999998,
+    "allow_70ms": 3.29514816
+   },
+   "supervisor_drops_permit": {
+    "vmot_60_80ms": -3.3788621e-13,
+    "isw_60_80ms_a": -7.010000000000002e-13,
+    "allow_70ms": 0.0
+   }
+  },
+  "short": {
+   "vmot_run_v": 4.92187076,
+   "i_run_a": 0.367481368,
+   "ios_a": 0.5516933789999998,
+   "ios_min_a": 0.551693379,
+   "t_fault_ms": 7.494453946842866,
+   "t_clrn_after_fault_us": -7.865021134367822e-06,
+   "t_allow_low_after_fault_us": -2.744936916654339e-05,
+   "t_vmot_lt_0v5_after_fault_ms": null,
+   "vmot_max_80_105ms": -9.38886066e-12,
+   "allow_max_80_105ms": 0.0,
+   "ocok_released_after_cut": true,
+   "vmot_after_rearm": 4.92187076
+  },
+  "stall_worst": {
+   "i_a": 0.407442649,
+   "fault": false,
+   "vmot": 4.91791879
+  },
+  "watchdog": {
+   "t_perml_low_after_rstn_us": 0.17507295085872343,
+   "t_vmot_lt_0v5_ms": 1.5903329646070539,
+   "vmot_max_after_rstn_release": -9.38886066e-12,
+   "vmot_before": 4.92187076
+  },
+  "mismatch": {
+   "t_v3v3_lt_0v8_ms": 3.0338270044838467,
+   "t_allow_lt_0v66_ms": 2.677964989996548,
+   "t_permit_lt_1v2_ms": 2.840870245072777,
+   "t_vpre_lt_1v_ms": null,
+   "t_vmot_lt_0v5_ms": null,
+   "allow_max_after_ms": 0.482641033,
+   "vmot_at_120ms": 2.9145098941120002,
+   "vpre_at_120ms": 4.748921113555999
+  },
+  "mismatch_permit_stuck": {
+   "t_v3v3_lt_0v8_ms": 3.0338270044838467,
+   "t_allow_lt_0v66_ms": 2.677964989996548,
+   "t_permit_lt_1v2_ms": null,
+   "t_vpre_lt_1v_ms": null,
+   "t_vmot_lt_0v5_ms": null,
+   "allow_max_after_ms": 0.482907852,
+   "vmot_at_120ms": 2.9144995677520003,
+   "vpre_at_120ms": 4.95833309
+  }
+ },
+ "case3_logic": {
+  "dc": [
+   {
+    "latch_q": 0,
+    "permit": 0,
+    "mcu_en": 0,
+    "dock_n": 0,
+    "mot_fwd": 0,
+    "allow_v": 0.0,
+    "expected": 0,
+    "ok": true
+   },
+   {
+    "latch_q": 0,
+    "permit": 0,
+    "mcu_en": 0,
+    "dock_n": 0,
+    "mot_fwd": 1,
+    "allow_v": 0.0,
+    "expected": 0,
+    "ok": true
+   },
+   {
+    "latch_q": 0,
+    "permit": 0,
+    "mcu_en": 0,
+    "dock_n": 1,
+    "mot_fwd": 0,
+    "allow_v": 0.0,
+    "expected": 0,
+    "ok": true
+   },
+   {
+    "latch_q": 0,
+    "permit": 0,
+    "mcu_en": 0,
+    "dock_n": 1,
+    "mot_fwd": 1,
+    "allow_v": 0.0,
+    "expected": 0,
+    "ok": true
+   },
+   {
+    "latch_q": 0,
+    "permit": 0,
+    "mcu_en": 1,
+    "dock_n": 0,
+    "mot_fwd": 0,
+    "allow_v": 0.0,
+    "expected": 0,
+    "ok": true
+   },
+   {
+    "latch_q": 0,
+    "permit": 0,
+    "mcu_en": 1,
+    "dock_n": 0,
+    "mot_fwd": 1,
+    "allow_v": 0.0,
+    "expected": 0,
+    "ok": true
+   },
+   {
+    "latch_q": 0,
+    "permit": 0,
+    "mcu_en": 1,
+    "dock_n": 1,
+    "mot_fwd": 0,
+    "allow_v": 0.0,
+    "expected": 0,
+    "ok": true
+   },
+   {
+    "latch_q": 0,
+    "permit": 0,
+    "mcu_en": 1,
+    "dock_n": 1,
+    "mot_fwd": 1,
+    "allow_v": 0.0,
+    "expected": 0,
+    "ok": true
+   },
+   {
+    "latch_q": 0,
+    "permit": 1,
+    "mcu_en": 0,
+    "dock_n": 0,
+    "mot_fwd": 0,
+    "allow_v": 0.0,
+    "expected": 0,
+    "ok": true
+   },
+   {
+    "latch_q": 0,
+    "permit": 1,
+    "mcu_en": 0,
+    "dock_n": 0,
+    "mot_fwd": 1,
+    "allow_v": 0.0,
+    "expected": 0,
+    "ok": true
+   },
+   {
+    "latch_q": 0,
+    "permit": 1,
+    "mcu_en": 0,
+    "dock_n": 1,
+    "mot_fwd": 0,
+    "allow_v": 0.0,
+    "expected": 0,
+    "ok": true
+   },
+   {
+    "latch_q": 0,
+    "permit": 1,
+    "mcu_en": 0,
+    "dock_n": 1,
+    "mot_fwd": 1,
+    "allow_v": 0.0,
+    "expected": 0,
+    "ok": true
+   },
+   {
+    "latch_q": 0,
+    "permit": 1,
+    "mcu_en": 1,
+    "dock_n": 0,
+    "mot_fwd": 0,
+    "allow_v": 0.0,
+    "expected": 0,
+    "ok": true
+   },
+   {
+    "latch_q": 0,
+    "permit": 1,
+    "mcu_en": 1,
+    "dock_n": 0,
+    "mot_fwd": 1,
+    "allow_v": 0.0,
+    "expected": 0,
+    "ok": true
+   },
+   {
+    "latch_q": 0,
+    "permit": 1,
+    "mcu_en": 1,
+    "dock_n": 1,
+    "mot_fwd": 0,
+    "allow_v": 0.0,
+    "expected": 0,
+    "ok": true
+   },
+   {
+    "latch_q": 0,
+    "permit": 1,
+    "mcu_en": 1,
+    "dock_n": 1,
+    "mot_fwd": 1,
+    "allow_v": 0.0,
+    "expected": 0,
+    "ok": true
+   },
+   {
+    "latch_q": 1,
+    "permit": 0,
+    "mcu_en": 0,
+    "dock_n": 0,
+    "mot_fwd": 0,
+    "allow_v": 0.0,
+    "expected": 0,
+    "ok": true
+   },
+   {
+    "latch_q": 1,
+    "permit": 0,
+    "mcu_en": 0,
+    "dock_n": 0,
+    "mot_fwd": 1,
+    "allow_v": 0.0,
+    "expected": 0,
+    "ok": true
+   },
+   {
+    "latch_q": 1,
+    "permit": 0,
+    "mcu_en": 0,
+    "dock_n": 1,
+    "mot_fwd": 0,
+    "allow_v": 0.0,
+    "expected": 0,
+    "ok": true
+   },
+   {
+    "latch_q": 1,
+    "permit": 0,
+    "mcu_en": 0,
+    "dock_n": 1,
+    "mot_fwd": 1,
+    "allow_v": 0.0,
+    "expected": 0,
+    "ok": true
+   },
+   {
+    "latch_q": 1,
+    "permit": 0,
+    "mcu_en": 1,
+    "dock_n": 0,
+    "mot_fwd": 0,
+    "allow_v": 0.0,
+    "expected": 0,
+    "ok": true
+   },
+   {
+    "latch_q": 1,
+    "permit": 0,
+    "mcu_en": 1,
+    "dock_n": 0,
+    "mot_fwd": 1,
+    "allow_v": 0.0,
+    "expected": 0,
+    "ok": true
+   },
+   {
+    "latch_q": 1,
+    "permit": 0,
+    "mcu_en": 1,
+    "dock_n": 1,
+    "mot_fwd": 0,
+    "allow_v": 0.0,
+    "expected": 0,
+    "ok": true
+   },
+   {
+    "latch_q": 1,
+    "permit": 0,
+    "mcu_en": 1,
+    "dock_n": 1,
+    "mot_fwd": 1,
+    "allow_v": 0.0,
+    "expected": 0,
+    "ok": true
+   },
+   {
+    "latch_q": 1,
+    "permit": 1,
+    "mcu_en": 0,
+    "dock_n": 0,
+    "mot_fwd": 0,
+    "allow_v": 0.0,
+    "expected": 0,
+    "ok": true
+   },
+   {
+    "latch_q": 1,
+    "permit": 1,
+    "mcu_en": 0,
+    "dock_n": 0,
+    "mot_fwd": 1,
+    "allow_v": 0.0,
+    "expected": 0,
+    "ok": true
+   },
+   {
+    "latch_q": 1,
+    "permit": 1,
+    "mcu_en": 0,
+    "dock_n": 1,
+    "mot_fwd": 0,
+    "allow_v": 0.0,
+    "expected": 0,
+    "ok": true
+   },
+   {
+    "latch_q": 1,
+    "permit": 1,
+    "mcu_en": 0,
+    "dock_n": 1,
+    "mot_fwd": 1,
+    "allow_v": 0.0,
+    "expected": 0,
+    "ok": true
+   },
+   {
+    "latch_q": 1,
+    "permit": 1,
+    "mcu_en": 1,
+    "dock_n": 0,
+    "mot_fwd": 0,
+    "allow_v": 0.0,
+    "expected": 0,
+    "ok": true
+   },
+   {
+    "latch_q": 1,
+    "permit": 1,
+    "mcu_en": 1,
+    "dock_n": 0,
+    "mot_fwd": 1,
+    "allow_v": 3.299175,
+    "expected": 1,
+    "ok": true
+   },
+   {
+    "latch_q": 1,
+    "permit": 1,
+    "mcu_en": 1,
+    "dock_n": 1,
+    "mot_fwd": 0,
+    "allow_v": 3.299175,
+    "expected": 1,
+    "ok": true
+   },
+   {
+    "latch_q": 1,
+    "permit": 1,
+    "mcu_en": 1,
+    "dock_n": 1,
+    "mot_fwd": 1,
+    "allow_v": 0.0,
+    "expected": 0,
+    "ok": true
+   }
+  ],
+  "chain": [
+   {
+    "latch_q": 0,
+    "permit": 0,
+    "mcu_en": 0,
+    "dock_n": 0,
+    "mot_fwd": 0,
+    "vmot": -9.38886066e-12,
+    "expected": 0,
+    "ok": true
+   },
+   {
+    "latch_q": 0,
+    "permit": 0,
+    "mcu_en": 0,
+    "dock_n": 0,
+    "mot_fwd": 1,
+    "vmot": -9.38886066e-12,
+    "expected": 0,
+    "ok": true
+   },
+   {
+    "latch_q": 0,
+    "permit": 0,
+    "mcu_en": 0,
+    "dock_n": 1,
+    "mot_fwd": 0,
+    "vmot": -9.38886066e-12,
+    "expected": 0,
+    "ok": true
+   },
+   {
+    "latch_q": 0,
+    "permit": 0,
+    "mcu_en": 0,
+    "dock_n": 1,
+    "mot_fwd": 1,
+    "vmot": -9.38886066e-12,
+    "expected": 0,
+    "ok": true
+   },
+   {
+    "latch_q": 0,
+    "permit": 0,
+    "mcu_en": 1,
+    "dock_n": 0,
+    "mot_fwd": 0,
+    "vmot": -9.38886066e-12,
+    "expected": 0,
+    "ok": true
+   },
+   {
+    "latch_q": 0,
+    "permit": 0,
+    "mcu_en": 1,
+    "dock_n": 0,
+    "mot_fwd": 1,
+    "vmot": -9.38886066e-12,
+    "expected": 0,
+    "ok": true
+   },
+   {
+    "latch_q": 0,
+    "permit": 0,
+    "mcu_en": 1,
+    "dock_n": 1,
+    "mot_fwd": 0,
+    "vmot": -9.38886066e-12,
+    "expected": 0,
+    "ok": true
+   },
+   {
+    "latch_q": 0,
+    "permit": 0,
+    "mcu_en": 1,
+    "dock_n": 1,
+    "mot_fwd": 1,
+    "vmot": -9.38886066e-12,
+    "expected": 0,
+    "ok": true
+   },
+   {
+    "latch_q": 0,
+    "permit": 1,
+    "mcu_en": 0,
+    "dock_n": 0,
+    "mot_fwd": 0,
+    "vmot": -9.38886066e-12,
+    "expected": 0,
+    "ok": true
+   },
+   {
+    "latch_q": 0,
+    "permit": 1,
+    "mcu_en": 0,
+    "dock_n": 0,
+    "mot_fwd": 1,
+    "vmot": -9.38886066e-12,
+    "expected": 0,
+    "ok": true
+   },
+   {
+    "latch_q": 0,
+    "permit": 1,
+    "mcu_en": 0,
+    "dock_n": 1,
+    "mot_fwd": 0,
+    "vmot": -9.38886066e-12,
+    "expected": 0,
+    "ok": true
+   },
+   {
+    "latch_q": 0,
+    "permit": 1,
+    "mcu_en": 0,
+    "dock_n": 1,
+    "mot_fwd": 1,
+    "vmot": -9.38886066e-12,
+    "expected": 0,
+    "ok": true
+   },
+   {
+    "latch_q": 0,
+    "permit": 1,
+    "mcu_en": 1,
+    "dock_n": 0,
+    "mot_fwd": 0,
+    "vmot": -9.38886066e-12,
+    "expected": 0,
+    "ok": true
+   },
+   {
+    "latch_q": 0,
+    "permit": 1,
+    "mcu_en": 1,
+    "dock_n": 0,
+    "mot_fwd": 1,
+    "vmot": -9.38886066e-12,
+    "expected": 0,
+    "ok": true
+   },
+   {
+    "latch_q": 0,
+    "permit": 1,
+    "mcu_en": 1,
+    "dock_n": 1,
+    "mot_fwd": 0,
+    "vmot": -9.38886066e-12,
+    "expected": 0,
+    "ok": true
+   },
+   {
+    "latch_q": 0,
+    "permit": 1,
+    "mcu_en": 1,
+    "dock_n": 1,
+    "mot_fwd": 1,
+    "vmot": -9.38886066e-12,
+    "expected": 0,
+    "ok": true
+   },
+   {
+    "latch_q": 1,
+    "permit": 0,
+    "mcu_en": 0,
+    "dock_n": 0,
+    "mot_fwd": 0,
+    "vmot": -9.38886066e-12,
+    "expected": 0,
+    "ok": true
+   },
+   {
+    "latch_q": 1,
+    "permit": 0,
+    "mcu_en": 0,
+    "dock_n": 0,
+    "mot_fwd": 1,
+    "vmot": -9.38886066e-12,
+    "expected": 0,
+    "ok": true
+   },
+   {
+    "latch_q": 1,
+    "permit": 0,
+    "mcu_en": 0,
+    "dock_n": 1,
+    "mot_fwd": 0,
+    "vmot": -9.38886066e-12,
+    "expected": 0,
+    "ok": true
+   },
+   {
+    "latch_q": 1,
+    "permit": 0,
+    "mcu_en": 0,
+    "dock_n": 1,
+    "mot_fwd": 1,
+    "vmot": -9.38886066e-12,
+    "expected": 0,
+    "ok": true
+   },
+   {
+    "latch_q": 1,
+    "permit": 0,
+    "mcu_en": 1,
+    "dock_n": 0,
+    "mot_fwd": 0,
+    "vmot": -9.38886066e-12,
+    "expected": 0,
+    "ok": true
+   },
+   {
+    "latch_q": 1,
+    "permit": 0,
+    "mcu_en": 1,
+    "dock_n": 0,
+    "mot_fwd": 1,
+    "vmot": -9.38886066e-12,
+    "expected": 0,
+    "ok": true
+   },
+   {
+    "latch_q": 1,
+    "permit": 0,
+    "mcu_en": 1,
+    "dock_n": 1,
+    "mot_fwd": 0,
+    "vmot": -9.38886066e-12,
+    "expected": 0,
+    "ok": true
+   },
+   {
+    "latch_q": 1,
+    "permit": 0,
+    "mcu_en": 1,
+    "dock_n": 1,
+    "mot_fwd": 1,
+    "vmot": -9.38886066e-12,
+    "expected": 0,
+    "ok": true
+   },
+   {
+    "latch_q": 1,
+    "permit": 1,
+    "mcu_en": 0,
+    "dock_n": 0,
+    "mot_fwd": 0,
+    "vmot": -9.38886066e-12,
+    "expected": 0,
+    "ok": true
+   },
+   {
+    "latch_q": 1,
+    "permit": 1,
+    "mcu_en": 0,
+    "dock_n": 0,
+    "mot_fwd": 1,
+    "vmot": -9.38886066e-12,
+    "expected": 0,
+    "ok": true
+   },
+   {
+    "latch_q": 1,
+    "permit": 1,
+    "mcu_en": 0,
+    "dock_n": 1,
+    "mot_fwd": 0,
+    "vmot": -9.38886066e-12,
+    "expected": 0,
+    "ok": true
+   },
+   {
+    "latch_q": 1,
+    "permit": 1,
+    "mcu_en": 0,
+    "dock_n": 1,
+    "mot_fwd": 1,
+    "vmot": -9.38886066e-12,
+    "expected": 0,
+    "ok": true
+   },
+   {
+    "latch_q": 1,
+    "permit": 1,
+    "mcu_en": 1,
+    "dock_n": 0,
+    "mot_fwd": 0,
+    "vmot": -9.38886066e-12,
+    "expected": 0,
+    "ok": true
+   },
+   {
+    "latch_q": 1,
+    "permit": 1,
+    "mcu_en": 1,
+    "dock_n": 0,
+    "mot_fwd": 1,
+    "vmot": 4.92187076,
+    "expected": 1,
+    "ok": true
+   },
+   {
+    "latch_q": 1,
+    "permit": 1,
+    "mcu_en": 1,
+    "dock_n": 1,
+    "mot_fwd": 0,
+    "vmot": 4.92187076,
+    "expected": 1,
+    "ok": true
+   },
+   {
+    "latch_q": 1,
+    "permit": 1,
+    "mcu_en": 1,
+    "dock_n": 1,
+    "mot_fwd": 1,
+    "vmot": -9.38886066e-12,
+    "expected": 0,
+    "ok": true
+   }
+  ],
+  "float_power": [
+   {
+    "name": "float_all_dock0",
+    "desc": "all GPIOs Hi-Z, hall output open (DOCK_N floats at 0 V), latch initially SET",
+    "vmot_max": -9.38886066e-12,
+    "allow_max": 0.0,
+    "expect": "OFF",
+    "verdict": "PASS",
+    "vpre_max": -0.0249999375,
+    "i_motor": -7.0099999e-13
+   },
+   {
+    "name": "float_all_dock3.3",
+    "desc": "all GPIOs Hi-Z, hall output open (DOCK_N floats at 3.3 V), latch initially SET",
+    "vmot_max": -9.38886066e-12,
+    "allow_max": 0.0,
+    "expect": "OFF",
+    "verdict": "PASS",
+    "vpre_max": -0.0249999375,
+    "i_motor": -7.0099999e-13
+   },
+   {
+    "name": "hall_open_dock0",
+    "desc": "single fault: DRV5032 output open, DOCK_N floats at 0 V, undocked, forward, armed, permit+MCU_EN on",
+    "vmot_max": 4.92187076,
+    "allow_max": 3.29518104,
+    "expect": "OFF",
+    "verdict": "FAIL",
+    "vpre_max": 4.95833309,
+    "i_motor": 0.367481368
+   },
+   {
+    "name": "hall_open_dock3.3",
+    "desc": "single fault: DRV5032 output open, DOCK_N floats at 3.3 V, undocked, forward, armed, permit+MCU_EN on",
+    "vmot_max": -9.38886066e-12,
+    "allow_max": 0.0,
+    "expect": "OFF",
+    "verdict": "PASS",
+    "vpre_max": 4.95833309,
+    "i_motor": -7.0099999e-13
+   },
+   {
+    "name": "hall_open_with_pullup",
+    "desc": "same, with the proposed 100 k pull-up on DOCK_N (floats high = undocked)",
+    "vmot_max": -9.38886066e-12,
+    "allow_max": 0.0,
+    "expect": "OFF",
+    "verdict": "PASS",
+    "vpre_max": 4.95833309,
+    "i_motor": -7.0099999e-13
+   },
+   {
+    "name": "powerup_100us",
+    "desc": "3V3 rail ramp 100us, latch SET at power-up, permit/MCU_EN asserted instantly, docked + forward, supervisor BOR + TPL5010 RSTn active",
+    "vmot_max": -9.38886066e-12,
+    "allow_max": 0.742684826,
+    "expect": "OFF",
+    "verdict": "PASS",
+    "vpre_max": 4.95833309,
+    "i_motor": -7.00985826e-13
+   },
+   {
+    "name": "powerup_1ms",
+    "desc": "3V3 rail ramp 1ms, latch SET at power-up, permit/MCU_EN asserted instantly, docked + forward, supervisor BOR + TPL5010 RSTn active",
+    "vmot_max": -9.38886066e-12,
+    "allow_max": 0.799440446,
+    "expect": "OFF",
+    "verdict": "PASS",
+    "vpre_max": 4.95833309,
+    "i_motor": -7.00985819e-13
+   },
+   {
+    "name": "powerup_10ms",
+    "desc": "3V3 rail ramp 10ms, latch SET at power-up, permit/MCU_EN asserted instantly, docked + forward, supervisor BOR + TPL5010 RSTn active",
+    "vmot_max": -9.38886066e-12,
+    "allow_max": 0.824525176,
+    "expect": "OFF",
+    "verdict": "PASS",
+    "vpre_max": 4.95833309,
+    "i_motor": -7.00939307e-13
+   },
+   {
+    "name": "powerup_hiz",
+    "desc": "3V3 ramp 1 ms, latch SET, ALL GPIO Hi-Z (pull resistors only), no reset help at all, docked",
+    "vmot_max": -9.38886066e-12,
+    "allow_max": 0.799460408,
+    "expect": "OFF",
+    "verdict": "PASS",
+    "vpre_max": -0.0249999375,
+    "i_motor": -7.00985826e-13
+   },
+   {
+    "name": "brownout_0.5",
+    "desc": "3V3 dips to 0.5 V for 5 ms while running (docked, forward), supervisor BOR assumed at 1.7 V; no new ARM_CLK edge afterwards. Reset: must stay cut",
+    "vmot_max": -2.8539615e-13,
+    "allow_max": 0.0,
+    "expect": "OFF",
+    "verdict": "PASS",
+    "vpre_max": 4.96962755,
+    "i_motor": -7.0099999e-13
+   },
+   {
+    "name": "brownout_1",
+    "desc": "3V3 dips to 1 V for 5 ms while running (docked, forward), supervisor BOR assumed at 1.7 V; no new ARM_CLK edge afterwards. Reset: must stay cut",
+    "vmot_max": -1.89205519e-12,
+    "allow_max": 0.0,
+    "expect": "OFF",
+    "verdict": "PASS",
+    "vpre_max": 4.96790987,
+    "i_motor": -7.0099999e-13
+   },
+   {
+    "name": "brownout_1.5",
+    "desc": "3V3 dips to 1.5 V for 5 ms while running (docked, forward), supervisor BOR assumed at 1.7 V; no new ARM_CLK edge afterwards. Reset: must stay cut",
+    "vmot_max": -3.72445218e-12,
+    "allow_max": 0.0,
+    "expect": "OFF",
+    "verdict": "PASS",
+    "vpre_max": 4.96904183,
+    "i_motor": -7.0099999e-13
+   },
+   {
+    "name": "brownout_1.8",
+    "desc": "3V3 dips to 1.8 V for 5 ms while running (docked, forward), supervisor BOR assumed at 1.7 V; no new ARM_CLK edge afterwards. Logic stays alive: motor keeps running by design",
+    "vmot_max": 4.92187076,
+    "allow_max": 3.29518104,
+    "expect": "ON",
+    "verdict": "PASS",
+    "vpre_max": 4.95833309,
+    "i_motor": 0.367481368
+   },
+   {
+    "name": "brownout_2.2",
+    "desc": "3V3 dips to 2.2 V for 5 ms while running (docked, forward), supervisor BOR assumed at 1.7 V; no new ARM_CLK edge afterwards. Logic stays alive: motor keeps running by design",
+    "vmot_max": 4.92187076,
+    "allow_max": 3.29518104,
+    "expect": "ON",
+    "verdict": "PASS",
+    "vpre_max": 4.95833309,
+    "i_motor": 0.367481368
+   },
+   {
+    "name": "brownout_noBOR_0.5",
+    "desc": "3V3 dips to 0.5 V for 5 ms, NO reset from supervisor/TPL5010 (worst case: latch charge retained, firmware re-asserts permit at once)",
+    "vmot_max": 4.92189962,
+    "allow_max": 3.29518104,
+    "expect": "OFF",
+    "verdict": "WARN",
+    "vpre_max": 4.95835777,
+    "i_motor": 0.367696607
+   },
+   {
+    "name": "brownout_noBOR_1.5",
+    "desc": "3V3 dips to 1.5 V for 5 ms, NO reset from supervisor/TPL5010 (worst case: latch charge retained, firmware re-asserts permit at once)",
+    "vmot_max": 4.92187076,
+    "allow_max": 3.29518104,
+    "expect": "OFF",
+    "verdict": "WARN",
+    "vpre_max": 4.95833309,
+    "i_motor": 0.367481368
+   }
+  ],
+  "faults": [
+   {
+    "name": "sf_permit_stuck_hi",
+    "desc": "SUP_PERMIT stuck high (STM32 pin), undocked + forward, armed",
+    "vmot_max": -9.38886066e-12,
+    "allow_max": 0.0,
+    "expect": "OFF",
+    "verdict": "PASS",
+    "vpre_max": 4.95833309,
+    "i_motor": -7.0099999e-13
+   },
+   {
+    "name": "sf_mcuen_stuck_hi",
+    "desc": "MCU_EN stuck high, undocked + forward, armed",
+    "vmot_max": -9.38886066e-12,
+    "allow_max": 0.0,
+    "expect": "OFF",
+    "verdict": "PASS",
+    "vpre_max": 4.95833309,
+    "i_motor": -7.0099999e-13
+   },
+   {
+    "name": "sf_latch_stuck_hi",
+    "desc": "LATCH_Q stuck high (U6 / U32), permit and MCU_EN OFF",
+    "vmot_max": -9.38886066e-12,
+    "allow_max": 0.0,
+    "expect": "OFF",
+    "verdict": "PASS",
+    "vpre_max": -0.0249999375,
+    "i_motor": -7.0099999e-13
+   },
+   {
+    "name": "sf_latch_stuck_hi_undocked",
+    "desc": "LATCH_Q stuck high, permit and MCU_EN ON, undocked + forward",
+    "vmot_max": -9.38886066e-12,
+    "allow_max": 0.0,
+    "expect": "OFF",
+    "verdict": "PASS",
+    "vpre_max": 4.95833309,
+    "i_motor": -7.0099999e-13
+   },
+   {
+    "name": "sf_dock_stuck_low",
+    "desc": "DOCK_N stuck low (hall asserted / shorted), undocked + forward, all enables on (INTERLOCK I.1a open item)",
+    "vmot_max": 4.92187076,
+    "allow_max": 3.29518104,
+    "expect": "OFF",
+    "verdict": "WARN",
+    "vpre_max": 4.95833309,
+    "i_motor": 0.367481368
+   },
+   {
+    "name": "sf_dock_stuck_hi",
+    "desc": "DOCK_N stuck high (hall dead), docked + forward: nuisance only",
+    "vmot_max": -9.38886066e-12,
+    "allow_max": 0.0,
+    "expect": "OFF",
+    "verdict": "PASS",
+    "vpre_max": 4.95833309,
+    "i_motor": -7.0099999e-13
+   },
+   {
+    "name": "sf_fwd_stuck_lo",
+    "desc": "MOT_FWD stuck low (reads 'reverse'), undocked, all enables on: forward motion undocked cannot be seen by the hardware gate (supervisor PHASE check only)",
+    "vmot_max": 4.92187076,
+    "allow_max": 3.29514813,
+    "expect": "OFF",
+    "verdict": "WARN",
+    "vpre_max": 4.95833309,
+    "i_motor": 0.367481368
+   },
+   {
+    "name": "sf_docked_reverse",
+    "desc": "docked + reverse (H15), all enables on: new XOR must block in hardware",
+    "vmot_max": -9.38886066e-12,
+    "allow_max": 0.0,
+    "expect": "OFF",
+    "verdict": "PASS",
+    "vpre_max": 4.95833309,
+    "i_motor": -7.0099999e-13
+   },
+   {
+    "name": "sf_R16_open_0",
+    "desc": "R16 (MOT_FWD pull-up) open, nRF GPIO Hi-Z (reset), MOT_FWD floats at 0 V, undocked, latch armed, permit+MCU_EN on",
+    "vmot_max": 4.92187076,
+    "allow_max": 3.29518104,
+    "expect": "OFF",
+    "verdict": "WARN",
+    "vpre_max": 4.95833309,
+    "i_motor": 0.367481368
+   },
+   {
+    "name": "sf_R16_open_3.3",
+    "desc": "R16 (MOT_FWD pull-up) open, nRF GPIO Hi-Z (reset), MOT_FWD floats at 3.3 V, undocked, latch armed, permit+MCU_EN on",
+    "vmot_max": -9.38886066e-12,
+    "allow_max": 0.0,
+    "expect": "OFF",
+    "verdict": "PASS",
+    "vpre_max": 4.95833309,
+    "i_motor": -7.0099999e-13
+   },
+   {
+    "name": "sf_R82_open_0",
+    "desc": "R82 (SUP_PERMIT pull-down) open, STM32 Hi-Z (reset), SUP_PERMIT floats at 0 V; other legs on, undocked + forward, latch armed",
+    "vmot_max": -9.38886066e-12,
+    "allow_max": 0.0,
+    "expect": "OFF",
+    "verdict": "PASS",
+    "vpre_max": -0.0249999375,
+    "i_motor": -7.0099999e-13
+   },
+   {
+    "name": "sf_R82_open_3.3",
+    "desc": "R82 (SUP_PERMIT pull-down) open, STM32 Hi-Z (reset), SUP_PERMIT floats at 3.3 V; other legs on, undocked + forward, latch armed",
+    "vmot_max": -9.38886066e-12,
+    "allow_max": 0.0,
+    "expect": "OFF",
+    "verdict": "PASS",
+    "vpre_max": 5.81183123,
+    "i_motor": -7.0099999e-13
+   },
+   {
+    "name": "sf_R18_open_0",
+    "desc": "R18 (MCU_EN pull-down) open, nRF Hi-Z, MCU_EN floats at 0 V; permit on, docked + forward, armed",
+    "vmot_max": -9.38886066e-12,
+    "allow_max": 0.0,
+    "expect": "OFF",
+    "verdict": "PASS",
+    "vpre_max": 4.95833309,
+    "i_motor": -7.0099999e-13
+   },
+   {
+    "name": "sf_R18_open_3.3",
+    "desc": "R18 (MCU_EN pull-down) open, nRF Hi-Z, MCU_EN floats at 3.3 V; permit on, docked + forward, armed",
+    "vmot_max": -9.38886066e-12,
+    "allow_max": 0.0,
+    "expect": "OFF",
+    "verdict": "PASS",
+    "vpre_max": 4.95833309,
+    "i_motor": -7.0099999e-13
+   },
+   {
+    "name": "sf_R90_open",
+    "desc": "R90 (MOT_ALLOW pull-down) open, everything else normal, undocked + forward: gate output is driven, so still OFF",
+    "vmot_max": -9.38886066e-12,
+    "allow_max": 0.0,
+    "expect": "OFF",
+    "verdict": "PASS",
+    "vpre_max": 4.95833309,
+    "i_motor": -7.0099999e-13
+   },
+   {
+    "name": "sf_R29_open_0",
+    "desc": "R29 (ARM_CLK pull-down) open, nRF Hi-Z, ARM_CLK floats at 0 V: no edge, latch stays clear; undocked/docked + forward",
+    "vmot_max": -9.38886066e-12,
+    "allow_max": 0.0,
+    "expect": "OFF",
+    "verdict": "PASS",
+    "vpre_max": 4.95833309,
+    "i_motor": -7.0099999e-13
+   },
+   {
+    "name": "sf_R29_open_3.3",
+    "desc": "R29 (ARM_CLK pull-down) open, nRF Hi-Z, ARM_CLK floats at 3.3 V: no edge, latch stays clear; undocked/docked + forward",
+    "vmot_max": -9.38886066e-12,
+    "allow_max": 0.0,
+    "expect": "OFF",
+    "verdict": "PASS",
+    "vpre_max": 4.95833309,
+    "i_motor": -7.0099999e-13
+   },
+   {
+    "name": "sf_R55_open",
+    "desc": "R55 (FB upper resistor) open: FB = 0 V, boost runs to its 5.7 V OVP",
+    "vmot_max": -9.38886066e-12,
+    "allow_max": 3.29518104,
+    "expect": "n/a",
+    "verdict": "N/A",
+    "vpre_max": 0.0,
+    "i_motor": 0.0,
+    "note": "behavioural boost model diverges with an open FB node (non-physical); evaluated analytically in REPORT.md"
+   },
+   {
+    "name": "sf_R92_open_0",
+    "desc": "R92 (OC_OK pull-up) open, OC_OK floats low: latch held clear -> motor never runs (safe, nuisance)",
+    "vmot_max": -9.38886066e-12,
+    "allow_max": 0.0,
+    "expect": "OFF",
+    "verdict": "PASS",
+    "vpre_max": 4.95833309,
+    "i_motor": -7.0099999e-13
+   }
+  ],
+  "dc_pass": true,
+  "chain_pass": true
+ },
+ "case4_drv": {
+  "rates": {
+   "5": {
+    "ia_pk_a": 0.184088576,
+    "ib_pk_a": 0.183651643,
+    "isupply_pk_a": 0.367549402,
+    "isupply_min_a": 0.0074628143,
+    "isupply_mean_a": 0.367302115386268,
+    "vmot_max_v": 5.01820784,
+    "vmot_min_v": 4.84984539,
+    "icell_pk_a": 0.657744953,
+    "fault": false
+   },
+   "50": {
+    "ia_pk_a": 0.184095901,
+    "ib_pk_a": 0.184093286,
+    "isupply_pk_a": 0.367549402,
+    "isupply_min_a": 0.00642686793,
+    "isupply_mean_a": 0.36407021430088216,
+    "vmot_max_v": 5.01898551,
+    "vmot_min_v": 4.84596309,
+    "icell_pk_a": 0.657744953,
+    "fault": false
+   },
+   "200": {
+    "ia_pk_a": 0.184096475,
+    "ib_pk_a": 0.184096016,
+    "isupply_pk_a": 0.367549402,
+    "isupply_min_a": 0.00641021549,
+    "isupply_mean_a": 0.35301683019441427,
+    "vmot_max_v": 5.01911845,
+    "vmot_min_v": 4.84432899,
+    "icell_pk_a": 0.657744953,
+    "fault": false
+   },
+   "500": {
+    "ia_pk_a": 0.184091441,
+    "ib_pk_a": 0.184089772,
+    "isupply_pk_a": 0.367541846,
+    "isupply_min_a": 0.00612740668,
+    "isupply_mean_a": 0.3312099085282178,
+    "vmot_max_v": 5.01920186,
+    "vmot_min_v": 4.84392152,
+    "icell_pk_a": 0.65772838,
+    "fault": false
+   }
+  },
+  "L": {
+   "2": {
+    "ia_pk_a": 0.184290667,
+    "ib_pk_a": 0.1842886,
+    "isupply_pk_a": 0.367549402,
+    "isupply_min_a": 0.0171228812,
+    "isupply_mean_a": 0.361481631127249,
+    "vmot_max_v": 5.0151053,
+    "vmot_min_v": 4.85250199,
+    "icell_pk_a": 0.657744953,
+    "fault": false
+   },
+   "15": {
+    "ia_pk_a": 0.184108465,
+    "ib_pk_a": 0.184107669,
+    "isupply_pk_a": 0.367503969,
+    "isupply_min_a": 0.00132226609,
+    "isupply_mean_a": 0.326605094032793,
+    "vmot_max_v": 5.02161813,
+    "vmot_min_v": 4.83671956,
+    "icell_pk_a": 0.657647397,
+    "fault": false
+   }
+  },
+  "rcoil": {
+   "0.9": {
+    "ia_pk_a": 0.204173947,
+    "ib_pk_a": 0.204173493,
+    "isupply_pk_a": 0.407526293,
+    "isupply_min_a": 0.00602884897,
+    "isupply_mean_a": 0.38988378339291274,
+    "vmot_max_v": 5.02599025,
+    "vmot_min_v": 4.82956989,
+    "icell_pk_a": 0.625918951,
+    "fault": false
+   },
+   "1.1": {
+    "ia_pk_a": 0.167623864,
+    "ib_pk_a": 0.167623864,
+    "isupply_pk_a": 0.334719127,
+    "isupply_min_a": 0.00636720178,
+    "isupply_mean_a": 0.3227290991452949,
+    "vmot_max_v": 5.01389668,
+    "vmot_min_v": 4.85529995,
+    "icell_pk_a": 0.50167983,
+    "fault": false
+   }
+  }
+ }
+}

@@ -1,0 +1,1003 @@
+{
+ "dc": [
+  {
+   "latch_q": 0,
+   "permit": 0,
+   "mcu_en": 0,
+   "dock_n": 0,
+   "mot_fwd": 0,
+   "allow_v": 0.0,
+   "expected": 0,
+   "ok": true
+  },
+  {
+   "latch_q": 0,
+   "permit": 0,
+   "mcu_en": 0,
+   "dock_n": 0,
+   "mot_fwd": 1,
+   "allow_v": 0.0,
+   "expected": 0,
+   "ok": true
+  },
+  {
+   "latch_q": 0,
+   "permit": 0,
+   "mcu_en": 0,
+   "dock_n": 1,
+   "mot_fwd": 0,
+   "allow_v": 0.0,
+   "expected": 0,
+   "ok": true
+  },
+  {
+   "latch_q": 0,
+   "permit": 0,
+   "mcu_en": 0,
+   "dock_n": 1,
+   "mot_fwd": 1,
+   "allow_v": 0.0,
+   "expected": 0,
+   "ok": true
+  },
+  {
+   "latch_q": 0,
+   "permit": 0,
+   "mcu_en": 1,
+   "dock_n": 0,
+   "mot_fwd": 0,
+   "allow_v": 0.0,
+   "expected": 0,
+   "ok": true
+  },
+  {
+   "latch_q": 0,
+   "permit": 0,
+   "mcu_en": 1,
+   "dock_n": 0,
+   "mot_fwd": 1,
+   "allow_v": 0.0,
+   "expected": 0,
+   "ok": true
+  },
+  {
+   "latch_q": 0,
+   "permit": 0,
+   "mcu_en": 1,
+   "dock_n": 1,
+   "mot_fwd": 0,
+   "allow_v": 0.0,
+   "expected": 0,
+   "ok": true
+  },
+  {
+   "latch_q": 0,
+   "permit": 0,
+   "mcu_en": 1,
+   "dock_n": 1,
+   "mot_fwd": 1,
+   "allow_v": 0.0,
+   "expected": 0,
+   "ok": true
+  },
+  {
+   "latch_q": 0,
+   "permit": 1,
+   "mcu_en": 0,
+   "dock_n": 0,
+   "mot_fwd": 0,
+   "allow_v": 0.0,
+   "expected": 0,
+   "ok": true
+  },
+  {
+   "latch_q": 0,
+   "permit": 1,
+   "mcu_en": 0,
+   "dock_n": 0,
+   "mot_fwd": 1,
+   "allow_v": 0.0,
+   "expected": 0,
+   "ok": true
+  },
+  {
+   "latch_q": 0,
+   "permit": 1,
+   "mcu_en": 0,
+   "dock_n": 1,
+   "mot_fwd": 0,
+   "allow_v": 0.0,
+   "expected": 0,
+   "ok": true
+  },
+  {
+   "latch_q": 0,
+   "permit": 1,
+   "mcu_en": 0,
+   "dock_n": 1,
+   "mot_fwd": 1,
+   "allow_v": 0.0,
+   "expected": 0,
+   "ok": true
+  },
+  {
+   "latch_q": 0,
+   "permit": 1,
+   "mcu_en": 1,
+   "dock_n": 0,
+   "mot_fwd": 0,
+   "allow_v": 0.0,
+   "expected": 0,
+   "ok": true
+  },
+  {
+   "latch_q": 0,
+   "permit": 1,
+   "mcu_en": 1,
+   "dock_n": 0,
+   "mot_fwd": 1,
+   "allow_v": 0.0,
+   "expected": 0,
+   "ok": true
+  },
+  {
+   "latch_q": 0,
+   "permit": 1,
+   "mcu_en": 1,
+   "dock_n": 1,
+   "mot_fwd": 0,
+   "allow_v": 0.0,
+   "expected": 0,
+   "ok": true
+  },
+  {
+   "latch_q": 0,
+   "permit": 1,
+   "mcu_en": 1,
+   "dock_n": 1,
+   "mot_fwd": 1,
+   "allow_v": 0.0,
+   "expected": 0,
+   "ok": true
+  },
+  {
+   "latch_q": 1,
+   "permit": 0,
+   "mcu_en": 0,
+   "dock_n": 0,
+   "mot_fwd": 0,
+   "allow_v": 0.0,
+   "expected": 0,
+   "ok": true
+  },
+  {
+   "latch_q": 1,
+   "permit": 0,
+   "mcu_en": 0,
+   "dock_n": 0,
+   "mot_fwd": 1,
+   "allow_v": 0.0,
+   "expected": 0,
+   "ok": true
+  },
+  {
+   "latch_q": 1,
+   "permit": 0,
+   "mcu_en": 0,
+   "dock_n": 1,
+   "mot_fwd": 0,
+   "allow_v": 0.0,
+   "expected": 0,
+   "ok": true
+  },
+  {
+   "latch_q": 1,
+   "permit": 0,
+   "mcu_en": 0,
+   "dock_n": 1,
+   "mot_fwd": 1,
+   "allow_v": 0.0,
+   "expected": 0,
+   "ok": true
+  },
+  {
+   "latch_q": 1,
+   "permit": 0,
+   "mcu_en": 1,
+   "dock_n": 0,
+   "mot_fwd": 0,
+   "allow_v": 0.0,
+   "expected": 0,
+   "ok": true
+  },
+  {
+   "latch_q": 1,
+   "permit": 0,
+   "mcu_en": 1,
+   "dock_n": 0,
+   "mot_fwd": 1,
+   "allow_v": 0.0,
+   "expected": 0,
+   "ok": true
+  },
+  {
+   "latch_q": 1,
+   "permit": 0,
+   "mcu_en": 1,
+   "dock_n": 1,
+   "mot_fwd": 0,
+   "allow_v": 0.0,
+   "expected": 0,
+   "ok": true
+  },
+  {
+   "latch_q": 1,
+   "permit": 0,
+   "mcu_en": 1,
+   "dock_n": 1,
+   "mot_fwd": 1,
+   "allow_v": 0.0,
+   "expected": 0,
+   "ok": true
+  },
+  {
+   "latch_q": 1,
+   "permit": 1,
+   "mcu_en": 0,
+   "dock_n": 0,
+   "mot_fwd": 0,
+   "allow_v": 0.0,
+   "expected": 0,
+   "ok": true
+  },
+  {
+   "latch_q": 1,
+   "permit": 1,
+   "mcu_en": 0,
+   "dock_n": 0,
+   "mot_fwd": 1,
+   "allow_v": 0.0,
+   "expected": 0,
+   "ok": true
+  },
+  {
+   "latch_q": 1,
+   "permit": 1,
+   "mcu_en": 0,
+   "dock_n": 1,
+   "mot_fwd": 0,
+   "allow_v": 0.0,
+   "expected": 0,
+   "ok": true
+  },
+  {
+   "latch_q": 1,
+   "permit": 1,
+   "mcu_en": 0,
+   "dock_n": 1,
+   "mot_fwd": 1,
+   "allow_v": 0.0,
+   "expected": 0,
+   "ok": true
+  },
+  {
+   "latch_q": 1,
+   "permit": 1,
+   "mcu_en": 1,
+   "dock_n": 0,
+   "mot_fwd": 0,
+   "allow_v": 0.0,
+   "expected": 0,
+   "ok": true
+  },
+  {
+   "latch_q": 1,
+   "permit": 1,
+   "mcu_en": 1,
+   "dock_n": 0,
+   "mot_fwd": 1,
+   "allow_v": 3.299175,
+   "expected": 1,
+   "ok": true
+  },
+  {
+   "latch_q": 1,
+   "permit": 1,
+   "mcu_en": 1,
+   "dock_n": 1,
+   "mot_fwd": 0,
+   "allow_v": 3.299175,
+   "expected": 1,
+   "ok": true
+  },
+  {
+   "latch_q": 1,
+   "permit": 1,
+   "mcu_en": 1,
+   "dock_n": 1,
+   "mot_fwd": 1,
+   "allow_v": 0.0,
+   "expected": 0,
+   "ok": true
+  }
+ ],
+ "chain": [
+  {
+   "latch_q": 0,
+   "permit": 0,
+   "mcu_en": 0,
+   "dock_n": 0,
+   "mot_fwd": 0,
+   "vmot": -9.38886066e-12,
+   "expected": 0,
+   "ok": true
+  },
+  {
+   "latch_q": 0,
+   "permit": 0,
+   "mcu_en": 0,
+   "dock_n": 0,
+   "mot_fwd": 1,
+   "vmot": -9.38886066e-12,
+   "expected": 0,
+   "ok": true
+  },
+  {
+   "latch_q": 0,
+   "permit": 0,
+   "mcu_en": 0,
+   "dock_n": 1,
+   "mot_fwd": 0,
+   "vmot": -9.38886066e-12,
+   "expected": 0,
+   "ok": true
+  },
+  {
+   "latch_q": 0,
+   "permit": 0,
+   "mcu_en": 0,
+   "dock_n": 1,
+   "mot_fwd": 1,
+   "vmot": -9.38886066e-12,
+   "expected": 0,
+   "ok": true
+  },
+  {
+   "latch_q": 0,
+   "permit": 0,
+   "mcu_en": 1,
+   "dock_n": 0,
+   "mot_fwd": 0,
+   "vmot": -9.38886066e-12,
+   "expected": 0,
+   "ok": true
+  },
+  {
+   "latch_q": 0,
+   "permit": 0,
+   "mcu_en": 1,
+   "dock_n": 0,
+   "mot_fwd": 1,
+   "vmot": -9.38886066e-12,
+   "expected": 0,
+   "ok": true
+  },
+  {
+   "latch_q": 0,
+   "permit": 0,
+   "mcu_en": 1,
+   "dock_n": 1,
+   "mot_fwd": 0,
+   "vmot": -9.38886066e-12,
+   "expected": 0,
+   "ok": true
+  },
+  {
+   "latch_q": 0,
+   "permit": 0,
+   "mcu_en": 1,
+   "dock_n": 1,
+   "mot_fwd": 1,
+   "vmot": -9.38886066e-12,
+   "expected": 0,
+   "ok": true
+  },
+  {
+   "latch_q": 0,
+   "permit": 1,
+   "mcu_en": 0,
+   "dock_n": 0,
+   "mot_fwd": 0,
+   "vmot": -9.38886066e-12,
+   "expected": 0,
+   "ok": true
+  },
+  {
+   "latch_q": 0,
+   "permit": 1,
+   "mcu_en": 0,
+   "dock_n": 0,
+   "mot_fwd": 1,
+   "vmot": -9.38886066e-12,
+   "expected": 0,
+   "ok": true
+  },
+  {
+   "latch_q": 0,
+   "permit": 1,
+   "mcu_en": 0,
+   "dock_n": 1,
+   "mot_fwd": 0,
+   "vmot": -9.38886066e-12,
+   "expected": 0,
+   "ok": true
+  },
+  {
+   "latch_q": 0,
+   "permit": 1,
+   "mcu_en": 0,
+   "dock_n": 1,
+   "mot_fwd": 1,
+   "vmot": -9.38886066e-12,
+   "expected": 0,
+   "ok": true
+  },
+  {
+   "latch_q": 0,
+   "permit": 1,
+   "mcu_en": 1,
+   "dock_n": 0,
+   "mot_fwd": 0,
+   "vmot": -9.38886066e-12,
+   "expected": 0,
+   "ok": true
+  },
+  {
+   "latch_q": 0,
+   "permit": 1,
+   "mcu_en": 1,
+   "dock_n": 0,
+   "mot_fwd": 1,
+   "vmot": -9.38886066e-12,
+   "expected": 0,
+   "ok": true
+  },
+  {
+   "latch_q": 0,
+   "permit": 1,
+   "mcu_en": 1,
+   "dock_n": 1,
+   "mot_fwd": 0,
+   "vmot": -9.38886066e-12,
+   "expected": 0,
+   "ok": true
+  },
+  {
+   "latch_q": 0,
+   "permit": 1,
+   "mcu_en": 1,
+   "dock_n": 1,
+   "mot_fwd": 1,
+   "vmot": -9.38886066e-12,
+   "expected": 0,
+   "ok": true
+  },
+  {
+   "latch_q": 1,
+   "permit": 0,
+   "mcu_en": 0,
+   "dock_n": 0,
+   "mot_fwd": 0,
+   "vmot": -9.38886066e-12,
+   "expected": 0,
+   "ok": true
+  },
+  {
+   "latch_q": 1,
+   "permit": 0,
+   "mcu_en": 0,
+   "dock_n": 0,
+   "mot_fwd": 1,
+   "vmot": -9.38886066e-12,
+   "expected": 0,
+   "ok": true
+  },
+  {
+   "latch_q": 1,
+   "permit": 0,
+   "mcu_en": 0,
+   "dock_n": 1,
+   "mot_fwd": 0,
+   "vmot": -9.38886066e-12,
+   "expected": 0,
+   "ok": true
+  },
+  {
+   "latch_q": 1,
+   "permit": 0,
+   "mcu_en": 0,
+   "dock_n": 1,
+   "mot_fwd": 1,
+   "vmot": -9.38886066e-12,
+   "expected": 0,
+   "ok": true
+  },
+  {
+   "latch_q": 1,
+   "permit": 0,
+   "mcu_en": 1,
+   "dock_n": 0,
+   "mot_fwd": 0,
+   "vmot": -9.38886066e-12,
+   "expected": 0,
+   "ok": true
+  },
+  {
+   "latch_q": 1,
+   "permit": 0,
+   "mcu_en": 1,
+   "dock_n": 0,
+   "mot_fwd": 1,
+   "vmot": -9.38886066e-12,
+   "expected": 0,
+   "ok": true
+  },
+  {
+   "latch_q": 1,
+   "permit": 0,
+   "mcu_en": 1,
+   "dock_n": 1,
+   "mot_fwd": 0,
+   "vmot": -9.38886066e-12,
+   "expected": 0,
+   "ok": true
+  },
+  {
+   "latch_q": 1,
+   "permit": 0,
+   "mcu_en": 1,
+   "dock_n": 1,
+   "mot_fwd": 1,
+   "vmot": -9.38886066e-12,
+   "expected": 0,
+   "ok": true
+  },
+  {
+   "latch_q": 1,
+   "permit": 1,
+   "mcu_en": 0,
+   "dock_n": 0,
+   "mot_fwd": 0,
+   "vmot": -9.38886066e-12,
+   "expected": 0,
+   "ok": true
+  },
+  {
+   "latch_q": 1,
+   "permit": 1,
+   "mcu_en": 0,
+   "dock_n": 0,
+   "mot_fwd": 1,
+   "vmot": -9.38886066e-12,
+   "expected": 0,
+   "ok": true
+  },
+  {
+   "latch_q": 1,
+   "permit": 1,
+   "mcu_en": 0,
+   "dock_n": 1,
+   "mot_fwd": 0,
+   "vmot": -9.38886066e-12,
+   "expected": 0,
+   "ok": true
+  },
+  {
+   "latch_q": 1,
+   "permit": 1,
+   "mcu_en": 0,
+   "dock_n": 1,
+   "mot_fwd": 1,
+   "vmot": -9.38886066e-12,
+   "expected": 0,
+   "ok": true
+  },
+  {
+   "latch_q": 1,
+   "permit": 1,
+   "mcu_en": 1,
+   "dock_n": 0,
+   "mot_fwd": 0,
+   "vmot": -9.38886066e-12,
+   "expected": 0,
+   "ok": true
+  },
+  {
+   "latch_q": 1,
+   "permit": 1,
+   "mcu_en": 1,
+   "dock_n": 0,
+   "mot_fwd": 1,
+   "vmot": 4.92187076,
+   "expected": 1,
+   "ok": true
+  },
+  {
+   "latch_q": 1,
+   "permit": 1,
+   "mcu_en": 1,
+   "dock_n": 1,
+   "mot_fwd": 0,
+   "vmot": 4.92187076,
+   "expected": 1,
+   "ok": true
+  },
+  {
+   "latch_q": 1,
+   "permit": 1,
+   "mcu_en": 1,
+   "dock_n": 1,
+   "mot_fwd": 1,
+   "vmot": -9.38886066e-12,
+   "expected": 0,
+   "ok": true
+  }
+ ],
+ "float_power": [
+  {
+   "name": "float_all_dock0",
+   "desc": "all GPIOs Hi-Z, hall output open (DOCK_N floats at 0 V), latch initially SET",
+   "vmot_max": -9.38886066e-12,
+   "allow_max": 0.0,
+   "expect": "OFF",
+   "verdict": "PASS",
+   "vpre_max": -0.0249999375,
+   "i_motor": -7.0099999e-13
+  },
+  {
+   "name": "float_all_dock3.3",
+   "desc": "all GPIOs Hi-Z, hall output open (DOCK_N floats at 3.3 V), latch initially SET",
+   "vmot_max": -9.38886066e-12,
+   "allow_max": 0.0,
+   "expect": "OFF",
+   "verdict": "PASS",
+   "vpre_max": -0.0249999375,
+   "i_motor": -7.0099999e-13
+  },
+  {
+   "name": "hall_open_dock0",
+   "desc": "single fault: DRV5032 output open, DOCK_N floats at 0 V, undocked, forward, armed, permit+MCU_EN on",
+   "vmot_max": 4.92187076,
+   "allow_max": 3.29518104,
+   "expect": "OFF",
+   "verdict": "FAIL",
+   "vpre_max": 4.95833309,
+   "i_motor": 0.367481368
+  },
+  {
+   "name": "hall_open_dock3.3",
+   "desc": "single fault: DRV5032 output open, DOCK_N floats at 3.3 V, undocked, forward, armed, permit+MCU_EN on",
+   "vmot_max": -9.38886066e-12,
+   "allow_max": 0.0,
+   "expect": "OFF",
+   "verdict": "PASS",
+   "vpre_max": 4.95833309,
+   "i_motor": -7.0099999e-13
+  },
+  {
+   "name": "hall_open_with_pullup",
+   "desc": "same, with the proposed 100 k pull-up on DOCK_N (floats high = undocked)",
+   "vmot_max": -9.38886066e-12,
+   "allow_max": 0.0,
+   "expect": "OFF",
+   "verdict": "PASS",
+   "vpre_max": 4.95833309,
+   "i_motor": -7.0099999e-13
+  },
+  {
+   "name": "powerup_100us",
+   "desc": "3V3 rail ramp 100us, latch SET at power-up, permit/MCU_EN asserted instantly, docked + forward, supervisor BOR + TPL5010 RSTn active",
+   "vmot_max": -9.38886066e-12,
+   "allow_max": 0.742684826,
+   "expect": "OFF",
+   "verdict": "PASS",
+   "vpre_max": 4.95833309,
+   "i_motor": -7.00985826e-13
+  },
+  {
+   "name": "powerup_1ms",
+   "desc": "3V3 rail ramp 1ms, latch SET at power-up, permit/MCU_EN asserted instantly, docked + forward, supervisor BOR + TPL5010 RSTn active",
+   "vmot_max": -9.38886066e-12,
+   "allow_max": 0.799440446,
+   "expect": "OFF",
+   "verdict": "PASS",
+   "vpre_max": 4.95833309,
+   "i_motor": -7.00985819e-13
+  },
+  {
+   "name": "powerup_10ms",
+   "desc": "3V3 rail ramp 10ms, latch SET at power-up, permit/MCU_EN asserted instantly, docked + forward, supervisor BOR + TPL5010 RSTn active",
+   "vmot_max": -9.38886066e-12,
+   "allow_max": 0.824525176,
+   "expect": "OFF",
+   "verdict": "PASS",
+   "vpre_max": 4.95833309,
+   "i_motor": -7.00939307e-13
+  },
+  {
+   "name": "powerup_hiz",
+   "desc": "3V3 ramp 1 ms, latch SET, ALL GPIO Hi-Z (pull resistors only), no reset help at all, docked",
+   "vmot_max": -9.38886066e-12,
+   "allow_max": 0.799460408,
+   "expect": "OFF",
+   "verdict": "PASS",
+   "vpre_max": -0.0249999375,
+   "i_motor": -7.00985826e-13
+  },
+  {
+   "name": "brownout_0.5",
+   "desc": "3V3 dips to 0.5 V for 5 ms while running (docked, forward), supervisor BOR assumed at 1.7 V; no new ARM_CLK edge afterwards. Reset: must stay cut",
+   "vmot_max": -2.8539615e-13,
+   "allow_max": 0.0,
+   "expect": "OFF",
+   "verdict": "PASS",
+   "vpre_max": 4.96962755,
+   "i_motor": -7.0099999e-13
+  },
+  {
+   "name": "brownout_1",
+   "desc": "3V3 dips to 1 V for 5 ms while running (docked, forward), supervisor BOR assumed at 1.7 V; no new ARM_CLK edge afterwards. Reset: must stay cut",
+   "vmot_max": -1.89205519e-12,
+   "allow_max": 0.0,
+   "expect": "OFF",
+   "verdict": "PASS",
+   "vpre_max": 4.96790987,
+   "i_motor": -7.0099999e-13
+  },
+  {
+   "name": "brownout_1.5",
+   "desc": "3V3 dips to 1.5 V for 5 ms while running (docked, forward), supervisor BOR assumed at 1.7 V; no new ARM_CLK edge afterwards. Reset: must stay cut",
+   "vmot_max": -3.72445218e-12,
+   "allow_max": 0.0,
+   "expect": "OFF",
+   "verdict": "PASS",
+   "vpre_max": 4.96904183,
+   "i_motor": -7.0099999e-13
+  },
+  {
+   "name": "brownout_1.8",
+   "desc": "3V3 dips to 1.8 V for 5 ms while running (docked, forward), supervisor BOR assumed at 1.7 V; no new ARM_CLK edge afterwards. Logic stays alive: motor keeps running by design",
+   "vmot_max": 4.92187076,
+   "allow_max": 3.29518104,
+   "expect": "ON",
+   "verdict": "PASS",
+   "vpre_max": 4.95833309,
+   "i_motor": 0.367481368
+  },
+  {
+   "name": "brownout_2.2",
+   "desc": "3V3 dips to 2.2 V for 5 ms while running (docked, forward), supervisor BOR assumed at 1.7 V; no new ARM_CLK edge afterwards. Logic stays alive: motor keeps running by design",
+   "vmot_max": 4.92187076,
+   "allow_max": 3.29518104,
+   "expect": "ON",
+   "verdict": "PASS",
+   "vpre_max": 4.95833309,
+   "i_motor": 0.367481368
+  },
+  {
+   "name": "brownout_noBOR_0.5",
+   "desc": "3V3 dips to 0.5 V for 5 ms, NO reset from supervisor/TPL5010 (worst case: latch charge retained, firmware re-asserts permit at once)",
+   "vmot_max": 4.92189962,
+   "allow_max": 3.29518104,
+   "expect": "OFF",
+   "verdict": "WARN",
+   "vpre_max": 4.95835777,
+   "i_motor": 0.367696607
+  },
+  {
+   "name": "brownout_noBOR_1.5",
+   "desc": "3V3 dips to 1.5 V for 5 ms, NO reset from supervisor/TPL5010 (worst case: latch charge retained, firmware re-asserts permit at once)",
+   "vmot_max": 4.92187076,
+   "allow_max": 3.29518104,
+   "expect": "OFF",
+   "verdict": "WARN",
+   "vpre_max": 4.95833309,
+   "i_motor": 0.367481368
+  }
+ ],
+ "faults": [
+  {
+   "name": "sf_permit_stuck_hi",
+   "desc": "SUP_PERMIT stuck high (STM32 pin), undocked + forward, armed",
+   "vmot_max": -9.38886066e-12,
+   "allow_max": 0.0,
+   "expect": "OFF",
+   "verdict": "PASS",
+   "vpre_max": 4.95833309,
+   "i_motor": -7.0099999e-13
+  },
+  {
+   "name": "sf_mcuen_stuck_hi",
+   "desc": "MCU_EN stuck high, undocked + forward, armed",
+   "vmot_max": -9.38886066e-12,
+   "allow_max": 0.0,
+   "expect": "OFF",
+   "verdict": "PASS",
+   "vpre_max": 4.95833309,
+   "i_motor": -7.0099999e-13
+  },
+  {
+   "name": "sf_latch_stuck_hi",
+   "desc": "LATCH_Q stuck high (U6 / U32), permit and MCU_EN OFF",
+   "vmot_max": -9.38886066e-12,
+   "allow_max": 0.0,
+   "expect": "OFF",
+   "verdict": "PASS",
+   "vpre_max": -0.0249999375,
+   "i_motor": -7.0099999e-13
+  },
+  {
+   "name": "sf_latch_stuck_hi_undocked",
+   "desc": "LATCH_Q stuck high, permit and MCU_EN ON, undocked + forward",
+   "vmot_max": -9.38886066e-12,
+   "allow_max": 0.0,
+   "expect": "OFF",
+   "verdict": "PASS",
+   "vpre_max": 4.95833309,
+   "i_motor": -7.0099999e-13
+  },
+  {
+   "name": "sf_dock_stuck_low",
+   "desc": "DOCK_N stuck low (hall asserted / shorted), undocked + forward, all enables on (INTERLOCK I.1a open item)",
+   "vmot_max": 4.92187076,
+   "allow_max": 3.29518104,
+   "expect": "OFF",
+   "verdict": "WARN",
+   "vpre_max": 4.95833309,
+   "i_motor": 0.367481368
+  },
+  {
+   "name": "sf_dock_stuck_hi",
+   "desc": "DOCK_N stuck high (hall dead), docked + forward: nuisance only",
+   "vmot_max": -9.38886066e-12,
+   "allow_max": 0.0,
+   "expect": "OFF",
+   "verdict": "PASS",
+   "vpre_max": 4.95833309,
+   "i_motor": -7.0099999e-13
+  },
+  {
+   "name": "sf_fwd_stuck_lo",
+   "desc": "MOT_FWD stuck low (reads 'reverse'), undocked, all enables on: forward motion undocked cannot be seen by the hardware gate (supervisor PHASE check only)",
+   "vmot_max": 4.92187076,
+   "allow_max": 3.29514813,
+   "expect": "OFF",
+   "verdict": "WARN",
+   "vpre_max": 4.95833309,
+   "i_motor": 0.367481368
+  },
+  {
+   "name": "sf_docked_reverse",
+   "desc": "docked + reverse (H15), all enables on: new XOR must block in hardware",
+   "vmot_max": -9.38886066e-12,
+   "allow_max": 0.0,
+   "expect": "OFF",
+   "verdict": "PASS",
+   "vpre_max": 4.95833309,
+   "i_motor": -7.0099999e-13
+  },
+  {
+   "name": "sf_R16_open_0",
+   "desc": "R16 (MOT_FWD pull-up) open, nRF GPIO Hi-Z (reset), MOT_FWD floats at 0 V, undocked, latch armed, permit+MCU_EN on",
+   "vmot_max": 4.92187076,
+   "allow_max": 3.29518104,
+   "expect": "OFF",
+   "verdict": "WARN",
+   "vpre_max": 4.95833309,
+   "i_motor": 0.367481368
+  },
+  {
+   "name": "sf_R16_open_3.3",
+   "desc": "R16 (MOT_FWD pull-up) open, nRF GPIO Hi-Z (reset), MOT_FWD floats at 3.3 V, undocked, latch armed, permit+MCU_EN on",
+   "vmot_max": -9.38886066e-12,
+   "allow_max": 0.0,
+   "expect": "OFF",
+   "verdict": "PASS",
+   "vpre_max": 4.95833309,
+   "i_motor": -7.0099999e-13
+  },
+  {
+   "name": "sf_R82_open_0",
+   "desc": "R82 (SUP_PERMIT pull-down) open, STM32 Hi-Z (reset), SUP_PERMIT floats at 0 V; other legs on, undocked + forward, latch armed",
+   "vmot_max": -9.38886066e-12,
+   "allow_max": 0.0,
+   "expect": "OFF",
+   "verdict": "PASS",
+   "vpre_max": -0.0249999375,
+   "i_motor": -7.0099999e-13
+  },
+  {
+   "name": "sf_R82_open_3.3",
+   "desc": "R82 (SUP_PERMIT pull-down) open, STM32 Hi-Z (reset), SUP_PERMIT floats at 3.3 V; other legs on, undocked + forward, latch armed",
+   "vmot_max": -9.38886066e-12,
+   "allow_max": 0.0,
+   "expect": "OFF",
+   "verdict": "PASS",
+   "vpre_max": 5.81183123,
+   "i_motor": -7.0099999e-13
+  },
+  {
+   "name": "sf_R18_open_0",
+   "desc": "R18 (MCU_EN pull-down) open, nRF Hi-Z, MCU_EN floats at 0 V; permit on, docked + forward, armed",
+   "vmot_max": -9.38886066e-12,
+   "allow_max": 0.0,
+   "expect": "OFF",
+   "verdict": "PASS",
+   "vpre_max": 4.95833309,
+   "i_motor": -7.0099999e-13
+  },
+  {
+   "name": "sf_R18_open_3.3",
+   "desc": "R18 (MCU_EN pull-down) open, nRF Hi-Z, MCU_EN floats at 3.3 V; permit on, docked + forward, armed",
+   "vmot_max": -9.38886066e-12,
+   "allow_max": 0.0,
+   "expect": "OFF",
+   "verdict": "PASS",
+   "vpre_max": 4.95833309,
+   "i_motor": -7.0099999e-13
+  },
+  {
+   "name": "sf_R90_open",
+   "desc": "R90 (MOT_ALLOW pull-down) open, everything else normal, undocked + forward: gate output is driven, so still OFF",
+   "vmot_max": -9.38886066e-12,
+   "allow_max": 0.0,
+   "expect": "OFF",
+   "verdict": "PASS",
+   "vpre_max": 4.95833309,
+   "i_motor": -7.0099999e-13
+  },
+  {
+   "name": "sf_R29_open_0",
+   "desc": "R29 (ARM_CLK pull-down) open, nRF Hi-Z, ARM_CLK floats at 0 V: no edge, latch stays clear; undocked/docked + forward",
+   "vmot_max": -9.38886066e-12,
+   "allow_max": 0.0,
+   "expect": "OFF",
+   "verdict": "PASS",
+   "vpre_max": 4.95833309,
+   "i_motor": -7.0099999e-13
+  },
+  {
+   "name": "sf_R29_open_3.3",
+   "desc": "R29 (ARM_CLK pull-down) open, nRF Hi-Z, ARM_CLK floats at 3.3 V: no edge, latch stays clear; undocked/docked + forward",
+   "vmot_max": -9.38886066e-12,
+   "allow_max": 0.0,
+   "expect": "OFF",
+   "verdict": "PASS",
+   "vpre_max": 4.95833309,
+   "i_motor": -7.0099999e-13
+  },
+  {
+   "name": "sf_R55_open",
+   "desc": "R55 (FB upper resistor) open: FB = 0 V, boost runs to its 5.7 V OVP",
+   "vmot_max": -9.38886066e-12,
+   "allow_max": 3.29518104,
+   "expect": "n/a",
+   "verdict": "N/A",
+   "vpre_max": 0.0,
+   "i_motor": 0.0,
+   "note": "behavioural boost model diverges with an open FB node (non-physical); evaluated analytically in REPORT.md"
+  },
+  {
+   "name": "sf_R92_open_0",
+   "desc": "R92 (OC_OK pull-up) open, OC_OK floats low: latch held clear -> motor never runs (safe, nuisance)",
+   "vmot_max": -9.38886066e-12,
+   "allow_max": 0.0,
+   "expect": "OFF",
+   "verdict": "PASS",
+   "vpre_max": 4.95833309,
+   "i_motor": -7.0099999e-13
+  }
+ ],
+ "dc_pass": true,
+ "chain_pass": true
+}

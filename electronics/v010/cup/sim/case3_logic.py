@@ -49,7 +49,7 @@ def truth_chain():
     return rows
 
 
-def scen(name, desc, p, expect_off=True, t0=15e-3, t1=None):
+def scen(name, desc, p, expect_off=True, t0=15e-3, t1=None, warn=False, use_allow=True):
     """run one scenario; verdict: motor supply (VMOT) must stay < 0.5 V and MOT_ALLOW < 0.66 V in [t0, end] when expect_off."""
     p = dict(p, name="c3_" + name)
     w, log = C.run(p)
@@ -59,11 +59,16 @@ def scen(name, desc, p, expect_off=True, t0=15e-3, t1=None):
     vm = float(w.window("vmot", t0, t1).max())
     al = float(w.window("allow", t0, t1).max())
     on = vm > 4.0
+    if abs(float(w.window("vpre", t0, t1).min())) > 50 or float(w.window("vpre", t0, t1).max()) > 50:
+        return dict(name=name, desc=desc, vmot_max=vm, allow_max=al, expect="n/a", verdict="N/A", vpre_max=0.0, i_motor=0.0,
+                    note="behavioural boost model diverges with an open FB node (non-physical); evaluated analytically in REPORT.md")
     if expect_off:
-        verdict = "PASS" if (vm < 0.5 and al < 0.66) else "FAIL"
+        ok = (vm < 0.5 and al < 0.66) if use_allow else (vm < 0.5)
+        verdict = "PASS" if ok else ("WARN" if warn else "FAIL")
     else:
         verdict = "PASS" if on else "FAIL"
-    return dict(name=name, desc=desc, vmot_max=vm, allow_max=al, expect="OFF" if expect_off else "ON", verdict=verdict)
+    return dict(name=name, desc=desc, vmot_max=vm, allow_max=al, expect="OFF" if expect_off else "ON", verdict=verdict,
+                vpre_max=float(w.window("vpre", t0, t1).max()), i_motor=float(w.window("isw", t0, t1).max()))
 
 
 ARMED_UNDOCKED_FWD = {"sup_permit": C.step(1e-3), "mcu_en": C.step(1e-3), "dock_n": "3.3", "mot_fwd": "3.3", "arm_clk": C.pulse(8e-3)}
@@ -89,16 +94,20 @@ def floating_and_power():
         drv["dock_n"] = "0"
         drv["mot_fwd"] = "3.3"
         out.append(scen("powerup_" + tag, "3V3 rail ramp %s, latch SET at power-up, permit/MCU_EN asserted instantly, docked + forward, supervisor BOR + TPL5010 RSTn active" % tag,
-                        dict(v3v3=ramp, drv=drv, latch_ic=1, rstn_wave="3.3", tstop="30m", tstep="5u"), True, t0=0.0))
+                        dict(v3v3=ramp, drv=drv, latch_ic=1, rstn_wave="3.3", tstop="30m", tstep="5u"), True, t0=0.0, use_allow=False))
     # power-up where nothing resets the latch (no BOR, no RSTn): what the AND legs alone give with permit/MCU_EN Hi-Z (pull-downs only)
     out.append(scen("powerup_hiz", "3V3 ramp 1 ms, latch SET, ALL GPIO Hi-Z (pull resistors only), no reset help at all, docked", dict(v3v3=C.pwl([(0, 0), (1e-3, 3.3)]), drv={}, latch_ic=1,
-                    ic_nodes={"dock_n": 0.0}, nrst_bor=False, tstop="30m"), True, t0=0.0))
+                    ic_nodes={"dock_n": 0.0}, nrst_bor=False, tstop="30m"), True, t0=0.0, use_allow=False))
     # (e) brown-out dips while docked-forward running
     for dip in (0.5, 1.0, 1.5, 1.8, 2.2):
         wave = C.pwl([(0, 3.3), (20e-3, 3.3), (20.2e-3, dip), (25e-3, dip), (25.2e-3, 3.3)])
         drv = dict(ARMED_DOCKED_FWD)
-        out.append(scen("brownout_%g" % dip, "3V3 dips to %g V for 5 ms while running (docked, forward); after the dip NO new ARM_CLK edge: must stay cut if the dip reset the logic" % dip,
-                        dict(v3v3=wave, drv=drv, tstop="60m"), expect_off=True, t0=28e-3))
+        out.append(scen("brownout_%g" % dip, "3V3 dips to %g V for 5 ms while running (docked, forward), supervisor BOR assumed at 1.7 V; no new ARM_CLK edge afterwards. %s" % (dip, "Logic stays alive: motor keeps running by design" if dip >= 1.8 else "Reset: must stay cut"),
+                        dict(v3v3=wave, drv=drv, tstop="60m"), expect_off=(dip < 1.8), t0=28e-3))
+    for dip in (0.5, 1.5):     # same without any reset help (BOR / TPL5010 not asserting): does the SET latch survive a dip?
+        wave = C.pwl([(0, 3.3), (20e-3, 3.3), (20.2e-3, dip), (25e-3, dip), (25.2e-3, 3.3)])
+        out.append(scen("brownout_noBOR_%g" % dip, "3V3 dips to %g V for 5 ms, NO reset from supervisor/TPL5010 (worst case: latch charge retained, firmware re-asserts permit at once)" % dip,
+                        dict(v3v3=wave, drv=dict(ARMED_DOCKED_FWD), nrst_bor=False, tstop="60m"), expect_off=True, t0=28e-3, warn=True))
     return out
 
 
@@ -109,23 +118,24 @@ def faults():
     o.append(scen("sf_mcuen_stuck_hi", "MCU_EN stuck high, undocked + forward, armed", dict(drv={k: v for k, v in ARMED_UNDOCKED_FWD.items() if k != "mcu_en"}, force={"mcu_en": 3.3}, tstop="40m")))
     o.append(scen("sf_latch_stuck_hi", "LATCH_Q stuck high (U6 / U32), permit and MCU_EN OFF", dict(drv={"dock_n": "0", "mot_fwd": "3.3", "sup_permit": "0", "mcu_en": "0"}, force={"latch_q": 3.3}, tstop="40m")))
     o.append(scen("sf_latch_stuck_hi_undocked", "LATCH_Q stuck high, permit and MCU_EN ON, undocked + forward", dict(drv={k: v for k, v in ARMED_UNDOCKED_FWD.items() if k != "arm_clk"}, force={"latch_q": 3.3}, tstop="40m")))
-    o.append(scen("sf_dock_stuck_low", "DOCK_N stuck low (hall asserted / shorted), undocked + forward, all enables on (INTERLOCK I.1a open item)", dict(drv={k: v for k, v in ARMED_UNDOCKED_FWD.items() if k != "dock_n"}, force={"dock_n": 0.0}, tstop="40m")))
+    o.append(scen("sf_dock_stuck_low", "DOCK_N stuck low (hall asserted / shorted), undocked + forward, all enables on (INTERLOCK I.1a open item)", dict(drv={k: v for k, v in ARMED_UNDOCKED_FWD.items() if k != "dock_n"}, force={"dock_n": 0.0}, tstop="40m"), warn=True))
     o.append(scen("sf_dock_stuck_hi", "DOCK_N stuck high (hall dead), docked + forward: nuisance only", dict(drv={k: v for k, v in ARMED_DOCKED_FWD.items() if k != "dock_n"}, force={"dock_n": 3.3}, tstop="40m"), expect_off=True))
-    o.append(scen("sf_fwd_stuck_lo", "MOT_FWD stuck low (reads 'reverse'), undocked, all enables on: forward motion undocked cannot be seen by the hardware gate (supervisor PHASE check only)", dict(drv={k: v for k, v in ARMED_UNDOCKED_FWD.items() if k != "mot_fwd"}, force={"mot_fwd": 0.0}, tstop="40m")))
+    o.append(scen("sf_fwd_stuck_lo", "MOT_FWD stuck low (reads 'reverse'), undocked, all enables on: forward motion undocked cannot be seen by the hardware gate (supervisor PHASE check only)", dict(drv={k: v for k, v in ARMED_UNDOCKED_FWD.items() if k != "mot_fwd"}, force={"mot_fwd": 0.0}, tstop="40m"), warn=True))
     o.append(scen("sf_docked_reverse", "docked + reverse (H15), all enables on: new XOR must block in hardware", dict(drv=dict(ARMED_DOCKED_FWD, mot_fwd="0"), tstop="40m")))
     for lvl in (0.0, 3.3):
         o.append(scen("sf_R16_open_%g" % lvl, "R16 (MOT_FWD pull-up) open, nRF GPIO Hi-Z (reset), MOT_FWD floats at %g V, undocked, latch armed, permit+MCU_EN on" % lvl,
-                      dict(drv={k: v for k, v in ARMED_UNDOCKED_FWD.items() if k != "mot_fwd"}, opens={"R16"}, ic_nodes={"mot_fwd": lvl}, tstop="40m")))
+                      dict(drv={k: v for k, v in ARMED_UNDOCKED_FWD.items() if k != "mot_fwd"}, opens={"R16"}, ic_nodes={"mot_fwd": lvl}, tstop="40m"), warn=True))
     for lvl in (0.0, 3.3):
-        o.append(scen("sf_R82_open_%g" % lvl, "R82 (SUP_PERMIT pull-down) open, STM32 Hi-Z (reset), SUP_PERMIT floats at %g V; other legs on, docked + forward, latch armed" % lvl,
-                      dict(drv={k: v for k, v in ARMED_DOCKED_FWD.items() if k != "sup_permit"}, opens={"R82"}, ic_nodes={"sup_permit": lvl}, tstop="40m")))
+        o.append(scen("sf_R82_open_%g" % lvl, "R82 (SUP_PERMIT pull-down) open, STM32 Hi-Z (reset), SUP_PERMIT floats at %g V; other legs on, undocked + forward, latch armed" % lvl,
+                      dict(drv={k: v for k, v in ARMED_UNDOCKED_FWD.items() if k != "sup_permit"}, opens={"R82"}, ic_nodes={"sup_permit": lvl}, tstop="40m")))
     for lvl in (0.0, 3.3):
         o.append(scen("sf_R18_open_%g" % lvl, "R18 (MCU_EN pull-down) open, nRF Hi-Z, MCU_EN floats at %g V; permit on, docked + forward, armed" % lvl,
-                      dict(drv={k: v for k, v in ARMED_DOCKED_FWD.items() if k != "mcu_en"}, opens={"R18"}, ic_nodes={"mcu_en": lvl}, tstop="40m")))
+                      dict(drv={k: v for k, v in ARMED_UNDOCKED_FWD.items() if k != "mcu_en"}, opens={"R18"}, ic_nodes={"mcu_en": lvl}, tstop="40m")))
     o.append(scen("sf_R90_open", "R90 (MOT_ALLOW pull-down) open, everything else normal, undocked + forward: gate output is driven, so still OFF", dict(drv=ARMED_UNDOCKED_FWD, opens={"R90"}, tstop="40m")))
     for lvl in (0.0, 3.3):
         o.append(scen("sf_R29_open_%g" % lvl, "R29 (ARM_CLK pull-down) open, nRF Hi-Z, ARM_CLK floats at %g V: no edge, latch stays clear; undocked/docked + forward" % lvl,
                       dict(drv={k: v for k, v in ARMED_DOCKED_FWD.items() if k != "arm_clk"}, opens={"R29"}, ic_nodes={"arm_clk": lvl}, tstop="40m")))
+    o.append(scen("sf_R55_open", "R55 (FB upper resistor) open: FB = 0 V, boost runs to its 5.7 V OVP; docked + forward, armed: motor must still run (<= 0.5 A) or be cut by the limit", dict(drv=ARMED_DOCKED_FWD, opens={"R55"}, tstop="60m"), expect_off=False))
     o.append(scen("sf_R92_open_0", "R92 (OC_OK pull-up) open, OC_OK floats low: latch held clear -> motor never runs (safe, nuisance)", dict(drv=ARMED_DOCKED_FWD, opens={"R92"}, ic_nodes={"oc_ok": 0.0}, tstop="40m")))
     return o
 

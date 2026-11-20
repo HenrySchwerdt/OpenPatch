@@ -84,8 +84,25 @@ def s_mismatch(permit_stuck=False):
                "allow_max_after_ms": float(w.window("allow", t0 + 0.005, 120e-3).max()), "vmot_at_120ms": w.at("vmot", 119e-3), "vpre_at_120ms": w.at("vpre", 119e-3)}
 
 
+def s_u32_stuck():
+    """U32 output stuck high (latch clear never asserts) + output short at 25 ms: the hardware latch path is dead, only the current limit and the supervisor leg remain.
+    Supervisor reaction is a firmware behaviour: ASSUMPTION it drops SUP_PERMIT 2 ms after OC_OK falls (sees the edge by EXTI)."""
+    res = {}
+    for tag, perm in (("no_supervisor", C.step(1e-3)), ("supervisor_drops_permit", C.pwl([(0, 0), (1e-3, 0), (1.001e-3, 3.3), (34.5e-3, 3.3), (34.501e-3, 0)]))):
+        p = dict(name="c2_u32_" + tag, ocv=3.7, drv=dict(DOCKED_FWD, sup_permit=perm, arm_clk=C.pulse(8e-3)), force={"latch_clr_n": 3.3}, load="short", short_t=25e-3,
+                 tstop="80m", tstep="10u")
+        w, log = C.run(p)
+        if w is None:
+            res[tag] = {"error": log[-200:]}
+            continue
+        res[tag] = {"vmot_60_80ms": float(w.window("vmot", 60e-3, 80e-3).max()), "isw_60_80ms_a": float(np.mean(w.window("isw", 60e-3, 80e-3))),
+                    "allow_70ms": w.at("allow", 70e-3)}
+    return res
+
+
 def run(plot=True):
     out = {}
+    out["u32_stuck"] = s_u32_stuck()
     w1, out["short"] = s1_short()
     w2, out["stall_worst"] = s_stall_worst()
     w3, out["watchdog"] = s_watchdog()

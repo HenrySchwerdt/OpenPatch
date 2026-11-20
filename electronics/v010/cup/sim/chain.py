@@ -56,6 +56,9 @@ def chain(p):
     # (R92 is in snip_switch; remove it when opened)
     if "R92" in opens:
         s = s.replace("R92 v3v3 oc_ok 100k\n", "")
+    for r, line in (("R55", "R55 vmot_pre fb 220k\n"), ("R56", "R56 fb 0 30k\n"), ("R91", "R91 ilim 0 47000\n")):
+        if r in opens:
+            s = s.replace(line, "")
     for sig in ("arm_clk", "sup_permit", "mcu_en", "mot_fwd", "dock_n", "sup_nrst_dummy"):
         if sig in drv:
             s += drive(sig, drv[sig])
