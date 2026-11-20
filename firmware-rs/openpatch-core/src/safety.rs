@@ -17,6 +17,7 @@ use crate::delivery::BasalSchedule;
 use crate::diag::{codes, DiagCode, DiagState, Raise};
 use crate::faults::Faults;
 use crate::limits::*;
+use crate::occlusion::{OcclusionSource, ShortfallEvent, ShortfallMonitor};
 use crate::units::*;
 use openpatch_proto::Error;
 
@@ -79,6 +80,10 @@ pub struct SafetySupervisor {
     win_n: usize,
     base_ma: u16,
     base_bursts: u16,
+    /// Which channels feed the occlusion detector (`AngleOnly` on the cup v4 board: no current sense).
+    occlusion_source: OcclusionSource,
+    /// Debounce / hysteresis of the angle-shortfall warning (`5-53-004`).
+    shortfall: ShortfallMonitor,
 }
 
 /// `MAX_HOURLY` reduced so that the volume that PHYSICALLY leaves the needle stays <= 15 U/h even at the
@@ -130,6 +135,8 @@ impl SafetySupervisor {
             win_n: 0,
             base_ma: 0,
             base_bursts: 0,
+            occlusion_source: OcclusionSource::AngleAndCurrent,
+            shortfall: ShortfallMonitor::new(),
         };
         if cal_in_range(cal) {
             sv.cal = cal;
@@ -410,6 +417,11 @@ impl SafetySupervisor {
         self.win_n = 0; // the running level of the pod is measured again after a fill / prime / draw / acknowledge
         self.base_ma = 0;
         self.base_bursts = 0;
+        if self.shortfall.warned() {
+            self.diag.clear(codes::OCCLUSION_SHORTFALL_WARNING); // a new baseline: the old shortfall no longer exists
+            self.sync_faults_cache();
+        }
+        self.shortfall.reset();
     }
 
     fn check_encoder(&mut self, enc: i64) {
@@ -419,8 +431,19 @@ impl SafetySupervisor {
         }
         let travelled = enc - self.enc_base;
         let undelivered = self.cmd_counts - travelled;
-        if undelivered > self.cal.mu_to_angle(OCCLUSION).0 {
-            self.raise(Raise::new(codes::OCCLUSION_SHORTFALL).a((undelivered * OCCLUSION.0 as i64 / self.cal.mu_to_angle(OCCLUSION).0.max(1)) as i32).b(OCCLUSION.0 as i32).c(self.cmd_steps.min(u32::MAX as u64) as u32));
+        // The fault level is the unchanged spec limit (> 2 U, not debounced); the monitor adds the 1 U warning (`5-53-004`).
+        match self.shortfall.evaluate(undelivered, self.cal) {
+            ShortfallEvent::RaiseFault => {
+                self.raise(Raise::new(codes::OCCLUSION_SHORTFALL).a((undelivered * OCCLUSION.0 as i64 / self.cal.mu_to_angle(OCCLUSION).0.max(1)) as i32).b(OCCLUSION.0 as i32).c(self.cmd_steps.min(u32::MAX as u64) as u32));
+            }
+            ShortfallEvent::RaiseWarning => {
+                self.raise(Raise::new(codes::OCCLUSION_SHORTFALL_WARNING).a((undelivered * OCCLUSION.0 as i64 / self.cal.mu_to_angle(OCCLUSION).0.max(1)) as i32).b(crate::occlusion::SHORTFALL_WARN_MU as i32).c(self.cmd_steps.min(u32::MAX as u64) as u32));
+            }
+            ShortfallEvent::ClearWarning => {
+                self.diag.clear(codes::OCCLUSION_SHORTFALL_WARNING);
+                self.sync_faults_cache();
+            }
+            ShortfallEvent::None => {}
         }
 
         let cmd_win = self.cmd_counts - self.win_cmd0;
@@ -472,6 +495,17 @@ impl SafetySupervisor {
         self.last_new_faults
     }
 
+    /// Select the occlusion channels. `AngleOnly` (cup v4 board) switches the motor-current detector off completely (no
+    /// `5-53-002` / `5-53-003`); the angle shortfall limits (1 U warning, 2 U fault) apply in both modes and are not configurable.
+    pub fn set_occlusion_source(&mut self, source: OcclusionSource) {
+        self.occlusion_source = source;
+        self.high_current_bursts = 0;
+    }
+
+    pub fn occlusion_source(&self) -> OcclusionSource {
+        self.occlusion_source
+    }
+
     /// Occlusion current threshold in force (mA); starts at the hard limit.
     pub fn occlusion_current_ma(&self) -> u16 {
         self.occlusion_ma
@@ -492,6 +526,9 @@ impl SafetySupervisor {
     /// [`OCCLUSION_CURRENT_MA`] latch `OCCLUSION`; a sub-threshold burst resets the count; `None`
     /// (no sensor) changes nothing. Returns `true` when OCCLUSION was newly latched.
     pub fn observe_motor_burst(&mut self, steps: Pulses, peak_ma: Option<u16>) -> bool {
+        if self.occlusion_source == OcclusionSource::AngleOnly {
+            return false; // cup v4: no current channel, the angle shortfall is the only occlusion detector
+        }
         let Some(ma) = peak_ma else { return false };
         if steps.0 == 0 {
             return false;

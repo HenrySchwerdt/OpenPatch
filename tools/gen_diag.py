@@ -30,7 +30,7 @@ SWIFT_OUT = os.path.join(ROOT, "ios", "OpenPatchKit", "OpenPatchCore", "Sources"
 TRACE_OUT = os.path.join(ROOT, "docs", "06-diagnostics-trace.md")
 
 # Bump on EVERY catalogue change (reported to the app in DIAG_SUMMARY.schema).
-SCHEMA_VERSION = 2
+SCHEMA_VERSION = 3
 
 # ---- enumerations (docs/06-diagnostics.md 2.2, 2.3, 2.4) -------------------------------------
 SEVERITIES = ["I", "W", "F", "L"]

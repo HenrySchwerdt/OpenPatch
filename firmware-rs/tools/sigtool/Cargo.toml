@@ -12,3 +12,4 @@ description = "Host tool: ed25519 key generation and image signing for the OpenP
 ed25519-dalek = { version = "=2.2.0", default-features = false, features = ["std", "rand_core"] }
 sha2 = "=0.10.9"
 getrandom = "=0.2.17"
+openpatch-boot-policy = { path = "../../openpatch-boot-policy" }

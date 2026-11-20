@@ -7,17 +7,22 @@
 #![no_std]
 #![forbid(unsafe_code)]
 
+pub mod battery;
 pub mod bench;
 pub mod bench_ctl;
+pub mod burst;
 pub mod delivery;
 pub mod diag;
 pub mod drive_cal;
 pub mod faults;
 pub mod hal;
 pub mod interlock;
+pub mod led;
 pub mod limits;
 pub mod log;
+pub mod occlusion;
 pub mod persist;
+pub mod phase_drive;
 pub mod pod;
 mod draw;
 pub mod pump;

@@ -66,14 +66,14 @@ final class DiagWireTests: XCTestCase {
     }
 
     func testSummaryExample() throws {
-        // 5.4 example with the current catalogue schema (2): 27 0E | 00 01 60 10 | 03 08 01 01 01 03 | 06 00 | 02 00
-        let bytes: [UInt8] = [0x00, 0x01, 0x60, 0x10, 0x03, 0x08, 0x01, 0x01, 0x01, 0x03, 0x06, 0x00, 0x02, 0x00]
+        // 5.4 example with the current catalogue schema (3): 27 0E | 00 01 60 10 | 03 08 01 01 01 03 | 06 00 | 03 00
+        let bytes: [UInt8] = [0x00, 0x01, 0x60, 0x10, 0x03, 0x08, 0x01, 0x01, 0x01, 0x03, 0x06, 0x00, 0x03, 0x00]
         let s = try XCTUnwrap(DiagSummary(bytes: bytes))
         XCTAssertEqual(s.topCode, .vmotStuckOn)
         XCTAssertEqual([s.topSeverityRaw, s.topActionRaw, s.topFruRaw], [3, 8, 1])
         XCTAssertEqual([s.latchedCount, s.activeCount, s.postState], [1, 1, 3])
         XCTAssertEqual(s.nextRecIDLow, 6)
-        XCTAssertEqual(s.schema, 2)
+        XCTAssertEqual(s.schema, 3)
         XCTAssertFalse(s.schemaDiffers)
         var old = bytes; old[12] = 0x01
         XCTAssertTrue(try XCTUnwrap(DiagSummary(bytes: old)).schemaDiffers, "a pod on catalogue schema 1 must be flagged")

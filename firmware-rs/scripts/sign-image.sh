@@ -20,5 +20,5 @@ if [[ "$IN" != *.bin ]]; then
   rust-objcopy -O binary "$IN" "$BIN"
 fi
 cargo build --release --quiet --manifest-path "$ROOT/tools/sigtool/Cargo.toml"
-"$ROOT/tools/sigtool/target/release/sigtool" sign "$KEYS_DIR" "$BIN" "$OUT"
+"$ROOT/tools/sigtool/target/release/sigtool" sign "$KEYS_DIR" "$BIN" "$OUT" "${SECURITY_VERSION:?set SECURITY_VERSION (anti-rollback version >= 1, raise only for a release that must not be downgraded)}"
 "$ROOT/tools/sigtool/target/release/sigtool" verify "$KEYS_DIR" "$BIN" "$OUT.manifest.bin"

@@ -9,6 +9,9 @@ description = "OpenPatch nRF52840 bootloader (embassy-boot-nrf). TEST PROJECT, n
 [workspace]
 
 [features]
+# USB DFU transport glue (embassy-usb + DFU class). NOT built by default and not buildable/testable here: the host-tested rules it
+# must call are `openpatch_boot_policy::dfu::DfuReceiver` and `verify_pending` (see docs/bootloader.md).
+usb-dfu = []
 # Exactly one board feature; only used to service the external TPL5010 watchdog during long
 # flash operations (a swap takes several seconds, the TPL5010 interval is about 2 s).
 default = ["board-bench-e73"]
@@ -24,6 +27,7 @@ cortex-m = { version = "=0.7.10", features = ["inline-asm", "critical-section-si
 cortex-m-rt = "=0.7.7"
 embedded-storage = "=0.3.2"
 salty = { version = "=0.3.0", default-features = false }
+openpatch-boot-policy = { path = "../openpatch-boot-policy" }
 panic-reset = "=0.1.1"
 
 [profile.release]

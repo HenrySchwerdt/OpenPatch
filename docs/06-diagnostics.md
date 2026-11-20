@@ -485,8 +485,9 @@ Fault numbers are not contiguous on purpose: gaps are reserved or retired number
 | `5-50-005` | AIR_OR_LEAK_SUSPECTED | A07: vacuum signature below 60 % of expected on a closed system, or a prime needs more than 2 x the baseline steps to build pressure (*cal*) | FW-core | W | CAP (SEAL): PRIME | H4 | C, B17 | Air or a leak is suspected. |
 | `5-51-001` | PLUNGER_FRICTION_PROFILE | peak-to-mean current ratio over a stroke above 2.5 or local deviation above 40 % (stick-slip) (*cal*) | FW-core | W | SEAL: REPLACE | H2, H11 | C | Plunger seal friction is unstable. |
 | `5-53-001` | OCCLUSION_SHORTFALL | (commanded minus angle-confirmed) above 2 U (spec section 7); ctx_a = mU | FW-core | F | CANN (NEEDLE): CHECK_CANNULA | H2 | C, D, B16 | Blockage detected. |
-| `5-53-002` | OCCLUSION_CURRENT_RISE | 3 consecutive bursts above `OCCLUSION_CURRENT_MA` (140 mA placeholder, *cal*); ctx_a = mA | FW-core | F | CANN (NEEDLE): CHECK_CANNULA | H2 | C, B16 | Blockage detected. |
-| `5-53-003` | OCCLUSION_RAMP_WARNING | burst peak current slope over 5 or more bursts above 3 x baseline slope while below the fault threshold (*cal*) | FW-core | W | CANN: CHECK_CANNULA | H2 | C, B16 | A blockage may be building. |
+| `5-53-002` | OCCLUSION_CURRENT_RISE | boards with a motor current sense only (bench; NOT raised on the cup v4 board, no shunt): 3 consecutive bursts above `OCCLUSION_CURRENT_MA` (140 mA placeholder, *cal*); ctx_a = mA | FW-core | F | CANN (NEEDLE): CHECK_CANNULA | H2 | C, B16 | Blockage detected. |
+| `5-53-003` | OCCLUSION_RAMP_WARNING | boards with a motor current sense only (NOT raised on the cup v4 board): burst peak current slope over 5 or more bursts above 3 x baseline slope while below the fault threshold (*cal*) | FW-core | W | CANN: CHECK_CANNULA | H2 | C, B16 | A blockage may be building. |
+| `5-53-004` | OCCLUSION_SHORTFALL_WARNING | angle shortfall (commanded minus angle-confirmed) above 1 U (half the spec budget, `occlusion::SHORTFALL_WARN_MU`) on 2 consecutive monitor passes, once per excursion; the only early occlusion warning on the cup v4 board (no current sense); ctx_a = mU | FW-core | W | CANN (NEEDLE): CHECK_CANNULA | H2 | C, B16 | A blockage may be building. |
 | `5-54-001` | PRESSURE_ANOMALY_WHILE_DOCKED | docked with the driver off: the angle moves against the self-locking drive or the supply current is not at its idle value, or a delivery stalls with a reservoir pressure signature that no commanded step explains (possible manual injection into the cannula, H15); ctx_a = angle counts, ctx_b = mA | FW-core | L | CANN (CTRL): CHECK_CANNULA | H2, H15 | C | Unexpected pressure while docked. Check the cannula and the pod. |
 | `6-60-001` | ANGLE_CHANNEL_LOST | `angle_read` returns `None` on 3 consecutive reads; **forwards the cause** (`7-79-001`, `3-30-*`, `2-20-*`) | FW-core | F | PODB (FFC): ISOLATE | H1, H2 | C, B01 | Position sensor lost. |
 | `6-60-002` | FIELD_TOO_WEAK | magnitude below 50 % of the stored nominal (S09 and continuous); ctx_a = LSB, ctx_b = nominal | FW-core | F | MAGS (PODB): REPLACE | H2, H11 | C, B13 | Spindle magnet signal too weak. |
@@ -695,7 +696,7 @@ Compatibility: frame `version` stays **1**; frame layout, CRC, TLV encoding, AAD
 Worked example (TLV level, frame header/CRC omitted; code `1-06-001` = `0x10600100`, little endian `00 01 60 10`):
 
 ```
-DIAG_SUMMARY  27 0E | 00 01 60 10 | 03 08 01 01 01 03 | 06 00 | 02 00
+DIAG_SUMMARY  27 0E | 00 01 60 10 | 03 08 01 01 01 03 | 06 00 | 03 00
                      top_code      sev act fru nL nA post  head   schema
 DIAG_RECORD   29 20 | 05 00 00 00 | 00 01 60 10 | 03 08 01 00 | 2C 01 00 00 | 30 07 00 00 | E8 03 00 00 | 39 30 00 00 | 01 43 00 00
                      rec_id 5      code          sev act fru fru2  t_s=300       ctx_a=1840 mV ctx_b=1000 mV  ctx_c=12345   cnt flags cause

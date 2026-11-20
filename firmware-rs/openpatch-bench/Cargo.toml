@@ -15,6 +15,7 @@ default = ["board-bench-e73", "angle-tmag"]
 
 # ---- board (exactly one) ----
 board-bench-e73 = ["embassy-nrf/nfc-pins-as-gpio"]   # electronics/bench/pin-assignment.md (Ebyte E73-2G4M08S1CX); P0.09 / P0.10 are OC_OK / PGATE_MON: UICR.NFCPINS = GPIO (written by embassy_nrf::init)
+board-cup-v4 = []   # cup pod v4 (45 parts): src/board/cup_v4.rs, bring-up binary src/bin/cup_bringup.rs (not the pump application yet)
 board-nrf52840-dk = []      # Nordic nRF52840-DK, no motor driver / interlock (docs/boards.md)
 
 # ---- MOT_DIR polarity (INTERLOCK.md R96 / R97): default R96 fitted, forward = DIR low ----
@@ -57,6 +58,15 @@ dev-plaintext = []
 # Start the bench sequence at boot with the compile-time defaults (env OPENPATCH_BENCH_*).
 bench-autostart = []
 
+[[bin]]
+name = "openpatch-bench"
+path = "src/main.rs"
+
+[[bin]]
+name = "cup_bringup"
+path = "src/bin/cup_bringup.rs"
+required-features = ["board-cup-v4"]
+
 [dependencies]
 embassy-executor = { version = "=0.10.0", features = ["platform-cortex-m", "executor-thread", "executor-interrupt", "defmt"] }
 embassy-time = { version = "=0.5.1", features = ["defmt", "defmt-timestamp-uptime"] }
@@ -64,7 +74,8 @@ embassy-nrf = { version = "=0.11.0", features = ["defmt", "time-driver-rtc1", "g
 embassy-sync = { version = "=0.8.0", features = ["defmt"] }
 embassy-futures = "=0.1.2"
 embassy-embedded-hal = "=0.6.0"
-embassy-boot = { version = "=0.7.0", default-features = false, features = ["ed25519-salty"] }
+# no verify feature: the BOOTLOADER verifies the format-2 manifest (openpatch-boot-policy); the app only arms the swap (mark_updated)
+embassy-boot = { version = "=0.7.0", default-features = false }
 
 nrf-sdc = { version = "=0.4.0", default-features = false, features = ["defmt", "peripheral", "nrf52840"] }
 nrf-mpsl = { version = "=0.4.0", default-features = false, features = ["defmt", "critical-section-impl", "nrf52840"] }
@@ -81,6 +92,7 @@ panic-probe = { version = "=1.0.0", features = ["print-defmt"] }
 cortex-m = { version = "=0.7.10", features = ["inline-asm"] }
 cortex-m-rt = "=0.7.7"
 static_cell = "=2.1.1"
+critical-section = "=1.2.0"
 
 openpatch-core = { path = "../openpatch-core", features = ["defmt"] }
 openpatch-proto = { path = "../openpatch-proto", features = ["defmt", "aes-ccm", "key-agreement"] }

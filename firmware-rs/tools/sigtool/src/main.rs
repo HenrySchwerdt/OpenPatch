@@ -1,8 +1,9 @@
 //! `sigtool gen|sign|verify|pubkey` for OpenPatch firmware images.
 //!
 //! Scheme (identical to `embassy_boot::FirmwareUpdater::verify_and_mark_updated`): the signature is
-//! Ed25519 over the 64-byte SHA-512 digest of the image bytes. The manifest (76 bytes) is
-//! `magic u32 | fmt u16 | reserved u16 | image_len u32 | signature [u8; 64]`, little endian, stored in
+//! Ed25519 over the 64-byte SHA-512 digest of the image bytes. The manifest (84 bytes, format 2) is
+//! `magic u32 | fmt u16 | reserved u16 | image_len u32 | security version u32 | hw_id u32 | signature [u8; 64]`; the signature
+//! covers SHA-512("OPFW2" || the 20 header bytes || image) (`openpatch-boot-policy`), little endian, stored in
 //! the manifest page of the DFU partition (see `layout/layout.rs`).
 //!
 //! The private key (32-byte seed) lives in `firmware-rs/keys/` (git-ignored). NEVER commit it.
@@ -26,7 +27,7 @@ fn usage() -> ! {
     eprintln!(
         "usage:\n  sigtool gen <keys-dir>                         create a new keypair (refuses to overwrite)\n  \
          sigtool pubkey <keys-dir>                      print the public key (hex)\n  \
-         sigtool sign <keys-dir> <image.bin> <out-prefix>   writes <out-prefix>.manifest.bin and <out-prefix>.dfu.hex\n  \
+         sigtool sign <keys-dir> <image.bin> <out-prefix> <security-version>   writes <out-prefix>.manifest.bin and <out-prefix>.dfu.hex\n  \
          sigtool verify <keys-dir> <image.bin> <manifest.bin>"
     );
     exit(2)
@@ -44,19 +45,19 @@ fn load_public(dir: &Path) -> VerifyingKey {
     VerifyingKey::from_bytes(&k).unwrap_or_else(|e| die(&format!("bad public key: {e}")))
 }
 
-fn digest(image: &[u8]) -> [u8; 64] {
+use openpatch_boot_policy::manifest::{Manifest, DOMAIN};
+
+/// Digest of manifest format 2: SHA-512("OPFW2" || header[0..20] || image).
+fn digest(m: &Manifest, image: &[u8]) -> [u8; 64] {
     let mut h = Sha512::new();
+    h.update(DOMAIN);
+    h.update(m.header());
     h.update(image);
     h.finalize().into()
 }
 
-fn manifest(image_len: u32, sig: &[u8; 64]) -> [u8; layout::MANIFEST_LEN] {
-    let mut m = [0u8; layout::MANIFEST_LEN];
-    m[0..4].copy_from_slice(&layout::MANIFEST_MAGIC.to_le_bytes());
-    m[4..6].copy_from_slice(&layout::MANIFEST_VERSION.to_le_bytes());
-    m[8..12].copy_from_slice(&image_len.to_le_bytes());
-    m[12..76].copy_from_slice(sig);
-    m
+fn manifest_of(image_len: u32, version: u32) -> Manifest {
+    Manifest { image_len, version, hw_id: layout::HW_ID, signature: [0; 64] }
 }
 
 fn ihex_record(out: &mut String, addr16: u16, rtype: u8, data: &[u8]) {
@@ -108,14 +109,20 @@ fn main() {
             let k = load_public(Path::new(&a[2]));
             println!("{}", k.to_bytes().iter().map(|b| format!("{b:02x}")).collect::<String>());
         }
-        Some("sign") if a.len() == 5 => {
+        Some("sign") if a.len() == 6 => {
+            let version: u32 = a[5].parse().unwrap_or_else(|_| die("security version must be a number >= 1"));
+            if version == 0 {
+                die("security version must be >= 1");
+            }
             let sk = load_signing(Path::new(&a[2]));
             let image = fs::read(&a[3]).unwrap_or_else(|e| die(&format!("cannot read image: {e}")));
             if image.is_empty() || image.len() as u32 > layout::APP_SIZE {
                 die(&format!("image size {} out of range (max {})", image.len(), layout::APP_SIZE));
             }
-            let sig: Signature = sk.sign(&digest(&image));
-            let m = manifest(image.len() as u32, &sig.to_bytes());
+            let mut mf = manifest_of(image.len() as u32, version);
+            let sig: Signature = sk.sign(&digest(&mf, &image));
+            mf.signature = sig.to_bytes();
+            let m = mf.encode();
             fs::write(format!("{}.manifest.bin", a[4]), m).unwrap_or_else(|e| die(&e.to_string()));
             let mut hex = String::new();
             ihex_blob(&mut hex, layout::DFU_START, &image);
@@ -128,14 +135,12 @@ fn main() {
             let vk = load_public(Path::new(&a[2]));
             let image = fs::read(&a[3]).unwrap_or_else(|e| die(&e.to_string()));
             let m = fs::read(&a[4]).unwrap_or_else(|e| die(&e.to_string()));
-            if m.len() != layout::MANIFEST_LEN || u32::from_le_bytes(m[0..4].try_into().unwrap()) != layout::MANIFEST_MAGIC {
-                die("bad manifest");
-            }
-            if u32::from_le_bytes(m[8..12].try_into().unwrap()) as usize != image.len() {
+            let mf = Manifest::parse(&m).unwrap_or_else(|e| die(&format!("bad manifest: {e:?}")));
+            if mf.image_len as usize != image.len() {
                 die("manifest length does not match the image");
             }
-            let sig = Signature::from_bytes(m[12..76].try_into().unwrap());
-            match vk.verify(&digest(&image), &sig) {
+            let sig = Signature::from_bytes(&mf.signature);
+            match vk.verify(&digest(&mf, &image), &sig) {
                 Ok(()) => println!("signature OK"),
                 Err(e) => die(&format!("signature INVALID: {e}")),
             }

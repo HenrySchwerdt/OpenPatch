@@ -5,10 +5,10 @@
 use crate::{Action, CodeInfo, DiagCode, Fru, Severity};
 
 /// Catalogue version, reported in `DIAG_SUMMARY.schema`.
-pub const SCHEMA_VERSION: u16 = 2;
+pub const SCHEMA_VERSION: u16 = 3;
 
 /// All catalogue rows, sorted by `code.identity()` (binary search).
-pub static CATALOGUE: [CodeInfo; 153] = [
+pub static CATALOGUE: [CodeInfo; 154] = [
     CodeInfo { code: DiagCode(0x10100100), name: "FLASH_IMAGE_BAD", severity: Severity::Fault, action: Action::UpdateFw, fru: Fru::Fw, fru2: Fru::None, legacy_bit: 5, hazards: 0x0002 },
     CodeInfo { code: DiagCode(0x10100200), name: "BROWNOUT_RESET", severity: Severity::Warning, action: Action::CheckPower, fru: Fru::Usb, fru2: Fru::Ctrl, legacy_bit: 0xFF, hazards: 0x0008 },
     CodeInfo { code: DiagCode(0x10100300), name: "UICR_RESET_PIN_WRONG", severity: Severity::Fault, action: Action::Reprovision, fru: Fru::Fw, fru2: Fru::Ctrl, legacy_bit: 5, hazards: 0x0002 },
@@ -76,6 +76,7 @@ pub static CATALOGUE: [CodeInfo; 153] = [
     CodeInfo { code: DiagCode(0x55300100), name: "OCCLUSION_SHORTFALL", severity: Severity::Fault, action: Action::CheckCannula, fru: Fru::Cann, fru2: Fru::Needle, legacy_bit: 0, hazards: 0x0004 },
     CodeInfo { code: DiagCode(0x55300200), name: "OCCLUSION_CURRENT_RISE", severity: Severity::Fault, action: Action::CheckCannula, fru: Fru::Cann, fru2: Fru::Needle, legacy_bit: 0, hazards: 0x0004 },
     CodeInfo { code: DiagCode(0x55300300), name: "OCCLUSION_RAMP_WARNING", severity: Severity::Warning, action: Action::CheckCannula, fru: Fru::Cann, fru2: Fru::None, legacy_bit: 0xFF, hazards: 0x0004 },
+    CodeInfo { code: DiagCode(0x55300400), name: "OCCLUSION_SHORTFALL_WARNING", severity: Severity::Warning, action: Action::CheckCannula, fru: Fru::Cann, fru2: Fru::Needle, legacy_bit: 0xFF, hazards: 0x0004 },
     CodeInfo { code: DiagCode(0x55400100), name: "PRESSURE_ANOMALY_WHILE_DOCKED", severity: Severity::Latched, action: Action::CheckCannula, fru: Fru::Cann, fru2: Fru::Ctrl, legacy_bit: 5, hazards: 0x8004 },
     CodeInfo { code: DiagCode(0x66000100), name: "ANGLE_CHANNEL_LOST", severity: Severity::Fault, action: Action::Isolate, fru: Fru::Podb, fru2: Fru::Ffc, legacy_bit: 5, hazards: 0x0006 },
     CodeInfo { code: DiagCode(0x66000200), name: "FIELD_TOO_WEAK", severity: Severity::Fault, action: Action::Replace, fru: Fru::Mags, fru2: Fru::Podb, legacy_bit: 5, hazards: 0x0804 },
@@ -301,6 +302,8 @@ pub mod codes {
     pub const OCCLUSION_CURRENT_RISE: DiagCode = DiagCode(0x55300200);
     /// `5-53-003`
     pub const OCCLUSION_RAMP_WARNING: DiagCode = DiagCode(0x55300300);
+    /// `5-53-004`
+    pub const OCCLUSION_SHORTFALL_WARNING: DiagCode = DiagCode(0x55300400);
     /// `5-54-001`
     pub const PRESSURE_ANOMALY_WHILE_DOCKED: DiagCode = DiagCode(0x55400100);
     /// `6-60-001`
