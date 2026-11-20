@@ -216,7 +216,7 @@ def main():
     dp = fps["JU1"].Pads()[0].GetBoard().FindNet("USB_DP") if False else b.b.FindNet("USB_DP")
     yl = up["B6"].y + MM(0.98)
     pts = [up["B6"], pcbnew.VECTOR2I(up["B6"].x, yl), pcbnew.VECTOR2I(up["A6"].x, yl), up["A6"]]
-    for k in range(3):
+    for k in range(3 if os.environ.get("OP_DPLOOP", "0") == "1" else 0):      # off by default: Freerouting 2.2.4 hangs in PolylineTrace.normalize on this pre-route
         t = pcbnew.PCB_TRACK(b.b); t.SetStart(pts[k]); t.SetEnd(pts[k + 1]); t.SetLayer(pcbnew.F_Cu); t.SetWidth(MM(0.15)); t.SetNet(dp); b.b.Add(t)
     print("gnd fanout vias:", gnd_fanout(b, fps) if os.environ.get("OP_FANOUT", "1") == "1" else "skipped (OP_FANOUT=0: Freerouting places the GND vias itself)")
     for ref, lab in (("SP1", "+"), ("SP2", "-")):

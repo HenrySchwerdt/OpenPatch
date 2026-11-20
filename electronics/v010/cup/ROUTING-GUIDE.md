@@ -2,6 +2,33 @@
 
 # CUP board: net-by-net hand-routing guide (KiCad 10)
 
+## STATE 2026-11-20 evening: hand placement (supersedes the annealing state below)
+
+The placement is now written by hand in `manual_place.py`. It checks every mechanical rule on the library courtyards, including the USB through-hole slots. Pre-route DRC is 0.
+
+**Floorplan.**
+- West lobe: motor power chain. Boost U8/L1/CB1 on top; load switch U20, driver U7 and the final AND U34 on the underside.
+- Bridge under the USB-C: CC resistors, VMOT divider, the USB ESD and the latch-clear AND. The rest is free for the 14 nets between the lobes.
+- East lobe: charger, latch and 3V3 bulk on top; supervisor, TPL5010, XOR and AND3 on the underside. The module back stays empty.
+- Leg: the sounder and its driver.
+- Finger: the LED and the flyback diode.
+
+**Fixes found on the way.**
+- The antenna keep-out covered the feed pads. A7 and A8 are now bridged on F.Cu, which replaces the 0 ohm + 2 DNP pi network.
+- HJ-840: every used pad gets a filled via in pad (0.35/0.15, JLC POFV). Rows A/B and P0.00/P0.01 are not used.
+- Underside-capable packages: TPS2553DRVR, 2 x SN74AUP1G08DCKR, USBLC6-2P6, 2N7002W, 1N4148WS.
+
+**Routing: Freerouting 2.2.4, 15 passes, about 5 min.**
+- 37 connections open, 0 copper errors.
+- The open items are mostly the long multi-pin nets: SUP_PERMIT, OC_OK, ARM_CLK, MOT_ALLOW, the driver inputs and I2C.
+- Freerouting leaves the inner layers in the bridge almost unused and plateaus at 36-48 open whatever the pass count.
+- Two attempts did not help:
+  - an In4 3V3 plane made it worse (63 open);
+  - pre-routing the D+ loop under the receptacle makes Freerouting hang (`OP_DPLOOP=1`).
+
+**Next.** Hand-route the 37 stubs in KiCad, or script a bus of the 14 bridge nets on In2-In4 before Freerouting.
+
+
 ## STATE 2026-11-20 (54 fitted parts + 19 bare pads, outline with USB notch): what is routed, what is left
 
 **Board:** `cup/cup.kicad_pcb`, 6 layers 0.8 mm, 35.6 x 23.1 mm, 85 footprints. Flow: `place_cup.py` (SA + legaliser, seed 6, overlap 0.25 mm2 courtyard level) -> `pinassign.py` -> `design/netlist_v4.py` -> `build_cup.py` -> `flow_cup.sh` (Freerouting 2.2.4, rules 0.10 / 0.10, power class 0.16 on VBAT, VMOT, VMOT_PRE, BST_SW, MOT_*, VBUS_P; edge keep-out band 0.3 mm; screw keep-outs) -> `post_cup.py`.
