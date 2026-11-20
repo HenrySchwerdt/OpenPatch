@@ -201,3 +201,9 @@ All dimensions and components are in [spec/design-parameters.md](../spec/design-
   - boost enable needs ≥ 3.4 V;
   - `SUP_PERMIT` is held low for ≥ 10 ms after any reset or brown-out;
   - BOR = highest is part of supervisor provisioning.
+- 2026-11-20: **Remaining German translated and a language check added to CI.**
+  - Translated: electronics README, cost doc, schematic and layout scripts with their regenerated BOM, netlist and reports; mechanical op_* comments and generated JSON.
+  - New check `tools/check_language.py` with `tools/language-allowlist.txt`, run as the `language` job in security-ci.
+  - Kept on purpose: iOS de.lproj, proper nouns, and the verbatim shop titles in BUY-LIST.
+  - Temporary allowlist for `electronics/v010/**` and `firmware-rs/**` while the board work runs; no German was found there.
+  - Known pre-existing issues: `mechanical/check.py` with default arguments raises `KeyError: 'purge'` (the cup and v010 variants are fine); `electronics/schematic/check_netlist.py` messages quote stale pins.
