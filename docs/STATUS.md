@@ -195,3 +195,9 @@ All dimensions and components are in [spec/design-parameters.md](../spec/design-
   - **Firmware follow-ups:**
     - F2: loaded-VBAT abort below 2.8 V, and a 3.7 V rest threshold until the cell ESR is measured.
     - F7: STM32C011 BOR at its highest level, `SUP_PERMIT` held low for 10 ms after any reset.
+- 2026-11-20: **Firmware SPICE follow-ups (F2/F3/F7).** 874 Rust tests, diag catalogue 155 codes / schema 4, Swift 257. New safety limits are tightenings only (spec §7):
+  - no motor start below 3.7 V resting VBAT (interim until the cell ESR is measured);
+  - stop a move when the loaded VBAT after the first step is below 2.8 V (new code `A-A0-004` CELL_SAG_UNDER_LOAD);
+  - boost enable needs ≥ 3.4 V;
+  - `SUP_PERMIT` is held low for ≥ 10 ms after any reset or brown-out;
+  - BOR = highest is part of supervisor provisioning.
