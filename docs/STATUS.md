@@ -207,3 +207,24 @@ All dimensions and components are in [spec/design-parameters.md](../spec/design-
   - Kept on purpose: iOS de.lproj, proper nouns, and the verbatim shop titles in BUY-LIST.
   - Temporary allowlist for `electronics/v010/**` and `firmware-rs/**` while the board work runs; no German was found there.
   - Known pre-existing issues: `mechanical/check.py` with default arguments raises `KeyError: 'purge'` (the cup and v010 variants are fine); `electronics/schematic/check_netlist.py` messages quote stale pins.
+- 2026-11-20: **Cup board: hand placement and routing state (not orderable yet).** Owner decisions:
+  - test pads on a break-off strip: SWD J10-J14 plus 6 interlock test points;
+  - 4 SWD recovery pads under the finger;
+  - two export variants, "dev" with the strip and "clean" without it;
+  - stay with the nRF52840 and flash it once over SWD; JLC programming service as an option.
+  - **Placement:** `electronics/v010/cup/manual_place.py` replaces the annealing placement. Every mechanical rule is checked on the library courtyards, including the USB through-hole slots. Pre-route DRC: 0 errors.
+  - **Fixes:**
+    - The antenna keep-out covered the HJ-840 feed pads. A7 and A8 are now bridged on F.Cu, which replaces the 0 ohm + 2 DNP pi network, so the circuit is unchanged.
+    - Filled via in every used module pad (0.35/0.15, JLC POFV). Rows A/B and P0.00/P0.01 are not used. GPIOs are reassigned and `firmware-rs/openpatch-bench/src/board/cup_v4.rs` is updated; the cup bring-up firmware builds for thumbv7em.
+    - Underside-capable packages, all in JLC stock: TPS2553DRVR (WSON-6; pinout checked in the TI datasheet: 1 OUT, 2 ILIM, 3 FAULT, 4 EN, 5 GND, 6 IN, pad GND), 2 x SN74AUP1G08DCKR, USBLC6-2P6, 2N7002W, 1N4148WS.
+  - **Routing (Freerouting):**
+    - 37 connections open, copper DRC clean.
+    - Freerouting plateaus at 36-48 open and leaves the inner layers of the bridge unused.
+    - An In4 3V3 plane made it worse (63 open).
+    - A pre-routed D+ loop makes Freerouting hang.
+  - **Open items:**
+    - Route the 37 remaining connections: by hand in KiCad, or by a scripted bus of the 14 bridge nets on In2-In4.
+    - DRV8835 has JLC stock 0: use JLC global sourcing, or HT8835A after a check.
+    - Confirm the JLC via-in-pad and 0.15 mm drill pricing.
+    - Regenerate the JLC dev/clean packages after routing.
+    - Update FIRMWARE-PINMAP.md.
