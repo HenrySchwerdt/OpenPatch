@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Build cup/cup.kicad_pcb from netlist_v4_cup.json + placement.json (KiCad python).  usage: kpy build_cup.py [placement.json]
 
-6 layers, 0.8 mm, outline = L/U shape (cupgeom.OUTLINE), ISP1807 via-in-pad fan-out, antenna keep-out, parts.json for the fab export."""
+6 layers, 0.8 mm, outline = L/U shape (cupgeom.OUTLINE), HJ-840 via-in-pad fan-out, antenna keep-out, parts.json for the fab export."""
 import json
 import os
 import sys
@@ -35,26 +35,34 @@ NAME = "cup"
 PCB = os.path.join(HERE, NAME + ".kicad_pcb")
 
 
-def isp_fanout(b, fps):
-    u1 = fps["U1"]; n = 0
-    outer = {1, 7, 25, 31, 2, 4, 6, 26, 28, 30} | set(range(32, 49, 2))
-    for pd in u1.Pads():
-        num = int(pd.GetNumber())
-        net = pd.GetNet()
-        if not net or net.GetNetname() in ("", "RF_BRIDGE") or num in outer or num > 64:
+U1_VIA_D, U1_VIA_H = 0.30, 0.15       # filled + capped via in pad (JLC POFV, free on 6-layer boards); 0.65 mm pad pitch leaves 0.35 mm between these vias = one 0.10 track
+
+
+def u1_fanout(b, fps):
+    """HJ-840: a filled via in every used pad (inner layers do the escape), except the antenna-strip pads A1 / A7 / A8:
+    A7 (ANT) and A8 (BOARD_ANT) are bridged on F.Cu (the former 0 ohm + 2 x DNP pi network), A1 (GND) gets a short F.Cu stub to a via just west of the keep-out."""
+    u1 = fps["U1"]
+    pads = {pd.GetNumber(): pd for pd in u1.Pads()}
+    n = 0
+
+    def via(pos, net, d=U1_VIA_D, h=U1_VIA_H):
+        v = pcbnew.PCB_VIA(b.b); v.SetPosition(pos); v.SetNet(net); v.SetViaType(pcbnew.VIATYPE_THROUGH)
+        v.SetWidth(MM(d)); v.SetDrill(MM(h)); b.b.Add(v)
+
+    def trk(a, c, net, w):
+        t = pcbnew.PCB_TRACK(b.b); t.SetStart(a); t.SetEnd(c); t.SetLayer(pcbnew.F_Cu); t.SetWidth(MM(w)); t.SetNet(net); b.b.Add(t)
+
+    for num, pd in pads.items():
+        if not pd.GetNetname() or num in ("A1", "A7", "A8"):
             continue
-        v = pcbnew.PCB_VIA(b.b)
-        v.SetPosition(pd.GetPosition()); v.SetNet(net); v.SetViaType(pcbnew.VIATYPE_THROUGH)
-        v.SetWidth(MM(0.40)); v.SetDrill(MM(0.20))
-        b.b.Add(v); n += 1
+        via(pd.GetPosition(), pd.GetNet()); n += 1
+    trk(pads["A7"].GetPosition(), pads["A8"].GetPosition(), pads["A7"].GetNet(), 0.25)
+    a1 = pads["A1"].GetPosition()
+    corner = pcbnew.VECTOR2I(a1.x, a1.y - MM(0.55))          # board frame: -y = north, out of the pad row toward the module edge
+    gv = pcbnew.VECTOR2I(a1.x - MM(1.15), a1.y - MM(0.55))   # west, 0.15 mm outside the antenna keep-out (bx < 34.2)
+    trk(a1, corner, pads["A1"].GetNet(), 0.2); trk(corner, gv, pads["A1"].GetNet(), 0.2)
+    via(gv, pads["A1"].GetNet(), 0.4, 0.2)
     return n
-
-
-def rf_bridge(b, fps):
-    p = {pd.GetNumber(): pd for pd in fps["U1"].Pads()}
-    t = pcbnew.PCB_TRACK(b.b)
-    t.SetStart(p["20"].GetPosition()); t.SetEnd(p["22"].GetPosition()); t.SetLayer(pcbnew.F_Cu); t.SetWidth(MM(0.30)); t.SetNet(b.net("RF_BRIDGE"))
-    b.b.Add(t)
 
 
 def gnd_fanout(b, fps, net="GND", rv=0.2, trk=0.12, clr=0.12):
@@ -95,6 +103,12 @@ def gnd_fanout(b, fps, net="GND", rv=0.2, trk=0.12, clr=0.12):
                     continue
                 if G.ANT[0] - 0.3 < bx < G.ANT[2] + 0.3 and G.ANT[1] < by < G.ANT[3]:
                     continue
+                if any(math.hypot(bx - G.b(*sc)[0], by - G.b(*sc)[1]) < G.SCREW_KEEPOUT_D / 2 + rv + 0.05 for sc in G.SCREWS):
+                    continue
+                if any(math.hypot(bx - pt[0], by - pt[1]) < G.SCREW_KEEPOUT_D / 2 + 0.2 for sc in G.SCREWS for pt in [G.b(*sc)]) or \
+                        any(math.hypot(px - bl.OX - G.b(*sc)[0], py - bl.OY - G.b(*sc)[1]) < G.SCREW_KEEPOUT_D / 2 + 0.6 and
+                            math.hypot(bx - G.b(*sc)[0], by - G.b(*sc)[1]) < math.hypot(px - bl.OX - G.b(*sc)[0], py - bl.OY - G.b(*sc)[1]) for sc in G.SCREWS):
+                    continue
                 v = pcbnew.PCB_VIA(b.b); v.SetPosition(pcbnew.VECTOR2I(MM(x), MM(y))); v.SetNet(pd.GetNet()); v.SetViaType(pcbnew.VIATYPE_THROUGH)
                 v.SetWidth(MM(2 * rv)); v.SetDrill(MM(0.2)); b.b.Add(v)
                 t = pcbnew.PCB_TRACK(b.b); t.SetStart(pd.GetPosition()); t.SetEnd(pcbnew.VECTOR2I(MM(x), MM(y)))
@@ -122,18 +136,30 @@ def main():
 
         b.parts[ref]["dnp"] = p["dnp"]; b.parts[ref]["group"] = p["group"]; b.parts[ref]["board"] = "CUP"
     fps = {f.GetReference(): f for f in b.b.GetFootprints()}
-    # antenna keep-out (all copper layers)
+    # antenna keep-out (layout review 2026-11-20): no copper on In1..B.Cu over the whole antenna strip; on F.Cu no tracks / vias except the two
+    # corridors that the module itself needs (A1 GND stub at by 2.2..3.4, A7-A8 bridge at by 6.6..7.9); no pour on any layer
     a = G.ANT
-    z = pcbnew.ZONE(b.b); z.SetIsRuleArea(True); z.SetZoneName("ANT_KEEPOUT")
-    z.SetDoNotAllowTracks(True); z.SetDoNotAllowVias(True); z.SetDoNotAllowZoneFills(True); z.SetDoNotAllowPads(False); z.SetDoNotAllowFootprints(False)
     ls = pcbnew.LSET()
     for l in (pcbnew.F_Cu, pcbnew.In1_Cu, pcbnew.In2_Cu, pcbnew.In3_Cu, pcbnew.In4_Cu, pcbnew.B_Cu):
         ls.AddLayer(l)
-    z.SetLayerSet(ls)
-    ch = z.Outline(); ch.NewOutline()
-    for x, y in ((a[0], a[1]), (a[2], a[1]), (a[2], a[3]), (a[0], a[3])):
-        ch.Append(MM(bl.OX + x), MM(bl.OY + y))
-    b.b.Add(z)
+
+    def rule_area(name, layers, rect, tracks=True, vias=True, fills=True):
+        z = pcbnew.ZONE(b.b); z.SetIsRuleArea(True); z.SetZoneName(name)
+        z.SetDoNotAllowTracks(tracks); z.SetDoNotAllowVias(vias); z.SetDoNotAllowZoneFills(fills); z.SetDoNotAllowPads(False); z.SetDoNotAllowFootprints(False)
+        z.SetLayerSet(layers)
+        ch = z.Outline(); ch.NewOutline()
+        for x, y in ((rect[0], rect[1]), (rect[2], rect[1]), (rect[2], rect[3]), (rect[0], rect[3])):
+            ch.Append(MM(bl.OX + x), MM(bl.OY + y))
+        b.b.Add(z)
+
+    inner = pcbnew.LSET()
+    for l in (pcbnew.In1_Cu, pcbnew.In2_Cu, pcbnew.In3_Cu, pcbnew.In4_Cu, pcbnew.B_Cu):
+        inner.AddLayer(l)
+    fcu = pcbnew.LSET(); fcu.AddLayer(pcbnew.F_Cu)
+    rule_area("ANT_KEEPOUT", inner, a)
+    rule_area("ANT_NOPOUR_F", fcu, a, tracks=False, vias=False)
+    for k, (y0, y1) in enumerate(((a[1], 2.2), (3.4, 6.6), (7.9, a[3]))):
+        rule_area("ANT_KEEPOUT_F%d" % k, fcu, (a[0], y0, a[2], y1))
     # board screws (mechanics elec_interface): d1.4 NPTH + d2.8 keep-out (no tracks, vias or pour) on all copper layers
     import math
     for k, (hx, hy) in enumerate(G.SCREWS):
@@ -174,6 +200,7 @@ def main():
         for px, py in pts:
             ech.Append(MM(bl.OX + px), MM(bl.OY + py))
         b.b.Add(ez)
+    print("U1 vias in pad:", u1_fanout(b, fps))
     print("gnd fanout vias:", gnd_fanout(b, fps) if os.environ.get("OP_FANOUT", "1") == "1" else "skipped (OP_FANOUT=0: Freerouting places the GND vias itself)")
     for ref, lab in (("SP1", "+"), ("SP2", "-")):
         c = fps[ref].GetPosition(); b.text(lab, T(c.x) - bl.OX, T(c.y) - bl.OY - 2.1, 1.3, thick=0.2)       # large + / - at the cell pads (review m5)
@@ -182,7 +209,7 @@ def main():
     b.text("TEST ONLY - NOT FOR HUMAN USE", 14.0, 13.5, 0.5, layer=pcbnew.B_SilkS, mirror=True, thick=0.08)
     b.rules(power_nets=POWERNETS, power_w=0.16, track=0.10)
     d = b.b.GetDesignSettings()
-    d.m_CopperEdgeClearance = MM(0.2); d.m_MinThroughDrill = MM(0.2); d.m_ViasMinSize = MM(0.4); d.m_HoleToHoleMin = MM(0.2); d.m_TrackMinWidth = MM(0.1)
+    d.m_CopperEdgeClearance = MM(0.2); d.m_MinThroughDrill = MM(0.15); d.m_ViasMinSize = MM(0.3); d.m_HoleToHoleMin = MM(0.2); d.m_TrackMinWidth = MM(0.1)
     for f in b.b.GetFootprints():
         f.Reference().SetVisible(False)
     # verify the SA transform against KiCad's pad positions
@@ -207,7 +234,7 @@ def main():
     json.dump(b.parts, open(os.path.join(HERE, "parts.json"), "w"), indent=1)
     write_project(os.path.join(HERE, NAME + ".kicad_pro"), POWERNETS, 0.16, track=0.10, edge=0.2, clear=0.10)
     pj = os.path.join(HERE, NAME + ".kicad_pro"); dd = json.load(open(pj)); r = dd["board"]["design_settings"]["rules"]
-    r.update(min_through_hole_diameter=0.2, min_via_diameter=0.4, min_track_width=0.1, min_hole_to_hole=0.2, min_hole_clearance=0.2, min_via_annular_width=0.1)
+    r.update(min_through_hole_diameter=0.15, min_via_diameter=0.3, min_track_width=0.1, min_hole_to_hole=0.2, min_hole_clearance=0.2, min_via_annular_width=0.075)
     json.dump(dd, open(pj, "w"), indent=2)
     print(NAME, "written", len(b.parts), "parts")
 

@@ -35,7 +35,7 @@ HJ_PIN = {
     "F1": "D+", "F2": "VBUS", "F3": "P0.11", "F4": "P0.07", "F5": "P0.27", "F6": "P0.00", "F7": "P0.30", "F8": "P0.29",
     "G1": "D-", "G2": "DECUSB", "G3": "P0.12", "G4": "P1.09", "G5": "P0.05", "G6": "P0.01", "G7": "P0.26", "G8": "P0.06",
     "H1": "DCCH", "H2": "VDDH", "H3": "VDD", "H4": "VDD", "H5": "P0.08", "H6": "DEC1", "H7": "P0.04", "H8": "GND"}
-HJ_FIXED = {"A1": "GND", "H8": "GND", "A7": "ANT_A", "A8": "ANT_B", "H2": "VBAT", "H3": "3V3", "H4": "3V3", "F1": "USB_DP", "G1": "USB_DM", "F2": "VBUS_P",
+HJ_FIXED = {"A1": "GND", "H8": "GND", "A7": "ANT", "A8": "ANT", "H2": "VBAT", "H3": "3V3", "H4": "3V3", "F1": "USB_DP", "G1": "USB_DM", "F2": "VBUS_P",
             "E1": "NRST", "C2": "SWDIO", "C3": "SWDCLK", "H7": "VMOT_SENSE"}
 # signals that go to GPIO pads (the pad is chosen by cup/pinassign.py, initial order below); NFC pins B4/C5 are not used
 HJ_SIGNALS = ["APHASE", "BPHASE", "AENBL", "BENBL", "CHG_STAT", "OC_OK", "LATCH_Q", "DOCK_N", "SUP_OK", "LED_R", "LED_G", "LED_B", "SUP_TXD", "SUP_RXD",
@@ -82,11 +82,10 @@ def build():
 
     # ---------------------------------------------------------------- MCU
     new("U1", "HJ-840 nRF52840 SiP", ("V010", "HJ840"), dict(ISP), "C50052094", "HJ-840", group="mcu",
-        note="HJSIP HJ-840 LGA64 6.2 x 7.0 x 1.0, JLC stock about 90, integrated antenna (A7 ANT -> pi match -> A8 BOARD_ANT), HIGH-VOLTAGE mode: VDDH = VBAT, VDD pins H3/H4 = the 3V3 rail supplied by the module regulator REG0 (UICR REGOUT0 must be set to 3.3 V once, default 1.8 V; flash with 3.3 V on both the cell + pad and the SWD 3V3 pad = normal-voltage mode); DCCH, DEC1, DEC5, DECUSB not connected (module has its own filter capacitors; DC/DC off, LDO mode: VERIFY with figure 2.4 of the manual); NFC pins not used; no parts under the module, no copper in the antenna area")
+        note="HJSIP HJ-840 LGA64 6.2 x 7.0 x 1.0, JLC stock about 90, integrated antenna (A7 ANT bridged to A8 BOARD_ANT by a top-layer track, net ANT), HIGH-VOLTAGE mode: VDDH = VBAT, VDD pins H3/H4 = the 3V3 rail supplied by the module regulator REG0 (UICR REGOUT0 must be set to 3.3 V once, default 1.8 V; flash with 3.3 V on both the cell + pad and the SWD 3V3 pad = normal-voltage mode); DCCH, DEC1, DEC5, DECUSB not connected (module has its own filter capacitors; DC/DC off, LDO mode: VERIFY with figure 2.4 of the manual); NFC pins not used; no parts under the module, no copper in the antenna area")
     new("C70", "4.7uF 16V 0603", C0603, {1: "3V3", 2: "GND"}, "C19666", "CL10A475KO8NNNC", group="mcu", note="3V3 = nRF52840 REG0 output: 4.7 uF at VDD H3/H4 (review C3); HV mode relies on REG0, max 25 mA external at TX <= 4 dBm (nRF52840 PS v1.7 p.84 via DevZone, verify)")
-    new("PI1", "pi match shunt C (DNP)", C0402, {1: "ANT_A", 2: "GND"}, "C1525", "CL05B104KO5NNNC", group="mcu", dnp=True, note="pi match shunt, value to be tuned (about 0.5 to 1 pF), DNP")
-    new("PI2", "pi match series 0R", R0402, {1: "ANT_A", 2: "ANT_B"}, "C17168", "0402WGF0000TCE", group="mcu", note="series element: 0 ohm connects A7 to A8 (internal antenna)")
-    new("PI3", "pi match shunt C (DNP)", C0402, {1: "ANT_B", 2: "GND"}, "C1525", "CL05B104KO5NNNC", group="mcu", dnp=True, note="pi match shunt, DNP")
+    # antenna feed (layout review 2026-11-20): the former pi network (0 ohm series + two DNP shunts) is electrically a direct A7-A8 connection;
+    # it is replaced by a short top-layer bridge between the adjacent pads A7/A8 (net ANT), because the HJ-840 antenna keep-out leaves no room for three 0402 parts at the feed.
     # ---------------------------------------------------------------- supply: cell pads, LDO
     for ref, net, lab in (("SP1", "VBAT", "+"), ("SP2", "GND", "-")):
         new(ref, "cell lead pad %s" % lab, ("V010", "Wire_Pad_1.0x1.8"), {1: net}, bom=False, group="batt",
@@ -96,6 +95,8 @@ def build():
     for ref in ("JU1", "RU1", "RU2", "UU1", "CU1"):
         p = take(ref, "usb")
         p["pins"] = {k: ("VBUS_P" if v == "VBUS_R" else v) for k, v in p["pins"].items()}
+        if ref == "UU1":     # SOT-666 version (0.6 mm, underside-capable), same pin numbering as the SOT-23-6 USBLC6-2SC6 (layout review 2026-11-20)
+            p.update(value="USBLC6-2P6", fp=["Package_TO_SOT_SMD", "SOT-666"], lcsc="C2827693", mpn="USBLC6-2P6")
         if ref == "JU1":
             p.update(value="USB-C 16P sink-board TYPE-C-31-M-14", fp=["V010", "USB_C_HRO_31_M_14"], lcsc="C223907", mpn="TYPE-C-31-M-14",
                      pins={"A1B12": "GND", "B1A12": "GND", "S": "GND", "A4B9": "VBUS_P", "B4A9": "VBUS_P", "A5": "CC1", "B5": "CC2", "A6": "USB_DP", "B6": "USB_DP", "A7": "USB_DM", "B7": "USB_DM"},
@@ -124,7 +125,7 @@ def build():
         note="ALPS SKSCLAE010 side-push tact 4.85 x 3.55 x 1.25 (JLC stock 873, extended). Pin check 2026-11-20: the earlier SKRPACE010 (C139797) is a TOP-push switch 2.5 mm high and was replaced; pins 1+2 and 3+4 are two contact pairs, actuator faces local -y (north wall when placed at rot 0); internal nRF pull-up, no external resistor")
     new("BZ1", "FUET-4020 SMD magnetic sounder", ("V010", "BZ_4020"), {1: "VBAT", 2: "PZ_C"}, "C391027", "FUET-4020", side="B", group="ui",
         note="fitted: 4 x 4 x 2.0 mm SMD magnetic sounder on the bottom side of the side_b block (2.0 mm part, 4.3 mm free below the board, 2.3 mm spare), pod position about (39.0, 20.2), z 3.3 to 5.3; driven by QBA + D6, off by default; vendor data: 4 kHz square wave 2 to 4 Vp, rated 3 V / max 90 mA, coil 17 ohm, MIN 65 dB at 10 cm (drive with PWM at 4 kHz, never DC: 4.2 V / 17 ohm = 0.25 A); alternatives MLT-5020 C94598 (5 x 5), Cy-SMD-4020-3040 C968744")
-    new("D6", "1N4148W (sounder flyback)", ("Diode_SMD", "D_SOD-123"), {1: "VBAT", 2: "PZ_C"}, "C81598", "1N4148W", group="ui", note="flyback across the sounder coil (cathode pad 1 on VBAT)")
+    new("D6", "1N4148WS (sounder flyback)", ("Diode_SMD", "D_SOD-323"), {1: "VBAT", 2: "PZ_C"}, "C2128", "1N4148WS", group="ui", note="flyback across the sounder coil (cathode pad 1 on VBAT)")
     R("RDA", "100k", "BUZ_A", "GND", "ui")
     new("RBZ", "22R 0603", ("Resistor_SMD", "R_0603_1608Metric"), {1: "PZ_C", 2: "PZ_A"}, "C23345", "0603WAF220JT5E", group="ui",
         note="series resistor of the sounder (review m4): coil 17 +-3 ohm (vendor), 4.2 V / (17 + 22 + about 3 ohm) = 100 mA peak, vendor maximum 90 mA at 3 V; 0.1 W 0603 at 50 % duty, alarm bursts only; flyback D6 across the coil only")
@@ -152,27 +153,27 @@ def build():
     new("R26", "6.8k", R0402, {1: "WDT_DELAY", 2: "GND"}, "C25917", "0402WGF6801TCE", group="wdt", note="TPL5010 interval resistor: 6.79 kohm = 2 s (SNAS651A table 3), 1 %; 10 k would give about 7.6 s (review C1)")
     new("U6", "SN74AUP1G74DCUR", ("Package_SO", "VSSOP-8_2.3x2mm_P0.5mm"), {1: "ARM_CLK", 2: "3V3", 3: None, 4: "GND", 5: "LATCH_Q", 6: "LATCH_CLR_N", 7: "3V3", 8: "3V3"},
         "C140267", "SN74AUP1G74DCUR", group="wdt", note="interlock latch: set by an ARM_CLK edge, cleared by LATCH_CLR_N (power-up, TPL5010 timeout, supervisor reset, over-current)")
-    new("U32", "TP74AUP1G08S5 (AND)", SOT235, {1: "SUP_NRST", 2: "OC_OK", 3: "GND", 4: "LATCH_CLR_N", 5: "3V3"}, "C48886815", "TP74AUP1G08S5", group="wdt",
+    new("U32", "SN74AUP1G08DCKR (AND)", SC70_5, {1: "SUP_NRST", 2: "OC_OK", 3: "GND", 4: "LATCH_CLR_N", 5: "3V3"}, "C507223", "SN74AUP1G08DCKR", group="wdt",
         note="LATCH_CLR_N = SUP_NRST AND OC_OK: any supervisor reset / TPL5010 timeout or an over-current trip clears the latch (no diodes)")
     R("R29", "100k", "ARM_CLK", "GND", "wdt")
     # ---------------------------------------------------------------- motor supply: boost (supervisor EN) -> current-limited load switch (hardware EN) -> VMOT
     R("R82", "100k", "SUP_PERMIT", "GND", "sw")
     R("R16", "100k", "3V3", "MOT_FWD", "sw", note="forward-intent line pull-up: default = forward = blocked when undocked")
-    new("QBA", "2N7002", SOT23, {1: "BUZ_A", 2: "GND", 3: "PZ_A"}, "C8545", "2N7002", group="ui", note="sounder drive leg (100 k pull-down RDA), off by default")
+    new("QBA", "2N7002W", ("Package_TO_SOT_SMD", "SOT-323_SC-70"), {1: "BUZ_A", 2: "GND", 3: "PZ_A"}, "C232391", "2N7002WT1G", group="ui", note="sounder drive leg (100 k pull-down RDA), off by default")
     new("U33", "74AUP1G86GW-TP (XOR)", SC70_5, {1: "DOCK_N", 2: "MOT_FWD", 3: "GND", 4: "DOCK_XOR", 5: "3V3"}, "C48995440", "74AUP1G86GW-TP", group="sw",
         note="DOCK_XOR = DOCK_N XOR MOT_FWD = DOCKED XOR DIR_REVERSE (DOCK_N is active low, MOT_FWD high = forward): docked+forward and undocked+reverse allowed, undocked+forward and docked+reverse (H15) blocked; reset default MOT_FWD high (R16) = forward = blocked when undocked; JLC stock 3001 (review C2)")
     new("U36", "EM74AUP1G11GM (AND3)", ("V010", "UFDFN-6_1.45x1.0_P0.5"), {1: "LATCH_Q", 2: "GND", 3: "SUP_PERMIT", 4: "PERM_L", 5: "3V3", 6: "MCU_EN"}, "C54929506", "EM74AUP1G11GM", group="sw",
         note="PERM_L = LATCH_Q AND SUP_PERMIT AND MCU_EN (review M1: CLAUDE.md rule motor only with MCU enable AND watchdog in hardware); 74AUP1G11 pinout 1 A 2 GND 3 B 4 Y 5 VCC 6 C (LCSC symbol); the SC-70-6 74AUP1G11GW has JLC stock 3, this DFN-6 1.0 x 1.45 clone has 9000")
     R("R18", "100k", "MCU_EN", "GND", "sw")
-    new("U34", "TP74AUP1G08S5 (AND)", SOT235, {1: "PERM_L", 2: "DOCK_XOR", 3: "GND", 4: "MOT_ALLOW", 5: "3V3"}, "C48886815", "TP74AUP1G08S5", group="sw",
+    new("U34", "SN74AUP1G08DCKR (AND)", SC70_5, {1: "PERM_L", 2: "DOCK_XOR", 3: "GND", 4: "MOT_ALLOW", 5: "3V3"}, "C507223", "SN74AUP1G08DCKR", group="sw",
         note="MOT_ALLOW = LATCH_Q AND SUP_PERMIT AND MCU_EN AND (DOCKED XOR reverse): the single hardware enable of the load switch (pure logic, no software)")
     R("R90", "100k", "MOT_ALLOW", "GND", "sw")
     R("RDK", "100k", "3V3", "DOCK_N", "sw", note="SPICE F1: pull-up on the hall output so an open hall joint reads UNDOCKED (a floating low line would read docked and enable forward undocked)")
     R("RNR", "100k", "3V3", "SUP_NRST", "wdt", note="SPICE F5: pull-up for the open-drain TPL5010 RSTn (the STM32C011 NRST weak pull-up is not relied on)")
     C("C61", "100nF", "VMOT", "GND", "drv", note="SPICE F6: 0.1 uF at the DRV8835 VM pin (datasheet requirement, next to U7.1) in addition to the bulk C21")
     new("C71", "10uF 10V 0603", C0603, {1: "VBAT", 2: "GND"}, "C19702", "CL10A106KP8NNNC", group="boost", note="SPICE F3: second 10 uF at the TPS61023 VIN (boost pre-charge dip), next to U8")
-    new("U20", "TPS2553DBVR", SOT236, {1: "VMOT_PRE", 2: "GND", 3: "MOT_ALLOW", 4: "OC_OK", 5: "ILIM", 6: "VMOT"}, "C55266", "TPS2553DBVR", group="sw",
-        note="current-limited high-side switch 2.5-6.5 V, 85 mohm, EN active high (hardware cut), FAULT open drain = OC_OK (low when the limit is active > deglitch), NOT the -1 latch variant; pinout 1 IN 2 GND 3 EN 4 FAULT 5 ILIM 6 OUT verified in SLVS841G table 5-1")
+    new("U20", "TPS2553DRVR", ("Package_SON", "WSON-6-1EP_2x2mm_P0.65mm_EP1x1.6mm"), {1: "VMOT", 2: "ILIM", 3: "OC_OK", 4: "MOT_ALLOW", 5: "GND", 6: "VMOT_PRE", 7: "GND"}, "C138719", "TPS2553DRVR", group="sw",
+        note="current-limited high-side switch 2.5-6.5 V, 85 mohm, EN active high (hardware cut), FAULT open drain = OC_OK (low when the limit is active > deglitch), NOT the -1 latch variant; WSON-6 2x2 (DRV, 0.8 mm: fits the underside) pinout 1 OUT 2 ILIM 3 FAULT 4 EN 5 GND 6 IN, PowerPAD = GND, verified in the TI datasheet table 5-1 (2026-11-20 layout review)")
     new("R91", "47k", R0402, {1: "ILIM", 2: "GND"}, "C25792", "0402WGF4702TCE", group="sw", note="ILIM resistor 47k: TI table 49.9k = 475/520/565 mA, from the TPS2553 equations (SLVS841G eq. 1-3) 47 k gives 506/557/616 mA (min/typ/max): above the worst-case motor current 0.40 A (5 V, 23.9 ohm coil, 1 ohm bridge), well below the 1.5 A bridge rating")
     R("R92", "100k", "3V3", "OC_OK", "sw")
     C("C60", "100nF", "VMOT_PRE", "GND", "sw")

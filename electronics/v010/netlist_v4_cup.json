@@ -9,8 +9,8 @@
   "pins": {
    "A1": "GND",
    "H8": "GND",
-   "A7": "ANT_A",
-   "A8": "ANT_B",
+   "A7": "ANT",
+   "A8": "ANT",
    "H2": "VBAT",
    "H3": "3V3",
    "H4": "3V3",
@@ -21,36 +21,36 @@
    "C2": "SWDIO",
    "C3": "SWDCLK",
    "H7": "VMOT_SENSE",
-   "D2": "APHASE",
-   "G5": "BPHASE",
-   "C1": "AENBL",
-   "E2": "BENBL",
-   "D1": "CHG_STAT",
-   "F8": "OC_OK",
-   "E8": "LATCH_Q",
-   "D8": "DOCK_N",
-   "G4": "SUP_OK",
-   "B8": "LED_R",
+   "G5": "APHASE",
+   "E4": "BPHASE",
+   "F5": "AENBL",
+   "G7": "BENBL",
+   "F4": "CHG_STAT",
+   "G8": "OC_OK",
+   "F8": "LATCH_Q",
+   "E8": "DOCK_N",
+   "G3": "SUP_OK",
+   "C7": "LED_R",
    "C8": "LED_G",
-   "A6": "LED_B",
-   "G6": "SUP_TXD",
-   "F7": "SUP_RXD",
-   "G8": "SUP_BOOT0",
-   "A5": "SUP_NRST",
-   "G3": "MOT_FWD",
-   "B1": "BTN_N",
+   "D8": "LED_B",
+   "F3": "SUP_TXD",
+   "E3": "SUP_RXD",
+   "D1": "SUP_BOOT0",
+   "H5": "SUP_NRST",
+   "E5": "MOT_FWD",
+   "E2": "BTN_N",
    "E7": "I2C_SCL",
-   "G7": "I2C_SDA",
-   "H5": "ARM_CLK",
-   "D7": "MCU_EN",
-   "C7": "BUZ_A"
+   "F7": "I2C_SDA",
+   "E6": "ARM_CLK",
+   "G4": "MCU_EN",
+   "D7": "BUZ_A"
   },
   "lcsc": "C50052094",
   "mpn": "HJ-840",
   "side": "F",
   "bom": true,
   "dnp": false,
-  "note": "HJSIP HJ-840 LGA64 6.2 x 7.0 x 1.0, JLC stock about 90, integrated antenna (A7 ANT -> pi match -> A8 BOARD_ANT), HIGH-VOLTAGE mode: VDDH = VBAT, VDD pins H3/H4 = the 3V3 rail supplied by the module regulator REG0 (UICR REGOUT0 must be set to 3.3 V once, default 1.8 V; flash with 3.3 V on both the cell + pad and the SWD 3V3 pad = normal-voltage mode); DCCH, DEC1, DEC5, DECUSB not connected (module has its own filter capacitors; DC/DC off, LDO mode: VERIFY with figure 2.4 of the manual); NFC pins not used; no parts under the module, no copper in the antenna area",
+  "note": "HJSIP HJ-840 LGA64 6.2 x 7.0 x 1.0, JLC stock about 90, integrated antenna (A7 ANT bridged to A8 BOARD_ANT by a top-layer track, net ANT), HIGH-VOLTAGE mode: VDDH = VBAT, VDD pins H3/H4 = the 3V3 rail supplied by the module regulator REG0 (UICR REGOUT0 must be set to 3.3 V once, default 1.8 V; flash with 3.3 V on both the cell + pad and the SWD 3V3 pad = normal-voltage mode); DCCH, DEC1, DEC5, DECUSB not connected (module has its own filter capacitors; DC/DC off, LDO mode: VERIFY with figure 2.4 of the manual); NFC pins not used; no parts under the module, no copper in the antenna area",
   "group": "mcu",
   "board": "CUP"
  },
@@ -71,66 +71,6 @@
   "bom": true,
   "dnp": false,
   "note": "3V3 = nRF52840 REG0 output: 4.7 uF at VDD H3/H4 (review C3); HV mode relies on REG0, max 25 mA external at TX <= 4 dBm (nRF52840 PS v1.7 p.84 via DevZone, verify)",
-  "group": "mcu",
-  "board": "CUP"
- },
- {
-  "ref": "PI1",
-  "value": "pi match shunt C (DNP)",
-  "fp": [
-   "Capacitor_SMD",
-   "C_0402_1005Metric"
-  ],
-  "pins": {
-   "1": "ANT_A",
-   "2": "GND"
-  },
-  "lcsc": "C1525",
-  "mpn": "CL05B104KO5NNNC",
-  "side": "F",
-  "bom": false,
-  "dnp": true,
-  "note": "pi match shunt, value to be tuned (about 0.5 to 1 pF), DNP",
-  "group": "mcu",
-  "board": "CUP"
- },
- {
-  "ref": "PI2",
-  "value": "pi match series 0R",
-  "fp": [
-   "Resistor_SMD",
-   "R_0402_1005Metric"
-  ],
-  "pins": {
-   "1": "ANT_A",
-   "2": "ANT_B"
-  },
-  "lcsc": "C17168",
-  "mpn": "0402WGF0000TCE",
-  "side": "F",
-  "bom": true,
-  "dnp": false,
-  "note": "series element: 0 ohm connects A7 to A8 (internal antenna)",
-  "group": "mcu",
-  "board": "CUP"
- },
- {
-  "ref": "PI3",
-  "value": "pi match shunt C (DNP)",
-  "fp": [
-   "Capacitor_SMD",
-   "C_0402_1005Metric"
-  ],
-  "pins": {
-   "1": "ANT_B",
-   "2": "GND"
-  },
-  "lcsc": "C1525",
-  "mpn": "CL05B104KO5NNNC",
-  "side": "F",
-  "bom": false,
-  "dnp": true,
-  "note": "pi match shunt, DNP",
   "group": "mcu",
   "board": "CUP"
  },
@@ -263,10 +203,10 @@
  },
  {
   "ref": "UU1",
-  "value": "USBLC6-2SC6",
+  "value": "USBLC6-2P6",
   "fp": [
    "Package_TO_SOT_SMD",
-   "SOT-23-6"
+   "SOT-666"
   ],
   "pins": {
    "1": "USB_DP",
@@ -276,8 +216,8 @@
    "5": "VBUS_P",
    "6": "USB_DP"
   },
-  "lcsc": "C7519",
-  "mpn": "USBLC6-2SC6",
+  "lcsc": "C2827693",
+  "mpn": "USBLC6-2P6",
   "side": "F",
   "bom": true,
   "dnp": false,
@@ -657,17 +597,17 @@
  },
  {
   "ref": "D6",
-  "value": "1N4148W (sounder flyback)",
+  "value": "1N4148WS (sounder flyback)",
   "fp": [
    "Diode_SMD",
-   "D_SOD-123"
+   "D_SOD-323"
   ],
   "pins": {
    "1": "VBAT",
    "2": "PZ_C"
   },
-  "lcsc": "C81598",
-  "mpn": "1N4148W",
+  "lcsc": "C2128",
+  "mpn": "1N4148WS",
   "side": "F",
   "bom": true,
   "dnp": false,
@@ -1095,10 +1035,10 @@
  },
  {
   "ref": "U32",
-  "value": "TP74AUP1G08S5 (AND)",
+  "value": "SN74AUP1G08DCKR (AND)",
   "fp": [
    "Package_TO_SOT_SMD",
-   "SOT-23-5"
+   "SOT-353_SC-70-5"
   ],
   "pins": {
    "1": "SUP_NRST",
@@ -1107,8 +1047,8 @@
    "4": "LATCH_CLR_N",
    "5": "3V3"
   },
-  "lcsc": "C48886815",
-  "mpn": "TP74AUP1G08S5",
+  "lcsc": "C507223",
+  "mpn": "SN74AUP1G08DCKR",
   "side": "F",
   "bom": true,
   "dnp": false,
@@ -1178,18 +1118,18 @@
  },
  {
   "ref": "QBA",
-  "value": "2N7002",
+  "value": "2N7002W",
   "fp": [
    "Package_TO_SOT_SMD",
-   "SOT-23"
+   "SOT-323_SC-70"
   ],
   "pins": {
    "1": "BUZ_A",
    "2": "GND",
    "3": "PZ_A"
   },
-  "lcsc": "C8545",
-  "mpn": "2N7002",
+  "lcsc": "C232391",
+  "mpn": "2N7002WT1G",
   "side": "F",
   "bom": true,
   "dnp": false,
@@ -1266,10 +1206,10 @@
  },
  {
   "ref": "U34",
-  "value": "TP74AUP1G08S5 (AND)",
+  "value": "SN74AUP1G08DCKR (AND)",
   "fp": [
    "Package_TO_SOT_SMD",
-   "SOT-23-5"
+   "SOT-353_SC-70-5"
   ],
   "pins": {
    "1": "PERM_L",
@@ -1278,8 +1218,8 @@
    "4": "MOT_ALLOW",
    "5": "3V3"
   },
-  "lcsc": "C48886815",
-  "mpn": "TP74AUP1G08S5",
+  "lcsc": "C507223",
+  "mpn": "SN74AUP1G08DCKR",
   "side": "F",
   "bom": true,
   "dnp": false,
@@ -1389,25 +1329,26 @@
  },
  {
   "ref": "U20",
-  "value": "TPS2553DBVR",
+  "value": "TPS2553DRVR",
   "fp": [
-   "Package_TO_SOT_SMD",
-   "SOT-23-6"
+   "Package_SON",
+   "WSON-6-1EP_2x2mm_P0.65mm_EP1x1.6mm"
   ],
   "pins": {
-   "1": "VMOT_PRE",
-   "2": "GND",
-   "3": "MOT_ALLOW",
-   "4": "OC_OK",
-   "5": "ILIM",
-   "6": "VMOT"
+   "1": "VMOT",
+   "2": "ILIM",
+   "3": "OC_OK",
+   "4": "MOT_ALLOW",
+   "5": "GND",
+   "6": "VMOT_PRE",
+   "7": "GND"
   },
-  "lcsc": "C55266",
-  "mpn": "TPS2553DBVR",
+  "lcsc": "C138719",
+  "mpn": "TPS2553DRVR",
   "side": "F",
   "bom": true,
   "dnp": false,
-  "note": "current-limited high-side switch 2.5-6.5 V, 85 mohm, EN active high (hardware cut), FAULT open drain = OC_OK (low when the limit is active > deglitch), NOT the -1 latch variant; pinout 1 IN 2 GND 3 EN 4 FAULT 5 ILIM 6 OUT verified in SLVS841G table 5-1",
+  "note": "current-limited high-side switch 2.5-6.5 V, 85 mohm, EN active high (hardware cut), FAULT open drain = OC_OK (low when the limit is active > deglitch), NOT the -1 latch variant; WSON-6 2x2 (DRV, 0.8 mm: fits the underside) pinout 1 OUT 2 ILIM 3 FAULT 4 EN 5 GND 6 IN, PowerPAD = GND, verified in the TI datasheet table 5-1 (2026-11-20 layout review)",
   "group": "sw",
   "board": "CUP"
  },
