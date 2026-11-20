@@ -5,7 +5,7 @@ import Foundation
 
 public enum DiagCatalogueData {
     /// Catalogue version (matches `DiagSummary.schema` of a pod with the same catalogue).
-    public static let schemaVersion: UInt16 = 2
+    public static let schemaVersion: UInt16 = 3
 
     public static let entries: [DiagCatalogueEntry] = [
         DiagCatalogueEntry(code: DiagCode(raw: 0x10100100), name: "FLASH_IMAGE_BAD", severity: .fault, action: .updateFw, fru: .fw, fru2: nil, legacyBit: 5, hazards: 0x0002, text: "Firmware image damaged."),
@@ -75,6 +75,7 @@ public enum DiagCatalogueData {
         DiagCatalogueEntry(code: DiagCode(raw: 0x55300100), name: "OCCLUSION_SHORTFALL", severity: .fault, action: .checkCannula, fru: .cann, fru2: .needle, legacyBit: 0, hazards: 0x0004, text: "Blockage detected."),
         DiagCatalogueEntry(code: DiagCode(raw: 0x55300200), name: "OCCLUSION_CURRENT_RISE", severity: .fault, action: .checkCannula, fru: .cann, fru2: .needle, legacyBit: 0, hazards: 0x0004, text: "Blockage detected."),
         DiagCatalogueEntry(code: DiagCode(raw: 0x55300300), name: "OCCLUSION_RAMP_WARNING", severity: .warning, action: .checkCannula, fru: .cann, fru2: nil, legacyBit: nil, hazards: 0x0004, text: "A blockage may be building."),
+        DiagCatalogueEntry(code: DiagCode(raw: 0x55300400), name: "OCCLUSION_SHORTFALL_WARNING", severity: .warning, action: .checkCannula, fru: .cann, fru2: .needle, legacyBit: nil, hazards: 0x0004, text: "A blockage may be building."),
         DiagCatalogueEntry(code: DiagCode(raw: 0x55400100), name: "PRESSURE_ANOMALY_WHILE_DOCKED", severity: .latched, action: .checkCannula, fru: .cann, fru2: .ctrl, legacyBit: 5, hazards: 0x8004, text: "Unexpected pressure while docked. Check the cannula and the pod."),
         DiagCatalogueEntry(code: DiagCode(raw: 0x66000100), name: "ANGLE_CHANNEL_LOST", severity: .fault, action: .isolate, fru: .podb, fru2: .ffc, legacyBit: 5, hazards: 0x0006, text: "Position sensor lost."),
         DiagCatalogueEntry(code: DiagCode(raw: 0x66000200), name: "FIELD_TOO_WEAK", severity: .fault, action: .replace, fru: .mags, fru2: .podb, legacyBit: 5, hazards: 0x0804, text: "Spindle magnet signal too weak."),
@@ -299,6 +300,8 @@ extension DiagCode {
     public static let occlusionCurrentRise = DiagCode(raw: 0x55300200)
     /// `5-53-003`
     public static let occlusionRampWarning = DiagCode(raw: 0x55300300)
+    /// `5-53-004`
+    public static let occlusionShortfallWarning = DiagCode(raw: 0x55300400)
     /// `5-54-001`
     public static let pressureAnomalyWhileDocked = DiagCode(raw: 0x55400100)
     /// `6-60-001`
