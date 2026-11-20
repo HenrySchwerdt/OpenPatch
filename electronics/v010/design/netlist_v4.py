@@ -35,11 +35,11 @@ HJ_PIN = {
     "F1": "D+", "F2": "VBUS", "F3": "P0.11", "F4": "P0.07", "F5": "P0.27", "F6": "P0.00", "F7": "P0.30", "F8": "P0.29",
     "G1": "D-", "G2": "DECUSB", "G3": "P0.12", "G4": "P1.09", "G5": "P0.05", "G6": "P0.01", "G7": "P0.26", "G8": "P0.06",
     "H1": "DCCH", "H2": "VDDH", "H3": "VDD", "H4": "VDD", "H5": "P0.08", "H6": "DEC1", "H7": "P0.04", "H8": "GND"}
-HJ_FIXED = {"A1": "GND", "H8": "GND", "A7": "ANT_A", "A8": "ANT_B", "H2": "3V3", "H3": "3V3", "H4": "3V3", "F1": "USB_DP", "G1": "USB_DM", "F2": "VBUS_P",
-            "E1": "NRST", "C2": "SWDIO", "C3": "SWDCLK", "G5": "VBAT_SENSE", "H7": "VMOT_SENSE"}
+HJ_FIXED = {"A1": "GND", "H8": "GND", "A7": "ANT_A", "A8": "ANT_B", "H2": "VBAT", "H3": "3V3", "H4": "3V3", "F1": "USB_DP", "G1": "USB_DM", "F2": "VBUS_P",
+            "E1": "NRST", "C2": "SWDIO", "C3": "SWDCLK", "H7": "VMOT_SENSE"}
 # signals that go to GPIO pads (the pad is chosen by cup/pinassign.py, initial order below); NFC pins B4/C5 are not used
-HJ_SIGNALS = ["APHASE", "BPHASE", "AENBL_MCU", "BENBL_MCU", "DOCKED_H", "CHG_STAT", "OC_OK", "LATCH_Q", "DOCK_N", "SUP_OK", "LED_R", "LED_G", "LED_B", "SUP_TXD", "SUP_RXD",
-              "SUP_BOOT0", "SUP_NRST", "MOT_DIR", "BTN_N", "I2C_SCL", "I2C_SDA", "ARM_CLK", "MCU_EN", "BUZ_A"]
+HJ_SIGNALS = ["APHASE", "BPHASE", "AENBL", "BENBL", "CHG_STAT", "OC_OK", "LATCH_Q", "DOCK_N", "SUP_OK", "LED_R", "LED_G", "LED_B", "SUP_TXD", "SUP_RXD",
+              "SUP_BOOT0", "SUP_NRST", "MOT_FWD", "BTN_N", "I2C_SCL", "I2C_SDA", "ARM_CLK", "MCU_EN", "BUZ_A"]
 HJ_GPIO_POOL = [k for k, v in HJ_PIN.items() if v.startswith("P") and k not in HJ_FIXED and k not in ("B4", "C5") and v != "P0.18/RESET"]
 ISP = dict(HJ_FIXED)
 import os as _os, json as _json
@@ -82,32 +82,31 @@ def build():
 
     # ---------------------------------------------------------------- MCU
     new("U1", "HJ-840 nRF52840 SiP", ("V010", "HJ840"), dict(ISP), "C50052094", "HJ-840", group="mcu",
-        note="HJSIP HJ-840 LGA64 6.2 x 7.0 x 1.0, JLC stock about 90, integrated antenna (A7 ANT -> pi match -> A8 BOARD_ANT), normal-voltage mode: VDD = VDDH = 3V3 from the LDO; DCCH, DEC1, DEC5, DECUSB not connected (module has its own filter capacitors; DC/DC off, LDO mode: VERIFY with figure 2.4 of the manual); NFC pins not used; no parts under the module, no copper in the antenna area")
+        note="HJSIP HJ-840 LGA64 6.2 x 7.0 x 1.0, JLC stock about 90, integrated antenna (A7 ANT -> pi match -> A8 BOARD_ANT), HIGH-VOLTAGE mode: VDDH = VBAT, VDD pins H3/H4 = the 3V3 rail supplied by the module regulator REG0 (UICR REGOUT0 must be set to 3.3 V once, default 1.8 V; flash with 3.3 V on both the cell + pad and the SWD 3V3 pad = normal-voltage mode); DCCH, DEC1, DEC5, DECUSB not connected (module has its own filter capacitors; DC/DC off, LDO mode: VERIFY with figure 2.4 of the manual); NFC pins not used; no parts under the module, no copper in the antenna area")
     new("PI1", "pi match shunt C (DNP)", C0402, {1: "ANT_A", 2: "GND"}, "C1525", "CL05B104KO5NNNC", group="mcu", dnp=True, note="pi match shunt, value to be tuned (about 0.5 to 1 pF), DNP")
     new("PI2", "pi match series 0R", R0402, {1: "ANT_A", 2: "ANT_B"}, "C17168", "0402WGF0000TCE", group="mcu", note="series element: 0 ohm connects A7 to A8 (internal antenna)")
     new("PI3", "pi match shunt C (DNP)", C0402, {1: "ANT_B", 2: "GND"}, "C1525", "CL05B104KO5NNNC", group="mcu", dnp=True, note="pi match shunt, DNP")
     # ---------------------------------------------------------------- supply: cell pads, LDO
     for ref, net, lab in (("SP1", "VBAT", "+"), ("SP2", "GND", "-")):
-        new(ref, "cell lead pad %s" % lab, ("V010", "Wire_Pad_2.0x3.0"), {1: net}, bom=False, group="batt",
+        new(ref, "cell lead pad %s" % lab, ("V010", "Wire_Pad_1.0x1.8"), {1: net}, bom=False, group="batt",
             note="hand-solder pad 2.0 x 3.0 for the cell lead %s (Ampul 301030 has two flying wires, user solders them); silkscreen label; near the cell wire exit (position VERIFY); strain-relief edge notch not added" % lab)
-    take("C5", "pwr"); take("U2", "pwr"); take("C7", "pwr")
+    take("C5", "pwr")
     # ---------------------------------------------------------------- USB-C + charger
-    for ref in ("JU1", "DU1", "RU1", "RU2", "UU1", "CU1"):
+    for ref in ("JU1", "RU1", "RU2", "UU1", "CU1"):
         p = take(ref, "usb")
         p["pins"] = {k: ("VBUS_P" if v == "VBUS_R" else v) for k, v in p["pins"].items()}
         if ref == "JU1":
-            p["note"] = "PROXY HRO TYPE-C-31-M-12 (top mount, 3.26). The pod stack needs a MID-MOUNT/sink receptacle in a board-edge notch (board plane z 5.3-5.9 inside the 4.2-7.46 body); no JLC mid-mount part verified"
+            p.update(value="USB-C 16P laminated mid-mount TYPE-C-31-M-14", fp=["V010", "USB_C_Midmount_M14"], lcsc="C223907", mpn="TYPE-C-31-M-14",
+                     note="JLC-stocked (2143) 16P laminated-board (mid-mount) USB-C receptacle in the +Y edge notch, centre x 23.5, board mid-plane inside the body; total height must stay under the lid inner z 7.6 and the bottom at the 4.1 cell top: VERIFY the part height and the land pattern (approximated) against the HRO drawing")
     take("U3", "chg", pins={"1": "CHG_STAT", "2": "GND", "3": "VBAT", "4": "VBUS_P", "5": "CHG_PROG"})
     take("R3", "chg", pins={"1": "CHG_PROG", "2": "GND"}, value="47k", note="PROG 47k -> about 21 mA charge current")
-    # VBAT sense (always on, 1M/1M = 1.9 uA, 100 nF holds the SAADC sample)
-    R("R6", "1M", "VBAT", "VBAT_SENSE", "sense"); R("R7", "1M", "VBAT_SENSE", "GND", "sense"); C("C10", "100nF", "VBAT_SENSE", "GND", "sense")
+    # VBAT sense: SAADC VDDHDIV5 channel (VDDH = VBAT), no divider
     # ---------------------------------------------------------------- motor driver: DRV8835 (no chopper: 26.5 ohm coil, 5 V -> about 0.18 A per phase, resistance limited), full steps
     new("U7", "DRV8835DSSR", ("Package_SON", "WSON-12-1EP_3x2mm_P0.5mm_EP1x2.65"),
         {1: "VMOT", 2: "MOT_A1", 3: "MOT_A2", 4: "MOT_B1", 5: "MOT_B2", 6: "GND", 7: "BENBL", 8: "BPHASE", 9: "AENBL", 10: "APHASE", 11: "3V3", 12: "3V3", 13: "GND"},
         "C129328", "DRV8835DSSR", group="drv",
         note="dual H-bridge, VM 0-11 V, VCC 2-7 V, 1.5 A per bridge, MODE tied to VCC = PHASE/ENABLE (ENABLE low = brake: both outputs low); no current sense / limit (TI SLVSB18H): the current is set by the 26.5 ohm coil; pin map from the datasheet, land pattern = KiCad WSON-12 3x2 EP 1x2.65: VERIFY")
-    C("C23", "100nF", "VMOT", "GND", "drv"); C("C19", "100nF", "3V3", "GND", "drv")
-    R("R43", "100k", "AENBL_MCU", "GND", "drv"); R("R93", "100k", "BENBL_MCU", "GND", "drv")
+    C("C19", "100nF", "3V3", "GND", "drv")
     take("C21", "drv")
     for i, (net, lab) in enumerate((("MOT_A1", "A+"), ("MOT_A2", "A-"), ("MOT_B1", "B+"), ("MOT_B2", "B-"))):
         new("MP%d" % (i + 1), "motor lead pad %s" % lab, ("V010", "Wire_Pad_1.0x1.8"), {1: net}, bom=False, group="mot",
@@ -119,7 +118,6 @@ def build():
     new("LD1", "RGB LED SZYY1615RGB-B (common anode)", ("V010", "LED_RGB_1615_4P"), {1: "LED_R", 2: "LED_G", 3: "LED_B", 4: "LED_A"}, "C3029071", "SZYY1615RGB-B", group="ui",
         note="top-facing status RGB LED under the clear lid, common anode through ONE 1k from VBAT (GPIO high = off even at 4.2 V, no idle current); one lit channel about 0.7 to 1.7 mA; pad order and polarity VERIFY")
     R("R74", "1k", "VBAT", "LED_A", "ui")
-    take("D5", "ui", pins={"1": "CHG_STAT", "2": "LED_R"}, note="diode-OR: MCP73832 STAT low (charging) pulls the red cathode low even while the MCU sleeps (cathode pad 1 = STAT)")
     new("SW1", "SKRPACE010 side tact", ("V010", "SW_SKRPACE010_4.2x3.2"), {1: "BTN_N", 2: "BTN_N", 3: "GND", 4: "GND"}, "C139797", "SKRPACE010", group="ui",
         note="ALPS side-actuated tact 4.2 x 3.2 x 1.4, actuator toward the -Y long wall; pad mapping VERIFY; internal nRF pull-up, no external resistor")
     new("BZ1", "FUET-4020 SMD magnetic sounder", ("V010", "BZ_4020"), {1: "VBAT", 2: "PZ_A"}, "C391027", "FUET-4020", side="B", group="ui",
@@ -129,18 +127,13 @@ def build():
     # ---------------------------------------------------------------- dock hall (single, see INTERLOCK.md section I: 2oo2 dropped, one magnet) + inverter into DOCKED_H
     new("U4A", "DRV5032FADMRR", ("Bench", "DRV5032_X2SON-4_DMR0004B"), {1: "3V3", 2: "GND", 4: "DOCK_N", 5: "GND"}, "C2152496", "DRV5032FADMRR", side="B", group=DOCK_LEG,
         note="dock hall on the underside of the dock leg, centred on the dock magnet axis (z 4.9-5.3); VERIFY threshold. Single hall: a second hall cannot see the d1 x 0.5 magnet (Bz of the dipole changes sign about 1 mm off axis)")
-    R("R21", "100k", "3V3", "DOCKED_H", DOCK_LEG)
     # ---------------------------------------------------------------- supervisor + step gate + TPL5010 latch
     new("U30", "STM32C011F4U6", ("V010", "UFQFPN-20_3x3_P0.5"),
-        {1: "MCU_EN", 2: "SUP_DONE", 3: "SUP_WAKE", 4: "3V3", 5: "GND", 6: "SUP_NRST", 7: "ARM_CLK", 8: "APHASE", 9: "MOT_DIR", 10: "OC_OK", 11: "SUP_STCK_EN",
-         12: "SUP_PERMIT", 13: "SUP_OK", 14: "NRST", 16: "SUP_TXD", 17: "SUP_RXD", 18: "BPHASE", 19: "SUP_BOOT0", 20: "DOCKED_H", 21: "GND"}, "C5456188", "STM32C011F4U6", group="sup",
+        {1: "MCU_EN", 2: "SUP_DONE", 3: "SUP_WAKE", 4: "3V3", 5: "GND", 6: "SUP_NRST", 7: "ARM_CLK", 8: "APHASE", 9: "MOT_FWD", 10: "OC_OK",
+         12: "SUP_PERMIT", 13: "SUP_OK", 14: "NRST", 16: "SUP_TXD", 17: "SUP_RXD", 18: "BPHASE", 19: "SUP_BOOT0", 20: "DOCK_N", 21: "GND"}, "C5456188", "STM32C011F4U6", group="sup",
         note="independent supervisor (INTERLOCK.md H, I); UFQFPN-20 pin map assumed = TSSOP-20 map, pins 2/3 (SUP_DONE/SUP_WAKE) newly assigned: VERIFY against DS13866")
     C("C50", "100nF", "3V3", "GND", "sup")
-    R("R79", "100k", "SUP_BOOT0", "GND", "sup"); R("R81", "100k", "SUP_STCK_EN", "GND", "sup")
-    new("U31", "SN74AUP1G08DCKR (AND, A bridge)", SC70_5, {1: "AENBL_MCU", 2: "SUP_STCK_EN", 3: "GND", 4: "AENBL", 5: "3V3"}, "C507223", "SN74AUP1G08DCKR", group="sup",
-        note="AENBL = AENBL_MCU AND SUP_STCK_EN: the supervisor can brake bridge A (no torque change, no motion)")
-    new("U35", "TP74AUP1G08S5 (AND, B bridge)", SC70_5, {1: "BENBL_MCU", 2: "SUP_STCK_EN", 3: "GND", 4: "BENBL", 5: "3V3"}, "C48886815", "TP74AUP1G08S5", group="sup",
-        note="BENBL = BENBL_MCU AND SUP_STCK_EN")
+    
     new("U5", "TPL5010DDCR", SOT236, {1: "3V3", 2: "GND", 3: "WDT_DELAY", 4: "SUP_DONE", 5: "SUP_WAKE", 6: "SUP_NRST"}, "C473912", "TPL5010DDCR", group="wdt",
         note="independent timer now watches the SUPERVISOR: no DONE after WAKE -> RSTn low: resets the supervisor and clears the latch")
     R("R26", "10k", "WDT_DELAY", "GND", "wdt")
@@ -151,33 +144,31 @@ def build():
     R("R29", "100k", "ARM_CLK", "GND", "wdt")
     # ---------------------------------------------------------------- motor supply: boost (supervisor EN) -> current-limited load switch (hardware EN) -> VMOT
     R("R82", "100k", "SUP_PERMIT", "GND", "sw")
-    R("R16", "100k", "MOT_DIR", "GND", "sw")
-    new("Q7", "2N7002", SOT23, {1: "DOCK_N", 2: "GND", 3: "DOCKED_H"}, "C8545", "2N7002", group="sw", note="hall inverter: DOCK_N low (hall asserted) -> DOCKED_H high (R21 pull-up)")
+    R("R16", "100k", "3V3", "MOT_FWD", "sw", note="forward-intent line pull-up: default = forward = blocked when undocked")
     new("QBA", "2N7002", SOT23, {1: "BUZ_A", 2: "GND", 3: "PZ_A"}, "C8545", "2N7002", group="ui", note="sounder drive leg (100 k pull-down RDA), off by default")
-    new("U33", "TP74AUP1G32S5 (OR)", SC70_5, {1: "DOCKED_H", 2: "MOT_DIR", 3: "GND", 4: "DOCK_OR", 5: "3V3"}, "C49333203", "TP74AUP1G32S5", group="sw",
-        note="DOCK_OR = DOCKED_H OR MOT_DIR[reverse]: forward undocked blocked, reverse undocked allowed (refill / draw)")
-    new("U34", "TP74AUP1G08S5 (AND)", SC70_5, {1: "LATCH_Q", 2: "DOCK_OR", 3: "GND", 4: "MOT_ALLOW", 5: "3V3"}, "C48886815", "TP74AUP1G08S5", group="sw",
-        note="MOT_ALLOW = LATCH_Q AND DOCK_OR: the pure-hardware cut path, drives the EN pin of the load switch")
+    new("U33", "TP74AUP1G00C5 (NAND)", SC70_5, {1: "DOCK_N", 2: "MOT_FWD", 3: "GND", 4: "DOCK_OR", 5: "3V3"}, "C51886116", "TP74AUP1G00C5", group="sw",
+        note="DOCK_OR = NOT(DOCK_N AND MOT_FWD) = docked OR reverse (hall DRV5032FA is active low): forward undocked blocked, reverse undocked allowed (refill / draw); absorbs the hall inverter")
+    new("U36", "TP74AUP1G08S5 (AND)", SC70_5, {1: "LATCH_Q", 2: "SUP_PERMIT", 3: "GND", 4: "PERM_L", 5: "3V3"}, "C48886815", "TP74AUP1G08S5", group="sw", note="PERM_L = LATCH_Q AND SUP_PERMIT")
+    new("U34", "TP74AUP1G08S5 (AND)", SC70_5, {1: "PERM_L", 2: "DOCK_OR", 3: "GND", 4: "MOT_ALLOW", 5: "3V3"}, "C48886815", "TP74AUP1G08S5", group="sw",
+        note="MOT_ALLOW = LATCH_Q AND SUP_PERMIT AND (DOCKED OR reverse): the single hardware enable of the load switch (pure logic, no software)")
     R("R90", "100k", "MOT_ALLOW", "GND", "sw")
     new("U20", "TPS2553DBVR", SOT236, {1: "VMOT_PRE", 2: "GND", 3: "MOT_ALLOW", 4: "OC_OK", 5: "ILIM", 6: "VMOT"}, "C55266", "TPS2553DBVR", group="sw",
         note="current-limited high-side switch 2.5-6.5 V, 85 mohm, EN active high (hardware cut), FAULT open drain = OC_OK (low when the limit is active > deglitch), NOT the -1 latch variant; pinout 1 IN 2 GND 3 EN 4 FAULT 5 ILIM 6 OUT: VERIFY")
     new("R91", "47k", R0402, {1: "ILIM", 2: "GND"}, "C25792", "0402WGF4702TCE", group="sw", note="ILIM resistor 47k: TI table 49.9k = 475/520/565 mA, scaled by 49.9/47 = about 504/552/600 mA (min/typ/max): above the worst-case motor current 0.40 A (5 V, 23.9 ohm coil, 1 ohm bridge), well below the 1.5 A bridge rating")
     R("R92", "100k", "3V3", "OC_OK", "sw")
     C("C60", "100nF", "VMOT_PRE", "GND", "sw")
-    R("R25", "10k", "VMOT", "GND", "sw")
-    take("R57", "oc"); take("R58", "oc")
+    new("R57", "10k", R0402, {1: "VMOT", 2: "VMOT_SENSE"}, "C25744", "0402WGF1002TCE", group="oc", note="VMOT sense divider 10k/10k = also the bleeder of the VM capacitors (time constant about 0.6 s), reads 2.5 V at 5 V")
+    new("R58", "10k", R0402, {1: "VMOT_SENSE", 2: "GND"}, "C25744", "0402WGF1002TCE", group="oc")
     # ---------------------------------------------------------------- 5 V boost (motor NFP-608-26.45-SGM, 4.8 V rated), EN = supervisor permission
-    new("U8", "TPS61023DRLR", ("Package_TO_SOT_SMD", "SOT-563"), {1: "SUP_PERMIT", 2: "GND", 3: "BST_SW", 4: "VBAT", 5: "VMOT_PRE", 6: "BST_FB"}, "C919459", "TPS61023DRLR", group="boost",
-        note="sync boost 3.7 A switch, 0.5-5.5 V in, 1 uA off, about 90 % at 0.3 A out; VIN from the cell, EN = SUP_PERMIT (supervisor second cut); pinout 1 EN 2 GND 3 SW 4 VIN 5 VOUT 6 FB: VERIFY")
+    new("U8", "TPS61023DRLR", ("Package_TO_SOT_SMD", "SOT-563"), {1: "BST_FB", 2: "SUP_PERMIT", 3: "VBAT", 4: "GND", 5: "BST_SW", 6: "VMOT_PRE"}, "C919459", "TPS61023DRLR", group="boost",
+        note="sync boost 3.7 A switch, 0.5-5.5 V in, 1 uA off, about 90 % at 0.3 A out; VIN from the cell, EN = SUP_PERMIT (supervisor second cut); pinout verified in SLVSF14B: 1 FB 2 EN 3 VIN 4 GND 5 SW 6 VOUT; output OVP 5.7 V typ")
     new("L1", "1uH 2520 (WPN252012E1R0MT)", ("Inductor_SMD", "L_1008_2520Metric"), {1: "VBAT", 2: "BST_SW"}, "C370610", "WPN252012E1R0MT", group="boost", note="1 uH 2.5 x 2.0 x 1.2; Isat VERIFY >= 2.5 A")
     new("R55", "220k", R0402, {1: "VMOT_PRE", 2: "BST_FB"}, "C25767", "0402WGF2203TCE", group="boost", note="FB divider 220k/30k, FB 0.595 V -> 4.96 V")
     new("R56", "30k", R0402, {1: "BST_FB", 2: "GND"}, "C25776", "0402WGF3002TCE", group="boost")
-    take("DZ1", "boost", pins={"1": "VMOT_PRE", "2": "GND"})
     C0805 = ("Capacitor_SMD", "C_0805_2012Metric")
     for i in (1,):
         new("CB%d" % i, "22uF 6.3V X5R 0805", C0805, {1: "VMOT_PRE", 2: "GND"}, "C45783", "CL21A226MAQNNNE", group="boost",
             note="bulk on the boost output (basic part); about 8 uF effective at 5 V DC bias")
-    new("C31", "10uF", C0603, {1: "VMOT_PRE", 2: "GND"}, "C19702", "CL10A106KP8NNNC", group="boost")
     # ---------------------------------------------------------------- SWD + test pads (top side)
     swd = [("SWDIO", "SWDIO"), ("SWDCLK", "SWDCLK"), ("NRST", "NRST"), ("GND", "GND"), ("3V3", "3V3")]
     for i, (v, n) in enumerate(swd):

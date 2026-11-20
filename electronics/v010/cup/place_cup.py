@@ -23,7 +23,7 @@ EDGE, MARGIN = 0.35, 0.3
 
 HEIGHTS = [("HJ840", 1.0), ("ISP1807", 1.0), ("QFN-16", 0.9), ("UFQFPN", 0.6), ("SOT-23-5", 1.45), ("SOT-23-6", 1.45), ("SOT-23", 1.15), ("SOT-353", 1.1), ("SOT-363", 1.1),
            ("VSSOP", 1.1), ("D_SOD-123F", 1.0), ("D_SOD-123", 1.1), ("LED_", 0.7), ("R_0603", 0.55), ("C_0603", 1.0), ("R_0201", 0.3), ("C_0201", 0.3),
-           ("R_0402", 0.5), ("C_0402", 0.6), ("X2SON", 0.4), ("Spring", 1.0), ("A1251WR", 2.8), ("Wire_Pad", 0.0), ("BZ_4020", 2.0), ("SW_SKRPACE", 1.4), ("TP_Pad", 0.0), ("FPC_Pad", 0.0), ("USB_C", 3.26)]
+           ("R_0402", 0.5), ("C_0402", 0.6), ("X2SON", 0.4), ("Spring", 1.0), ("A1251WR", 2.8), ("Wire_Pad", 0.0), ("C_0805", 1.25), ("L_1008", 1.25), ("USB_C_Mid", 1.0), ("BZ_4020", 2.0), ("SW_SKRPACE", 1.4), ("TP_Pad", 0.0), ("FPC_Pad", 0.0), ("USB_C", 3.26)]
 
 
 def height(fp):
@@ -152,20 +152,22 @@ def main():
         fixed[ref] = [bx, by, rot, side]
 
     fix("U1", 39.7, 28.2, 270)                       # HJ-840: row A (antenna pads A7/A8) toward +X at the board edge
-    fix("JU1", 12.5, 29.75, 180)                   # receptacle opening toward the +Y long wall
+    fix("JU1", 23.5, 29.5, 0)                   # receptacle opening toward the +Y long wall
     for i in range(4):                              # REAR strip pad row (TMAG only), bottom side, 0.8 pitch
         fix(["TL1", "TL2", "TL3", "TL4"][i], 9.2 + 0.8 * i, 23.8, 0, "B")
-    fix("SW1", 39.8, 3.0, 180)
-    for i in range(4):                             # motor lead pads (A+, A-, B+, B-), top side, west edge strip next to the motor lead exit
-        fix("MP%d" % (i + 1), 8.45 + 1.25 * i, 24.1, 90)
-    fix("BZ1", 39.0, 20.2, 0, "B")                 # motor socket, bottom side, side_a block (only place tall enough below the board)
-    fix("LD1", 32.0, 31.2, 0)                      # RGB LED, top side, clear view through the lid (no tall part within 2 mm, piezo disc is at x < 28)
+    fix("SW1", 30.0, 31.65, 0)                      # side button at the north edge, actuator toward +Y
+    for ref, hx, hy in G.HUB_PADS:                 # west-end wiring hub: motor A+ A- B+ B-, cell + -, top side
+        fix(ref, hx, hy, 0)
+    fix("BZ1", 37.6, 20.5, 0, "B")                 # sounder: side_b block, bottom side, farthest corner from the dock hall (8.9 mm)
+    fix("LD1", 35.0, 30.4, 0)
     fix("U4A", 39.36, 11.75, 0, "B")
+    for k, ref in enumerate(("J10", "J11", "J12", "J13", "J14")):
+        fix(ref, 34.0 + 1.3 * k, 32.6, 0)
     movable = [p["ref"] for p in parts if p["ref"] not in fixed]
     # side rules
-    top_only = {p["ref"] for p in parts if p["group"] in ("swd", "tp") or p["ref"] in ("PZ1", "PZ2", "LD1", "SP1", "SP2")}
+    top_only = {p["ref"] for p in parts if p["group"] in ("swd", "tp") or p["ref"] in ("PZ1", "PZ2", "LD1", "SP1", "SP2", "MP1", "MP2", "MP3", "MP4")}
     bot_only = {"BZ1"}
-    anchors = {"PZ1": (21.0, 30.0), "PZ2": (21.0, 27.0), "SP1": (37.0, 24.6), "SP2": (37.0, 27.6), "BZ1": (39.0, 20.0)}
+    anchors = {"PZ1": (21.0, 30.0), "PZ2": (21.0, 27.0), "SP1": (37.0, 24.6), "SP2": (37.0, 27.6), "BZ1": (37.6, 20.5)}
     for p in parts:
         if p["group"] in ("swd", "tp"):
             anchors[p["ref"]] = (39.0, 13.0)
@@ -210,10 +212,14 @@ def main():
             return False
         if r != "U1" and bb[2] > G.ANT[0] and bb[3] > G.ANT[1] and bb[1] < G.ANT[3]:
             return False
-        if st[3] == "B" and g["h"] > G.BOT_LIMIT:
-            for z in G.LOW_ZONES:
-                if not (bb[2] < z[0] or bb[0] > z[2] or bb[3] < z[1] or bb[1] > z[3]):
+        if st[3] == "B":
+            for z, lim in G.LOW_ZONES:
+                if g["h"] > lim and not (bb[2] < z[0] or bb[0] > z[2] or bb[3] < z[1] or bb[1] > z[3]):
                     return False
+        if r == "BZ1":     # magnetic sounder: keep >= 8.8 mm from the dock hall (stray field < 10 % of the hall threshold, dipole estimate)
+            hx, hy = G.b(39.36, 11.75)
+            if math.hypot((bb[0] + bb[2]) / 2 - hx, (bb[1] + bb[3]) / 2 - hy) < 8.8:
+                return False
         if r in top_only and st[3] != "F":
             return False
         if r in bot_only and st[3] != "B":

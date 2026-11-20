@@ -183,3 +183,17 @@ Rows FM4-QL/QD/QR (discrete legs), FM4-U11 (comparator) and the bleeder rows are
 | FM6-R91-1 | R91 | ILIM wrong | limit 0.50 to 0.60 A shifts; at the minimum of the family the limit could cut the motor | yes | `OC_OK` | 6-62-001 |
 | FM6-MP-1 | MP1..4 | solder joint / lead open | winding open | yes | TMAG angle shortfall | 3-31-001 |
 STSPIN220-specific rows (EN/FAULT, VREF, STBY, TOFF, current limit) are void.
+
+## v4 reduction addendum (2026-11-20, 45 fitted parts)
+| FM id | Ref | Failure mode | Effect | Single-fault safe? | Code |
+|---|---|---|---|---|---|
+| FM7-U1-1 | U1 REG0 / 3V3 rail | rail low or absent (nRF off, regulator overloaded) | supervisor, gates, hall, TMAG unpowered: the AND gates give no `MOT_ALLOW` (R90 pulls EN low), the boost EN (R82) low: no motion | yes (fail-safe), supervisor independence of supply lost | 1-02-001 |
+| FM7-U1-2 | U1 | REGOUT0 left at 1.8 V | supervisor below its minimum supply (resets), gates unreliable: no `MOT_ALLOW`; no delivery | yes (fail-safe), detected at POST (3V3 low) | 1-02-001 |
+| FM7-U36-1 | U36 (AND) | output stuck high | `LATCH_Q AND SUP_PERMIT` term lost: the dock term of U34 and the boost EN (`SUP_PERMIT`) remain | yes (two cuts remain) | 1-07-002 |
+| FM7-U34-1 | U34 (AND) | output stuck high | the load switch EN no longer cut by the hardware: the supervisor still cuts the boost (EN = `SUP_PERMIT`), VMOT_PRE collapses | yes (boost cut remains) | 1-06-001 |
+| FM7-U33-1 | U33 (NAND) | output stuck high (always docked/reverse) | dock leg lost: undocked forward not blocked by the hardware; latch, `SUP_PERMIT` and boost EN remain | NO if firmware and supervisor also command it | 1-07-003 |
+| FM7-U4A-1 | U4A DRV5032FA | output stuck low (docked) | as FM7-U33-1 | NO if firmware and supervisor also command it | 2-21-001 |
+| FM7-R16-1 | R16 | open | `MOT_FWD` floats at nRF reset: NAND output undefined, the other terms (latch, permit) are low at reset | yes | 1-07-007 |
+| FM7-VSENSE-1 | VBAT sense by VDDHDIV5 | firmware does not read it | no undervoltage lockout (firmware item, no hardware) | yes (hardware unaffected), protection reduced | A-A0-002 |
+| FM7-BOOT-1 | supervisor BOOT0 (R79 removed) | pin floats high | supervisor boots into the ST bootloader: no `SUP_PERMIT`, no motion | yes (fail-safe) | 1-04-002 |
+Rows of Q7/R21, U31/U35 (brake gates), DZ1, DU1, D5, R81/R43/R93 are void.
