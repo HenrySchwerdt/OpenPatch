@@ -1,7 +1,8 @@
 # Security CI for OpenPatch (TEST PROJECT, not a medical device). Owner: security/ (see security/SCORECARD.md).
 #
 # Jobs: audit+deny (supply chain), fuzz-smoke (cargo-fuzz, 60 s per target), verify (proptest + known-issue regression tests),
-# formal (Tamarin + ProVerif), reproducible (build twice, compare), sbom (CycloneDX), actions-pins (hardening check).
+# formal (Tamarin + ProVerif), reproducible (build twice, compare), sbom (CycloneDX), actions-pins (hardening check),
+# language (repository must be English only, tools/check_language.py; runs on every nightly schedule and when the checker changes).
 #
 # Hardening: top-level permissions are read-only, no job gets a write token, no secrets are used, third-party actions are avoided
 # (only first-party `actions/*`), tools are installed from pinned versions with checksums or `cargo install --locked --version`.
@@ -12,9 +13,9 @@ name: security-ci
 on:
   push:
     branches: [main]
-    paths: ["firmware-rs/**", "security/**", ".github/workflows/security-*.yml", "docs/04-protocol.md", "docs/vectors/**"]
+    paths: ["firmware-rs/**", "security/**", ".github/workflows/security-*.yml", "docs/04-protocol.md", "docs/vectors/**", "tools/check_language.py", "tools/language-allowlist.txt"]
   pull_request:
-    paths: ["firmware-rs/**", "security/**", ".github/workflows/security-*.yml", "docs/04-protocol.md", "docs/vectors/**"]
+    paths: ["firmware-rs/**", "security/**", ".github/workflows/security-*.yml", "docs/04-protocol.md", "docs/vectors/**", "tools/check_language.py", "tools/language-allowlist.txt"]
   schedule:
     - cron: "17 3 * * *"        # nightly: new advisories appear without a commit
   workflow_dispatch:
@@ -176,3 +177,16 @@ jobs:
         with: { persist-credentials: false }
       - name: every `uses:` in every workflow must be pinned to a 40 hex commit SHA
         run: security/supply-chain/check-action-pins.sh
+
+  language:
+    # The repository is English only (CLAUDE.md); the one intended exception is the iOS German localisation (de.lproj).
+    # Allowlist: tools/language-allowlist.txt. Standard library only, no installs.
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with: { persist-credentials: false }
+      - name: detector self-test
+        run: python3 tools/check_language.py --self-test
+      - name: no German text outside the allowlist
+        run: python3 tools/check_language.py
