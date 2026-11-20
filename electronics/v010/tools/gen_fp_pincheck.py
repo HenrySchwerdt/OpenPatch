@@ -10,7 +10,7 @@ Sources (all dimensions from vendor drawings read on 2026-11-20, no PDFs committ
   LED_RGB_1615_4P     Yongyu SZYY1615RGB-B (C3029071) pads 0.65 x 0.65 at 1.0 x 1.45, pin 4 (anode) top-left, 1 top-right, 3 bottom-left, 2 bottom-right
   BZ_4020             Fusheng FUET-4020 (C391027) vendor land pattern 4.4 x 1.8, gap 0.9
   UFQFPN-20_3x3_P0.5  ST DS13866 UFQFPN20 has NO exposed pad: pad 21 removed
-  HJ840               pad size follows the LCSC footprint (0.40 along the 0.65 pitch x 0.44)
+  HJ840               pad size stays 0.30 x 0.40 (HJ-840 manual b x a): 0.40 along the 0.65 pitch would leave 0.25 between pads, too little for a 0.12 track with 0.10 clearance
 """
 import os
 import re
@@ -90,7 +90,7 @@ open(p, "w").write(s)
 # ---------------------------------------------------------------- HJ-840 pad size = LCSC footprint (0.44 along the 0.9 row pitch x 0.40 along the 0.65 column pitch)
 p = os.path.join(FP, "HJ840.kicad_mod")
 s = open(p).read()
-s = s.replace("(size 0.30 0.40)", "(size 0.40 0.44)")
+s = s.replace("(size 0.40 0.44)", "(size 0.30 0.40)")
 open(p, "w").write(s)
 
 # ---------------------------------------------------------------- bare test pad 0.6 mm (no paste), DFN-6 for the 3-input AND

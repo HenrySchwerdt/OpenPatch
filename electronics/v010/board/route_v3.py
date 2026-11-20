@@ -111,20 +111,24 @@ elif step == "route":
         open(ses + ".log", "w").write((e.stdout or b"").decode() if isinstance(e.stdout, bytes) else (e.stdout or ""))
         print("freerouting TIMEOUT")
 elif step == "import":
+    # footprints without copper pads (NPTH screw holes) export as an unnamed (component) that KiCad's SES importer rejects: drop those blocks
+    t = open(ses).read()
+    t = re.sub(r"\n\s*\(component\s*\n(?:\s*\(place [^\n]*\n)+\s*\)", "", t)
+    open(ses, "w").write(t)
     b = pcbnew.LoadBoard(pcb)
     print("SES import", pcbnew.ImportSpecctraSES(b, ses))
     pcbnew.SaveBoard(pcb, b)
 elif step == "finish":
     b = pcbnew.LoadBoard(pcb)
-    for z in list(b.Zones()):
-        if not z.GetIsRuleArea():
-            b.Remove(z)
+    old_zones = [z for z in b.Zones() if not z.GetIsRuleArea()]      # removed AFTER the new zones exist (KiCad 10 python: ZONE.Outline() breaks after a Remove)
     ls = [("GND_F", pcbnew.F_Cu), ("GND_In1", pcbnew.In1_Cu), ("GND_In2", pcbnew.In2_Cu)]
     if b.GetCopperLayerCount() == 6:
         ls += [("GND_In3", pcbnew.In3_Cu), ("GND_In4", pcbnew.In4_Cu)]
     ls.append(("GND_B", pcbnew.B_Cu))
     for nm, l in ls:
         zone(b, nm, l)
+    for z in old_zones:
+        b.Remove(z)
     for z in b.Zones():
         if not z.GetIsRuleArea():
             z.SetIslandRemovalMode(pcbnew.ISLAND_REMOVAL_MODE_ALWAYS)

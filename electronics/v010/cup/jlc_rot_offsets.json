@@ -1,0 +1,113 @@
+{
+ "HJ840": {
+  "delta_ccw": 90,
+  "maxdev_mm": 0.005,
+  "lcsc": "C50052094"
+ },
+ "C_0603_1608Metric": {
+  "delta_ccw": 0,
+  "maxdev_mm": 0.075,
+  "lcsc": "C19702"
+ },
+ "R_0402_1005Metric": {
+  "delta_ccw": 0,
+  "maxdev_mm": 0.08,
+  "lcsc": "C25776"
+ },
+ "USB_C_HRO_31_M_14": {
+  "delta_ccw": 180,
+  "maxdev_mm": 0.0,
+  "lcsc": "C223907"
+ },
+ "SOT-23-6": {
+  "delta_ccw": 180,
+  "maxdev_mm": 0.213,
+  "lcsc": "C55266"
+ },
+ "SOT-23-5": {
+  "delta_ccw": 180,
+  "maxdev_mm": 0.045,
+  "lcsc": "C48886815"
+ },
+ "WSON-12-1EP_3x2mm_P0.5mm_EP1x2.65": {
+  "delta_ccw": 90,
+  "maxdev_mm": 0.01,
+  "lcsc": "C129328"
+ },
+ "C_0402_1005Metric": {
+  "delta_ccw": 0,
+  "maxdev_mm": 0.06,
+  "lcsc": "C1525"
+ },
+ "C_0805_2012Metric": {
+  "delta_ccw": 0,
+  "maxdev_mm": 0.05,
+  "lcsc": "C45783"
+ },
+ "LED_RGB_1615_4P": {
+  "delta_ccw": 0,
+  "maxdev_mm": 0.124,
+  "lcsc": "C3029071"
+ },
+ "SW_SKSCLAE010": {
+  "delta_ccw": 180,
+  "maxdev_mm": 1.309,
+  "lcsc": "C130445",
+  "note": "pad pairs 1+2 / 3+4 match under a 180 degree rotation (numbering inside a tied pair is irrelevant)"
+ },
+ "BZ_4020": {
+  "delta_ccw": 0,
+  "maxdev_mm": 0.425,
+  "lcsc": "C391027"
+ },
+ "D_SOD-123": {
+  "delta_ccw": 0,
+  "maxdev_mm": 0.08,
+  "lcsc": "C81598"
+ },
+ "R_0603_1608Metric": {
+  "delta_ccw": 0,
+  "maxdev_mm": 0.075,
+  "lcsc": "C23345"
+ },
+ "DRV5032_X2SON-4_DMR0004B": {
+  "delta_ccw": 90,
+  "maxdev_mm": 0.0,
+  "lcsc": "C2152496"
+ },
+ "UFQFPN-20_3x3_P0.5": {
+  "delta_ccw": 0,
+  "maxdev_mm": 0.115,
+  "lcsc": "C5456188"
+ },
+ "VSSOP-8_2.3x2mm_P0.5mm": {
+  "delta_ccw": 180,
+  "maxdev_mm": 0.15,
+  "lcsc": "C140267"
+ },
+ "SOT-23": {
+  "delta_ccw": 180,
+  "maxdev_mm": 0.083,
+  "lcsc": "C8545"
+ },
+ "SOT-353_SC-70-5": {
+  "delta_ccw": 180,
+  "maxdev_mm": 0.003,
+  "lcsc": "C48995440"
+ },
+ "UFDFN-6_1.45x1.0_P0.5": {
+  "delta_ccw": 0,
+  "maxdev_mm": 0.0,
+  "lcsc": "C54929506"
+ },
+ "SOT-563": {
+  "delta_ccw": 180,
+  "maxdev_mm": 0.037,
+  "lcsc": "C919459"
+ },
+ "L_1008_2520Metric": {
+  "delta_ccw": 0,
+  "maxdev_mm": 0.125,
+  "lcsc": "C370610"
+ }
+}

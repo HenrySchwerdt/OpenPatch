@@ -29,8 +29,8 @@ def _load(self, lib, nm):
 
 
 Board.load_fp = _load
-bl.TRACK, bl.CLEAR, bl.VIA_D, bl.VIA_H = 0.12, 0.10, 0.40, 0.20
-POWERNETS = ("VBAT", "3V3", "VMOT", "VMOT_PRE", "BST_SW", "MOT_A1", "MOT_A2", "MOT_B1", "MOT_B2", "VBUS_P")
+bl.TRACK, bl.CLEAR, bl.VIA_D, bl.VIA_H = 0.10, 0.10, 0.40, 0.20     # JLC 6-layer: 0.09 / 0.09 mm minimum
+POWERNETS = ("VBAT", "VMOT", "VMOT_PRE", "BST_SW", "MOT_A1", "MOT_A2", "MOT_B1", "MOT_B2", "VBUS_P")      # 3V3 carries about 8 mA: default width
 NAME = "cup"
 PCB = os.path.join(HERE, NAME + ".kicad_pcb")
 
@@ -151,11 +151,36 @@ def main():
             ang = 2 * math.pi * a / 24
             kch.Append(MM(bl.OX + bx + G.SCREW_KEEPOUT_D / 2 * math.cos(ang)), MM(bl.OY + by + G.SCREW_KEEPOUT_D / 2 * math.sin(ang)))
         b.b.Add(kz)
+    # board-edge keep-out band 0.25 mm (no tracks / vias / pour on any copper layer): Freerouting does not know the 0.2 mm copper-to-edge rule of the fab
+    poly = G.OUTLINE
+    area2 = sum(poly[i][0] * poly[(i + 1) % len(poly)][1] - poly[(i + 1) % len(poly)][0] * poly[i][1] for i in range(len(poly)))
+    sg = 1.0 if area2 > 0 else -1.0                 # +1: counter-clockwise in this frame (y down: the interior is to the right of the travel direction when sg < 0)
+    BAND = 0.30
+    for i in range(len(poly)):
+        (x0, y0), (x1, y1) = poly[i], poly[(i + 1) % len(poly)]
+        dx, dy = x1 - x0, y1 - y0
+        L = math.hypot(dx, dy)
+        ux, uy = dx / L, dy / L
+        nx, ny = -uy * sg, ux * sg                   # inward normal (checked below)
+        mx, my = (x0 + x1) / 2 + nx * 0.05, (y0 + y1) / 2 + ny * 0.05
+        from place_cup import pip
+        if not pip(mx, my, poly):
+            nx, ny = -nx, -ny
+        pts = [(x0 - ux * BAND, y0 - uy * BAND), (x1 + ux * BAND, y1 + uy * BAND), (x1 + ux * BAND + nx * BAND, y1 + uy * BAND + ny * BAND), (x0 - ux * BAND + nx * BAND, y0 - uy * BAND + ny * BAND)]
+        ez = pcbnew.ZONE(b.b); ez.SetIsRuleArea(True); ez.SetZoneName("EDGE_KEEPOUT_%d" % i)
+        ez.SetDoNotAllowTracks(True); ez.SetDoNotAllowVias(True); ez.SetDoNotAllowZoneFills(False); ez.SetDoNotAllowPads(False); ez.SetDoNotAllowFootprints(False)
+        ez.SetLayerSet(ls)
+        ech = ez.Outline(); ech.NewOutline()
+        for px, py in pts:
+            ech.Append(MM(bl.OX + px), MM(bl.OY + py))
+        b.b.Add(ez)
     print("gnd fanout vias:", gnd_fanout(b, fps))
     for ref, lab in (("SP1", "+"), ("SP2", "-")):
-        c = fps[ref].GetPosition(); b.text(lab, T(c.x) - bl.OX, T(c.y) - bl.OY - 2.1, 1.0, thick=0.15)
+        c = fps[ref].GetPosition(); b.text(lab, T(c.x) - bl.OX, T(c.y) - bl.OY - 2.1, 1.6, thick=0.25)       # large + / - at the cell pads (review m5)
+    for ref, lab in (("MP1", "A+"), ("MP2", "A-"), ("MP3", "B+"), ("MP4", "B-")):
+        c = fps[ref].GetPosition(); b.text(lab, T(c.x) - bl.OX, T(c.y) - bl.OY - 1.9, 1.2, thick=0.2)
     b.text("TEST ONLY - NOT FOR HUMAN USE", 14.0, 13.5, 0.5, layer=pcbnew.B_SilkS, mirror=True, thick=0.08)
-    b.rules(power_nets=POWERNETS, power_w=0.25, track=0.12)
+    b.rules(power_nets=POWERNETS, power_w=0.16, track=0.10)
     d = b.b.GetDesignSettings()
     d.m_CopperEdgeClearance = MM(0.2); d.m_MinThroughDrill = MM(0.2); d.m_ViasMinSize = MM(0.4); d.m_HoleToHoleMin = MM(0.2); d.m_TrackMinWidth = MM(0.1)
     for f in b.b.GetFootprints():
@@ -180,7 +205,7 @@ def main():
     print("transform mismatches:", bad)
     b.save(PCB)
     json.dump(b.parts, open(os.path.join(HERE, "parts.json"), "w"), indent=1)
-    write_project(os.path.join(HERE, NAME + ".kicad_pro"), POWERNETS, 0.25, track=0.12, edge=0.2, clear=0.10)
+    write_project(os.path.join(HERE, NAME + ".kicad_pro"), POWERNETS, 0.16, track=0.10, edge=0.2, clear=0.10)
     pj = os.path.join(HERE, NAME + ".kicad_pro"); dd = json.load(open(pj)); r = dd["board"]["design_settings"]["rules"]
     r.update(min_through_hole_diameter=0.2, min_via_diameter=0.4, min_track_width=0.1, min_hole_to_hole=0.2, min_hole_clearance=0.2, min_via_annular_width=0.1)
     json.dump(dd, open(pj, "w"), indent=2)

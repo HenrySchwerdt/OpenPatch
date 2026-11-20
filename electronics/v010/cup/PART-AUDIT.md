@@ -130,3 +130,66 @@ Bleeders (Q17/Q17B and two resistors), test pads, OC_TEST/DOCK_TEST hooks, the s
 * **Dock leg: yes**, it carries the dock hall U4A (hangs below the board at (39.36, 11.75), z 4.9 to 5.3) and its 3V3, GND and `DOCK_N` traces; the hall must sit over the dock magnet in the pocket roof area.
 * **side_a: shrink.** It only has to hold the **side button** SW1 at (39.8, 1.0 actuator tip, 3.0 body centre): the widening to x 35.4 to 44.2 was for J1 (8 mm wide). The outline now ends the corridor at y 1.1 with the corridor width (x 36.0 to 42.0, 6 mm): the block shrinks from 8.8 x 5.35 to 6.0 x 5.25 minus the old corridor, about 15 mm2 saved, and the bottom side of the corridor end is free (sounder BZ1 stays in side_b).
 * side_b (x 35.4 to 42, y 17.15 to 22.9) keeps the 2.0 mm sounder on the bottom.
+
+<!-- GENERATED:BEGIN (tools/gen_cup_docs.py) -->
+## Current part list (generated from `netlist_v4_cup.json`: 54 fitted parts, 31 without BOM: pads / DNP)
+
+| Ref | Value | LCSC | Footprint | Group | Nets |
+|---|---|---|---|---|---|
+| U1 | HJ-840 nRF52840 SiP | C50052094 | HJ840 | mcu | 3V3, AENBL, ANT_A, ANT_B, APHASE, ARM_CLK, BENBL, BPHASE, BTN_N, BUZ_A, CHG_STAT, DOCK_N, GND, I2C_SCL, I2C_SDA, LATCH_Q, LED_B, LED_G, LED_R, MCU_EN, MOT_FWD, NRST, OC_OK, SUP_BOOT0, SUP_NRST, SUP_OK, SUP_RXD, SUP_TXD, SWDCLK, SWDIO, USB_DM, USB_DP, VBAT, VBUS_P, VMOT_SENSE |
+| C70 | 4.7uF 16V 0603 | C19666 | C_0603_1608Metric | mcu | 3V3, GND |
+| PI2 | pi match series 0R | C17168 | R_0402_1005Metric | mcu | ANT_A, ANT_B |
+| C5 | 10uF | C19702 | C_0603_1608Metric | pwr | GND, VBAT |
+| JU1 | USB-C 16P sink-board TYPE-C-31-M-14 | C223907 | USB_C_HRO_31_M_14 | usb | CC1, CC2, GND, USB_DM, USB_DP, VBUS_P |
+| RU1 | 5.1k | C25905 | R_0402_1005Metric | usb | CC1, GND |
+| RU2 | 5.1k | C25905 | R_0402_1005Metric | usb | CC2, GND |
+| UU1 | USBLC6-2SC6 | C7519 | SOT-23-6 | usb | GND, USB_DM, USB_DP, VBUS_P |
+| CU1 | 10uF | C19702 | C_0603_1608Metric | usb | GND, VBUS_P |
+| U3 | MCP73832T-2ACI/OT | C38066 | SOT-23-5 | chg | CHG_PROG, CHG_STAT, GND, VBAT, VBUS_P |
+| R3 | 47k | C25792 | R_0402_1005Metric | chg | CHG_PROG, GND |
+| U7 | DRV8835DSSR | C129328 | WSON-12-1EP_3x2mm_P0.5mm_EP1x2.65 | drv | 3V3, AENBL, APHASE, BENBL, BPHASE, GND, MOT_A1, MOT_A2, MOT_B1, MOT_B2, VMOT |
+| C19 | 100nF | C1525 | C_0402_1005Metric | drv | 3V3, GND |
+| C21 | 22uF | C45783 | C_0805_2012Metric | drv | GND, VMOT |
+| LD1 | RGB LED SZYY1615RGB-B (common anode) | C3029071 | LED_RGB_1615_4P | ui | LED_A, LED_B, LED_G, LED_R |
+| R74 | 1k | C11702 | R_0402_1005Metric | ui | LED_A, VBAT |
+| SW1 | SKSCLAE010 side tact | C130445 | SW_SKSCLAE010 | ui | BTN_N, GND |
+| BZ1 | FUET-4020 SMD magnetic sounder | C391027 | BZ_4020 | ui | PZ_C, VBAT |
+| D6 | 1N4148W (sounder flyback) | C81598 | D_SOD-123 | ui | PZ_C, VBAT |
+| RDA | 100k | C25741 | R_0402_1005Metric | ui | BUZ_A, GND |
+| RBZ | 22R 0603 | C23345 | R_0603_1608Metric | ui | PZ_A, PZ_C |
+| RI1 | 4.7k | C25900 | R_0402_1005Metric | mcu | 3V3, I2C_SDA |
+| RI2 | 4.7k | C25900 | R_0402_1005Metric | mcu | 3V3, I2C_SCL |
+| U4A | DRV5032FADMRR | C2152496 | DRV5032_X2SON-4_DMR0004B | dock | 3V3, DOCK_N, GND |
+| U30 | STM32C011F4U6 | C5456188 | UFQFPN-20_3x3_P0.5 | sup | 3V3, APHASE, ARM_CLK, BPHASE, DOCK_N, GND, MCU_EN, MOT_FWD, NRST, OC_OK, SUP_BOOT0, SUP_DONE, SUP_NRST, SUP_OK, SUP_PERMIT, SUP_RXD, SUP_TXD, SUP_WAKE |
+| C50 | 100nF | C1525 | C_0402_1005Metric | sup | 3V3, GND |
+| U5 | TPL5010DDCR | C473912 | SOT-23-6 | wdt | 3V3, GND, SUP_DONE, SUP_NRST, SUP_WAKE, WDT_DELAY |
+| R26 | 6.8k | C25917 | R_0402_1005Metric | wdt | GND, WDT_DELAY |
+| U6 | SN74AUP1G74DCUR | C140267 | VSSOP-8_2.3x2mm_P0.5mm | wdt | 3V3, ARM_CLK, GND, LATCH_CLR_N, LATCH_Q |
+| U32 | TP74AUP1G08S5 (AND) | C48886815 | SOT-23-5 | wdt | 3V3, GND, LATCH_CLR_N, OC_OK, SUP_NRST |
+| R29 | 100k | C25741 | R_0402_1005Metric | wdt | ARM_CLK, GND |
+| R82 | 100k | C25741 | R_0402_1005Metric | sw | GND, SUP_PERMIT |
+| R16 | 100k | C25741 | R_0402_1005Metric | sw | 3V3, MOT_FWD |
+| QBA | 2N7002 | C8545 | SOT-23 | ui | BUZ_A, GND, PZ_A |
+| U33 | 74AUP1G86GW-TP (XOR) | C48995440 | SOT-353_SC-70-5 | sw | 3V3, DOCK_N, DOCK_XOR, GND, MOT_FWD |
+| U36 | EM74AUP1G11GM (AND3) | C54929506 | UFDFN-6_1.45x1.0_P0.5 | sw | 3V3, GND, LATCH_Q, MCU_EN, PERM_L, SUP_PERMIT |
+| R18 | 100k | C25741 | R_0402_1005Metric | sw | GND, MCU_EN |
+| U34 | TP74AUP1G08S5 (AND) | C48886815 | SOT-23-5 | sw | 3V3, DOCK_XOR, GND, MOT_ALLOW, PERM_L |
+| R90 | 100k | C25741 | R_0402_1005Metric | sw | GND, MOT_ALLOW |
+| RDK | 100k | C25741 | R_0402_1005Metric | sw | 3V3, DOCK_N |
+| RNR | 100k | C25741 | R_0402_1005Metric | wdt | 3V3, SUP_NRST |
+| C61 | 100nF | C1525 | C_0402_1005Metric | drv | GND, VMOT |
+| C71 | 10uF 10V 0603 | C19702 | C_0603_1608Metric | boost | GND, VBAT |
+| U20 | TPS2553DBVR | C55266 | SOT-23-6 | sw | GND, ILIM, MOT_ALLOW, OC_OK, VMOT, VMOT_PRE |
+| R91 | 47k | C25792 | R_0402_1005Metric | sw | GND, ILIM |
+| R92 | 100k | C25741 | R_0402_1005Metric | sw | 3V3, OC_OK |
+| C60 | 100nF | C1525 | C_0402_1005Metric | sw | GND, VMOT_PRE |
+| R57 | 10k | C25744 | R_0402_1005Metric | oc | VMOT, VMOT_SENSE |
+| R58 | 10k | C25744 | R_0402_1005Metric | oc | GND, VMOT_SENSE |
+| U8 | TPS61023DRLR | C919459 | SOT-563 | boost | BST_FB, BST_SW, GND, SUP_PERMIT, VBAT, VMOT_PRE |
+| L1 | 1uH 2520 (WPN252012E1R0MT) | C370610 | L_1008_2520Metric | boost | BST_SW, VBAT |
+| R55 | 220k | C25767 | R_0402_1005Metric | boost | BST_FB, VMOT_PRE |
+| R56 | 30k | C25776 | R_0402_1005Metric | boost | BST_FB, GND |
+| CB1 | 22uF 6.3V X5R 0805 | C45783 | C_0805_2012Metric | boost | GND, VMOT_PRE |
+
+Not fitted by the assembler (bare pads, wire pads, DNP match parts): PI1 (DNP), PI3 (DNP), SP1, SP2, MP1, MP2, MP3, MP4, TL1, TL2, TL3, TL4, TP1, TP2, TP3, TP4, TP5, TP6, TP7, TP8, TP9, TP10, TP11, TP12, TP13, TP14, J10, J11, J12, J13, J14.
+<!-- GENERATED:END -->

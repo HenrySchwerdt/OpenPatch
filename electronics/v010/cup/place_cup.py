@@ -158,7 +158,7 @@ def main():
     fix("SW1", 33.0, 31.65, 0)                      # side button at the north edge, actuator toward +Y; x 30.0 -> 33.0 (SKSCLAE010 is 4.85 wide: at x 30 it hits the USB notch and the shield slot): mechanics request
     for ref, hx, hy in G.HUB_PADS:                 # west-end wiring hub: motor A+ A- B+ B-, cell + -, top side
         fix(ref, hx, hy, 0)
-    fix("BZ1", 37.6, 20.5, 0, "B")                 # sounder: side_b block, bottom side, farthest corner from the dock hall (8.9 mm)
+    fix("BZ1", 41.0, 20.4, 0, "B")                 # sounder: side_b block, bottom side, farthest corner from the dock hall (8.9 mm)
     fix("U4A", 39.36, 11.75, 0, "B")
     for k, ref in enumerate(("J10", "J11", "J12", "J13", "J14")):
         fix(ref, 39.4, 12.4 + 1.2 * k, 0)          # SWD pads in one column on the hall finger (top side, 1.2 pitch)
@@ -166,7 +166,7 @@ def main():
     # side rules
     top_only = {p["ref"] for p in parts if p["group"] in ("swd", "tp", "tpx") or p["ref"] in ("PZ1", "PZ2", "LD1", "SP1", "SP2", "MP1", "MP2", "MP3", "MP4")}
     bot_only = {"BZ1"}
-    anchors = {"PZ1": (21.0, 30.0), "PZ2": (21.0, 27.0), "SP1": (37.0, 24.6), "SP2": (37.0, 27.6), "BZ1": (37.6, 20.5)}
+    anchors = {"PZ1": (21.0, 30.0), "PZ2": (21.0, 27.0), "SP1": (37.0, 24.6), "SP2": (37.0, 27.6), "BZ1": (41.0, 20.4)}
     for p in parts:
         if p["group"] in ("swd", "tp"):
             anchors[p["ref"]] = (39.0, 13.0)
