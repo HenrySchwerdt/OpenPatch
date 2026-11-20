@@ -246,3 +246,16 @@ Firmware behaviour to implement:
 * VMOT path: cell -> Q4 -> Q15 -> `VMOT_RAW` -> TPS61023 (4.96 V) -> `VMOT_PRE` -> 0.22 ohm shunt -> `VMOT`. `VMOT_SENSE` (100 k/100 k) reads half of the boosted rail (about 2.5 V).
 * **No motor start below about 3.4 V open circuit** (`VBAT_SENSE` x 2, measured with no load for 50 ms, no charger): constant `MOTOR_MIN_VBAT_MV = 3400`; refuse, raise `BATTERY_LOW`, light the red LED (blink pattern above). Re-measure after the first 20 steps: if `VBAT_SENSE` falls below 3.0 V under load stop and retry only after rest. The cell supplies about 0.5 to 0.6 A during a step burst (INTERLOCK.md I.2): keep bursts short, use the driver STBY/hold feature between steps, never hold full current.
 * Driver current limit about 0.175 A per phase (R38 5.6 k): `I_SENSE` at 4.4 mV/mA is the cell-side-free output current (0.175 A -> 0.77 V per phase peak, a stall does not trip the 0.39 A comparator).
+
+## v4 programming and USB pins (2026-11-20, no debug connector)
+
+| ISP1807 pad | Net | Function |
+|---|---|---|
+| 8 / 10 | `USB_DP` / `USB_DM` | native USB to the USB-C receptacle (through USBLC6-2SC6), 90 ohm differential pair, signed USB DFU bootloader for all later updates |
+| 12 | `VBUS_P` | USB VBUS sense (the module needs it to enable USB; also the charger input, no divider any more) |
+| 47 | `SUP_BOOT0` | out: supervisor BOOT0 strap (STM32C011 pin 19, 100 k pull-down): high + `SUP_NRST` pulse = ST system bootloader |
+| 49 | `SUP_NRST` | io, open drain: pulls the supervisor `NRST` low (also clears the interlock latch via U32); also driven by the TPL5010 |
+| 27 / 29 | `SUP_TXD` / `SUP_RXD` | UART to the supervisor (115200 8N1): bootloader protocol (AN2606, RDP 0) while updating, challenge/response otherwise |
+| 28 / 30 / 13 | `SWDIO` / `SWDCLK` / `NRST` | bare pads with `GND` and `3V3`: one-time bootloader flash only |
+
+Supervisor update procedure (firmware owner): verify the signed supervisor image; require `VMOT_SENSE` < 0.3 V, undocked, no delivery; `SUP_BOOT0` high, pulse `SUP_NRST` low 10 ms, wait 100 ms, speak the ST UART bootloader, write, verify, `SUP_BOOT0` low, pulse `SUP_NRST`; the supervisor image re-sets RDP level 1 on first boot (open item). Pads 46 (`VBUS_SENSE`), 50 (`DOCK_TEST`), 52 (`BUZ_B`) are free after the reduction.

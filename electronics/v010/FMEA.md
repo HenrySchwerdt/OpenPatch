@@ -149,3 +149,12 @@ Reference designators of `netlist_v4_cup.json`. Replaces the rows of the v1 to v
 | FM4-TL-1 | TL1-4, REAR strip, U10T | strip open | TMAG no ACK: firmware refuses delivery | yes | I2C ACK | S08 | 2-20-001, 3-30-003 | STRIP |
 
 Removed rows (parts gone): Q13/Q14/U12 over-current latch and `OC_TEST`, XOR network (Q10, Q20, Q21, Q22, Q11, R13/R14), 2oo2 (U4B, Q7B), boost (U8), battery-sense switch and NTC (Q1, Q2, RT1), PGATE_MON, board-to-board pads, SENSOR FFC. New proof-test: **A02a** (docked + reverse must not move VMOT) is now the only barrier against H15 besides the supervisor.
+
+## v4 reduction addendum (2026-11-20)
+* **FM4-QE-1 (`MCU_EN` leg) is void**: the leg is gone; the supervisor reads `MCU_EN` (FM2-U30-1 applies).
+* New: **FM4-R9-1** R9 open: gate pull-up lost, `PGATE` floats if a leg opens: not safe alone (the gate may drift low through leakage); detection `VMOT_SENSE` while commanded off, `PGATE` test pad. **FM4-Q12-void**: DOCK_TEST removed (A02b replaced by a dock/undock cycle).
+* **FM4-U4A-2** hall: DRV5032FA is push-pull: stuck-high output = not docked (fail-safe), stuck-low = docked (same as before).
+* The USB reverse-protection FET is gone: a reversed or over-voltage VBUS is limited by the TVS only (water-bench risk only).
+
+* **FM4-BOOT-1** (`SUP_BOOT0` stuck high or R79 open + noise): the supervisor starts in the ST bootloader after any reset and never runs its safety image: no `SUP_PERMIT`, Q15 stays open (outputs default low by R81/R82), the latch is not armed by the supervisor path; fail-safe (no delivery). Detection: `SUP_OK` low, UART silent.
+* **FM4-BOOT-2** the nRF flashes a bad supervisor image: supervisor independence lost (accepted deviation, see INTERLOCK I.4); signed images and supply-cut rule only.
