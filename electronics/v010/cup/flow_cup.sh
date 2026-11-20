@@ -1,14 +1,14 @@
 #!/bin/bash
 # usage: flow_cup.sh [passes]  prep + Freerouting + import + finish + DRC summary (run after build_cup.py)
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"; cd $HERE
-PY=../board/kpy; export FREEROUTING_JAR=${FREEROUTING_JAR:-/Users/henryschwerdtner/dev/ai-insulin-pump/electronics/tools/freerouting-2.2.4.jar}
+PY=../board/kpy; export FREEROUTING_JAR=${FREEROUTING_JAR:-$HERE/../../tools/freerouting-2.2.4.jar}   # the 57 MB jar is not committed: set FREEROUTING_JAR
 R=../board/route_v3.py
 $PY $R cup.kicad_pcb prep 2>&1 | grep -v "^\./src"
 OP_PASSES=${1:-40} $PY $R cup.kicad_pcb route 2>&1 | grep -v "^\./src"
 grep -i "completed\|unrouted\|incomplete" cup.ses.log | tail -3 | cut -c1-200
 $PY $R cup.kicad_pcb import 2>&1 | grep -v "^\./src" | tail -1
 $PY $R cup.kicad_pcb finish 2>&1 | grep -v "^\./src" | tail -2
-K=/Applications/KiCad/KiCad.app/Contents/MacOS/kicad-cli
+K=$(command -v kicad-cli || echo /Applications/KiCad/KiCad.app/Contents/MacOS/kicad-cli)
 $K pcb drc --format json --severity-all --units mm --all-track-errors -o drc.json cup.kicad_pcb >/dev/null 2>&1
 python3 - <<'P'
 import json,collections

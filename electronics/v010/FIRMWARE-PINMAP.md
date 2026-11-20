@@ -2,6 +2,78 @@
 
 # v0.1.0 integrated pod: E73 pad <-> nRF52840 pin <-> net <-> function (PROPOSAL for `firmware-rs`)
 
+<!-- GENERATED:BEGIN (tools/gen_cup_docs.py) -->
+## Current pin map (generated from `netlist_v4_cup.json`, HJ-840 high-voltage mode: H2 `VDDH` = `VBAT`, H3/H4 `VDD` = `3V3` = nRF52840 REG0 output, no LDO; older ISP1807 / STSPIN tables below are history)
+
+UICR `REGOUT0` = 3.3 V once (flash in normal-voltage mode with 3.3 V on VDDH and VDD); **keep the radio at +4 dBm or less: REG0 external load limit 25 mA at TX <= +4 dBm** (nRF52840 PS v1.7 p. 84, second-hand), the rail load is about 8 mA worst case. The nRF drives `SUP_NRST` open drain only. SAADC `VDDHDIV5` reads the cell (VDDH = VBAT).
+
+| HJ-840 pad | nRF pin | Net | Direction / note |
+|---|---|---|---|
+| A1 | GND | `GND` |  |
+| A7 | ANT | `ANT_A` |  |
+| A8 | BOARD_ANT | `ANT_B` |  |
+| C2 | SWDIO | `SWDIO` |  |
+| C3 | SWCLK | `SWDCLK` |  |
+| D1 | P0.19 | `BTN_N` | in (internal pull-up) |
+| D7 | P1.13 | `MCU_EN` | out (R18 pull-down; hardware AND input U36) |
+| D8 | P0.31 | `DOCK_N` | in (hall, 100 k pull-up RDK) |
+| E1 | P0.18/RESET | `NRST` | reset |
+| E2 | P0.15 | `MOT_FWD` | out (forward intent, R16 pull-up = forward) |
+| E3 | P0.16 | `ARM_CLK` | out (latch set clock) |
+| E4 | P1.08 | `SUP_OK` | in |
+| E5 | P1.15 | `I2C_SCL` | TWIM (4.7 k pull-up RI2) |
+| E6 | P0.02 | `LATCH_Q` | in (readback) |
+| E7 | P0.28 | `LED_B` | out, active low |
+| E8 | P0.03 | `SUP_RXD` | uart |
+| F1 | D+ | `USB_DP` |  |
+| F2 | VBUS | `VBUS_P` |  |
+| F3 | P0.11 | `CHG_STAT` | in (open drain, internal pull-up) |
+| F4 | P0.07 | `APHASE` | out |
+| F5 | P0.27 | `I2C_SDA` | TWIM (4.7 k pull-up RI1) |
+| F6 | P0.00 | `LED_R` | out, active low |
+| F7 | P0.30 | `BPHASE` | out |
+| F8 | P0.29 | `SUP_BOOT0` | out (BOOT0 of the supervisor, internal pull-down on the STM32) |
+| G1 | D- | `USB_DM` |  |
+| G3 | P0.12 | `BUZ_A` | out (4 kHz PWM to the sounder gate, RDA pull-down) |
+| G4 | P1.09 | `BENBL` | out |
+| G5 | P0.05 | `AENBL` | out |
+| G6 | P0.01 | `SUP_NRST` | **open-drain output only** (never drive high: the net is shared with TPL5010 RSTn, supervisor NRST and U32) |
+| G7 | P0.26 | `LED_G` | out, active low |
+| G8 | P0.06 | `SUP_TXD` | uart (bootloader / supervisor link) |
+| H2 | VDDH | `VBAT` |  |
+| H3 | VDD | `3V3` |  |
+| H4 | VDD | `3V3` |  |
+| H5 | P0.08 | `OC_OK` | in (open drain, 100 k pull-up RNR-class R92) |
+| H7 | P0.04 | `VMOT_SENSE` | ain (VMOT/2) |
+| H8 | GND | `GND` |  |
+
+Supervisor STM32C011F4U6 (U30, UFQFPN20, DS13866 table 12):
+
+| Pin | Function | Net |
+|---|---|---|
+| 1 | PC15 | `SUP_WAKE` |
+| 2 | VDD | `3V3` |
+| 3 | VSS | `GND` |
+| 4 | PF2-NRST | `SUP_NRST` |
+| 5 | PA0 | `ARM_CLK` |
+| 6 | PA1 | `APHASE` |
+| 7 | PA2 | `MOT_FWD` |
+| 8 | PA3 | `OC_OK` |
+| 9 | PA4 | - |
+| 10 | PA5 | `SUP_PERMIT` |
+| 11 | PA6 | `SUP_OK` |
+| 12 | PA7 | `NRST` |
+| 13 | PA8 | - |
+| 14 | PA11 [PA9] (bootloader USART1 TX) | `SUP_TXD` |
+| 15 | PA12 [PA10] (bootloader USART1 RX) | `SUP_RXD` |
+| 16 | PA13 (SWDIO) | `BPHASE` |
+| 17 | PA14-BOOT0 (SWCLK, internal pull-down at reset) | `SUP_BOOT0` |
+| 18 | PB6 | `DOCK_N` |
+| 19 | PB7 | `MCU_EN` |
+| 20 | PC14 | `SUP_DONE` |
+<!-- GENERATED:END -->
+
+
 This is a **proposal file** (the firmware owner syncs `firmware-rs/openpatch-bench/src/board/` to it; nothing in `firmware-rs/` was edited). It is derived from `netlist.json`
 (single source: `design/netlist.py`) and re-uses the final bench controller map (`../bench/pin-assignment.md`) wherever the function is the same. **All 29 GPIO pads of the E73 are in use, no spare.**
 Module: Ebyte E73-2G4M08S1C (nRF52840, ceramic antenna, LCSC C356849; CX variant C2764963 has the same pads), mounted on the **bottom** side. Supply 3V3 from the XC6206 LDO on pad 19.

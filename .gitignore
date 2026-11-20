@@ -29,3 +29,6 @@ electronics/v010/cup/sim/results/*.cir
 electronics/v010/cup/sim/results/*.log
 electronics/v010/cup/sim/results/*.out
 electronics/v010/cup/sim/__pycache__/
+# scratch from the placement flow
+electronics/v010/cup/_pc_*.py
+electronics/v010/cup/sa_*.log

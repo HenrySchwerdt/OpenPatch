@@ -197,3 +197,17 @@ STSPIN220-specific rows (EN/FAULT, VREF, STBY, TOFF, current limit) are void.
 | FM7-VSENSE-1 | VBAT sense by VDDHDIV5 | firmware does not read it | no undervoltage lockout (firmware item, no hardware) | yes (hardware unaffected), protection reduced | A-A0-002 |
 | FM7-BOOT-1 | supervisor BOOT0 (R79 removed) | pin floats high | supervisor boots into the ST bootloader: no `SUP_PERMIT`, no motion | yes (fail-safe) | 1-04-002 |
 Rows of Q7/R21, U31/U35 (brake gates), DZ1, DU1, D5, R81/R43/R93 are void.
+
+
+## FMEA v4 delta 2026-11-20 (pin check, netlist review, SPICE; netlist 54 fitted parts)
+
+| ID | Part | Failure | Effect | Detected | Note |
+|---|---|---|---|---|---|
+| FM8-U33-1 | U33 74AUP1G86 XOR | output stuck high / low | stuck high: docked+reverse and undocked+forward would pass the dock term (latch, permit and MCU_EN still gate); stuck low: no motion at all | POST readback of `VMOT_SENSE` in the four dock/direction states | review C2, truth table INTERLOCK I.8 |
+| FM8-U36-1 | U36 AND3 | MCU_EN input open / shorted | R18 pulls `MCU_EN` low: motor off (safe); shorted high: MCU enable no longer gates, latch + permit + dock XOR still do | `MCU_EN` readback by the supervisor | review M1 |
+| FM8-RDK-1 | hall joint / RDK | hall output open | RDK reads undocked: forward blocked (safe), reverse allowed | dock POST | SPICE F1 |
+| FM8-R26-1 | R26 | wrong value / open | TPL5010 interval wrong (6.8 k = 2 s, 10 k = 7.6 s) | WAKE timing check | review C1 |
+| FM8-RNR-1 | RNR / TPL5010 RSTn | pull-up missing | RSTn open drain cannot rise: latch stays cleared (safe, no motion) | `SUP_OK` | SPICE F5 |
+| FM8-C70-1 | C70 | open | REG0 output unstable: resets, latch clears (safe) | brown-out | review C3 |
+| FM8-BZ-1 | RBZ / BZ1 | RBZ shorted | sounder current 0.25 A at 4.2 V (cell load only) | none | review m4 |
+| FM8-SW1-1 | SW1 | stuck pressed | spurious stop/silence request, no motion path | BTN_N readback | SKSCLAE010 |

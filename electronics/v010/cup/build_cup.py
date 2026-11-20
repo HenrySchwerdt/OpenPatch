@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Build cup/cup.kicad_pcb from netlist_v4_cup.json + placement.json (KiCad python).  usage: kpy build_cup.py [placement.json]
 
-6 layers, 0.8 mm, outline = L/U shape (cupgeom.OUTLINE), ISP1807 via-in-pad fan-out, antenna keep-out, parts.json for the fab export."""
+6 layers, 0.8 mm, outline = L/U shape (cupgeom.OUTLINE), HJ-840 via-in-pad fan-out, antenna keep-out, parts.json for the fab export."""
 import json
 import os
 import sys
@@ -29,32 +29,40 @@ def _load(self, lib, nm):
 
 
 Board.load_fp = _load
-bl.TRACK, bl.CLEAR, bl.VIA_D, bl.VIA_H = 0.12, 0.10, 0.40, 0.20
-POWERNETS = ("VBAT", "3V3", "VMOT", "VMOT_PRE", "BST_SW", "MOT_A1", "MOT_A2", "MOT_B1", "MOT_B2", "VBUS_P")
+bl.TRACK, bl.CLEAR, bl.VIA_D, bl.VIA_H = 0.10, 0.10, 0.40, 0.20     # JLC 6-layer: 0.09 / 0.09 mm minimum
+POWERNETS = ("VBAT", "VMOT", "VMOT_PRE", "BST_SW", "MOT_A1", "MOT_A2", "MOT_B1", "MOT_B2", "VBUS_P")      # 3V3 carries about 8 mA: default width
 NAME = "cup"
 PCB = os.path.join(HERE, NAME + ".kicad_pcb")
 
 
-def isp_fanout(b, fps):
-    u1 = fps["U1"]; n = 0
-    outer = {1, 7, 25, 31, 2, 4, 6, 26, 28, 30} | set(range(32, 49, 2))
-    for pd in u1.Pads():
-        num = int(pd.GetNumber())
-        net = pd.GetNet()
-        if not net or net.GetNetname() in ("", "RF_BRIDGE") or num in outer or num > 64:
+U1_VIA_D, U1_VIA_H = 0.35, 0.15       # filled + capped via in pad (JLC POFV, free on 6-layer boards); 0.35 copper keeps 0.2 mm hole-to-track with 0.1 copper clearance
+
+
+def u1_fanout(b, fps):
+    """HJ-840: a filled via in every used pad (inner layers do the escape), except the antenna-strip pads A1 / A7 / A8:
+    A7 (ANT) and A8 (BOARD_ANT) are bridged on F.Cu (the former 0 ohm + 2 x DNP pi network), A1 (GND) gets a short F.Cu stub to a via just west of the keep-out."""
+    u1 = fps["U1"]
+    pads = {pd.GetNumber(): pd for pd in u1.Pads()}
+    n = 0
+
+    def via(pos, net, d=U1_VIA_D, h=U1_VIA_H):
+        v = pcbnew.PCB_VIA(b.b); v.SetPosition(pos); v.SetNet(net); v.SetViaType(pcbnew.VIATYPE_THROUGH)
+        v.SetWidth(MM(d)); v.SetDrill(MM(h)); b.b.Add(v)
+
+    def trk(a, c, net, w):
+        t = pcbnew.PCB_TRACK(b.b); t.SetStart(a); t.SetEnd(c); t.SetLayer(pcbnew.F_Cu); t.SetWidth(MM(w)); t.SetNet(net); b.b.Add(t)
+
+    for num, pd in pads.items():
+        if not pd.GetNetname() or num in ("A1", "A7", "A8"):
             continue
-        v = pcbnew.PCB_VIA(b.b)
-        v.SetPosition(pd.GetPosition()); v.SetNet(net); v.SetViaType(pcbnew.VIATYPE_THROUGH)
-        v.SetWidth(MM(0.40)); v.SetDrill(MM(0.20))
-        b.b.Add(v); n += 1
+        via(pd.GetPosition(), pd.GetNet()); n += 1
+    trk(pads["A7"].GetPosition(), pads["A8"].GetPosition(), pads["A7"].GetNet(), 0.25)
+    a1 = pads["A1"].GetPosition()
+    corner = pcbnew.VECTOR2I(a1.x, a1.y - MM(0.55))          # board frame: -y = north, out of the pad row toward the module edge
+    gv = pcbnew.VECTOR2I(a1.x - MM(1.15), a1.y - MM(0.55))   # west, 0.15 mm outside the antenna keep-out (bx < 34.2)
+    trk(a1, corner, pads["A1"].GetNet(), 0.2); trk(corner, gv, pads["A1"].GetNet(), 0.2)
+    via(gv, pads["A1"].GetNet(), 0.4, 0.2)
     return n
-
-
-def rf_bridge(b, fps):
-    p = {pd.GetNumber(): pd for pd in fps["U1"].Pads()}
-    t = pcbnew.PCB_TRACK(b.b)
-    t.SetStart(p["20"].GetPosition()); t.SetEnd(p["22"].GetPosition()); t.SetLayer(pcbnew.F_Cu); t.SetWidth(MM(0.30)); t.SetNet(b.net("RF_BRIDGE"))
-    b.b.Add(t)
 
 
 def gnd_fanout(b, fps, net="GND", rv=0.2, trk=0.12, clr=0.12):
@@ -95,6 +103,12 @@ def gnd_fanout(b, fps, net="GND", rv=0.2, trk=0.12, clr=0.12):
                     continue
                 if G.ANT[0] - 0.3 < bx < G.ANT[2] + 0.3 and G.ANT[1] < by < G.ANT[3]:
                     continue
+                if any(math.hypot(bx - G.b(*sc)[0], by - G.b(*sc)[1]) < G.SCREW_KEEPOUT_D / 2 + rv + 0.05 for sc in G.SCREWS):
+                    continue
+                if any(math.hypot(bx - pt[0], by - pt[1]) < G.SCREW_KEEPOUT_D / 2 + 0.2 for sc in G.SCREWS for pt in [G.b(*sc)]) or \
+                        any(math.hypot(px - bl.OX - G.b(*sc)[0], py - bl.OY - G.b(*sc)[1]) < G.SCREW_KEEPOUT_D / 2 + 0.6 and
+                            math.hypot(bx - G.b(*sc)[0], by - G.b(*sc)[1]) < math.hypot(px - bl.OX - G.b(*sc)[0], py - bl.OY - G.b(*sc)[1]) for sc in G.SCREWS):
+                    continue
                 v = pcbnew.PCB_VIA(b.b); v.SetPosition(pcbnew.VECTOR2I(MM(x), MM(y))); v.SetNet(pd.GetNet()); v.SetViaType(pcbnew.VIATYPE_THROUGH)
                 v.SetWidth(MM(2 * rv)); v.SetDrill(MM(0.2)); b.b.Add(v)
                 t = pcbnew.PCB_TRACK(b.b); t.SetStart(pd.GetPosition()); t.SetEnd(pcbnew.VECTOR2I(MM(x), MM(y)))
@@ -122,25 +136,97 @@ def main():
 
         b.parts[ref]["dnp"] = p["dnp"]; b.parts[ref]["group"] = p["group"]; b.parts[ref]["board"] = "CUP"
     fps = {f.GetReference(): f for f in b.b.GetFootprints()}
-    # antenna keep-out (all copper layers)
+    # antenna keep-out (layout review 2026-11-20): no copper on In1..B.Cu over the whole antenna strip; on F.Cu no tracks / vias except the two
+    # corridors that the module itself needs (A1 GND stub at by 2.2..3.4, A7-A8 bridge at by 6.6..7.9); no pour on any layer
     a = G.ANT
-    z = pcbnew.ZONE(b.b); z.SetIsRuleArea(True); z.SetZoneName("ANT_KEEPOUT")
-    z.SetDoNotAllowTracks(True); z.SetDoNotAllowVias(True); z.SetDoNotAllowZoneFills(True); z.SetDoNotAllowPads(False); z.SetDoNotAllowFootprints(False)
     ls = pcbnew.LSET()
     for l in (pcbnew.F_Cu, pcbnew.In1_Cu, pcbnew.In2_Cu, pcbnew.In3_Cu, pcbnew.In4_Cu, pcbnew.B_Cu):
         ls.AddLayer(l)
-    z.SetLayerSet(ls)
-    ch = z.Outline(); ch.NewOutline()
-    for x, y in ((a[0], a[1]), (a[2], a[1]), (a[2], a[3]), (a[0], a[3])):
-        ch.Append(MM(bl.OX + x), MM(bl.OY + y))
-    b.b.Add(z)
-    print("gnd fanout vias:", gnd_fanout(b, fps))
+
+    def rule_area(name, layers, rect, tracks=True, vias=True, fills=True):
+        z = pcbnew.ZONE(b.b); z.SetIsRuleArea(True); z.SetZoneName(name)
+        z.SetDoNotAllowTracks(tracks); z.SetDoNotAllowVias(vias); z.SetDoNotAllowZoneFills(fills); z.SetDoNotAllowPads(False); z.SetDoNotAllowFootprints(False)
+        z.SetLayerSet(layers)
+        ch = z.Outline(); ch.NewOutline()
+        for x, y in ((rect[0], rect[1]), (rect[2], rect[1]), (rect[2], rect[3]), (rect[0], rect[3])):
+            ch.Append(MM(bl.OX + x), MM(bl.OY + y))
+        b.b.Add(z)
+
+    inner = pcbnew.LSET()
+    for l in (pcbnew.In1_Cu, pcbnew.In2_Cu, pcbnew.In3_Cu, pcbnew.In4_Cu, pcbnew.B_Cu):
+        inner.AddLayer(l)
+    fcu = pcbnew.LSET(); fcu.AddLayer(pcbnew.F_Cu)
+    rule_area("ANT_KEEPOUT", inner, a)
+    rule_area("ANT_NOPOUR_F", fcu, a, tracks=False, vias=False)
+    for k, (y0, y1) in enumerate(((a[1], 2.2), (3.4, 6.6), (7.9, a[3]))):
+        rule_area("ANT_KEEPOUT_F%d" % k, fcu, (a[0], y0, a[2], y1))
+    # board screws (mechanics elec_interface): d1.4 NPTH + d2.8 keep-out (no tracks, vias or pour) on all copper layers
+    import math
+    for k, (hx, hy) in enumerate(G.SCREWS):
+        bx, by = G.b(hx, hy)
+        c = pcbnew.VECTOR2I(MM(bl.OX + bx), MM(bl.OY + by))
+        hf = pcbnew.FOOTPRINT(b.b); hf.SetReference("H%d" % (k + 1)); hf.SetValue("screw hole d1.4"); hf.SetPosition(c)
+        pd = pcbnew.PAD(hf); pd.SetAttribute(pcbnew.PAD_ATTRIB_NPTH); pd.SetShape(pcbnew.PAD_SHAPE_CIRCLE)
+        pd.SetSize(pcbnew.VECTOR2I(MM(G.SCREW_HOLE_D), MM(G.SCREW_HOLE_D))); pd.SetDrillSize(pcbnew.VECTOR2I(MM(G.SCREW_HOLE_D), MM(G.SCREW_HOLE_D)))
+        pd.SetPosition(c); pd.SetLayerSet(pcbnew.PAD.UnplatedHoleMask()); hf.Add(pd); hf.Reference().SetVisible(False); b.b.Add(hf)
+        kz = pcbnew.ZONE(b.b); kz.SetIsRuleArea(True); kz.SetZoneName("SCREW_KEEPOUT_%d" % (k + 1))
+        kz.SetDoNotAllowTracks(True); kz.SetDoNotAllowVias(True); kz.SetDoNotAllowZoneFills(True); kz.SetDoNotAllowPads(False); kz.SetDoNotAllowFootprints(False)
+        kz.SetLayerSet(ls)
+        kch = kz.Outline(); kch.NewOutline()
+        for a in range(24):
+            ang = 2 * math.pi * a / 24
+            kch.Append(MM(bl.OX + bx + G.SCREW_KEEPOUT_D / 2 * math.cos(ang)), MM(bl.OY + by + G.SCREW_KEEPOUT_D / 2 * math.sin(ang)))
+        b.b.Add(kz)
+    # board-edge keep-out band 0.25 mm (no tracks / vias / pour on any copper layer): Freerouting does not know the 0.2 mm copper-to-edge rule of the fab
+    poly = G.OUTLINE
+    area2 = sum(poly[i][0] * poly[(i + 1) % len(poly)][1] - poly[(i + 1) % len(poly)][0] * poly[i][1] for i in range(len(poly)))
+    sg = 1.0 if area2 > 0 else -1.0                 # +1: counter-clockwise in this frame (y down: the interior is to the right of the travel direction when sg < 0)
+    BAND = 0.30
+    for i in range(len(poly)):
+        (x0, y0), (x1, y1) = poly[i], poly[(i + 1) % len(poly)]
+        dx, dy = x1 - x0, y1 - y0
+        L = math.hypot(dx, dy)
+        ux, uy = dx / L, dy / L
+        nx, ny = -uy * sg, ux * sg                   # inward normal (checked below)
+        mx, my = (x0 + x1) / 2 + nx * 0.05, (y0 + y1) / 2 + ny * 0.05
+        from place_cup import pip
+        if not pip(mx, my, poly):
+            nx, ny = -nx, -ny
+        pts = [(x0 - ux * BAND, y0 - uy * BAND), (x1 + ux * BAND, y1 + uy * BAND), (x1 + ux * BAND + nx * BAND, y1 + uy * BAND + ny * BAND), (x0 - ux * BAND + nx * BAND, y0 - uy * BAND + ny * BAND)]
+        ez = pcbnew.ZONE(b.b); ez.SetIsRuleArea(True); ez.SetZoneName("EDGE_KEEPOUT_%d" % i)
+        ez.SetDoNotAllowTracks(True); ez.SetDoNotAllowVias(True); ez.SetDoNotAllowZoneFills(False); ez.SetDoNotAllowPads(False); ez.SetDoNotAllowFootprints(False)
+        ez.SetLayerSet(ls)
+        ech = ez.Outline(); ech.NewOutline()
+        for px, py in pts:
+            ech.Append(MM(bl.OX + px), MM(bl.OY + py))
+        b.b.Add(ez)
+    print("U1 vias in pad:", u1_fanout(b, fps))
+    # filled vias in the wire pads (motor + cell leads sit straight above the driver on the underside) and in the four USB data pads
+    # (D+ / D- alternate in the receptacle pad row, A6-B6 and A7-B7 are joined on an inner layer)
+    nvp = 0
+    for ref, pads_, d, h in (("MP1", ("1",), 0.45, 0.2), ("MP2", ("1",), 0.45, 0.2), ("MP3", ("1",), 0.45, 0.2), ("MP4", ("1",), 0.45, 0.2),
+                             ("SP1", ("1",), 0.45, 0.2), ("SP2", ("1",), 0.45, 0.2), ("JU1", ("A7", "B7"), U1_VIA_D, U1_VIA_H)):
+        for pd in fps[ref].Pads():
+            if pd.GetNumber() in pads_:
+                v = pcbnew.PCB_VIA(b.b); v.SetPosition(pd.GetPosition()); v.SetNet(pd.GetNet()); v.SetViaType(pcbnew.VIATYPE_THROUGH)
+                v.SetWidth(MM(d)); v.SetDrill(MM(h)); b.b.Add(v); nvp += 1
+    print("vias in wire / USB pads:", nvp)
+    # USB D+: B6 and A6 joined on F.Cu by a U-loop just south of the pad row (D- uses the two pad vias above, joined on an inner layer)
+    up = {pd.GetNumber(): pd.GetPosition() for pd in fps["JU1"].Pads()}
+    dp = fps["JU1"].Pads()[0].GetBoard().FindNet("USB_DP") if False else b.b.FindNet("USB_DP")
+    yl = up["B6"].y + MM(0.98)
+    pts = [up["B6"], pcbnew.VECTOR2I(up["B6"].x, yl), pcbnew.VECTOR2I(up["A6"].x, yl), up["A6"]]
+    for k in range(3 if os.environ.get("OP_DPLOOP", "0") == "1" else 0):      # off by default: Freerouting 2.2.4 hangs in PolylineTrace.normalize on this pre-route
+        t = pcbnew.PCB_TRACK(b.b); t.SetStart(pts[k]); t.SetEnd(pts[k + 1]); t.SetLayer(pcbnew.F_Cu); t.SetWidth(MM(0.15)); t.SetNet(dp); b.b.Add(t)
+    print("gnd fanout vias:", gnd_fanout(b, fps) if os.environ.get("OP_FANOUT", "1") == "1" else "skipped (OP_FANOUT=0: Freerouting places the GND vias itself)")
     for ref, lab in (("SP1", "+"), ("SP2", "-")):
-        c = fps[ref].GetPosition(); b.text(lab, T(c.x) - bl.OX, T(c.y) - bl.OY - 2.1, 1.0, thick=0.15)
+        c = fps[ref].GetPosition(); b.text(lab, T(c.x) - bl.OX, T(c.y) - bl.OY - 2.1, 1.3, thick=0.2)       # large + / - at the cell pads (review m5)
+    for ref, lab, dy in (("MP1", "A+", 1.6), ("MP2", "A-", 1.6), ("MP3", "B+", 1.6), ("MP4", "B-", -1.7)):      # bottom row labels below, MP4 above; 0.9 mm text, inside the outline
+        c = fps[ref].GetPosition(); b.text(lab, T(c.x) - bl.OX, T(c.y) - bl.OY + dy, 0.9, thick=0.15)
     b.text("TEST ONLY - NOT FOR HUMAN USE", 14.0, 13.5, 0.5, layer=pcbnew.B_SilkS, mirror=True, thick=0.08)
-    b.rules(power_nets=POWERNETS, power_w=0.25, track=0.12)
+    b.rules(power_nets=POWERNETS, power_w=0.16, track=0.10)
     d = b.b.GetDesignSettings()
-    d.m_CopperEdgeClearance = MM(0.2); d.m_MinThroughDrill = MM(0.2); d.m_ViasMinSize = MM(0.4); d.m_HoleToHoleMin = MM(0.2); d.m_TrackMinWidth = MM(0.1)
+    d.m_CopperEdgeClearance = MM(0.2); d.m_MinThroughDrill = MM(0.15); d.m_ViasMinSize = MM(0.3); d.m_HoleToHoleMin = MM(0.2); d.m_TrackMinWidth = MM(0.1)
     for f in b.b.GetFootprints():
         f.Reference().SetVisible(False)
     # verify the SA transform against KiCad's pad positions
@@ -163,9 +249,9 @@ def main():
     print("transform mismatches:", bad)
     b.save(PCB)
     json.dump(b.parts, open(os.path.join(HERE, "parts.json"), "w"), indent=1)
-    write_project(os.path.join(HERE, NAME + ".kicad_pro"), POWERNETS, 0.25, track=0.12, edge=0.2, clear=0.10)
+    write_project(os.path.join(HERE, NAME + ".kicad_pro"), POWERNETS, 0.16, track=0.10, edge=0.2, clear=0.10)
     pj = os.path.join(HERE, NAME + ".kicad_pro"); dd = json.load(open(pj)); r = dd["board"]["design_settings"]["rules"]
-    r.update(min_through_hole_diameter=0.2, min_via_diameter=0.4, min_track_width=0.1, min_hole_to_hole=0.2, min_hole_clearance=0.2, min_via_annular_width=0.1)
+    r.update(min_through_hole_diameter=0.15, min_via_diameter=0.3, min_track_width=0.1, min_hole_to_hole=0.2, min_hole_clearance=0.2, min_via_annular_width=0.075)
     json.dump(dd, open(pj, "w"), indent=2)
     print(NAME, "written", len(b.parts), "parts")
 

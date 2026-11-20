@@ -1,6 +1,8 @@
 """Dump footprints + edge cuts of a cup board to JSON (pod-frame conversion is in make_overlay.py). usage: ../../board/kpy dump_board.py <board.kicad_pcb> <out.json>"""
 import pcbnew, json, sys
-sys.path.insert(0,'/Users/henryschwerdtner/dev/ai-insulin-pump-elec/electronics/v010/cup')
+import os
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', '..', 'bench', 'tools'))
 import cupgeom as G
 from place_cup import height
 b=pcbnew.LoadBoard(sys.argv[1]); T=pcbnew.ToMM

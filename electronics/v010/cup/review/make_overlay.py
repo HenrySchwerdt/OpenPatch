@@ -1,18 +1,22 @@
 #!/usr/bin/env python3
 """Board-vs-housing overlay for the cup-pod main board (independent review, 2026-11-20).
 
-Inputs : board_snapshot.json (from dump_board.py, a copy of cup.kicad_pcb taken 2026-11-20 12:20) and the
+Inputs : board_snapshot.json (from dump_board.py: cup.kicad_pcb after the pin check, 54 fitted parts + pads) and the
          housing numbers of mechanical/out/v010-cup/OP-100.mech.json + op_cup.py / op_cup_asm.py (copied below
          as constants, verified against OP-100_bottom.stl / OP-100_top.stl with stl_probe.py).
 Outputs: overlay_top.png, overlay_side.png (Pillow).  Pod frame: x = 0 rear (motor) end, +x toward the dock;
          y = 0 at the -Y (tank) wall; z = 0 skin side.  KiCad -> pod: x = kx - 100 + 7.45, y = 33.5 - (ky - 80).
 """
 import json
+import math
 import os
+import sys
 
 from PIL import Image, ImageDraw, ImageFont
 
 HERE = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, os.path.join(HERE, ".."))
+import cupgeom as G
 MECH = json.load(open(os.path.join(HERE, "..", "..", "..", "..", "mechanical", "out", "v010-cup", "OP-100.mech.json")))
 SNAP = json.load(open(os.path.join(HERE, "board_snapshot.json")))
 
@@ -21,12 +25,11 @@ LID_IN, Z_BOT, Z_TOP = 7.6, 5.3, 6.1
 POSTS = [(2.55, 2.55), (L - 2.55, 2.55), (L - 2.55, W - 2.55)]
 POCKET = (35.16, 47.07, 6.45, 17.05)            # roof z 4.45..4.9 (STL)
 MAGNET = (39.36, 11.75)
-OUTLINE = [(7.45, 33.5), (43.4, 33.5), (43.4, 22.9), (42.0, 22.9), (42.0, 6.35), (44.2, 6.35), (44.2, 1.1), (35.4, 1.1), (35.4, 6.35),
-           (36.0, 6.35), (36.0, 17.15), (35.4, 17.15), (35.4, 22.9), (7.45, 22.9)]
-INTERFACE = {"U1", "JU1", "SW1", "J1", "BZ1", "LD1", "U4A", "SP1", "SP2", "TL1", "TL2", "TL3", "TL4"}
-POCKET_HITS = {"C1", "C50", "R21", "R91", "R92"}
+OUTLINE = list(G.OUTLINE_POD)
+INTERFACE = {"U1", "JU1", "SW1", "BZ1", "LD1", "U4A", "SP1", "SP2", "MP1", "MP2", "MP3", "MP4", "TL1", "TL2", "TL3", "TL4", "H1", "H2"}
+POCKET_HITS = set()          # filled in by hits() below: bottom parts taller than 0.4 mm over the dock-pocket roof
 
-FONT = "/System/Library/Fonts/Helvetica.ttc"
+FONT = next((f for f in ("/System/Library/Fonts/Helvetica.ttc", "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", "/usr/share/fonts/dejavu/DejaVuSans.ttf") if os.path.exists(f)), "x")
 
 
 def font(sz):
@@ -37,7 +40,7 @@ def font(sz):
 
 
 def to_pod(kx, ky):
-    return kx - 100 + 7.45, 33.5 - (ky - 80)
+    return kx - 100 + G.X0, G.Y1 - (ky - 80)
 
 
 def parts():
@@ -48,6 +51,22 @@ def parts():
         cx, cy = to_pod(f["x"], f["y"])
         out.append(dict(ref=f["ref"], side=f["side"], h=f["h"], bb=(x0, y0, x1, y1), c=(cx, cy), fp=f["fp"]))
     return out
+
+
+from check_items import ITEM_STATUS
+
+
+def hits():
+    """bottom-side parts taller than the 0.4 mm gap above the dock-pocket roof"""
+    out = set()
+    for p in parts():
+        x0, y0, x1, y1 = p["bb"]
+        if p["side"] == "B" and p["h"] > 0.4 and not (x1 < 35.26 or x0 > 46.97 or y1 < 6.55 or y0 > 16.95):
+            out.add(p["ref"])
+    return out
+
+
+POCKET_HITS.update(hits())
 
 
 # ------------------------------------------------------------------ top view
@@ -97,24 +116,29 @@ def top_view():
     d.ellipse([mx - 9, my - 9, mx + 9, my + 9], fill=(200, 0, 0), outline="black")
     label(d, 45.3, 11.0, "dock magnet", 11, (150, 30, 30))
     # lane 2: cell + USB opening
-    d.rectangle([P(7.87, 33.4), P(39.37, 22.8)], outline=(0, 140, 0), width=3)
-    d.rectangle([P(7.7, W), P(17.0, W - WALL)], fill=(0, 160, 255))
-    label(d, 12.35, W + 0.9, "USB-C wall opening x 7.7-17.0", 12, (0, 90, 180))
+    d.rectangle([P(9.37, 33.4), P(40.87, 22.8)], outline=(0, 140, 0), width=3)
+    d.rectangle([P(18.8, W), P(28.2, W - WALL)], fill=(0, 160, 255))
+    label(d, 23.5, W + 0.9, "USB-C wall opening x 18.8-28.2", 12, (0, 90, 180))
+    rect(d, 19.03, 26.35, 27.97, 33.7, outline=(0, 90, 200), width=2)
     # posts, ledges
     for (x, y) in POSTS:
         a, b = P(x - 1.0, y + 1.0), P(x + 1.0, y - 1.0)
         d.ellipse([a, b], fill=(60, 60, 60), outline="black")
     label(d, L - 2.55, 2.55 + 1.9, "M1.2 post", 10)
     for y in (24.3, 32.1):
-        a, b = P(40.57 - 0.9, y + 0.9), P(40.57 + 0.9, y - 0.9)
+        a, b = P(41.5 - 0.8, y + 0.8), P(41.5 + 0.8, y - 0.8)
         d.ellipse([a, b], outline=(120, 60, 0), width=2)
-    label(d, 45.3, 25.7, "ledges top z 4.15", 10, (120, 60, 0))
-    label(d, 45.3, 25.0, "(board at 5.3!)", 10, (120, 60, 0))
+    for sx, sy in G.SCREWS:
+        a, b = P(sx - 1.4, sy + 1.4), P(sx + 1.4, sy - 1.4)
+        d.ellipse([a, b], outline=(200, 0, 200), width=2)
+        label(d, sx, sy, "screw", 9, (150, 0, 150))
+    label(d, 45.3, 25.7, "support pads z 5.3", 10, (120, 60, 0))
+    label(d, 45.3, 25.0, "+ lid ribs above", 10, (120, 60, 0))
     # requested button flex zone (not in CAD)
-    for i in range(0, 12):
-        x = 38.3 + i * 0.25
-        d.line([P(x, 0.0), P(x + 0.12, 0.9)], fill=(220, 0, 0), width=2)
-    label(d, 37.6, -2.3, "button flex zone requested - NOT in CAD ->", 12, (200, 0, 0), "rm")
+    for i in range(0, 9):
+        x = 31.9 + i * 0.25
+        d.line([P(x, W), P(x + 0.12, W - 0.9)], fill=(220, 0, 0), width=2)
+    label(d, 33.0, W + 1.9, "button flex window x 29.4-31.5 in the CAD: move to x 31.9-34.1 (SKSCLAE010, request)", 11, (200, 0, 0))
     # board
     pts = [P(x, y) for x, y in OUTLINE]
     d.polygon(pts, fill=(60, 170, 60, 45))
@@ -149,13 +173,15 @@ def top_view():
             lx_ = 10.4 if p["ref"] == "TL1" else (x0 + x1) / 2
             label(d, lx_, (y0 + y1) / 2, txt, 13 if p["ref"] in INTERFACE else 11, "black")
     # issue markers
-    issues = [(1, 12.5, 31.6), (2, 7.6, 30.7), (3, 40.0, 14.2), (4, 39.8, 4.7), (5, 31.5, 29.6), (6, 39.8, 1.6), (7, 40.57, 33.0), (8, 9.2, 25.2)]
+    status = ITEM_STATUS
+    issues = [(1, 23.5, 30.5), (2, 38.0, 13.5), (3, 10.6, 26.1), (4, 7.8, 31.0), (5, 41.5, 28.2), (6, 33.0, 32.4), (7, 41.0, 20.4), (8, 36.5, 12.6)]
     for n, x, y in issues:
         cx, cy = P(x, y)
-        d.ellipse([cx - 13, cy - 13, cx + 13, cy + 13], fill=(230, 0, 0), outline="white", width=2)
+        col = (0, 150, 60) if status.get(n, (False, ""))[0] else (230, 0, 0)
+        d.ellipse([cx - 13, cy - 13, cx + 13, cy + 13], fill=col, outline="white", width=2)
         d.text((cx, cy), str(n), font=font(15), fill="white", anchor="mm")
     # axes
-    d.text((MX, 30), "OpenPatch cup pod OP-100 - TOP VIEW: housing + mechanics vs main board (cup.kicad_pcb, 2026-11-20 12:20)", font=font(20), fill="black")
+    d.text((MX, 30), "OpenPatch cup pod OP-100 - TOP VIEW: housing + mechanics vs main board (cup.kicad_pcb after the pin check; green = review item resolved)", font=font(20), fill="black")
     d.text((MX, 58), "x = 0 at the motor end (left), dock at the right; y = 0 at the tank-side wall (bottom). Scale: 1 mm = 22 px. Mechanics from OP-100.mech.json / STL.", font=font(13), fill=(60, 60, 60))
     for x in range(0, 50, 5):
         d.line([P(x, 0)[0], MY + W * S + 8, P(x, 0)[0], MY + W * S + 16], fill="black")
@@ -167,7 +193,7 @@ def top_view():
     lx = MX + L * S + 40
     ly = MY
     leg = [((60, 170, 60, 90), (0, 110, 0), "main board outline (z 5.3-6.1)"), ((40, 80, 220, 110), (20, 40, 160), "part on TOP side"),
-           ((255, 150, 0, 110), (190, 90, 0), "part on BOTTOM side"), ((255, 255, 255, 0), (230, 0, 0), "part that collides / is wrong"),
+           ((255, 150, 0, 110), (190, 90, 0), "part on BOTTOM side"), ((255, 255, 255, 0), (230, 0, 0), "part that collides / is wrong (red)"),
            ((170, 210, 245, 200), (40, 90, 160), "tank"), ((150, 150, 150, 220), (0, 0, 0), "motor (axis along y)"),
            ((250, 200, 200, 120), (180, 60, 60), "dock pocket (roof z 4.45-4.9)"), ((255, 255, 255, 0), (0, 150, 0), "cell 301030 under the board (z 0.9-4.1)"), ((255, 0, 255, 60), (200, 0, 200), "antenna keep-out")]
     for i, (f, o, t) in enumerate(leg):
@@ -175,20 +201,12 @@ def top_view():
         d.rectangle([lx, y, lx + 26, y + 18], fill=f, outline=o, width=3)
         d.text((lx + 36, y + 9), t, font=font(13), fill="black", anchor="lm")
     y = ly + len(leg) * 30 + 14
-    notes = ["Numbered problems:",
-             "1 USB-C proxy is top-mount: top z 9.36 > lid 7.6",
-             "   (no notch in the outline for a mid-mount)",
-             "2 lane-2 motor saddle enters the board",
-             "   volume (x 7.45-7.68, z 5.3-5.85)",
-             "3 C1 C50 R21 R91 R92 hit the pocket roof",
-             "   (only 0.4 mm below the board there)",
-             "4 J1 motor socket 32 mm from the motor",
-             "5 SP1/SP2 cell pads mid-board, top side:",
-             "   cell wires cannot reach them",
-             "6 SW1 points at a solid wall (no flex zone)",
-             "7 board ledges at z 4.15: board floats",
-             "8 west end: motor pins + cell PCM + TMAG",
-             "   strip + USB-C all want the same 10 mm"]
+    notes = ["Review items (green = resolved):"]
+    for n in range(1, 9):
+        ok, txt = ITEM_STATUS.get(n, (False, "not checked"))
+        notes.append("%d %s %s" % (n, "OK" if ok else "OPEN", txt[:46]))
+        if len(txt) > 46:
+            notes.append("     " + txt[46:92])
     for i, t in enumerate(notes):
         d.text((lx, y + i * 22), t, font=font(14 if i == 0 else 13), fill=(200, 0, 0) if i == 0 else "black")
     img.save(os.path.join(HERE, "overlay_top.png"))
@@ -217,17 +235,15 @@ def side_view():
     d.ellipse([cx - 3 * S2, cz - 3 * S2, cx + 3 * S2, cz + 3 * S2], fill=(150, 150, 150), outline="black", width=2)
     d.text((cx, cz), "motor d6", font=font(12), fill="white", anchor="mm")
     d.pieslice([cx - 3.37 * S2, cz - 3.37 * S2, cx + 3.37 * S2, cz + 3.37 * S2], start=-29, end=0, fill=(230, 0, 0, 160))
-    box(7.87, 0.9, 39.37, 4.1, ox, oy, fill=(120, 200, 120), outline=(0, 110, 0))
+    box(9.37, 0.9, 40.87, 4.1, ox, oy, fill=(120, 200, 120), outline=(0, 110, 0))
     d.text(Q(20, 2.5, ox, oy), "CELL 301030 (z 0.9-4.1 incl. swell)", font=font(13), fill="black", anchor="mm")
-    box(7.87, 4.2, 16.81, 7.46, ox, oy, outline=(0, 120, 255), width=3)
-    d.text(Q(12.3, 4.6, ox, oy), "USB box (mech)", font=font(11), fill=(0, 90, 200), anchor="mm")
-    box(7.14, Z_TOP, 17.87, Z_TOP + 3.26, ox, oy, fill=(230, 0, 0, 70), outline=(230, 0, 0), width=2)
-    d.text(Q(12.5, 9.0, ox, oy), "JU1 as placed (top-mount) -> z 9.36", font=font(12), fill=(200, 0, 0), anchor="mm")
-    box(7.45, Z_BOT, 43.4, Z_TOP, ox, oy, fill=(0, 140, 0), outline=(0, 90, 0))
+    box(19.03, 4.12, 27.97, 7.33, ox, oy, outline=(0, 120, 255), width=3)
+    d.text(Q(23.5, 7.9, ox, oy), "USB-C receptacle keep-out (mech): sink-board part, board passes through its body", font=font(11), fill=(0, 90, 200), anchor="mm")
+    box(7.8, Z_BOT, 43.4, Z_TOP, ox, oy, fill=(0, 140, 0), outline=(0, 90, 0))
     d.text(Q(44, 5.7, ox, oy), "board 0.8", font=font(11), fill=(0, 90, 0), anchor="lm")
-    for y in (40.57,):
-        box(y - 0.9, WALL, y + 0.9, 4.15, ox, oy, fill=(200, 140, 60))
-    d.text(Q(40.6, 4.5, ox, oy), "ledge 4.15", font=font(10), fill=(120, 60, 0), anchor="mm")
+    for y in (41.5,):
+        box(y - 0.5, WALL, y + 0.5, 5.3, ox, oy, fill=(200, 140, 60))
+    d.text(Q(41.5, 5.6, ox, oy), "ledge 5.3", font=font(10), fill=(120, 60, 0), anchor="mm")
     box(L - 2.55 - 1.0, WALL, L - 2.55 + 1.0, 7.55, ox, oy, fill=(90, 90, 90))
     for p in parts():
         x0, y0, x1, y1 = p["bb"]
@@ -240,7 +256,7 @@ def side_view():
     for z, t in ((LID_IN, "lid inner 7.6"), (Z_TOP, "board top 6.1"), (Z_BOT, "board bottom 5.3"), (4.1, "cell top 4.1")):
         d.line([Q(0, z, ox, oy), Q(L, z, ox, oy)], fill=(120, 120, 120), width=1)
         d.text(Q(L + 0.5, z, ox, oy), t, font=font(11), fill=(80, 80, 80), anchor="lm")
-    d.text(Q(1.0, -1.2, ox, oy), "red wedge = lane-2 motor saddle lip reaching x 7.68 at z 5.3 (board edge 7.45)", font=font(12), fill=(200, 0, 0))
+    d.text(Q(1.0, -1.2, ox, oy), "red wedge = lane-2 motor saddle lip (x 7.7 at z 5.2; board edge now x 7.8)", font=font(12), fill=(200, 0, 0))
     # ---------- panel B: cross section through the leg at x ~ 36-44 (y along horizontal)
     ox, oy = 60, 790
     d.text((ox, 450), "B) Cross-section through the board leg / dock (x 35.4-44.2), seen from the dock end; all leg parts projected", font=font(15), fill="black")
@@ -256,7 +272,7 @@ def side_view():
     d.ellipse([mx - 8, mz - 5, mx + 8, mz + 5], fill=(200, 0, 0))
     box(22.8, 0.9, 33.4, 4.1, ox, oy, fill=(120, 200, 120), outline=(0, 110, 0))
     d.text(Q(28.1, 2.5, ox, oy), "cell", font=font(12), fill="black", anchor="mm")
-    for (y0, y1) in ((1.1, 6.35), (6.35, 17.15), (17.15, 22.9), (22.9, 33.5)):
+    for (y0, y1) in ((10.4, 17.15), (17.15, 22.9), (22.9, 33.5)):
         box(y0, Z_BOT, y1, Z_TOP, ox, oy, fill=(0, 140, 0), outline=(0, 90, 0))
     for p in parts():
         x0, y0, x1, y1 = p["bb"]
@@ -273,11 +289,10 @@ def side_view():
     for z, t in ((LID_IN, "lid 7.6"), (Z_TOP, "6.1"), (Z_BOT, "5.3"), (4.9, "roof 4.9")):
         d.line([Q(0, z, ox, oy), Q(W, z, ox, oy)], fill=(120, 120, 120))
         d.text(Q(W + 0.5, z, ox, oy), t, font=font(11), fill=(80, 80, 80), anchor="lm")
-    d.text(Q(0.0, -1.3, ox, oy), "-Y wall (button side, solid: no flex zone)", font=font(12), fill=(200, 0, 0))
-    d.text(Q(W, -1.3, ox, oy), "+Y wall", font=font(12), fill="black", anchor="rm")
+    d.text(Q(0.0, -1.3, ox, oy), "-Y wall (tank side)", font=font(12), fill=(200, 0, 0))
+    d.text(Q(W, -1.3, ox, oy), "+Y wall (button flex window)", font=font(12), fill="black", anchor="rm")
     d.text(Q(11.75, 5.0 - 1.9, ox, oy), "", font=font(10))
-    d.text(Q(0.5, -2.4, ox, oy), "red bars under the board above the pocket = C1, C50, R21, R91, R92 (0.5-0.6 mm tall) in a 0.4 mm gap; U4A hall (0.4) sits on the roof with 0.0 mm",
-           font=font(12), fill=(200, 0, 0))
+    d.text(Q(0.5, -2.4, ox, oy), "bottom parts over the dock-pocket roof: " + (", ".join(sorted(POCKET_HITS)) or "none taller than 0.4 mm"), font=font(12), fill=(200, 0, 0))
     img.save(os.path.join(HERE, "overlay_side.png"))
 
 
