@@ -1,2 +1,4 @@
 #!/bin/bash
-exec /Applications/KiCad/KiCad.app/Contents/Frameworks/Python.framework/Versions/Current/bin/python3 "$@"
+# KiCad python: macOS KiCad.app if present, otherwise the system python3 (Linux: python3-pcbnew from the KiCad packages)
+MAC=/Applications/KiCad/KiCad.app/Contents/Frameworks/Python.framework/Versions/Current/bin/python3
+if [ -x "$MAC" ]; then exec "$MAC" "$@"; else exec python3 "$@"; fi

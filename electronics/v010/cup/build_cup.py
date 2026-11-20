@@ -134,6 +134,23 @@ def main():
     for x, y in ((a[0], a[1]), (a[2], a[1]), (a[2], a[3]), (a[0], a[3])):
         ch.Append(MM(bl.OX + x), MM(bl.OY + y))
     b.b.Add(z)
+    # board screws (mechanics elec_interface): d1.4 NPTH + d2.8 keep-out (no tracks, vias or pour) on all copper layers
+    import math
+    for k, (hx, hy) in enumerate(G.SCREWS):
+        bx, by = G.b(hx, hy)
+        c = pcbnew.VECTOR2I(MM(bl.OX + bx), MM(bl.OY + by))
+        hf = pcbnew.FOOTPRINT(b.b); hf.SetReference("H%d" % (k + 1)); hf.SetValue("screw hole d1.4"); hf.SetPosition(c)
+        pd = pcbnew.PAD(hf); pd.SetAttribute(pcbnew.PAD_ATTRIB_NPTH); pd.SetShape(pcbnew.PAD_SHAPE_CIRCLE)
+        pd.SetSize(pcbnew.VECTOR2I(MM(G.SCREW_HOLE_D), MM(G.SCREW_HOLE_D))); pd.SetDrillSize(pcbnew.VECTOR2I(MM(G.SCREW_HOLE_D), MM(G.SCREW_HOLE_D)))
+        pd.SetPosition(c); pd.SetLayerSet(pcbnew.PAD.UnplatedHoleMask()); hf.Add(pd); hf.Reference().SetVisible(False); b.b.Add(hf)
+        kz = pcbnew.ZONE(b.b); kz.SetIsRuleArea(True); kz.SetZoneName("SCREW_KEEPOUT_%d" % (k + 1))
+        kz.SetDoNotAllowTracks(True); kz.SetDoNotAllowVias(True); kz.SetDoNotAllowZoneFills(True); kz.SetDoNotAllowPads(False); kz.SetDoNotAllowFootprints(False)
+        kz.SetLayerSet(ls)
+        kch = kz.Outline(); kch.NewOutline()
+        for a in range(24):
+            ang = 2 * math.pi * a / 24
+            kch.Append(MM(bl.OX + bx + G.SCREW_KEEPOUT_D / 2 * math.cos(ang)), MM(bl.OY + by + G.SCREW_KEEPOUT_D / 2 * math.sin(ang)))
+        b.b.Add(kz)
     print("gnd fanout vias:", gnd_fanout(b, fps))
     for ref, lab in (("SP1", "+"), ("SP2", "-")):
         c = fps[ref].GetPosition(); b.text(lab, T(c.x) - bl.OX, T(c.y) - bl.OY - 2.1, 1.0, thick=0.15)

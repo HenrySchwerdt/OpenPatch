@@ -20,3 +20,7 @@ electronics/v010/sim/results/*.csv
 
 # assembly-checker per-body meshes (regenerated, about 50 MB)
 mechanical/out/**/assembly-check/meshes/
+
+# scratch from the placement flow
+electronics/v010/cup/_pc_*.py
+electronics/v010/cup/sa_*.log

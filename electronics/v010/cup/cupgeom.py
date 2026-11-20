@@ -14,9 +14,11 @@ Z_TOP = Z_BOT + BOARD_T     # 6.1
 LID_INNER = 7.6
 
 # outline in the pod frame (CCW seen from the top)
-OUTLINE_POD = [(7.8, 33.5), (18.8, 33.5), (18.8, 29.5), (28.2, 29.5), (28.2, 33.5), (43.4, 33.5), (43.4, 22.9), (42.0, 22.9), (42.0, 17.15), (40.9, 17.15), (40.9, 10.4),
-               (37.9, 10.4), (37.9, 17.15), (35.4, 17.15), (35.4, 22.9), (7.8, 22.9), (7.8, 25.3), (9.3, 25.3), (9.3, 27.8), (7.8, 27.8)]
-# USB-C notch x 18.8..28.2, y 29.5..33.5 (receptacle centre x 23.5); wire notch 1.5 x 2.5 in the west edge (x 7.8..9.3, y 25.3..27.8)
+OUTLINE_POD = [(7.8, 33.5), (18.8, 33.5), (18.8, 27.1), (20.2, 27.1), (20.2, 26.45), (26.8, 26.45), (26.8, 27.1), (28.2, 27.1), (28.2, 33.5), (43.4, 33.5), (43.4, 22.9), (42.0, 22.9),
+               (42.0, 17.15), (40.9, 17.15), (40.9, 10.4), (37.9, 10.4), (37.9, 17.15), (35.4, 17.15), (35.4, 22.9), (10.0, 22.9), (10.0, 20.1), (7.8, 20.1), (7.8, 25.3), (9.3, 25.3),
+               (9.3, 27.8), (7.8, 27.8)]
+# USB-C notch (HRO TYPE-C-31-M-14 sink-board part, pin check 2026-11-20): x 18.8..28.2 down to y 27.1, plus x 20.2..26.8 down to y 26.45 (receptacle mouth at y 33.5, centre x 23.5, pad row y 25.48);
+# west board tab x 7.8..10.0, y 20.1..22.9 for the screw W; wire notch 1.5 x 2.5 in the west edge (x 7.8..9.3, y 25.3..27.8)
 # hall finger x 37.9..40.9, y 10.4..17.15 (top-side parts + the hall on the underside); no side_a foot
 ANT_POD = (42.0, 22.9, 43.3, 33.6)          # antenna half of the module: no copper / parts east of x 42.4 (board edge overhang)
 
@@ -43,4 +45,11 @@ ANT = rect_b(*ANT_POD)
 # bottom-side height limits: over the cell (cell moved 1.5 mm east: x 9.4..40.9, top z 4.1) 1.1 mm; over the dock-pocket roof (roof top z 4.9) 0.4 mm
 LOW_ZONES = [(rect_b(9.4, 22.8, 40.9, 33.6), 1.1), (rect_b(35.16, 6.45, 47.07, 17.05), 0.4)]
 HUB_PADS = [("MP1", 10.0, 25.0), ("MP2", 11.25, 25.0), ("MP3", 12.5, 25.0), ("MP4", 10.0, 27.2), ("SP1", 11.25, 27.2), ("SP2", 12.5, 27.2)]
-HOLD_PADS = []     # 1.0 mm part-free pads for the lid hold-down ribs: positions to be reported by the mechanics (none known yet)
+# board screws (OP-100.mech.json -> elec_interface.board_screws): d1.4 NPTH, d2.8 keep-out on all layers (pod frame x, y)
+SCREWS = [(8.9, 21.5), (37.403, 20.0)]
+SCREW_HOLE_D, SCREW_KEEPOUT_D = 1.4, 2.8
+# support pads (floor ledge below + lid rib above): part-free d1.6 on both faces, and the wall-shelf rectangle (pod frame)
+HOLD_PADS = [(41.5, 24.3, 1.6), (41.5, 32.1, 1.6)]
+HOLD_RECTS = [(7.7, 32.6, 9.5, 33.5)]
+# wire channel under the board (motor 4 + cell 2 + TMAG strip, z 0.9..5.3): no bottom-side parts there
+WIRE_CHANNEL = (7.5, 22.8, 9.4, 33.6)
