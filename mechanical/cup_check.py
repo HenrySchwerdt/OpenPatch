@@ -15,7 +15,7 @@ import op_cup_dock as dock
 from op_cmds import Script
 from op_layout import HERE, stadium_area
 
-TARGET_L = {"OP-100": 45.0, "OP-200": 52.0}
+TARGET_L = {"OP-100": 45.0, "OP-200": 54.0}                # spec 2b (owner decision 2026-11-19): OP-100 <= 45, OP-200 <= 54 with the full 200 U
 THRUST_MIN_N = 5.0
 
 
@@ -36,7 +36,7 @@ def thrust(p: dict, L: dict) -> dict:
     """NFP-608-26.45 pull-out torque -> rod -> screw -> plunger force vs. seal friction + occlusion pressure (estimates, VERIFY on the bench)."""
     g = p["cup"]["gears"]
     T_gb = 1.6 * 9.80665e-3 * 10.0 * 26.45 * 0.64                 # N mm at the gearhead output (1.6 gf cm pull-out x 26.45 x 0.64, parts.md)
-    eta_b, eta_s, pitch = 0.9, 0.2, p["drive"]["screw_pitch"]
+    eta_b, eta_s, pitch = 0.9, p["cup"]["rod"]["eta_screw"], p["drive"]["screw_pitch"]
     T_rod = T_gb * (g["z_rod"] / g["z_motor"]) * eta_b
     F = 2 * math.pi * eta_s * T_rod / pitch
     A = L["bore_area"]
@@ -46,6 +46,56 @@ def thrust(p: dict, L: dict) -> dict:
     need = f_seal + f_occ
     return {"T_rod_Nmm": round(T_rod, 2), "F_avail_N": round(F, 1), "F_seal_N": round(f_seal, 1), "F_occ_N": round(f_occ, 1), "F_need_N": round(need, 1),
             "F_need_SF2_N": round(2 * need, 1), "perimeter_mm": round(perim, 1), "area_mm2": round(A, 1)}
+
+
+def gear_mesh(p: dict, L: dict, ga: dict, gb: dict, mg: dict, sh: dict) -> tuple[list, list]:
+    """Miter pair (module m, z : z, 90 deg): pitch geometry, apex alignment of the two CAD envelopes, engaged face width, clearances to the magnet and the motor shaft end."""
+    g, mgp, dr = p["cup"]["gears"], p["cup"]["magnet"], p["drive_nfp"]
+    prob, note = [], []
+    m, za, zb = g["module"], g["z_motor"], g["z_rod"]
+    if za != zb:
+        prob.append(f"miter pair needs z_motor == z_rod (got {za} : {zb})")
+    rp = m * za / 2.0
+    dk = m * math.cos(math.radians(45.0))
+    tip = 2 * (rp + dk)
+    if abs(tip - g["tip_od"]) > 0.015:
+        prob.append(f"gear tip OD {g['tip_od']} != m (z + 2 cos 45) = {tip:.3f}")
+    rc = rp / math.sin(math.radians(45.0))
+    # the CAD envelopes carry the right apex: gear A front measured from the rod axis, gear B front from the motor axis
+    fa, fb = ga["min"][1] - L["y_r"], gb["min"][0] - L["xc"]
+    if abs(fa - g["front_a"]) > 0.011 or abs(fb - g["front_b"]) > 0.011:
+        prob.append(f"gear front faces off the apex: A {fa:.3f} (param {g['front_a']}), B {fb:.3f} (param {g['front_b']})")
+    for nm, bx in (("A", ga), ("B", gb)):
+        dims = [bx["max"][i] - bx["min"][i] for i in range(3)]
+        d_tip = max(dims[0], dims[2]) if nm == "A" else max(dims[1], dims[2])
+        if abs(d_tip - tip) > 0.02:
+            prob.append(f"gear {nm} envelope OD {d_tip:.3f} != tip OD {tip:.3f}")
+    face = rp - max(g["front_a"], g["front_b"])
+    if face < 0.5:
+        prob.append(f"engaged face width {face:.2f} mm < 0.5")
+    # gear A front faced: radius of the angle magnet (rod axis) must keep >= 0.15 mm to it
+    cl_mg = g["front_a"] - mgp["d"] / 2
+    if cl_mg < 0.15 - 1e-9:
+        prob.append(f"angle magnet rim only {cl_mg:.2f} mm from gear A front (< 0.15)")
+    # motor shaft end (inside gear A) vs the gear B envelope: shaft end plane at front_a + 0.15 from the rod axis, shaft radius r; gear B tip-cone radius at its x
+    r_sh = dr["shaft_d"] / 2
+    y_end = g["front_a"] + 0.15
+    rB = r_sh + dk                                           # gear B envelope radius at a = shaft radius (x = xc + r_sh)
+    cl_sh = y_end - rB
+    if cl_sh < 0.05:
+        prob.append(f"motor shaft end only {cl_sh:.2f} mm from the gear B envelope")
+    # tooth bending (Lewis, brass), full gearhead pull-out torque at the mean pitch radius, virtual tooth number z / cos 45
+    T = 1.6 * 9.80665e-3 * 10.0 * 26.45 * 0.64
+    r_m = rp - (rp - max(g["front_a"], g["front_b"])) / 2
+    b_slant = face / math.cos(math.radians(45.0))
+    Ft = T / r_m
+    Y = 0.302                                                # Lewis form factor, z_v = 17
+    sig = Ft / (b_slant * m * Y)
+    note.append(f"miter pair m{m} z{za}:z{zb} 1:1 (ratio 1.00): pitch d {2 * rp:.2f}, tip OD {tip:.2f}, cone distance {rc:.2f}; faces A {g['front_a']} (faced from {g['drawing']['front']}) / B {g['front_b']}, backs A {g['back_a']} (faced from {g['drawing']['back_2mm_bore']}) / B {g['back_b']}; "
+                f"engaged face {face:.2f} mm (slant {b_slant:.2f}); magnet rim to gear A {cl_mg:.2f}; shaft end to gear B {cl_sh:.2f}; Lewis tooth bending {sig:.0f} MPa at the {T:.2f} N mm gearhead limit (brass ~ 100+)")
+    if sig > 80:
+        prob.append(f"tooth bending {sig:.0f} MPa > 80")
+    return prob, note
 
 
 def check_size(outdir: Path, variant: str, p: dict) -> dict:
@@ -81,7 +131,7 @@ def check_size(outdir: Path, variant: str, p: dict) -> dict:
     for n in op_cup.PART_NAMES:
         if n not in by:
             problems.append(f"body missing: {n}")
-    for n in ("carriage", "tongue_shim", "gear_c", "gear_d", "idler_pin", "leadscrew", "drive_screw", "end_cap", "end_cap_lid", "cap_gasket", "dock_insert", "pod_board"):
+    for n in ("carriage", "tongue_shim", "gear_c", "gear_d", "idler_pin", "leadscrew", "drive_screw", "end_cap", "end_cap_lid", "cap_gasket", "dock_insert", "pod_board", "thrust_sleeve"):
         if n in by:
             problems.append(f"removed part present (simplicity rule): {n}")
     if problems and any(n.startswith("body missing") for n in problems):
@@ -90,14 +140,24 @@ def check_size(outdir: Path, variant: str, p: dict) -> dict:
     ctr = lambda n, ax: (bb(n)["min"][ax] + bb(n)["max"][ax]) / 2
     zc, yr, w = L["zc"], L["y_r"], L["wall"]
     # ---- one rod on the tank axis, rotating + axially fixed; nut / plunger bore on the same axis
-    for n in ("rod", "nut", "bush_rod", "magnet", "thrust_sleeve", "thrust_collar", "gear_b", "plunger_core"):
+    for n in ("rod", "nut", "bush_rod", "magnet", "thrust_collar", "gear_b", "plunger_core"):
         if abs(ctr(n, 1) - yr) > 1e-3 or abs(ctr(n, 2) - zc) > 1e-3:
             problems.append(f"{n} not on the tank axis (y {ctr(n, 1):.3f}, z {ctr(n, 2):.3f})")
-    sl, bs, rd, mg, tm, cl, gbb = bb("thrust_sleeve"), bb("bush_rod"), bb("rod"), bb("magnet"), bb("hall_tmag"), bb("thrust_collar"), bb("gear_b")
+    bs, rd, mg, tm, cl, gbb = bb("bush_rod"), bb("rod"), bb("magnet"), bb("hall_tmag"), bb("thrust_collar"), bb("gear_b")
+    # axial load path (no sleeve): forward thrust (plunger pushed out, rod pulled -X): nut -> rod thread -> collar (bonded on the rod) -> bush rear face -> bush (bonded in the U rib) -> housing;
+    # reverse thrust (plunger pulled back, rod pushed +X): nut -> rod thread -> thread in gear B hub (tapped M1.6 + retaining compound) -> hub back face -> bush front face -> bush -> housing
     if not (0.0 <= cl["min"][0] - bs["max"][0] <= 0.15):
         problems.append(f"collar not seated on the bush tank-side face (gap {cl['min'][0] - bs['max'][0]:.3f}): -X thrust has no stop")
-    if not (0.0 <= bs["min"][0] - sl["max"][0] <= 0.15):
-        problems.append(f"gear B sleeve not seated on the bush motor-side face (gap {bs['min'][0] - sl['max'][0]:.3f}): +X thrust has no stop")
+    if not (0.0 <= bs["min"][0] - gbb["max"][0] <= 0.15):
+        problems.append(f"gear B hub back face not seated on the bush motor-side face (gap {bs['min'][0] - gbb['max'][0]:.3f}): +X (reverse) thrust has no stop")
+    cg_, bu_ = p["cup"]["gears"], p["cup"]["bush"]
+    a_hub = math.pi * ((cg_["hub_b_d"] / 2) ** 2 - (bu_["id"] / 2) ** 2)
+    a_col = math.pi * ((p["cup"]["collar"]["od"] / 2) ** 2 - (bu_["id"] / 2) ** 2)
+    if cg_["hub_b_d"] > bu_["od"] + 1e-9 or p["cup"]["collar"]["od"] > bu_["od"] + 1e-9:
+        problems.append("gear B hub / collar overhang the bush OD: bearing face not fully on the bush")
+    if min(a_hub, a_col) < 1.5:
+        problems.append(f"thrust bearing face too small (hub {a_hub:.2f} mm2, collar {a_col:.2f} mm2 < 1.5)")
+    warns.append(f"axial load path (no thrust sleeve): forward = nut -> rod -> collar (bonded on the rod, bearing {a_col:.2f} mm2) -> bush rear face; reverse = nut -> rod -> M1.6 thread in the gear B hub (retaining compound) -> hub back face (bearing {a_hub:.2f} mm2) -> bush front face; bush bonded in the U rib; the magnet carries no thrust")
     if abs(mg["max"][0] - gbb["min"][0]) > 0.011:
         problems.append("magnet not on the rear (motor-side) face of gear B")
     if abs(rd["min"][0] - gbb["min"][0]) > 0.011:
@@ -117,6 +177,18 @@ def check_size(outdir: Path, variant: str, p: dict) -> dict:
     gears = [n for n in by if n.startswith("gear") and n != "gearhead"]
     if sorted(gears) != ["gear_a", "gear_b"]:
         problems.append(f"gear count != 2: {gears}")
+    pm, nm_ = gear_mesh(p, L, ga, gb, mg, by["motor_shaft"]["bbox"])
+    problems += pm
+    warns += nm_
+    # nut pocket: real brass DIN 934 M1.6 is AF 3.5; pocket = AF + nut_clr, walls around the hex corners must stay >= 0.4 in the plunger section
+    af_p = p["cup"]["nut"]["af"] + p["cup"]["plunger"]["nut_clr"]
+    corner = af_p / math.cos(math.radians(30.0))
+    wall = (L["bore_h"] - 2 * p["cup"]["plunger"]["clr"] - corner) / 2
+    if wall < 0.4:
+        problems.append(f"plunger wall around the nut hex pocket {wall:.2f} < 0.4 (AF {af_p:.2f}, across corners {corner:.2f})")
+    if abs(p["drive_nfp"]["nut_af"] - 3.5) > 1e-9:
+        problems.append("nut pocket not built for AF 3.5")
+    warns.append(f"nut pocket AF {af_p:.2f} (nut AF {p['cup']['nut']['af']}, DIN 934 M1.6 brass h {p['cup']['nut']['len']}), across corners {corner:.2f}, plunger wall {wall:.2f} mm")
     # ---- plunger: cup length >= stroke, reaches the front wall, rod tip inside the cup at both ends, rod never wet
     s = L["stroke"]
     if L["L_pl"] < s:
@@ -223,14 +295,27 @@ def check_size(outdir: Path, variant: str, p: dict) -> dict:
     if th["F_avail_N"] < THRUST_MIN_N:
         problems.append(f"thrust {th['F_avail_N']} N < {THRUST_MIN_N} N")
     if th["F_avail_N"] < 1.5 * th["F_need_N"]:
-        problems.append(f"thrust margin {th['F_avail_N'] / th['F_need_N']:.2f}x < 1.5x: use the 16:20 ratio (z_rod 20)")
+        problems.append(f"thrust margin {th['F_avail_N'] / th['F_need_N']:.2f}x < 1.5x: no bought miter pair with a ratio < 1 exists (BUY-LIST 0), raise the screw efficiency (steel rod, lubricant) or the pull-out torque")
     warns.append(f"thrust margin {th['F_avail_N'] / th['F_need_N']:.2f}x (available {th['F_avail_N']} N / needed {th['F_need_N']} N)")
+    # rib / bush load path (estimates): bush bonded (CA) in the U rib bore, half of its surface carries the load; rib = cantilever wall from the floor
+    bu_, cl_ = p["cup"]["bush"], p["cup"]["collar"]
+    F = th["F_avail_N"]
+    a_bond = math.pi * bu_["od"] / 2 * bu_["len"]
+    b_rib = bu_["od"] + 2 * bu_["rib_wall"]
+    arm = zc - 0.64 * bu_["od"] / 2 - w
+    sig_rib = 6 * F * arm / (b_rib * bu_["len"] ** 2)
+    warns.append(f"bush / rib at the available {F} N: bond shear {F / a_bond:.1f} MPa on {a_bond:.1f} mm2 (CA on brass / PA12 ~ 3-8 MPa), rib root bending {sig_rib:.0f} MPa ({b_rib:.2f} wide x {bu_['len']} thick, arm {arm:.2f}; PA12 MJF ~ 45, SLA tough ~ 50): marginal, VERIFY (thicker rib needs +x length)")
+    if F / a_bond > 6.0 or sig_rib > 45.0:
+        problems.append(f"bush bond shear {F / a_bond:.1f} MPa or rib bending {sig_rib:.0f} MPa too high")
+    gd_ = L["dock"]
+    travel = gd_["guard_free"][0] - gd_["guard_dock"][0]
+    warns.append(f"needle guard spring (not a catalogue part, not in the order): needs about {p['cup']['dock']['guard']['spring_N'] / travel:.2f} N/mm ({p['cup']['dock']['guard']['spring_N']} N at the {travel:.2f} mm docked travel), wire <= 0.1, fits around the guard OD {p['cup']['dock']['guard']['od']}; to be wound or sourced")
     guide = (L["L_pl"] / (L["bore_w"] - 0.2))
     if guide < 0.5:
         problems.append(f"plunger guide length/width {guide:.2f} < 0.5: add guide fins")
     warns.append(f"anti-tilt: cup body {L['L_pl']:.1f} mm sliding on {L['bore_w'] - 0.2:.1f} mm width (L/W {guide:.2f}) + 2 rings {p['cup']['plunger']['ring_front_a'][0] - p['cup']['plunger']['ring_front_b'][0]:.2f} mm apart")
     if th["F_avail_N"] < th["F_need_SF2_N"]:
-        warns.append(f"thrust {th['F_avail_N']} N covers the {th['F_need_N']} N need (seal {th['F_seal_N']} + 30 kPa occlusion {th['F_occ_N']}) but NOT a safety factor 2 ({th['F_need_SF2_N']} N): z16:z20 pair (+25 %) is the margin option")
+        warns.append(f"thrust {th['F_avail_N']} N covers the {th['F_need_N']} N need (seal {th['F_seal_N']} + 30 kPa occlusion {th['F_occ_N']}) but NOT a safety factor 2 ({th['F_need_SF2_N']} N): the only bought miter pair is 1:1 (a z12 : z15 pair was not found), so the margin has to come from the screw efficiency / motor torque")
     warns.append(f"thrust: rod torque {th['T_rod_Nmm']} N mm, screw eta 0.2, bevel eta 0.9 -> {th['F_avail_N']} N available (>= {THRUST_MIN_N} required); seal perimeter {th['perimeter_mm']} mm")
     warns.append(f"U/step = {L['u_per_step']:.5f} (0.35 mm x {L['ratio']:.2f} / (20 x 26.45) x {L['bore_area']:.1f} mm2 / 10); 1 mm of plunger = {L['bore_area'] / 10:.1f} U; plunger aspect {L['aspect']:.1f} (limit 4.5)")
     if L["aspect"] > 4.5:

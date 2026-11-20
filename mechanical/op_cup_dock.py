@@ -91,7 +91,7 @@ def build_needle(s: Script, p: dict, K: dict) -> None:
     nd, g, hb = p["needle"], p["cup"]["dock"]["guard"], p["cup"]["dock"]["hub"]
     yc, zn = K["y_c"], K["z_n"]
     s.cyl("needle", "X", (0, yc, zn), nd["od"], K["x_hub"][0], K["x_tip"])
-    s.tube("needle_hub", "X", (0, yc, zn), hb["d"], nd["od"], *K["x_hub"])
+    s.tube("needle_hub", "X", (0, yc, zn), hb["d"], hb["id"], *K["x_hub"])                          # brass tube 1.5 x 0.2 (ID 1.1); the 30G needle is bonded in with CA
     s.tube("needle_guard", "X", (0, yc, zn), g["od"], g["id"], *K["guard_dock"])
 
 

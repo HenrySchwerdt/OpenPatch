@@ -4,8 +4,9 @@
 TEST PROJECT: never worn, never filled with anything but water (CLAUDE.md, DISCLAIMER.md).
 
 Concept B (user decision), everything else of the earlier drives is removed (no second rod, carriage, tongue, idler, third gear):
-  * ONE M1.6 x 0.35 rod on the tank axis, rotating and axially fixed (bush behind the gear pair; sleeve bears on the bush front face, the rod-end magnet
-    bears on the bush rear face), driven by the NFP-608-26.45 through exactly two gears (GHW module 0.3, z16 on the motor -> z20 on the rod).
+  * ONE M1.6 x 0.35 rod on the tank axis, rotating and axially fixed in a bush behind the gear pair: forward thrust (plunger pushed out) goes collar -> bush rear
+    face, reverse thrust (plunger pulled back) goes gear B hub back face -> bush front face; gear B is tapped onto the rod (no sleeve).  Driven by the
+    NFP-608-26.45 through exactly two bought miter gears (module 0.3, z12 : z12, 1:1, BUY-LIST A1/A2).
   * PLUNGER = long cup: stadium 15.8 x 4.8, two cast lip seals at the CLOSED front end, blind axial bore d2.0 with a brass nut in a hex pocket at the rear.
     The rod screws INTO the plunger from behind and never passes through it; the stadium shape stops the plunger from turning.
   * TANK = frozen CNC bore (16 x 5) with closed walls (no slot), open dry end, ONE outlet port (d2.0) in the front end wall.
@@ -51,6 +52,7 @@ def prepare(p0: dict) -> dict:
     p["reservoir"]["w_in"], p["reservoir"]["h_in"] = bore_w, rz["bore_h"]          # seal mould + CNC data follow the cup-pod bore
     dr = dict(p["drive"])
     dr.update(p["drive_presets"][dr.get("active_preset") or "nfp_608_26"])
+    dr["nut_af"], dr["nut_len"] = c["nut"]["af"], c["nut"]["len"]                   # real brass DIN 934 M1.6 (AF 3.5, h 1.3); the bench keeps drive.nut_af 3.2
     p["drive_nfp"] = dr
     return p
 
@@ -70,18 +72,18 @@ def geometry(p: dict, variant: str) -> dict:
     def corner_clear(y_edge: float) -> float:
         dy = y_edge - (W - w - r_in)
         return 0.0 if dy <= 0 else r_in - math.sqrt(max((r_in - 0.05) ** 2 - dy ** 2, 0.0))
-    y_g0, y_g1 = y_r + 1.2, y_r + g["bevel_back"]
+    y_g0, y_g1 = y_r + g["front_a"], y_r + g["back_a"]                      # gear A (motor): faced front / back, measured from the rod axis
     y_boss0 = y_g1 + g["clr_boss"]
     y_body0 = y_boss0 + dr["boss_front"]
     y_gh1 = y_body0 + dr["gearhead_len"]
     y_mo1 = y_gh1 + dr["motor_len"]
     y_tail1 = y_mo1 + dr["motor_tail"]
     xc = w + dr["motor_d"] / 2 + 0.1 + corner_clear(y_mo1)                 # motor column centre (axis Y); nothing behind it
-    x_gb0, x_gb1 = xc + 1.2, xc + g["bevel_back"]                          # rod miter gear (rod ends at its rear face)
-    x_m0, x_m1 = xc + 1.2 - mg["t"], xc + 1.2                               # magnet on gear B's rear face
+    x_gb0, x_gb1 = xc + g["front_b"], xc + g["back_b"]                     # gear B (rod, tapped onto the rod, rod ends flush with its front face)
+    x_m0, x_m1 = x_gb0 - mg["t"], x_gb0                                     # magnet on gear B's front (motor-side) face
     x_h0, x_h1 = xc - 1.8, xc - 1.8 + tm["pkg"][0]                          # TMAG beside the magnet (-Y), tiny sensor tab
     ty = y_r - mg["d"] / 2 - tm["gap"] - tm["pkg"][1] / 2
-    x_b0 = x_gb1 + bu["sleeve_gap"]
+    x_b0 = x_gb1 + bu["gear_gap"]                                           # bush front face: reverse-thrust stop of the gear B hub
     x_b1 = x_b0 + bu["len"]
     x_col0 = x_b1 + co["gap"]
     x_col1 = x_col0 + co["len"]
@@ -189,17 +191,44 @@ def build_tank_and_plunger(s: Script, p: dict, L: dict) -> None:
     s.cut("nut", ["t_nbore"])
 
 
+def gear_profile(g: dict, front: float, back: float, hub_d: float) -> list[tuple[float, float, float, float]]:
+    """Envelope of a module-m miter gear as (a0, a1, r0, r1) frustums, a = distance from the pitch-cone apex along the gear axis.
+
+    Tip cone 45 degrees (r = a + m cos 45) from the front face to the pitch circle (a = m z / 2, r = tip radius), back cone down to the hub radius, hub cylinder to `back`."""
+    rp = g["module"] * g["z_motor"] / 2.0
+    dk = g["module"] * math.cos(math.radians(45.0))
+    ro = rp + dk
+    hr = hub_d / 2.0
+    a_h = rp + ro - hr
+    segs = [(front, rp, front + dk, ro), (rp, a_h, ro, hr)]
+    if back > a_h + 1e-6:
+        segs.append((a_h, back, hr, hr))
+    return segs
+
+
+def build_gear(s: Script, name: str, axis: str, c: tuple[float, float, float], apex: float, segs: list, bore_d: float) -> None:
+    """Gear envelope (join of frustums / hub cylinder) with its bore; `apex` = coordinate of the axes crossing along `axis`."""
+    names = []
+    for k, (a0, a1, r0, r1) in enumerate(segs):
+        nm = name if k == 0 else f"t_{name}_s{k}"
+        if abs(r0 - r1) < 1e-9:
+            s.cyl(nm, axis, c, 2 * r0, apex + a0, apex + a1)
+        else:
+            s.cone(nm, axis, c, r0, r1, apex + a0, apex + a1)
+        names.append(nm)
+    if len(names) > 1:
+        s.join(name, names[1:])
+    s.cyl(f"t_{name}_bore", axis, c, bore_d, apex + segs[0][0] - 0.1, apex + segs[-1][1] + 0.1)
+    s.cut(name, [f"t_{name}_bore"])
+
+
 def build_drive(s: Script, p: dict, L: dict) -> None:
     g, bu, mg, tm, dr, rd, co = p["cup"]["gears"], p["cup"]["bush"], p["cup"]["magnet"], p["cup"]["tmag"], p["drive_nfp"], p["cup"]["rod"], p["cup"]["collar"]
     zc, yr, xc = L["zc"], L["y_r"], L["xc"]
     gb0, gb1 = L["gear_b"]
     ga0, ga1 = L["gear_a_y"]
-    tip = g["tip_od"]
-    s.cyl("rod", "X", (0, yr, zc), rd["d"], gb0, L["x_tip"])                       # rod ENDS at gear B
-    s.tube("thrust_sleeve", "X", (0, yr, zc), g["sleeve_od"], g["sleeve_id"], gb0, gb1)
-    s.cyl("gear_b", "X", (0, yr, zc), tip, gb0, gb1)
-    s.cyl("t_gbb", "X", (0, yr, zc), g["sleeve_od"] + g["bore_clr"], gb0 - 0.1, gb1 + 0.1)
-    s.cut("gear_b", ["t_gbb"])
+    s.cyl("rod", "X", (0, yr, zc), rd["d"], gb0, L["x_tip"])                       # rod ENDS flush with gear B's front face; gear B is tapped onto the rod (no sleeve)
+    build_gear(s, "gear_b", "X", (0, yr, zc), xc, gear_profile(g, g["front_b"], g["back_b"], g["hub_b_d"]), rd["d"] + g["bore_clr"])      # M1.6 tapped bore modelled at the rod size + clearance
     s.tube("bush_rod", "X", (0, yr, zc), bu["od"], bu["id"], *L["bush"])
     s.tube("thrust_collar", "X", (0, yr, zc), co["od"], rd["d"] + 0.04, *L["collar"])
     s.cyl("magnet", "X", (0, yr, zc), mg["d"], *L["magnet"])
@@ -210,9 +239,7 @@ def build_drive(s: Script, p: dict, L: dict) -> None:
     s.cyl("motor", "Y", (xc, 0, zc), dr["motor_d"], *L["motor_y"])
     s.cyl("motor_rear_boss", "Y", (xc, 0, zc), dr["rear_boss_d"], *L["rear_boss_y"])
     s.cyl("motor_shaft", "Y", (xc, 0, zc), dr["shaft_d"], ga0 + 0.15, L["boss_y"][0])
-    s.cyl("gear_a", "Y", (xc, 0, zc), tip, ga0, ga1)
-    s.cyl("t_gab", "Y", (xc, 0, zc), dr["shaft_d"] + g["bore_clr"], ga0 - 0.1, ga1 + 0.1)
-    s.cut("gear_a", ["t_gab"])
+    build_gear(s, "gear_a", "Y", (xc, 0, zc), yr, gear_profile(g, g["front_a"], g["back_a"], g["hub_a_d"]), dr["shaft_d"] + g["bore_clr"])   # D-shaft press fit (round bore + compound)
     bx, by, bh = dr["term_block"]
     yt = L["gearhead_y"][0] + dr["term_x"]
     zb = zc - dr["motor_d"] / 2 - bh
@@ -276,9 +303,7 @@ def build_housing(s: Script, p: dict, L: dict) -> None:
     cuts = [s.box("t_pk_in", (K["x_bf"] - 0.02, K["x_far"]), (yr - half, yr + half), (-0.1, z_roof0)),
             s.box("t_pk_win", (K["plate_x"][0], K["plate_x"][1]), (yr - half, yr + half), (-0.1, w + 0.05)),
             s.cyl("t_floor_fill", "Z", (L["x_s"], L["y_s"], 0), c["fill"]["hole_d"], -0.1, w + 0.05)]
-    gb0, gb1 = L["gear_b"]
-    cuts.append(s.box("t_grelief", (gb0 - 0.3, gb1 + 0.3), (yr - 3.0, yr + 3.0), (w - g["floor_relief"], w + 0.01)))
-    cuts.append(s.box("t_grelief2", (xc - 3.2, xc + 3.2), (L["gear_a_y"][0] - 0.3, L["gear_a_y"][1] + 0.3), (w - g["floor_relief"], w + 0.01)))
+    # no floor relief under the gears any more: the z12 envelopes (tip radius 2.01) keep 1.34 mm to the floor (the z16 tips had 0.65)
     u, usb = L["usb"], c["usb"]
     xu, zu = u["x_c"], u["z_c"]
     cuts.append(s.box("t_usb_open", (xu - usb["open_w"] / 2, xu + usb["open_w"] / 2), (W - w - 0.1, W + 0.1), (zu - usb["open_h"] / 2, zu + usb["open_h"] / 2)))
@@ -327,9 +352,9 @@ def build(p: dict, variant: str) -> tuple[Script, dict]:
 
 
 MFG_PARTS = {"bottom": ["bottom"], "top": ["top"], "reservoir": ["reservoir"], "plunger_core": ["plunger_core"], "plunger_seal": ["seal_a", "seal_b"],
-             "thrust_sleeve": ["thrust_sleeve"], "thrust_collar": ["thrust_collar"], "lid_gasket": ["lid_gasket"], "usb_gasket": ["usb_gasket"]}
+             "thrust_collar": ["thrust_collar"], "lid_gasket": ["lid_gasket"], "usb_gasket": ["usb_gasket"]}
 PURCHASED = ["nut", "rod", "bush_rod", "gear_a", "gear_b", "motor", "gearhead", "motor_boss", "motor_shaft", "motor_rear_boss", "motor_term", "magnet", "hall_tmag", "septum",
-             "hub_oring", "needle", "needle_hub", "needle_guard", "cannula_adapter", "dock_magnet", "dock_clip", "hall_dock"]
+             "hub_gasket", "needle", "needle_hub", "needle_guard", "cannula_adapter", "dock_magnet", "dock_clip", "hall_dock"]
 KEEPOUT = ["ko_board", "ko_board_tab", "ko_aux", "ko_io", "ko_side_a", "ko_side_b", "ko_battery", "ko_usb", "ko_tmag_board", "ko_dock_board"]
 PART_NAMES = [b for v in MFG_PARTS.values() for b in v] + PURCHASED + KEEPOUT
-EXCLUDE_PAIRS = [["gear_a", "gear_b"], ["needle_guard", "needle_hub"], ["needle_hub", "reservoir"], ["lid_gasket", "top"], ["hub_oring", "reservoir"]]
+EXCLUDE_PAIRS = [["gear_a", "gear_b"], ["needle_guard", "needle_hub"], ["needle_hub", "reservoir"], ["lid_gasket", "top"], ["hub_gasket", "reservoir"]]

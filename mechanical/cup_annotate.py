@@ -60,12 +60,15 @@ def draw(p: dict, L: dict, svg_path: Path) -> Path:
         rect(xf - b_, yr - L["bore_w"] / 2 - 0.05, xf - a_, yr + L["bore_w"] / 2 + 0.05, "#dd2222", "#880000", op=0.9)
     rect(xr + c["plunger"]["nut_recess"], yr - 1.65, xr + L["nut_zone"], yr + 1.65, "#f0c040", "#806000")
     line(L["gear_b"][0], yr, L["x_tip"], yr, "#111", 3.0)
-    rect(L["collar"][0], yr - 1.2, L["collar"][1], yr + 1.2, "#d4a017", "#7a5a00")
+    rect(L["collar"][0], yr - c["collar"]["od"] / 2, L["collar"][1], yr + c["collar"]["od"] / 2, "#d4a017", "#7a5a00")
     rect(L["bush"][0], yr - 1.5, L["bush"][1], yr + 1.5, "#b0701c", "#5a3000")
-    rect(L["gear_b"][0], yr - 2.7, L["gear_b"][1], yr + 2.7, "#f2d020", "#806000")
+    gt = c["gears"]["tip_od"] / 2
+    rect(L["gear_b"][0], yr - gt, L["gear_b"][0] + 1.0, yr + gt, "#f2d020", "#806000")                     # tooth zone (envelope), hub below
+    rect(L["gear_b"][0] + 1.0, yr - c["gears"]["hub_b_d"] / 2, L["gear_b"][1], yr + c["gears"]["hub_b_d"] / 2, "#f2d020", "#806000")
     rect(L["magnet"][0], yr - 1.0, L["magnet"][1], yr + 1.0, "#cc2222", "#660000")
     rect(L["tmag"][0], L["tmag_y"] - 1.4, L["tmag"][1], L["tmag_y"] + 1.4, "#ffd400", "#806000")
-    rect(xc - 2.7, L["gear_a_y"][0], xc + 2.7, L["gear_a_y"][1], "#e8b000", "#806000")
+    rect(xc - gt, L["gear_a_y"][0], xc + gt, L["gear_a_y"][0] + 1.0, "#e8b000", "#806000")
+    rect(xc - c["gears"]["hub_a_d"] / 2, L["gear_a_y"][0] + 1.0, xc + c["gears"]["hub_a_d"] / 2, L["gear_a_y"][1], "#e8b000", "#806000")
     rect(xc - 1.0, L["gear_a_y"][1], xc + 1.0, L["boss_y"][0], "#444", "#222")
     rect(xc - 1.75, L["boss_y"][0], xc + 1.75, L["boss_y"][1], "#999", "#444")
     rect(xc - 3, L["gearhead_y"][0], xc + 3, L["gearhead_y"][1], "#b9bec6", "#444")
@@ -94,9 +97,9 @@ def draw(p: dict, L: dict, svg_path: Path) -> Path:
     rect(nb["x"][0], nb["contact_face_y"], nb["x"][1], W - w, "#804000", "#000")
     items = [
         (xc, (L["motor_y"][0] + L["motor_y"][1]) / 2, "Motor NFP-608-26.45 TRANSVERSE (axis Y), last element at the rear, spans both lanes", "#8a8f98"),
-        (xc, L["gear_a_y"][0] + 1.1, "Gear A: miter bevel z16 on the motor shaft", "#e8b000"),
-        (L["gear_b"][0] + 1.1, yr + 2.0, "Gear B: miter bevel z16 on the rod (only 2 gears)", "#f2d020"),
-        ((L["gear_b"][1] + L["x_pr"]) / 2, yr, "Rod M1.6 x 0.35 ENDS at gear B, rotating, axially fixed (%.1f mm)" % L["rod_len"], "#111111"),
+        (xc, L["gear_a_y"][0] + 1.1, "Gear A: miter bevel m0.3 z12 on the motor shaft (2 mm bore, faced)", "#e8b000"),
+        (L["gear_b"][0] + 1.1, yr + 2.0, "Gear B: miter bevel m0.3 z12 tapped onto the rod (only 2 gears)", "#f2d020"),
+        ((L["gear_b"][1] + L["x_pr"]) / 2, yr, "Rod M1.6 x 0.35 ends flush with gear B, rotating, axially fixed (%.1f mm)" % L["rod_len"], "#111111"),
         ((xr + xf) / 2, yr + 4.0, "Plunger cup %.1f x 5.3, %.1f mm long, blind bore (drawn at FULL)" % (L["bore_w"] - 0.2, L["L_pl"]), "#e0803a"),
         (xr + 0.8, yr + 1.65, "Brass nut M1.6 in the hex pocket (rear of the cup)", "#f0c040"),
         (xf - 0.8, yr - L["bore_w"] / 2, "Two lip seals at the closed front end", "#dd2222"),

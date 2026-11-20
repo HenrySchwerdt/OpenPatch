@@ -37,6 +37,14 @@ class Script:
                  body_name=name, name=name)
         return name
 
+    def cone(self, name: str, axis: str, c: tuple[float, float, float], r0: float, r1: float,
+             a0: float, a1: float) -> str:
+        """Kegelstumpf entlang 'axis' von a0 (Radius r0) bis a1 (Radius r1); c = Mittelpunkt in den beiden anderen Achsen."""
+        base = {"X": [a0, c[1], c[2]], "Y": [c[0], a0, c[2]], "Z": [c[0], c[1], a0]}[axis]
+        self.add("solid.cone", radius=r0, top_radius=r1, height=a1 - a0, base=base, axis=axis,
+                 body_name=name, name=name)
+        return name
+
     def tube(self, name: str, axis: str, c: tuple[float, float, float], d_out: float, d_in: float,
              a0: float, a1: float) -> str:
         self.cyl(name, axis, c, d_out, a0, a1)

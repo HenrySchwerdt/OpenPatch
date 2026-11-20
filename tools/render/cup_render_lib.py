@@ -10,7 +10,7 @@ rp.LOOKS = {
  "nut": P("starter.metal.brass-champagne"), "gear_a": P("starter.metal.brass-champagne"), "gear_b": P("starter.metal.brass-champagne"),
  "motor": P("starter.metal.aluminum-bead-blast"), "gearhead": P("starter.metal.titanium-matte"),
  "magnet": P("starter.metal.carbon-steel-polished"), "septum": P("starter.plastic.tpu-matte-black"),
- "lid_gasket": P("starter.plastic.tpu-matte-black"), "usb_gasket": P("starter.plastic.tpu-matte-black"), "hub_oring": P("starter.plastic.tpu-matte-black"),
+ "lid_gasket": P("starter.plastic.tpu-matte-black"), "usb_gasket": P("starter.plastic.tpu-matte-black"), "hub_gasket": P("starter.plastic.tpu-matte-black"),
  "ko_battery": P("starter.plastic.pc-graphite-opaque"), "ko_usb": P("starter.metal.silver-cool"),
  "ko_board": {"color": "#1f5a3a", "pbr": {"metallic": 0.0, "roughness": 0.45, "dielectric_ior": 1.5}},
  "ko_dock_board": {"color": "#1f5a3a", "pbr": {"metallic": 0.0, "roughness": 0.45, "dielectric_ior": 1.5}},
@@ -20,7 +20,7 @@ rp.LOOKS = {
 rp.HIDDEN = {"ko_aux", "ko_io", "ko_side_a", "ko_side_b"}
 rp.LIFT = {"top": 34, "lid_gasket": 28, "ko_board": 20, "ko_usb": 20, "ko_tmag_board": 20, "ko_dock_board": 20, "ko_battery": 13,
  "motor": 9, "gearhead": 9, "motor_boss": 9, "motor_rear_boss": 9, "motor_shaft": 9, "motor_term": 9, "gear_a": 9,
- "plunger_core": 5, "seal_a": 5, "seal_b": 5, "nut": 5, "rod": 5, "thrust_sleeve": 5, "gear_b": 5, "bush_rod": 5, "thrust_collar": 5, "magnet": 5,
+ "plunger_core": 5, "seal_a": 5, "seal_b": 5, "nut": 5, "rod": 5, "gear_b": 5, "bush_rod": 5, "thrust_collar": 5, "magnet": 5,
  "cannula_adapter": -10, "dock_magnet": -10}
 cam = dict(target=[24, 17, 4], yaw=-0.62, pitch=0.46, distance=200, fov=0.22)
 rp.SHOTS = {
