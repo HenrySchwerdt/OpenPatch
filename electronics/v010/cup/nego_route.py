@@ -271,7 +271,9 @@ def main():
         print("iter %d: overused cells %d, unroutable connections %d, pres %.2f, %.0f s" % (it, over, fails, pres, time.time() - t0), flush=True)
         if over == 0:
             break
-        pres *= 1.6
+        pres = min(pres * 1.3, 30.0)
+        best_over = min(globals().get('best_over', 1e9), over)
+        np.save(dst + '.over.npy', np.argwhere(overmask).astype(np.int32))
     for code, (n, w, paths) in N.paths.items():
         for p in paths:
             commit(b, N.R, code, w, p)
