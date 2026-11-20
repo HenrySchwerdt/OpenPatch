@@ -33,12 +33,15 @@ pub fn new_updater(flash: &'static FlashMutex, aligned: &'static mut AlignedBuff
 /// Verify the image of `image_len` bytes in DFU against `signature` (Ed25519 over the SHA-512
 /// digest) and mark it for the next boot. Fails closed without a compiled-in key.
 #[allow(dead_code)]
-pub async fn finalize(u: &mut Updater, signature: &[u8; 64], image_len: u32) -> Result<(), FirmwareUpdaterError> {
-    let Some(pk) = pubkey::PUBLIC_KEY else {
+pub async fn finalize(u: &mut Updater) -> Result<(), FirmwareUpdaterError> {
+    // Manifest format 2 (`openpatch-boot-policy`): the signature covers header + image, which embassy's
+    // `verify_and_mark_updated` cannot check. The BOOTLOADER verifies signature, hardware id, size and rollback version BEFORE it swaps
+    // and cancels an invalid update; the app only refuses when no key is compiled in (the bootloader would refuse too).
+    if pubkey::PUBLIC_KEY.is_none() {
         defmt::error!("DFU refused: no signing public key compiled in");
         return Err(FirmwareUpdaterError::Signature(Default::default()));
-    };
-    u.verify_and_mark_updated(&pk, signature, image_len).await
+    }
+    u.mark_updated().await
 }
 
 #[embassy_executor::task]

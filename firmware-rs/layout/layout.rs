@@ -52,10 +52,15 @@ const _: () = assert!(DFU_SIZE == ACTIVE_SIZE + PAGE, "embassy-boot needs DFU = 
 
 /// Magic of the manifest page ("OPFW").
 pub const MANIFEST_MAGIC: u32 = 0x5746_504F;
-pub const MANIFEST_VERSION: u16 = 1;
-/// Manifest page layout (little endian): magic u32, version u16, reserved u16, image_len u32,
-/// signature [u8; 64] = 76 bytes, rest of the page is 0xFF.
-pub const MANIFEST_LEN: usize = 76;
+/// Manifest FORMAT 2 (`openpatch-boot-policy`): format 1 had no security version and is refused.
+pub const MANIFEST_VERSION: u16 = 2;
+/// Manifest page layout (little endian): magic u32, format u16, reserved u16, image_len u32, security version u32, hw_id u32,
+/// signature [u8; 64] = 84 bytes, rest of the page is 0xFF. The signature covers SHA-512("OPFW2" || header[0..20] || image).
+pub const MANIFEST_LEN: usize = 84;
+/// Hardware id of the cup board v4 (same value as `openpatch_boot_policy::HW_ID_CUP_V4`).
+pub const HW_ID: u32 = 0x0C0F_0004;
+/// `UICR.CUSTOMER[0..32]`: the one-way rollback store (`openpatch_boot_policy::counter`).
+pub const UICR_CUSTOMER: u32 = 0x1000_1080;
 
 #[derive(Clone, Copy, PartialEq, Eq)]
 pub enum Target {

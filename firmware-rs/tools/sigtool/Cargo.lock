@@ -154,6 +154,10 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "65cd87c9a6d60536580b316ad985726104730a5151c99845f2490428ef91240a"
 
 [[package]]
+name = "openpatch-boot-policy"
+version = "0.1.0"
+
+[[package]]
 name = "pkcs8"
 version = "0.10.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -260,6 +264,7 @@ version = "0.1.0"
 dependencies = [
  "ed25519-dalek",
  "getrandom",
+ "openpatch-boot-policy",
  "sha2",
 ]
 

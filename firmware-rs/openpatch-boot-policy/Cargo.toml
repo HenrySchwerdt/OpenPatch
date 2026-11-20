@@ -1,0 +1,14 @@
+[package]
+name = "openpatch-boot-policy"
+description = "OpenPatch bootloader policy: signed manifest v2, verify-before-swap, rollback counter, DFU receiver rules. Platform and crypto independent (traits), no_std, no alloc, no unsafe."
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+
+# Real Ed25519 + SHA-512 in the tests (the bootloader uses salty, sigtool uses the same dalek version).
+[dev-dependencies]
+ed25519-dalek = { version = "=2.2.0", default-features = false, features = ["std"] }
+sha2 = "=0.10.9"

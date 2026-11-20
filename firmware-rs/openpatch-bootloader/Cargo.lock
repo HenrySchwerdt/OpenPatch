@@ -453,6 +453,10 @@ dependencies = [
 ]
 
 [[package]]
+name = "openpatch-boot-policy"
+version = "0.1.0"
+
+[[package]]
 name = "openpatch-bootloader"
 version = "0.1.0"
 dependencies = [
@@ -463,6 +467,7 @@ dependencies = [
  "embassy-nrf",
  "embassy-sync",
  "embedded-storage",
+ "openpatch-boot-policy",
  "panic-reset",
  "salty",
 ]

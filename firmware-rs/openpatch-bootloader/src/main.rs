@@ -1,6 +1,7 @@
 //! OpenPatch bootloader for the nRF52840 (embassy-boot-nrf). TEST PROJECT, never to be worn.
 //!
 //! Boot flow (see `firmware-rs/docs/bootloader.md`):
+//! 0. (format 2) Rules in `openpatch-boot-policy`: signed header + image, hardware id, rollback counter in UICR.CUSTOMER.
 //! 1. If the state partition requests a swap and no swap progress exists yet ("pending update"),
 //!    the ed25519 signature of the image in DFU is verified against the compiled-in public key
 //!    (defense in depth: the application's `FirmwareUpdater::verify_and_mark_updated` already
@@ -29,6 +30,7 @@ use embassy_nrf::nvmc::Nvmc;
 use embassy_sync::blocking_mutex::raw::NoopRawMutex;
 use embassy_sync::blocking_mutex::Mutex;
 use embedded_storage::nor_flash::{ErrorType, NorFlash, ReadNorFlash};
+use openpatch_boot_policy as policy;
 use panic_reset as _;
 
 /// Flash wrapper for the DFU swap. The Rev A controller QUALIFIES the TPL5010 DONE edge in hardware (INTERLOCK.md B): a DONE
@@ -160,39 +162,73 @@ fn check_pending(flash: &'static Shared) -> Pending {
         return Pending::NotPending;
     }
 
-    let Some(pk) = pubkey::PUBLIC_KEY else { return Pending::Invalid };
-
-    // Manifest page: magic u32 | fmt u16 | reserved u16 | image_len u32 | signature [u8; 64]
+    // Manifest page (format 2, 84 bytes). All decisions (signature over header + image, hardware id, size, rollback) are in the
+    // host tested `openpatch-boot-policy`; this file only supplies flash reads, SHA-512, Ed25519 and the UICR counter words.
     let mut m = [0u8; layout::MANIFEST_LEN];
     if dfu.read(layout::MANIFEST_OFFSET, &mut m).is_err() {
         return Pending::Invalid;
     }
-    let magic = u32::from_le_bytes([m[0], m[1], m[2], m[3]]);
-    let len = u32::from_le_bytes([m[8], m[9], m[10], m[11]]);
-    if magic != layout::MANIFEST_MAGIC || len == 0 || len > layout::APP_SIZE {
-        return Pending::Invalid;
+    let verifier = pubkey::PUBLIC_KEY.as_ref().and_then(|pk| salty::PublicKey::try_from(pk).ok()).map(SaltyKey);
+    let slots = read_counter_slots();
+    let ctx = policy::verify::Context { verifier: verifier.as_ref(), hw_id: layout::HW_ID, max_image: layout::APP_SIZE, counter_slots: &slots };
+    match policy::verify_pending::<SaltySha, SaltyKey, _>(&m, &mut DfuSource { part: &mut dfu }, &ctx) {
+        Ok(_token) => Pending::Valid,
+        Err(_) => Pending::Invalid,
     }
-    let mut sig = [0u8; 64];
-    sig.copy_from_slice(&m[12..76]);
+}
 
-    let mut hasher = salty::Sha512::new();
-    let mut off = 0u32;
-    while off < len {
-        let n = core::cmp::min(aligned.0.len() as u32, len - off) as usize;
-        if dfu.read(off, &mut aligned.0[..n]).is_err() {
-            return Pending::Invalid;
-        }
-        hasher.update(&aligned.0[..n]);
-        off += n as u32;
+/// SHA-512 and Ed25519 of the policy traits, backed by salty.
+struct SaltySha(salty::Sha512);
+impl policy::Digest512 for SaltySha {
+    fn new() -> Self {
+        SaltySha(salty::Sha512::new())
     }
-    let digest = hasher.finalize();
+    fn update(&mut self, d: &[u8]) {
+        self.0.update(d);
+    }
+    fn finish(self) -> [u8; 64] {
+        self.0.finalize()
+    }
+}
+struct SaltyKey(salty::PublicKey);
+impl policy::SigCheck for SaltyKey {
+    fn verify(&self, digest: &[u8; 64], signature: &[u8; 64]) -> bool {
+        let Ok(sig) = salty::Signature::try_from(signature);
+        self.0.verify(digest, &sig).is_ok()
+    }
+}
+struct DfuSource<'a, P: ReadNorFlash> {
+    part: &'a mut P,
+}
+impl<P: ReadNorFlash> policy::ImageSource for DfuSource<'_, P> {
+    fn read(&mut self, offset: u32, buf: &mut [u8]) -> bool {
+        self.part.read(offset, buf).is_ok()
+    }
+}
 
-    let Ok(public_key) = salty::PublicKey::try_from(&pk) else { return Pending::Invalid };
-    let Ok(signature) = salty::Signature::try_from(&sig);
-    if public_key.verify(&digest, &signature).is_ok() {
-        Pending::Valid
-    } else {
-        Pending::Invalid
+/// The rollback store: `UICR.CUSTOMER[0..32]`.
+fn read_counter_slots() -> [u32; policy::counter::SLOTS] {
+    let mut s = [0u32; policy::counter::SLOTS];
+    for (i, w) in s.iter_mut().enumerate() {
+        // SAFETY: UICR.CUSTOMER is 32 readable words at a fixed address of the nRF52840.
+        *w = unsafe { ((layout::UICR_CUSTOMER + 4 * i as u32) as *const u32).read_volatile() };
+    }
+    s
+}
+
+/// After a CONFIRMED boot (no swap or revert pending) the version of the active image raises the minimum. A trial image never does.
+fn raise_counter_if_confirmed(flash: &'static Shared) {
+    let mut aligned = embassy_boot::AlignedBuffer([0u8; 256]);
+    let cfg = BootLoaderConfig::from_linkerfile_blocking(flash, flash, flash);
+    let mut active = cfg.active;
+    let state = embassy_boot::BootLoader::new(BootLoaderConfig::from_linkerfile_blocking(flash, flash, flash)).read_state(&mut aligned.0);
+    let confirmed = matches!(state, Ok(State::Boot));
+    let mut m = [0u8; layout::MANIFEST_LEN];
+    let version = if active.read(layout::MANIFEST_OFFSET, &mut m).is_ok() { policy::Manifest::parse(&m).ok().map(|x| x.version) } else { None };
+    let slots = read_counter_slots();
+    if let Ok(Some(w)) = policy::counter::bump_after_confirmed_boot(&slots, confirmed, version) {
+        // SAFETY: the address is a UICR customer word; `uicr_write` only writes an erased word.
+        let _ = unsafe { embassy_nrf::uicr_write((layout::UICR_CUSTOMER + 4 * w.slot as u32) as *mut u32, w.value) };
     }
 }
 
@@ -220,6 +256,7 @@ fn main() -> ! {
         let _ = st.mark_booted();
     }
 
+    raise_counter_if_confirmed(flash);
     let cfg = BootLoaderConfig::from_linkerfile_blocking(flash, flash, flash);
     let active_offset = cfg.active.offset();
     let bl: BootLoader = BootLoader::prepare(cfg);
