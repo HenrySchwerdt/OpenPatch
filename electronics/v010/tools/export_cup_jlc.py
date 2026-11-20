@@ -48,7 +48,7 @@ pos = os.path.join(OUT, "_pos.csv")
 run([K, "pcb", "export", "pos", "--format", "csv", "--units", "mm", "--side", "both", "-o", pos, PCB])
 rows = {r["Ref"]: r for r in csv.DictReader(open(pos))}
 os.remove(pos)
-bom, cpl, notasm = {}, [], []
+bom, cpl, notasm, VAL = {}, [], [], {}
 for ref, p in PARTS.items():
     if ref not in rows:
         continue
@@ -66,13 +66,14 @@ for ref, p in PARTS.items():
     off = OFF.get(p["fp"], {}).get("delta_ccw", 0)
     rot = (rot - off) % 360
     cpl.append([ref, r["PosX"], r["PosY"], "Top" if r["Side"] == "top" else "Bottom", f"{rot:g}"])
-    bom.setdefault((p["value"], p["fp"], p["lcsc"], p.get("mpn", "")), []).append(ref)
+    bom.setdefault((p["lcsc"], p["fp"]), []).append(ref)
+    VAL.setdefault((p["lcsc"], p["fp"]), p["value"])
 key = lambda s: (re.sub(r"\d", "", s), int(re.sub(r"\D", "", s) or 0))
 with open(os.path.join(OUT, "BOM-jlcpcb.csv"), "w", newline="") as f:
     w = csv.writer(f)
     w.writerow(["Comment", "Designator", "Footprint", "LCSC Part #"])
-    for (v, fp, lc, mpn), refs in sorted(bom.items(), key=lambda x: key(sorted(x[1], key=key)[0])):
-        w.writerow([v, ",".join(sorted(refs, key=key)), fp, lc])
+    for (lc, fp), refs in sorted(bom.items(), key=lambda x: key(sorted(x[1], key=key)[0])):
+        w.writerow([VAL[(lc, fp)], ",".join(sorted(refs, key=key)), fp, lc])
 with open(os.path.join(OUT, "CPL-jlcpcb.csv"), "w", newline="") as f:
     w = csv.writer(f)
     w.writerow(["Designator", "Mid X", "Mid Y", "Layer", "Rotation"])

@@ -1673,7 +1673,7 @@
  },
  {
   "ref": "CB1",
-  "value": "22uF 6.3V X5R 0805",
+  "value": "22uF 25V X5R 0805",
   "fp": [
    "Capacitor_SMD",
    "C_0805_2012Metric"
@@ -1687,7 +1687,7 @@
   "side": "F",
   "bom": true,
   "dnp": false,
-  "note": "bulk on the boost output (basic part); about 8 uF effective at 5 V DC bias",
+  "note": "bulk on the boost output (basic part, 25 V rated per JLC); about 8 uF effective at 5 V DC bias",
   "group": "boost",
   "board": "CUP"
  },

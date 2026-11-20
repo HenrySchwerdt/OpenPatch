@@ -12,38 +12,38 @@ UICR `REGOUT0` = 3.3 V once (flash in normal-voltage mode with 3.3 V on VDDH and
 | A1 | GND | `GND` |  |
 | A7 | ANT | `ANT_A` |  |
 | A8 | BOARD_ANT | `ANT_B` |  |
-| B8 | P1.14 | `LED_B` | out, active low |
 | C2 | SWDIO | `SWDIO` |  |
 | C3 | SWCLK | `SWDCLK` |  |
-| C8 | P1.12 | `LED_R` | out, active low |
-| D8 | P0.31 | `LED_G` | out, active low |
+| D1 | P0.19 | `BTN_N` | in (internal pull-up) |
+| D7 | P1.13 | `MCU_EN` | out (R18 pull-down; hardware AND input U36) |
+| D8 | P0.31 | `DOCK_N` | in (hall, 100 k pull-up RDK) |
 | E1 | P0.18/RESET | `NRST` | reset |
-| E2 | P0.15 | `BTN_N` | in (internal pull-up) |
+| E2 | P0.15 | `MOT_FWD` | out (forward intent, R16 pull-up = forward) |
 | E3 | P0.16 | `ARM_CLK` | out (latch set clock) |
-| E4 | P1.08 | `OC_OK` | in (open drain, 100 k pull-up RNR-class R92) |
-| E5 | P1.15 | `SUP_TXD` | uart (bootloader / supervisor link) |
-| E6 | P0.02 | `SUP_RXD` | uart |
-| E7 | P0.28 | `CHG_STAT` | in (open drain, internal pull-up) |
-| E8 | P0.03 | `DOCK_N` | in (hall, 100 k pull-up RDK) |
+| E4 | P1.08 | `SUP_OK` | in |
+| E5 | P1.15 | `I2C_SCL` | TWIM (4.7 k pull-up RI2) |
+| E6 | P0.02 | `LATCH_Q` | in (readback) |
+| E7 | P0.28 | `LED_B` | out, active low |
+| E8 | P0.03 | `SUP_RXD` | uart |
 | F1 | D+ | `USB_DP` |  |
 | F2 | VBUS | `VBUS_P` |  |
-| F3 | P0.11 | `SUP_OK` | in |
-| F4 | P0.07 | `BENBL` | out |
-| F5 | P0.27 | `BPHASE` | out |
-| F6 | P0.00 | `LATCH_Q` | in (readback) |
-| F7 | P0.30 | `BUZ_A` | out (4 kHz PWM to the sounder gate, RDA pull-down) |
-| F8 | P0.29 | `I2C_SCL` | TWIM (4.7 k pull-up RI2) |
+| F3 | P0.11 | `CHG_STAT` | in (open drain, internal pull-up) |
+| F4 | P0.07 | `APHASE` | out |
+| F5 | P0.27 | `I2C_SDA` | TWIM (4.7 k pull-up RI1) |
+| F6 | P0.00 | `LED_R` | out, active low |
+| F7 | P0.30 | `BPHASE` | out |
+| F8 | P0.29 | `SUP_BOOT0` | out (BOOT0 of the supervisor, internal pull-down on the STM32) |
 | G1 | D- | `USB_DM` |  |
-| G3 | P0.12 | `MOT_FWD` | out (forward intent, R16 pull-up = forward) |
-| G4 | P1.09 | `APHASE` | out |
-| G5 | P0.05 | `SUP_NRST` | **open-drain output only** (never drive high: the net is shared with TPL5010 RSTn, supervisor NRST and U32) |
-| G6 | P0.01 | `SUP_BOOT0` | out (BOOT0 of the supervisor, internal pull-down on the STM32) |
-| G7 | P0.26 | `MCU_EN` | out (R18 pull-down; hardware AND input U36) |
-| G8 | P0.06 | `I2C_SDA` | TWIM (4.7 k pull-up RI1) |
+| G3 | P0.12 | `BUZ_A` | out (4 kHz PWM to the sounder gate, RDA pull-down) |
+| G4 | P1.09 | `BENBL` | out |
+| G5 | P0.05 | `AENBL` | out |
+| G6 | P0.01 | `SUP_NRST` | **open-drain output only** (never drive high: the net is shared with TPL5010 RSTn, supervisor NRST and U32) |
+| G7 | P0.26 | `LED_G` | out, active low |
+| G8 | P0.06 | `SUP_TXD` | uart (bootloader / supervisor link) |
 | H2 | VDDH | `VBAT` |  |
 | H3 | VDD | `3V3` |  |
 | H4 | VDD | `3V3` |  |
-| H5 | P0.08 | `AENBL` | out |
+| H5 | P0.08 | `OC_OK` | in (open drain, 100 k pull-up RNR-class R92) |
 | H7 | P0.04 | `VMOT_SENSE` | ain (VMOT/2) |
 | H8 | GND | `GND` |  |
 

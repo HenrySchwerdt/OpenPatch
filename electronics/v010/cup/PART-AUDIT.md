@@ -189,7 +189,7 @@ Bleeders (Q17/Q17B and two resistors), test pads, OC_TEST/DOCK_TEST hooks, the s
 | L1 | 1uH 2520 (WPN252012E1R0MT) | C370610 | L_1008_2520Metric | boost | BST_SW, VBAT |
 | R55 | 220k | C25767 | R_0402_1005Metric | boost | BST_FB, VMOT_PRE |
 | R56 | 30k | C25776 | R_0402_1005Metric | boost | BST_FB, GND |
-| CB1 | 22uF 6.3V X5R 0805 | C45783 | C_0805_2012Metric | boost | GND, VMOT_PRE |
+| CB1 | 22uF 25V X5R 0805 | C45783 | C_0805_2012Metric | boost | GND, VMOT_PRE |
 
 Not fitted by the assembler (bare pads, wire pads, DNP match parts): PI1 (DNP), PI3 (DNP), SP1, SP2, MP1, MP2, MP3, MP4, TL1, TL2, TL3, TL4, TP1, TP2, TP3, TP4, TP5, TP6, TP7, TP8, TP9, TP10, TP11, TP12, TP13, TP14, J10, J11, J12, J13, J14.
 <!-- GENERATED:END -->

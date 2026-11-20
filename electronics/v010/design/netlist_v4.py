@@ -185,8 +185,8 @@ def build():
     new("R56", "30k", R0402, {1: "BST_FB", 2: "GND"}, "C25776", "0402WGF3002TCE", group="boost")
     C0805 = ("Capacitor_SMD", "C_0805_2012Metric")
     for i in (1,):
-        new("CB%d" % i, "22uF 6.3V X5R 0805", C0805, {1: "VMOT_PRE", 2: "GND"}, "C45783", "CL21A226MAQNNNE", group="boost",
-            note="bulk on the boost output (basic part); about 8 uF effective at 5 V DC bias")
+        new("CB%d" % i, "22uF 25V X5R 0805", C0805, {1: "VMOT_PRE", 2: "GND"}, "C45783", "CL21A226MAQNNNE", group="boost",
+            note="bulk on the boost output (basic part, 25 V rated per JLC); about 8 uF effective at 5 V DC bias")
     # ---------------------------------------------------------------- SWD + test pads (top side)
     swd = [("SWDIO", "SWDIO"), ("SWDCLK", "SWDCLK"), ("NRST", "NRST"), ("GND", "GND"), ("3V3", "3V3")]
     for i, (v, n) in enumerate(swd):

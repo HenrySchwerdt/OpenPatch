@@ -1,7 +1,7 @@
 {
     "$schema": "https://schemas.kicad.org/drc.v1.json",
     "coordinate_units": "mm",
-    "date": "2026-11-20T14:14:16",
+    "date": "2026-11-20T14:17:36",
     "ignored_checks": [
         {
             "description": "Footprint has no courtyard defined",
@@ -333,12 +333,12 @@
                     "uuid": "98d55283-1560-420f-a25b-d47a70f4fe06"
                 },
                 {
-                    "description": "Pad 1 [3V3] of C50 on B.Cu",
+                    "description": "Track [3V3] on B.Cu, length 1.1546 mm",
                     "pos": {
                         "x": 103.052,
                         "y": 84.466
                     },
-                    "uuid": "7ebf4f18-d9ff-457e-bbb9-c3176649b149"
+                    "uuid": "bae7c593-bb02-4bd5-983d-21646ae4c5e1"
                 }
             ],
             "severity": "error",
@@ -348,12 +348,12 @@
             "description": "Missing connection between items",
             "items": [
                 {
-                    "description": "Pad 8 [3V3] of U6 on B.Cu",
+                    "description": "Track [3V3] on B.Cu, length 0.4020 mm",
                     "pos": {
                         "x": 105.951,
                         "y": 85.873
                     },
-                    "uuid": "e7969c73-1719-47e1-b936-0be815a1fd3d"
+                    "uuid": "4aa6ae3a-bf85-475e-b764-88a7bc6d3d2c"
                 },
                 {
                     "description": "Pad 1 [3V3] of RNR on F.Cu",
@@ -747,12 +747,12 @@
                     "uuid": "c5e75447-85d1-43af-a188-d3a0776f7a0d"
                 },
                 {
-                    "description": "Track [SUP_BOOT0] on F.Cu, length 1.5648 mm",
+                    "description": "Track [SUP_BOOT0] on F.Cu, length 0.1817 mm",
                     "pos": {
-                        "x": 126.8592,
-                        "y": 88.5284
+                        "x": 126.7307,
+                        "y": 88.6569
                     },
-                    "uuid": "2f19c02c-952d-4840-a99a-f54336cc1208"
+                    "uuid": "21535c9c-9f25-4576-99f6-616ffdf5dee0"
                 }
             ],
             "severity": "error",
@@ -762,12 +762,12 @@
             "description": "Missing connection between items",
             "items": [
                 {
-                    "description": "Track [OC_OK] on F.Cu, length 1.3474 mm",
+                    "description": "Track [OC_OK] on F.Cu, length 0.0198 mm",
                     "pos": {
-                        "x": 128.75,
+                        "x": 127.4026,
                         "y": 85.9267
                     },
-                    "uuid": "19cc8403-bd4e-45a2-b407-9327bcf0b3fa"
+                    "uuid": "4a43c4a5-5c13-40a4-9392-0d9f374d29e8"
                 },
                 {
                     "description": "Pad 8 [OC_OK] of U30 on B.Cu",
@@ -831,12 +831,12 @@
             "description": "Missing connection between items",
             "items": [
                 {
-                    "description": "Track [SUP_PERMIT] on B.Cu, length 1.0536 mm",
+                    "description": "Pad 3 [SUP_PERMIT] of U36 on B.Cu",
                     "pos": {
                         "x": 127.59,
                         "y": 89.658
                     },
-                    "uuid": "0d12ab80-b0f9-4de3-8e4c-8f921193a31c"
+                    "uuid": "6776fb80-b75f-48b3-a1b9-cb2c0cfcb893"
                 },
                 {
                     "description": "Pad 1 [SUP_PERMIT] of TP9 on F.Cu",
@@ -1061,12 +1061,12 @@
             "description": "Missing connection between items",
             "items": [
                 {
-                    "description": "Track [DOCK_N] on In3.Cu, length 0.3803 mm",
+                    "description": "Via [DOCK_N] on F.Cu - B.Cu",
                     "pos": {
-                        "x": 126.7485,
-                        "y": 87.6299
+                        "x": 126.4796,
+                        "y": 87.361
                     },
-                    "uuid": "fd076ed3-784b-4cac-9237-869d8887179e"
+                    "uuid": "6a4a8fae-71e1-4bde-9a35-33451769da2c"
                 },
                 {
                     "description": "Pad 1 [DOCK_N] of U33 on B.Cu",
@@ -1115,12 +1115,12 @@
                     "uuid": "9420dc3f-ba06-4899-9709-25a5ceac40f9"
                 },
                 {
-                    "description": "Track [DOCK_N] on F.Cu, length 0.4953 mm",
+                    "description": "Track [DOCK_N] on In3.Cu, length 0.8443 mm",
                     "pos": {
-                        "x": 132.982,
-                        "y": 87.8767
+                        "x": 133.3322,
+                        "y": 88.2269
                     },
-                    "uuid": "b7841b92-e790-495b-8de9-02ed2acf22bc"
+                    "uuid": "6de44bdd-3743-407b-adeb-53a0f361fe71"
                 }
             ],
             "severity": "error",
@@ -1383,12 +1383,12 @@
             "description": "Missing connection between items",
             "items": [
                 {
-                    "description": "Track [VBAT] on B.Cu, length 1.9615 mm",
+                    "description": "Track [VBAT] on B.Cu, length 0.5392 mm",
                     "pos": {
-                        "x": 103.9768,
+                        "x": 104.516,
                         "y": 86.212
                     },
-                    "uuid": "f430a4b0-24eb-435c-a474-9b1d6990b88e"
+                    "uuid": "89d41b24-aa3f-4308-8d2c-f049e18266ad"
                 },
                 {
                     "description": "Pad 1 [VBAT] of SP1 on F.Cu",
@@ -1406,12 +1406,12 @@
             "description": "Missing connection between items",
             "items": [
                 {
-                    "description": "Pad 1 [VBAT] of TP4 on F.Cu",
+                    "description": "Track [VBAT] on F.Cu, length 0.1360 mm",
                     "pos": {
                         "x": 132.501,
-                        "y": 93.407
+                        "y": 93.543
                     },
-                    "uuid": "87574dcc-b216-4f56-b28e-ddd72fec587f"
+                    "uuid": "e88ea8e2-925c-4981-a7bc-e9700b58c0c5"
                 },
                 {
                     "description": "Pad 1 [VBAT] of D6 on B.Cu",
@@ -1437,12 +1437,12 @@
                     "uuid": "e754ee43-908d-449a-ba29-7aebf1d1ae33"
                 },
                 {
-                    "description": "Pad 1 [VBAT] of L1 on F.Cu",
+                    "description": "Track [VBAT] on F.Cu, length 2.2429 mm",
                     "pos": {
                         "x": 134.087,
                         "y": 95.129
                     },
-                    "uuid": "d6c3f0e5-b014-429e-9910-d4160fbb6443"
+                    "uuid": "35fe3039-ad21-4fb8-9a9b-ec4246d5c7b0"
                 }
             ],
             "severity": "error",
@@ -1483,12 +1483,12 @@
                     "uuid": "840f519f-0c77-45bc-b8dc-40205bce7d54"
                 },
                 {
-                    "description": "Track [VMOT] on In3.Cu, length 6.9202 mm",
+                    "description": "Track [VMOT] on B.Cu, length 0.3099 mm",
                     "pos": {
-                        "x": 130.2145,
-                        "y": 89.3992
+                        "x": 123.0752,
+                        "y": 89.1801
                     },
-                    "uuid": "307287a4-59d8-4f6c-9e36-f64f7e50543f"
+                    "uuid": "d8ee0faf-25e4-45dc-9390-e27652570490"
                 }
             ],
             "severity": "error",
