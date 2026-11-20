@@ -119,10 +119,7 @@ def main():
         f = b.add(ref, p["value"], tuple(p["fp"]), x, y, 0, side=side, pins={k: v for k, v in p["pins"].items() if v}, lcsc=p["lcsc"], mpn=p["mpn"],
                   bom=p["bom"], note=p["note"], hide_ref=True)
         f.SetOrientationDegrees(rot if side == "F" else (rot + 180) % 360)
-        if ref == "U1":      # module pads 65-78 (antenna half) are mechanical only: not soldered, they would hang over the board edge
-            for pd in list(f.Pads()):
-                if int(pd.GetNumber()) > 64:
-                    f.Remove(pd)
+
         b.parts[ref]["dnp"] = p["dnp"]; b.parts[ref]["group"] = p["group"]; b.parts[ref]["board"] = "CUP"
     fps = {f.GetReference(): f for f in b.b.GetFootprints()}
     # antenna keep-out (all copper layers)
@@ -137,8 +134,6 @@ def main():
     for x, y in ((a[0], a[1]), (a[2], a[1]), (a[2], a[3]), (a[0], a[3])):
         ch.Append(MM(bl.OX + x), MM(bl.OY + y))
     b.b.Add(z)
-    print("fanout vias:", isp_fanout(b, fps))
-    rf_bridge(b, fps)
     print("gnd fanout vias:", gnd_fanout(b, fps))
     for ref, lab in (("SP1", "+"), ("SP2", "-")):
         c = fps[ref].GetPosition(); b.text(lab, T(c.x) - bl.OX, T(c.y) - bl.OY - 2.1, 1.0, thick=0.15)

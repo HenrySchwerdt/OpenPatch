@@ -22,10 +22,9 @@ LAYERS = [pcbnew.F_Cu, pcbnew.In2_Cu, pcbnew.In3_Cu, pcbnew.In4_Cu, pcbnew.B_Cu]
 LNAME = {l: i for i, l in enumerate(LAYERS)}
 # (net, width, preferred layers or None, [pads to exclude from the tree: Kelvin or dedicated])
 NETS = [
-    ("KELVIN_PRE", 0.15, None), ("KELVIN_MOT", 0.15, None),          # shunt sense: U9 IN+ / IN- straight to the shunt pads
-    ("VMOT_RAW", 0.40, None), ("BST_SW", 0.40, None), ("VMOT_PRE", 0.40, None), ("VMOT", 0.30, None),
+    ("BST_SW", 0.40, None), ("VMOT_PRE", 0.40, None), ("VMOT", 0.30, None), ("VBAT", 0.30, None),
     ("MOT_A1", 0.20, None), ("MOT_A2", 0.20, None), ("MOT_B1", 0.20, None), ("MOT_B2", 0.20, None),
-    ("SNSA", 0.20, None), ("SNSB", 0.20, None), ("VBAT", 0.30, None), ("VMOT_A", 0.30, None),
+    ("SNSA", 0.20, None), ("SNSB", 0.20, None),
     ("USB_DP", 0.12, None), ("USB_DM", 0.12, None),
 ]
 
@@ -276,18 +275,10 @@ def main():
 
     report = []
     for name, width, _ in NETS:
-        if name == "KELVIN_PRE":
-            u9 = [p for p in pads.get("VMOT_PRE", []) if p[0] == "U9" and p[1].GetNumber() == "3"]
-            r44 = [p for p in pads.get("VMOT_PRE", []) if p[0] == "R44"]
-            route_net("VMOT_PRE", width, u9 + r44, report)
-        elif name == "KELVIN_MOT":
-            u9 = [p for p in pads.get("VMOT", []) if p[0] == "U9" and p[1].GetNumber() == "4"]
-            r44 = [p for p in pads.get("VMOT", []) if p[0] == "R44"]
-            route_net("VMOT", width, u9 + r44, report)
+        if False:
+            pass
         else:
-            pl = [p for p in pads.get(name, []) if not (p[0] == "U9")]
-            if name in ("VMOT_PRE", "VMOT"):
-                pl = [p for p in pl if p[0] != "R44"] + [p for p in pads.get(name, []) if p[0] == "R44"][:1]
+            pl = list(pads.get(name, []))
             route_net(name, width, pl, report)
     b.BuildListOfNets()
     pcbnew.SaveBoard(path, b)

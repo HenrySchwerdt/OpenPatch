@@ -25,13 +25,28 @@ from netlist_v3 import R201, C201, R0201, C0201, SC70_5, ISP_PADS
 OUT = os.path.join(HERE, "..")
 SOT363 = ("Package_TO_SOT_SMD", "SOT-363_SC-70-6")
 
-# ISP1807 pad -> net (same pad table as v3, nets no longer present are removed / re-used)
-ISP = dict(ISP_PADS)
-for k in (50, 52, 46):                       # TMAG_INT, NTC, SENSE_EN, OC_TEST: gone
-    ISP.pop(k, None)
-ISP[53] = "LED_R"; ISP[6] = "LED_G"; ISP[42] = "LED_B"   # RGB LED, low-active PWM
-ISP[47] = "SUP_BOOT0"; ISP[49] = "SUP_NRST"   # nRF programs the supervisor through its system bootloader (BOOT0 strap + reset + UART)
-ISP[4] = "LATCH_Q"                              # was PGATE_MON: latch output readback (RB6)
+# HJ-840 (nRF52840 SiP, LGA64) pad -> nRF pin (hardware design manual table 2-2); pads not listed are not connected
+HJ_PIN = {
+    "A1": "GND", "A2": "P1.01", "A3": "P0.21", "A4": "P0.20", "A5": "P0.17", "A6": "P0.14", "A7": "ANT", "A8": "BOARD_ANT",
+    "B1": "P0.22", "B2": "P1.04", "B3": "P1.07", "B4": "P0.09", "B5": "P1.05", "B6": "P0.24", "B7": "P1.06", "B8": "P1.14",
+    "C1": "P0.25", "C2": "SWDIO", "C3": "SWCLK", "C4": "DEC5", "C5": "P0.10", "C6": "P0.13", "C7": "P1.11", "C8": "P1.12",
+    "D1": "P0.19", "D2": "P1.00", "D3": "P1.02", "D4": "P1.03", "D5": "P0.23", "D6": "P1.10", "D7": "P1.13", "D8": "P0.31",
+    "E1": "P0.18/RESET", "E2": "P0.15", "E3": "P0.16", "E4": "P1.08", "E5": "P1.15", "E6": "P0.02", "E7": "P0.28", "E8": "P0.03",
+    "F1": "D+", "F2": "VBUS", "F3": "P0.11", "F4": "P0.07", "F5": "P0.27", "F6": "P0.00", "F7": "P0.30", "F8": "P0.29",
+    "G1": "D-", "G2": "DECUSB", "G3": "P0.12", "G4": "P1.09", "G5": "P0.05", "G6": "P0.01", "G7": "P0.26", "G8": "P0.06",
+    "H1": "DCCH", "H2": "VDDH", "H3": "VDD", "H4": "VDD", "H5": "P0.08", "H6": "DEC1", "H7": "P0.04", "H8": "GND"}
+HJ_FIXED = {"A1": "GND", "H8": "GND", "A7": "ANT_A", "A8": "ANT_B", "H2": "3V3", "H3": "3V3", "H4": "3V3", "F1": "USB_DP", "G1": "USB_DM", "F2": "VBUS_P",
+            "E1": "NRST", "C2": "SWDIO", "C3": "SWDCLK", "G5": "VBAT_SENSE", "E6": "SNSA", "H7": "VMOT_SENSE"}
+# signals that go to GPIO pads (the pad is chosen by cup/pinassign.py, initial order below); NFC pins B4/C5 are not used
+HJ_SIGNALS = ["MOT_STBY", "STCK_MCU", "DOCKED_H", "CHG_STAT", "OC_OK", "LATCH_Q", "DOCK_N", "SUP_OK", "LED_R", "LED_G", "LED_B", "SUP_TXD", "SUP_RXD",
+              "SUP_BOOT0", "SUP_NRST", "MOT_DIR", "MOT_EN_FAULT", "BTN_N", "I2C_SCL", "I2C_SDA", "ARM_CLK", "MCU_EN", "BUZ_A"]
+HJ_GPIO_POOL = [k for k, v in HJ_PIN.items() if v.startswith("P") and k not in HJ_FIXED and k not in ("B4", "C5") and v != "P0.18/RESET"]
+ISP = dict(HJ_FIXED)
+import os as _os, json as _json
+_ASSIGN = _os.path.join(HERE, "..", "cup", "pin_assign.json")
+_assign = _json.load(open(_ASSIGN)) if _os.path.exists(_ASSIGN) else {sig: pad for sig, pad in zip(HJ_SIGNALS, HJ_GPIO_POOL)}
+for sig, pad in _assign.items():
+    ISP[pad] = sig
 
 DOCK_LEG = "dock"
 
@@ -66,10 +81,13 @@ def build():
         return new(ref, "2N7002", SOT23, {1: g, 2: s, 3: d}, "C8545", "2N7002", group=group, note=note)
 
     # ---------------------------------------------------------------- MCU
-    new("U1", "ISP1807-LR (consigned)", ("V010", "ISP1807"), {str(k): v for k, v in ISP.items()}, None, "ISP1807-LR", group="mcu",
-        note="Insight SiP nRF52840 module 8x8x1.0, integrated antenna (pads 20/22 bridged), consigned. NFC pins as GPIO (UICR NFCPINS=1). Antenna half toward the +X board end")
-    C("C1", "100nF", "3V3", "GND", "mcu"); C("C2", "4.7uF", "3V3", "GND", "mcu")
+    new("U1", "HJ-840 nRF52840 SiP", ("V010", "HJ840"), dict(ISP), "C50052094", "HJ-840", group="mcu",
+        note="HJSIP HJ-840 LGA64 6.2 x 7.0 x 1.0, JLC stock about 90, integrated antenna (A7 ANT -> pi match -> A8 BOARD_ANT), normal-voltage mode: VDD = VDDH = 3V3 from the LDO; DCCH, DEC1, DEC5, DECUSB not connected (module has its own filter capacitors; DC/DC off, LDO mode: VERIFY with figure 2.4 of the manual); NFC pins not used; no parts under the module, no copper in the antenna area")
+    C("C1", "100nF", "3V3", "GND", "mcu")
     R("R1", "100k", "3V3", "NRST", "mcu")
+    new("PI1", "pi match shunt C (DNP)", C0402, {1: "ANT_A", 2: "GND"}, "C1525", "CL05B104KO5NNNC", group="mcu", dnp=True, note="pi match shunt, value to be tuned (about 0.5 to 1 pF), DNP")
+    new("PI2", "pi match series 0R", R0402, {1: "ANT_A", 2: "ANT_B"}, "C17168", "0402WGF0000TCE", group="mcu", note="series element: 0 ohm connects A7 to A8 (internal antenna)")
+    new("PI3", "pi match shunt C (DNP)", C0402, {1: "ANT_B", 2: "GND"}, "C1525", "CL05B104KO5NNNC", group="mcu", dnp=True, note="pi match shunt, DNP")
     # ---------------------------------------------------------------- supply: cell pads, LDO
     for ref, net, lab in (("SP1", "VBAT", "+"), ("SP2", "GND", "-")):
         new(ref, "cell lead pad %s" % lab, ("V010", "Wire_Pad_2.0x3.0"), {1: net}, bom=False, group="batt",
@@ -130,45 +148,34 @@ def build():
     new("U32", "TP74AUP1G08S5 (AND)", SC70_5, {1: "SUP_NRST", 2: "OC_OK", 3: "GND", 4: "LATCH_CLR_N", 5: "3V3"}, "C48886815", "TP74AUP1G08S5", group="wdt",
         note="LATCH_CLR_N = SUP_NRST AND OC_OK: any supervisor reset / TPL5010 timeout or an over-current trip clears the latch (no diodes)")
     R("R29", "100k", "ARM_CLK", "GND", "wdt"); R("R18", "100k", "MCU_EN", "GND", "wdt")
-    # ---------------------------------------------------------------- motor switch: Q4 (hardware legs) in series with Q15 (supervisor leg)
-    for ref in ("Q4", "Q15", "R9", "C11", "R11", "R83", "R84", "R82"):
-        take(ref, "sw")
-    pw = {p["ref"]: p for p in parts}
-    pw["Q15"]["pins"]["1"] = "PGATE2"
-    pw["Q4"]["pins"] = {"1": "PGATE", "2": "VBAT", "3": "VMOT_A"}
-    pw["Q15"]["pins"] = {"1": "PGATE2", "2": "VMOT_A", "3": "VMOT_RAW"}
-    # chain: PGATE -R11- CH_TOP -QL(LATCH_Q)- PG_A -QE(MCU_EN)- PG_B -(QD DOCKED_H || QR MOT_DIR)- GND ; supervisor leg QS on PGATE2
-    legs = dict(QL=("LATCH_Q", "PG_B", "CH_TOP"), QD=("DOCKED_H", "GND", "PG_B"), QR=("MOT_DIR", "GND", "PG_B"),
-                QS=("SUP_PERMIT", "GND", "QS_D"), Q17=("PGATE", "GND", "BLD"), Q17B=("PGATE2", "GND", "BLD"),
-                Q7=("DOCK_N", "GND", "DOCKED_H"), QBA=("BUZ_A", "GND", "PZ_A"))
-    notes = dict(QL="latch leg (hardware)", QE="MCU_EN leg (hardware)", QD="docked branch of the last leg", QR="reverse branch (undocked refill / draw); forward undocked stays blocked",
-                 QS="supervisor leg on Q15", Q12="DOCK_TEST: pulls DOCKED_H low (POST, can only force undocked)", Q17="bleeder: VMOT discharge while PGATE is high",
-                 Q17B="bleeder: also when only the supervisor cut", Q7="hall inverter: DOCK_N low (hall asserted) -> DOCKED_H high", QBA="piezo bridge leg A")
-    pairs = [("QL", "QS"), ("QD", "Q17"), ("QR", "Q17B"), ("Q7", "QBA")]   # no package holds two legs of the same chain
-    for k, (a, b) in enumerate(pairs):
-        ga, sa, da = legs[a]; gb, sb, db = legs[b]
-        new("QD%d" % (k + 1), "2N7002DW (%s + %s)" % (a, b), SOT363, {"2": ga, "1": sa, "6": da, "5": gb, "4": sb, "3": db}, "C83571", "2N7002DW-7-F",
-            group="sw", note="dual N-FET: %s (S1 G2 D6) = %s | %s (S4 G5 D3) = %s" % (a, notes[a], b, notes[b]))
-    R("R24", "100R", "VMOT_PRE", "BLD", "sw")
+    # ---------------------------------------------------------------- motor supply: boost (supervisor EN) -> current-limited load switch (hardware EN) -> VMOT
+    R("R82", "100k", "SUP_PERMIT", "GND", "sw")
     R("R16", "100k", "MOT_DIR", "GND", "sw")
-    # ---------------------------------------------------------------- over-current trip + readbacks
-    take("R44", "oc", pins={"1": "VMOT_PRE", "2": "VMOT"})
-    take("U9", "oc", pins={"1": "INA_OUT", "2": "GND", "3": "VMOT_PRE", "4": "VMOT", "5": "VMOT_RAW"})
-    take("C24", "oc"); take("R48", "oc", pins={"1": "INA_OUT", "2": "I_SENSE"}); take("C27", "oc", pins={"1": "I_SENSE", "2": "GND"})
-    take("U11", "oc", pins={"1": "OC_OK", "2": "GND", "3": "I_SENSE", "4": "OC_REF", "5": "3V3"})
-    take("R49", "oc"); take("R50", "oc", pins={"1": "OC_REF", "2": "GND"}, note="OC reference 3V3/2 = 1.65 V -> trip about 0.375 A")
+    new("Q7", "2N7002", SOT23, {1: "DOCK_N", 2: "GND", 3: "DOCKED_H"}, "C8545", "2N7002", group="sw", note="hall inverter: DOCK_N low (hall asserted) -> DOCKED_H high (R21 pull-up)")
+    new("QBA", "2N7002", SOT23, {1: "BUZ_A", 2: "GND", 3: "PZ_A"}, "C8545", "2N7002", group="ui", note="sounder drive leg (100 k pull-down RDA), off by default")
+    new("U33", "TP74AUP1G32S5 (OR)", SC70_5, {1: "DOCKED_H", 2: "MOT_DIR", 3: "GND", 4: "DOCK_OR", 5: "3V3"}, "C49333203", "TP74AUP1G32S5", group="sw",
+        note="DOCK_OR = DOCKED_H OR MOT_DIR[reverse]: forward undocked blocked, reverse undocked allowed (refill / draw)")
+    new("U34", "TP74AUP1G08S5 (AND)", SC70_5, {1: "LATCH_Q", 2: "DOCK_OR", 3: "GND", 4: "MOT_ALLOW", 5: "3V3"}, "C48886815", "TP74AUP1G08S5", group="sw",
+        note="MOT_ALLOW = LATCH_Q AND DOCK_OR: the pure-hardware cut path, drives the EN pin of the load switch")
+    R("R90", "100k", "MOT_ALLOW", "GND", "sw")
+    new("U20", "TPS2553DBVR", SOT236, {1: "VMOT_PRE", 2: "GND", 3: "MOT_ALLOW", 4: "OC_OK", 5: "ILIM", 6: "VMOT"}, "C55266", "TPS2553DBVR", group="sw",
+        note="current-limited high-side switch 2.5-6.5 V, 85 mohm, EN active high (hardware cut), FAULT open drain = OC_OK (low when the limit is active > deglitch), NOT the -1 latch variant; pinout 1 IN 2 GND 3 EN 4 FAULT 5 ILIM 6 OUT: VERIFY")
+    new("R91", "56k", R0402, {1: "ILIM", 2: "GND"}, "C25796", "0402WGF5602TCE", group="sw", note="ILIM resistor: I_OS about 23950 / R^1.0056 (kohm -> mA) = about 0.42 A typ (datasheet table, tolerance about +-10 to 15 %, VERIFY); motor needs 0.35 A")
+    R("R92", "100k", "3V3", "OC_OK", "sw")
+    C("C60", "100nF", "VMOT_PRE", "GND", "sw")
+    R("R24", "10k", "VMOT_PRE", "GND", "sw"); R("R25", "10k", "VMOT", "GND", "sw")
     take("R57", "oc"); take("R58", "oc")
-    # ---------------------------------------------------------------- 5 V boost behind the interlock switch (motor NFP-608-26.45-SGM, 4.8 V rated)
-    new("U8", "TPS61023DRLR", ("Package_TO_SOT_SMD", "SOT-563"), {1: "VMOT_RAW", 2: "GND", 3: "BST_SW", 4: "VMOT_RAW", 5: "VMOT_PRE", 6: "BST_FB"}, "C919459", "TPS61023DRLR", group="boost",
-        note="sync boost 3.7 A switch, 0.5-5.5 V in, 1 uA off, about 90 % at 0.3 A out; EN tied to the SWITCHED VMOT_RAW (zero idle drain, cut by Q4/Q15); pinout 1 EN 2 GND 3 SW 4 VIN 5 VOUT 6 FB: VERIFY")
-    new("L1", "1uH 2520 (WPN252012E1R0MT)", ("Inductor_SMD", "L_1008_2520Metric"), {1: "VMOT_RAW", 2: "BST_SW"}, "C370610", "WPN252012E1R0MT", group="boost", note="1 uH 2.5 x 2.0 x 1.2; Isat VERIFY >= 2.5 A")
+    # ---------------------------------------------------------------- 5 V boost (motor NFP-608-26.45-SGM, 4.8 V rated), EN = supervisor permission
+    new("U8", "TPS61023DRLR", ("Package_TO_SOT_SMD", "SOT-563"), {1: "SUP_PERMIT", 2: "GND", 3: "BST_SW", 4: "VBAT", 5: "VMOT_PRE", 6: "BST_FB"}, "C919459", "TPS61023DRLR", group="boost",
+        note="sync boost 3.7 A switch, 0.5-5.5 V in, 1 uA off, about 90 % at 0.3 A out; VIN from the cell, EN = SUP_PERMIT (supervisor second cut); pinout 1 EN 2 GND 3 SW 4 VIN 5 VOUT 6 FB: VERIFY")
+    new("L1", "1uH 2520 (WPN252012E1R0MT)", ("Inductor_SMD", "L_1008_2520Metric"), {1: "VBAT", 2: "BST_SW"}, "C370610", "WPN252012E1R0MT", group="boost", note="1 uH 2.5 x 2.0 x 1.2; Isat VERIFY >= 2.5 A")
     new("R55", "220k", R0402, {1: "VMOT_PRE", 2: "BST_FB"}, "C25767", "0402WGF2203TCE", group="boost", note="FB divider 220k/30k, FB 0.595 V -> 4.96 V")
     new("R56", "30k", R0402, {1: "BST_FB", 2: "GND"}, "C25776", "0402WGF3002TCE", group="boost")
     take("DZ1", "boost", pins={"1": "VMOT_PRE", "2": "GND"})
     C0805 = ("Capacitor_SMD", "C_0805_2012Metric")
     for i in (1, 2):
         new("CB%d" % i, "22uF 6.3V X5R 0805", C0805, {1: "VMOT_PRE", 2: "GND"}, "C45783", "CL21A226MAQNNNE", group="boost",
-            note="bulk on the boost output, before the shunt (no inrush through the over-current shunt); basic part; about 8 uF effective at 5 V DC bias")
+            note="bulk on the boost output (basic part); about 8 uF effective at 5 V DC bias")
     new("C31", "10uF", C0603, {1: "VMOT_PRE", 2: "GND"}, "C19702", "CL10A106KP8NNNC", group="boost")
     # ---------------------------------------------------------------- SWD + test pads (top side)
     swd = [("SWDIO", "SWDIO"), ("SWDCLK", "SWDCLK"), ("NRST", "NRST"), ("GND", "GND"), ("3V3", "3V3")]

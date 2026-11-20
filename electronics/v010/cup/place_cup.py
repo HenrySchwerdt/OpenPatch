@@ -19,9 +19,9 @@ import cupgeom as G
 
 T = pcbnew.ToMM
 V010FP = os.path.join(HERE, "..", "footprints", "V010.pretty")
-EDGE, MARGIN = 0.35, 0.2
+EDGE, MARGIN = 0.35, 0.3
 
-HEIGHTS = [("ISP1807", 1.0), ("QFN-16", 0.9), ("UFQFPN", 0.6), ("SOT-23-5", 1.45), ("SOT-23-6", 1.45), ("SOT-23", 1.15), ("SOT-353", 1.1), ("SOT-363", 1.1),
+HEIGHTS = [("HJ840", 1.0), ("ISP1807", 1.0), ("QFN-16", 0.9), ("UFQFPN", 0.6), ("SOT-23-5", 1.45), ("SOT-23-6", 1.45), ("SOT-23", 1.15), ("SOT-353", 1.1), ("SOT-363", 1.1),
            ("VSSOP", 1.1), ("D_SOD-123F", 1.0), ("D_SOD-123", 1.1), ("LED_", 0.7), ("R_0603", 0.55), ("C_0603", 1.0), ("R_0201", 0.3), ("C_0201", 0.3),
            ("R_0402", 0.5), ("C_0402", 0.6), ("X2SON", 0.4), ("Spring", 1.0), ("A1251WR", 2.8), ("Wire_Pad", 0.0), ("BZ_4020", 2.0), ("SW_SKRPACE", 1.4), ("TP_Pad", 0.0), ("FPC_Pad", 0.0), ("USB_C", 3.26)]
 
@@ -49,7 +49,7 @@ def geometry(parts):
         bb = c.BBox() if c.OutlineCount() else f.GetBoundingBox(False, False)
         crt = [T(bb.GetLeft()), T(bb.GetTop()), T(bb.GetRight()), T(bb.GetBottom())]
         pads = {pd.GetNumber(): (T(pd.GetPosition().x), T(pd.GetPosition().y)) for pd in f.Pads() if pd.GetNumber()}
-        if p["ref"] not in ("JU1", "SW1") and not p["fp"][1].startswith("ISP"):
+        if p["ref"] not in ("JU1", "SW1") and not p["fp"][1].startswith(("ISP", "HJ")):
             # placement box = pad envelope + 0.12 (tighter than the library courtyard; body of SOT/QFN lies inside the pad envelope)
             pb = f.GetBoundingBox(False, False)
             x0, y0, x1, y1 = [], [], [], []
@@ -151,12 +151,13 @@ def main():
         bx, by = G.b(x, y)
         fixed[ref] = [bx, by, rot, side]
 
-    fix("U1", 42.4, 28.2, 90)                       # antenna half (local +Y) toward +X, overhanging the board edge
+    fix("U1", 39.7, 28.2, 270)                       # HJ-840: row A (antenna pads A7/A8) toward +X at the board edge
     fix("JU1", 12.5, 29.75, 180)                   # receptacle opening toward the +Y long wall
     for i in range(4):                              # REAR strip pad row (TMAG only), bottom side, 0.8 pitch
         fix(["TL1", "TL2", "TL3", "TL4"][i], 9.2 + 0.8 * i, 23.8, 0, "B")
     fix("SW1", 39.8, 3.0, 180)
-    fix("J1", 39.9, 4.7, 180, "B")                 # motor socket, bottom side, side_a block (only place tall enough below the board)
+    fix("J1", 39.8, 4.7, 180, "B")
+    fix("BZ1", 39.0, 20.2, 0, "B")                 # motor socket, bottom side, side_a block (only place tall enough below the board)
     fix("LD1", 32.0, 31.2, 0)                      # RGB LED, top side, clear view through the lid (no tall part within 2 mm, piezo disc is at x < 28)
     fix("U4A", 39.36, 11.75, 0, "B")
     movable = [p["ref"] for p in parts if p["ref"] not in fixed]

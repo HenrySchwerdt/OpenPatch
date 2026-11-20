@@ -259,3 +259,54 @@ Firmware behaviour to implement:
 | 28 / 30 / 13 | `SWDIO` / `SWDCLK` / `NRST` | bare pads with `GND` and `3V3`: one-time bootloader flash only |
 
 Supervisor update procedure (firmware owner): verify the signed supervisor image; require `VMOT_SENSE` < 0.3 V, undocked, no delivery; `SUP_BOOT0` high, pulse `SUP_NRST` low 10 ms, wait 100 ms, speak the ST UART bootloader, write, verify, `SUP_BOOT0` low, pulse `SUP_NRST`; the supervisor image re-sets RDP level 1 on first boot (open item). Pads 46 (`VBUS_SENSE`), 50 (`DOCK_TEST`), 52 (`BUZ_B`) are free after the reduction.
+
+
+---
+
+# v4 HJ-840 pin table (2026-11-20; replaces the ISP1807 tables above; GPIO pads chosen by `cup/pinassign.py` after placement, regenerate with `python3 design/netlist_v4.py`)
+
+Module: HJSIP HJ-840 (nRF52840 SiP, LGA64, `C50052094`), normal-voltage mode (VDD = VDDH = 3V3 from the XC6206), USB through D+/D-/VBUS, **no 32 kHz crystal (use the internal LFRC: `LfclkSource::InternalRC`)**, NFC pins P0.09/P0.10 are not used, P0.18 = RESET (`E1`). DC/DC (REG1) may be enabled in firmware (inductors are inside the module, DCCH not connected). Internal antenna: A7 `ANT_A` -> 0 ohm (PI2) -> A8 `ANT_B`, PI1/PI3 are DNP shunt capacitor footprints for tuning.
+
+| HJ-840 pad | nRF pin | Net |
+|---|---|---|
+| A1 | GND | `GND` |
+| A7 | ANT | `ANT_A` |
+| A8 | BOARD_ANT | `ANT_B` |
+| B8 | P1.14 | `BTN_N` |
+| C2 | SWDIO | `SWDIO` |
+| C3 | SWCLK | `SWDCLK` |
+| C8 | P1.12 | `DOCK_N` |
+| D6 | P1.10 | `I2C_SCL` |
+| D7 | P1.13 | `DOCKED_H` |
+| D8 | P0.31 | `OC_OK` |
+| E1 | P0.18/RESET | `NRST` |
+| E2 | P0.15 | `LED_G` |
+| E3 | P0.16 | `LED_B` |
+| E4 | P1.08 | `SUP_BOOT0` |
+| E5 | P1.15 | `ARM_CLK` |
+| E6 | P0.02 | `SNSA` |
+| E7 | P0.28 | `LATCH_Q` |
+| E8 | P0.03 | `SUP_NRST` |
+| F1 | D+ | `USB_DP` |
+| F2 | VBUS | `VBUS_P` |
+| F3 | P0.11 | `LED_R` |
+| F4 | P0.07 | `SUP_OK` |
+| F5 | P0.27 | `MOT_STBY` |
+| F6 | P0.00 | `BUZ_A` |
+| F7 | P0.30 | `MOT_DIR` |
+| F8 | P0.29 | `STCK_MCU` |
+| G1 | D- | `USB_DM` |
+| G3 | P0.12 | `CHG_STAT` |
+| G4 | P1.09 | `MOT_EN_FAULT` |
+| G5 | P0.05 | `VBAT_SENSE` |
+| G6 | P0.01 | `SUP_RXD` |
+| G7 | P0.26 | `I2C_SDA` |
+| G8 | P0.06 | `MCU_EN` |
+| H2 | VDDH | `3V3` |
+| H3 | VDD | `3V3` |
+| H4 | VDD | `3V3` |
+| H5 | P0.08 | `SUP_TXD` |
+| H7 | P0.04 | `VMOT_SENSE` |
+| H8 | GND | `GND` |
+
+Analog: `VBAT_SENSE` P0.05 (AIN3), `SNSA` P0.02 (AIN0: phase A sense resistor 1 ohm, 0 to 0.18 V, use gain 4), `VMOT_SENSE` P0.04 (AIN2). Changes against the ISP table: `I_SENSE` is gone (no shunt/INA), `OC_OK` = FAULT of the TPS2553 (open drain, 100 k pull-up, low = current limit active), `MOT_ALLOW` is internal (not on a pad), `LATCH_Q` is read back on a GPIO. Firmware owner: all GPIO choices are free (any nRF52840 pin can be PWM/UART/I2C through the crossbars), only the analog pads and the USB/SWD/RESET pads are fixed.

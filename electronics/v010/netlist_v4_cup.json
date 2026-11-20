@@ -1,64 +1,58 @@
 [
  {
   "ref": "U1",
-  "value": "ISP1807-LR (consigned)",
+  "value": "HJ-840 nRF52840 SiP",
   "fp": [
    "V010",
-   "ISP1807"
+   "HJ840"
   ],
   "pins": {
-   "26": "3V3",
-   "12": "VBUS_P",
-   "8": "USB_DP",
-   "10": "USB_DM",
-   "13": "NRST",
-   "28": "SWDIO",
-   "30": "SWDCLK",
-   "20": "RF_BRIDGE",
-   "22": "RF_BRIDGE",
-   "1": "GND",
-   "7": "GND",
-   "25": "GND",
-   "31": "GND",
-   "14": "GND",
-   "16": "GND",
-   "18": "GND",
-   "21": "GND",
-   "23": "GND",
-   "24": "GND",
-   "32": "MOT_STBY",
-   "34": "STCK_MCU",
-   "36": "VBAT_SENSE",
-   "38": "I_SENSE",
-   "40": "VMOT_SENSE",
-   "42": "LED_B",
-   "44": "DOCKED_H",
-   "48": "CHG_STAT",
-   "2": "OC_OK",
-   "4": "LATCH_Q",
-   "6": "LED_G",
-   "33": "MOT_DIR",
-   "35": "MOT_EN_FAULT",
-   "37": "BTN_N",
-   "39": "I2C_SCL",
-   "41": "I2C_SDA",
-   "43": "ARM_CLK",
-   "45": "MCU_EN",
-   "47": "SUP_BOOT0",
-   "3": "DOCK_N",
-   "5": "SUP_OK",
-   "27": "SUP_TXD",
-   "29": "SUP_RXD",
-   "49": "SUP_NRST",
-   "51": "BUZ_A",
-   "53": "LED_R"
+   "A1": "GND",
+   "H8": "GND",
+   "A7": "ANT_A",
+   "A8": "ANT_B",
+   "H2": "3V3",
+   "H3": "3V3",
+   "H4": "3V3",
+   "F1": "USB_DP",
+   "G1": "USB_DM",
+   "F2": "VBUS_P",
+   "E1": "NRST",
+   "C2": "SWDIO",
+   "C3": "SWDCLK",
+   "G5": "VBAT_SENSE",
+   "E6": "SNSA",
+   "H7": "VMOT_SENSE",
+   "F5": "MOT_STBY",
+   "F8": "STCK_MCU",
+   "D7": "DOCKED_H",
+   "G3": "CHG_STAT",
+   "D8": "OC_OK",
+   "E7": "LATCH_Q",
+   "C8": "DOCK_N",
+   "F4": "SUP_OK",
+   "F3": "LED_R",
+   "E2": "LED_G",
+   "E3": "LED_B",
+   "H5": "SUP_TXD",
+   "G6": "SUP_RXD",
+   "E4": "SUP_BOOT0",
+   "E8": "SUP_NRST",
+   "F7": "MOT_DIR",
+   "G4": "MOT_EN_FAULT",
+   "B8": "BTN_N",
+   "D6": "I2C_SCL",
+   "G7": "I2C_SDA",
+   "E5": "ARM_CLK",
+   "G8": "MCU_EN",
+   "F6": "BUZ_A"
   },
-  "lcsc": null,
-  "mpn": "ISP1807-LR",
+  "lcsc": "C50052094",
+  "mpn": "HJ-840",
   "side": "F",
   "bom": true,
   "dnp": false,
-  "note": "Insight SiP nRF52840 module 8x8x1.0, integrated antenna (pads 20/22 bridged), consigned. NFC pins as GPIO (UICR NFCPINS=1). Antenna half toward the +X board end",
+  "note": "HJSIP HJ-840 LGA64 6.2 x 7.0 x 1.0, JLC stock about 90, integrated antenna (A7 ANT -> pi match -> A8 BOARD_ANT), normal-voltage mode: VDD = VDDH = 3V3 from the LDO; DCCH, DEC1, DEC5, DECUSB not connected (module has its own filter capacitors; DC/DC off, LDO mode: VERIFY with figure 2.4 of the manual); NFC pins not used; no parts under the module, no copper in the antenna area",
   "group": "mcu",
   "board": "CUP"
  },
@@ -83,26 +77,6 @@
   "board": "CUP"
  },
  {
-  "ref": "C2",
-  "value": "4.7uF",
-  "fp": [
-   "Capacitor_SMD",
-   "C_0402_1005Metric"
-  ],
-  "pins": {
-   "1": "3V3",
-   "2": "GND"
-  },
-  "lcsc": "C23733",
-  "mpn": "CL05A475MP5NRNC",
-  "side": "F",
-  "bom": true,
-  "dnp": false,
-  "note": "",
-  "group": "mcu",
-  "board": "CUP"
- },
- {
   "ref": "R1",
   "value": "100k",
   "fp": [
@@ -119,6 +93,66 @@
   "bom": true,
   "dnp": false,
   "note": "",
+  "group": "mcu",
+  "board": "CUP"
+ },
+ {
+  "ref": "PI1",
+  "value": "pi match shunt C (DNP)",
+  "fp": [
+   "Capacitor_SMD",
+   "C_0402_1005Metric"
+  ],
+  "pins": {
+   "1": "ANT_A",
+   "2": "GND"
+  },
+  "lcsc": "C1525",
+  "mpn": "CL05B104KO5NNNC",
+  "side": "F",
+  "bom": false,
+  "dnp": true,
+  "note": "pi match shunt, value to be tuned (about 0.5 to 1 pF), DNP",
+  "group": "mcu",
+  "board": "CUP"
+ },
+ {
+  "ref": "PI2",
+  "value": "pi match series 0R",
+  "fp": [
+   "Resistor_SMD",
+   "R_0402_1005Metric"
+  ],
+  "pins": {
+   "1": "ANT_A",
+   "2": "ANT_B"
+  },
+  "lcsc": "C17168",
+  "mpn": "0402WGF0000TCE",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "series element: 0 ohm connects A7 to A8 (internal antenna)",
+  "group": "mcu",
+  "board": "CUP"
+ },
+ {
+  "ref": "PI3",
+  "value": "pi match shunt C (DNP)",
+  "fp": [
+   "Capacitor_SMD",
+   "C_0402_1005Metric"
+  ],
+  "pins": {
+   "1": "ANT_B",
+   "2": "GND"
+  },
+  "lcsc": "C1525",
+  "mpn": "CL05B104KO5NNNC",
+  "side": "F",
+  "bom": false,
+  "dnp": true,
+  "note": "pi match shunt, DNP",
   "group": "mcu",
   "board": "CUP"
  },
@@ -1294,148 +1328,6 @@
   "board": "CUP"
  },
  {
-  "ref": "Q4",
-  "value": "AO3401A",
-  "fp": [
-   "Package_TO_SOT_SMD",
-   "SOT-23"
-  ],
-  "pins": {
-   "1": "PGATE",
-   "2": "VBAT",
-   "3": "VMOT_A"
-  },
-  "lcsc": "C15127",
-  "mpn": "AO3401A",
-  "side": "F",
-  "bom": true,
-  "dnp": false,
-  "note": "first series switch",
-  "group": "sw",
-  "board": "CUP"
- },
- {
-  "ref": "Q15",
-  "value": "AO3401A",
-  "fp": [
-   "Package_TO_SOT_SMD",
-   "SOT-23"
-  ],
-  "pins": {
-   "1": "PGATE2",
-   "2": "VMOT_A",
-   "3": "VMOT_RAW"
-  },
-  "lcsc": "C15127",
-  "mpn": "AO3401A",
-  "side": "F",
-  "bom": true,
-  "dnp": false,
-  "note": "second series switch, gate owned by the supervisor MCU through QS",
-  "group": "sw",
-  "board": "CUP"
- },
- {
-  "ref": "R9",
-  "value": "100k",
-  "fp": [
-   "Resistor_SMD",
-   "R_0402_1005Metric"
-  ],
-  "pins": {
-   "1": "VBAT",
-   "2": "PGATE"
-  },
-  "lcsc": "C25741",
-  "mpn": "0402WGF1003TCE",
-  "side": "F",
-  "bom": true,
-  "dnp": false,
-  "note": "",
-  "group": "sw",
-  "board": "CUP"
- },
- {
-  "ref": "C11",
-  "value": "100nF",
-  "fp": [
-   "Capacitor_SMD",
-   "C_0402_1005Metric"
-  ],
-  "pins": {
-   "1": "PGATE",
-   "2": "VBAT"
-  },
-  "lcsc": "C1525",
-  "mpn": "CL05B104KO5NNNC",
-  "side": "F",
-  "bom": true,
-  "dnp": false,
-  "note": "gate-source: slow turn-on (soft start)",
-  "group": "sw",
-  "board": "CUP"
- },
- {
-  "ref": "R11",
-  "value": "10k",
-  "fp": [
-   "Resistor_SMD",
-   "R_0402_1005Metric"
-  ],
-  "pins": {
-   "1": "PGATE",
-   "2": "CH_TOP"
-  },
-  "lcsc": "C25744",
-  "mpn": "0402WGF1002TCE",
-  "side": "F",
-  "bom": true,
-  "dnp": false,
-  "note": "",
-  "group": "sw",
-  "board": "CUP"
- },
- {
-  "ref": "R83",
-  "value": "100k",
-  "fp": [
-   "Resistor_SMD",
-   "R_0402_1005Metric"
-  ],
-  "pins": {
-   "1": "VMOT_A",
-   "2": "PGATE2"
-  },
-  "lcsc": "C25741",
-  "mpn": "0402WGF1003TCE",
-  "side": "F",
-  "bom": true,
-  "dnp": false,
-  "note": "",
-  "group": "sw",
-  "board": "CUP"
- },
- {
-  "ref": "R84",
-  "value": "10k",
-  "fp": [
-   "Resistor_SMD",
-   "R_0402_1005Metric"
-  ],
-  "pins": {
-   "1": "PGATE2",
-   "2": "QS_D"
-  },
-  "lcsc": "C25744",
-  "mpn": "0402WGF1002TCE",
-  "side": "F",
-  "bom": true,
-  "dnp": false,
-  "note": "",
-  "group": "sw",
-  "board": "CUP"
- },
- {
   "ref": "R82",
   "value": "100k",
   "fp": [
@@ -1448,122 +1340,6 @@
   },
   "lcsc": "C25741",
   "mpn": "0402WGF1003TCE",
-  "side": "F",
-  "bom": true,
-  "dnp": false,
-  "note": "",
-  "group": "sw",
-  "board": "CUP"
- },
- {
-  "ref": "QD1",
-  "value": "2N7002DW (QL + QS)",
-  "fp": [
-   "Package_TO_SOT_SMD",
-   "SOT-363_SC-70-6"
-  ],
-  "pins": {
-   "2": "LATCH_Q",
-   "1": "PG_B",
-   "6": "CH_TOP",
-   "5": "SUP_PERMIT",
-   "4": "GND",
-   "3": "QS_D"
-  },
-  "lcsc": "C83571",
-  "mpn": "2N7002DW-7-F",
-  "side": "F",
-  "bom": true,
-  "dnp": false,
-  "note": "dual N-FET: QL (S1 G2 D6) = latch leg (hardware) | QS (S4 G5 D3) = supervisor leg on Q15",
-  "group": "sw",
-  "board": "CUP"
- },
- {
-  "ref": "QD2",
-  "value": "2N7002DW (QD + Q17)",
-  "fp": [
-   "Package_TO_SOT_SMD",
-   "SOT-363_SC-70-6"
-  ],
-  "pins": {
-   "2": "DOCKED_H",
-   "1": "GND",
-   "6": "PG_B",
-   "5": "PGATE",
-   "4": "GND",
-   "3": "BLD"
-  },
-  "lcsc": "C83571",
-  "mpn": "2N7002DW-7-F",
-  "side": "F",
-  "bom": true,
-  "dnp": false,
-  "note": "dual N-FET: QD (S1 G2 D6) = docked branch of the last leg | Q17 (S4 G5 D3) = bleeder: VMOT discharge while PGATE is high",
-  "group": "sw",
-  "board": "CUP"
- },
- {
-  "ref": "QD3",
-  "value": "2N7002DW (QR + Q17B)",
-  "fp": [
-   "Package_TO_SOT_SMD",
-   "SOT-363_SC-70-6"
-  ],
-  "pins": {
-   "2": "MOT_DIR",
-   "1": "GND",
-   "6": "PG_B",
-   "5": "PGATE2",
-   "4": "GND",
-   "3": "BLD"
-  },
-  "lcsc": "C83571",
-  "mpn": "2N7002DW-7-F",
-  "side": "F",
-  "bom": true,
-  "dnp": false,
-  "note": "dual N-FET: QR (S1 G2 D6) = reverse branch (undocked refill / draw); forward undocked stays blocked | Q17B (S4 G5 D3) = bleeder: also when only the supervisor cut",
-  "group": "sw",
-  "board": "CUP"
- },
- {
-  "ref": "QD4",
-  "value": "2N7002DW (Q7 + QBA)",
-  "fp": [
-   "Package_TO_SOT_SMD",
-   "SOT-363_SC-70-6"
-  ],
-  "pins": {
-   "2": "DOCK_N",
-   "1": "GND",
-   "6": "DOCKED_H",
-   "5": "BUZ_A",
-   "4": "GND",
-   "3": "PZ_A"
-  },
-  "lcsc": "C83571",
-  "mpn": "2N7002DW-7-F",
-  "side": "F",
-  "bom": true,
-  "dnp": false,
-  "note": "dual N-FET: Q7 (S1 G2 D6) = hall inverter: DOCK_N low (hall asserted) -> DOCKED_H high | QBA (S4 G5 D3) = piezo bridge leg A",
-  "group": "sw",
-  "board": "CUP"
- },
- {
-  "ref": "R24",
-  "value": "100R",
-  "fp": [
-   "Resistor_SMD",
-   "R_0402_1005Metric"
-  ],
-  "pins": {
-   "1": "VMOT_PRE",
-   "2": "BLD"
-  },
-  "lcsc": "C25076",
-  "mpn": "0402WGF1000TCE",
   "side": "F",
   "bom": true,
   "dnp": false,
@@ -1592,78 +1368,207 @@
   "board": "CUP"
  },
  {
-  "ref": "R44",
-  "value": "0.22R",
-  "fp": [
-   "Resistor_SMD",
-   "R_0603_1608Metric"
-  ],
-  "pins": {
-   "1": "VMOT_PRE",
-   "2": "VMOT"
-  },
-  "lcsc": "C326952",
-  "mpn": "RL0603FR-070R22L",
-  "side": "F",
-  "bom": true,
-  "dnp": false,
-  "note": "supply shunt; 20 V/V -> 4.4 V/A",
-  "group": "oc",
-  "board": "CUP"
- },
- {
-  "ref": "U9",
-  "value": "INA180A1IDBVR",
+  "ref": "Q7",
+  "value": "2N7002",
   "fp": [
    "Package_TO_SOT_SMD",
-   "SOT-23-5"
+   "SOT-23"
   ],
   "pins": {
-   "1": "INA_OUT",
+   "1": "DOCK_N",
    "2": "GND",
-   "3": "VMOT_PRE",
-   "4": "VMOT",
-   "5": "VMOT_RAW"
+   "3": "DOCKED_H"
   },
-  "lcsc": "C122228",
-  "mpn": "INA180A1IDBVR",
+  "lcsc": "C8545",
+  "mpn": "2N7002",
   "side": "F",
   "bom": true,
   "dnp": false,
-  "note": "supplied from the switched VMOT_RAW: zero idle drain; pinout A",
-  "group": "oc",
+  "note": "hall inverter: DOCK_N low (hall asserted) -> DOCKED_H high (R21 pull-up)",
+  "group": "sw",
   "board": "CUP"
  },
  {
-  "ref": "C24",
-  "value": "10uF",
+  "ref": "QBA",
+  "value": "2N7002",
   "fp": [
-   "Capacitor_SMD",
-   "C_0603_1608Metric"
+   "Package_TO_SOT_SMD",
+   "SOT-23"
   ],
   "pins": {
-   "1": "VMOT_RAW",
+   "1": "BUZ_A",
+   "2": "GND",
+   "3": "PZ_A"
+  },
+  "lcsc": "C8545",
+  "mpn": "2N7002",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "sounder drive leg (100 k pull-down RDA), off by default",
+  "group": "ui",
+  "board": "CUP"
+ },
+ {
+  "ref": "U33",
+  "value": "TP74AUP1G32S5 (OR)",
+  "fp": [
+   "Package_TO_SOT_SMD",
+   "SOT-353_SC-70-5"
+  ],
+  "pins": {
+   "1": "DOCKED_H",
+   "2": "MOT_DIR",
+   "3": "GND",
+   "4": "DOCK_OR",
+   "5": "3V3"
+  },
+  "lcsc": "C49333203",
+  "mpn": "TP74AUP1G32S5",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "DOCK_OR = DOCKED_H OR MOT_DIR[reverse]: forward undocked blocked, reverse undocked allowed (refill / draw)",
+  "group": "sw",
+  "board": "CUP"
+ },
+ {
+  "ref": "U34",
+  "value": "TP74AUP1G08S5 (AND)",
+  "fp": [
+   "Package_TO_SOT_SMD",
+   "SOT-353_SC-70-5"
+  ],
+  "pins": {
+   "1": "LATCH_Q",
+   "2": "DOCK_OR",
+   "3": "GND",
+   "4": "MOT_ALLOW",
+   "5": "3V3"
+  },
+  "lcsc": "C48886815",
+  "mpn": "TP74AUP1G08S5",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "MOT_ALLOW = LATCH_Q AND DOCK_OR: the pure-hardware cut path, drives the EN pin of the load switch",
+  "group": "sw",
+  "board": "CUP"
+ },
+ {
+  "ref": "R90",
+  "value": "100k",
+  "fp": [
+   "Resistor_SMD",
+   "R_0402_1005Metric"
+  ],
+  "pins": {
+   "1": "MOT_ALLOW",
    "2": "GND"
   },
-  "lcsc": "C19702",
-  "mpn": "CL10A106KP8NNNC",
+  "lcsc": "C25741",
+  "mpn": "0402WGF1003TCE",
   "side": "F",
   "bom": true,
   "dnp": false,
   "note": "",
-  "group": "oc",
+  "group": "sw",
   "board": "CUP"
  },
  {
-  "ref": "R48",
+  "ref": "U20",
+  "value": "TPS2553DBVR",
+  "fp": [
+   "Package_TO_SOT_SMD",
+   "SOT-23-6"
+  ],
+  "pins": {
+   "1": "VMOT_PRE",
+   "2": "GND",
+   "3": "MOT_ALLOW",
+   "4": "OC_OK",
+   "5": "ILIM",
+   "6": "VMOT"
+  },
+  "lcsc": "C55266",
+  "mpn": "TPS2553DBVR",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "current-limited high-side switch 2.5-6.5 V, 85 mohm, EN active high (hardware cut), FAULT open drain = OC_OK (low when the limit is active > deglitch), NOT the -1 latch variant; pinout 1 IN 2 GND 3 EN 4 FAULT 5 ILIM 6 OUT: VERIFY",
+  "group": "sw",
+  "board": "CUP"
+ },
+ {
+  "ref": "R91",
+  "value": "56k",
+  "fp": [
+   "Resistor_SMD",
+   "R_0402_1005Metric"
+  ],
+  "pins": {
+   "1": "ILIM",
+   "2": "GND"
+  },
+  "lcsc": "C25796",
+  "mpn": "0402WGF5602TCE",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "ILIM resistor: I_OS about 23950 / R^1.0056 (kohm -> mA) = about 0.42 A typ (datasheet table, tolerance about +-10 to 15 %, VERIFY); motor needs 0.35 A",
+  "group": "sw",
+  "board": "CUP"
+ },
+ {
+  "ref": "R92",
+  "value": "100k",
+  "fp": [
+   "Resistor_SMD",
+   "R_0402_1005Metric"
+  ],
+  "pins": {
+   "1": "3V3",
+   "2": "OC_OK"
+  },
+  "lcsc": "C25741",
+  "mpn": "0402WGF1003TCE",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "sw",
+  "board": "CUP"
+ },
+ {
+  "ref": "C60",
+  "value": "100nF",
+  "fp": [
+   "Capacitor_SMD",
+   "C_0402_1005Metric"
+  ],
+  "pins": {
+   "1": "VMOT_PRE",
+   "2": "GND"
+  },
+  "lcsc": "C1525",
+  "mpn": "CL05B104KO5NNNC",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "sw",
+  "board": "CUP"
+ },
+ {
+  "ref": "R24",
   "value": "10k",
   "fp": [
    "Resistor_SMD",
    "R_0402_1005Metric"
   ],
   "pins": {
-   "1": "INA_OUT",
-   "2": "I_SENSE"
+   "1": "VMOT_PRE",
+   "2": "GND"
   },
   "lcsc": "C25744",
   "mpn": "0402WGF1002TCE",
@@ -1671,90 +1576,27 @@
   "bom": true,
   "dnp": false,
   "note": "",
-  "group": "oc",
+  "group": "sw",
   "board": "CUP"
  },
  {
-  "ref": "C27",
-  "value": "10nF",
-  "fp": [
-   "Capacitor_SMD",
-   "C_0402_1005Metric"
-  ],
-  "pins": {
-   "1": "I_SENSE",
-   "2": "GND"
-  },
-  "lcsc": "C15195",
-  "mpn": "CL05B103KB5NNNC",
-  "side": "F",
-  "bom": true,
-  "dnp": false,
-  "note": "",
-  "group": "oc",
-  "board": "CUP"
- },
- {
-  "ref": "U11",
-  "value": "TLV7011DCKR",
-  "fp": [
-   "Package_TO_SOT_SMD",
-   "SOT-353_SC-70-5"
-  ],
-  "pins": {
-   "1": "OC_OK",
-   "2": "GND",
-   "3": "I_SENSE",
-   "4": "OC_REF",
-   "5": "3V3"
-  },
-  "lcsc": "C193688",
-  "mpn": "TLV7011DCKR",
-  "side": "F",
-  "bom": true,
-  "dnp": false,
-  "note": "nano-power push-pull comparator on 3V3; output rises on over-current",
-  "group": "oc",
-  "board": "CUP"
- },
- {
-  "ref": "R49",
-  "value": "1M",
+  "ref": "R25",
+  "value": "10k",
   "fp": [
    "Resistor_SMD",
    "R_0402_1005Metric"
   ],
   "pins": {
-   "1": "3V3",
-   "2": "OC_REF"
+   "1": "VMOT",
+   "2": "GND"
   },
-  "lcsc": "C26083",
-  "mpn": "0402WGF1004TCE",
+  "lcsc": "C25744",
+  "mpn": "0402WGF1002TCE",
   "side": "F",
   "bom": true,
   "dnp": false,
   "note": "",
-  "group": "oc",
-  "board": "CUP"
- },
- {
-  "ref": "R50",
-  "value": "1M",
-  "fp": [
-   "Resistor_SMD",
-   "R_0402_1005Metric"
-  ],
-  "pins": {
-   "1": "OC_REF",
-   "2": "GND"
-  },
-  "lcsc": "C26083",
-  "mpn": "0402WGF1004TCE",
-  "side": "F",
-  "bom": true,
-  "dnp": false,
-  "note": "OC reference 3V3/2 = 1.65 V -> trip about 0.375 A",
-  "group": "oc",
+  "group": "sw",
   "board": "CUP"
  },
  {
@@ -1805,10 +1647,10 @@
    "SOT-563"
   ],
   "pins": {
-   "1": "VMOT_RAW",
+   "1": "SUP_PERMIT",
    "2": "GND",
    "3": "BST_SW",
-   "4": "VMOT_RAW",
+   "4": "VBAT",
    "5": "VMOT_PRE",
    "6": "BST_FB"
   },
@@ -1817,7 +1659,7 @@
   "side": "F",
   "bom": true,
   "dnp": false,
-  "note": "sync boost 3.7 A switch, 0.5-5.5 V in, 1 uA off, about 90 % at 0.3 A out; EN tied to the SWITCHED VMOT_RAW (zero idle drain, cut by Q4/Q15); pinout 1 EN 2 GND 3 SW 4 VIN 5 VOUT 6 FB: VERIFY",
+  "note": "sync boost 3.7 A switch, 0.5-5.5 V in, 1 uA off, about 90 % at 0.3 A out; VIN from the cell, EN = SUP_PERMIT (supervisor second cut); pinout 1 EN 2 GND 3 SW 4 VIN 5 VOUT 6 FB: VERIFY",
   "group": "boost",
   "board": "CUP"
  },
@@ -1829,7 +1671,7 @@
    "L_1008_2520Metric"
   ],
   "pins": {
-   "1": "VMOT_RAW",
+   "1": "VBAT",
    "2": "BST_SW"
   },
   "lcsc": "C370610",
@@ -1917,7 +1759,7 @@
   "side": "F",
   "bom": true,
   "dnp": false,
-  "note": "bulk on the boost output, before the shunt (no inrush through the over-current shunt); basic part; about 8 uF effective at 5 V DC bias",
+  "note": "bulk on the boost output (basic part); about 8 uF effective at 5 V DC bias",
   "group": "boost",
   "board": "CUP"
  },
@@ -1937,7 +1779,7 @@
   "side": "F",
   "bom": true,
   "dnp": false,
-  "note": "bulk on the boost output, before the shunt (no inrush through the over-current shunt); basic part; about 8 uF effective at 5 V DC bias",
+  "note": "bulk on the boost output (basic part); about 8 uF effective at 5 V DC bias",
   "group": "boost",
   "board": "CUP"
  },

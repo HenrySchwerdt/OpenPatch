@@ -14,9 +14,9 @@ Z_TOP = Z_BOT + BOARD_T     # 6.1
 LID_INNER = 7.6
 
 # outline in the pod frame (CCW seen from the top)
-OUTLINE_POD = [(7.45, 33.5), (43.2, 33.5), (43.2, 22.9), (42.0, 22.9), (42.0, 6.35), (44.2, 6.35), (44.2, 1.1), (35.4, 1.1), (35.4, 6.35),
+OUTLINE_POD = [(7.45, 33.5), (43.4, 33.5), (43.4, 22.9), (42.0, 22.9), (42.0, 6.35), (44.2, 6.35), (44.2, 1.1), (35.4, 1.1), (35.4, 6.35),
                (36.0, 6.35), (36.0, 17.15), (35.4, 17.15), (35.4, 22.9), (7.45, 22.9)]
-ANT_POD = (42.4, 22.9, 43.3, 33.6)          # antenna half of the module: no copper / parts east of x 42.4 (board edge overhang)
+ANT_POD = (42.0, 22.9, 43.3, 33.6)          # antenna half of the module: no copper / parts east of x 42.4 (board edge overhang)
 
 
 def b(x, y):
