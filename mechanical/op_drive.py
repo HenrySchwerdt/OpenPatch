@@ -1,4 +1,4 @@
-"""Reservoir, Kolben (Kern + Dichtlippen), Schlitten, Antrieb, Spindel, Lager."""
+"""Reservoir, plunger (core + sealing lips), carriage, drive, leadscrew, bearings."""
 from __future__ import annotations
 
 from op_cmds import Script
@@ -20,7 +20,7 @@ def build_reservoir(s: Script, p: dict, L: dict, name: str = "reservoir") -> Non
     rs, sp, nd, dr, sl = p["reservoir"], p["septum"], p["needle"], p["drive"], p["seal"]
     zc = L["z_axis"]
     s.stadium(name, (L["x_r0"], L["x_r1"]), L["y_r"], zc, L["res_w_out"], L["res_h_out"])
-    # Kammer: trockenes Ende offen (Kolben wird von hinten eingesetzt)
+    # Chamber: dry end open (the plunger is inserted from behind)
     s.stadium("t_chamber", (L["x_r0"] - 0.1, L["x_in1"]), L["y_r"], zc, rs["w_in"], rs["h_in"])
     tools = ["t_chamber"]
     if L["mode"] == "bench":     # frozen CNC interface: ONE press bore d2.0 H7 at the centre of the closed end, no fill port
@@ -112,7 +112,7 @@ def build_carriage(s: Script, p: dict, L: dict) -> None:
     if sh is not None:
         s.box("tongue_shim", (xm - sh["t"] / 2, xm + sh["t"] / 2), (y_end - sl["socket_depth"] + 0.1, ys - bw / 2 + sh["pocket_depth"] - 0.1),
               (zc - sh["h"] / 2, zc + sh["h"] / 2))
-    # M1.6-Mutter (DIN 934), Kauf
+    # M1.6 nut (DIN 934), bought part
     xn0 = px0 + 0.1
     s.hexprism("nut", (xn0, xn0 + dr["nut_len"]), ys, zc, dr["nut_af"] / 2, angle=0.0)
     s.cyl("t_nbore", "X", (0, ys, zc), dr["screw_d"] + 0.05, xn0 - 0.1, xn0 + dr["nut_len"] + 0.1)
@@ -128,7 +128,7 @@ def build_drive(s: Script, p: dict, L: dict) -> None:
     gx0 = L["gear_x0"]
     s.cyl("gearhead", "X", (0, ym, zc), dr["motor_d"], L["gh_x"][0], L["gh_x"][1])
     s.cyl("motor", "X", (0, ym, zc), dr["motor_d"], L["mo_x"][0], L["mo_x"][1])
-    # Zahnräder (Modul 0.3, z=18) als Fußkreis modelliert (Kopfkreis Ø6.0)
+    # Gears (module 0.3, z=18) modelled as root circle (tip circle Ø6.0)
     s.cyl("gear_a", "X", (0, ym, zc), L["gears"]["tip_motor"], gx0, L["gear_x1"])   # tip envelope (meshes with gear_b: see EXCLUDE pair)
     if L["nfp"]:                                   # D-shaft bore (flat modelled as a plain bore d2.04)
         s.cyl("t_gab", "X", (0, ym, zc), dr["shaft_d"] + 0.04, gx0 - 0.1, L["gear_x1"] + 0.1)

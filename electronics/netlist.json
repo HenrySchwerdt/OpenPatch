@@ -33,7 +33,7 @@
   "LRX1": {
    "key": "coil_rx",
    "dnp": false,
-   "value": "Qi-Rx-Spule O17.6 ~6-8uH",
+   "value": "Qi Rx coil O17.6 ~6-8uH",
    "footprint": "OpenPatch:Qi_Coil_Pads"
   },
   "C20": {
@@ -225,7 +225,7 @@
   "BT1": {
    "key": "bat_pads",
    "dnp": false,
-   "value": "Akku 2-Pad",
+   "value": "Battery 2-Pad",
    "footprint": "OpenPatch:Pad_Pair_Battery_1.0x1.5"
   },
   "Q2": {
@@ -519,7 +519,7 @@
   "SW1": {
    "key": "button",
    "dnp": false,
-   "value": "Taster 3.0x2.5x1.2",
+   "value": "Button 3.0x2.5x1.2",
    "footprint": "Button_Switch_SMD:SW_SPST_B3U-1000P"
   },
   "R82": {

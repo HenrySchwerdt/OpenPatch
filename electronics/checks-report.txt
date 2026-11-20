@@ -1,36 +1,36 @@
-OK  Alle Netze haben >= 2 Anschluesse (Einzelnetze: [])
-OK  Kein Pin liegt in zwei Netzen []
-OK  Entkopplung auf 3V3: ['C2', 'C50', 'C41', 'C1', 'C51']
-OK  Entkopplung auf VBAT: ['C54', 'C42']
-OK  Entkopplung auf VMOT: ['C61', 'C60']
-OK  Entkopplung auf RECT: ['C31', 'C30']
-OK  Entkopplung auf VQI_5V: ['C32', 'C40', 'C33']
-OK  Entkopplung auf VPER_3V3: ['C43', 'C70', 'C71', 'C72']
-OK  3V3: >= 5 Kondensatoren
-OK  ISP1807 VCC_NRF an 3V3
-OK  ISP1807: alle 10 VSS-Pads an GND (10)
-OK  OUT_MOD -> R90 -> OUT_ANT (integrierte Antenne, kein externes pi-Netz)
-OK  ISP1807-GPIO genutzt (inkl. SWD/RESET): 26 (Soll 26)
-OK  MOT_ALLOW wird vom Latch-Q (U6) getrieben
-OK  MOT_ALLOW steuert Lastschalter U7 (ON)
-OK  Kein MCU-Ausgang direkt auf MOT_ALLOW (nur Rueckleser P0.04)
-OK  Pulldown R53 auf MOT_ALLOW (Default AUS bei SYS-Verlust)
-OK  VMOT nur an Lastschalter-Ausgang (U7) und Treiber VS (U4): ['C60', 'C61', 'R70', 'TP4', 'U4', 'U7']
-OK  STSPIN220 VS haengt NUR an VMOT (nie direkt an VBAT)
-OK  Lastschalter: VBAT -> VMOT
-OK  CLR# wird per Diode D2 von NRST (TPL5010 RSTn) gezogen
-OK  CLR# vom MCU-KILL_N (P1.07) ziehbar
-OK  Power-On-Clear-Kondensator C52 an CLR#
-OK  TPL5010 RSTn resettet zusaetzlich den MCU (nRESET)
+OK  All nets have >= 2 connections (single-pin nets: [])
+OK  No pin is in two nets []
+OK  Decoupling on 3V3: ['C2', 'C50', 'C41', 'C1', 'C51']
+OK  Decoupling on VBAT: ['C54', 'C42']
+OK  Decoupling on VMOT: ['C61', 'C60']
+OK  Decoupling on RECT: ['C31', 'C30']
+OK  Decoupling on VQI_5V: ['C32', 'C40', 'C33']
+OK  Decoupling on VPER_3V3: ['C43', 'C70', 'C71', 'C72']
+OK  3V3: >= 5 capacitors
+OK  ISP1807 VCC_NRF on 3V3
+OK  ISP1807: all 10 VSS pads on GND (10)
+OK  OUT_MOD -> R90 -> OUT_ANT (integrated antenna, no external pi network)
+OK  ISP1807 GPIOs used (incl. SWD/RESET): 26 (expected 26)
+OK  MOT_ALLOW is driven by the latch Q (U6)
+OK  MOT_ALLOW controls the load switch U7 (ON)
+OK  No MCU output directly on MOT_ALLOW (read-back only, P0.04)
+OK  Pull-down R53 on MOT_ALLOW (default OFF on loss of SYS)
+OK  VMOT only on the load switch output (U7) and driver VS (U4): ['C60', 'C61', 'R70', 'TP4', 'U4', 'U7']
+OK  STSPIN220 VS is connected ONLY to VMOT (never directly to VBAT)
+OK  Load switch: VBAT -> VMOT
+OK  CLR# is pulled low by NRST (TPL5010 RSTn) through diode D2
+OK  CLR# can be pulled low by the MCU KILL_N (P1.07)
+OK  Power-on clear capacitor C52 on CLR#
+OK  TPL5010 RSTn additionally resets the MCU (nRESET)
 OK  TPL5010 DONE <- MCU P2.00
-OK  Latch D und PRE# fest auf High (nur CLK setzt)
-OK  STSPIN220 STBY/RESET hat Pulldown R72 (MCU-Enable fail-safe)
-OK  DRV5032 A/B -> HALL_A/B (QDEC, CPU-unabhaengiger Pfad B)
-OK  TMAG5273 (Pfad A) am I2C
+OK  Latch D and PRE# tied high (only CLK sets it)
+OK  STSPIN220 STBY/RESET has pull-down R72 (MCU enable is fail-safe)
+OK  DRV5032 A/B -> HALL_A/B (QDEC, CPU-independent path B)
+OK  TMAG5273 (path A) on I2C
 OK  BQ51003 OUT -> BQ25120A IN
 OK  BQ25120A: BAT=VBAT, SYS=3V3
-OK  Verpolschutz-PFET Q2 in der +Schiene
-OK  TC2030 J1: SWDIO/SWCLK/NRESET/VTREF/GND korrekt
+OK  Reverse-polarity protection PFET Q2 in the + rail
+OK  TC2030 J1: SWDIO/SWCLK/NRESET/VTREF/GND correct
 OK  Testpad TP1 -> 3V3
 OK  Testpad TP3 -> VBAT
 OK  Testpad TP4 -> VMOT
@@ -41,4 +41,4 @@ OK  Testpad TP11 -> MOT_A2
 OK  Testpad TP12 -> MOT_B1
 OK  Testpad TP13 -> MOT_B2
 
-42 OK, 0 FEHLER
+42 OK, 0 FAILED

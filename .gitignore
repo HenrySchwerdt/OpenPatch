@@ -8,7 +8,7 @@ build/
 *.profdata
 .DS_Store
 __pycache__/
-# Herstellerdatenblätter nicht weiterverbreiten (Urheberrecht) – Links stehen in electronics/datasheets/README.md
+# Do not redistribute manufacturer datasheets (copyright) – links are in electronics/datasheets/README.md
 electronics/datasheets/**/*.pdf
 electronics/tools/*.jar
 *.bak

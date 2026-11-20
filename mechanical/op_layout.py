@@ -1,8 +1,8 @@
 """Layout-Berechnung (alle Koordinaten in mm).
 
-X = Länge, Y = Breite, Z = Höhe (Z=0 = Hautseite / Klettfläche).
-Nur die Reservoirlänge hängt von der Variante ab (Kolbenhub 'stroke').
-Rev A: echter Antrieb (Faulhaber ADM0620 + 06/1), Lager, Kolbenführung, Hall-Geber, RF-Modul.
+X = length, Y = width, Z = height (Z=0 = skin side / Velcro surface).
+Only the reservoir length depends on the variant (plunger stroke 'stroke').
+Rev A: real drive (Faulhaber ADM0620 + 06/1), bearings, plunger guide, Hall encoder, RF module.
 """
 from __future__ import annotations
 
@@ -157,8 +157,8 @@ def compute_layout(p: dict, variant: str) -> dict:
         "motor_shelf": shelf,
         "hold_down_pads": [{"x": tab_x, "y": bat_y0 + sum(ct["tab_dy"]) / 2, "d": ct["pad_d"], "z0": pcb_z0 + pc["t"] + ct["pad_gap"]},
                            {"x": shelf_x0 + 0.6 + (ct["fpc_n"] - 1) * ct["fpc_pitch"] / 2, "y": ct["fpc_y"], "d": ct["pad_d"],
-                            "z0": pcb_z0 + pc["t"] + rf["module_z"] + ct["pad_gap"]}],   # drückt über das RF-Modul auf die Platine
-        "note": "Federkontakte (<=1.2 mm) auf PCB-Unterseite; Deckelpads (z 5.55..7.6) halten die Platine nieder (Vorspannung).",
+                            "z0": pcb_z0 + pc["t"] + rf["module_z"] + ct["pad_gap"]}],   # presses on the board via the RF module
+        "note": "Spring contacts (<=1.2 mm) on the PCB underside; lid pads (z 5.55..7.6) hold the board down (preload).",
     }
     cut_mt = None
     if mot_end + 0.2 > pcb_x0:

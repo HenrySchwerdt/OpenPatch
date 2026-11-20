@@ -1,4 +1,4 @@
-"""Gehäuse: Boden (bottom), Deckel (top), Dichtung (gasket)."""
+"""Housing: floor (bottom), lid (top), gasket."""
 from __future__ import annotations
 
 import math
@@ -18,7 +18,7 @@ def build_bottom(s: Script, p: dict, L: dict) -> None:
     s.rrect("t_cav", (wall, w - wall), (wall, wd - wall), r - wall, (wall, sh["lap_high"] + 0.5))
     s.cut("bottom", ["t_cav"])
 
-    # ---- Kanülenturm, Septum-Boss ---------------------------------------------------
+    # ---- Cannula tower, septum boss ---------------------------------------------------
     from op_dock import build_dock_cuts, build_dock_joins, build_mouth_cut
     bench_ = L["mode"] == "bench"
     if bench_:
@@ -30,7 +30,7 @@ def build_bottom(s: Script, p: dict, L: dict) -> None:
     if L["mode"] != "bench":
         joins.append(s.cyl("t_boss", "Y", (L["x_s"], 0, sp["z"]), sp["boss_d"], wall - 0.1, L["y_r0"]))
 
-    # ---- Spindellager-Böcke (trocken: in der Stirnwand, nass: hinter dem Reservoir) ------
+    # ---- Leadscrew bearing blocks (dry: in the end wall, wet: behind the reservoir) ------
     bh = dr["bush_od"] + 2 * 0.675
     z_top_blk = zc + bh / 2
     yb = (ys - bh / 2, ys + bh / 2)
@@ -38,11 +38,11 @@ def build_bottom(s: Script, p: dict, L: dict) -> None:
         joins.append(s.box("t_dblk", (wall + 0.02, L["gear_x0"] - 0.05), yb, (wall - 0.1, z_top_blk)))
     fb = L["far_block"]
     joins.append(s.box("t_fblk", (fb[0], fb[1]), yb, (wall - 0.1, z_top_blk)))
-    # Führungsschiene für den Schlitten
+    # Guide rail for the carriage
     if not L.get("inline"):          # sealed inline drive has no carriage
         joins.append(s.box("t_rail", (L["x_r0"] + 0.4, fb[0] - 0.3), (ys - dr["rail_w"] / 2, ys + dr["rail_w"] / 2),
                            (wall - 0.1, dr["rail_top"])))
-    # Motor-Sättel (Schalen) unter Getriebekopf/Motor
+    # Motor saddles (cradles) under gearhead/motor
     ym, zr = L["y_m"], dr["motor_d"] / 2
     saddles = [L["gh_x"][0] + 3.0, L["mo_x"][0] + (0.6 if L["nfp"] else 2.0), L["mo_x"][1] - 2.0]
     if L["coax"]:                                # coaxial motor: cradles under the motor / gearbox on the lane axis
@@ -52,17 +52,17 @@ def build_bottom(s: Script, p: dict, L: dict) -> None:
     for i, cx in enumerate(saddles):
         joins.append(s.box(f"t_sad{i}", (cx - dr["cradle_t"] / 2, cx + dr["cradle_t"] / 2), (ym - 2.2, ym + 2.2),
                            (wall - 0.1, wall + dr["cradle_up"] + 0.2)))
-    # Kontakt-Regal für Motor-FPC
+    # Contact shelf for the motor FPC
     bench = L["mode"] == "bench"
     if not bench:
         sf = L["contacts"]["motor_shelf"]
         joins.append(s.box("t_shelf", tuple(sf["x"]), tuple(sf["y"]), (wall - 0.1, sf["z_top"])))
-    # Akku-Taschenrippen (Kabel-/Laschenkanal = Lücke bei y der Schraube C)
+    # Battery pocket ribs (cable/tab channel = gap at the y of screw C)
     rt = bt["rib_t"]
     rx = (L["bat_x0"] - 0.15 - rt, L["bat_x0"] - 0.15)
     for i, (y0, y1) in enumerate(() if bench else ((L["bat_y0"] + 0.1, sc["c_y"] - 1.5), (sc["c_y"] + 1.5, L["bat_y1"] - 0.1))):
         joins.append(s.box(f"t_rib{i}", rx, (y0, y1), (wall - 0.1, wall + bt["rib_h"])))
-    # Schraubdome (Hartanschlag für Dichtung bei z = lap_high + gasket_c) und PCB-Stifte
+    # Screw domes (hard stop for the gasket at z = lap_high + gasket_c) and PCB pins
     z_stop = sh["lap_high"] + sh["gasket_c"]
     for i, sp_ in enumerate(L["screws"]):
         joins.append(s.cyl(f"t_dome{i}", "Z", (sp_["x"], sp_["y"], 0), sc["boss_d"], wall - 0.1, z_stop - 0.01))
@@ -87,7 +87,7 @@ def build_bottom(s: Script, p: dict, L: dict) -> None:
     else:       # fill-needle access hole through the FLOOR under the cap septum (underside fill, spec 3c; accessible when undocked)
         _sw = p["dock"]["cap"]
         cut.append(s.cyl("t_fillacc", "Z", (L["x_r1"] + _sw["septum_x"], L["dock"]["y_c"] - _sw["septum_dy"], 0), _sw["fill_hole_d"], -0.1, wall + 0.1))
-    # Lager-Bohrungen
+    # Bearing bores
     bb = dr["bush_od"] + dr["bush_bore_clr"]
     if not L["coax"]:
         cut.append(s.cyl("t_dbore", "X", (0, ys, zc), bb, L["dry_bush"][0], L["gear_x0"] + 0.05))
@@ -99,7 +99,7 @@ def build_bottom(s: Script, p: dict, L: dict) -> None:
         cut.append(s.cyl("t_mcut", "X", (0, ym, zc), dr["motor_d"] + (p["bench"]["motor_trough_clr"] if L["mode"] == "bench" else 0.1), L["gh_x"][0] - 0.2, L["mot_end"] + 0.5 - dr["motor_tail"]))
     else:
         cut.append(s.cyl("t_mcut", "X", (0, ys, zc), dr["motor_d"] + 0.1, L["coax"]["x_m0"] - 0.1, L["coax"]["x_fb0"] + 0.1))
-    # Schrauben-Pilotlöcher M1.2 (Ø1.0)
+    # Screw pilot holes M1.2 (Ø1.0)
     for i, sp_ in enumerate(L["screws"]):
         cut.append(s.cyl(f"t_pil{i}", "Z", (sp_["x"], sp_["y"], 0), sc["pilot"], z_stop - sc["len"] + 2.0, z_stop + 0.1))
     if bench:
@@ -196,14 +196,14 @@ def build_top(s: Script, p: dict, L: dict) -> None:
             cuts += top_extra_cuts(s, p, L)
         s.cut("top", cuts)
         return
-    # Spulensitz: 4 Pratzen außerhalb der Spule
+    # Coil seat: 4 clamps outside the coil
     cx, cy = L["coil"]["cx"], L["coil"]["cy"]
     rr = L["coil"]["d"] / 2 + 0.7
     for i, ang in enumerate((45, 135, -45, -135)):
         a = math.radians(ang)
         x, y = cx + rr * math.cos(a), cy + rr * math.sin(a)
         joins.append(s.box(f"t_tab{i}", (x - 0.4, x + 0.4), (y - 0.4, y + 0.4), (co["z0"] - 0.1, zi + 0.1)))
-    # Taster-Stößel und Halte-Pads
+    # Button plunger and holding pads
     bx, by = L["button"]["x"], L["button"]["y"]
     z_post = 5.5 + bn["sw_z"] + bn["post_gap"]
     joins.append(s.cyl("t_post", "Z", (bx, by, 0), bn["post_d"], z_post, zi + 0.1))

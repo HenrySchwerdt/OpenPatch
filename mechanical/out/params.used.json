@@ -1,5 +1,5 @@
 {
- "_comment": "Einzige Parameterquelle der Mechanik. Ma\u00dfe in mm. Spec: spec/design-parameters.md. Varianten \u00e4ndern NUR den Kolbenhub (stroke).",
+ "_comment": "Single parameter source of the mechanics. Dimensions in mm. Spec: spec/design-parameters.md. Variants change ONLY the plunger stroke (stroke).",
  "spec": {
   "max_height": 8.5,
   "width_target": 32.0,
@@ -156,7 +156,7 @@
   "edge_gap": 0.6
  },
  "cannula": {
-  "_comment": "PLATZHALTER - Werte A..N aus cannula-measurement.md eintragen und neu generieren.",
+  "_comment": "PLACEHOLDER - enter values A..N from cannula-measurement.md and regenerate.",
   "A_plate_length": 14.0,
   "B_plate_width": 10.0,
   "C_plate_thickness": 3.0,

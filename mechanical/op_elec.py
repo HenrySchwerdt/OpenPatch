@@ -1,4 +1,4 @@
-"""Elektronik-Platzhalter (Akku, PCB, Spule, RF-Modul, Piezo, Taster, Hall, Septum, Nadel)."""
+"""Electronics placeholders (battery, PCB, coil, RF module, piezo, button, Hall, septum, needle)."""
 from __future__ import annotations
 
 from op_cmds import Script
@@ -40,7 +40,7 @@ def build_electronics(s: Script, p: dict, L: dict) -> None:
     for i, d in enumerate(L["drv5032"]):
         s.box(f"hall_drv{i}", (d["x"] - hl["drv_x"] / 2, d["x"] + hl["drv_x"] / 2), (d["y"] - hl["drv_y"] / 2, d["y"] + hl["drv_y"] / 2),
               (pc["z0"] - hl["drv_z"], pc["z0"]))
-    # Septum + Nadel + Nadelhülse (horizontal needle of the slide-on dock)
+    # Septum + needle + needle sleeve (horizontal needle of the slide-on dock)
     s.cyl("septum", "Y", (L["x_s"], 0, sp["z"]), sp["d"], sp["recess"], sp["recess"] + sp["len"])
     from op_dock import build_adapter, build_needle
     build_needle(s, p, L)

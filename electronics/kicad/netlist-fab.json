@@ -94,7 +94,7 @@
    "src": "skidl"
   },
   "LRX1": {
-   "value": "Qi-Rx-Spule O17.6 ~6-8uH",
+   "value": "Qi Rx coil O17.6 ~6-8uH",
    "lib": "OpenPatch",
    "fp": "Contact_Pads_Coil_2x_1.5x1.2",
    "pads": {
@@ -354,7 +354,7 @@
    "src": "skidl"
   },
   "BT1": {
-   "value": "Akku 2-Pad",
+   "value": "Battery 2-Pad",
    "lib": "OpenPatch",
    "fp": "Contact_Pads_Battery_2x_1.5x1.2",
    "pads": {
@@ -659,7 +659,7 @@
    "src": "skidl"
   },
   "SW1": {
-   "value": "Taster 3.0x2.5x1.2",
+   "value": "Button 3.0x2.5x1.2",
    "lib": "Button_Switch_SMD",
    "fp": "SW_SPST_B3U-1000P",
    "pads": {

@@ -1,5 +1,5 @@
 {
- "_comment": "Einzige Parameterquelle der Mechanik. Maße in mm. Spec: spec/design-parameters.md. Varianten ändern NUR den Kolbenhub (stroke).",
+ "_comment": "Single parameter source of the mechanics. Dimensions in mm. Spec: spec/design-parameters.md. Variants change ONLY the plunger stroke (stroke).",
  "spec": {
   "max_height": 8.5,
   "width_target": 32.0,
