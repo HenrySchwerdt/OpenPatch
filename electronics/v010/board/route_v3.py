@@ -94,7 +94,10 @@ if step == "prep":
     pcbnew.SaveBoard(pcb, b)
     pcbnew.ExportSpecctraDSN(b, dsn)
     t = open(dsn).read()
-    t = t.replace("(type route))", "(type protect))")
+    if os.environ.get("OP_PROTECT_WIRES", "1") == "1":
+        t = t.replace("(type route))", "(type protect))")
+    else:       # only the fan-out vias are fixed; pre-routed wires stay ordinary (Freerouting 2.2.4 loops in PolylineTrace.normalize on protected trunks)
+        t = re.sub(r"(\(via [^\n]*)\(type route\)\)", r"\1(type protect))", t)
     t = t.replace("(clearance 100)", "(clearance %d)" % int(float(os.environ.get("OP_CLR", "0.10")) * 1000))
     layers = ["In1.Cu"] + (["In4.Cu"] if P4 else [])
     for l in layers:

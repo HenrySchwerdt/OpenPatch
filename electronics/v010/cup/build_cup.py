@@ -65,6 +65,33 @@ def u1_fanout(b, fps):
     return n
 
 
+BUS_NETS = ["VBAT", "3V3", "VMOT", "SUP_PERMIT", "OC_OK", "MOT_ALLOW", "PERM_L", "DOCK_XOR", "APHASE", "BPHASE", "AENBL", "BENBL", "I2C_SCL", "I2C_SDA"]
+BUS_LANES = [8.45, 8.75, 9.05, 9.35, 9.65, 9.95, 10.2]      # board-frame y of the lanes (below the D- pad vias at y 8.02, above the edge band at 10.3)
+
+
+def bridge_bus(b, fps):
+    """Pre-route the nets that join the west and east lobes as straight trunks on In2 / In3 across the USB bridge (Freerouting leaves the
+    bridge inner layers unused and then fails on exactly these long nets). Each trunk runs from the mean x of its west pins (>= 5.5) to the
+    mean x of its east pins (<= 31.5) on its own lane; the router then only connects the short ends."""
+    pins = {}
+    for f in fps.values():
+        for pd in f.Pads():
+            n = pd.GetNetname()
+            if n in BUS_NETS:
+                pins.setdefault(n, []).append((T(pd.GetPosition().x) - bl.OX, T(pd.GetPosition().y) - bl.OY))
+    slots = [(pcbnew.In2_Cu, y) for y in BUS_LANES] + [(pcbnew.In3_Cu, y) for y in BUS_LANES]
+    n = 0
+    for net, (layer, y) in zip(BUS_NETS, slots):
+        west = [x for x, _ in pins[net] if x < 11.0]
+        east = [x for x, _ in pins[net] if x > 20.4]
+        xa = min(max(sum(west) / len(west), 5.5), 10.4)
+        xb = min(max(sum(east) / len(east), 21.5), 31.5)
+        t = pcbnew.PCB_TRACK(b.b)
+        t.SetStart(pcbnew.VECTOR2I(MM(bl.OX + xa), MM(bl.OY + y))); t.SetEnd(pcbnew.VECTOR2I(MM(bl.OX + xb), MM(bl.OY + y)))
+        t.SetLayer(layer); t.SetWidth(MM(0.16 if net in POWERNETS or net == "3V3" else 0.10)); t.SetNet(b.net(net)); b.b.Add(t); n += 1
+    return n
+
+
 def gnd_fanout(b, fps, net="GND", rv=0.2, trk=0.12, clr=0.12):
     """short stub + via next to every SMD pad of `net` (GND plane on In1): keeps the router off the ground nets (fan-out before Freerouting)"""
     import math
@@ -211,6 +238,8 @@ def main():
                 v = pcbnew.PCB_VIA(b.b); v.SetPosition(pd.GetPosition()); v.SetNet(pd.GetNet()); v.SetViaType(pcbnew.VIATYPE_THROUGH)
                 v.SetWidth(MM(d)); v.SetDrill(MM(h)); b.b.Add(v); nvp += 1
     print("vias in wire / USB pads:", nvp)
+    if os.environ.get("OP_BUS", "1") == "1":
+        print("bridge bus trunks:", bridge_bus(b, fps))
     # USB D+: B6 and A6 joined on F.Cu by a U-loop just south of the pad row (D- uses the two pad vias above, joined on an inner layer)
     up = {pd.GetNumber(): pd.GetPosition() for pd in fps["JU1"].Pads()}
     dp = fps["JU1"].Pads()[0].GetBoard().FindNet("USB_DP") if False else b.b.FindNet("USB_DP")
