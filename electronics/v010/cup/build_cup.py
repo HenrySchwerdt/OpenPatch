@@ -30,7 +30,7 @@ def _load(self, lib, nm):
 
 Board.load_fp = _load
 bl.TRACK, bl.CLEAR, bl.VIA_D, bl.VIA_H = 0.12, 0.10, 0.40, 0.20
-POWERNETS = ("VBAT", "3V3", "VMOT", "VMOT_RAW", "VMOT_A", "MOT_A1", "MOT_A2", "MOT_B1", "MOT_B2", "VBUS_P", "VBUS_R")
+POWERNETS = ("VBAT", "3V3", "VMOT", "VMOT_PRE", "BST_SW", "MOT_A1", "MOT_A2", "MOT_B1", "MOT_B2", "VBUS_P")
 NAME = "cup"
 PCB = os.path.join(HERE, NAME + ".kicad_pcb")
 

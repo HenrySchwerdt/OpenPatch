@@ -16,7 +16,7 @@ import benchlib as bl
 MM = pcbnew.FromMM
 T = pcbnew.ToMM
 G = 0.1
-CLR = 0.10
+CLR = 0.15
 VIA_D, VIA_H = 0.40, 0.20
 LAYERS = [pcbnew.F_Cu, pcbnew.In2_Cu, pcbnew.In3_Cu, pcbnew.In4_Cu, pcbnew.B_Cu]
 LNAME = {l: i for i, l in enumerate(LAYERS)}

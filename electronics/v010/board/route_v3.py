@@ -42,12 +42,28 @@ def stitch(b, pitch=2.5, clear=0.45):
     gnd = b.FindNet("GND").GetNetCode()
     items = list(b.GetTracks()) + [p for f in b.GetFootprints() for p in f.Pads()]
     bb = b.GetBoardEdgesBoundingBox(); n = 0
+    esegs = [(d.GetStart().x, d.GetStart().y, d.GetEnd().x, d.GetEnd().y) for d in b.GetDrawings() if d.GetLayer() == pcbnew.Edge_Cuts and d.GetShape() == pcbnew.SHAPE_T_SEGMENT]
+
+    def on_board(px, py, m):
+        c = False
+        for ax, ay, bx, by in esegs:
+            if (ay > py) != (by > py) and px < (bx - ax) * (py - ay) / (by - ay) + ax:
+                c = not c
+        if not c:
+            return False
+        import math
+        for ax, ay, bx, by in esegs:
+            dx, dy = bx - ax, by - ay
+            t = max(0, min(1, ((px - ax) * dx + (py - ay) * dy) / (dx * dx + dy * dy)))
+            if math.hypot(px - ax - t * dx, py - ay - t * dy) < m:
+                return False
+        return True
     x = bb.GetLeft() + MM(1.0)
     rules = [z for z in b.Zones() if z.GetIsRuleArea()]
     while x < bb.GetRight() - MM(0.8):
         y = bb.GetTop() + MM(1.0)
         while y < bb.GetBottom() - MM(0.8):
-            p = pcbnew.VECTOR2I(int(x), int(y)); ok = True
+            p = pcbnew.VECTOR2I(int(x), int(y)); ok = on_board(int(x), int(y), MM(0.7))
             for it in items:
                 if it.GetNetCode() == gnd:
                     if it.HitTest(p, MM(0.8)):
@@ -87,9 +103,13 @@ if step == "prep":
 elif step == "route":
     import subprocess
     cmd = [bl.JAVA, "-jar", FREEROUTING, "-de", dsn, "-do", ses, "-mp", os.environ.get("OP_PASSES", "40")]
-    r = subprocess.run(cmd, capture_output=True, text=True)
-    open(ses + ".log", "w").write(r.stdout + r.stderr)
-    print("freerouting rc", r.returncode)
+    try:
+        r = subprocess.run(cmd, capture_output=True, text=True, timeout=float(os.environ.get("OP_TIMEOUT", "1500")))
+        open(ses + ".log", "w").write(r.stdout + r.stderr)
+        print("freerouting rc", r.returncode)
+    except subprocess.TimeoutExpired as e:
+        open(ses + ".log", "w").write((e.stdout or b"").decode() if isinstance(e.stdout, bytes) else (e.stdout or ""))
+        print("freerouting TIMEOUT")
 elif step == "import":
     b = pcbnew.LoadBoard(pcb)
     print("SES import", pcbnew.ImportSpecctraSES(b, ses))

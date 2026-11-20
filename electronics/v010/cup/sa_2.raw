@@ -1,0 +1,18 @@
+./src/common/stdpbase.cpp(59): assert ""traits"" failed in Get(): create wxApp before calling this
+it 150000 T 1.262 cost 9710.0 hpwl 995.6 overlap -70.93
+it 200000 T 1.082 cost 9698.7 hpwl 996.0 overlap -71.22
+it 250000 T 0.928 cost 9636.6 hpwl 996.7 overlap -72.79
+it 550000 T 0.370 cost 9542.5 hpwl 940.5 overlap -73.74
+it 650000 T 0.272 cost 9533.4 hpwl 935.6 overlap -73.84
+it 700000 T 0.233 cost 9530.7 hpwl 933.9 overlap -73.87
+it 800000 T 0.172 cost 9523.6 hpwl 927.1 overlap -73.88
+it 950000 T 0.108 cost 9520.1 hpwl 924.9 overlap -73.91
+it 1050000 T 0.080 cost 9517.4 hpwl 922.5 overlap -73.91
+it 1150000 T 0.059 cost 9514.9 hpwl 920.4 overlap -73.92
+it 1200000 T 0.050 cost 9514.8 hpwl 920.1 overlap -73.92
+it 1250000 T 0.043 cost 9513.8 hpwl 919.2 overlap -73.92
+it 1300000 T 0.037 cost 9514.0 hpwl 919.3 overlap -73.92
+it 1400000 T 0.027 cost 9513.0 hpwl 918.5 overlap -73.92
+it 1450000 T 0.023 cost 9513.0 hpwl 918.5 overlap -73.93
+final hpwl 918.6 overlap 1.016 accepted 114512
+courtyard area F 248 B 121
