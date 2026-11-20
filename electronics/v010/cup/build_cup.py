@@ -174,11 +174,11 @@ def main():
         for px, py in pts:
             ech.Append(MM(bl.OX + px), MM(bl.OY + py))
         b.b.Add(ez)
-    print("gnd fanout vias:", gnd_fanout(b, fps))
+    print("gnd fanout vias:", gnd_fanout(b, fps) if os.environ.get("OP_FANOUT", "1") == "1" else "skipped (OP_FANOUT=0: Freerouting places the GND vias itself)")
     for ref, lab in (("SP1", "+"), ("SP2", "-")):
-        c = fps[ref].GetPosition(); b.text(lab, T(c.x) - bl.OX, T(c.y) - bl.OY - 2.1, 1.6, thick=0.25)       # large + / - at the cell pads (review m5)
-    for ref, lab in (("MP1", "A+"), ("MP2", "A-"), ("MP3", "B+"), ("MP4", "B-")):
-        c = fps[ref].GetPosition(); b.text(lab, T(c.x) - bl.OX, T(c.y) - bl.OY - 1.9, 1.2, thick=0.2)
+        c = fps[ref].GetPosition(); b.text(lab, T(c.x) - bl.OX, T(c.y) - bl.OY - 2.1, 1.3, thick=0.2)       # large + / - at the cell pads (review m5)
+    for ref, lab, dy in (("MP1", "A+", 1.6), ("MP2", "A-", 1.6), ("MP3", "B+", 1.6), ("MP4", "B-", -1.7)):      # bottom row labels below, MP4 above; 0.9 mm text, inside the outline
+        c = fps[ref].GetPosition(); b.text(lab, T(c.x) - bl.OX, T(c.y) - bl.OY + dy, 0.9, thick=0.15)
     b.text("TEST ONLY - NOT FOR HUMAN USE", 14.0, 13.5, 0.5, layer=pcbnew.B_SilkS, mirror=True, thick=0.08)
     b.rules(power_nets=POWERNETS, power_w=0.16, track=0.10)
     d = b.b.GetDesignSettings()

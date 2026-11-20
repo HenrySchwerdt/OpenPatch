@@ -21,29 +21,29 @@
    "C2": "SWDIO",
    "C3": "SWDCLK",
    "H7": "VMOT_SENSE",
-   "F4": "APHASE",
-   "F7": "BPHASE",
-   "G5": "AENBL",
-   "G4": "BENBL",
-   "F3": "CHG_STAT",
-   "H5": "OC_OK",
-   "E6": "LATCH_Q",
+   "D2": "APHASE",
+   "G5": "BPHASE",
+   "C1": "AENBL",
+   "E2": "BENBL",
+   "D1": "CHG_STAT",
+   "F8": "OC_OK",
+   "E8": "LATCH_Q",
    "D8": "DOCK_N",
-   "E4": "SUP_OK",
-   "F6": "LED_R",
-   "G7": "LED_G",
-   "E7": "LED_B",
-   "G8": "SUP_TXD",
-   "E8": "SUP_RXD",
-   "F8": "SUP_BOOT0",
-   "G6": "SUP_NRST",
-   "E2": "MOT_FWD",
-   "D1": "BTN_N",
-   "E5": "I2C_SCL",
-   "F5": "I2C_SDA",
-   "E3": "ARM_CLK",
+   "G4": "SUP_OK",
+   "B8": "LED_R",
+   "C8": "LED_G",
+   "A6": "LED_B",
+   "G6": "SUP_TXD",
+   "F7": "SUP_RXD",
+   "G8": "SUP_BOOT0",
+   "A5": "SUP_NRST",
+   "G3": "MOT_FWD",
+   "B1": "BTN_N",
+   "E7": "I2C_SCL",
+   "G7": "I2C_SDA",
+   "H5": "ARM_CLK",
    "D7": "MCU_EN",
-   "G3": "BUZ_A"
+   "C7": "BUZ_A"
   },
   "lcsc": "C50052094",
   "mpn": "HJ-840",
@@ -779,101 +779,6 @@
  },
  {
   "ref": "TP1",
-  "value": "test pad SUP_NRST",
-  "fp": [
-   "V010",
-   "TP_Pad_D0.6"
-  ],
-  "pins": {
-   "1": "SUP_NRST"
-  },
-  "lcsc": null,
-  "mpn": null,
-  "side": "F",
-  "bom": false,
-  "dnp": false,
-  "note": "bare test pad 0.6 mm supervisor NRST (nRF drives it open drain only)",
-  "group": "tpx",
-  "board": "CUP"
- },
- {
-  "ref": "TP2",
-  "value": "test pad SUP_BOOT0",
-  "fp": [
-   "V010",
-   "TP_Pad_D0.6"
-  ],
-  "pins": {
-   "1": "SUP_BOOT0"
-  },
-  "lcsc": null,
-  "mpn": null,
-  "side": "F",
-  "bom": false,
-  "dnp": false,
-  "note": "bare test pad 0.6 mm supervisor BOOT0 = PA14 = SWCLK",
-  "group": "tpx",
-  "board": "CUP"
- },
- {
-  "ref": "TP3",
-  "value": "test pad BPHASE",
-  "fp": [
-   "V010",
-   "TP_Pad_D0.6"
-  ],
-  "pins": {
-   "1": "BPHASE"
-  },
-  "lcsc": null,
-  "mpn": null,
-  "side": "F",
-  "bom": false,
-  "dnp": false,
-  "note": "bare test pad 0.6 mm supervisor SWDIO = PA13 (also BPHASE)",
-  "group": "tpx",
-  "board": "CUP"
- },
- {
-  "ref": "TP4",
-  "value": "test pad VBAT",
-  "fp": [
-   "V010",
-   "TP_Pad_D0.6"
-  ],
-  "pins": {
-   "1": "VBAT"
-  },
-  "lcsc": null,
-  "mpn": null,
-  "side": "F",
-  "bom": false,
-  "dnp": false,
-  "note": "bare test pad 0.6 mm ",
-  "group": "tpx",
-  "board": "CUP"
- },
- {
-  "ref": "TP5",
-  "value": "test pad VMOT_PRE",
-  "fp": [
-   "V010",
-   "TP_Pad_D0.6"
-  ],
-  "pins": {
-   "1": "VMOT_PRE"
-  },
-  "lcsc": null,
-  "mpn": null,
-  "side": "F",
-  "bom": false,
-  "dnp": false,
-  "note": "bare test pad 0.6 mm ",
-  "group": "tpx",
-  "board": "CUP"
- },
- {
-  "ref": "TP6",
   "value": "test pad VMOT",
   "fp": [
    "V010",
@@ -887,12 +792,12 @@
   "side": "F",
   "bom": false,
   "dnp": false,
-  "note": "bare test pad 0.6 mm ",
+  "note": "bare test pad 0.6 mm on the break-off strip (interlock signal)",
   "group": "tpx",
   "board": "CUP"
  },
  {
-  "ref": "TP7",
+  "ref": "TP2",
   "value": "test pad MOT_ALLOW",
   "fp": [
    "V010",
@@ -906,12 +811,12 @@
   "side": "F",
   "bom": false,
   "dnp": false,
-  "note": "bare test pad 0.6 mm ",
+  "note": "bare test pad 0.6 mm on the break-off strip (interlock signal)",
   "group": "tpx",
   "board": "CUP"
  },
  {
-  "ref": "TP8",
+  "ref": "TP3",
   "value": "test pad LATCH_Q",
   "fp": [
    "V010",
@@ -925,12 +830,12 @@
   "side": "F",
   "bom": false,
   "dnp": false,
-  "note": "bare test pad 0.6 mm ",
+  "note": "bare test pad 0.6 mm on the break-off strip (interlock signal)",
   "group": "tpx",
   "board": "CUP"
  },
  {
-  "ref": "TP9",
+  "ref": "TP4",
   "value": "test pad SUP_PERMIT",
   "fp": [
    "V010",
@@ -944,12 +849,12 @@
   "side": "F",
   "bom": false,
   "dnp": false,
-  "note": "bare test pad 0.6 mm ",
+  "note": "bare test pad 0.6 mm on the break-off strip (interlock signal)",
   "group": "tpx",
   "board": "CUP"
  },
  {
-  "ref": "TP10",
+  "ref": "TP5",
   "value": "test pad OC_OK",
   "fp": [
    "V010",
@@ -963,12 +868,12 @@
   "side": "F",
   "bom": false,
   "dnp": false,
-  "note": "bare test pad 0.6 mm ",
+  "note": "bare test pad 0.6 mm on the break-off strip (interlock signal)",
   "group": "tpx",
   "board": "CUP"
  },
  {
-  "ref": "TP11",
+  "ref": "TP6",
   "value": "test pad DOCK_N",
   "fp": [
    "V010",
@@ -982,65 +887,84 @@
   "side": "F",
   "bom": false,
   "dnp": false,
-  "note": "bare test pad 0.6 mm ",
+  "note": "bare test pad 0.6 mm on the break-off strip (interlock signal)",
   "group": "tpx",
   "board": "CUP"
  },
  {
-  "ref": "TP12",
-  "value": "test pad SUP_TXD",
+  "ref": "TPR1",
+  "value": "recovery pad SWDIO",
   "fp": [
    "V010",
    "TP_Pad_D0.6"
   ],
   "pins": {
-   "1": "SUP_TXD"
+   "1": "SWDIO"
   },
   "lcsc": null,
   "mpn": null,
-  "side": "F",
+  "side": "B",
   "bom": false,
   "dnp": false,
-  "note": "bare test pad 0.6 mm ",
-  "group": "tpx",
+  "note": "0.6 mm bare pad on the underside of the hall finger: solder a wire here to recover a board whose bootloader is corrupted after the break-off strip is removed",
+  "group": "tpr",
   "board": "CUP"
  },
  {
-  "ref": "TP13",
-  "value": "test pad SUP_RXD",
+  "ref": "TPR2",
+  "value": "recovery pad SWDCLK",
   "fp": [
    "V010",
    "TP_Pad_D0.6"
   ],
   "pins": {
-   "1": "SUP_RXD"
+   "1": "SWDCLK"
   },
   "lcsc": null,
   "mpn": null,
-  "side": "F",
+  "side": "B",
   "bom": false,
   "dnp": false,
-  "note": "bare test pad 0.6 mm ",
-  "group": "tpx",
+  "note": "0.6 mm bare pad on the underside of the hall finger: solder a wire here to recover a board whose bootloader is corrupted after the break-off strip is removed",
+  "group": "tpr",
   "board": "CUP"
  },
  {
-  "ref": "TP14",
-  "value": "test pad VBUS_P",
+  "ref": "TPR3",
+  "value": "recovery pad GND",
   "fp": [
    "V010",
    "TP_Pad_D0.6"
   ],
   "pins": {
-   "1": "VBUS_P"
+   "1": "GND"
   },
   "lcsc": null,
   "mpn": null,
-  "side": "F",
+  "side": "B",
   "bom": false,
   "dnp": false,
-  "note": "bare test pad 0.6 mm ",
-  "group": "tpx",
+  "note": "0.6 mm bare pad on the underside of the hall finger: solder a wire here to recover a board whose bootloader is corrupted after the break-off strip is removed",
+  "group": "tpr",
+  "board": "CUP"
+ },
+ {
+  "ref": "TPR4",
+  "value": "recovery pad 3V3",
+  "fp": [
+   "V010",
+   "TP_Pad_D0.6"
+  ],
+  "pins": {
+   "1": "3V3"
+  },
+  "lcsc": null,
+  "mpn": null,
+  "side": "B",
+  "bom": false,
+  "dnp": false,
+  "note": "0.6 mm bare pad on the underside of the hall finger: solder a wire here to recover a board whose bootloader is corrupted after the break-off strip is removed",
+  "group": "tpr",
   "board": "CUP"
  },
  {

@@ -14,9 +14,19 @@ Z_TOP = Z_BOT + BOARD_T     # 6.1
 LID_INNER = 7.6
 
 # outline in the pod frame (CCW seen from the top)
-OUTLINE_POD = [(7.8, 33.5), (18.8, 33.5), (18.8, 27.1), (20.2, 27.1), (20.2, 26.45), (26.8, 26.45), (26.8, 27.1), (28.2, 27.1), (28.2, 33.5), (43.4, 33.5), (43.4, 17.15),
+OUTLINE_POD_BOARD = [(7.8, 33.5), (18.8, 33.5), (18.8, 27.1), (20.2, 27.1), (20.2, 26.45), (26.8, 26.45), (26.8, 27.1), (28.2, 27.1), (28.2, 33.5), (43.4, 33.5), (43.4, 17.15),
                (40.9, 17.15), (40.9, 10.4), (37.9, 10.4), (37.9, 17.15), (35.4, 17.15), (35.4, 22.9), (10.0, 22.9), (10.0, 20.1), (7.8, 20.1), (7.8, 25.3), (9.3, 25.3),
                (9.3, 27.8), (7.8, 27.8)]
+# break-off TEST STRIP (owner decision 2026-11-20): 12 slots for the SWD pads J10-J14 and the 6 interlock test pads TP1..TP6, joined to the east edge of the hall finger by a 0.7 mm neck with the TP tracks across it.
+# JLC receives ONE piece (board + strip); the strip is cut off at x = 40.9 before assembly into the pod, so the mechanical outline is OUTLINE_POD_BOARD.
+STRIP_X0, STRIP_X1, STRIP_Y0, STRIP_Y1 = 41.6, 46.5, 10.4, 17.15      # strip rectangle (pod frame)
+NECK_Y0, NECK_Y1 = 11.0, 16.0                                          # neck (tab) between the finger edge x 40.9 and the strip, 0.7 mm long
+_i = OUTLINE_POD_BOARD.index((40.9, 17.15))
+OUTLINE_POD = (OUTLINE_POD_BOARD[:_i + 1] + [(40.9, NECK_Y1), (STRIP_X0, NECK_Y1), (STRIP_X0, STRIP_Y1), (STRIP_X1, STRIP_Y1), (STRIP_X1, STRIP_Y0), (STRIP_X0, STRIP_Y0),
+               (STRIP_X0, NECK_Y0), (40.9, NECK_Y0)] + OUTLINE_POD_BOARD[_i + 1:])
+STRIP_SLOTS = [(42.3 + 1.2 * c, 12.5 + 1.3 * r) for r in range(3) for c in range(4)]   # pod-frame pad centres, 12 slots (0.6 / 0.8 mm pads, 1.2 x 1.1 pitch): J10-J14 (SWD) + TP1-TP14
+RECOVERY = [(39.4, 13.0 + 1.27 * k) for k in range(4)]     # 4 x 0.6 mm pads on the UNDERSIDE of the hall finger at the standard 1.27 mm pitch: SWDIO, SWCLK, GND, 3V3 (MANDATORY first-flash access of the clean variant, pogo clip / JLC programming)
+STRIP_KEEP = (40.95, 10.3, 45.1, 17.25)                                 # no movable part here (the strip and its neck)
 # USB-C notch (HRO TYPE-C-31-M-14 sink-board part, pin check 2026-11-20): x 18.8..28.2 down to y 27.1, plus x 20.2..26.8 down to y 26.45 (receptacle mouth at y 33.5, centre x 23.5, pad row y 25.48);
 # west board tab x 7.8..10.0, y 20.1..22.9 for the screw W; wire notch 1.5 x 2.5 in the west edge (x 7.8..9.3, y 25.3..27.8)
 # hall finger x 37.9..40.9, y 10.4..17.15 (top-side parts + the hall on the underside); no side_a foot
@@ -32,6 +42,7 @@ def p(bx, by):
 
 
 OUTLINE = [b(*q) for q in OUTLINE_POD]
+OUTLINE_BOARD = [b(*q) for q in OUTLINE_POD_BOARD]
 
 
 def rect_b(x0, y0, x1, y1):

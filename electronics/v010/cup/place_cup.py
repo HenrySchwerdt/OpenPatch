@@ -160,8 +160,11 @@ def main():
         fix(ref, hx, hy, 0)
     fix("BZ1", 41.0, 20.4, 0, "B")                 # sounder: side_b block, bottom side, farthest corner from the dock hall (8.9 mm)
     fix("U4A", 39.36, 11.75, 0, "B")
-    for k, ref in enumerate(("J10", "J11", "J12", "J13", "J14")):
-        fix(ref, 39.4, 12.4 + 1.2 * k, 0)          # SWD pads in one column on the hall finger (top side, 1.2 pitch)
+    strip_refs = ["J10", "J11", "J12", "J13", "J14"] + ["TP%d" % (k + 1) for k in range(6)]     # SWD pads + bare test pads on the break-off strip (owner decision), top side
+    for k, ref in enumerate(strip_refs):
+        fix(ref, G.STRIP_SLOTS[k][0], G.STRIP_SLOTS[k][1], 0)
+    for k in range(4):                              # recovery pads on the underside of the hall finger
+        fix("TPR%d" % (k + 1), G.RECOVERY[k][0], G.RECOVERY[k][1], 0, "B")
     movable = [p["ref"] for p in parts if p["ref"] not in fixed]
     # side rules
     top_only = {p["ref"] for p in parts if p["group"] in ("swd", "tp", "tpx") or p["ref"] in ("PZ1", "PZ2", "LD1", "SP1", "SP2", "MP1", "MP2", "MP3", "MP4")}
@@ -182,12 +185,26 @@ def main():
             if n and n != "GND" and pad in geo[p["ref"]]["pads"]:
                 nets.setdefault(n, []).append((p["ref"], pad))
     nets = {n: l for n, l in nets.items() if len(l) >= 2}
+    gw = {}
+    # cohesion of functional blocks (router friendliness): virtual nets over the first pad of each member
+    for gname, members, w in (("_boost", ("U8", "L1", "C71", "C5", "CB1", "R55", "R56"), 2.0), ("_drive", ("U7", "C21", "C61", "MP1", "MP2", "MP3", "MP4"), 1.5),
+                              ("_v3v3", ("U32", "U34", "U36", "U33", "U5", "U30", "U6", "R18", "R90", "R92", "R16", "RDK", "RNR", "C50"), 0.8)):
+        lst = [(r, sorted(geo[r]["pads"])[0]) for r in members if r in geo and geo[r]["pads"]]
+        if len(lst) >= 2:
+            nets[gname] = lst
+            gw[gname] = w
     wnet = {n: (0.15 if len(l) > 14 else 1.0) for n, l in nets.items()}
+    wnet.update(gw)
     for n in ("USB_DP", "USB_DM"):
         wnet[n] = 1.5
     for n in ("VMOT", "VBAT", "MOT_A1", "MOT_A2", "MOT_B1", "MOT_B2"):
         if n in wnet:
             wnet[n] = 0.6
+    # routability: the power stage nets must stay short (the first Freerouting runs left BST_SW, MOT_* and VMOT_PRE open when U8-L1 and U7-motor pads were far apart)
+    for n, w in (("BST_SW", 6.0), ("VMOT_PRE", 3.0), ("VMOT", 2.5), ("MOT_A1", 2.5), ("MOT_A2", 2.5), ("MOT_B1", 2.5), ("MOT_B2", 2.5), ("BST_FB", 3.0), ("ILIM", 3.0),
+                 ("PZ_C", 2.0), ("PZ_A", 2.0), ("ANT_A", 3.0), ("ANT_B", 3.0), ("LATCH_CLR_N", 2.0), ("PERM_L", 2.0), ("DOCK_XOR", 2.0), ("MOT_ALLOW", 2.0), ("WDT_DELAY", 2.0)):
+        if n in wnet:
+            wnet[n] = w
     nets_of = {}
     for n, l in nets.items():
         for r, _ in l:
@@ -217,6 +234,7 @@ def main():
     for x0, y0, x1, y1 in G.HOLD_RECTS:
         keep_boxes.append(tuple(G.rect_b(x0, y0, x1, y1)))
     wc = tuple(G.rect_b(*G.WIRE_CHANNEL))
+    keep_boxes.append(tuple(G.rect_b(*G.STRIP_KEEP)))
 
     def keep_ok(r, bb, st):
         if r in fixed:

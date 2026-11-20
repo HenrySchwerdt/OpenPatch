@@ -135,10 +135,11 @@ def build():
         note="dock hall on the underside of the dock leg, centred on the dock magnet axis (z 4.9-5.3); VERIFY threshold. Single hall: a second hall cannot see the d1 x 0.5 magnet (Bz of the dipole changes sign about 1 mm off axis)")
 
     # ---------------------------------------------------------------- bare test pads (zero BOM, review M4 / M5); 0.6 mm
-    for i, (net, why) in enumerate((("SUP_NRST", "supervisor NRST (nRF drives it open drain only)"), ("SUP_BOOT0", "supervisor BOOT0 = PA14 = SWCLK"), ("BPHASE", "supervisor SWDIO = PA13 (also BPHASE)"),
-                                    ("VBAT", ""), ("VMOT_PRE", ""), ("VMOT", ""), ("MOT_ALLOW", ""), ("LATCH_Q", ""), ("SUP_PERMIT", ""), ("OC_OK", ""), ("DOCK_N", ""),
-                                    ("SUP_TXD", ""), ("SUP_RXD", ""), ("VBUS_P", ""))):
-        new("TP%d" % (i + 1), "test pad %s" % net, ("V010", "TP_Pad_D0.6"), {1: net}, bom=False, group="tpx", note="bare test pad 0.6 mm %s" % why)
+    for i, net in enumerate(("VMOT", "MOT_ALLOW", "LATCH_Q", "SUP_PERMIT", "OC_OK", "DOCK_N")):
+        new("TP%d" % (i + 1), "test pad %s" % net, ("V010", "TP_Pad_D0.6"), {1: net}, bom=False, group="tpx", note="bare test pad 0.6 mm on the break-off strip (interlock signal)")
+    for i, net in enumerate(("SWDIO", "SWDCLK", "GND", "3V3")):
+        new("TPR%d" % (i + 1), "recovery pad %s" % net, ("V010", "TP_Pad_D0.6"), {1: net}, bom=False, side="B", group="tpr",
+            note="0.6 mm bare pad on the underside of the hall finger: solder a wire here to recover a board whose bootloader is corrupted after the break-off strip is removed")
     # ---------------------------------------------------------------- supervisor + step gate + TPL5010 latch
     new("U30", "STM32C011F4U6", ("V010", "UFQFPN-20_3x3_P0.5"),
         {19: "MCU_EN", 20: "SUP_DONE", 1: "SUP_WAKE", 2: "3V3", 3: "GND", 4: "SUP_NRST", 5: "ARM_CLK", 6: "APHASE", 7: "MOT_FWD", 8: "OC_OK",

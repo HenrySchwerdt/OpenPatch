@@ -22,7 +22,15 @@ for sig in N.HJ_SIGNALS:
                 xs.append(PC.pad_pos(geo[p["ref"]], pad, pl[p["ref"]]))
     cent[sig] = (sum(x for x, _ in xs) / len(xs), sum(y for _, y in xs) / len(xs)) if xs else u1[:2]
 cur = {sig: pad for sig, pad in zip(N.HJ_SIGNALS, pads)}
-cost = lambda a: sum(((pos[a[s]][0] - cent[s][0]) ** 2 + (pos[a[s]][1] - cent[s][1]) ** 2) ** 0.5 for s in a)
+def ring(pad):
+    r = "ABCDEFGH".index(pad[0]); c = int(pad[1:])
+    return min(r, 7 - r, c - 1, 8 - c)
+
+
+# LGA escape: with 0.30 x 0.40 mm pads at 0.65 x 0.90 mm pitch only one 0.10 mm track fits per channel, so inner pads are very hard to route:
+# perimeter pads (ring 0) cost nothing, ring 1 a little, ring 2/3 a lot (first Freerouting runs failed on exactly these pads)
+RING_PEN = {0: 0.0, 1: 1.5, 2: 5.0, 3: 9.0}
+cost = lambda a: sum(((pos[a[s]][0] - cent[s][0]) ** 2 + (pos[a[s]][1] - cent[s][1]) ** 2) ** 0.5 + RING_PEN[ring(a[s])] for s in a)
 improved = True
 free = [p for p in pads if p not in cur.values()]
 while improved:
