@@ -1,0 +1,47 @@
+{
+ "short": {
+  "vmot_run_v": 4.92187074,
+  "i_run_a": 0.367481366,
+  "ios_a": 0.5516933789999998,
+  "ios_min_a": 0.551693379,
+  "t_fault_ms": 7.4943082916752655,
+  "t_clrn_after_fault_us": 8.32472979439558e-06,
+  "t_allow_low_after_fault_us": 0.00012135559918080574,
+  "t_vmot_lt_0v5_after_fault_ms": null,
+  "vmot_max_80_105ms": -9.38886066e-12,
+  "allow_max_80_105ms": 0.0,
+  "ocok_released_after_cut": true,
+  "vmot_after_rearm": 4.92187074
+ },
+ "stall_worst": {
+  "i_a": 0.407442648,
+  "fault": false,
+  "vmot": 4.91791877
+ },
+ "watchdog": {
+  "t_perml_low_after_rstn_us": 0.17507295085872343,
+  "t_vmot_lt_0v5_ms": 1.5907372662683912,
+  "vmot_max_after_rstn_release": -9.38886066e-12,
+  "vmot_before": 4.92187074
+ },
+ "mismatch": {
+  "t_v3v3_lt_0v8_ms": 3.0319095031841186,
+  "t_allow_lt_0v66_ms": 2.675297450855797,
+  "t_permit_lt_1v2_ms": 2.8385123010987376,
+  "t_vpre_lt_1v_ms": null,
+  "t_vmot_lt_0v5_ms": null,
+  "allow_max_after_ms": 0.483245813,
+  "vmot_at_120ms": 3.0779468242430004,
+  "vpre_at_120ms": 5.01560617711
+ },
+ "mismatch_permit_stuck": {
+  "t_v3v3_lt_0v8_ms": 3.0333375837478664,
+  "t_allow_lt_0v66_ms": 2.677284043850682,
+  "t_permit_lt_1v2_ms": null,
+  "t_vpre_lt_1v_ms": null,
+  "t_vmot_lt_0v5_ms": null,
+  "allow_max_after_ms": 0.482948362,
+  "vmot_at_120ms": 3.4033160943,
+  "vpre_at_120ms": 5.81183132
+ }
+}
