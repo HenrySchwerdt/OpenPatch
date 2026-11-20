@@ -31,13 +31,15 @@
 <rect x="407.6" y="288.5" width="11.4" height="391.4" rx="0.0" fill="#dd2222" fill-opacity="0.9" stroke="#880000" stroke-width="1.0"/>
 <rect x="469.4" y="288.5" width="11.4" height="391.4" rx="0.0" fill="#dd2222" fill-opacity="0.9" stroke="#880000" stroke-width="1.0"/>
 <rect x="252.8" y="452.8" width="24.7" height="62.7" rx="0.0" fill="#f0c040" fill-opacity="1.0" stroke="#806000" stroke-width="1.0"/>
-<line x1="157.8" y1="484.2" x2="465.8" y2="484.2" stroke="#111" stroke-width="3.0"/>
-<rect x="220.5" y="461.4" width="19.0" height="45.6" rx="0.0" fill="#d4a017" fill-opacity="1.0" stroke="#7a5a00" stroke-width="1.0"/>
-<rect x="200.5" y="455.7" width="19.0" height="57.0" rx="0.0" fill="#b0701c" fill-opacity="1.0" stroke="#5a3000" stroke-width="1.0"/>
-<rect x="157.8" y="432.9" width="41.8" height="102.6" rx="0.0" fill="#f2d020" fill-opacity="1.0" stroke="#806000" stroke-width="1.0"/>
-<rect x="138.8" y="465.2" width="19.0" height="38.0" rx="0.0" fill="#cc2222" fill-opacity="1.0" stroke="#660000" stroke-width="1.0"/>
+<line x1="153.2" y1="484.2" x2="465.8" y2="484.2" stroke="#111" stroke-width="3.0"/>
+<rect x="219.0" y="460.4" width="19.0" height="47.5" rx="0.0" fill="#d4a017" fill-opacity="1.0" stroke="#7a5a00" stroke-width="1.0"/>
+<rect x="199.0" y="455.7" width="19.0" height="57.0" rx="0.0" fill="#b0701c" fill-opacity="1.0" stroke="#5a3000" stroke-width="1.0"/>
+<rect x="153.2" y="446.0" width="19.0" height="76.4" rx="0.0" fill="#f2d020" fill-opacity="1.0" stroke="#806000" stroke-width="1.0"/>
+<rect x="172.2" y="457.6" width="25.8" height="53.2" rx="0.0" fill="#f2d020" fill-opacity="1.0" stroke="#806000" stroke-width="1.0"/>
+<rect x="134.2" y="465.2" width="19.0" height="38.0" rx="0.0" fill="#cc2222" fill-opacity="1.0" stroke="#660000" stroke-width="1.0"/>
 <rect x="100.8" y="512.7" width="55.1" height="53.2" rx="0.0" fill="#ffd400" fill-opacity="1.0" stroke="#806000" stroke-width="1.0"/>
-<rect x="83.7" y="419.6" width="102.6" height="41.8" rx="0.0" fill="#e8b000" fill-opacity="1.0" stroke="#806000" stroke-width="1.0"/>
+<rect x="96.8" y="442.4" width="76.4" height="19.0" rx="0.0" fill="#e8b000" fill-opacity="1.0" stroke="#806000" stroke-width="1.0"/>
+<rect x="106.5" y="419.6" width="57.0" height="22.8" rx="0.0" fill="#e8b000" fill-opacity="1.0" stroke="#806000" stroke-width="1.0"/>
 <rect x="116.0" y="417.7" width="38.0" height="1.9" rx="0.0" fill="#444" fill-opacity="1.0" stroke="#222" stroke-width="1.0"/>
 <rect x="101.7" y="402.4" width="66.5" height="15.2" rx="0.0" fill="#999" fill-opacity="1.0" stroke="#444" stroke-width="1.0"/>
 <rect x="78.0" y="248.6" width="114.0" height="153.9" rx="0.0" fill="#b9bec6" fill-opacity="1.0" stroke="#444" stroke-width="1.0"/>
@@ -67,15 +69,15 @@
 <circle cx="135.0" cy="440.5" r="8.5" fill="#c00" fill-opacity="0.9"/>
 <text x="135.0" y="444.5" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">2</text>
 <rect x="505.65054148052894" y="768" width="12" height="12" fill="#e8b000" stroke="#333"/>
-<text x="525.650541480529" y="779" font-size="12" fill="#222"><tspan fill="#c00" font-weight="bold">2</tspan>  Gear A: miter bevel z16 on the motor shaft</text>
-<circle cx="178.7" cy="446.2" r="8.5" fill="#c00" fill-opacity="0.9"/>
-<text x="178.7" y="450.2" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">3</text>
+<text x="525.650541480529" y="779" font-size="12" fill="#222"><tspan fill="#c00" font-weight="bold">2</tspan>  Gear A: miter bevel m0.3 z12 on the motor shaft (2 mm bore, faced)</text>
+<circle cx="174.1" cy="446.2" r="8.5" fill="#c00" fill-opacity="0.9"/>
+<text x="174.1" y="450.2" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">3</text>
 <rect x="50.0" y="790" width="12" height="12" fill="#f2d020" stroke="#333"/>
-<text x="70.0" y="801" font-size="12" fill="#222"><tspan fill="#c00" font-weight="bold">3</tspan>  Gear B: miter bevel z16 on the rod (only 2 gears)</text>
-<circle cx="225.2" cy="484.2" r="8.5" fill="#c00" fill-opacity="0.9"/>
-<text x="225.2" y="488.2" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">4</text>
+<text x="70.0" y="801" font-size="12" fill="#222"><tspan fill="#c00" font-weight="bold">3</tspan>  Gear B: miter bevel m0.3 z12 tapped onto the rod (only 2 gears)</text>
+<circle cx="224.5" cy="484.2" r="8.5" fill="#c00" fill-opacity="0.9"/>
+<text x="224.5" y="488.2" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">4</text>
 <rect x="505.65054148052894" y="790" width="12" height="12" fill="#111111" stroke="#333"/>
-<text x="525.650541480529" y="801" font-size="12" fill="#222"><tspan fill="#c00" font-weight="bold">4</tspan>  Rod M1.6 x 0.35 ENDS at gear B, rotating, axially fixed (16.2 mm)</text>
+<text x="525.650541480529" y="801" font-size="12" fill="#222"><tspan fill="#c00" font-weight="bold">4</tspan>  Rod M1.6 x 0.35 ends flush with gear B, rotating, axially fixed (16.4 mm)</text>
 <circle cx="370.7" cy="408.2" r="8.5" fill="#c00" fill-opacity="0.9"/>
 <text x="370.7" y="412.2" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">5</text>
 <rect x="50.0" y="812" width="12" height="12" fill="#e0803a" stroke="#333"/>
@@ -116,8 +118,8 @@
 <text x="797.9" y="516.7" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">14</text>
 <rect x="505.65054148052894" y="900" width="12" height="12" fill="#ff7f00" stroke="#333"/>
 <text x="525.650541480529" y="911" font-size="12" fill="#222"><tspan fill="#c00" font-weight="bold">14</tspan>  Dock magnet in the head + dock hall above the pocket roof</text>
-<circle cx="148.3" cy="487.9" r="8.5" fill="#c00" fill-opacity="0.9"/>
-<text x="148.3" y="491.9" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">15</text>
+<circle cx="143.7" cy="487.9" r="8.5" fill="#c00" fill-opacity="0.9"/>
+<text x="143.7" y="491.9" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">15</text>
 <rect x="50.0" y="922" width="12" height="12" fill="#cc2222" stroke="#333"/>
 <text x="70.0" y="933" font-size="12" fill="#222"><tspan fill="#c00" font-weight="bold">15</tspan>  Diametric magnet on gear B's rear face</text>
 <circle cx="128.3" cy="539.2" r="8.5" fill="#c00" fill-opacity="0.9"/>
@@ -148,8 +150,8 @@
 <text x="828.3" y="334.7" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">22</text>
 <rect x="505.65054148052894" y="988" width="12" height="12" fill="#c0a060" stroke="#333"/>
 <text x="525.650541480529" y="999" font-size="12" fill="#222"><tspan fill="#c00" font-weight="bold">22</tspan>  Beside the dock: piezo, button, LED, ICs (keep-out)</text>
-<circle cx="210.0" cy="512.7" r="8.5" fill="#c00" fill-opacity="0.9"/>
-<text x="210.0" y="516.7" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">23</text>
+<circle cx="208.5" cy="512.7" r="8.5" fill="#c00" fill-opacity="0.9"/>
+<text x="208.5" y="516.7" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">23</text>
 <rect x="50.0" y="1010" width="12" height="12" fill="#b0701c" stroke="#333"/>
 <text x="70.0" y="1021" font-size="12" fill="#222"><tspan fill="#c00" font-weight="bold">23</tspan>  Collar + bush + printed rib (thrust bearing)</text>
 <circle cx="210.3" cy="175.4" r="8.5" fill="#c00" fill-opacity="0.9"/>
