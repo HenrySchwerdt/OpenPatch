@@ -78,15 +78,15 @@ PLACE = {
     "RU1": (16.95, 9.75, 0, F),     # CC1 = A5 at bx 16.95
     "RU2": (13.95, 9.75, 0, F),     # CC2 = B5 at bx 13.95
     "R57": (11.0, 9.7, 0, F),
-    "R58": (19.0, 9.7, 0, F),
-    "U6": (24.25, 8.9, 0, F),
+    "R58": (18.95, 9.7, 0, F),
+    "U6": (25.75, 8.9, 0, F),
     "U32": (18.2, 8.6, 0, B),
     # ---- east lobe, TOP (west of the module): charger, 3V3 bulk, USB ESD, VBUS bulk
     "U3": (24.1, 5.8, 0, F),
     "C70": (27.5, 5.6, 90, F),
     "UU1": (13.0, 8.9, 0, B),
     "CU1": (30.2, 1.15, 0, F),
-    "R3": (27.5, 9.2, 90, F),
+    "R3": (20.95, 9.7, 0, F),
     # ---- east lobe, BOTTOM (supervisor block west of the module; the module back stays empty)
     "U30": (26.35, 2.25, 0, B),
     "U5": (24.0, 6.05, 0, B),
