@@ -239,3 +239,10 @@ Firmware behaviour to implement:
 * **low battery** (below the firmware limit, default 3.5 V open circuit, `VBAT_SENSE`): red blink 1 short flash every 4 s while not charging; critical (below the motor-start limit 3.4 V): double flash;
 * normal state: LED off, short blue/green flash on a button press with the battery state (green above 3.8 V, orange = red + green around 3.5 to 3.8 V, red below);
 * faults from the supervisor / diagnostics: fast red blink (4 Hz) until acknowledged.
+
+
+## Motor supply and undervoltage lockout (v4, locked motor NFP-608-26.45-SGM)
+
+* VMOT path: cell -> Q4 -> Q15 -> `VMOT_RAW` -> TPS61023 (4.96 V) -> `VMOT_PRE` -> 0.22 ohm shunt -> `VMOT`. `VMOT_SENSE` (100 k/100 k) reads half of the boosted rail (about 2.5 V).
+* **No motor start below about 3.4 V open circuit** (`VBAT_SENSE` x 2, measured with no load for 50 ms, no charger): constant `MOTOR_MIN_VBAT_MV = 3400`; refuse, raise `BATTERY_LOW`, light the red LED (blink pattern above). Re-measure after the first 20 steps: if `VBAT_SENSE` falls below 3.0 V under load stop and retry only after rest. The cell supplies about 0.5 to 0.6 A during a step burst (INTERLOCK.md I.2): keep bursts short, use the driver STBY/hold feature between steps, never hold full current.
+* Driver current limit about 0.175 A per phase (R38 5.6 k): `I_SENSE` at 4.4 mV/mA is the cell-side-free output current (0.175 A -> 0.77 V per phase peak, a stall does not trip the 0.39 A comparator).

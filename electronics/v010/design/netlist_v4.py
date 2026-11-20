@@ -27,7 +27,7 @@ SOT363 = ("Package_TO_SOT_SMD", "SOT-363_SC-70-6")
 
 # ISP1807 pad -> net (same pad table as v3, nets no longer present are removed / re-used)
 ISP = dict(ISP_PADS)
-for k in (47, 49):                       # TMAG_INT, NTC, SENSE_EN, OC_TEST: gone
+for k in (47, 49, 52):                       # TMAG_INT, NTC, SENSE_EN, OC_TEST: gone
     ISP.pop(k, None)
 ISP[53] = "LED_R"; ISP[6] = "LED_G"; ISP[42] = "LED_B"   # RGB LED, low-active PWM
 ISP[4] = "LATCH_Q"                              # was PGATE_MON: latch output readback (RB6)
@@ -72,8 +72,9 @@ def build():
     C("C1", "100nF", "3V3", "GND", "mcu"); C("C2", "4.7uF", "3V3", "GND", "mcu")
     R("R1", "100k", "3V3", "NRST", "mcu")
     # ---------------------------------------------------------------- supply: cell pads, LDO
-    for ref in ("SP1", "SP2"):
-        take(ref, "batt", note="cell lead pad (Ampul 301030 has two flying leads): pad for the lead / spring contact on a lead tab; VERIFY termination")
+    for ref, net, lab in (("SP1", "VBAT", "+"), ("SP2", "GND", "-")):
+        new(ref, "cell lead pad %s" % lab, ("V010", "Wire_Pad_2.0x3.0"), {1: net}, bom=False, group="batt",
+            note="hand-solder pad 2.0 x 3.0 for the cell lead %s (Ampul 301030 has two flying wires, user solders them); silkscreen label; near the cell wire exit (position VERIFY); strain-relief edge notch not added" % lab)
     take("C5", "pwr"); take("U2", "pwr"); take("C6", "pwr"); take("C7", "pwr")
     # ---------------------------------------------------------------- USB-C + charger
     for ref in ("JU1", "DU1", "RU1", "RU2", "UU1", "QU1", "RU3", "CU1", "CU2"):
@@ -88,10 +89,13 @@ def build():
     # ---------------------------------------------------------------- driver (unchanged from v3)
     for ref in ("U7", "R34", "R35", "R36", "R37", "R38", "C19", "R39", "R40", "C20", "C23", "R43", "C21", "C22"):
         take(ref, "drv")
+    pr = {p["ref"]: p for p in parts}
+    parts[:] = [p for p in parts if p["ref"] != "R38"]
+    new("R38", "5.6k", R0402, {1: "MOT_REF", 2: "GND"}, "C25908", "0402WGF5601TCE", group="drv", note="VREF = 3.3 V x 5.6k/105.6k = 0.175 V -> current limit about 0.175 A with 1.0 ohm sense (motor 0.18 A/phase); datasheet formula VERIFY")
     # ---------------------------------------------------------------- motor spring pads / FPC pads (motor via the REAR strip)
-    for i, net in enumerate(("MOT_B2", "MOT_A2", "MOT_B1", "MOT_A1")):
-        new("MP%d" % (i + 1), "REAR strip pad (motor %s)" % net, ("V010", "FPC_Pad_1.2x0.6"), {1: net}, bom=False, side="B", group="rear",
-            note="ENIG pad pair with the REAR flex strip (pressure contact, no connector)")
+    new("J1", "PicoBlade A1251WR-S-4P (CJT, plug of the NFP-608 factory lead)", ("V010", "A1251WR-S-4P"),
+        {1: "MOT_B2", 2: "MOT_A2", 3: "MOT_B1", 4: "MOT_A1"}, "C225113", "A1251WR-S-4P-LCP", side="B", group="mot",
+        note="4-pin 1.25 mm right-angle socket for the factory plug, PCBA-soldered, bottom side (about 2.8 mm tall: fits only in the side_a/side_b blocks below the board, NOT over the cell/adapter); pin order and plug fit VERIFY")
     for i, net in enumerate(("3V3", "GND", "I2C_SDA", "I2C_SCL")):
         new("TL%d" % (i + 1), "REAR strip pad (%s)" % net, ("V010", "FPC_Pad_1.2x0.6"), {1: net}, bom=False, side="B", group="rear",
             note="ENIG pad pair with the REAR flex strip (TMAG5273 at gear B)")
@@ -105,10 +109,10 @@ def build():
     take("D5", "ui", pins={"1": "CHG_STAT", "2": "LED_R_K"}, note="diode-OR: MCP73832 STAT low (charging) pulls the red cathode low even while the MCU sleeps (cathode pad 1 = STAT)")
     new("SW1", "SKRPACE010 side tact", ("V010", "SW_SKRPACE010_4.2x3.2"), {1: "BTN_N", 2: "BTN_N", 3: "GND", 4: "GND"}, "C139797", "SKRPACE010", group="ui",
         note="ALPS side-actuated tact 4.2 x 3.2 x 1.4, actuator toward the -Y long wall; pad mapping VERIFY; internal nRF pull-up, no external resistor")
-    for s, pz in (("A", "PZ1"), ("B", "PZ2")):
-        R("RB" + s, "1k", "VBAT", "PZ_" + s, "ui"); R("RD" + s, "100k", "BUZ_" + s, "GND", "ui")
-        new(pz, "piezo spring pad " + s, ("V010", "Spring_Contact_3.5x2.0"), {1: "PZ_" + s}, "C2826547", "BWCD-L3.5W2.0H1.0", group="ui",
-            note="top-side spring pad to the piezo disc (9 x 9, C910763) glued to the lid")
+    new("BZ1", "MLT-5020 SMD magnetic sounder", ("V010", "BZ_MLT5020"), {1: "VBAT", 2: "PZ_A"}, "C94598", "MLT-5020", side="B", group="ui",
+        note="on-board 5 x 5 x 2.0 mm magnetic transducer, bottom side of the side_b block (4.2 mm free below the board), about 85 dB at 10 cm at 3 V / 2.7 kHz per vendor (VERIFY); driven by one NFET leg (QBA) + flyback diode D6, off by default")
+    new("D6", "1N4148W (sounder flyback)", ("Diode_SMD", "D_SOD-123"), {1: "VBAT", 2: "PZ_A"}, "C81598", "1N4148W", group="ui", note="flyback across the sounder coil (cathode pad 1 on VBAT)")
+    R("RDA", "100k", "BUZ_A", "GND", "ui")
     # ---------------------------------------------------------------- dock hall (single, see INTERLOCK.md section I: 2oo2 dropped, one magnet) + inverter into DOCKED_H
     new("U4A", "DRV5032AJDMRR", ("Bench", "DRV5032_X2SON-4_DMR0004B"), {1: "3V3", 2: "GND", 4: "DOCK_N", 5: "GND"}, "C2152498", "DRV5032AJDMRR", side="B", group=DOCK_LEG,
         note="dock hall on the underside of the dock leg, centred on the dock magnet axis (z 4.9-5.3); VERIFY threshold. Single hall: a second hall cannot see the d1 x 0.5 magnet (Bz of the dipole changes sign about 1 mm off axis)")
@@ -149,16 +153,27 @@ def build():
         ga, sa, da = legs[a]; gb, sb, db = legs[b]
         new("QD%d" % (k + 1), "2N7002DW (%s + %s)" % (a, b), SOT363, {"2": ga, "1": sa, "6": da, "5": gb, "4": sb, "3": db}, "C83571", "2N7002DW-7-F",
             group="sw", note="dual N-FET: %s (S1 G2 D6) = %s | %s (S4 G5 D3) = %s" % (a, notes[a], b, notes[b]))
-    NM("QBB", "BUZ_B", "GND", "PZ_B", "ui", "piezo bridge leg B")
-    R("R24", "100R", "VMOT", "BLD", "sw"); R("R25", "100R", "VMOT", "BLD", "sw")
+    R("R24", "100R", "VMOT_PRE", "BLD", "sw"); R("R25", "100R", "VMOT_PRE", "BLD", "sw")
     R("R16", "100k", "MOT_DIR", "GND", "sw"); R("R22", "100k", "DOCK_TEST", "GND", "sw")
     # ---------------------------------------------------------------- over-current trip + readbacks
-    take("R44", "oc", pins={"1": "VMOT_RAW", "2": "VMOT"})
-    take("U9", "oc", pins={"1": "INA_OUT", "2": "GND", "3": "VMOT_RAW", "4": "VMOT", "5": "VMOT_RAW"})
+    take("R44", "oc", pins={"1": "VMOT_PRE", "2": "VMOT"})
+    take("U9", "oc", pins={"1": "INA_OUT", "2": "GND", "3": "VMOT_PRE", "4": "VMOT", "5": "VMOT_RAW"})
     take("C24", "oc"); take("C25", "oc"); take("R48", "oc", pins={"1": "INA_OUT", "2": "I_SENSE"}); take("C27", "oc", pins={"1": "I_SENSE", "2": "GND"})
     take("U11", "oc", pins={"1": "OC_OK", "2": "GND", "3": "I_SENSE", "4": "OC_REF", "5": "3V3"})
     take("C28", "oc"); take("R49", "oc"); take("R50", "oc"); take("R51", "oc")
     take("R57", "oc"); take("R58", "oc"); take("C32", "oc")
+    # ---------------------------------------------------------------- 5 V boost behind the interlock switch (motor NFP-608-26.45-SGM, 4.8 V rated)
+    new("U8", "TPS61023DRLR", ("Package_TO_SOT_SMD", "SOT-563"), {1: "VMOT_RAW", 2: "GND", 3: "BST_SW", 4: "VMOT_RAW", 5: "VMOT_PRE", 6: "BST_FB"}, "C919459", "TPS61023DRLR", group="boost",
+        note="sync boost 3.7 A switch, 0.5-5.5 V in, 1 uA off, about 90 % at 0.3 A out; EN tied to the SWITCHED VMOT_RAW (zero idle drain, cut by Q4/Q15); pinout 1 EN 2 GND 3 SW 4 VIN 5 VOUT 6 FB: VERIFY")
+    new("L1", "1uH 2520 (WPN252012E1R0MT)", ("Inductor_SMD", "L_1008_2520Metric"), {1: "VMOT_RAW", 2: "BST_SW"}, "C370610", "WPN252012E1R0MT", group="boost", note="1 uH 2.5 x 2.0 x 1.2; Isat VERIFY >= 2.5 A")
+    new("R55", "220k", R0402, {1: "VMOT_PRE", 2: "BST_FB"}, "C25767", "0402WGF2203TCE", group="boost", note="FB divider 220k/30k, FB 0.595 V -> 4.96 V")
+    new("R56", "30k", R0402, {1: "BST_FB", 2: "GND"}, "C25776", "0402WGF3002TCE", group="boost")
+    take("DZ1", "boost", pins={"1": "VMOT_PRE", "2": "GND"})
+    C0805 = ("Capacitor_SMD", "C_0805_2012Metric")
+    for i in (1, 2, 3):
+        new("CB%d" % i, "47uF 6.3V X5R 0805", C0805, {1: "VMOT_PRE", 2: "GND"}, "C7503494", "CGA0805X5R476M6R3MT", group="boost",
+            note="bulk on the boost output, before the shunt (no inrush through the over-current shunt); about 15-20 uF effective each at 5 V DC bias")
+    new("C31", "10uF", C0603, {1: "VMOT_PRE", 2: "GND"}, "C19702", "CL10A106KP8NNNC", group="boost")
     # ---------------------------------------------------------------- SWD + test pads (top side)
     swd = [("SWDIO", "SWDIO"), ("SWDCLK", "SWDCLK"), ("NRST", "NRST"), ("GND", "GND"), ("SUP_SWDIO", "SUP_SWDIO"), ("SUP_SWDCLK", "SUP_SWDCLK"), ("SUP_NRST", "SUP_NRST")]
     for i, (v, n) in enumerate(swd):
@@ -173,12 +188,8 @@ def build():
 
     newr("U10T", "TMAG5273A1QDBVR", SOT236, {1: "I2C_SCL", 2: "GND", 3: "GND", 4: "3V3", 5: None, 6: "I2C_SDA"}, "C3716049", "TMAG5273A1QDBVR", note="0.5 mm from the gear-B magnet (mechanics ko_tmag_board)")
     newr("C41", "100nF", C0402, {1: "3V3", 2: "GND"}, "C1525", "CL05B104KO5NNNC")
-    for i, net in enumerate(("MOT_B2", "MOT_A2", "MOT_B1", "MOT_A1")):
-        newr("MT%d" % (i + 1), "motor tab pad %s" % net, ("V010", "FPC_Pad_1.2x0.6"), {1: net}, bom=False, note="motor solder tab pad (NFP-608 tab, z 0.45-1.25): VERIFY tab geometry")
     for i, net in enumerate(("3V3", "GND", "I2C_SDA", "I2C_SCL")):
         newr("TR%d" % (i + 1), "strip pad %s" % net, ("V010", "FPC_Pad_1.2x0.6"), {1: net}, bom=False)
-    for i, net in enumerate(("MOT_B2", "MOT_A2", "MOT_B1", "MOT_A1")):
-        newr("MR%d" % (i + 1), "strip pad %s" % net, ("V010", "FPC_Pad_1.2x0.6"), {1: net}, bom=False)
     return parts, rear
 
 

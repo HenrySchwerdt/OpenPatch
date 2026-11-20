@@ -48,3 +48,15 @@ Update this file with the real quote after the first order and log it in `docs/0
 | **Per pod** | | **about 22.5** | **26 unique extended lines over the three boards** | |
 
 JLC setup fee per extended line ($3, estimate): **26 x 3 = USD 78 per order**, three PCB types (MAIN 4L 0.8 mm about 42 x 32, SENSOR and USB 2L 0.8 mm) and three PCBA projects (or one PCBA project if JLC accepts the three designs panelised in one order: the quote decides), two FFC cables and PCB fees about USD 15 + 8 + 8 for 5 pieces each. Order of 5 pods, 3 assembled: parts 3 x 22.5 = 68 + minimum-quantity overage 25 + fees 78 + PCBs 31 + SMT setup 3 x 20 + assembly 8 + shipping 25 = **about 295 USD before VAT (about 350 USD incl. 19 % VAT, about 320 EUR)**, i.e. about 105 EUR per assembled pod averaged over 3, parts and assembly marginal about 45 EUR for pods 4 and 5. **All numbers are estimates.**
+
+## v4 CUP pod: single 6-layer board (`design/netlist_v4.py`, `fab/cost_v4.json`), list prices read from the JLC parts API 2026-11-19
+
+| Item | Value |
+|---|---|
+| CUP board | 136 placements, 49 BOM lines (116 placed parts with an LCSC number), **parts USD 10.1 per board** (STSPIN220 1.96, STM32C011 1.97, MCP73832 0.96, 5 x 2N7002DW 0.51, TLV7011 0.56, TPL5010 0.35, TPS61023 0.23, ...) |
+| Not in that sum | ISP1807 (consigned, buy from Insight / distributors, about USD 10 to 12, **check price**), TMAG5273 + 100 nF on the REAR strip (USD 3.6 + FPC), cell, motor, USB-C receptacle is the HRO proxy (0.19) |
+| Extended lines | **43 of 49 lines are JLC "extended"**: USD 3 each setup = **about USD 130 per order** (the largest fee; the three-board v3 design had 26) |
+| PCB | 6 layers 0.8 mm ENIG, 528 mm2 L/U outline, 5 pcs: about USD 55 to 70 (**estimate**) against about USD 31 for the 4-layer MAIN plus two 2-layer boards of v2/v3; **6-layer delta about +USD 25 to 40 per order, but one PCB type and one PCBA project instead of three** (via-in-pad is only used for the ISP1807 inner pads and GND pads: ask for epoxy-filled and capped vias, +about USD 10 to 20 on the quote) |
+| Stock warnings | `C2152498` DRV5032AJDMRR stock 0 (fallback `C2152496` DRV5032FADMRR, threshold fires about 4 mm early, PARTS-LOCK 10), `C5456188` STM32C011F4U6 stock 47 |
+
+Order of 5 boards, 3 assembled (estimate, before VAT): parts 3 x (10.1 + ISP 11) = 63 + minimum-quantity overage 25 + extended fees 130 + PCB 6L 65 + SMT setup 25 + assembly 10 + FPC strips 15 + shipping 25 = **about USD 360 (about USD 430 with 19 % VAT, about EUR 400)**, about EUR 130 per assembled pod averaged over 3. **All numbers are estimates; confirm in the JLC quote.**

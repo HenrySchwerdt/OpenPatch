@@ -57,6 +57,55 @@ def rf_bridge(b, fps):
     b.b.Add(t)
 
 
+def gnd_fanout(b, fps, net="GND", rv=0.2, trk=0.12, clr=0.12):
+    """short stub + via next to every SMD pad of `net` (GND plane on In1): keeps the router off the ground nets (fan-out before Freerouting)"""
+    import math
+    from place_cup import inside
+    pads = [(f, pd) for f in fps.values() for pd in f.Pads()]
+    boxes = []
+    for f, pd in pads:
+        bb = pd.GetBoundingBox()
+        boxes.append((T(bb.GetLeft()), T(bb.GetTop()), T(bb.GetRight()), T(bb.GetBottom()), pd))
+    vias = [(T(v.GetPosition().x), T(v.GetPosition().y)) for v in b.b.GetTracks() if v.Type() == pcbnew.PCB_VIA_T]
+    n = 0
+    for f, pd in pads:
+        if pd.GetNetname() != net or pd.GetAttribute() != pcbnew.PAD_ATTRIB_SMD or f.GetReference() == "U1":
+            continue
+        px, py = T(pd.GetPosition().x), T(pd.GetPosition().y)
+        if any(math.hypot(vx - px, vy - py) < 0.9 for vx, vy in vias):
+            continue
+        bbp = pd.GetBoundingBox()
+        if min(T(bbp.GetWidth()), T(bbp.GetHeight())) >= 0.38 and f.GetReference() != "J1" and not any(math.hypot(vx - px, vy - py) < 0.6 for vx, vy in vias) and not any(q is not pd and math.hypot(max(x0 - px, 0, px - x1), max(y0 - py, 0, py - y1)) < rv + clr for x0, y0, x1, y1, q in boxes):
+            v = pcbnew.PCB_VIA(b.b); v.SetPosition(pd.GetPosition()); v.SetNet(pd.GetNet()); v.SetViaType(pcbnew.VIATYPE_THROUGH)
+            v.SetWidth(MM(2 * rv)); v.SetDrill(MM(0.2)); b.b.Add(v); vias.append((px, py)); n += 1
+            continue
+        done = False
+        for d in (0.45, 0.55, 0.7, 0.9, 1.1, 1.4):
+            for k in range(16):
+                a = k * math.pi / 8
+                x, y = px + d * math.cos(a), py + d * math.sin(a)
+                if any(q is not pd and math.hypot(max(x0 - x, 0, x - x1), max(y0 - y, 0, y - y1)) < rv + clr for x0, y0, x1, y1, q in boxes):
+                    continue
+                if any(math.hypot(vx - x, vy - y) < 2 * rv + clr + 0.1 for vx, vy in vias):
+                    continue
+                if any(q is not pd and math.hypot(max(x0 - (px + t * (x - px)), 0, (px + t * (x - px)) - x1), max(y0 - (py + t * (y - py)), 0, (py + t * (y - py)) - y1)) < trk / 2 + clr for x0, y0, x1, y1, q in boxes for t in (0.25, 0.5, 0.75)):
+                    continue
+                bx, by = x - bl.OX, y - bl.OY
+                if not inside([bx - rv, by - rv, bx + rv, by + rv], G.OUTLINE, 0.3):
+                    continue
+                if G.ANT[0] - 0.3 < bx < G.ANT[2] + 0.3 and G.ANT[1] < by < G.ANT[3]:
+                    continue
+                v = pcbnew.PCB_VIA(b.b); v.SetPosition(pcbnew.VECTOR2I(MM(x), MM(y))); v.SetNet(pd.GetNet()); v.SetViaType(pcbnew.VIATYPE_THROUGH)
+                v.SetWidth(MM(2 * rv)); v.SetDrill(MM(0.2)); b.b.Add(v)
+                t = pcbnew.PCB_TRACK(b.b); t.SetStart(pd.GetPosition()); t.SetEnd(pcbnew.VECTOR2I(MM(x), MM(y)))
+                t.SetLayer(pcbnew.B_Cu if f.GetSide() == pcbnew.B_Cu else pcbnew.F_Cu); t.SetWidth(MM(trk)); t.SetNet(pd.GetNet()); b.b.Add(t)
+                vias.append((x, y)); n += 1; done = True
+                break
+            if done:
+                break
+    return n
+
+
 def main():
     plf = sys.argv[1] if len(sys.argv) > 1 else os.path.join(HERE, "placement.json")
     parts = json.load(open(os.path.join(ROOT, "netlist_v4_cup.json")))
@@ -90,10 +139,13 @@ def main():
     b.b.Add(z)
     print("fanout vias:", isp_fanout(b, fps))
     rf_bridge(b, fps)
+    print("gnd fanout vias:", gnd_fanout(b, fps))
+    for ref, lab in (("SP1", "+"), ("SP2", "-")):
+        c = fps[ref].GetPosition(); b.text(lab, T(c.x) - bl.OX, T(c.y) - bl.OY - 2.1, 1.0, thick=0.15)
     b.text("TEST ONLY - NOT FOR HUMAN USE", 14.0, 13.5, 0.5, layer=pcbnew.B_SilkS, mirror=True, thick=0.08)
     b.rules(power_nets=POWERNETS, power_w=0.25, track=0.12)
     d = b.b.GetDesignSettings()
-    d.m_CopperEdgeClearance = MM(0.25); d.m_MinThroughDrill = MM(0.2); d.m_ViasMinSize = MM(0.4); d.m_HoleToHoleMin = MM(0.2); d.m_TrackMinWidth = MM(0.1)
+    d.m_CopperEdgeClearance = MM(0.2); d.m_MinThroughDrill = MM(0.2); d.m_ViasMinSize = MM(0.4); d.m_HoleToHoleMin = MM(0.2); d.m_TrackMinWidth = MM(0.1)
     for f in b.b.GetFootprints():
         f.Reference().SetVisible(False)
     # verify the SA transform against KiCad's pad positions
@@ -116,7 +168,7 @@ def main():
     print("transform mismatches:", bad)
     b.save(PCB)
     json.dump(b.parts, open(os.path.join(HERE, "parts.json"), "w"), indent=1)
-    write_project(os.path.join(HERE, NAME + ".kicad_pro"), POWERNETS, 0.25, track=0.12, edge=0.25, clear=0.10)
+    write_project(os.path.join(HERE, NAME + ".kicad_pro"), POWERNETS, 0.25, track=0.12, edge=0.2, clear=0.10)
     pj = os.path.join(HERE, NAME + ".kicad_pro"); dd = json.load(open(pj)); r = dd["board"]["design_settings"]["rules"]
     r.update(min_through_hole_diameter=0.2, min_via_diameter=0.4, min_track_width=0.1, min_hole_to_hole=0.2, min_hole_clearance=0.2, min_via_annular_width=0.1)
     json.dump(dd, open(pj, "w"), indent=2)

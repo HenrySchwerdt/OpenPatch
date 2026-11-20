@@ -19,11 +19,11 @@ import cupgeom as G
 
 T = pcbnew.ToMM
 V010FP = os.path.join(HERE, "..", "footprints", "V010.pretty")
-EDGE, MARGIN = 0.35, 0.10
+EDGE, MARGIN = 0.35, 0.2
 
 HEIGHTS = [("ISP1807", 1.0), ("QFN-16", 0.9), ("UFQFPN", 0.6), ("SOT-23-5", 1.45), ("SOT-23-6", 1.45), ("SOT-23", 1.15), ("SOT-353", 1.1), ("SOT-363", 1.1),
            ("VSSOP", 1.1), ("D_SOD-123F", 1.0), ("D_SOD-123", 1.1), ("LED_", 0.7), ("R_0603", 0.55), ("C_0603", 1.0), ("R_0201", 0.3), ("C_0201", 0.3),
-           ("R_0402", 0.5), ("C_0402", 0.6), ("X2SON", 0.4), ("Spring", 1.0), ("SW_SKRPACE", 1.4), ("TP_Pad", 0.0), ("FPC_Pad", 0.0), ("USB_C", 3.26)]
+           ("R_0402", 0.5), ("C_0402", 0.6), ("X2SON", 0.4), ("Spring", 1.0), ("A1251WR", 2.8), ("Wire_Pad", 0.0), ("BZ_MLT", 2.0), ("SW_SKRPACE", 1.4), ("TP_Pad", 0.0), ("FPC_Pad", 0.0), ("USB_C", 3.26)]
 
 
 def height(fp):
@@ -153,20 +153,22 @@ def main():
 
     fix("U1", 42.4, 28.2, 90)                       # antenna half (local +Y) toward +X, overhanging the board edge
     fix("JU1", 12.5, 29.75, 180)                   # receptacle opening toward the +Y long wall
-    for i in range(8):                              # REAR strip pad row, bottom side, 0.8 pitch
-        fix(["MP1", "MP2", "MP3", "MP4", "TL1", "TL2", "TL3", "TL4"][i], 9.2 + 0.8 * i, 23.8, 0, "B")
+    for i in range(4):                              # REAR strip pad row (TMAG only), bottom side, 0.8 pitch
+        fix(["TL1", "TL2", "TL3", "TL4"][i], 9.2 + 0.8 * i, 23.8, 0, "B")
     fix("SW1", 39.8, 3.0, 180)
+    fix("J1", 39.9, 4.7, 180, "B")                 # motor socket, bottom side, side_a block (only place tall enough below the board)
     fix("LD1", 32.0, 31.2, 0)                      # RGB LED, top side, clear view through the lid (no tall part within 2 mm, piezo disc is at x < 28)
     fix("U4A", 39.36, 11.75, 0, "B")
     movable = [p["ref"] for p in parts if p["ref"] not in fixed]
     # side rules
-    top_only = {p["ref"] for p in parts if p["group"] in ("swd", "tp") or p["ref"] in ("PZ1", "PZ2", "LD1")}
-    bot_only = {"SP1", "SP2"}
-    anchors = {"PZ1": (21.0, 30.0), "PZ2": (21.0, 27.0), "SP1": (38.2, 25.0), "SP2": (38.2, 31.0)}
+    top_only = {p["ref"] for p in parts if p["group"] in ("swd", "tp") or p["ref"] in ("PZ1", "PZ2", "LD1", "SP1", "SP2")}
+    bot_only = {"J1", "BZ1"}
+    anchors = {"PZ1": (21.0, 30.0), "PZ2": (21.0, 27.0), "SP1": (37.0, 24.6), "SP2": (37.0, 27.6), "J1": (39.0, 4.0), "BZ1": (39.0, 20.0)}
     for p in parts:
         if p["group"] in ("swd", "tp"):
-            anchors[p["ref"]] = (39.5, 20.0)
+            anchors[p["ref"]] = (39.0, 13.0)
     anchor_b = {k: G.b(*v) for k, v in anchors.items()}
+    tpset = {p['ref'] for p in parts if p['group'] in ('swd', 'tp')}
 
     # ---- nets
     nets = {}
@@ -240,7 +242,7 @@ def main():
 
     def anchor_cost(r, st):
         a = anchor_b.get(r)
-        return 0.0 if not a else 0.15 * math.hypot(st[0] - a[0], st[1] - a[1])
+        return 0.0 if not a else (0.7 if r in tpset else 0.15) * math.hypot(st[0] - a[0], st[1] - a[1])
 
     netlen = {n: hp(n) for n in nets}
     total = lambda: sum(wnet[n] * netlen[n] for n in nets)

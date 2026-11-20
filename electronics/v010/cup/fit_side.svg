@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="917" height="225" viewBox="-20 -30 917 225" style="background:#fff">
+<rect x="0.0" y="0.0" width="863.3" height="153.0" fill="#fafafa" fill-opacity="1.00" stroke="#000" stroke-width="1.5"/>
+<rect x="16.2" y="16.2" width="830.9" height="120.6" fill="#fff" fill-opacity="1.00" stroke="#999" stroke-width="0.6" stroke-dasharray="2,2"/>
+<rect x="141.7" y="79.2" width="567.0" height="57.6" fill="#e8e0c0" fill-opacity="0.90" stroke="#444" stroke-width="0.8"/>
+<text x="414.0" y="109.8" font-family="Helvetica,Arial" font-size="9" fill="#222" text-anchor="middle">cell z 0.9-4.1</text>
+<rect x="141.7" y="18.7" width="160.9" height="58.7" fill="#d8c8ee" fill-opacity="0.90" stroke="#444" stroke-width="0.8"/>
+<text x="221.4" y="52.2" font-family="Helvetica,Arial" font-size="8" fill="#222" text-anchor="middle">USB-C 4.2-7.46</text>
+<rect x="136.8" y="43.2" width="640.8" height="14.4" fill="#bfe8c4" fill-opacity="1.00" stroke="#0a7a1f" stroke-width="0.8"/>
+<text x="504.0" y="56.7" font-family="Helvetica,Arial" font-size="8" fill="#222" text-anchor="middle">board z 5.3-6.1</text>
+<rect x="309.6" y="21.6" width="176.4" height="21.6" fill="#fff2c0" fill-opacity="0.90" stroke="#a80" stroke-width="0.8" stroke-dasharray="3,2"/>
+<text x="396.0" y="37.8" font-family="Helvetica,Arial" font-size="8" fill="#222" text-anchor="middle">top parts &lt;= 1.2 (piezo disc above)</text>
+<rect x="309.6" y="57.6" width="399.6" height="19.8" fill="#ffe0cc" fill-opacity="0.90" stroke="#a50" stroke-width="0.8" stroke-dasharray="3,2"/>
+<text x="504.0" y="71.1" font-family="Helvetica,Arial" font-size="8" fill="#222" text-anchor="middle">bottom parts &lt;= 1.1 (0201..QFN)</text>
+<rect x="709.2" y="57.6" width="68.4" height="79.2" fill="#ffe0cc" fill-opacity="0.50" stroke="#a50" stroke-width="0.8" stroke-dasharray="3,2"/>
+<rect x="648.0" y="57.6" width="108.0" height="7.2" fill="#555" fill-opacity="0.90" stroke="#444" stroke-width="0.8"/>
+<text x="720.0" y="72.0" font-family="Helvetica,Arial" font-size="8" fill="#222" text-anchor="middle">dock hall z 4.9-5.3</text>
+<rect x="763.2" y="16.2" width="72.0" height="30.6" fill="#ff9d9d" fill-opacity="0.40" stroke="#c00" stroke-width="0.8" stroke-dasharray="4,3"/>
+<text x="799.2" y="34.2" font-family="Helvetica,Arial" font-size="8" fill="#c00" text-anchor="middle">ISP antenna</text>
+<rect x="691.2" y="27.0" width="144.0" height="16.2" fill="#7aa0e0" fill-opacity="0.90" stroke="#444" stroke-width="0.8"/>
+<text x="763.2" y="39.6" font-family="Helvetica,Arial" font-size="8" fill="#222" text-anchor="middle">ISP1807</text>
+<text x="431.7" y="-21.6" font-family="Helvetica,Arial" font-size="10" fill="#000" text-anchor="middle">side section through lane 2 (z up, mm): lid inner 7.6</text>
+</svg>

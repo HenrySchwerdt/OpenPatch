@@ -51,7 +51,6 @@
    "29": "SUP_RXD",
    "50": "DOCK_TEST",
    "51": "BUZ_A",
-   "52": "BUZ_B",
    "53": "LED_R"
   },
   "lcsc": null,
@@ -125,39 +124,39 @@
  },
  {
   "ref": "SP1",
-  "value": "BWCD-L3.5W2.0H1.0 spring",
+  "value": "cell lead pad +",
   "fp": [
    "V010",
-   "Spring_Contact_3.5x2.0"
+   "Wire_Pad_2.0x3.0"
   ],
   "pins": {
    "1": "VBAT"
   },
-  "lcsc": "C2826547",
-  "mpn": "BWCD-L3.5W2.0H1.0",
-  "side": "B",
-  "bom": true,
+  "lcsc": null,
+  "mpn": null,
+  "side": "F",
+  "bom": false,
   "dnp": false,
-  "note": "cell lead pad (Ampul 301030 has two flying leads): pad for the lead / spring contact on a lead tab; VERIFY termination",
+  "note": "hand-solder pad 2.0 x 3.0 for the cell lead + (Ampul 301030 has two flying wires, user solders them); silkscreen label; near the cell wire exit (position VERIFY); strain-relief edge notch not added",
   "group": "batt",
   "board": "CUP"
  },
  {
   "ref": "SP2",
-  "value": "BWCD-L3.5W2.0H1.0 spring",
+  "value": "cell lead pad -",
   "fp": [
    "V010",
-   "Spring_Contact_3.5x2.0"
+   "Wire_Pad_2.0x3.0"
   ],
   "pins": {
    "1": "GND"
   },
-  "lcsc": "C2826547",
-  "mpn": "BWCD-L3.5W2.0H1.0",
-  "side": "B",
-  "bom": true,
+  "lcsc": null,
+  "mpn": null,
+  "side": "F",
+  "bom": false,
   "dnp": false,
-  "note": "cell lead pad (Ampul 301030 has two flying leads): pad for the lead / spring contact on a lead tab; VERIFY termination",
+  "note": "hand-solder pad 2.0 x 3.0 for the cell lead - (Ampul 301030 has two flying wires, user solders them); silkscreen label; near the cell wire exit (position VERIFY); strain-relief edge notch not added",
   "group": "batt",
   "board": "CUP"
  },
@@ -739,26 +738,6 @@
   "board": "CUP"
  },
  {
-  "ref": "R38",
-  "value": "5.1k",
-  "fp": [
-   "Resistor_SMD",
-   "R_0201_0603Metric"
-  ],
-  "pins": {
-   "1": "MOT_REF",
-   "2": "GND"
-  },
-  "lcsc": "C143995",
-  "mpn": "AF0201FR-075K1L",
-  "side": "F",
-  "bom": true,
-  "dnp": false,
-  "note": "",
-  "group": "drv",
-  "board": "CUP"
- },
- {
   "ref": "C19",
   "value": "100nF",
   "fp": [
@@ -919,79 +898,45 @@
   "board": "CUP"
  },
  {
-  "ref": "MP1",
-  "value": "REAR strip pad (motor MOT_B2)",
+  "ref": "R38",
+  "value": "5.6k",
   "fp": [
-   "V010",
-   "FPC_Pad_1.2x0.6"
+   "Resistor_SMD",
+   "R_0402_1005Metric"
   ],
   "pins": {
-   "1": "MOT_B2"
+   "1": "MOT_REF",
+   "2": "GND"
   },
-  "lcsc": null,
-  "mpn": null,
-  "side": "B",
-  "bom": false,
+  "lcsc": "C25908",
+  "mpn": "0402WGF5601TCE",
+  "side": "F",
+  "bom": true,
   "dnp": false,
-  "note": "ENIG pad pair with the REAR flex strip (pressure contact, no connector)",
-  "group": "rear",
+  "note": "VREF = 3.3 V x 5.6k/105.6k = 0.175 V -> current limit about 0.175 A with 1.0 ohm sense (motor 0.18 A/phase); datasheet formula VERIFY",
+  "group": "drv",
   "board": "CUP"
  },
  {
-  "ref": "MP2",
-  "value": "REAR strip pad (motor MOT_A2)",
+  "ref": "J1",
+  "value": "PicoBlade A1251WR-S-4P (CJT, plug of the NFP-608 factory lead)",
   "fp": [
    "V010",
-   "FPC_Pad_1.2x0.6"
+   "A1251WR-S-4P"
   ],
   "pins": {
-   "1": "MOT_A2"
+   "1": "MOT_B2",
+   "2": "MOT_A2",
+   "3": "MOT_B1",
+   "4": "MOT_A1"
   },
-  "lcsc": null,
-  "mpn": null,
+  "lcsc": "C225113",
+  "mpn": "A1251WR-S-4P-LCP",
   "side": "B",
-  "bom": false,
+  "bom": true,
   "dnp": false,
-  "note": "ENIG pad pair with the REAR flex strip (pressure contact, no connector)",
-  "group": "rear",
-  "board": "CUP"
- },
- {
-  "ref": "MP3",
-  "value": "REAR strip pad (motor MOT_B1)",
-  "fp": [
-   "V010",
-   "FPC_Pad_1.2x0.6"
-  ],
-  "pins": {
-   "1": "MOT_B1"
-  },
-  "lcsc": null,
-  "mpn": null,
-  "side": "B",
-  "bom": false,
-  "dnp": false,
-  "note": "ENIG pad pair with the REAR flex strip (pressure contact, no connector)",
-  "group": "rear",
-  "board": "CUP"
- },
- {
-  "ref": "MP4",
-  "value": "REAR strip pad (motor MOT_A1)",
-  "fp": [
-   "V010",
-   "FPC_Pad_1.2x0.6"
-  ],
-  "pins": {
-   "1": "MOT_A1"
-  },
-  "lcsc": null,
-  "mpn": null,
-  "side": "B",
-  "bom": false,
-  "dnp": false,
-  "note": "ENIG pad pair with the REAR flex strip (pressure contact, no connector)",
-  "group": "rear",
+  "note": "4-pin 1.25 mm right-angle socket for the factory plug, PCBA-soldered, bottom side (about 2.8 mm tall: fits only in the side_a/side_b blocks below the board, NOT over the cell/adapter); pin order and plug fit VERIFY",
+  "group": "mot",
   "board": "CUP"
  },
  {
@@ -1235,22 +1180,42 @@
   "board": "CUP"
  },
  {
-  "ref": "RBA",
-  "value": "1k",
+  "ref": "BZ1",
+  "value": "MLT-5020 SMD magnetic sounder",
   "fp": [
-   "Resistor_SMD",
-   "R_0201_0603Metric"
+   "V010",
+   "BZ_MLT5020"
   ],
   "pins": {
    "1": "VBAT",
    "2": "PZ_A"
   },
-  "lcsc": "C138165",
-  "mpn": "RC0201FR-071KL",
+  "lcsc": "C94598",
+  "mpn": "MLT-5020",
+  "side": "B",
+  "bom": true,
+  "dnp": false,
+  "note": "on-board 5 x 5 x 2.0 mm magnetic transducer, bottom side of the side_b block (4.2 mm free below the board), about 85 dB at 10 cm at 3 V / 2.7 kHz per vendor (VERIFY); driven by one NFET leg (QBA) + flyback diode D6, off by default",
+  "group": "ui",
+  "board": "CUP"
+ },
+ {
+  "ref": "D6",
+  "value": "1N4148W (sounder flyback)",
+  "fp": [
+   "Diode_SMD",
+   "D_SOD-123"
+  ],
+  "pins": {
+   "1": "VBAT",
+   "2": "PZ_A"
+  },
+  "lcsc": "C81598",
+  "mpn": "1N4148W",
   "side": "F",
   "bom": true,
   "dnp": false,
-  "note": "",
+  "note": "flyback across the sounder coil (cathode pad 1 on VBAT)",
   "group": "ui",
   "board": "CUP"
  },
@@ -1271,84 +1236,6 @@
   "bom": true,
   "dnp": false,
   "note": "",
-  "group": "ui",
-  "board": "CUP"
- },
- {
-  "ref": "PZ1",
-  "value": "piezo spring pad A",
-  "fp": [
-   "V010",
-   "Spring_Contact_3.5x2.0"
-  ],
-  "pins": {
-   "1": "PZ_A"
-  },
-  "lcsc": "C2826547",
-  "mpn": "BWCD-L3.5W2.0H1.0",
-  "side": "F",
-  "bom": true,
-  "dnp": false,
-  "note": "top-side spring pad to the piezo disc (9 x 9, C910763) glued to the lid",
-  "group": "ui",
-  "board": "CUP"
- },
- {
-  "ref": "RBB",
-  "value": "1k",
-  "fp": [
-   "Resistor_SMD",
-   "R_0201_0603Metric"
-  ],
-  "pins": {
-   "1": "VBAT",
-   "2": "PZ_B"
-  },
-  "lcsc": "C138165",
-  "mpn": "RC0201FR-071KL",
-  "side": "F",
-  "bom": true,
-  "dnp": false,
-  "note": "",
-  "group": "ui",
-  "board": "CUP"
- },
- {
-  "ref": "RDB",
-  "value": "100k",
-  "fp": [
-   "Resistor_SMD",
-   "R_0201_0603Metric"
-  ],
-  "pins": {
-   "1": "BUZ_B",
-   "2": "GND"
-  },
-  "lcsc": "C106224",
-  "mpn": "RC0201FR-07100KL",
-  "side": "F",
-  "bom": true,
-  "dnp": false,
-  "note": "",
-  "group": "ui",
-  "board": "CUP"
- },
- {
-  "ref": "PZ2",
-  "value": "piezo spring pad B",
-  "fp": [
-   "V010",
-   "Spring_Contact_3.5x2.0"
-  ],
-  "pins": {
-   "1": "PZ_B"
-  },
-  "lcsc": "C2826547",
-  "mpn": "BWCD-L3.5W2.0H1.0",
-  "side": "F",
-  "bom": true,
-  "dnp": false,
-  "note": "top-side spring pad to the piezo disc (9 x 9, C910763) glued to the lid",
   "group": "ui",
   "board": "CUP"
  },
@@ -2091,27 +1978,6 @@
   "board": "CUP"
  },
  {
-  "ref": "QBB",
-  "value": "2N7002",
-  "fp": [
-   "Package_TO_SOT_SMD",
-   "SOT-23"
-  ],
-  "pins": {
-   "1": "BUZ_B",
-   "2": "GND",
-   "3": "PZ_B"
-  },
-  "lcsc": "C8545",
-  "mpn": "2N7002",
-  "side": "F",
-  "bom": true,
-  "dnp": false,
-  "note": "piezo bridge leg B",
-  "group": "ui",
-  "board": "CUP"
- },
- {
   "ref": "R24",
   "value": "100R",
   "fp": [
@@ -2119,7 +1985,7 @@
    "R_0201_0603Metric"
   ],
   "pins": {
-   "1": "VMOT",
+   "1": "VMOT_PRE",
    "2": "BLD"
   },
   "lcsc": "C77623",
@@ -2139,7 +2005,7 @@
    "R_0201_0603Metric"
   ],
   "pins": {
-   "1": "VMOT",
+   "1": "VMOT_PRE",
    "2": "BLD"
   },
   "lcsc": "C77623",
@@ -2199,7 +2065,7 @@
    "R_0603_1608Metric"
   ],
   "pins": {
-   "1": "VMOT_RAW",
+   "1": "VMOT_PRE",
    "2": "VMOT"
   },
   "lcsc": "C326952",
@@ -2221,7 +2087,7 @@
   "pins": {
    "1": "INA_OUT",
    "2": "GND",
-   "3": "VMOT_RAW",
+   "3": "VMOT_PRE",
    "4": "VMOT",
    "5": "VMOT_RAW"
   },
@@ -2475,6 +2341,190 @@
   "dnp": false,
   "note": "",
   "group": "oc",
+  "board": "CUP"
+ },
+ {
+  "ref": "U8",
+  "value": "TPS61023DRLR",
+  "fp": [
+   "Package_TO_SOT_SMD",
+   "SOT-563"
+  ],
+  "pins": {
+   "1": "VMOT_RAW",
+   "2": "GND",
+   "3": "BST_SW",
+   "4": "VMOT_RAW",
+   "5": "VMOT_PRE",
+   "6": "BST_FB"
+  },
+  "lcsc": "C919459",
+  "mpn": "TPS61023DRLR",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "sync boost 3.7 A switch, 0.5-5.5 V in, 1 uA off, about 90 % at 0.3 A out; EN tied to the SWITCHED VMOT_RAW (zero idle drain, cut by Q4/Q15); pinout 1 EN 2 GND 3 SW 4 VIN 5 VOUT 6 FB: VERIFY",
+  "group": "boost",
+  "board": "CUP"
+ },
+ {
+  "ref": "L1",
+  "value": "1uH 2520 (WPN252012E1R0MT)",
+  "fp": [
+   "Inductor_SMD",
+   "L_1008_2520Metric"
+  ],
+  "pins": {
+   "1": "VMOT_RAW",
+   "2": "BST_SW"
+  },
+  "lcsc": "C370610",
+  "mpn": "WPN252012E1R0MT",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "1 uH 2.5 x 2.0 x 1.2; Isat VERIFY >= 2.5 A",
+  "group": "boost",
+  "board": "CUP"
+ },
+ {
+  "ref": "R55",
+  "value": "220k",
+  "fp": [
+   "Resistor_SMD",
+   "R_0402_1005Metric"
+  ],
+  "pins": {
+   "1": "VMOT_PRE",
+   "2": "BST_FB"
+  },
+  "lcsc": "C25767",
+  "mpn": "0402WGF2203TCE",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "FB divider 220k/30k, FB 0.595 V -> 4.96 V",
+  "group": "boost",
+  "board": "CUP"
+ },
+ {
+  "ref": "R56",
+  "value": "30k",
+  "fp": [
+   "Resistor_SMD",
+   "R_0402_1005Metric"
+  ],
+  "pins": {
+   "1": "BST_FB",
+   "2": "GND"
+  },
+  "lcsc": "C25776",
+  "mpn": "0402WGF3002TCE",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "boost",
+  "board": "CUP"
+ },
+ {
+  "ref": "DZ1",
+  "value": "BZT52C6V2 (VMOT overvoltage clamp)",
+  "fp": [
+   "Diode_SMD",
+   "D_SOD-123"
+  ],
+  "pins": {
+   "1": "VMOT_PRE",
+   "2": "GND"
+  },
+  "lcsc": "C27091",
+  "mpn": "LBZT52C6V2T1G",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "clamps a boost overvoltage; cathode (pad 1) to VMOT_PRE",
+  "group": "boost",
+  "board": "CUP"
+ },
+ {
+  "ref": "CB1",
+  "value": "47uF 6.3V X5R 0805",
+  "fp": [
+   "Capacitor_SMD",
+   "C_0805_2012Metric"
+  ],
+  "pins": {
+   "1": "VMOT_PRE",
+   "2": "GND"
+  },
+  "lcsc": "C7503494",
+  "mpn": "CGA0805X5R476M6R3MT",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "bulk on the boost output, before the shunt (no inrush through the over-current shunt); about 15-20 uF effective each at 5 V DC bias",
+  "group": "boost",
+  "board": "CUP"
+ },
+ {
+  "ref": "CB2",
+  "value": "47uF 6.3V X5R 0805",
+  "fp": [
+   "Capacitor_SMD",
+   "C_0805_2012Metric"
+  ],
+  "pins": {
+   "1": "VMOT_PRE",
+   "2": "GND"
+  },
+  "lcsc": "C7503494",
+  "mpn": "CGA0805X5R476M6R3MT",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "bulk on the boost output, before the shunt (no inrush through the over-current shunt); about 15-20 uF effective each at 5 V DC bias",
+  "group": "boost",
+  "board": "CUP"
+ },
+ {
+  "ref": "CB3",
+  "value": "47uF 6.3V X5R 0805",
+  "fp": [
+   "Capacitor_SMD",
+   "C_0805_2012Metric"
+  ],
+  "pins": {
+   "1": "VMOT_PRE",
+   "2": "GND"
+  },
+  "lcsc": "C7503494",
+  "mpn": "CGA0805X5R476M6R3MT",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "bulk on the boost output, before the shunt (no inrush through the over-current shunt); about 15-20 uF effective each at 5 V DC bias",
+  "group": "boost",
+  "board": "CUP"
+ },
+ {
+  "ref": "C31",
+  "value": "10uF",
+  "fp": [
+   "Capacitor_SMD",
+   "C_0603_1608Metric"
+  ],
+  "pins": {
+   "1": "VMOT_PRE",
+   "2": "GND"
+  },
+  "lcsc": "C19702",
+  "mpn": "CL10A106KP8NNNC",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "boost",
   "board": "CUP"
  },
  {
