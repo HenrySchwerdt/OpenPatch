@@ -38,8 +38,18 @@ PCB = os.path.join(HERE, NAME + ".kicad_pcb")
 U1_VIA_D, U1_VIA_H = 0.35, 0.15       # filled + capped via in pad (JLC POFV, free on 6-layer boards); 0.35 copper keeps 0.2 mm hole-to-track with 0.1 copper clearance
 
 
+RING0_OPEN = os.environ.get("OP_RING0_VIA", "0") != "1"
+
+
+def _ring(pad):
+    r = "ABCDEFGH".index(pad[0]); c = int(pad[1:])
+    return min(r, 7 - r, c - 1, 8 - c)
+
+
 def u1_fanout(b, fps):
-    """HJ-840: a filled via in every used pad (inner layers do the escape), except the antenna-strip pads A1 / A7 / A8:
+    """HJ-840: a filled via in every used pad of the inner rings (inner layers do their escape); perimeter (ring 0) signal pads have no via,
+    they escape outward on F.Cu (a via in every pad walled off all six layers at 0.65 mm pitch: the routers could not enter the module).
+    Also excepted: the antenna-strip pads A1 / A7 / A8:
     A7 (ANT) and A8 (BOARD_ANT) are bridged on F.Cu (the former 0 ohm + 2 x DNP pi network), A1 (GND) gets a short F.Cu stub to a via just west of the keep-out."""
     u1 = fps["U1"]
     pads = {pd.GetNumber(): pd for pd in u1.Pads()}
@@ -55,6 +65,8 @@ def u1_fanout(b, fps):
     for num, pd in pads.items():
         if not pd.GetNetname() or num in ("A1", "A7", "A8"):
             continue
+        if RING0_OPEN and _ring(num) == 0 and pd.GetNetname() != "GND":
+            continue          # perimeter signal pad: escapes outward on F.Cu, so the inner layers under the module rim stay open
         via(pd.GetPosition(), pd.GetNet()); n += 1
     trk(pads["A7"].GetPosition(), pads["A8"].GetPosition(), pads["A7"].GetNet(), 0.25)
     a1 = pads["A1"].GetPosition()
