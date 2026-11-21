@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """JLCPCB package of the CUP board (plain python3 + kicad-cli): cup/jlc/ gerbers + drill zip, BOM, CPL (rotation corrected), NOT-ASSEMBLED.
 
-usage: python3 export_cup_jlc.py [board.kicad_pcb]   (default cup/cup.kicad_pcb)
+usage: python3 export_cup_jlc.py [board.kicad_pcb [out dir]]   (default cup/cup.kicad_pcb -> cup/jlc)
 CPL rotation = KiCad rotation - delta, delta = orientation of the official LCSC/EasyEDA footprint relative to ours (cup/jlc_rot_offsets.json, computed by
 comparing pad positions per pad number).  Bottom side: JLC mirrors, rotation = (360 - rot) mod 360 is applied by JLC's own convention for the bottom layer as
 exported by KiCad ("--side both" reports the rotation in the board frame), so bottom parts are listed in ORDER.md for a 3D-preview check."""
@@ -21,7 +21,7 @@ K = os.environ.get("KICAD_CLI") or shutil.which("kicad-cli")
 PCB = sys.argv[1] if len(sys.argv) > 1 else os.path.join(CUP, "cup.kicad_pcb")
 PARTS = json.load(open(os.path.join(CUP, "parts.json")))
 OFF = json.load(open(os.path.join(CUP, "jlc_rot_offsets.json")))
-OUT = os.path.join(CUP, "jlc")
+OUT = sys.argv[2] if len(sys.argv) > 2 else os.path.join(CUP, "jlc")
 LAYERS = "F.Cu,In1.Cu,In2.Cu,In3.Cu,In4.Cu,B.Cu,F.Paste,B.Paste,F.Silkscreen,B.Silkscreen,F.Mask,B.Mask,Edge.Cuts"
 
 

@@ -7,7 +7,7 @@ router fails on ordering (early nets wall in later ones). Here every net is rout
 until no two nets share space. Fixed copper (pads, fan-out vias, the A7-A8 bridge, keep-outs, the board edge) is never crossed.
 
 Clearance model: a net's "footprint" is its centre line dilated by its half width + 0.10 mm clearance + 0.08 mm (the widest other
-half width), so another net's centre line outside it keeps >= 0.10 mm copper clearance. Vias 0.4 / 0.2 mm.
+half width, or its own for a power net), so another net's centre line outside it keeps >= 0.10 mm copper clearance. Vias FR.VIA_D / FR.VIA_H (0.30 / 0.15 mm).
 
 usage: kpy nego_route.py in.kicad_pcb out.kicad_pcb [iterations]
 """
@@ -26,7 +26,7 @@ T, MM = pcbnew.ToMM, pcbnew.FromMM
 G = FR.G
 LAYERS = FR.LAYERS
 NL = len(LAYERS)
-CLR, VIA_D, VIA_H = 0.10, 0.40, 0.20
+CLR, VIA_D, VIA_H = FR.CLR, FR.VIA_D, FR.VIA_H
 OTHER_HALF = 0.05        # signal half width; a power net (0.16 mm) carries the larger footprint itself, conflicts are checked both ways
 VIA_COST = 25.0
 HW = 1.4                     # weighted A*: heuristic weight (keeps the search and its heap small under congestion costs)
@@ -35,7 +35,7 @@ DIRS = [(1, 0, 1.0), (-1, 0, 1.0), (0, 1, 1.0), (0, -1, 1.0), (1, 1, SQ2), (1, -
 
 
 def fp_radius(w):
-    return w / 2 + CLR + OTHER_HALF
+    return w / 2 + CLR + max(OTHER_HALF, w / 2) + 0.01      # power-power pairs keep the full clearance; +0.01 diagonal rounding
 
 
 class Nego:
@@ -294,7 +294,7 @@ def main():
             best_over = overmask.copy()
         if over == 0 and fails == 0:
             break
-        pres = min(pres * 1.3, 100.0)
+        pres = min(pres * 1.3, 1000.0)
         np.save(dst + '.over.npy', np.argwhere(overmask).astype(np.int32))
     # commit the best iteration, leaving out every path that still runs through another net's space:
     # those connections stay open and are finished by finish_route.py (sequential maze routing against fixed copper)
