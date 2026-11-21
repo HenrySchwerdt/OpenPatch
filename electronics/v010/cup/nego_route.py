@@ -49,6 +49,7 @@ class Nego:
         self.nx, self.ny = self.g.nx, self.g.ny
         self.cnt = np.zeros((NL, self.nx, self.ny), np.int16)      # how many routed nets cover each cell with their footprint
         self.hist = np.zeros((NL, self.nx, self.ny), np.float32)
+        self.cntv = np.zeros((self.nx, self.ny), np.int16)          # how many nets forbid a via centre here
         self.paths = {}               # net -> list of paths [(layer, i, j), ...]
         self.fpcells = {}             # net -> boolean footprint mask (NL, nx, ny) as index arrays
         self.disk = {}
@@ -71,13 +72,22 @@ class Nego:
         for l in range(NL):
             if m[l].any():
                 m[l] = ndimage.binary_dilation(m[l], structure=self.dsk(fp_radius(w)))
+        cu = np.zeros((self.nx, self.ny), bool)          # copper of the net projected on one plane (vias pass all layers)
+        for p in paths:
+            for (l, i, j) in p:
+                cu[i, j] = True
+        cu = ndimage.binary_dilation(cu, structure=self.dsk(w / 2)) if cu.any() else cu
         if vias.any():
             vd = ndimage.binary_dilation(vias, structure=self.dsk(VIA_D / 2 + CLR + OTHER_HALF))
             m |= vd[None, :, :]
-        return np.flatnonzero(m).astype(np.int32)
+            cu |= ndimage.binary_dilation(vias, structure=self.dsk(VIA_D / 2))
+        # a foreign via centre must keep VIA_D/2 + CLR from this net's copper on every layer
+        vk = ndimage.binary_dilation(cu, structure=self.dsk(VIA_D / 2 + CLR)) if cu.any() else cu
+        return np.flatnonzero(m).astype(np.int32), np.flatnonzero(vk).astype(np.int32)
 
     def add_fp(self, net, idx, s):
-        self.cnt.ravel()[idx] += s
+        self.cnt.ravel()[idx[0]] += s
+        self.cntv.ravel()[idx[1]] += s
 
     # ---------------------------------------------------------------- search
     def astar(self, net, w, starts, goals, pres, to_via=False):
@@ -89,7 +99,7 @@ class Nego:
         via_ok = ~self.viablock
         for l in range(NL):
             via_ok = via_ok & ndimage.binary_erosion(pas[l], structure=FR.disk(rv), border_value=0)
-        vcost = VIA_COST + pres * other.max(axis=0).astype(np.float32) * 4 + self.hist.max(axis=0) * 4
+        vcost = VIA_COST + pres * np.maximum(self.cntv, 0).astype(np.float32) * 6 + self.hist.max(axis=0) * 4
         if to_via:
             goalset = None
             tx = ty = 0.0
@@ -262,10 +272,15 @@ def main():
         overmask = np.zeros((NL, N.nx, N.ny), bool)
         for code, (n, w, paths) in N.paths.items():
             own = np.zeros((NL, N.nx, N.ny), np.int16)
-            own.ravel()[N.fpcells[code]] = 1
+            own.ravel()[N.fpcells[code][0]] = 1
+            ownv = np.zeros((N.nx, N.ny), np.int16)
+            ownv.ravel()[N.fpcells[code][1]] = 1
             for p in paths:
-                for (l, i, j) in p:
-                    if N.cnt[l, i, j] - own[l, i, j] > 0:
+                for k, (l, i, j) in enumerate(p):
+                    bad = N.cnt[l, i, j] - own[l, i, j] > 0
+                    if k + 1 < len(p) and p[k + 1][0] != l and N.cntv[i, j] - ownv[i, j] > 0:
+                        bad = True
+                    if bad:
                         overmask[l, i, j] = True
                         over += 1
         N.hist[overmask] += 2.0
