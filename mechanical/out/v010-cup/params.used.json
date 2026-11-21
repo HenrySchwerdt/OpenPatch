@@ -1712,12 +1712,12 @@
   },
   "button": {
    "_comment": "board review 2026-11-20 fix 6: SW1 (SKRPACE010 side-actuated) at the board north edge, actuator toward +Y; flex zone in the +Y LID wall (lid starts at z 5.4), recessed from outside so the remaining wall is 0.45 (SLA resin), below the R1.8 top fillet (starts z 6.7); inner nub 0.3 mm touches the actuator",
-   "x_c": 30.0,
+   "x_c": 33.0,
    "win_x": [
-    29.4,
-    31.5
+    32.4,
+    34.5
    ],
-   "_win_x": "window starts at x 29.4 (not 28.5): the USB-C gasket recess in the inner wall face reaches x 29.1, an overlapping outer recess would leave a 0.05 mm sliver",
+   "_win_x": "follows SW1 on the hand-placed board (board x 25.2 = pod x 33.0, 2026-11-21); the window keeps its old offsets -0.6 / +1.5 from the actuator and stays clear of the USB-C gasket recess (ends x 29.1)",
    "win_z": [
     5.6,
     6.7

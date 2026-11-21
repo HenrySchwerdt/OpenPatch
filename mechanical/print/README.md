@@ -37,9 +37,9 @@ What to look at:
 2. **Cell clearance.** Under the board, over the cell, parts stay below 1.1 mm, and the cell top is at z 4.1.
 3. **The leg.**
    - The sounder (2.0 mm) must sit in the `side_b` pocket.
-   - The leg extension (x 43.4-46.5, y 17.15-22.5) must not hit a wall. The mechanics must still open `side_b` for it.
+   - The leg extension (x 43.4-46.5, y 17.15-22.5) lies inside the `side_b` keep-out (x up to 46.76); check that it does not touch a wall.
 4. **USB-C.** The receptacle body must align with the opening in the +Y wall (x 18.8-28.2) and the gasket recess.
-5. **Button.** The side button sits at x 33.0. The mechanics flex window is still at x 30.0 (`elec_interface.button`) and must move +3.0 mm.
+5. **Button.** The side button sits at x 33.0; the lid flex window is at x 32.4-34.5 (moved on 2026-11-21).
 6. **Screws.** The two d1.4 holes must sit on the M1.2 bosses (x 8.9 / y 21.5 and x 37.4 / y 20.0).
 7. **Break-off strip.** It hangs east of the hall finger and is cut off at x 40.9 before assembly; print it, then snap it off.
 

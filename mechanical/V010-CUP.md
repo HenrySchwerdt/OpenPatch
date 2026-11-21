@@ -74,7 +74,7 @@ Pod frame (x = 0 motor end, y = 0 tank-side wall, z = 0 skin side). Both sizes u
 | Supports (top z 5.3) | ledges d1.0 at (41.5, 24.3), (41.5, 32.1); wall shelf x 8.0-9.2, y 32.9-wall; part-free d1.6 pads (shelf: x 7.7-9.5, y 32.6-33.5) on BOTH board faces |
 | Lid hold-down ribs | d1.0 at the two ledge points + wall rib x 8.0-9.2, y 32.9-wall, all from the lid roof down to z 6.1 (1.5 mm) |
 | Board screws | 2 x M1.2 x 4 brass cheese head (ISO 1207 / DIN 84, head d2.0 x 0.8, top z 6.9), board hole d1.4 NPTH, part-free ring d2.8 both faces; boss d1.8 from the floor to z 5.3, thread-forming pilot d0.95 x 3.6 (z 1.7-5.3). **W (8.9, 21.5)** on a board tab x 7.8-10.0, y 20.1-22.9 between gearhead and tank; **E (37.40, 20.0)** in the side_b leg (OP-200: 56.22, 20.0 = dock front face + 2.24). No boss fits under the main body (cell = full lane width; east of the cell is < 3 mm from the HJ-840 antenna band x 42.85-43.4, y 24-32); screw distance to that band: W 34 mm, E 6.8 mm |
-| Side button | SW1 actuator x 30.0 toward +Y; lid flex window x 29.4-31.5, z 5.6-6.7, 0.45 wall left, inner nub x 29.6-30.4, z 6.15-6.65, contact face y 33.4 (actuator tip must end at y <= 33.35). Probably too stiff, see ASSEMBLY-CUP |
+| Side button | SW1 actuator x 33.0 toward +Y; lid flex window x 32.4-34.5, z 5.6-6.7, 0.45 wall left, inner nub x 32.6-33.4, z 6.15-6.65, contact face y 33.4 (actuator tip must end at y <= 33.35). Probably too stiff, see ASSEMBLY-CUP |
 | Lane-2 motor saddle | y 29.95-31.45, outer x <= 7.84, +X lip cut at z 5.2 (x 7.71 there), 230 degree wrap |
 Not changed: the dock-pocket roof (z 4.45-4.9) stays 0.4 below the board; it is not used as a support (no boss added).
 
