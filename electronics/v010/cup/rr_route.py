@@ -17,6 +17,7 @@ import os
 import re
 import subprocess
 import sys
+import shutil
 import tempfile
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -149,7 +150,7 @@ def _step_main(argv):
         gx = np.array([g[1] for g in goals]); gy = np.array([g[2] for g in goals])
         tx, ty = gx.mean(), gy.mean()
         trad = float(np.hypot(gx - tx, gy - ty).max())
-        rv = int(math.ceil((FR.VIA_D / 2 + FR.CLR - (FR.CLR + w / 2 + 0.01)) / FR.G)) + 1
+        rv = int(math.ceil((FR.VIA_D / 2 + FR.CLR - (FR.CLR + w / 2 + 0.01)) / FR.G)) + FR.VIA_SLACK
         via_ok = ~Rf.viablock.copy()
         for li in range(len(FR.LAYERS)):
             via_ok &= ndimage.binary_erosion(pas[li], structure=FR.disk(rv), border_value=0)
@@ -226,6 +227,7 @@ def main():
     pcb, placed = sys.argv[1], sys.argv[2]
     rounds = int(sys.argv[3]) if len(sys.argv) > 3 else 10
     tmp = tempfile.mktemp(suffix=".json")
+    best = None
     for rd in range(rounds):
         d = drc(pcb)
         json.dump(d, open(tmp, "w"))
@@ -235,6 +237,10 @@ def main():
         json.dump(d, open(tmp, "w"))
         errs = [v for v in d["violations"] if v["severity"] == "error" and v["type"] in RIP_TYPES]
         opens = [u for u in d["unconnected_items"] if "[GND]" not in u["items"][0]["description"]]
+        score = len(opens) + 2 * len(errs)
+        if best is None or score < best:      # rip-up can oscillate: keep the best state seen
+            best = score
+            shutil.copy(pcb, pcb + ".best")
         print("round %d: ripped %d items in DRC errors, now %d errors, %d open non-GND" % (rd, n, len(errs), len(opens)), flush=True)
         if not errs and not opens:
             break
