@@ -31,6 +31,7 @@ CLR = 0.10                   # copper clearance
 EDGE = 0.25                  # copper to board edge
 VIA_D, VIA_H = (float(v) for v in os.environ.get("OP_VIA", "0.30/0.15").split("/"))     # routing vias; 0.15 drill is the board's fan-out drill already (POFV)
 HOLE_CLR = 0.20             # copper to hole wall (board rule min_hole_clearance)
+VIA_KEEP = max(VIA_D / 2 + CLR, VIA_H / 2 + HOLE_CLR)      # foreign copper edge to a via centre (copper clearance or hole-wall clearance)
 VIA_COST = 30.0              # in grid steps
 MAX_EXPAND = 3_000_000
 # In1 is the GND plane; with OP_IN1=1 (owner decision 2026-11-21) it may carry short signal pieces outside the zones in IN1_SOLID
@@ -180,6 +181,15 @@ class Router:
             for w, own in self.own.items():
                 for pts in item_poly(item, lay, CLR + w / 2 + 0.01):
                     self.g.fill_poly(own[li], pts, lambda a, sl, m: mark_owner(a, sl, m, mark) if mark > 0 else a[sl].__setitem__(m, -1))
+        # vias: foreign copper also keeps HOLE_CLR from the via hole wall
+        if item.Type() == pcbnew.PCB_VIA_T:
+            p = item.GetPosition()
+            x, y = T(p.x), T(p.y)
+            for w, own in self.own.items():
+                r = max(VIA_KEEP, T(item.GetWidth(pcbnew.F_Cu)) / 2 + CLR, T(item.GetDrill()) / 2 + HOLE_CLR) + w / 2 + 0.01
+                pts = [(x + r * math.cos(2 * math.pi * k / 32) / math.cos(math.pi / 32), y + r * math.sin(2 * math.pi * k / 32) / math.cos(math.pi / 32)) for k in range(32)]
+                for li in range(len(LAYERS)):
+                    self.g.fill_poly(own[li], pts, lambda a, sl, m: mark_owner(a, sl, m, mark) if mark > 0 else a[sl].__setitem__(m, -1))
         # drilled pads: copper keeps HOLE_CLR from the hole wall on every layer (NPTH have no copper of their own), vias keep it too
         if item.Type() == pcbnew.PCB_PAD_T and item.GetDrillSizeX() > 0:
             for w, own in self.own.items():
@@ -198,7 +208,7 @@ class Router:
         w = width_of(self.b.GetNetInfo().GetNetItem(net).GetNetname())
         own = self.own[w]
         pas = (own == 0) | (own == net)
-        rv = int(math.ceil((VIA_D / 2 + CLR - (CLR + w / 2 + 0.01)) / G)) + 1
+        rv = int(math.ceil((VIA_KEEP - (CLR + w / 2 + 0.01)) / G)) + 1
         via_ok = ~self.viablock.copy()
         for li in range(len(LAYERS)):
             via_ok &= ndimage.binary_erosion(pas[li], structure=disk(rv), border_value=0)

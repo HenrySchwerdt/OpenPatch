@@ -13,6 +13,7 @@ usage: kpy nego_route.py in.kicad_pcb out.kicad_pcb [iterations]
 """
 import heapq
 import math
+import os
 import sys
 import time
 
@@ -29,6 +30,7 @@ NL = len(LAYERS)
 CLR, VIA_D, VIA_H = FR.CLR, FR.VIA_D, FR.VIA_H
 OTHER_HALF = 0.05        # signal half width; a power net (0.16 mm) carries the larger footprint itself, conflicts are checked both ways
 VIA_COST = 25.0
+MULT = os.environ.get("OP_NEGO", "add") == "mult"      # cost model, see Nego.astar
 HW = 1.4                     # weighted A*: heuristic weight (keeps the search and its heap small under congestion costs)
 SQ2 = math.sqrt(2.0)
 DIRS = [(1, 0, 1.0), (-1, 0, 1.0), (0, 1, 1.0), (0, -1, 1.0), (1, 1, SQ2), (1, -1, SQ2), (-1, 1, SQ2), (-1, -1, SQ2)]
@@ -78,11 +80,11 @@ class Nego:
                 cu[i, j] = True
         cu = ndimage.binary_dilation(cu, structure=self.dsk(w / 2)) if cu.any() else cu
         if vias.any():
-            vd = ndimage.binary_dilation(vias, structure=self.dsk(VIA_D / 2 + CLR + OTHER_HALF))
+            vd = ndimage.binary_dilation(vias, structure=self.dsk(FR.VIA_KEEP + OTHER_HALF))
             m |= vd[None, :, :]
             cu |= ndimage.binary_dilation(vias, structure=self.dsk(VIA_D / 2))
         # a foreign via centre must keep VIA_D/2 + CLR from this net's copper on every layer
-        vk = ndimage.binary_dilation(cu, structure=self.dsk(VIA_D / 2 + CLR + 0.03)) if cu.any() else cu      # +0.03: grid rounding of diagonal offsets
+        vk = ndimage.binary_dilation(cu, structure=self.dsk(FR.VIA_KEEP + 0.03)) if cu.any() else cu      # +0.03: grid rounding of diagonal offsets
         return np.flatnonzero(m).astype(np.int32), np.flatnonzero(vk).astype(np.int32)
 
     def add_fp(self, net, idx, s):
@@ -94,10 +96,13 @@ class Nego:
         fixed = self.fixed[w]
         pas = (fixed == 0) | (fixed == net)
         other = np.maximum(self.cnt, 0)                         # this net's own footprint was taken out of cnt before the call
-        cost = 1.0 + pres * other.astype(np.float32) + self.hist
+        if MULT:
+            cost = (1.0 + self.hist) * (1.0 + pres * other.astype(np.float32))      # classic PathFinder: history scales the whole cell cost
+        else:
+            cost = 1.0 + pres * other.astype(np.float32) + self.hist
         if pcbnew.In1_Cu in LAYERS:
             cost[LAYERS.index(pcbnew.In1_Cu)] += FR.IN1_COST - 1.0
-        rv = int(math.ceil((VIA_D / 2 + CLR - (CLR + w / 2 + 0.01)) / G)) + 1
+        rv = int(math.ceil((FR.VIA_KEEP - (CLR + w / 2 + 0.01)) / G)) + 1
         via_ok = ~self.viablock
         for l in range(NL):
             via_ok = via_ok & ndimage.binary_erosion(pas[l], structure=FR.disk(rv), border_value=0)
@@ -285,7 +290,7 @@ def main():
                     if bad:
                         overmask[l, i, j] = True
                         over += 1
-        N.hist[overmask] += 2.0
+        N.hist[overmask] += 1.0 if MULT else 2.0
         print("iter %d: overused cells %d, unroutable connections %d, pres %.2f, %.0f s" % (it, over, fails, pres, time.time() - t0), flush=True)
         score = over + 15 * fails
         if score < best_score:
@@ -294,7 +299,7 @@ def main():
             best_over = overmask.copy()
         if over == 0 and fails == 0:
             break
-        pres = min(pres * 1.3, 1000.0)
+        pres = min(pres * 1.5, 1e5) if MULT else min(pres * 1.3, 1000.0)
         np.save(dst + '.over.npy', np.argwhere(overmask).astype(np.int32))
     # commit the best iteration, leaving out every path that still runs through another net's space:
     # those connections stay open and are finished by finish_route.py (sequential maze routing against fixed copper)
