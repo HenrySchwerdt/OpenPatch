@@ -148,7 +148,7 @@ class Nego:
                     out.append((ll, rr // ny, rr % ny))
                 return out
             nexp += 1
-            if nexp > 400_000 or len(pq) > 3_000_000:
+            if nexp > 1_000_000 or len(pq) > 5_000_000:
                 return None
             for off, di, dj, c in steps:
                 ni, nj = i + di, j + dj
@@ -287,7 +287,7 @@ def main():
                         over += 1
         N.hist[overmask] += 2.0
         print("iter %d: overused cells %d, unroutable connections %d, pres %.2f, %.0f s" % (it, over, fails, pres, time.time() - t0), flush=True)
-        score = over + 200 * fails
+        score = over + 15 * fails
         if score < best_score:
             best_score = score
             best_paths = {c: (n, w, [list(p) for p in ps]) for c, (n, w, ps) in N.paths.items()}
