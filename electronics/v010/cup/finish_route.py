@@ -33,8 +33,14 @@ VIA_D, VIA_H = 0.40, 0.20
 HOLE_CLR = 0.20             # copper to hole wall (board rule min_hole_clearance)
 VIA_COST = 30.0              # in grid steps
 MAX_EXPAND = 3_000_000
-LAYERS = [pcbnew.F_Cu, pcbnew.In2_Cu, pcbnew.In3_Cu, pcbnew.In4_Cu, pcbnew.B_Cu]
-ALL_CU = LAYERS + [pcbnew.In1_Cu]
+# In1 is the GND plane; with OP_IN1=1 (owner decision 2026-11-21) it may carry short signal pieces outside the zones in IN1_SOLID
+IN1 = os.environ.get("OP_IN1", "1") == "1"
+LAYERS = [pcbnew.F_Cu, pcbnew.In2_Cu, pcbnew.In3_Cu, pcbnew.In4_Cu, pcbnew.B_Cu] + ([pcbnew.In1_Cu] if IN1 else [])
+ALL_CU = LAYERS + ([] if IN1 else [pcbnew.In1_Cu])
+# board-frame rectangles where In1 stays solid ground: HJ-840 + antenna strip (+0.6), USB bridge with the D+/D- pair
+IN1_SOLID = [(27.7, -0.5, 36.0, 9.1), (10.5, 5.5, 21.9, 10.8)]
+OX, OY = 100.0, 80.0
+IN1_COST = 3.0               # In1 steps cost three times as much: used only where the signal layers are full
 
 
 def width_of(net):
@@ -105,6 +111,7 @@ class Router:
         self.cu = np.zeros((len(LAYERS), self.g.nx, self.g.ny), np.int32)     # actual copper: net code, -1 = copper without net
         self._edges()
         self._keepouts()
+        self._in1_solid()
         for t in b.GetTracks():
             self.add_item(t)
         for f in b.GetFootprints():
@@ -124,6 +131,15 @@ class Router:
                 own[li][~ok] = -1
         r = int(math.ceil((EDGE + VIA_D / 2) / G))
         self.viablock |= ~ndimage.binary_erosion(inside, structure=disk(r))
+
+    def _in1_solid(self):
+        if pcbnew.In1_Cu not in LAYERS:
+            return
+        li = LAYERS.index(pcbnew.In1_Cu)
+        for x0, y0, x1, y1 in IN1_SOLID:
+            pts = [(OX + x0, OY + y0), (OX + x1, OY + y0), (OX + x1, OY + y1), (OX + x0, OY + y1)]
+            for w, own in self.own.items():
+                self.g.fill_poly(own[li], pts, lambda a, sl, m: a[sl].__setitem__(m, -1))
 
     def _keepouts(self):
         for z in self.b.Zones():

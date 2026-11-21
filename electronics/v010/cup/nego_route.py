@@ -95,6 +95,8 @@ class Nego:
         pas = (fixed == 0) | (fixed == net)
         other = np.maximum(self.cnt, 0)                         # this net's own footprint was taken out of cnt before the call
         cost = 1.0 + pres * other.astype(np.float32) + self.hist
+        if pcbnew.In1_Cu in LAYERS:
+            cost[LAYERS.index(pcbnew.In1_Cu)] += FR.IN1_COST - 1.0
         rv = int(math.ceil((VIA_D / 2 + CLR - (CLR + w / 2 + 0.01)) / G)) + 1
         via_ok = ~self.viablock
         for l in range(NL):
