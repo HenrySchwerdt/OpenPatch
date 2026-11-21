@@ -30,6 +30,7 @@ G = 0.05                     # grid (mm)
 CLR = 0.10                   # copper clearance
 EDGE = 0.25                  # copper to board edge
 VIA_D, VIA_H = 0.40, 0.20
+HOLE_CLR = 0.20             # copper to hole wall (board rule min_hole_clearance)
 VIA_COST = 30.0              # in grid steps
 MAX_EXPAND = 3_000_000
 LAYERS = [pcbnew.F_Cu, pcbnew.In2_Cu, pcbnew.In3_Cu, pcbnew.In4_Cu, pcbnew.B_Cu]
@@ -163,9 +164,17 @@ class Router:
             for w, own in self.own.items():
                 for pts in item_poly(item, lay, CLR + w / 2 + 0.01):
                     self.g.fill_poly(own[li], pts, lambda a, sl, m: mark_owner(a, sl, m, mark) if mark > 0 else a[sl].__setitem__(m, -1))
-        # holes block vias of every net (hole-to-hole) - covered by the copper inflation for plated items; NPTH explicitly
-        if item.Type() == pcbnew.PCB_PAD_T and item.GetAttribute() == pcbnew.PAD_ATTRIB_NPTH:
-            for pts in item_poly(item, pcbnew.F_Cu, VIA_D / 2 + 0.25):
+        # drilled pads: copper keeps HOLE_CLR from the hole wall on every layer (NPTH have no copper of their own), vias keep it too
+        if item.Type() == pcbnew.PCB_PAD_T and item.GetDrillSizeX() > 0:
+            for w, own in self.own.items():
+                sps = pcbnew.SHAPE_POLY_SET()
+                item.TransformHoleToPolygon(sps, MM(HOLE_CLR + w / 2 + 0.01), MM(0.005), pcbnew.ERROR_OUTSIDE)
+                for pts in poly_points(sps):
+                    for li in range(len(LAYERS)):
+                        self.g.fill_poly(own[li], pts, lambda a, sl, m: mark_owner(a, sl, m, mark) if mark > 0 else a[sl].__setitem__(m, -1))
+            sps = pcbnew.SHAPE_POLY_SET()
+            item.TransformHoleToPolygon(sps, MM(HOLE_CLR + VIA_D / 2 + 0.01), MM(0.005), pcbnew.ERROR_OUTSIDE)
+            for pts in poly_points(sps):
                 self.g.fill_poly(self.viablock, pts, lambda a, sl, m: a.__setitem__(sl, a[sl] | m))
 
     # ------------------------------------------------------------------ search

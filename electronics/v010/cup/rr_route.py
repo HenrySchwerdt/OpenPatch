@@ -68,8 +68,12 @@ def remove_uuids(pcb, uuids):
     return n
 
 
+PRIO = set()
+
+
 def step(args):
-    r = subprocess.run([KPY, os.path.abspath(__file__), "--step"] + args, capture_output=True, text=True)
+    env = dict(os.environ, RR_PRIO=json.dumps(sorted(PRIO)))
+    r = subprocess.run([KPY, os.path.abspath(__file__), "--step"] + args, capture_output=True, text=True, env=env)
     lines = [l for l in r.stdout.splitlines() if l.startswith("@@")]
     if r.returncode != 0 or not lines:
         print(r.stdout[-2000:], r.stderr[-2000:])
@@ -104,8 +108,9 @@ def _step_main(argv):
             for it in v["items"]:
                 a, _ = FR.find_item(b, it["description"], it["pos"])
                 if a is not None and a.Type() in (pcbnew.PCB_TRACE_T, pcbnew.PCB_VIA_T) and sig(a) not in fixed:
-                    rip.add(a.m_Uuid.AsString())
-        print("@@" + json.dumps(sorted(rip)))
+                    rip.add(a.GetNetCode())
+        uu = [t.m_Uuid.AsString() for t in b.GetTracks() if t.GetNetCode() in rip and sig(t) not in fixed]
+        print("@@" + json.dumps(sorted(uu)))
         return
     # kind == "route"
     R = FR.Router(b)
@@ -120,7 +125,8 @@ def _step_main(argv):
             continue
         dist = math.hypot(u["items"][0]["pos"]["x"] - u["items"][1]["pos"]["x"], u["items"][0]["pos"]["y"] - u["items"][1]["pos"]["y"])
         jobs.append((dist, na, a, c))
-    jobs.sort(key=lambda j: j[0])
+    prio = set(json.loads(os.environ.get("RR_PRIO", "[]")))
+    jobs.sort(key=lambda j: (j[1] not in prio, j[0]))      # nets that were ripped before go first
     routed, victims, blocked = 0, set(), []
     dirs = [(1, 0, 1.0), (-1, 0, 1.0), (0, 1, 1.0), (0, -1, 1.0), (1, 1, 1.4142), (1, -1, 1.4142), (-1, 1, 1.4142), (-1, -1, 1.4142)]
     for dist, net, a, c in jobs:
@@ -187,23 +193,30 @@ def _step_main(argv):
         if sp is None:
             blocked.append(net)
             continue
-        cells = [(FR.LAYERS[l], *R.g.xy(i, j)) for (l, i, j) in sp[::2]]
+        # only the cells the path could not use for real (blocked by routed foreign copper)
+        cells = [(FR.LAYERS[l], *R.g.xy(i, j)) for (l, i, j) in sp if not hard[l, i, j]]
+        for k in range(len(sp) - 1):
+            l, i, j = sp[k]
+            if sp[k + 1][0] != l and not all(hard[q, i, j] for q in range(len(FR.LAYERS))):
+                cells += [(lay, *R.g.xy(i, j)) for lay in FR.LAYERS]
         for t in b.GetTracks():
-            if sig(t) in fixed or t.GetNetCode() == code:
+            if sig(t) in fixed or t.GetNetCode() == code or t.GetNetCode() in victims:
                 continue
             for lay, x, y in cells:
                 if t.Type() == pcbnew.PCB_VIA_T:
                     p = t.GetPosition()
-                    dd = math.hypot(T(p.x) - x, T(p.y) - y) - 0.1
+                    dd = math.hypot(T(p.x) - x, T(p.y) - y) - 0.2
                 elif t.GetLayer() == lay:
                     dd = FR.seg_dist(x, y, t.GetStart(), t.GetEnd())
                 else:
                     continue
-                if dd < 0.45:
-                    victims.add(t.m_Uuid.AsString())
+                if dd < 0.22:
+                    victims.add(t.GetNetCode())
                     break
     pcbnew.SaveBoard(pcb, b)
-    print("@@" + json.dumps({"routed": routed, "jobs": len(jobs), "victims": sorted(victims), "blocked": blocked}))
+    # whole victim nets go (fragments of a net left behind would block their own re-route)
+    vu = [t.m_Uuid.AsString() for t in b.GetTracks() if t.GetNetCode() in victims and sig(t) not in fixed]
+    print("@@" + json.dumps({"routed": routed, "jobs": len(jobs), "victims": sorted(vu), "blocked": blocked, "victim_nets": [b.GetNetInfo().GetNetItem(c).GetNetname() for c in victims]}))
 
 
 def main():
@@ -227,6 +240,7 @@ def main():
             break
         res = step(["route", pcb, placed, tmp])
         k = remove_uuids(pcb, set(res["victims"]))
+        PRIO.update(res["victim_nets"])
         print("   routed %d of %d, ripped %d blocking items, no path at all: %s" % (res["routed"], res["jobs"], k, res["blocked"]), flush=True)
     d = drc(pcb)
     errs = [v for v in d["violations"] if v["severity"] == "error"]
