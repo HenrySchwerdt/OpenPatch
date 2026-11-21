@@ -243,6 +243,7 @@ def main():
         return (max(xs) - min(xs)) + (max(ys) - min(ys))
     names.sort(key=bbox)
     pres = 0.5
+    best_score, best_paths, best_over = 1e18, {}, None
     for it in range(iters):
         t0 = time.time()
         fails = 0
@@ -269,15 +270,27 @@ def main():
                         over += 1
         N.hist[overmask] += 2.0
         print("iter %d: overused cells %d, unroutable connections %d, pres %.2f, %.0f s" % (it, over, fails, pres, time.time() - t0), flush=True)
-        if over == 0:
+        score = over + 200 * fails
+        if score < best_score:
+            best_score = score
+            best_paths = {c: (n, w, [list(p) for p in ps]) for c, (n, w, ps) in N.paths.items()}
+            best_over = overmask.copy()
+        if over == 0 and fails == 0:
             break
         pres = min(pres * 1.3, 100.0)
-        best_over = min(globals().get('best_over', 1e9), over)
         np.save(dst + '.over.npy', np.argwhere(overmask).astype(np.int32))
-    for code, (n, w, paths) in N.paths.items():
+    # commit the best iteration, leaving out every path that still runs through another net's space:
+    # those connections stay open and are finished by finish_route.py (sequential maze routing against fixed copper)
+    dropped = 0
+    for code, (n, w, paths) in best_paths.items():
         for p in paths:
+            if any(best_over[q] for q in p):
+                dropped += 1
+                continue
             commit(b, N.R, code, w, p)
     pcbnew.SaveBoard(dst, b)
+    over = int(best_over.sum())
+    print("best score", best_score, "dropped conflicting paths", dropped)
     print("written", dst, "overused", over, "unroutable", fails)
 
 
