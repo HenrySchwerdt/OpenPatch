@@ -42,7 +42,7 @@ def p(bx, by):
     return (bx + X0, Y1 - by)
 
 
-OUTLINE = [b(*q) for q in OUTLINE_POD]
+OUTLINE = [b(*q) for q in OUTLINE_POD_BOARD]      # owner decision 2026-11-21: no break-off strip (the STRIP_* constants are unused)
 OUTLINE_BOARD = [b(*q) for q in OUTLINE_POD_BOARD]
 
 

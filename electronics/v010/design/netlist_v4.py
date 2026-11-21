@@ -136,11 +136,11 @@ def build():
         note="dock hall on the underside of the dock leg, centred on the dock magnet axis (z 4.9-5.3); VERIFY threshold. Single hall: a second hall cannot see the d1 x 0.5 magnet (Bz of the dipole changes sign about 1 mm off axis)")
 
     # ---------------------------------------------------------------- bare test pads (zero BOM, review M4 / M5); 0.6 mm
-    for i, net in enumerate(("VMOT", "MOT_ALLOW", "LATCH_Q", "SUP_PERMIT", "OC_OK", "DOCK_N")):
-        new("TP%d" % (i + 1), "test pad %s" % net, ("V010", "TP_Pad_D0.6"), {1: net}, bom=False, group="tpx", note="bare test pad 0.6 mm on the break-off strip (interlock signal)")
+    # owner decision 2026-11-21: no break-off strip. The six interlock test points (VMOT, MOT_ALLOW, LATCH_Q, SUP_PERMIT, OC_OK,
+    # DOCK_N) exist only in the "dev" export, as bare pads on existing underside vias of those nets (no routing, see cup/variants.py)
     for i, net in enumerate(("SWDIO", "SWDCLK", "GND", "3V3")):
         new("TPR%d" % (i + 1), "recovery pad %s" % net, ("V010", "TP_Pad_D0.6"), {1: net}, bom=False, side="B", group="tpr",
-            note="0.6 mm bare pad on the underside of the hall finger: solder a wire here to recover a board whose bootloader is corrupted after the break-off strip is removed")
+            note="0.6 mm bare pad on the underside of the hall finger at 1.27 mm pitch: first SWD flash (pogo clip / JLC programming) and recovery, both variants")
     # ---------------------------------------------------------------- supervisor + step gate + TPL5010 latch
     new("U30", "STM32C011F4U6", ("V010", "UFQFPN-20_3x3_P0.5"),
         {19: "MCU_EN", 20: "SUP_DONE", 1: "SUP_WAKE", 2: "3V3", 3: "GND", 4: "SUP_NRST", 5: "ARM_CLK", 6: "APHASE", 7: "MOT_FWD", 8: "OC_OK",
@@ -190,9 +190,7 @@ def build():
         new("CB%d" % i, "22uF 25V X5R 0805", C0805, {1: "VMOT_PRE", 2: "GND"}, "C45783", "CL21A226MAQNNNE", group="boost",
             note="bulk on the boost output (basic part, 25 V rated per JLC); about 8 uF effective at 5 V DC bias")
     # ---------------------------------------------------------------- SWD + test pads (top side)
-    swd = [("SWDIO", "SWDIO"), ("SWDCLK", "SWDCLK"), ("NRST", "NRST"), ("GND", "GND"), ("3V3", "3V3")]
-    for i, (v, n) in enumerate(swd):
-        new("J%d" % (10 + i), "SWD pad " + v, ("V010", "TP_Pad_D0.8"), {1: n}, bom=False, group="swd", note="SWD pad (spring probe jig)")
+    # SWD: the four underside pads TPR1-TPR4 above (no separate top-side SWD pads since the break-off strip was dropped)
     # ---------------------------------------------------------------- REAR flex strip (separate FPC, own netlist)
     rear = []
 

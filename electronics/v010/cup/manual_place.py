@@ -46,8 +46,6 @@ FIXED = {
     "BZ1": (33.2, 13.1, 90, B),          # sounder 4 x 4 x 2: only the leg has 2 mm below the board; rotated: pads clear of the east edge
     "U4A": (31.56, 21.75, 0, B),         # dock hall on the magnet axis
 }
-for k, ref in enumerate(["J10", "J11", "J12", "J13", "J14"] + ["TP%d" % (i + 1) for i in range(6)]):
-    FIXED[ref] = (*G.b(*G.STRIP_SLOTS[k]), 0, F)
 for k in range(4):
     FIXED["TPR%d" % (k + 1)] = (*G.b(*G.RECOVERY[k]), 0, B)
 
