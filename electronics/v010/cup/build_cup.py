@@ -78,6 +78,8 @@ def u1_fanout(b, fps):
 
 
 BUS_NETS = ["VBAT", "3V3", "VMOT", "SUP_PERMIT", "OC_OK", "MOT_ALLOW", "PERM_L", "DOCK_XOR", "APHASE", "BPHASE", "AENBL", "BENBL", "I2C_SCL", "I2C_SDA"]
+BUS_XA = tuple(float(v) for v in os.environ.get("OP_BUS_XA", "5.5/10.4").split("/"))   # clamp of the trunk ends (board frame x)
+BUS_XB = tuple(float(v) for v in os.environ.get("OP_BUS_XB", "21.5/31.5").split("/"))
 BUS_LANES = [8.45, 8.75, 9.05, 9.35, 9.65, 9.95, 10.2]      # board-frame y of the lanes (below the D- pad vias at y 8.02, above the edge band at 10.3)
 
 
@@ -91,13 +93,19 @@ def bridge_bus(b, fps):
             n = pd.GetNetname()
             if n in BUS_NETS:
                 pins.setdefault(n, []).append((T(pd.GetPosition().x) - bl.OX, T(pd.GetPosition().y) - bl.OY))
-    slots = [(pcbnew.In2_Cu, y) for y in BUS_LANES] + [(pcbnew.In3_Cu, y) for y in BUS_LANES]
+    # only nets with pins in both lobes; per layer the lanes are filled in the order of the nets' east pin y (north-most on the top lane)
+    nets = [nt for nt in BUS_NETS if any(x < 11.0 for x, _ in pins.get(nt, [])) and any(x > 20.4 for x, _ in pins.get(nt, []))]
+    ey = lambda nt: sum(y for x, y in pins[nt] if x > 20.4) / len([1 for x, _ in pins[nt] if x > 20.4])
+    half = (len(nets) + 1) // 2
+    pairs = []
+    for layer, grp in ((pcbnew.In2_Cu, nets[:half]), (pcbnew.In3_Cu, nets[half:])):
+        pairs += [(nt, (layer, y)) for nt, y in zip(sorted(grp, key=ey), BUS_LANES)]
     n = 0
-    for net, (layer, y) in zip(BUS_NETS, slots):
+    for net, (layer, y) in pairs:
         west = [x for x, _ in pins[net] if x < 11.0]
         east = [x for x, _ in pins[net] if x > 20.4]
-        xa = min(max(sum(west) / len(west), 5.5), 10.4)
-        xb = min(max(sum(east) / len(east), 21.5), 31.5)
+        xa = min(max(sum(west) / len(west), BUS_XA[0]), BUS_XA[1])
+        xb = min(max(sum(east) / len(east), BUS_XB[0]), BUS_XB[1])
         t = pcbnew.PCB_TRACK(b.b)
         t.SetStart(pcbnew.VECTOR2I(MM(bl.OX + xa), MM(bl.OY + y))); t.SetEnd(pcbnew.VECTOR2I(MM(bl.OX + xb), MM(bl.OY + y)))
         t.SetLayer(layer); t.SetWidth(MM(0.16 if net in POWERNETS or net == "3V3" else 0.10)); t.SetNet(b.net(net)); b.b.Add(t); n += 1

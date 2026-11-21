@@ -221,6 +221,13 @@ def pad_groups(b, R):
                     cells += R.cells_of(v)
             n = p.GetNetname()
             out.setdefault(n, [p.GetNetCode(), FR.width_of(n), []])[2].append(cells)
+    # pre-routed trunks (build_cup.py bridge_bus) that touch no pad: each is one more terminal of its net (a Steiner backbone)
+    for t in vias:
+        if t.Type() != pcbnew.PCB_TRACE_T or t.GetNetCode() <= 0 or t.GetNetname() not in out:
+            continue
+        if any(p.GetNetCode() == t.GetNetCode() and (p.HitTest(t.GetStart()) or p.HitTest(t.GetEnd())) for f in b.GetFootprints() for p in f.Pads()):
+            continue
+        out[t.GetNetname()][2].append(R.cells_of(t))
     return out
 
 
@@ -303,13 +310,30 @@ def main():
         np.save(dst + '.over.npy', np.argwhere(overmask).astype(np.int32))
     # commit the best iteration, leaving out every path that still runs through another net's space:
     # those connections stay open and are finished by finish_route.py (sequential maze routing against fixed copper)
+    # greedy: conflict-free paths first, then the conflicting ones shortest first; a path is kept unless it would cross copper
+    # (or the keep-out) of a path already kept, so of two clashing paths only one is dropped
+    fpown = np.zeros((NL, N.nx, N.ny), np.int32)       # net whose footprint covers the cell (-1: several)
+    vkown = np.zeros((N.nx, N.ny), np.int32)
+    clown = np.zeros((NL, N.nx, N.ny), np.int32)       # net whose centre line runs through the cell
+    viaown = np.zeros((N.nx, N.ny), np.int32)
+    order = [(any(best_over[q] for q in p), len(p), code, w, p) for code, (n, w, paths) in best_paths.items() for p in paths]
+    order.sort(key=lambda t: (t[0], t[1]))
+    foreign = lambda a, c: np.any((a != 0) & (a != c))
     dropped = 0
-    for code, (n, w, paths) in best_paths.items():
-        for p in paths:
-            if any(best_over[q] for q in p):
-                dropped += 1
+    for bad, _, code, w, p in order:
+        fp, vk = N.footprint(code, w, [p])
+        cl = np.array([(l * N.nx + i) * N.ny + j for l, i, j in p], np.int64)
+        vs = np.array([i * N.ny + j for k, (l, i, j) in enumerate(p) if k + 1 < len(p) and p[k + 1][0] != l], np.int64)
+        if bad and (foreign(fpown.ravel()[cl], code) or (len(vs) and foreign(vkown.ravel()[vs], code))
+                    or foreign(clown.ravel()[fp], code) or foreign(viaown.ravel()[vk], code)):
+            dropped += 1
+            continue
+        for arr, idx in ((fpown, fp), (vkown, vk), (clown, cl), (viaown, vs)):
+            if len(idx) == 0:
                 continue
-            commit(b, N.R, code, w, p)
+            cur = arr.ravel()[idx]
+            arr.ravel()[idx] = np.where((cur == 0) | (cur == code), code, -1)
+        commit(b, N.R, code, w, p)
     pcbnew.SaveBoard(dst, b)
     over = int(best_over.sum())
     print("best score", best_score, "dropped conflicting paths", dropped)
