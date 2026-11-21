@@ -75,3 +75,12 @@ Limits of the 2:1 model:
 Record what you measure in `docs/STATUS.md`: printer, nozzle / layer height, which fit was tight or loose and by how much.
 
 Regenerate: `python3 make_print_kit.py <placed board .kicad_pcb>` (needs `solidcraft-cli` and KiCad 10).
+
+## Functional 2:1 parts (`OP-100_2to1_demo/`, `demo_2to1.py`)
+
+The CAD gears are envelopes and the rod and nut have no thread, so a scaled print of them does not move. For the hand-turned 2:1 model, `demo_2to1.py` generates three parts:
+- **Miter gears:** m0.6 z12, involute, 0.15 mm backlash. Gear A has a d4.2 bore for the motor shaft dummy; gear B has a d3.4 bore and is glued on the plain end of the rod.
+- **Lead screw:** d3.2 x 32.8 mm, **1.0 mm pitch**. This is printable; the real M1.6 x 0.35 is not. The first 7 mm are plain.
+- **Plunger nut:** AF 7.0 x 2.6 with 0.2 mm radial thread clearance; it goes into the plunger core's hex pocket.
+
+Print the screw upright in PETG and make two, because it is thin. Print the gears back face down at 0.1 mm layers. Scale the other kit parts by 200 %, or use the zip of the session.
