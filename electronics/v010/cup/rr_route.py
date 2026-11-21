@@ -1,34 +1,28 @@
 #!/usr/bin/env python3
-"""Rip-up and re-route clean-up for the cup board (KiCad python).
+"""Rip-up and re-route clean-up for the cup board.
 
-Input: a routed board (nego_route.py + finish_route.py) and the placed, unrouted board it came from (its copper = the fixed
-fan-out: module vias in pad, wire/USB pad vias, A7-A8 bridge, A1 stub). Every round:
+Input: a routed board (nego_route.py + finish_route.py) and the placed, unrouted board it came from (its copper is the fixed
+fan-out: module vias in pad, wire / USB pad vias, A7-A8 bridge, A1 stub). Every round:
   1. KiCad DRC; routed items in a clearance / hole-clearance / short / rule-area error are deleted,
-  2. every open non-GND connection is routed against all copper; if that fails, it is searched again with routed foreign
-     copper passable at a price, the routed items it runs through are ripped up, and it is routed for real,
-  3. ripped nets come back as open connections in the next round.
-usage: kpy rr_route.py routed.kicad_pcb placed.kicad_pcb [rounds]   (writes routed.kicad_pcb in place)
+  2. every open non-GND connection is routed against all copper; if that fails it is searched again with routed foreign copper
+     passable at a price, and the routed items on that path are deleted (they come back as open connections next round).
+KiCad 10's python wrapper breaks after BOARD.Remove() or a second LoadBoard in one process, so items are deleted by editing the
+.kicad_pcb text (by uuid) and every board operation runs in its own `kpy rr_route.py --step ...` process.
+
+usage: python3 rr_route.py routed.kicad_pcb placed.kicad_pcb [rounds]   (driver; writes routed.kicad_pcb in place)
 """
 import json
 import math
 import os
+import re
 import subprocess
 import sys
 import tempfile
 
-import numpy as np
-
-import pcbnew
-import finish_route as FR
-
-T, MM = pcbnew.ToMM, pcbnew.FromMM
+HERE = os.path.dirname(os.path.abspath(__file__))
+KPY = os.path.join(HERE, "..", "board", "kpy")
 SOFT_COST = 40.0
-
-
-def sig(t):
-    if t.Type() == pcbnew.PCB_VIA_T:
-        return ("v", round(T(t.GetPosition().x), 3), round(T(t.GetPosition().y), 3))
-    return ("t", t.GetLayer(), round(T(t.GetStart().x), 3), round(T(t.GetStart().y), 3), round(T(t.GetEnd().x), 3), round(T(t.GetEnd().y), 3))
+RIP_TYPES = ("clearance", "hole_clearance", "shorting_items", "items_not_allowed", "tracks_crossing", "copper_edge_clearance")
 
 
 def drc(pcb):
@@ -39,154 +33,201 @@ def drc(pcb):
     return d
 
 
-def item_at(b, desc, pos, routed):
-    a, _ = FR.find_item(b, desc, pos)
-    return a
+def remove_uuids(pcb, uuids):
+    """delete (segment ...) / (via ...) / (arc ...) blocks whose uuid is listed"""
+    if not uuids:
+        return 0
+    txt = open(pcb).read()
+    out, i, n = [], 0, 0
+    pat = re.compile(r"\n\t\((segment|via|arc)\b")
+    while True:
+        m = pat.search(txt, i)
+        if not m:
+            out.append(txt[i:])
+            break
+        s = m.start() + 1
+        depth, k = 0, s
+        while True:
+            ch = txt[k]
+            if ch == "(":
+                depth += 1
+            elif ch == ")":
+                depth -= 1
+                if depth == 0:
+                    break
+            k += 1
+        block = txt[s:k + 1]
+        u = re.search(r'\(uuid "([^"]+)"\)', block)
+        out.append(txt[i:m.start()])
+        if u and u.group(1) in uuids:
+            n += 1
+        else:
+            out.append(txt[m.start():k + 1])
+        i = k + 1
+    open(pcb, "w").write("".join(out))
+    return n
 
 
-def soft_route(R, net, starts, goals, soft_mask):
-    """A* where cells blocked only by routed foreign copper are passable at SOFT_COST; returns path or None"""
+def step(args):
+    r = subprocess.run([KPY, os.path.abspath(__file__), "--step"] + args, capture_output=True, text=True)
+    lines = [l for l in r.stdout.splitlines() if l.startswith("@@")]
+    if r.returncode != 0 or not lines:
+        print(r.stdout[-2000:], r.stderr[-2000:])
+        raise SystemExit("step failed: %s" % args)
+    return json.loads(lines[-1][2:])
+
+
+# ------------------------------------------------------------------------------------------------- in-process steps (KiCad python)
+def _step_main(argv):
     import heapq
-    w = FR.width_of(R.b.GetNetInfo().GetNetItem(net).GetNetname())
-    own = R.own[w]
-    hard = (own == 0) | (own == net)
-    pas = hard | soft_mask[w]
-    goals = [q for q in goals if pas[q]]
-    if not goals:
-        return None
-    goalset = set(goals)
-    gx = np.array([g[1] for g in goals]); gy = np.array([g[2] for g in goals])
-    tx, ty = gx.mean(), gy.mean()
-    trad = float(np.hypot(gx - tx, gy - ty).max())
-    rv = int(math.ceil((FR.VIA_D / 2 + FR.CLR - (FR.CLR + w / 2 + 0.01)) / FR.G)) + 1
+    import numpy as np
     from scipy import ndimage
-    via_ok = ~R.viablock.copy()
-    for li in range(len(FR.LAYERS)):
-        via_ok &= ndimage.binary_erosion(pas[li], structure=FR.disk(rv), border_value=0)
-    best, came, pq = {}, {}, []
-    for s in starts:
-        if pas[s]:
-            best[s] = 0.0
-            heapq.heappush(pq, (0.0, 0.0, s))
-    dirs = [(1, 0, 1.0), (-1, 0, 1.0), (0, 1, 1.0), (0, -1, 1.0), (1, 1, 1.4142), (1, -1, 1.4142), (-1, 1, 1.4142), (-1, -1, 1.4142)]
-    n = 0
-    while pq:
-        f, gc, s = heapq.heappop(pq)
-        if gc > best.get(s, 1e18) + 1e-9:
-            continue
-        if s in goalset:
-            path = [s]
-            while path[-1] in came:
-                path.append(came[path[-1]])
-            return path[::-1]
-        n += 1
-        if n > 1_500_000:
-            return None
-        l, i, j = s
-        for di, dj, c in dirs:
-            ni, nj = i + di, j + dj
-            if not (0 <= ni < R.g.nx and 0 <= nj < R.g.ny) or not pas[l, ni, nj]:
+    import pcbnew
+    sys.path.insert(0, HERE)
+    import finish_route as FR
+    T = pcbnew.ToMM
+    kind, pcb, placed, drcjson = argv[0], argv[1], argv[2], argv[3]
+    b = pcbnew.LoadBoard(pcb)
+    bf = pcbnew.LoadBoard(placed)
+
+    def sig(t):
+        if t.Type() == pcbnew.PCB_VIA_T:
+            return ("v", round(T(t.GetPosition().x), 3), round(T(t.GetPosition().y), 3))
+        return ("t", t.GetLayer(), round(T(t.GetStart().x), 3), round(T(t.GetStart().y), 3), round(T(t.GetEnd().x), 3), round(T(t.GetEnd().y), 3))
+    fixed = {sig(t) for t in bf.GetTracks()}
+    d = json.load(open(drcjson))
+    if kind == "errors":
+        rip = set()
+        for v in d["violations"]:
+            if v["severity"] != "error" or v["type"] not in RIP_TYPES:
                 continue
-            t = (l, ni, nj)
-            ng = gc + c * (1.0 if hard[l, ni, nj] else SOFT_COST)
-            if ng < best.get(t, 1e18):
-                best[t] = ng; came[t] = s
-                heapq.heappush(pq, (ng + max(math.hypot(ni - tx, nj - ty) - trad, 0.0), ng, t))
-        if via_ok[i, j]:
-            for l2 in range(len(FR.LAYERS)):
-                if l2 != l:
-                    t = (l2, i, j)
-                    ng = gc + FR.VIA_COST + (0 if all(hard[q, i, j] for q in range(len(FR.LAYERS))) else 4 * SOFT_COST)
-                    if ng < best.get(t, 1e18):
-                        best[t] = ng; came[t] = s
-                        heapq.heappush(pq, (ng + max(math.hypot(i - tx, j - ty) - trad, 0.0), ng, t))
-    return None
+            for it in v["items"]:
+                a, _ = FR.find_item(b, it["description"], it["pos"])
+                if a is not None and a.Type() in (pcbnew.PCB_TRACE_T, pcbnew.PCB_VIA_T) and sig(a) not in fixed:
+                    rip.add(a.m_Uuid.AsString())
+        print("@@" + json.dumps(sorted(rip)))
+        return
+    # kind == "route"
+    R = FR.Router(b)
+    Rf = FR.Router(bf)
+    jobs = []
+    for u in d["unconnected_items"]:
+        if len(u["items"]) != 2 or "[GND]" in u["items"][0]["description"]:
+            continue
+        a, na = FR.find_item(b, u["items"][0]["description"], u["items"][0]["pos"])
+        c, _ = FR.find_item(b, u["items"][1]["description"], u["items"][1]["pos"])
+        if a is None or c is None:
+            continue
+        dist = math.hypot(u["items"][0]["pos"]["x"] - u["items"][1]["pos"]["x"], u["items"][0]["pos"]["y"] - u["items"][1]["pos"]["y"])
+        jobs.append((dist, na, a, c))
+    jobs.sort(key=lambda j: j[0])
+    routed, victims, blocked = 0, set(), []
+    dirs = [(1, 0, 1.0), (-1, 0, 1.0), (0, 1, 1.0), (0, -1, 1.0), (1, 1, 1.4142), (1, -1, 1.4142), (-1, 1, 1.4142), (-1, -1, 1.4142)]
+    for dist, net, a, c in jobs:
+        code = a.GetNetCode()
+        st, go = R.cells_of(a), R.cells_of(c)
+        path, w = R.route(code, st, go)
+        if path is not None:
+            R.commit(code, path, w)
+            routed += 1
+            continue
+        # soft search: routed foreign copper passable at a price
+        w = FR.width_of(net)
+        hard = (R.own[w] == 0) | (R.own[w] == code)
+        pas = hard | ((Rf.own[w] == 0) | (Rf.own[w] == code))
+        goals = [q for q in go if pas[q]]
+        if not goals:
+            blocked.append(net)
+            continue
+        goalset = set(goals)
+        gx = np.array([g[1] for g in goals]); gy = np.array([g[2] for g in goals])
+        tx, ty = gx.mean(), gy.mean()
+        trad = float(np.hypot(gx - tx, gy - ty).max())
+        rv = int(math.ceil((FR.VIA_D / 2 + FR.CLR - (FR.CLR + w / 2 + 0.01)) / FR.G)) + 1
+        via_ok = ~Rf.viablock.copy()
+        for li in range(len(FR.LAYERS)):
+            via_ok &= ndimage.binary_erosion(pas[li], structure=FR.disk(rv), border_value=0)
+        best, came, pq = {}, {}, []
+        for s in st:
+            if pas[s]:
+                best[s] = 0.0
+                heapq.heappush(pq, (0.0, 0.0, s))
+        sp, nexp = None, 0
+        while pq:
+            f, gcost, s = heapq.heappop(pq)
+            if gcost > best.get(s, 1e18) + 1e-9:
+                continue
+            if s in goalset:
+                sp = [s]
+                while sp[-1] in came:
+                    sp.append(came[sp[-1]])
+                break
+            nexp += 1
+            if nexp > 1_500_000:
+                break
+            l, i, j = s
+            for di, dj, cc in dirs:
+                ni, nj = i + di, j + dj
+                if not (0 <= ni < R.g.nx and 0 <= nj < R.g.ny) or not pas[l, ni, nj]:
+                    continue
+                t = (l, ni, nj)
+                ng = gcost + cc * (1.0 if hard[l, ni, nj] else SOFT_COST)
+                if ng < best.get(t, 1e18):
+                    best[t] = ng; came[t] = s
+                    heapq.heappush(pq, (ng + max(math.hypot(ni - tx, nj - ty) - trad, 0.0), ng, t))
+            if via_ok[i, j]:
+                extra = 0.0 if all(hard[q, i, j] for q in range(len(FR.LAYERS))) else 4 * SOFT_COST
+                for l2 in range(len(FR.LAYERS)):
+                    if l2 != l:
+                        t = (l2, i, j)
+                        ng = gcost + FR.VIA_COST + extra
+                        if ng < best.get(t, 1e18):
+                            best[t] = ng; came[t] = s
+                            heapq.heappush(pq, (ng + max(math.hypot(i - tx, j - ty) - trad, 0.0), ng, t))
+        if sp is None:
+            blocked.append(net)
+            continue
+        cells = [(FR.LAYERS[l], *R.g.xy(i, j)) for (l, i, j) in sp[::2]]
+        for t in b.GetTracks():
+            if sig(t) in fixed or t.GetNetCode() == code:
+                continue
+            for lay, x, y in cells:
+                if t.Type() == pcbnew.PCB_VIA_T:
+                    p = t.GetPosition()
+                    dd = math.hypot(T(p.x) - x, T(p.y) - y) - 0.1
+                elif t.GetLayer() == lay:
+                    dd = FR.seg_dist(x, y, t.GetStart(), t.GetEnd())
+                else:
+                    continue
+                if dd < 0.45:
+                    victims.add(t.m_Uuid.AsString())
+                    break
+    pcbnew.SaveBoard(pcb, b)
+    print("@@" + json.dumps({"routed": routed, "jobs": len(jobs), "victims": sorted(victims), "blocked": blocked}))
 
 
 def main():
+    if sys.argv[1] == "--step":
+        _step_main(sys.argv[2:])
+        return
     pcb, placed = sys.argv[1], sys.argv[2]
-    rounds = int(sys.argv[3]) if len(sys.argv) > 3 else 8
-    fixed = {sig(t) for t in pcbnew.LoadBoard(placed).GetTracks()}
+    rounds = int(sys.argv[3]) if len(sys.argv) > 3 else 10
+    tmp = tempfile.mktemp(suffix=".json")
     for rd in range(rounds):
-        b = pcbnew.LoadBoard(pcb)
-        routed = [t for t in b.GetTracks() if sig(t) not in fixed]
         d = drc(pcb)
-        errs = [v for v in d["violations"] if v["severity"] == "error" and v["type"] in ("clearance", "hole_clearance", "shorting_items", "items_not_allowed", "tracks_crossing", "copper_edge_clearance")]
-        rip = {}
-        for v in errs:
-            for it in v["items"]:
-                a = item_at(b, it["description"], it["pos"], routed)
-                if a is not None and a.Type() in (pcbnew.PCB_TRACE_T, pcbnew.PCB_VIA_T) and sig(a) not in fixed:
-                    rip[a.m_Uuid.AsString()] = a
-        for a in rip.values():
-            b.Remove(a)
-        pcbnew.SaveBoard(pcb, b)
-        b = pcbnew.LoadBoard(pcb)          # KiCad 10 python: the track container is unusable after Remove(); reload
-        opens = [u for u in d["unconnected_items"] if len(u["items"]) == 2 and "[GND]" not in u["items"][0]["description"]]
-        print("round %d: %d DRC errors (ripped %d items), %d open non-GND connections" % (rd, len(errs), len(rip), len(opens)), flush=True)
+        json.dump(d, open(tmp, "w"))
+        rip = step(["errors", pcb, placed, tmp])
+        n = remove_uuids(pcb, set(rip))
+        d = drc(pcb)
+        json.dump(d, open(tmp, "w"))
+        errs = [v for v in d["violations"] if v["severity"] == "error" and v["type"] in RIP_TYPES]
+        opens = [u for u in d["unconnected_items"] if "[GND]" not in u["items"][0]["description"]]
+        print("round %d: ripped %d items in DRC errors, now %d errors, %d open non-GND" % (rd, n, len(errs), len(opens)), flush=True)
         if not errs and not opens:
             break
-        R = FR.Router(b)
-        # cells covered by routed foreign copper only (soft) = blocked now but free on the fixed-only grid
-        bf = pcbnew.LoadBoard(placed)
-        Rf = FR.Router(bf)
-        jobs = []
-        for u in opens:
-            a, na = FR.find_item(b, u["items"][0]["description"], u["items"][0]["pos"])
-            c, nc = FR.find_item(b, u["items"][1]["description"], u["items"][1]["pos"])
-            if a is None or c is None:
-                continue
-            dist = math.hypot(u["items"][0]["pos"]["x"] - u["items"][1]["pos"]["x"], u["items"][0]["pos"]["y"] - u["items"][1]["pos"]["y"])
-            jobs.append((dist, na, u["items"][0], u["items"][1]))
-        jobs.sort(key=lambda j: j[0])
-        done = 0
-        for dist, net, ua, uc in jobs:
-            a, _ = FR.find_item(b, ua["description"], ua["pos"])
-            c, _ = FR.find_item(b, uc["description"], uc["pos"])
-            if a is None or c is None:
-                continue
-            code = a.GetNetCode()
-            st, go = R.cells_of(a), R.cells_of(c)
-            path, w = R.route(code, st, go)
-            if path is None:
-                soft = {wk: ((Rf.own[wk] == 0) | (Rf.own[wk] == code)) & ~((R.own[wk] == 0) | (R.own[wk] == code)) for wk in R.own}
-                sp = soft_route(R, code, st, go, soft)
-                if sp is None:
-                    print("   no path even with rip-up:", net, round(dist, 1), flush=True)
-                    continue
-                # rip routed items of other nets near the soft path
-                cells = [(FR.LAYERS[l], *R.g.xy(i, j)) for (l, i, j) in sp]
-                victims = {}
-                for t in list(b.GetTracks()):
-                    if sig(t) in fixed or t.GetNetCode() == code:
-                        continue
-                    for lay, x, y in cells[::2]:
-                        if t.Type() == pcbnew.PCB_VIA_T or t.GetLayer() == lay:
-                            p = t.GetPosition() if t.Type() == pcbnew.PCB_VIA_T else None
-                            if p is not None:
-                                dd = math.hypot(T(p.x) - x, T(p.y) - y)
-                            else:
-                                dd = FR.seg_dist(x, y, t.GetStart(), t.GetEnd())
-                            if dd < 0.45:
-                                victims[t.m_Uuid.AsString()] = t
-                                break
-                for t in victims.values():
-                    b.Remove(t)
-                pcbnew.SaveBoard(pcb, b)
-                b = pcbnew.LoadBoard(pcb)
-                a, _ = FR.find_item(b, ua["description"], ua["pos"])
-                c, _ = FR.find_item(b, uc["description"], uc["pos"])
-                if a is None or c is None:
-                    continue
-                R = FR.Router(b)
-                path, w = R.route(code, R.cells_of(a), R.cells_of(c))
-                print("   ripped %d items for %s %.1f -> %s" % (len(victims), net, dist, "routed" if path else "still blocked"), flush=True)
-                if path is None:
-                    continue
-            R.commit(code, path, w)
-            done += 1
-        pcbnew.SaveBoard(pcb, b)
-        print("   routed %d of %d" % (done, len(jobs)), flush=True)
+        res = step(["route", pcb, placed, tmp])
+        k = remove_uuids(pcb, set(res["victims"]))
+        print("   routed %d of %d, ripped %d blocking items, no path at all: %s" % (res["routed"], res["jobs"], k, res["blocked"]), flush=True)
     d = drc(pcb)
     errs = [v for v in d["violations"] if v["severity"] == "error"]
     opens = [u for u in d["unconnected_items"] if "[GND]" not in u["items"][0]["description"]]
