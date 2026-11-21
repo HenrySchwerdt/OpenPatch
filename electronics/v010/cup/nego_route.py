@@ -82,7 +82,7 @@ class Nego:
             m |= vd[None, :, :]
             cu |= ndimage.binary_dilation(vias, structure=self.dsk(VIA_D / 2))
         # a foreign via centre must keep VIA_D/2 + CLR from this net's copper on every layer
-        vk = ndimage.binary_dilation(cu, structure=self.dsk(VIA_D / 2 + CLR)) if cu.any() else cu
+        vk = ndimage.binary_dilation(cu, structure=self.dsk(VIA_D / 2 + CLR + 0.03)) if cu.any() else cu      # +0.03: grid rounding of diagonal offsets
         return np.flatnonzero(m).astype(np.int32), np.flatnonzero(vk).astype(np.int32)
 
     def add_fp(self, net, idx, s):

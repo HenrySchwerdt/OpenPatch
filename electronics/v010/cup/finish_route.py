@@ -38,9 +38,9 @@ IN1 = os.environ.get("OP_IN1", "1") == "1"
 LAYERS = [pcbnew.F_Cu, pcbnew.In2_Cu, pcbnew.In3_Cu, pcbnew.In4_Cu, pcbnew.B_Cu] + ([pcbnew.In1_Cu] if IN1 else [])
 ALL_CU = LAYERS + ([] if IN1 else [pcbnew.In1_Cu])
 # board-frame rectangles where In1 stays solid ground: HJ-840 + antenna strip (+0.6), USB bridge with the D+/D- pair
-IN1_SOLID = [(27.7, -0.5, 36.0, 9.1), (10.5, 5.5, 21.9, 10.8)]
+IN1_SOLID = [(27.7, -0.5, 36.0, 9.1)]      # module + antenna strip; the USB bridge is open too (full-speed USB 12 Mbit/s; within the owner decision of 2026-11-21 to use In1 partially)
 OX, OY = 100.0, 80.0
-IN1_COST = 3.0               # In1 steps cost three times as much: used only where the signal layers are full
+IN1_COST = 2.0               # In1 steps cost twice as much: used only where the signal layers are full
 
 
 def width_of(net):
