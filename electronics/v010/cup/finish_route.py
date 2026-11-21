@@ -31,6 +31,7 @@ CLR = 0.10                   # copper clearance
 EDGE = 0.25                  # copper to board edge
 VIA_D, VIA_H = (float(v) for v in os.environ.get("OP_VIA", "0.30/0.15").split("/"))     # routing vias; 0.15 drill is the board's fan-out drill already (POFV)
 HOLE_CLR = 0.20             # copper to hole wall (board rule min_hole_clearance)
+VIA_SLACK = int(os.environ.get("OP_VIA_SLACK", "1"))   # extra grid cell around via sites (grid rounding); 0 = tighter, DRC checks
 VIA_KEEP = max(VIA_D / 2 + CLR, VIA_H / 2 + HOLE_CLR)      # foreign copper edge to a via centre (copper clearance or hole-wall clearance)
 VIA_COST = 30.0              # in grid steps
 MAX_EXPAND = 3_000_000
@@ -208,7 +209,7 @@ class Router:
         w = width_of(self.b.GetNetInfo().GetNetItem(net).GetNetname())
         own = self.own[w]
         pas = (own == 0) | (own == net)
-        rv = int(math.ceil((VIA_KEEP - (CLR + w / 2 + 0.01)) / G)) + 1
+        rv = int(math.ceil((VIA_KEEP - (CLR + w / 2 + 0.01)) / G)) + VIA_SLACK
         via_ok = ~self.viablock.copy()
         for li in range(len(LAYERS)):
             via_ok &= ndimage.binary_erosion(pas[li], structure=disk(rv), border_value=0)

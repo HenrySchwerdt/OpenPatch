@@ -108,7 +108,7 @@ class Nego:
             cost = 1.0 + pres * other.astype(np.float32) + self.hist
         if pcbnew.In1_Cu in LAYERS:
             cost[LAYERS.index(pcbnew.In1_Cu)] += FR.IN1_COST - 1.0
-        rv = int(math.ceil((FR.VIA_KEEP - (CLR + w / 2 + 0.01)) / G)) + 1
+        rv = int(math.ceil((FR.VIA_KEEP - (CLR + w / 2 + 0.01)) / G)) + FR.VIA_SLACK
         via_ok = ~self.viablock
         for l in range(NL):
             via_ok = via_ok & ndimage.binary_erosion(pas[l], structure=FR.disk(rv), border_value=0)
