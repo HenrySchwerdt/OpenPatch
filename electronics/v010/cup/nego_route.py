@@ -36,8 +36,14 @@ SQ2 = math.sqrt(2.0)
 DIRS = [(1, 0, 1.0), (-1, 0, 1.0), (0, 1, 1.0), (0, -1, 1.0), (1, 1, SQ2), (1, -1, SQ2), (-1, 1, SQ2), (-1, -1, SQ2)]
 
 
+TIGHT = os.environ.get("OP_TIGHT", "0") == "1"
+
+
 def fp_radius(w):
-    return w / 2 + CLR + max(OTHER_HALF, w / 2) + 0.01      # power-power pairs keep the full clearance; +0.01 diagonal rounding
+    # power-power pairs keep the full clearance; +0.01 diagonal rounding. With OP_TIGHT=1 the margin is dropped: on the 0.05 grid the
+    # footprint of a 0.10 mm track then has radius 4 cells instead of 5, so the closest allowed centre-line point is 0.206 mm away
+    # (0.106 mm gap) instead of 0.255 mm - a quarter more tracks per channel; KiCad DRC checks the few diagonal cases afterwards
+    return w / 2 + CLR + max(OTHER_HALF, w / 2) + (0.0 if TIGHT else 0.01)
 
 
 class Nego:
