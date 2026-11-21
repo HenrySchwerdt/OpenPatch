@@ -49,6 +49,24 @@ Printing it: put the board on its long edge, or on the bottom face with tree sup
 
 The z12 miter gears are module 0.3: tip diameter 4.0 mm, tooth height about 0.66 mm. An FDM printer with a 0.4 mm nozzle cannot form those teeth, so the print is only a space-claim blob. A resin printer (MSLA, 0.05 mm layers) prints them well enough to test the mesh by hand. For the real drive, use the bought brass pair (BUY-LIST §0).
 
+## Printer used: Sovol SV01 Pro (FDM, 0.4 mm nozzle)
+
+| Part | Layer | Orientation / note |
+|---|---|---|
+| housing bottom / top / end cap | 0.12-0.16 mm, PLA or PETG | outer face down; fits need about 0.2 mm |
+| board model | 0.10 mm | on its long edge, brim |
+| motor and cell dummies | 0.16 mm | flat face down |
+| gears, rod, magnet | - | not printable at 1:1 with a 0.4 mm nozzle: use the real parts |
+
+## 2:1 model (everything scaled by 200 %)
+
+A complete 2:1 print (pod about 96 x 69 x 17 mm, fits the 280 x 240 mm bed) is the easiest way to see the mechanism work. At that size the gears are m0.6 with about 1.3 mm teeth, which a 0.4 mm nozzle prints well enough to turn by hand. The plunger, rod path, dock, board outline and part positions are all readable.
+
+Limits of the 2:1 model:
+- **Print every part scaled**, including motor, cell, rod and magnet. Real bought parts do not fit a 2:1 housing.
+- **Clearances do not scale with the printer error.** A gap of 0.1 mm in the CAD becomes 0.2 mm at 2:1, while the printer error stays about 0.2 mm. A 2:1 print shows collisions and the layout, but not whether the 1:1 parts will be tight.
+- Real fits (lid, USB-C, button window, board screws, cell pocket) are checked afterwards with a 1:1 housing and the real parts.
+
 ## Tolerances
 
 - **FDM:** sliding and press fits need about 0.2-0.3 mm extra clearance. The housing CAD already carries the gaps the moulded/printed parts need. If a lid is tight, scale the part by 100.5 % in x/y before you change the CAD, and note the printer and the setting.
