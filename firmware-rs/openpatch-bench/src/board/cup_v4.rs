@@ -7,29 +7,29 @@
 //!
 //! | HJ-840 pad | nRF pin | Net | Use |
 //! |---|---|---|---|
-//! | G5  | P0.05 | `APHASE`   | out: DRV8835 PHASE A, also supervisor input (PA) |
-//! | E4  | P1.08 | `BPHASE`   | out: DRV8835 PHASE B, also supervisor input |
-//! | F5  | P0.27 | `AENBL`    | out: bridge A enable, 100 k pull-down: 1 = driven, 0 = brake |
-//! | G7  | P0.26 | `BENBL`    | out: bridge B enable |
-//! | F4  | P0.07 | `CHG_STAT` | in: MCP73832 STAT, low = charging (high / high-Z otherwise: use `USBDETECTED` for the cable) |
-//! | G8  | P0.06 | `OC_OK`    | in: TPS2553 FAULT, low = current limit active (100 k pull-up) |
-//! | F8  | P0.29 | `LATCH_Q`  | in: interlock latch readback (RB6) |
-//! | E8  | P0.03 | `DOCK_N`   | in: dock hall DRV5032FA, LOW = docked |
+//! | H5  | P0.08 | `APHASE`   | out: DRV8835 PHASE A, also supervisor input (PA) |
+//! | G4  | P1.09 | `BPHASE`   | out: DRV8835 PHASE B, also supervisor input |
+//! | G5  | P0.05 | `AENBL`    | out: bridge A enable, 100 k pull-down: 1 = driven, 0 = brake |
+//! | E6  | P0.02 | `BENBL`    | out: bridge B enable |
+//! | F5  | P0.27 | `CHG_STAT` | in: MCP73832 STAT, low = charging (high / high-Z otherwise: use `USBDETECTED` for the cable) |
+//! | F7  | P0.30 | `OC_OK`    | in: TPS2553 FAULT, low = current limit active (100 k pull-up) |
+//! | C8  | P1.12 | `LATCH_Q`  | in: interlock latch readback (RB6) |
+//! | D7  | P1.13 | `DOCK_N`   | in: dock hall DRV5032FA, LOW = docked |
 //! | G3  | P0.12 | `SUP_OK`   | in: supervisor healthy |
-//! | C7  | P1.11 | `LED_R`    | out, active low (RGB common anode on VBAT, 1 k) |
-//! | C8  | P1.12 | `LED_G`    | out, active low |
-//! | D8  | P0.31 | `LED_B`    | out, active low |
+//! | D8  | P0.31 | `LED_R`    | out, active low (RGB common anode on VBAT, 1 k) |
+//! | C7  | P1.11 | `LED_G`    | out, active low |
+//! | E8  | P0.03 | `LED_B`    | out, active low |
 //! | F3  | P0.11 | `SUP_TXD`  | in: UART RX from the supervisor |
 //! | E3  | P0.16 | `SUP_RXD`  | out: UART TX to the supervisor |
 //! | D1  | P0.19 | `SUP_BOOT0` | out: supervisor BOOT0 strap (100 k pull-down) |
-//! | H5  | P0.08 | `SUP_NRST` | io, OPEN DRAIN ONLY (never push-pull high): pulls the supervisor NRST low |
-//! | E5  | P1.15 | `MOT_FWD`  | out: forward intent, HIGH = forward (pull-up: reset default = forward = blocked when undocked) |
+//! | E4  | P1.08 | `SUP_NRST` | io, OPEN DRAIN ONLY (never push-pull high): pulls the supervisor NRST low |
+//! | F8  | P0.29 | `MOT_FWD`  | out: forward intent, HIGH = forward (pull-up: reset default = forward = blocked when undocked) |
 //! | E2  | P0.15 | `BTN_N`    | in: side button, internal pull-up |
-//! | E7  | P0.28 | `I2C_SCL`  | TWIM: TMAG5273 (rear strip), 4.7 k pull-ups, 100 kHz |
-//! | F7  | P0.30 | `I2C_SDA`  | TWIM |
-//! | E6  | P0.02 | `ARM_CLK`  | out: rising edge sets the latch and arms the supervisor, 100 k pull-down |
-//! | G4  | P1.09 | `MCU_EN`   | out: hardware leg of the motor enable (3-input AND `LATCH_Q` & `SUP_PERMIT` & `MCU_EN`), 100 k pull-down |
-//! | D7  | P1.13 | `BUZ_A`    | out: sounder NFET gate |
+//! | G8  | P0.06 | `I2C_SCL`  | TWIM: TMAG5273 (rear strip), 4.7 k pull-ups, 100 kHz |
+//! | E7  | P0.28 | `I2C_SDA`  | TWIM |
+//! | G7  | P0.26 | `ARM_CLK`  | out: rising edge sets the latch and arms the supervisor, 100 k pull-down |
+//! | F4  | P0.07 | `MCU_EN`   | out: hardware leg of the motor enable (3-input AND `LATCH_Q` & `SUP_PERMIT` & `MCU_EN`), 100 k pull-down |
+//! | C6  | P0.13 | `BUZ_A`    | out: sounder NFET gate |
 //! | E1  | P0.18 | `NRST`     | reset (UICR PSELRESET), TPL5010 RSTn |
 //! | H7  | P0.04 | `VMOT_SENSE` | SAADC AIN2: motor supply after the load switch, 100 k / 100 k (x 2) |
 //! | F1/G1/F2 | D+ / D- / VBUS | `USB_DP` / `USB_DM` / `VBUS_P` | USB (DFU, charging); `USBDETECTED` = cable |
@@ -95,29 +95,29 @@ pub fn take(p: Peripherals) -> CupIo {
         saadc: p.SAADC,
         vmot_sense: p.P0_04.degrade_saadc(),
         nvmc: p.NVMC,
-        aphase: p.P0_05.into(),
-        bphase: p.P1_08.into(),
-        aenbl: p.P0_27.into(),
-        benbl: p.P0_26.into(),
-        chg_stat: p.P0_07.into(),
-        oc_ok: p.P0_06.into(),
-        latch_q: p.P0_29.into(),
-        dock_n: p.P0_03.into(),
+        aphase: p.P0_08.into(),
+        bphase: p.P1_09.into(),
+        aenbl: p.P0_05.into(),
+        benbl: p.P0_02.into(),
+        chg_stat: p.P0_27.into(),
+        oc_ok: p.P0_30.into(),
+        latch_q: p.P1_12.into(),
+        dock_n: p.P1_13.into(),
         sup_ok: p.P0_12.into(),
-        led_r: p.P1_11.into(),
-        led_g: p.P1_12.into(),
-        led_b: p.P0_31.into(),
+        led_r: p.P0_31.into(),
+        led_g: p.P1_11.into(),
+        led_b: p.P0_03.into(),
         sup_rx: p.P0_11.into(),
         sup_tx: p.P0_16.into(),
         sup_boot0: p.P0_19.into(),
-        sup_nrst: p.P0_08.into(),
-        mot_fwd: p.P1_15.into(),
+        sup_nrst: p.P1_08.into(),
+        mot_fwd: p.P0_29.into(),
         button: p.P0_15.into(),
-        i2c_scl: p.P0_28.into(),
-        i2c_sda: p.P0_30.into(),
-        arm_clk: p.P0_02.into(),
-        mcu_en: p.P1_09.into(),
-        buz_a: p.P1_13.into(),
+        i2c_scl: p.P0_06.into(),
+        i2c_sda: p.P0_28.into(),
+        arm_clk: p.P0_26.into(),
+        mcu_en: p.P0_07.into(),
+        buz_a: p.P0_13.into(),
     }
 }
 
