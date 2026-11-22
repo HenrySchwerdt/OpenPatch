@@ -1,0 +1,15 @@
+Designator,Value,Reason
+SP1,cell lead pad +,bare pad / not assembled
+SP2,cell lead pad -,bare pad / not assembled
+MP1,motor lead pad A+,bare pad / not assembled
+MP2,motor lead pad A-,bare pad / not assembled
+MP3,motor lead pad B+,bare pad / not assembled
+MP4,motor lead pad B-,bare pad / not assembled
+TL1,REAR strip pad (3V3),bare pad / not assembled
+TL2,REAR strip pad (GND),bare pad / not assembled
+TL3,REAR strip pad (I2C_SDA),bare pad / not assembled
+TL4,REAR strip pad (I2C_SCL),bare pad / not assembled
+TPR1,recovery pad SWDIO,bare pad / not assembled
+TPR2,recovery pad SWDCLK,bare pad / not assembled
+TPR3,recovery pad GND,bare pad / not assembled
+TPR4,recovery pad 3V3,bare pad / not assembled

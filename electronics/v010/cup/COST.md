@@ -1,10 +1,10 @@
 > **TEST ONLY - NOT FOR HUMAN USE** (see `../../../DISCLAIMER.md`). Bench sample, water only, never worn.
 
-# COST: CUP main board (6 layers, 35.6 x 23.1 mm, 54 fitted parts), JLCPCB 6-layer + PCBA, 5 boards
+# COST: CUP main board (6 layers, 38.8 x 25.2 mm bounding box, 53 fitted parts), JLCPCB 6-layer + PCBA, 5 boards
 
 Parts: unit prices from the live JLCPCB parts API on **2026-11-20** (`jlc_stock_2026-11-20.json`, tier price for 5 boards, `../tools/cost_cup.py`). **PCB, setup, stencil, shipping and VAT are estimates** (the JLC quote page needs a login and a Gerber upload); confirm them on the order page. Prices in USD, 1 USD = 0.92 EUR.
 
-**Not orderable yet:** the board is only partly routed (73 connections open, see `ROUTING-GUIDE.md`) and **DRV8835DSSR (C129328) has JLC stock 0** (`PIN-CHECK.md`). The numbers below are what the order will cost once both are solved.
+**Not orderable yet:** the board is fully routed (DRC 0, 2026-11-22, `ROUTING-GUIDE.md`), but **DRV8835DSSR (C129328) still has JLC stock 0** (checked 2026-11-22, `ORDER.md`). The numbers below are what the order will cost once U7 is sourced (global sourcing adds its own fee and lead time). The line table is from 2026-11-20 (54 placements); the current BOM has 53.
 
 ## Parts per board (generated)
 

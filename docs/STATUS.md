@@ -1,7 +1,13 @@
 # Project status & handover
 
 > This file is the **entry point for every new session** (another machine, another Claude subscription, another person).
-> It is updated on every push. Last updated: **2026-11-19 (cloud session, v0.1.0 integrated model merged)**.
+> It is updated on every push. Last updated: **2026-11-22 (cup board fully routed, DRC 0)**.
+
+## Cup board fully routed, DRC 0 (2026-11-22, electronics)
+- `electronics/v010/cup/cup.kicad_pcb` is routed on the 2 mm deeper outline (`cupgeom.py` Y1 = 35.5, placement shifted +2.0 for every part north of by 8.55): **0 DRC errors, 0 unconnected** on the master and on both variants (`variants/cup_clean.kicad_pcb`, `variants/cup_dev.kicad_pcb`). Flow and the hand fixes: `cup/ROUTING-GUIDE.md` (negotiation 100 iterations, greedy rip-up with rollback in `rr_route.py --greedy`, then 0.05 mm hand fixes, a filled via in U36 pad 2, solid zone connection for 7 starved GND pads).
+- Pad labels A+ / A- / B+ / B- / + / - no longer overlap (`silk_labels.py`); the DEV test pads keep 0.21 mm from foreign drills (`variants.py`).
+- JLC packages regenerated: `jlc/` (CLEAN) and `jlc-dev/` (DEV); `ORDER.md`, `COST.md` updated. **Only blocker left: DRV8835DSSR (C129328) JLC stock 0** (global sourcing, or a replacement driver that changes the board around U7 and the firmware pin map). The board uses filled vias in pads (POFV, 71) and 0.15 mm via drills: check the JLC quote page for fees.
+- Open: print-kit board model (`print_model.py`), stale button x values in `ASSEMBLY-CUP.md`, two mechanics PNGs.
 
 ## Cup pod 2 mm wider for board routing (2026-11-22, owner decision, mechanics)
 - `cup.lane2_extra` = 2.0: lane 2 = cell + 0.4 + 2.0 = 13.0 mm (y 22.8-35.6), pod width 34.6 -> **36.6** (OP-100 47.96 x 36.6 x 8.5, OP-200 66.78 x 36.6 x 8.5). Tank (bore 20.5 x 5.5), strokes and all x positions unchanged; cell stays on the south side of lane 2. Moved +2.0 in y: board north edge (pcb_y 22.9-35.5), USB-C receptacle y 28.35-35.7 / opening in the wall at y 35.7, button nub face y 35.4, north ledge (41.5, 34.1), wall shelf / lid wall rib from y 34.9, NE lid corner post. Both sizes PASS `check.py --variant v010 --drive cup`. Open: the board outline in `electronics/` (owner) and the print-kit board model still use the old 33.5 north edge.

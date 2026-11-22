@@ -2,22 +2,25 @@
 
 # ORDER: JLCPCB 6-layer + PCBA for the CUP board (5 boards, all parts JLC-stocked, no consignment)
 
-**Nothing was ordered. STOP before paying: two blockers.**
+**Nothing was ordered. STOP before paying: one blocker left.**
 
-1. **The board is not fully routed.** Freerouting left 73 connections open (copper DRC otherwise clean, see `ROUTING-GUIDE.md` for exactly which). The Gerber zip in `jlc/` is the partial board and **must not be ordered**. Finish the routing (KiCad by hand, or a re-placement + a longer Freerouting run), re-run DRC to 0 and `../tools/export_cup_jlc.py`.
-2. **DRV8835DSSR (C129328) has JLC stock 0** (2026-11-20). Without a replacement decision (2 x DRV8837DSGR C39159, or DRV8833CRTER C701801: `PIN-CHECK.md`) the PCBA order cannot be placed; JLC would have no part for U7. Both replacements change the driver pinout and the firmware pin map.
+1. ~~The board is not fully routed.~~ Done 2026-11-22: fully routed, DRC 0 errors and 0 unconnected on both variants (`ROUTING-GUIDE.md`).
+2. **DRV8835DSSR (C129328) has JLC stock 0** (checked again 2026-11-22). Options: JLC global sourcing / pre-order of C129328 for U7 (no board change, longer lead time), or a replacement (2 x DRV8837DSGR C39159, or DRV8833CRTER C701801: `PIN-CHECK.md`), which changes the driver footprint, the routing around U7 and the firmware pin map.
 
-Files (all generated, `../tools/export_cup_jlc.py`): `jlc/openpatch-cup-gerbers.zip` (Gerber X2 + Excellon, 6 copper layers, mask, paste, silk, edge), `jlc/BOM-jlcpcb.csv` (35 lines, 54 placements, LCSC numbers), `jlc/CPL-jlcpcb.csv` (rotation = KiCad rotation minus the offset between our footprint and the official LCSC footprint, `jlc_rot_offsets.json`), `jlc/NOT-ASSEMBLED.csv` (bare pads, wire pads, DNP match capacitors).
+**Two packages, one layout** (`variants.py`): `jlc/` = CLEAN (no interlock test pads), `jlc-dev/` = DEV (six bare 0.6 mm interlock test pads TPD1-TPD6 on the underside, `variants/TESTPOINTS.md`). Order one of them; the parts, BOM and CPL are the same.
+
+Files (all generated, `../tools/export_cup_jlc.py`, same set in `jlc-dev/`): `jlc/openpatch-cup-gerbers.zip` (Gerber X2 + Excellon, 6 copper layers, mask, paste, silk, edge), `jlc/BOM-jlcpcb.csv` (34 lines, 53 placements, LCSC numbers), `jlc/CPL-jlcpcb.csv` (rotation = KiCad rotation minus the offset between our footprint and the official LCSC footprint, `jlc_rot_offsets.json`), `jlc/NOT-ASSEMBLED.csv` (bare pads, wire pads, DNP match capacitors).
 
 ## PCB options (JLCPCB quote page)
 
 | Option | Value |
 |---|---|
 | Layers / thickness | **6 layers, 0.8 mm** (the stack-up of the KiCad file: F, In1 GND, In2, In3, In4, B) |
-| Size / qty | 35.6 x 23.1 mm (irregular outline: USB-C notch 9.4 x 6.7, hall finger, west tab), 5 pcs |
+| Size / qty | 38.8 x 25.2 mm bounding box (irregular outline: USB-C notch, hall finger, west tab), 5 pcs |
 | Finish | **ENIG** (0.65 x 0.9 mm LGA module, 0.5 mm pitch USB-C, 0.4 mm DFN-6 pads, bare 0.6 mm test pads) |
 | Copper | 1 oz outer / 0.5 oz inner |
-| Min track / space / via | 0.10 / 0.10 mm, via 0.4 mm pad / 0.2 mm drill (JLC 6-layer minimum 0.09 / 0.09, via 0.4 / 0.2); **no via in pad** (none is used) |
+| Min track / space / via | 0.10 / 0.10 mm; vias 0.30 / 0.15 mm (most), 0.35 / 0.15, 0.40 / 0.20 (JLC 6-layer minimum 0.09 / 0.09, via 0.25 / 0.15: check that the quote page does not add a fee for 0.15 mm drills) |
+| Via in pad | **yes, epoxy filled and capped (POFV)**: 71 vias sit in SMD pads (HJ-840 LGA fan-out, U36 pin 2); JLC includes this on 6-layer boards, select it if the page asks |
 | Edge | copper to edge 0.2 mm, 0.3 mm keep-out band in the router |
 | Holes | 2 x NPTH 1.4 mm (screws), 2 x NPTH 0.6 mm (USB-C pegs), 4 oval plated slots 0.5 x 1.65 mm (USB-C shield tabs) |
 | Impedance control | none (USB 2.0 full speed, short) |

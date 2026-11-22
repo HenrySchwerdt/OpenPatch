@@ -23,6 +23,7 @@ T, MM = pcbnew.ToMM, pcbnew.FromMM
 HERE = os.path.dirname(os.path.abspath(__file__))
 PAD_D = 0.60
 CLR = 0.10
+HOLE_CLR = 0.21         # board rule: copper to a foreign drill 0.20 mm
 EDGE = 0.50
 CRT_IN = 0.20
 STUB_MARGIN = 0.15      # a free-spot pad keeps extra room so its joining track can leave it
@@ -62,7 +63,8 @@ def candidate_ok(b, net, x, y, edge_poly, courtyards, margin=0.0):
             continue
         if t.Type() == pcbnew.PCB_VIA_T:
             q = t.GetPosition()
-            if math.hypot(T(q.x) - x, T(q.y) - y) < r + T(t.GetWidth(pcbnew.B_Cu)) / 2 + CLR:
+            dq = math.hypot(T(q.x) - x, T(q.y) - y)
+            if dq < r + T(t.GetWidth(pcbnew.B_Cu)) / 2 + CLR or dq < r + T(t.GetDrillValue()) / 2 + HOLE_CLR:
                 return False
         elif t.GetLayer() == pcbnew.B_Cu and seg_dist(x, y, t.GetStart(), t.GetEnd()) < r + T(t.GetWidth()) / 2 + CLR:
             return False

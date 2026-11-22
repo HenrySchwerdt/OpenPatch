@@ -1,6 +1,4 @@
 Designator,Value,Reason
-PI1,pi match shunt C (DNP),"DNP match part: pi match shunt, value to be tuned (about 0.5 to 1 pF), DNP"
-PI3,pi match shunt C (DNP),"DNP match part: pi match shunt, DNP"
 SP1,cell lead pad +,bare pad / not assembled
 SP2,cell lead pad -,bare pad / not assembled
 MP1,motor lead pad A+,bare pad / not assembled
@@ -11,22 +9,7 @@ TL1,REAR strip pad (3V3),bare pad / not assembled
 TL2,REAR strip pad (GND),bare pad / not assembled
 TL3,REAR strip pad (I2C_SDA),bare pad / not assembled
 TL4,REAR strip pad (I2C_SCL),bare pad / not assembled
-TP1,test pad SUP_NRST,bare pad / not assembled
-TP2,test pad SUP_BOOT0,bare pad / not assembled
-TP3,test pad BPHASE,bare pad / not assembled
-TP4,test pad VBAT,bare pad / not assembled
-TP5,test pad VMOT_PRE,bare pad / not assembled
-TP6,test pad VMOT,bare pad / not assembled
-TP7,test pad MOT_ALLOW,bare pad / not assembled
-TP8,test pad LATCH_Q,bare pad / not assembled
-TP9,test pad SUP_PERMIT,bare pad / not assembled
-TP10,test pad OC_OK,bare pad / not assembled
-TP11,test pad DOCK_N,bare pad / not assembled
-TP12,test pad SUP_TXD,bare pad / not assembled
-TP13,test pad SUP_RXD,bare pad / not assembled
-TP14,test pad VBUS_P,bare pad / not assembled
-J10,SWD pad SWDIO,bare pad / not assembled
-J11,SWD pad SWDCLK,bare pad / not assembled
-J12,SWD pad NRST,bare pad / not assembled
-J13,SWD pad GND,bare pad / not assembled
-J14,SWD pad 3V3,bare pad / not assembled
+TPR1,recovery pad SWDIO,bare pad / not assembled
+TPR2,recovery pad SWDCLK,bare pad / not assembled
+TPR3,recovery pad GND,bare pad / not assembled
+TPR4,recovery pad 3V3,bare pad / not assembled

@@ -2,58 +2,23 @@
 
 # CUP board: net-by-net hand-routing guide (KiCad 10)
 
-## STATE 2026-11-20 evening: hand placement (supersedes the annealing state below)
+## STATE 2026-11-22: fully routed, DRC 0 (board widened by 2 mm)
 
-The placement is now written by hand in `manual_place.py`. It checks every mechanical rule on the library courtyards, including the USB through-hole slots. Pre-route DRC is 0.
+**Board:** `cup/cup.kicad_pcb` (routed master), `variants/cup_clean.kicad_pcb` and `variants/cup_dev.kicad_pcb` (the master plus the six DEV interlock test pads on the underside, `variants/TESTPOINTS.md`). 6 layers, 0.8 mm, outline 38.8 x 25.2 mm bounding box (the lane-2 part of the board is 2 mm deeper than before: `cupgeom.py` Y1 = 35.5), 69 footprints, 172 vias (71 of them filled vias in SMD pads, JLC POFV), min track / space 0.10 / 0.10 mm.
 
-**Floorplan.**
-- West lobe: motor power chain. Boost U8/L1/CB1 on top; load switch U20, driver U7 and the final AND U34 on the underside.
-- Bridge under the USB-C: CC resistors, VMOT divider, the USB ESD and the latch-clear AND. The rest is free for the 14 nets between the lobes.
-- East lobe: charger, latch and 3V3 bulk on top; supervisor, TPL5010, XOR and AND3 on the underside. The module back stays empty.
-- Leg: the sounder and its driver.
-- Finger: the LED and the flyback diode.
+**DRC (`drc.json`, `variants/drc_clean.json`, `variants/drc_dev.json`): 0 errors, 0 unconnected items** on all three boards. Remaining warnings (silk only): the USB-C body silk overhangs the board edge (4, connector sits in the notch by design) and the U7 pin-1 mark is clipped by the C61 mask opening on the underside (1).
 
-**Fixes found on the way.**
-- The antenna keep-out covered the feed pads. A7 and A8 are now bridged on F.Cu, which replaces the 0 ohm + 2 DNP pi network.
-- HJ-840: every used pad gets a filled via in pad (0.35/0.15, JLC POFV). Rows A/B and P0.00/P0.01 are not used.
-- Underside-capable packages: TPS2553DRVR, 2 x SN74AUP1G08DCKR, USBLC6-2P6, 2N7002W, 1N4148WS.
+**How it was routed (reproducible up to the last hand fixes, which live in the committed board):**
+1. `build_cup.py` with `OP_BUS=0` (no bus trunks) -> placed board.
+2. `nego_route.py placed out 100` (PathFinder negotiation, 100 iterations; knobs `OP_TIGHT=1 OP_VIA_SLACK=0 OP_NEGO=add`). Best score 72, 2 nets left (MOT_FWD, APHASE) and 3 hole-clearance errors.
+3. `finish_route.py out drc.json` (A* for the leftovers).
+4. `rr_route.py --greedy out placed 8` with `OP_RR_PLATEAU=1 RR_JITTER=0.6`: per-net rip-up trials with rollback; closed the last two nets.
+5. Hand fixes (scripted, about 0.05 mm each): 3 hole clearances (one WDT_DELAY bend and one VMOT via moved 0.05 mm); GND stubs with their own via for U3.2 and C70.2; a filled via in U36 pad 2 (GND) after a 0.3 mm detour of OC_OK on In4; solid (not thermal) zone connection for 7 GND pads whose spokes were starved (U3.2, U36.2, C70.2, C5.2, U34.3, U7.13, JU1 shield); 7 duplicate / touching same-net vias and one dangling via removed.
+6. `../board/route_v3.py board finish` (GND pours on all layers, island removal, stitching).
+7. `silk_labels.py board` (wire / cell pad labels placed free of each other, of pads and of part silk; the `+` of the middle cell pad is a drawn 0.4 mm glyph in the gap under R55).
+8. `variants.py board variants/` (now also keeps 0.21 mm from foreign drills), then `../tools/export_cup_jlc.py variants/cup_clean.kicad_pcb jlc` and `... cup_dev.kicad_pcb jlc-dev`.
 
-**Routing: Freerouting 2.2.4, 15 passes, about 5 min.**
-- 37 connections open, 0 copper errors.
-- The open items are mostly the long multi-pin nets: SUP_PERMIT, OC_OK, ARM_CLK, MOT_ALLOW, the driver inputs and I2C.
-- Freerouting leaves the inner layers in the bridge almost unused and plateaus at 36-48 open whatever the pass count.
-- Two attempts did not help:
-  - an In4 3V3 plane made it worse (63 open);
-  - pre-routing the D+ loop under the receptacle makes Freerouting hang (`OP_DPLOOP=1`).
-
-**Next.** Hand-route the 37 stubs in KiCad, or script a bus of the 14 bridge nets on In2-In4 before Freerouting.
-
-
-## STATE 2026-11-20 (54 fitted parts + 19 bare pads, outline with USB notch): what is routed, what is left
-
-**Board:** `cup/cup.kicad_pcb`, 6 layers 0.8 mm, 35.6 x 23.1 mm, 85 footprints. Flow: `place_cup.py` (SA + legaliser, seed 6, overlap 0.25 mm2 courtyard level) -> `pinassign.py` -> `design/netlist_v4.py` -> `build_cup.py` -> `flow_cup.sh` (Freerouting 2.2.4, rules 0.10 / 0.10, power class 0.16 on VBAT, VMOT, VMOT_PRE, BST_SW, MOT_*, VBUS_P; edge keep-out band 0.3 mm; screw keep-outs) -> `post_cup.py`.
-
-**DRC (`drc.json`): copper errors 0 except 7 `starved_thermal` (GND pads whose zone connection is cut: they are part of the open list), 73 connections unconnected.** Warnings: courtyards overlap 85 (placement margin 0.08 mm), silk over copper 68 (silk only).
-
-Freerouting plateaued at 66 to 73 open connections in three runs (900 s: 81, 1500 s: 66, 6 minutes / 12 passes: 72); more time did not help. The board is **not orderable**. Open connections by net (full list with pads and positions: `open_connections.txt`):
-
-| Net | Open | Net | Open | Net | Open |
-|---|---|---|---|---|---|
-| `3V3` | 13 | `SUP_NRST` | 5 | `GND` | 4 (pours) |
-| `DOCK_N` | 4 | `LATCH_Q`, `SUP_PERMIT`, `VBAT` | 3 each | `USB_DP`, `BPHASE`, `APHASE` | 2 each |
-| 24 other nets (`ANT_A/B`, `BUZ_A`, `SUP_TXD/RXD/BOOT0/OK/DONE/WAKE`, `PZ_C`, `MOT_ALLOW/PERM_L/DOCK_XOR`, `OC_OK`, `USB_DM`, `LATCH_CLR_N`, `MOT_A1/A2/B2`, `MCU_EN`, `I2C_SCL/SDA`, `CHG_STAT`, `LED_R/G/A`, `AENBL`, `VMOT/VMOT_SENSE`, `WDT_DELAY`, `ILIM`, `BST_SW`) | 1 each | | | | |
-
-**Why it stalls (diagnosis from the open list):**
-1. The placement optimiser minimises wire length of rectangles and does not know the router. Result: the boost loop is split (`U8` at x 16.5 but `L1` at x 41.9 on the leg: `BST_SW` is open), the motor driver `U7` sits at x 30-32 while the motor pads `MP1-MP4` are at x 10-12.5 (`MOT_A1/A2/B2` open), and the 3V3 rail has 13 open stubs because the gates, TPL5010, supervisor and hall are spread over the leg and the module neighbourhood.
-2. The module side is dense: HJ-840 0.9 x 0.65 mm LGA with 0.30 x 0.40 mm pads leaves one track per channel (0.35 mm gap), and 14 of its pads are used by the supervisor, the gates and the LED / motor GPIOs next to it.
-3. The 19 bare pads (TP1-TP14 + 5 SWD) take about 25 mm2 of the 250 mm2 of usable top copper.
-
-**What to do next (in this order):**
-1. **Hand-route in KiCad** (fastest): the 73 open items are mostly 1 to 5 mm stubs between neighbouring parts. Use the order below (USB, VBAT, BST_SW, VMOT_PRE, VMOT, MOT_*, then 3V3 and the signals); the net names of the table further down are partly from the old netlist, the current names are in `netlist_v4_cup.json`. Re-run `post_cup.py`, DRC, `../tools/export_cup_jlc.py`.
-2. **Or re-place**: weight the power nets in `place_cup.py` (`BST_SW`, `VMOT_PRE`, `MOT_*` x4, group cohesion of the boost block: `U8 L1 C71 C5 CB1 R55 R56` within 6 mm; `U7 C21 C61` within 8 mm of `MP1-MP4`), keep `L1` on the lane-2 top side, and give the test pads the leg and the hall finger only. Then run `flow_cup.sh` again (about 25 minutes).
-3. **Or relax the board**: moving the test pads TP1-TP14 to a separate break-off strip of the JLC panel would free 25 mm2 and 14 nets of routing; the owner decides because the pads were requested (review M4, M5).
-
-**Verified on this board:** all 8 review items (`review/REVIEW-CHECK.md`, `review/overlay_top.png`, `overlay_side.png`), screw holes d1.4 NPTH with d2.8 keep-out, USB-C notch and the real HRO pad row, SW1 near the north edge (mechanics must move the flex window +3.0 mm), BZ1 on the widened leg 8.8 mm from the hall.
+Run outcomes for reference: without the widening the best was 5 open; with it, 30 to 70 negotiation iterations left 7 to 12 open, 100 iterations left 2.
 
 ---
 

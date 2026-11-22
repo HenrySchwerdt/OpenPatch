@@ -1,0 +1,165 @@
+{
+    "$schema": "https://schemas.kicad.org/drc.v1.json",
+    "coordinate_units": "mm",
+    "date": "2026-11-22T18:44:22",
+    "ignored_checks": [
+        {
+            "description": "Footprint has no courtyard defined",
+            "key": "missing_courtyard"
+        },
+        {
+            "description": "Track endpoint not centered on via",
+            "key": "track_not_centered_on_via"
+        },
+        {
+            "description": "Tuning profile track geometries",
+            "key": "tuning_profile_track_geometries"
+        },
+        {
+            "description": "Footprint attributes don't match symbol",
+            "key": "footprint_symbol_mismatch"
+        },
+        {
+            "description": "Footprint doesn't match symbol's footprint filters",
+            "key": "footprint_filters_mismatch"
+        },
+        {
+            "description": "Footprint component type doesn't match footprint pads",
+            "key": "footprint_type_mismatch"
+        },
+        {
+            "description": "Footprint not found in libraries",
+            "key": "lib_footprint_issues"
+        },
+        {
+            "description": "Footprint doesn't match copy in library",
+            "key": "lib_footprint_mismatch"
+        }
+    ],
+    "included_severities": [
+        "error",
+        "warning",
+        "exclusion"
+    ],
+    "kicad_version": "10.0.8",
+    "schematic_parity": [],
+    "source": "cup_clean.kicad_pcb",
+    "unconnected_items": [],
+    "violations": [
+        {
+            "description": "Silkscreen clipped by solder mask",
+            "items": [
+                {
+                    "description": "Polygon of U7 on B.Silkscreen",
+                    "pos": {
+                        "x": 108.37,
+                        "y": 85.53
+                    },
+                    "uuid": "e45fc7cc-5479-438b-9873-fb0f2b9c73f4"
+                },
+                {
+                    "description": "Pad 1 [VMOT] of C61 on B.Cu",
+                    "pos": {
+                        "x": 109.0,
+                        "y": 85.52
+                    },
+                    "uuid": "561088bb-47ae-4136-9f8a-e9d4d3fe7a2c"
+                }
+            ],
+            "severity": "warning",
+            "type": "silk_over_copper"
+        },
+        {
+            "description": "Silkscreen clipped by board edge (board setup constraints silk clearance 0.1500 mm; actual 0.0700 mm)",
+            "items": [
+                {
+                    "description": "Segment on Edge.Cuts",
+                    "pos": {
+                        "x": 100.0,
+                        "y": 80.0
+                    },
+                    "uuid": "3b8642fb-ab1c-4ccc-bd82-ee10d6fc48ac"
+                },
+                {
+                    "description": "Segment of JU1 on F.Silkscreen",
+                    "pos": {
+                        "x": 111.13,
+                        "y": 80.0
+                    },
+                    "uuid": "310aa525-d4a1-489b-9ae4-c71279d6885e"
+                }
+            ],
+            "severity": "warning",
+            "type": "silk_edge_clearance"
+        },
+        {
+            "description": "Silkscreen clipped by board edge (board setup constraints silk clearance 0.1500 mm; actual 0.0700 mm)",
+            "items": [
+                {
+                    "description": "Segment on Edge.Cuts",
+                    "pos": {
+                        "x": 100.0,
+                        "y": 80.0
+                    },
+                    "uuid": "3b8642fb-ab1c-4ccc-bd82-ee10d6fc48ac"
+                },
+                {
+                    "description": "Segment of JU1 on F.Silkscreen",
+                    "pos": {
+                        "x": 111.13,
+                        "y": 86.3
+                    },
+                    "uuid": "a8f93f83-3d4e-460d-863a-00f8b255728e"
+                }
+            ],
+            "severity": "warning",
+            "type": "silk_edge_clearance"
+        },
+        {
+            "description": "Silkscreen clipped by board edge (board setup constraints silk clearance 0.1500 mm; actual 0.0400 mm)",
+            "items": [
+                {
+                    "description": "Segment on Edge.Cuts",
+                    "pos": {
+                        "x": 119.0,
+                        "y": 86.4
+                    },
+                    "uuid": "0bbe4e30-9392-4e0d-8cad-c6e5e82d3f03"
+                },
+                {
+                    "description": "Segment of JU1 on F.Silkscreen",
+                    "pos": {
+                        "x": 120.27,
+                        "y": 80.0
+                    },
+                    "uuid": "0ccd85f6-a405-4ce1-9aa2-1f6ee5f6394c"
+                }
+            ],
+            "severity": "warning",
+            "type": "silk_edge_clearance"
+        },
+        {
+            "description": "Silkscreen clipped by board edge (board setup constraints silk clearance 0.1500 mm; actual 0.0700 mm)",
+            "items": [
+                {
+                    "description": "Segment on Edge.Cuts",
+                    "pos": {
+                        "x": 111.0,
+                        "y": 80.0
+                    },
+                    "uuid": "5f1b6803-88d4-4bb0-83e5-6f76a61c7a8a"
+                },
+                {
+                    "description": "Segment of JU1 on F.Silkscreen",
+                    "pos": {
+                        "x": 120.27,
+                        "y": 86.3
+                    },
+                    "uuid": "7e9e8e83-7f6c-4ae1-832c-3a537c651830"
+                }
+            ],
+            "severity": "warning",
+            "type": "silk_edge_clearance"
+        }
+    ]
+}
