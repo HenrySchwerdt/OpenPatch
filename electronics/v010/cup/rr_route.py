@@ -128,7 +128,11 @@ def _step_main(argv):
         dist = math.hypot(u["items"][0]["pos"]["x"] - u["items"][1]["pos"]["x"], u["items"][0]["pos"]["y"] - u["items"][1]["pos"]["y"])
         jobs.append((dist, na, a, c))
     prio = set(json.loads(os.environ.get("RR_PRIO", "[]")))
-    jobs.sort(key=lambda j: (j[1] not in prio, j[0]))      # nets that were ripped before go first
+    import random
+    rnd = random.Random(int(os.environ.get("RR_SEED", "0")))
+    jit = float(os.environ.get("RR_JITTER", "0"))
+    jobs.sort(key=lambda j: (j[1] not in prio, j[0] * (1 + jit * rnd.random())))      # nets that were ripped before go first; optional random order jitter
+    soft_cost = SOFT_COST * (0.25 + 1.5 * rnd.random()) if jit else SOFT_COST
     routed, victims, blocked = 0, set(), []
     dirs = [(1, 0, 1.0), (-1, 0, 1.0), (0, 1, 1.0), (0, -1, 1.0), (1, 1, 1.4142), (1, -1, 1.4142), (-1, 1, 1.4142), (-1, -1, 1.4142)]
     for dist, net, a, c in jobs:
@@ -184,12 +188,12 @@ def _step_main(argv):
                 if not (0 <= ni < R.g.nx and 0 <= nj < R.g.ny) or not pas[l, ni, nj]:
                     continue
                 t = (l, ni, nj)
-                ng = gcost + cc * (1.0 if hard[l, ni, nj] else SOFT_COST)
+                ng = gcost + cc * (1.0 if hard[l, ni, nj] else soft_cost)
                 if ng < best.get(t, 1e18):
                     best[t] = ng; came[t] = s
                     heapq.heappush(pq, (ng + max(math.hypot(ni - tx, nj - ty) - trad, 0.0), ng, t))
             if via_ok[i, j]:
-                extra = 0.0 if via_hard[i, j] else 4 * SOFT_COST
+                extra = 0.0 if via_hard[i, j] else 4 * soft_cost
                 for l2 in range(len(FR.LAYERS)):
                     if l2 != l:
                         t = (l2, i, j)
@@ -260,7 +264,11 @@ def greedy(pcb, placed, rounds):
             n = re.search(r"\[([^\]]+)\]", u["items"][0]["description"]).group(1)
             if n not in nets:
                 nets.append(n)
-        for net in ["__errors__"] + nets:
+        if os.environ.get("RR_JITTER"):
+            import random
+            random.Random(rd).shuffle(nets)
+        for k_try, net in enumerate(["__errors__"] + nets):
+            os.environ["RR_SEED"] = str(1000 * rd + k_try)
             trial = os.path.splitext(pcb)[0] + "_trial.kicad_pcb"
             shutil.copy(pcb, trial)
             shutil.copy(os.path.splitext(pcb)[0] + ".kicad_pro", os.path.splitext(trial)[0] + ".kicad_pro")   # DRC rules live in the project
