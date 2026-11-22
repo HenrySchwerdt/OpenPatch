@@ -61,7 +61,9 @@
 
 - Hard targets incl. battery and electronics: **OP-100 ≤ 45 mm**, **OP-200 ≤ 54 mm with the full 200 U** (user decision 2026-11-19 after the drive study showed ≤ 52 mm would cap OP-200 at ~180 U) (Omnipod DASH: 52 × 39 × 14.5 mm, 200 U), width ≤ 32 mm, height ≤ 8.5 mm. A design that misses them is not accepted silently; the gap and the next lever are reported.
 - **Status (2026-11-19):** both v0.1.0 models **miss** the targets.
-  - **Cup pod, layout A (`--drive cup`, the build candidate):** OP-100 47.96, OP-200 66.78, width 34.6.
+  - **Cup pod, layout A (`--drive cup`, the build candidate):** OP-100 47.96, OP-200 66.78, width **36.6** (34.6 until 2026-11-22).
+    - **Owner decision 2026-11-22:** lane 2 (cell + main board) gets 2.0 mm more in y, because the 6-layer main board could not be routed in the old outline (only about 2.6 mm between the USB-C notch and the board south edge). Lane 2 = cell width + 0.4 + 2.0 = 13.0 mm (`cup.lane2_extra`), y 22.8-35.6 in the pod frame. The tank (lane 1, bore 20.5 x 5.5), the strokes and all x positions are unchanged.
+    - The cell stays on the south side of lane 2 (y 22.8-33.4). The main board spans y 22.9-35.5 (south edge unchanged). Everything on the north wall moved +2.0 in y: USB-C opening (wall inner face y 35.7), button nub, north ledge (41.5, 34.1) and wall shelf (y from 34.9).
   - **Coaxial comparison model (`--variant v010`, `mechanical/V010.md`):** OP-100 58.2, OP-200 66.9, width 32. With every lever applied it reaches about 49 / 58 mm; the translating screw's dry tail is the blocker.
 - Levers, in order: (1) stack battery + board above the dock tunnel (≈ 3 mm free above the cannula head) instead of a tail; (2) low-profile radio (≤ 1.3 mm) on the lid side + spring contacts instead of connectors; (3) coaxial leadscrew in the reservoir axis (Omnipod-style) + wider bore → shorter stroke; (4) minimal fluid path without valve (§3c).
 

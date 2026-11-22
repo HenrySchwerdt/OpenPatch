@@ -35,10 +35,10 @@ def prepare(p0: dict) -> dict:
     p = copy.deepcopy(p0)
     c, sh = p["cup"], p["shell"]
     w, W, rz = sh["wall"], c["width"], c["reservoir"]
-    lane2 = c["battery"]["w"] + 0.4                                       # lane 2 = cell width + clearance
+    lane2 = c["battery"]["w"] + 0.4 + c.get("lane2_extra", 0.0)            # lane 2 = cell width + clearance + board routing room (owner 2026-11-22)
     c["lane2_inner"] = lane2
     outer = min(W - 2 * w - 0.1 - lane2, 2 * (W - w - 0.1 - c["motor_y_ext"] - w))
-    outer = math.floor(outer * 10) / 10
+    outer = math.floor(round(outer * 10, 6)) / 10
     bore_w = round(outer - 2 * rz["wall"], 3)
     fz = p["reservoir_frozen"]
     fz.update({"bore_w": bore_w, "bore_h": rz["bore_h"], "wall": rz["wall"], "end_wall": rz["end_wall"], "port_d": rz["port_d"], "outer_w": outer, "outer_h": rz["bore_h"] + 2 * rz["wall"],
@@ -69,8 +69,10 @@ def geometry(p: dict, variant: str) -> dict:
     dk, fl = c["dock"], c["fill"]
     r_in = sh["corner_r"] - w
 
+    W_x = W - c.get("lane2_extra", 0.0)        # x layout (motor column, tank, dock, length) stays referenced to the pre-2026-11-22 corner: lane-2 widening moves y only
+
     def corner_clear(y_edge: float) -> float:
-        dy = y_edge - (W - w - r_in)
+        dy = y_edge - (W_x - w - r_in)
         return 0.0 if dy <= 0 else r_in - math.sqrt(max((r_in - 0.05) ** 2 - dy ** 2, 0.0))
     y_g0, y_g1 = y_r + g["front_a"], y_r + g["back_a"]                      # gear A (motor): faced front / back, measured from the rod axis
     y_boss0 = y_g1 + g["clr_boss"]

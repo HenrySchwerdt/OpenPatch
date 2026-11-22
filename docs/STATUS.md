@@ -3,6 +3,9 @@
 > This file is the **entry point for every new session** (another machine, another Claude subscription, another person).
 > It is updated on every push. Last updated: **2026-11-19 (cloud session, v0.1.0 integrated model merged)**.
 
+## Cup pod 2 mm wider for board routing (2026-11-22, owner decision, mechanics)
+- `cup.lane2_extra` = 2.0: lane 2 = cell + 0.4 + 2.0 = 13.0 mm (y 22.8-35.6), pod width 34.6 -> **36.6** (OP-100 47.96 x 36.6 x 8.5, OP-200 66.78 x 36.6 x 8.5). Tank (bore 20.5 x 5.5), strokes and all x positions unchanged; cell stays on the south side of lane 2. Moved +2.0 in y: board north edge (pcb_y 22.9-35.5), USB-C receptacle y 28.35-35.7 / opening in the wall at y 35.7, button nub face y 35.4, north ledge (41.5, 34.1), wall shelf / lid wall rib from y 34.9, NE lid corner post. Both sizes PASS `check.py --variant v010 --drive cup`. Open: the board outline in `electronics/` (owner) and the print-kit board model still use the old 33.5 north edge.
+
 ## Cup pod housing vs main board (2026-11-20, electronics worktree, mechanics)
 - Board review fixes applied in `op_cup.py` / `op_cup_asm.py` (both sizes PASS `check.py --variant v010 --drive cup --assembly`, H 8.5): USB-C opening moved east (x 18.8-28.2, centred x 23.5 / z 5.7 on the board mid-plane); cell shifted 1.5 mm east (x 9.37-40.87, lead end WEST, VERIFY on sample) for a wire channel x 7.5-9.4; board 3-point support at z 5.3 (2 ledges + west wall shelf) with 3 lid hold-down ribs; **board screwed down with 2 x M1.2 x 4 brass** (W 8.9/21.5 on a board tab, E 37.40/20.0 in the side_b leg); lane-2 motor saddle lip cut to z 5.2 (230 degree wrap kept); side button moved to the +Y lid wall (flex window, VERIFY stiffness). Spec §1a records the soldered motor + cell exception. All coordinates: `mechanical/V010-CUP.md` (board interface table) and `mech.json -> elec_interface`. `cup_packing.py` no longer counts the rim gaskets as contents (it reported 0 free area before).
 

@@ -28,7 +28,7 @@ virtual check, before you print. For printing, lay each part on its own best fac
 
 ## The populated board
 
-`cup_board_model.stl` is the board as placed on 2026-11-21, a 6-layer board 0.8 mm thick. It includes the 3.1 mm leg extension into `side_b`, every part at its position and height, and the break-off test strip.
+`cup_board_model.stl` is the board as placed on 2026-11-21, a 6-layer board 0.8 mm thick. The housing is 36.6 mm wide since 2026-11-22 (lane 2 and the board north edge +2.0 mm in y, board y 22.9-35.5, USB-C opening and button now on the +Y wall at y 35.7); this board model still has the old 33.5 north edge until the board outline is updated. It includes the 3.1 mm leg extension into `side_b`, every part at its position and height, and the break-off test strip.
 - KiCad library 3D models are used where they exist.
 - Datasheet-size boxes are used for the parts without one: the HJ-840 module (6.2 x 7.0 x 1.0), the USB-C mid-mount body straddling the board in its notch (z 4.12-7.33), the side button, the 4 x 4 x 2 mm sounder under the leg, the RGB LED, the STM32C011, the AND3, the dock hall and the DRV8835.
 

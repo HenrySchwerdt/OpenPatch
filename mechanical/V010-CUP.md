@@ -13,10 +13,12 @@ Exactly two gears (bought m0.3 z12 / z12 miter pair, 1:1), one rod, no carriage,
 
 | size | L x W x H (mm) | envelope | stroke | plunger | tank | bore | U/step |
 |---|---|---|---|---|---|---|---|
-| OP-100 | **47.96 x 34.6 x 8.5** (rod 16.4) | 14.1 ml | 9.4 mm | 12.6 mm | 24.9 mm | 20.5 x 5.5 | 0.00703 |
-| OP-200 | **66.78 x 34.6 x 8.5** (rod 25.9) | 19.6 ml | 18.8 mm | 22.0 mm | 43.8 mm | 20.5 x 5.5 | 0.00703 |
+| OP-100 | **47.96 x 36.6 x 8.5** (rod 16.4) | 14.9 ml | 9.4 mm | 12.6 mm | 24.9 mm | 20.5 x 5.5 | 0.00703 |
+| OP-200 | **66.78 x 36.6 x 8.5** (rod 25.9) | 20.8 ml | 18.8 mm | 22.0 mm | 43.8 mm | 20.5 x 5.5 | 0.00703 |
 
 Both PASS `check.py`; the 45 / 54 mm length (spec §2b, owner decision; the check used 52 before 2026-11-20) and 32 mm width targets are MISSED (TARGET lines). Lengths and widths did not change with the real parts: the z12 gear B is 0.08 mm shorter than the old stack, which is returned as tank clearance (`gears.clr_tank` 0.28) so lane 1, the dock and the E board screw stay exactly where they were; gear A is faced back to the old 3.4 mm so the motor does not move. Width 34.6: the transverse motor reaches 21.1 mm from the tank axis (gear stage + NFP body), so a 23 mm lane 1 forces W >= 34.6; lane 2 is cell width + 0.4 (11.0 mm with the placeholder cell) and the tank gets the rest (outer 21.5, bore 20.5 x 5.5; aspect 3.7). W = 32 would cap the bore at 16.7 (OP-100 50.2 mm earlier). Lane 2 can not be 6 mm: no real orderable cell is narrower than 10 mm (see battery below).
+
+**Width 36.6 (owner decision 2026-11-22):** the 6-layer main board could not be routed in the old outline (only about 2.6 mm between the USB-C notch and the board south edge), so lane 2 gets `cup.lane2_extra` = 2.0 mm: lane 2 = cell width + 0.4 + 2.0 = 13.0 mm (y 22.8-35.6) and W = 34.6 + 2.0 = 36.6. The tank (outer 21.5, bore 20.5 x 5.5), the strokes and every x position (motor column, tank, dock, lengths, cell x, screws) are unchanged: `op_cup.geometry` keeps the motor corner clearance referenced to the old corner, otherwise the motor column would slide 0.47 mm toward -X. The cell stays against the south side of lane 2 (y 22.8-33.4); the extra 2 mm is free space between the cell and the north wall under the board. Everything on the north wall moved +2.0 in y: board north edge 33.5 -> 35.5, USB-C receptacle/opening, button nub, north ledge 32.1 -> 34.1, wall shelf / wall rib from 32.9 -> 34.9, lid corner post.
 
 ## Motor beside the tank / transverse options (analysis)
 * Motor beside the tank with exactly two spur gears is impossible: the gear centre distance is limited to about 5.5 mm by the 6.7 mm cavity height (gear tip radius <= 3.3), the motor axis would lie inside the tank footprint.
@@ -67,14 +69,14 @@ TMAG5273 A1 = +-40 / 80 mT, A2 = +-133 / 266 mT (netlist: A1, `TMAG5273A1QDBVR`)
 Pod frame (x = 0 motor end, y = 0 tank-side wall, z = 0 skin side). Both sizes use the same lane-2 numbers; only screw E follows the dock.
 | Item | Geometry |
 |---|---|
-| Main board | west edge x >= 7.8, east edge 43.4, y 22.9-33.5, z 5.3-6.1; top parts <= 7.55 (lid inner 7.6); bottom parts >= 4.12 over the cell, none over the wire channel (x < 9.4) |
-| USB-C | mid-mount 8.94 x 7.35 x 3.26 centred x 23.5, z 5.7 (board mid-plane), receptacle y 26.35-33.7; wall opening x 18.8-28.2, z 4.0-7.4 (bottom + lid wall), gasket recess x 17.9-29.1, 0.4 deep. Keep-out bottom clipped to z 4.12 (cell envelope 4.1 incl. 0.2 swell): VERIFY the real receptacle underside |
+| Main board | west edge x >= 7.8, east edge 43.4, y 22.9-35.5 (33.5 until 2026-11-22), z 5.3-6.1; top parts <= 7.55 (lid inner 7.6); bottom parts >= 4.12 over the cell, none over the wire channel (x < 9.4) |
+| USB-C | mid-mount 8.94 x 7.35 x 3.26 centred x 23.5, z 5.7 (board mid-plane), receptacle y 28.35-35.7 (wall inner face y 35.7); wall opening x 18.8-28.2, z 4.0-7.4 (bottom + lid wall), gasket recess x 17.9-29.1, 0.4 deep. Keep-out bottom clipped to z 4.12 (cell envelope 4.1 incl. 0.2 swell): VERIFY the real receptacle underside |
 | Cell | Ampul 301030 envelope x 9.37-40.87, y 22.8-33.4, z 0.9-4.1, lead end WEST (VERIFY-ON-SAMPLE) |
 | Wire channel | x 7.5-9.37, full lane-2 width, floor to board underside: motor 4 + cell 2 wires (soldered, spec §1a exception) + TMAG strip |
-| Supports (top z 5.3) | ledges d1.0 at (41.5, 24.3), (41.5, 32.1); wall shelf x 8.0-9.2, y 32.9-wall; part-free d1.6 pads (shelf: x 7.7-9.5, y 32.6-33.5) on BOTH board faces |
-| Lid hold-down ribs | d1.0 at the two ledge points + wall rib x 8.0-9.2, y 32.9-wall, all from the lid roof down to z 6.1 (1.5 mm) |
+| Supports (top z 5.3) | ledges d1.0 at (41.5, 24.3), (41.5, 34.1); wall shelf x 8.0-9.2, y 34.9-wall (35.7); part-free d1.6 pads (shelf: x 7.7-9.5, y 34.6-35.5) on BOTH board faces |
+| Lid hold-down ribs | d1.0 at the two ledge points + wall rib x 8.0-9.2, y 34.9-wall, all from the lid roof down to z 6.1 (1.5 mm) |
 | Board screws | 2 x M1.2 x 4 brass cheese head (ISO 1207 / DIN 84, head d2.0 x 0.8, top z 6.9), board hole d1.4 NPTH, part-free ring d2.8 both faces; boss d1.8 from the floor to z 5.3, thread-forming pilot d0.95 x 3.6 (z 1.7-5.3). **W (8.9, 21.5)** on a board tab x 7.8-10.0, y 20.1-22.9 between gearhead and tank; **E (37.40, 20.0)** in the side_b leg (OP-200: 56.22, 20.0 = dock front face + 2.24). No boss fits under the main body (cell = full lane width; east of the cell is < 3 mm from the HJ-840 antenna band x 42.85-43.4, y 24-32); screw distance to that band: W 34 mm, E 6.8 mm |
-| Side button | SW1 actuator x 33.0 toward +Y; lid flex window x 32.4-34.5, z 5.6-6.7, 0.45 wall left, inner nub x 32.6-33.4, z 6.15-6.65, contact face y 33.4 (actuator tip must end at y <= 33.35). Probably too stiff, see ASSEMBLY-CUP |
+| Side button | SW1 actuator x 33.0 toward +Y; lid flex window x 32.4-34.5, z 5.6-6.7, 0.45 wall left, inner nub x 32.6-33.4, z 6.15-6.65, contact face y 35.4 (actuator tip must end at y <= 35.35). Probably too stiff, see ASSEMBLY-CUP |
 | Lane-2 motor saddle | y 29.95-31.45, outer x <= 7.84, +X lip cut at z 5.2 (x 7.71 there), 230 degree wrap |
 Not changed: the dock-pocket roof (z 4.45-4.9) stays 0.4 below the board; it is not used as a support (no boss added).
 
@@ -89,5 +91,5 @@ Bore 20.5 x 5.5 (stroke 9.4 mm for 100 U), wall 0.6, outer 21.5 x 6.7, front wal
 Refill (pressure fill, spec 3c): remove the pod, turn it over, push water with a syringe through the underside septum while the firmware retracts the plunger at a fixed rate; the fill hole is inside the Velcro footprint and outside the dock window (check H14); the pocket roof and the docked head cover nothing else.
 
 ## Checks (`check.py --variant v010 --drive cup`)
-No interference, no open bodies, height <= 8.5; rod never inside the wet volume (analytic + CAD wet volumes at full / empty), plunger reaches the front wall, tip stays 0.4 mm off the cup bottom, tank volume = closed-bore model (no slot), septum not reachable when docked, needle recessed in the extended guard, dome path free, exactly two gears, nothing behind the motor column, thrust >= 5 N, packing (`cup_packing.py`): no empty full-height rectangle >= 4 x 4 mm (largest 23 mm2; free plan area lane 1 88 / lane 2 38 mm2 of 1007 / 508); the strips beside the dock pocket hold piezo / button / ICs.
+No interference, no open bodies, height <= 8.5; rod never inside the wet volume (analytic + CAD wet volumes at full / empty), plunger reaches the front wall, tip stays 0.4 mm off the cup bottom, tank volume = closed-bore model (no slot), septum not reachable when docked, needle recessed in the extended guard, dome path free, exactly two gears, nothing behind the motor column, thrust >= 5 N, packing (`cup_packing.py`): no empty full-height rectangle >= 4 x 4 mm (OP-100: largest 28 mm2; free plan area lane 1 86 / lane 2 63 mm2 of 1007 / 601); the strips beside the dock pocket hold piezo / button / ICs.
 Open: vent d0.8 + ePTFE in the lid, wire / TMAG strip paths (not modelled), button flex stiffness, dock hall threshold, CNC review.
