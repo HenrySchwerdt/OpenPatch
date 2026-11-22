@@ -138,6 +138,9 @@ def _step_main(argv):
             R.commit(code, path, w)
             routed += 1
             continue
+        if os.environ.get("RR_NOSOFT") == "1" or (os.environ.get("RR_SOFT_NET") and net != os.environ["RR_SOFT_NET"]):
+            blocked.append(net)
+            continue
         # soft search: routed foreign copper passable at a price
         w = FR.width_of(net)
         hard = (R.own[w] == 0) | (R.own[w] == code)
@@ -220,9 +223,63 @@ def _step_main(argv):
     print("@@" + json.dumps({"routed": routed, "jobs": len(jobs), "victims": sorted(vu), "blocked": blocked, "victim_nets": [b.GetNetInfo().GetNetItem(c).GetNetname() for c in victims]}))
 
 
+def score_of(d):
+    errs = [v for v in d["violations"] if v["severity"] == "error" and v["type"] in RIP_TYPES]
+    opens = [u for u in d["unconnected_items"] if "[GND]" not in u["items"][0]["description"]]
+    return len(opens) + 2 * len(errs), opens
+
+
+def greedy(pcb, placed, rounds):
+    """rip-up with rollback: one open net at a time is routed through routed foreign copper, the victims are re-routed
+    (hard), and the trial is kept only if open connections + 2 x DRC errors went down"""
+    tmp = tempfile.mktemp(suffix=".json")
+    cur, opens = score_of(drc(pcb))
+    print("start score", cur, flush=True)
+    for rd in range(rounds):
+        improved = False
+        nets = []
+        for u in opens:
+            n = re.search(r"\[([^\]]+)\]", u["items"][0]["description"]).group(1)
+            if n not in nets:
+                nets.append(n)
+        for net in ["__errors__"] + nets:
+            trial = pcb + ".trial.kicad_pcb"
+            shutil.copy(pcb, trial)
+            d = drc(trial)
+            json.dump(d, open(tmp, "w"))
+            if net == "__errors__":
+                rip = step(["errors", trial, placed, tmp])
+                if not rip:
+                    continue
+                remove_uuids(trial, set(rip))
+            else:
+                os.environ["RR_SOFT_NET"] = net
+                res = step(["route", trial, placed, tmp])
+                del os.environ["RR_SOFT_NET"]
+                remove_uuids(trial, set(res["victims"]))
+                PRIO.clear(); PRIO.update(res["victim_nets"])
+            for _ in range(2):
+                d = drc(trial)
+                json.dump(d, open(tmp, "w"))
+                os.environ["RR_NOSOFT"] = "1"
+                step(["route", trial, placed, tmp])
+                del os.environ["RR_NOSOFT"]
+            sc, op = score_of(drc(trial))
+            print("  round %d %s: %d -> %d" % (rd, net, cur, sc), flush=True)
+            if sc < cur:
+                shutil.copy(trial, pcb)
+                cur, opens, improved = sc, op, True
+        if not improved or cur == 0:
+            break
+    print("final score", cur)
+
+
 def main():
     if sys.argv[1] == "--step":
         _step_main(sys.argv[2:])
+        return
+    if sys.argv[1] == "--greedy":
+        greedy(sys.argv[2], sys.argv[3], int(sys.argv[4]) if len(sys.argv) > 4 else 4)
         return
     pcb, placed = sys.argv[1], sys.argv[2]
     rounds = int(sys.argv[3]) if len(sys.argv) > 3 else 10
