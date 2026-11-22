@@ -153,10 +153,12 @@ def _step_main(argv):
         gx = np.array([g[1] for g in goals]); gy = np.array([g[2] for g in goals])
         tx, ty = gx.mean(), gy.mean()
         trad = float(np.hypot(gx - tx, gy - ty).max())
-        rv = int(math.ceil((FR.VIA_D / 2 + FR.CLR - (FR.CLR + w / 2 + 0.01)) / FR.G)) + FR.VIA_SLACK
+        rv = int(math.ceil((FR.VIA_KEEP - (FR.CLR + w / 2 + 0.01)) / FR.G)) + FR.VIA_SLACK     # same via rule as the hard router
         via_ok = ~Rf.viablock.copy()
+        via_hard = ~R.viablock.copy()
         for li in range(len(FR.LAYERS)):
             via_ok &= ndimage.binary_erosion(pas[li], structure=FR.disk(rv), border_value=0)
+            via_hard &= ndimage.binary_erosion(hard[li], structure=FR.disk(rv), border_value=0)
         best, came, pq = {}, {}, []
         for s in st:
             if pas[s]:
@@ -186,7 +188,7 @@ def _step_main(argv):
                     best[t] = ng; came[t] = s
                     heapq.heappush(pq, (ng + max(math.hypot(ni - tx, nj - ty) - trad, 0.0), ng, t))
             if via_ok[i, j]:
-                extra = 0.0 if all(hard[q, i, j] for q in range(len(FR.LAYERS))) else 4 * SOFT_COST
+                extra = 0.0 if via_hard[i, j] else 4 * SOFT_COST
                 for l2 in range(len(FR.LAYERS)):
                     if l2 != l:
                         t = (l2, i, j)
@@ -199,10 +201,13 @@ def _step_main(argv):
             continue
         # only the cells the path could not use for real (blocked by routed foreign copper)
         cells = [(FR.LAYERS[l], *R.g.xy(i, j)) for (l, i, j) in sp if not hard[l, i, j]]
+        if os.environ.get("RR_DEBUG"):
+            print("DBG", net, len(sp), len(cells), cells[:6], file=sys.stderr)
+        vcells = []         # soft via sites: foreign copper within the via keep-out (+ grid) of the via centre goes
         for k in range(len(sp) - 1):
             l, i, j = sp[k]
-            if sp[k + 1][0] != l and not all(hard[q, i, j] for q in range(len(FR.LAYERS))):
-                cells += [(lay, *R.g.xy(i, j)) for lay in FR.LAYERS]
+            if sp[k + 1][0] != l and not via_hard[i, j]:
+                vcells.append(R.g.xy(i, j))
         for t in b.GetTracks():
             if sig(t) in fixed or t.GetNetCode() == code or t.GetNetCode() in victims:
                 continue
@@ -217,6 +222,16 @@ def _step_main(argv):
                 if dd < 0.22:
                     victims.add(t.GetNetCode())
                     break
+            else:
+                for x, y in vcells:
+                    if t.Type() == pcbnew.PCB_VIA_T:
+                        p = t.GetPosition()
+                        dd = math.hypot(T(p.x) - x, T(p.y) - y) - FR.VIA_D / 2
+                    else:
+                        dd = FR.seg_dist(x, y, t.GetStart(), t.GetEnd()) - T(t.GetWidth()) / 2
+                    if dd < FR.VIA_KEEP + 0.05:
+                        victims.add(t.GetNetCode())
+                        break
     pcbnew.SaveBoard(pcb, b)
     # whole victim nets go (fragments of a net left behind would block their own re-route)
     vu = [t.m_Uuid.AsString() for t in b.GetTracks() if t.GetNetCode() in victims and sig(t) not in fixed]
