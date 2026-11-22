@@ -243,8 +243,9 @@ def greedy(pcb, placed, rounds):
             if n not in nets:
                 nets.append(n)
         for net in ["__errors__"] + nets:
-            trial = pcb + ".trial.kicad_pcb"
+            trial = os.path.splitext(pcb)[0] + "_trial.kicad_pcb"
             shutil.copy(pcb, trial)
+            shutil.copy(os.path.splitext(pcb)[0] + ".kicad_pro", os.path.splitext(trial)[0] + ".kicad_pro")   # DRC rules live in the project
             d = drc(trial)
             json.dump(d, open(tmp, "w"))
             if net == "__errors__":
@@ -257,7 +258,7 @@ def greedy(pcb, placed, rounds):
                 res = step(["route", trial, placed, tmp])
                 del os.environ["RR_SOFT_NET"]
                 remove_uuids(trial, set(res["victims"]))
-                PRIO.clear(); PRIO.update(res["victim_nets"])
+                PRIO.clear(); PRIO.add(net)        # the target net re-routes first, before its victims take the space back
             for _ in range(2):
                 d = drc(trial)
                 json.dump(d, open(tmp, "w"))
