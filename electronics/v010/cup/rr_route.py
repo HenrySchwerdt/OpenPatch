@@ -70,6 +70,7 @@ def remove_uuids(pcb, uuids):
 
 
 PRIO = set()
+PLATEAU = os.environ.get("OP_RR_PLATEAU", "0") == "1"
 
 
 def step(args):
@@ -249,6 +250,8 @@ def greedy(pcb, placed, rounds):
     (hard), and the trial is kept only if open connections + 2 x DRC errors went down"""
     tmp = tempfile.mktemp(suffix=".json")
     cur, opens = score_of(drc(pcb))
+    best_sc = cur
+    shutil.copy(pcb, pcb + ".best")
     print("start score", cur, flush=True)
     for rd in range(rounds):
         improved = False
@@ -282,10 +285,14 @@ def greedy(pcb, placed, rounds):
                 del os.environ["RR_NOSOFT"]
             sc, op = score_of(drc(trial))
             print("  round %d %s: %d -> %d" % (rd, net, cur, sc), flush=True)
-            if sc < cur:
+            if sc < cur or (sc == cur and PLATEAU and net != "__errors__"):      # plateau moves (OP_RR_PLATEAU=1) let the search walk
                 shutil.copy(trial, pcb)
-                cur, opens, improved = sc, op, True
-        if not improved or cur == 0:
+                improved = improved or sc < cur
+                cur, opens = sc, op
+                if sc < best_sc:
+                    best_sc = sc
+                    shutil.copy(pcb, pcb + ".best")
+        if (not improved and not PLATEAU) or cur == 0:
             break
     print("final score", cur)
 
