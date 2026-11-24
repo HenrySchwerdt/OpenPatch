@@ -1,0 +1,26 @@
+{
+ "dims": [
+  75.8,
+  27.65,
+  15.2
+ ],
+ "thrust": {
+  "T_gearhead_Nmm": 2.66,
+  "T_nut_Nmm": 8.41,
+  "F_avail_N": 33.0,
+  "F_seal_N": 8.0,
+  "F_occ_N": 11.1,
+  "F_need_N": 19.1,
+  "ratio": 1.73,
+  "stall_pressure_kPa": 447.0
+ },
+ "problems": [],
+ "notes": [
+  "housing 75.8 x 27.65 x 15.2 mm; with adapter (tubing stub excluded) 82.3 x 27.65 x 15.2 mm",
+  "TARGET: height 15.2 > goal 15.0 (set by the receiver bore / cartridge OD estimate 12.6)",
+  "moving parts checked at FULL and EMPTY (stroke 21.65 mm)",
+  "stroke 21.65 / avail 28.0 mm; rod 29.55 mm, 4.50 mm behind the nut at EMPTY; slider 0.3 mm off the rib at EMPTY",
+  "thrust 33.0 N vs need 19.1 N (seal 8.0 ESTIMATE + 150 kPa 11.1 N): 1.73x; stall pressure 447 kPa (Insight max 350)",
+  "U/step 0.00168; front set by board east edge + collar (neck 72.55, board 75.8)"
+ ]
+}

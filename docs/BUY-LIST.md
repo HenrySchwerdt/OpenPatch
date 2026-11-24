@@ -112,3 +112,22 @@ Tools assumed but not priced: pin vise, drills 1.25 / 1.6 / 1.7, M1.6 tap, calip
 
 ## Evidence (all retrieved 2026-11-20)
 AliExpress pages read in a browser session (cookies declined): 1005010269458834 (drawing in the description), 1005009147007928, 1005007902363549, 1005010279518166, 1005009598719720, 1005013654231446. GHW pages: Gewindestange Stahl / Messing / Edelstahl A2, DIN 934 Messing, 6KT A2 ähnlich DIN 934, DIN 934 A2 (M1.6 = SW 3.5, 10 pcs 2.30 EUR), DIN 963 A2, Messing Rundrohr alle Größen. modellbau-profi.de Kegelrad Modul 0,5 catalogue. supermagnete S-02-01-N. Amazon.de product pages B0H11LP18S, B0CHYYJBYV, B0CZRW8RLX, B0B5S25NNL, B0000WRNVM, B005HJQ3FK (read); B0CHVKG8NL, B0C143M8ZH, B0F1XTLVXW, B0DTKPGH2X, B0CJ8C32GF from search result lists only. nfpshop.com: not reachable.
+
+## 7. "Cart" pump (Insight-class cartridge variant, `mechanical/V010-CART.md`, added 2026-11-24)
+
+> Water only: the cartridges are bought EMPTY and filled with water; never buy or use a prefilled drug cartridge (NovoRapid PumpCart is prescription-only and out of scope). Sources and REF/PZN checks: `docs/insight-research.md`.
+> Reused unchanged from the cup pod (no extra line): NFP-608-26.45 motor (D), angle magnet d2 x 1 (A4), dock magnet d1 x 0.5 for the lock flag (A5), Ampul 301030 cell, main board (JLC order), wires / heat shrink / Loctite 648 / CA (Z5-Z8), lid screws (G5).
+
+| # | Function | Spec from CAD / params | Listing | Price | Pack | Qty | Status |
+|---|---|---|---|---|---|---|---|
+| K1 | Insight Adapter & Tubing (adapter with needle + vent, tubing integrated) | original part, unmodified; 40 cm for the smallest dead volume (90 ul) | Accu-Chek Insight Adapter & Schlauch 40 cm, REF 06485472001, **PZN 08460327**, any German pharmacy; or https://www.ebay.de/itm/136429243755 | 37.50 list / 48.45 RRP | 10 | 1 | VERIFIED (Roche price list 09-2026); avoid the 2022 recall lots |
+| K2 | Empty 1.6 ml glass cartridge | `cart.cartridge` (all ESTIMATE: OD 11.6 / ID 9.7 / barrel 36) | mylife YpsoPump Reservoir 1.6 ml, **PZN 11160770**, https://www.docmorris.de/mylife-ypsopump-reservoir/11160770 | about 50-61 | 10 | 1 | CANDIDATE: same 1.6 ml cartridge class as PumpCart; fit and seal with K1 UNVERIFIED (first thing to test) |
+| K3 | Spur pinion | m0.3 **z12**, brass, bore **2.0** (NFP D-shaft, Loctite 648) | AliExpress search "0.3 module brass gear 12T 2mm" | n/v | n/v | 2 | CANDIDATE (no listing opened in this pass) |
+| K4 | Spur gear (gear nut) | m0.3 **z40**, brass, tip d12.6, face 2.0, bore <= 2.0 (opened up for the M2 nut hex pocket AF 4.0 or a bonded nut on the face) | AliExpress search "0.3 module brass gear 40T" | n/v | n/v | 2 | CANDIDATE; fallback m0.5 z10 : z20 (tip d11.0, ratio 2: thrust 1.0x of need, too weak) |
+| K5 | Piston rod | DIN 975 **M2 x 0.4**, brass or zinc-plated steel, cut to 29.55 | GHW DIN 975 Gewindestange (same pages as G1 / G2), variant M2 | ~1.9 | 1 rod | 1 | CANDIDATE (variant M2 not read) |
+| K6 | Gear nut | DIN 934 **M2 brass**, AF 4.0, h 1.6 | GHW DIN 934 6KT-Mutter Messing (same page as G3), variant M2 | n/v | n/v | 1 | CANDIDATE (variant M2 not read) |
+| K7 | Thrust washers (2 per pump) | 0.2 thick, d5.0 / d2.2 | PTFE film 0.2 mm or brass shim, punched | n/v | | | CANDIDATE |
+| K8 | Lock hall (only if the board's own DRV5032 cannot see the flag) | DRV5032FA SOT-23 on a 3-wire pigtail | LCSC / JLC part already in the board BOM | ~0.5 | | 2 | CANDIDATE |
+| P | Printed parts | `out/v010-cart/OP-CART_{bottom,top,slider,pusher,lock_flag}.stl`; lid gasket from the 0.5 mm silicone sheet (Z2) | JLC3DP SLA (clear resin for the lid) | n/v | | 2 sets | first print: bottom + top only to test the cartridge / adapter fit |
+
+Not needed for the cart pump (cup-only lines): miter gears A1-A3, M1.6 rod / nuts G1-G4, collar / bush tubes G6-G8, 30G needles Z1, septum sheet Z3, casting silicone Z4, punch Z11.

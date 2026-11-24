@@ -1176,5 +1176,178 @@
    "hall": {"Br_T": 1.45, "bop_mT": 20.0, "gap_z": 1.15}
   },
   "fill": {"hole_d": 1.7, "needle_d": 0.4, "septum_d": 1.6, "septum_h": 1.0, "pocket_d": 1.7, "pocket_top": 1.9, "chan_d": 1.0, "chan_z": 2.2, "septum_dy": -4.0, "out_d": 0.8}
+ },
+ "cart": {
+  "_comment": "v0.1.0 'cart' pump (op_cart.py, cart_gen.py, cart_check.py, V010-CART.md): Accu-Chek Insight-type 1.6 ml cartridge + original Insight Adapter & Tubing, NFP-608-26.45 + spur pair + translating M2 piston rod, cup-pod main board unchanged. TEST ONLY, WATER ONLY. Every cartridge / adapter number is an ESTIMATE until measured on a sample (docs/insight-research.md: no drawings are public).",
+  "volume_ml": 1.6,
+  "wall": 0.9,
+  "floor_clr": 0.15,
+  "roof_clr": 0.15,
+  "side_clr": 0.15,
+  "lane_clr": 0.3,
+  "rear_clr": 0.2,
+  "travel_margin": 0.3,
+  "pusher_clr": 0.2,
+  "board_wall_clr": 0.2,
+  "board_gap_x": 0.6,
+  "board_front_clr": 0.3,
+  "board_ledge_d": 1.0,
+  "cradle_x": [
+   3.0,
+   18.0
+  ],
+  "cradle_t": 1.2,
+  "cradle_clr": 0.15,
+  "motor_saddle_t": 1.2,
+  "cartridge": {
+   "part": "Accu-Chek Insight-class 1.6 ml glass cartridge: NovoRapid PumpCart format (type 1 glass, bromobutyl stopper, bromobutyl/polyisoprene septum, SmPC 6.5 VERIFIED); bench sample = EMPTY mylife YpsoPump Reservoir 1.6 ml (PZN 11160770, same cartridge class, fit with the Insight adapter UNVERIFIED). WATER ONLY.",
+   "status": "ALL dimensions ESTIMATE (Penfill-class glass: OD 11.6 / ID 9.7 assumed); MEASURE on the sample, then regenerate",
+   "od": 11.6,
+   "id": 9.7,
+   "barrel_len": 36.0,
+   "shoulder_inset": 1.2,
+   "neck_od": 7.2,
+   "neck_id": 4.0,
+   "neck_len": 4.5,
+   "cap_od": 7.8,
+   "cap_len": 3.0,
+   "stopper_len": 6.0,
+   "stopper_recess": 0.8
+  },
+  "adapter": {
+   "part": "original Accu-Chek Insight Adapter & Tubing 40 cm (REF 06485472001, PZN 08460327, 10 per box): adapter with central needle, bayonet nose, vent (>= 0.65 bar), tubing integrated. Unmodified apart from the clip-on lock flag.",
+   "status": "ALL geometry ESTIMATE (manual: nose enters the housing notches, turns clockwise to a stop, flush with the housing); MEASURE",
+   "nose_od": 12.4,
+   "depth": 5.5,
+   "body_d": 14.0,
+   "out_len": 6.5,
+   "seat_to_cap": 1.0,
+   "cap_gap": 0.3,
+   "lug_w": 1.6,
+   "lug_h": 0.8,
+   "lug_t": 1.2,
+   "lug_from_seat": 2.2,
+   "tube_d": 1.8
+  },
+  "receiver": {
+   "_comment": "bayonet socket for the adapter nose in a lane-1 collar; entry channels at entry_deg / +180, lock at lock_deg / +180 (manual: about 90 deg clockwise to the stop); the lug groove is cut only in a +-sector_deg band around +-Y so it does not set the height",
+   "bore_d": 12.6,
+   "collar_len": 6.5,
+   "collar_wall": 0.6,
+   "lug_clr": 0.1,
+   "entry_deg": -45.0,
+   "lock_deg": 45.0,
+   "sector_deg": 55.0
+  },
+  "gears": {
+   "part": "brass spur gears module 0.3: pinion z12 bore 2.0 (on the NFP D-shaft, Loctite 648; root d 2.85, rim 0.42), gear z40 (tip d 12.6) with a hex pocket for the M2 nut (drill + file or print-and-bond), CANDIDATE listings in BUY-LIST section 7",
+   "m": 0.3,
+   "z_pinion": 12,
+   "z_rod": 40,
+   "face_rod": 2.0,
+   "face_pinion": 2.0,
+   "washer_t": 0.2,
+   "washer_od": 5.0,
+   "pinion_boss_clr": 0.1,
+   "eta": 0.95
+  },
+  "rod": {
+   "part": "DIN 975 threaded rod M2 x 0.4, brass or zinc-plated steel (GHW), cut to rod_len; never wet (behind the stopper)",
+   "d": 2.0,
+   "pitch": 0.4,
+   "eta_screw": 0.25
+  },
+  "nut": {
+   "part": "DIN 934 M2 brass, AF 4.0, h 1.6, bonded in the gear hex pocket",
+   "af": 4.0,
+   "h": 1.6
+  },
+  "slider": {
+   "part": "printed anti-rotation slider bonded on the rod rear end, runs in the U channel of the tub",
+   "w": 3.2,
+   "h": 3.2,
+   "len": 3.0,
+   "clr": 0.1,
+   "rail_t": 0.8,
+   "rail_drop": 0.2
+  },
+  "pusher": {
+   "part": "printed / turned pusher disc on the rod front end, flat face on the stopper",
+   "d": 9.0,
+   "t": 1.2,
+   "bore_depth": 0.9
+  },
+  "ribs": {
+   "t": 1.0,
+   "slot_w": 2.3
+  },
+  "magnet": {
+   "d": 2.0,
+   "t": 1.0,
+   "note": "diametric d2 x 1 (BUY-LIST A4) bonded on the pinion front face / shaft end"
+  },
+  "tmag": {
+   "gap": 0.5,
+   "pkg": [
+    2.9,
+    2.8,
+    1.45
+   ],
+   "board_t": 0.6
+  },
+  "board": {
+   "part": "cup-pod main board UNCHANGED (electronics/v010/cup, 6 layers, 35.6 x 12.6 x 0.8, top parts <= 1.45, bottom parts over the cell)",
+   "l": 35.6,
+   "w": 12.6,
+   "pcb_z": [
+    5.3,
+    6.1
+   ],
+   "top_max": 7.55
+  },
+  "battery": {
+   "part": "Ampul 301030 (cup.battery)",
+   "l": 31.5,
+   "w": 10.6,
+   "t": 3.2,
+   "z0": 0.9,
+   "x_off_board": 1.7
+  },
+  "usb": {
+   "w": 8.94,
+   "d": 7.35,
+   "h": 3.26,
+   "z_c": 5.7,
+   "x_from_board_west": 15.7,
+   "open_w": 9.4,
+   "open_h": 3.4
+  },
+  "button": {
+   "x_from_board_west": 25.2
+  },
+  "lock": {
+   "_comment": "adapter-locked sensing: the board's dock hall input (DRV5032) on a short flex at the front wall reads a d1 x 0.5 magnet on a clip-on flag of the adapter; it drives the existing DOCKED gate (forward only when locked, reverse only when unlocked)",
+   "hall_pkg": [
+    1.1,
+    1.4,
+    1.1
+   ],
+   "mag_d": 1.0,
+   "mag_t": 0.5,
+   "flag_t": 1.0
+  },
+  "shell": {
+   "corner_r": 3.5,
+   "edge_break": 0.3,
+   "top_fillet": 0.8,
+   "gasket_t": 0.5
+  },
+  "targets": {
+   "_comment": "smaller than the Accu-Chek Insight (84 x 52 x 19 with adapter, user manual Appendix A VERIFIED) in every axis",
+   "length_with_adapter": 84.0,
+   "width": 52.0,
+   "height": 19.0,
+   "height_goal": 15.0
+  }
  }
 }
