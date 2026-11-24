@@ -16,6 +16,10 @@ export CURA_ENGINE_SEARCH_PATH="$RES/definitions:$RES/extruders"
 #  - thick, wide, slow first layer: 0.28 mm, 120 % line width, 15 mm/s, no fan, hotter nozzle/bed for the first layer
 #  - 6 mm brim against corner lift; purge line kept
 BED0=65; NOZ0=210  # first-layer temperatures (keep equal to sv01pro_pla_firstlayer.json)
+# Z_ADJUST (mm, env): negative = nozzle closer to the bed. Applied after probing with a G92 shift, so it does not
+# change the printer's saved probe offset. Set the real fix later on the printer with M851 + M500.
+Z_ADJUST=${Z_ADJUST:-0}
+ZSHIFT=$(python3 -c "print(f'{2.0 - float(\"$Z_ADJUST\"):.3f}')")
 START="M140 S$BED0 ; bed on
 M104 S150 ; nozzle warm but not oozing during probing
 M190 S$BED0 ; wait bed (probe the bed at print temperature)
@@ -23,6 +27,8 @@ G28 ; home
 G29 ; probe a fresh bed mesh (adds about 2 min)
 M420 S1 Z10 ; use the mesh, fade out over 10 mm
 M109 S$NOZ0 ; wait nozzle
+G1 Z2.0 F600
+G92 Z$ZSHIFT ; first-layer Z adjust $Z_ADJUST mm
 G92 E0
 G1 Z2.0 F3000
 G1 X10.1 Y20 Z0.28 F5000.0
