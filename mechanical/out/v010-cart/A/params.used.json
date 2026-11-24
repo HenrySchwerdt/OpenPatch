@@ -40,7 +40,7 @@
  "adapter": {
   "part": "original Accu-Chek Insight Adapter & Tubing 40 cm (REF 06485472001, PZN 08460327, 10 per box): adapter with central needle, bayonet nose, vent (>= 0.65 bar), tubing integrated. Unmodified apart from the clip-on lock flag.",
   "status": "ALL geometry ESTIMATE (manual: nose enters the housing notches, turns clockwise to a stop, flush with the housing); MEASURE",
-  "nose_od": 12.4,
+  "nose_od": 13.0,
   "depth": 5.5,
   "body_d": 14.0,
   "out_len": 6.5,
@@ -52,23 +52,28 @@
   "lug_from_seat": 2.2,
   "tube_d": 1.8,
   "type": "insight_flat",
-  "body_len": 40.0,
-  "body_w": 12.0,
+  "flush": true,
+  "body_len": 52.0,
+  "body_w": 19.0,
   "body_h": 9.5,
-  "conn_from_end": 11.0,
-  "bed_depth": 1.0,
+  "conn_from_end": 12.5,
+  "step_h": 2.8,
+  "step_from_conn": 9.0,
+  "step_rim": 2.2,
   "bed_clr": 0.3,
-  "_geometry": "owner photo + manual p.28 / adapter IFU renders (scale: pump face 52 wide, edge 19): flat elongated domed body 36-48 x ~12 x 9-10, connector cylinder d10-12.5 protruding ~5 under the connector-side end (centre ~11 from that end), tubing out of the other narrow end; inserted with the long axis at 90 deg, turned clockwise to the stop so it lies flush along the end face. ALL ESTIMATE: measure the bought adapter (V010-CART.md measuring guide)"
+  "tube_x_above_base": 2.0,
+  "_patents": "US D720,449 S 'Pump adapter' (8 views) and US D689,523 S 'Infusion pump device' (Fig. 6: end face with the adapter removed), Roche, filed 2012-02-03: adapter 48-52 x 18-19 x 9-10, nose OD ~13 at ~12.5 from the nose end, 2 lugs on the long axis (one ~5 wide, one ~1.5), underside step 2.5-3.3 on the tubing half, tubing out of the far end ~2 above the underside; pump bore ~11.7-12.4 with 2 notches 180 deg apart (60-80 deg arc), counterbore ~15-17. Unscaled drawings -> ESTIMATE",
+  "_geometry": "Roche manual p.2 / 27 / 28 / 29 / 36 + adapter IFU figures + owner photo (2026-11-24): the adapter caps and FORMS the pump's 52 x 19 end face (cartridge along the 84 length). Underside view p.29: L/W 2.8, round nose (needle in its centre) about 29 % of L from the nose end (-> 15 mm), raised key step on the tubing half (side view, about 1.5), tubing leaves the far narrow end along the long axis. Body 52 x 19 x 9.5 (84 - ~74.5 body). Mounting: nose on the septum with the needle perpendicular, long axis at 90 deg, clockwise to the stop (90 / 120 deg marks) until aligned. ALL ESTIMATE from renders: measure the bought adapter"
  },
  "receiver": {
-  "_comment": "bayonet socket for the adapter nose in a lane-1 collar; entry channels at entry_deg / +180, lock at lock_deg / +180 (manual: about 90 deg clockwise to the stop); the lug groove is cut only in a +-sector_deg band around +-Y so it does not set the height",
-  "bore_d": 12.9,
+  "_comment": "A: inserted with the adapter long axis at 90 deg (lugs at +-Z), turned clockwise to the stop with the lugs on the long axis (+-Y); full lug-groove ring (fits the 19 mm height); bore for the nose OD 13 + 0.3",
+  "bore_d": 13.3,
   "collar_len": 6.5,
   "collar_wall": 0.6,
   "lug_clr": 0.25,
-  "entry_deg": -45.0,
-  "lock_deg": 45.0,
-  "sector_deg": 55.0
+  "entry_deg": 90.0,
+  "lock_deg": 0.0,
+  "sector_deg": 90.0
  },
  "gears": {
   "part": "brass spur gears module 0.3: pinion z12 bore 2.0 (on the NFP D-shaft, Loctite 648; root d 2.85, rim 0.42), gear z40 (tip d 12.6) with a hex pocket for the M2 nut (drill + file or print-and-bond), CANDIDATE listings in BUY-LIST section 7",
@@ -79,6 +84,8 @@
   "face_pinion": 2.0,
   "washer_t": 0.2,
   "washer_od": 5.0,
+  "washer_r_od": 9.0,
+  "washer_r_id": 5.0,
   "pinion_boss_clr": 0.1,
   "eta": 0.95
  },
@@ -105,7 +112,7 @@
  "pusher": {
   "part": "printed / turned pusher disc on the rod front end, flat face on the stopper",
   "d": 9.0,
-  "t": 1.2,
+  "t": 0.8,
   "bore_depth": 0.9
  },
  "ribs": {
@@ -208,6 +215,11 @@
    12.9,
    13.2
   ],
+  "receiver_bores_A": [
+   12.9,
+   13.3,
+   13.7
+  ],
   "_comment": "print these first (cart_gen.py -> out/v010-cart/coupons): the cartridge must slide through its hole with a light touch -> cradle_clr; the adapter nose must enter the receiver and turn to the stop -> receiver.bore_d / lug geometry"
  },
  "variants": {
@@ -215,13 +227,26 @@
    "_comment": "Variant A: original Accu-Chek Insight Adapter & Tubing (needle + vent + tubing, bayonet into our receiver), Insight Flex head set at the far end (bench container)",
    "adapter": {
     "type": "insight_flat",
-    "body_len": 40.0,
-    "body_w": 12.0,
+    "flush": true,
+    "body_len": 52.0,
+    "body_w": 19.0,
     "body_h": 9.5,
-    "conn_from_end": 11.0,
-    "bed_depth": 1.0,
+    "conn_from_end": 12.5,
+    "nose_od": 13.0,
+    "step_h": 2.8,
+    "step_from_conn": 9.0,
+    "step_rim": 2.2,
     "bed_clr": 0.3,
-    "_geometry": "owner photo + manual p.28 / adapter IFU renders (scale: pump face 52 wide, edge 19): flat elongated domed body 36-48 x ~12 x 9-10, connector cylinder d10-12.5 protruding ~5 under the connector-side end (centre ~11 from that end), tubing out of the other narrow end; inserted with the long axis at 90 deg, turned clockwise to the stop so it lies flush along the end face. ALL ESTIMATE: measure the bought adapter (V010-CART.md measuring guide)"
+    "tube_x_above_base": 2.0,
+    "_patents": "US D720,449 S 'Pump adapter' (8 views) and US D689,523 S 'Infusion pump device' (Fig. 6: end face with the adapter removed), Roche, filed 2012-02-03: adapter 48-52 x 18-19 x 9-10, nose OD ~13 at ~12.5 from the nose end, 2 lugs on the long axis (one ~5 wide, one ~1.5), underside step 2.5-3.3 on the tubing half, tubing out of the far end ~2 above the underside; pump bore ~11.7-12.4 with 2 notches 180 deg apart (60-80 deg arc), counterbore ~15-17. Unscaled drawings -> ESTIMATE",
+    "_geometry": "Roche manual p.2 / 27 / 28 / 29 / 36 + adapter IFU figures + owner photo (2026-11-24): the adapter caps and FORMS the pump's 52 x 19 end face (cartridge along the 84 length). Underside view p.29: L/W 2.8, round nose (needle in its centre) about 29 % of L from the nose end (-> 15 mm), raised key step on the tubing half (side view, about 1.5), tubing leaves the far narrow end along the long axis. Body 52 x 19 x 9.5 (84 - ~74.5 body). Mounting: nose on the septum with the needle perpendicular, long axis at 90 deg, clockwise to the stop (90 / 120 deg marks) until aligned. ALL ESTIMATE from renders: measure the bought adapter"
+   },
+   "receiver": {
+    "bore_d": 13.3,
+    "entry_deg": 90.0,
+    "lock_deg": 0.0,
+    "sector_deg": 90.0,
+    "_comment": "A: inserted with the adapter long axis at 90 deg (lugs at +-Z), turned clockwise to the stop with the lugs on the long axis (+-Y); full lug-groove ring (fits the 19 mm height); bore for the nose OD 13 + 0.3"
    }
   },
   "B": {

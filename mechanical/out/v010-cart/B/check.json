@@ -1,6 +1,6 @@
 {
  "dims": [
-  72.81,
+  71.41,
   27.25,
   16.1
  ],
@@ -16,13 +16,13 @@
  },
  "problems": [],
  "notes": [
-  "variant B with the Luer hub + coupled tubing collar: 95.31 mm long (needle 12 mm + hub 11 mm sit outside the housing)",
-  "housing 72.81 x 27.25 x 16.1 mm; with adapter (tubing stub excluded) 82.11 x 27.55 x 16.1 mm",
+  "variant B with the Luer hub + coupled tubing collar: 93.91 mm long (needle 12 mm + hub 11 mm sit outside the housing)",
+  "housing 71.41 x 27.25 x 16.1 mm; with adapter (tubing stub excluded) 80.71 x 27.55 x 16.1 mm",
   "TARGET: height 16.1 > goal 15.0 (set by the receiver bore / cartridge OD estimate 12.9)",
   "moving parts checked at FULL and EMPTY (stroke 23.81 mm)",
-  "stroke 23.81 / avail 25.0 mm; rod 31.21 mm, 4.00 mm behind the nut at EMPTY; slider 0.3 mm off the rib at EMPTY",
+  "stroke 23.81 / avail 25.0 mm; rod 30.21 mm, 3.00 mm behind the nut at EMPTY; slider 0.3 mm off the rear washer at EMPTY",
   "thrust 33.0 N vs need 18.1 N (seal 8.0 ESTIMATE + 150 kPa 10.1 N): 1.83x; stall pressure 492 kPa (Insight max 350)",
-  "board outline 60.01 x 10.6 mm = 636.1 mm2 = 1.42x the cup board (449 mm2, 6 layers)",
+  "board outline 58.61 x 10.6 mm = 621.3 mm2 = 1.39x the cup board (449 mm2, 6 layers)",
   "print kit: 13 STLs in /Users/henryschwerdtner/dev/ai-insulin-pump/.claude/worktrees/insight-cart-pump-a5b548/mechanical/out/v010-cart/B/print",
   "U/step 0.00152; length set by lane 1: cartridge + stroke + drive"
  ]

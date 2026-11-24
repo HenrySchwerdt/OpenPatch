@@ -90,13 +90,19 @@ def geometry(p: dict) -> dict:
     y_c = w + c["side_clr"] + big / 2
     if flat:                                                  # the flat Insight adapter's connector-side end is flush with the -Y side
         y_c = max(y_c, ad["conn_from_end"])
+        if ad.get("flush"):                                   # owner 2026-11-24: the adapter IS the end face -> the pump takes its cross-section (body_len x body_w)
+            if H > ad["body_w"] + 1e-6:
+                raise ValueError(f"adapter width {ad['body_w']} < required height {H}: cannot sit flush")
+            H = ad["body_w"]
+            zc = H / 2
     a = g["m"] * (g["z_rod"] + g["z_pinion"]) / 2.0                     # centre distance rod axis -> motor axis (standard spur pair)
     y_m = y_c + a
     # x stack along lane 1
     x_sl0 = w + c["rear_clr"]                                           # slider rear face at FULL (rod fully back)
-    x_rib_r0 = x_sl0 + sl["len"] + stroke + c["travel_margin"]
-    x_rib_r1 = x_rib_r0 + rb["t"]
-    x_g0 = x_rib_r1 + g["washer_t"]
+    # the slider runs THROUGH the square hole of the rear rib and stops travel_margin before the rear washer (annulus outside the slider)
+    x_g0 = x_sl0 + sl["len"] + stroke + c["travel_margin"] + g["washer_t"]
+    x_rib_r1 = x_g0 - g["washer_t"]
+    x_rib_r0 = x_rib_r1 - rb["t"]
     x_g1 = x_g0 + g["face_rod"]
     x_rib_f0 = x_g1 + g["washer_t"]
     x_rib_f1 = x_rib_f0 + rb["t"]
@@ -127,9 +133,9 @@ def geometry(p: dict) -> dict:
     if flat:                                                  # the adapter lies flush along the front end face: the end face is as wide as the adapter is long
         ad_y = [y_c - ad["conn_from_end"], y_c - ad["conn_from_end"] + ad["body_len"]]
         W = round(max(W, ad_y[1]), 2)
-    bed = ad["bed_depth"] if flat else 0.0
-    x_seat = x_n1 + ad["seat_to_cap"]                         # adapter seat plane (bed floor for A, front face for B)
-    x_front = x_seat + bed                                    # lane 1 alone sets the length
+    bed = ad["step_h"] if flat else 0.0                      # A: pocket for the adapter's key step (depth = step height)
+    x_seat = x_n1 + ad["seat_to_cap"]                         # adapter seat plane = housing front face
+    x_front = x_seat                                          # lane 1 alone sets the length
     length = round(x_front, 2)
     x_ad1 = x_seat + ad["body_h"] if flat else x_front + ad["out_len"]
     if ad["type"] == "needle_cap":
@@ -174,7 +180,8 @@ def geometry(p: dict) -> dict:
     L["empty"] = {"slider": [x_sl0 + stroke, x_sl0 + sl["len"] + stroke], "pusher": [x_pu0 + stroke, x_pu1 + stroke],
                   "stopper": [x_st0 + stroke, x_st1 + stroke], "rod": [x_sl0 + stroke, x_pu0 + stroke]}
     L["rod_past_nut_empty"] = round(L["empty"]["rod"][0] - x_g0, 2)          # < 0: the rod rear end is still behind the nut at EMPTY (engaged)
-    L["slider_to_rib_empty"] = round(x_rib_r0 - L["empty"]["slider"][1], 2)
+    L["slider_to_rib_empty"] = round(x_rib_r1 - L["empty"]["slider"][1], 2)       # slider front face to the rear washer at EMPTY
+    L["length_total"] = round(x_ad1, 2)
     L["u_per_step"] = rd["pitch"] * (g["z_pinion"] / g["z_rod"]) / (dr["steps_per_rev"] * dr["gh_ratio"]) * c["_bore_area"] / 10.0
     L["envelope"] = {"bbox_mm": [length, W, H], "bbox_volume_ml": round(length * W * H / 1000.0, 2),
                      "with_adapter_mm": [round(x_ad1, 2), W, H], "with_adapter_volume_ml": round(x_ad1 * W * H / 1000.0, 2)}
@@ -239,15 +246,22 @@ def build_insight_flat(s: Script, p: dict, L: dict) -> None:
     yc, zc, xs = L["y_c"], L["zc"], L["x_seat"]
     y0, y1 = L["adapter_y"]
     n1 = L["neck"][1]
-    s.stadium("adapter", (xs, L["adapter"][1]), (y0 + y1) / 2, zc, ad["body_len"], ad["body_w"])
+    sh = c["shell"]
+    Lt, W, H = L["length_total"], L["width"], L["height"]
+    s.rrect("adapter", (0, Lt), (0, W), sh["corner_r"], (0, H))                 # same outer block + edge radii as the housing: flush outline
+    s.fillet_chain("adapter", (Lt / 2, 0.0, 0.0), sh["top_fillet"])
+    s.fillet_chain("adapter", (Lt / 2, 0.0, H), sh["top_fillet"])
+    s.add("solid.combine", target="adapter", tools=[s.box("t_ad_keep", (xs, Lt + 1), (-1, W + 1), (-1, H + 1))], operation="intersect", name="adapter end")
+    st = step_box(p, L, 0.0)
+    s.box("t_ad_step", (xs - ad["step_h"], xs + 0.01), st[0], st[1])          # key step under the tubing half
     s.cyl("t_ad_conn", "X", (0, yc, zc), ad["nose_od"], xs - ad["depth"], xs + 0.01)
-    s.join("adapter", ["t_ad_conn"])
+    s.join("adapter", ["t_ad_step", "t_ad_conn"])
     s.cut("adapter", [s.cyl("t_ad_cav", "X", (0, yc, zc), ca["cap_od"] + 0.1, xs - ad["depth"] - 0.1, n1 + ad["cap_gap"])])
     rl = ad["nose_od"] / 2 + ad["lug_h"] - ad["lug_w"] / 2
     for nm, ang in (("adapter_lug_a", rc["lock_deg"]), ("adapter_lug_b", rc["lock_deg"] + 180.0)):
         y, z = _pol(yc, zc, rl, ang)
         s.cyl(nm, "X", (0, y, z), ad["lug_w"], xs - ad["lug_from_seat"] - ad["lug_t"], xs - ad["lug_from_seat"])
-    s.cyl("tubing", "Y", (xs + ad["body_h"] / 2, 0, zc), ad["tube_d"], y1 - 1.0, y1 + 8.0)
+    s.cyl("tubing", "Y", (xs + ad["tube_x_above_base"], 0, zc), ad["tube_d"], y1 - 1.0, y1 + 8.0)       # far end, ~2 above the underside (D720,449 Fig. 8)
 
 
 def needle_cap_geom(p: dict, L: dict) -> dict:
@@ -301,8 +315,8 @@ def build_drive(s: Script, p: dict, L: dict) -> None:
     s.cut("gear_rod", [s.hexprism("t_gear_hex", (g0 - 0.1, g0 + nut["h"]), yc, zc, nut["af"] / 2 + 0.03)])
     s.hexprism("rod_nut", (g0, g0 + nut["h"]), yc, zc, nut["af"] / 2)
     s.cut("rod_nut", [s.cyl("t_nut_bore", "X", (0, yc, zc), rd["d"], g0 - 0.1, g0 + nut["h"] + 0.1)])
-    for nm, x in (("washer_r", (L["rib_r"][1], g0)), ("washer_f", (g1, L["rib_f"][0]))):
-        s.tube(nm, "X", (0, yc, zc), g["washer_od"], rd["d"] + 0.2, *x)
+    s.tube("washer_r", "X", (0, yc, zc), g["washer_r_od"], g["washer_r_id"], L["rib_r"][1], g0)       # bears on the gear outside the slider path
+    s.tube("washer_f", "X", (0, yc, zc), g["washer_od"], rd["d"] + 0.2, g1, L["rib_f"][0])
     s.tube("pinion", "X", (0, ym, zc), g["m"] * (g["z_pinion"] + 2), dr["shaft_d"], *L["pinion"])
     s.cyl("motor_shaft", "X", (0, ym, zc), dr["shaft_d"], L["boss"][0], L["pinion"][1])
     s.cyl("motor_boss", "X", (0, ym, zc), dr["boss_d"], *L["boss"])
@@ -365,11 +379,18 @@ def _receiver_cuts(s: Script, p: dict, L: dict, tag: str) -> list[str]:
     return tools
 
 
-def bed_tool(s: Script, p: dict, L: dict, tag: str) -> str:
-    """Variant A: shallow bed in the front face shaped like the flat adapter footprint (+clr), so the locked adapter sits flush and keyed."""
-    ad, clr = p["cart"]["adapter"], p["cart"]["adapter"]["bed_clr"]
+def step_box(p: dict, L: dict, clr: float) -> tuple[tuple[float, float], tuple[float, float]]:
+    """(y, z) ranges of the adapter's key step (raised underside of its tubing half, manual p.29 side view) grown by clr."""
+    ad = p["cart"]["adapter"]
     y0, y1 = L["adapter_y"]
-    return s.stadium(f"t_bed_{tag}", (L["x_seat"], L["x_front"] + 0.1), (y0 + y1) / 2, L["zc"], ad["body_len"] + 2 * clr, ad["body_w"] + 2 * clr)
+    return ((L["y_c"] + ad["step_from_conn"] - clr, y1 - ad["step_rim"] + clr), (ad["step_rim"] - clr, L["height"] - ad["step_rim"] + clr))
+
+
+def bed_tool(s: Script, p: dict, L: dict, tag: str) -> str:
+    """Variant A: pocket in the front face for the adapter's key step (+clr): it locates the adapter in the locked position (flush with the housing)."""
+    ad = p["cart"]["adapter"]
+    yr, zr = step_box(p, L, ad["bed_clr"])
+    return s.box(f"t_bed_{tag}", (L["x_seat"] - ad["step_h"] - ad["bed_clr"], L["x_seat"] + 0.1), yr, zr)
 
 
 def build_housing(s: Script, p: dict, L: dict) -> None:
@@ -379,8 +400,11 @@ def build_housing(s: Script, p: dict, L: dict) -> None:
     sh, rc, rb, sl, ca = c["shell"], c["receiver"], c["ribs"], c["slider"], c["cartridge"]
     r_o = sh["corner_r"]
     split = H - w - sh["gasket_t"]                                       # tub up to here, flat lid on a 0.5 gasket above
-    s.rrect("bottom", (0, Lp), (0, W), r_o, (0, split))
-    s.fillet_chain("bottom", (Lp / 2, 0.0, 0.0), sh["top_fillet"])
+    Lt = L.get("length_total", Lp) if L.get("adapter_y") else Lp          # A: the housing and the adapter share one outer block (flush outline)
+    s.rrect("bottom", (0, Lt), (0, W), r_o, (0, split))
+    s.fillet_chain("bottom", (Lt / 2, 0.0, 0.0), sh["top_fillet"])
+    if Lt > Lp:
+        s.cut("bottom", [s.box("t_cut_ad_b", (Lp, Lt + 1), (-1, W + 1), (-1, H + 1))])
     s.rrect("t_cav", (w, Lp - w), (w, W - w), r_o - w, (w, split + 0.1))
     s.cut("bottom", ["t_cav"])
     joins, cuts = [], []
@@ -396,12 +420,15 @@ def build_housing(s: Script, p: dict, L: dict) -> None:
         cuts.append(s.cyl(f"t_cr_b{k}", "X", (0, yc, zc), ca["od"] + 2 * c["cradle_clr"], x0 - 0.1, x0 + c["cradle_t"] + 0.1))
     ch_w = sl["w"] + 2 * sl["clr"]
     joins.append(s.box("t_ch", (w - 0.01, L["rib_r"][0] + 0.01), (yc - ch_w / 2 - sl["rail_t"], yc + ch_w / 2 + sl["rail_t"]), (w - 0.01, zc + sl["h"] / 2 - sl["rail_drop"])))
-    cuts.append(s.box("t_ch_in", (w + c["rear_clr"] - 0.1, L["rib_r"][0] + 0.1), (yc - ch_w / 2, yc + ch_w / 2), (zc - sl["h"] / 2 - sl["clr"], zc + 4.0)))
+    cuts.append(s.box("t_ch_in", (w + c["rear_clr"] - 0.1, L["rib_r"][1] + 0.1), (yc - ch_w / 2, yc + ch_w / 2), (zc - sl["h"] / 2 - sl["clr"], zc + 4.0)))
     gr = L["gear_od"] / 2
     for nm, (x0, x1) in (("t_rib_r", L["rib_r"]), ("t_rib_f", L["rib_f"])):
         joins.append(s.box(nm, (x0, x1), (w - 0.01, min(yc + gr - 0.3, ym - p["drive_nfp"]["motor_d"] / 2 - 0.2)), (w - 0.01, split)))   # stops short of the motor boss
-        cuts.append(s.box(f"{nm}_slot", (x0 - 0.1, x1 + 0.1), (yc - rb["slot_w"] / 2, yc + rb["slot_w"] / 2), (zc, split + 0.1)))
-        cuts.append(s.cyl(f"{nm}_hole", "X", (0, yc, zc), rb["slot_w"], x0 - 0.1, x1 + 0.1))
+        sw = ch_w if nm == "t_rib_r" else rb["slot_w"]                       # rear rib: square slider passage, front rib: rod slot
+        z0 = zc - sl["h"] / 2 - sl["clr"] if nm == "t_rib_r" else zc
+        cuts.append(s.box(f"{nm}_slot", (x0 - 0.1, x1 + 0.1), (yc - sw / 2, yc + sw / 2), (z0, split + 0.1)))
+        if nm == "t_rib_f":
+            cuts.append(s.cyl(f"{nm}_hole", "X", (0, yc, zc), rb["slot_w"], x0 - 0.1, x1 + 0.1))
     for k, x0 in enumerate((L["motor"][0] + 1.0, L["gearhead"][0] + 2.0)):
         joins.append(s.box(f"t_ms{k}", (x0, x0 + c["motor_saddle_t"]), (ym - 3.6, ym + 3.6), (w - 0.01, zc)))
         cuts.append(s.cyl(f"t_ms_b{k}", "X", (0, ym, zc), p["drive_nfp"]["motor_d"] + 0.1, x0 - 0.1, x0 + c["motor_saddle_t"] + 0.1))
@@ -418,11 +445,15 @@ def build_housing(s: Script, p: dict, L: dict) -> None:
     s.cut("bottom", cuts)
     # flat lid with hold-down ribs (rod slots, board corner), the receiver bore continues through it where the bore reaches above the split
     lt = split + sh["gasket_t"]
-    s.rrect("top", (0, Lp), (0, W), r_o, (lt, H))
-    s.fillet_chain("top", (Lp / 2, 0.0, H), sh["top_fillet"])
+    s.rrect("top", (0, Lt), (0, W), r_o, (lt, H))
+    s.fillet_chain("top", (Lt / 2, 0.0, H), sh["top_fillet"])
+    if Lt > Lp:
+        s.cut("top", [s.box("t_cut_ad_t", (Lp, Lt + 1), (-1, W + 1), (-1, H + 1))])
     tj = []
+    ch_w = sl["w"] + 2 * sl["clr"]
     for nm, (x0, x1) in (("t_lr_r", L["rib_r"]), ("t_lr_f", L["rib_f"])):
-        tj.append(s.box(nm, (x0, x1), (yc - rb["slot_w"] / 2 + 0.01, yc + rb["slot_w"] / 2 - 0.01), (zc + c["rod"]["d"] / 2 + 0.1, lt + 0.01)))
+        sw, zb = (ch_w, zc + sl["h"] / 2 + sl["clr"]) if nm == "t_lr_r" else (rb["slot_w"], zc + c["rod"]["d"] / 2 + 0.1)
+        tj.append(s.box(nm, (x0, x1), (yc - sw / 2 + 0.01, yc + sw / 2 - 0.01), (zb, lt + 0.01)))
     rx, ry = board_lid_rib(L)
     tj.append(s.box("t_lr_bd", rx, ry, (L["board"]["pcb_z"][1], lt + 0.01)))
     tj += _screw_bosses_lid(s, p, L, lt)

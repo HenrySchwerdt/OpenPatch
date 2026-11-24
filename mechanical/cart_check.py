@@ -108,14 +108,14 @@ def check_variant(variant: str) -> int:
         lo3, hi3 = C.envelope([by[n] for n in ("bottom", "top", "luer_set")])
         note.append(f"variant B with the Luer hub + coupled tubing collar: {round(hi3[0] - lo3[0], 2)} mm long (needle 12 mm + hub 11 mm sit outside the housing)")
     note.append(f"housing {dims[0]} x {dims[1]} x {dims[2]} mm; with adapter (tubing stub excluded) {round(hi2[0] - lo2[0], 2)} x {round(hi2[1] - lo2[1], 2)} x {round(hi2[2] - lo2[2], 2)} mm")
-    if dims[2] > tg["height"] - 0.01 or hi2[2] - lo2[2] > tg["height"] - 0.01:
-        prob.append(f"height {dims[2]} not below the Insight {tg['height']}")
+    if dims[2] > tg["height"] + 0.01 or hi2[2] - lo2[2] > tg["height"] + 0.01:
+        prob.append(f"height {dims[2]} above the Insight {tg['height']}")
     if dims[2] > tg["height_goal"]:
         note.append(f"TARGET: height {dims[2]} > goal {tg['height_goal']} (set by the receiver bore / cartridge OD estimate {L['big']})")
     if hi2[0] - lo2[0] >= tg["length_with_adapter"]:
         prob.append(f"length with adapter {hi2[0] - lo2[0]:.2f} not below the Insight {tg['length_with_adapter']}")
-    if dims[1] >= tg["width"]:
-        prob.append(f"width {dims[1]} not below the Insight {tg['width']}")
+    if dims[1] > tg["width"] + 0.01:
+        prob.append(f"width {dims[1]} above the Insight {tg['width']}")
     for k in ("bottom", "top"):
         if k in by and not by[k].get("closed", True):
             prob.append(f"{k} is not a closed solid")
@@ -138,11 +138,11 @@ def check_variant(variant: str) -> int:
         prob.append(f"rod rear end {E['rod'][0]:.2f} passes the nut (starts {g0:.2f}) before EMPTY")
     if L["rod_full"][1] < g0 + c["nut"]["h"] + 0.5:
         prob.append("rod front end not through the nut at FULL")
-    if E["slider"][1] > L["rib_r"][0] - 0.1:
-        prob.append(f"slider leaves its channel at EMPTY ({E['slider'][1]:.2f} vs rib {L['rib_r'][0]:.2f})")
+    if E["slider"][1] > L["rib_r"][1] - 0.1:
+        prob.append(f"slider reaches the rear washer at EMPTY ({E['slider'][1]:.2f} vs {L['rib_r'][1]:.2f})")
     if E["rod"][1] > E["stopper"][0] + 1e-6 or c["pusher"]["d"] >= c["cartridge"]["id"]:
         prob.append("rod / pusher would enter the wet volume")
-    note.append(f"stroke {L['stroke']} / avail {L['stroke_avail']} mm; rod {L['rod_len']} mm, {-L['rod_past_nut_empty']:.2f} mm behind the nut at EMPTY; slider {L['slider_to_rib_empty']} mm off the rib at EMPTY")
+    note.append(f"stroke {L['stroke']} / avail {L['stroke_avail']} mm; rod {L['rod_len']} mm, {-L['rod_past_nut_empty']:.2f} mm behind the nut at EMPTY; slider {L['slider_to_rib_empty']} mm off the rear washer at EMPTY")
     # gear mesh
     g = c["gears"]
     a = g["m"] * (g["z_rod"] + g["z_pinion"]) / 2

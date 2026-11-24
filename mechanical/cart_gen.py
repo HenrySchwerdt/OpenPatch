@@ -168,8 +168,8 @@ def coupons(p0: dict, outdir: Path) -> list[str]:
     s.cut("coupon_cradle", tools)
     s.add("file.export_stl", path=os.path.relpath(outdir / "coupon_cartridge_bore_ladder.stl", HERE), bodies=["coupon_cradle"], quality="standard")
     names = ["coupon_cartridge_bore_ladder.stl"]
-    for k, bd in enumerate(c["coupons"]["receiver_bores"]):          # variant A: a 6.5 mm slice of the real front end (adapter bed + connector port + bayonet)
-        pk = op_cart.prepare(apply_overrides(p0, [f"cart.receiver.bore_d={bd}"], None, None), "A")
+    for k, bd in enumerate(c["coupons"]["receiver_bores_A"]):        # variant A: a 6.5 mm slice of the real front end (adapter bed + connector port + bayonet)
+        pk = op_cart.prepare(apply_overrides(p0, [f"cart.variants.A.receiver.bore_d={bd}"], None, None), "A")
         Lk = op_cart.geometry(pk)
         nm = f"coupon_front{k}"
         x1 = Lk["length"]

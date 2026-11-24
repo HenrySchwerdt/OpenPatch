@@ -1250,6 +1250,8 @@
    "face_pinion": 2.0,
    "washer_t": 0.2,
    "washer_od": 5.0,
+   "washer_r_od": 9.0,
+   "washer_r_id": 5.0,
    "pinion_boss_clr": 0.1,
    "eta": 0.95
   },
@@ -1276,7 +1278,7 @@
   "pusher": {
    "part": "printed / turned pusher disc on the rod front end, flat face on the stopper",
    "d": 9.0,
-   "t": 1.2,
+   "t": 0.8,
    "bore_depth": 0.9
   },
   "ribs": {
@@ -1364,13 +1366,17 @@
    "top_fillet": 1.0,
    "gasket_t": 0.5
   },
-  "coupons": {"cradle_bores": [11.0, 11.2, 11.4, 11.6, 11.8], "cradle_h": 6.0, "receiver_bores": [12.6, 12.9, 13.2],
+  "coupons": {"cradle_bores": [11.0, 11.2, 11.4, 11.6, 11.8], "cradle_h": 6.0, "receiver_bores": [12.6, 12.9, 13.2], "receiver_bores_A": [12.9, 13.3, 13.7],
    "_comment": "print these first (cart_gen.py -> out/v010-cart/coupons): the cartridge must slide through its hole with a light touch -> cradle_clr; the adapter nose must enter the receiver and turn to the stop -> receiver.bore_d / lug geometry"},
   "variants": {
    "A": {
     "_comment": "Variant A: original Accu-Chek Insight Adapter & Tubing (needle + vent + tubing, bayonet into our receiver), Insight Flex head set at the far end (bench container)",
-    "adapter": {"type": "insight_flat", "body_len": 40.0, "body_w": 12.0, "body_h": 9.5, "conn_from_end": 11.0, "bed_depth": 1.0, "bed_clr": 0.3,
-                "_geometry": "owner photo + manual p.28 / adapter IFU renders (scale: pump face 52 wide, edge 19): flat elongated domed body 36-48 x ~12 x 9-10, connector cylinder d10-12.5 protruding ~5 under the connector-side end (centre ~11 from that end), tubing out of the other narrow end; inserted with the long axis at 90 deg, turned clockwise to the stop so it lies flush along the end face. ALL ESTIMATE: measure the bought adapter (V010-CART.md measuring guide)"}
+    "adapter": {"type": "insight_flat", "flush": true, "body_len": 52.0, "body_w": 19.0, "body_h": 9.5, "conn_from_end": 12.5, "nose_od": 13.0,
+                "step_h": 2.8, "step_from_conn": 9.0, "step_rim": 2.2, "bed_clr": 0.3, "tube_x_above_base": 2.0,
+                "_patents": "US D720,449 S 'Pump adapter' (8 views) and US D689,523 S 'Infusion pump device' (Fig. 6: end face with the adapter removed), Roche, filed 2012-02-03: adapter 48-52 x 18-19 x 9-10, nose OD ~13 at ~12.5 from the nose end, 2 lugs on the long axis (one ~5 wide, one ~1.5), underside step 2.5-3.3 on the tubing half, tubing out of the far end ~2 above the underside; pump bore ~11.7-12.4 with 2 notches 180 deg apart (60-80 deg arc), counterbore ~15-17. Unscaled drawings -> ESTIMATE",
+                "_geometry": "Roche manual p.2 / 27 / 28 / 29 / 36 + adapter IFU figures + owner photo (2026-11-24): the adapter caps and FORMS the pump's 52 x 19 end face (cartridge along the 84 length). Underside view p.29: L/W 2.8, round nose (needle in its centre) about 29 % of L from the nose end (-> 15 mm), raised key step on the tubing half (side view, about 1.5), tubing leaves the far narrow end along the long axis. Body 52 x 19 x 9.5 (84 - ~74.5 body). Mounting: nose on the septum with the needle perpendicular, long axis at 90 deg, clockwise to the stop (90 / 120 deg marks) until aligned. ALL ESTIMATE from renders: measure the bought adapter"},
+    "receiver": {"bore_d": 13.3, "entry_deg": 90.0, "lock_deg": 0.0, "sector_deg": 90.0,
+                 "_comment": "A: inserted with the adapter long axis at 90 deg (lugs at +-Z), turned clockwise to the stop with the lugs on the long axis (+-Y); full lug-groove ring (fits the 19 mm height); bore for the nose OD 13 + 0.3"}
    },
    "B": {
     "_comment": "Variant B: printed bayonet cap (same receiver as A) that centres a standard Luer-lock hypodermic needle (B. Braun Sterican 27G 0.40 x 12 mm, female Luer hub) on the septum axis and presses the crimp cap axially (like the Insight adapter's O-ring); the hub takes a Luer tubing set (Accu-Chek FlexLink transfer set, Luer-lock pump end: gender VERIFY, else add a male-male Luer-lock coupler). No commercial cartridge-to-Luer adapter exists (research 2026-11-24). Needle and hub numbers ESTIMATE.",

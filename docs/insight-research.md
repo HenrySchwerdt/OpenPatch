@@ -156,3 +156,44 @@ Envelope ESTIMATE (used in the CAD): nose d12.4 x 5.5 (it must pass a cartridge 
 The Insight Adapter & Tubing is **not a round cap**. It is a flat, elongated, domed black body; the tubing leaves one narrow end; under the other end is a short connector cylinder (with a key / lug) that enters the cartridge compartment. In the user manual (p.28 step 8 and the "CORRECT" figure) and the adapter IFU (steps 1-2): the cartridge is inserted into the **end face** of the pump, the adapter is placed with its long axis **at 90 deg** to the housing, the connector nose goes into the notches, and the adapter is turned clockwise to the stop (90 / 120 deg marks) until the body lies **flush along the end face**.
 Envelope scaled from the manual renders (pump face 52 mm, edge 19 mm as the scale; perspective, so ESTIMATE): body length 36 (face view) to 48 (edge view) -> **40 +-6**, width about 12, height 9-10 (dome); connector cylinder d10-12.5, protruding about 5, centre about 11 from the connector-side end. Insight 84 mm "with adapter" = body about 74-75 + adapter about 9-10.
 CAD (variant A) since 2026-11-24: end face 40 mm wide, adapter bed 1.0 deep, connector port as before. All values to be measured on the bought adapter.
+
+### 7.6 Adapter and end-face interface: thorough pass (2026-11-24, supersedes the 7.2 envelope and the 7.5 size estimate)
+**Sources read as images** (none committed; the drawings are copyright Roche, link only):
+- **US D720,449 S "Pump adapter"** (Roche, filed 2012-02-03, CH priority 2011-08-03), 8 views: perspectives https://patentimages.storage.googleapis.com/ee/eb/a1/88a58976d648e7/USD0720449-20141230-D00001.png, side views https://patentimages.storage.googleapis.com/45/db/5c/95a6aa64841511/USD0720449-20141230-D00002.png, bottom / top https://patentimages.storage.googleapis.com/3f/76/e5/d459f60cd16b9d/USD0720449-20141230-D00003.png, end views https://patentimages.storage.googleapis.com/e7/34/db/44a92d5217e1da/USD0720449-20141230-D00004.png, PDF https://patentimages.storage.googleapis.com/12/01/6e/eedfd368d68b45/USD720449.pdf
+- **US D689,523 S "Infusion pump device"** (same filing), Fig. 6 = pump end face with the end cap (adapter) removed: https://image-ppubs.uspto.gov/dirsearch-public/print/downloadPdf/D689523
+- US9554967B2 Figs 3 / 4b (cannula 210, channel 212, O-rings 230 / 235 / 240, vent 220, guide 215): https://patents.google.com/patent/US9554967B2/en
+- User manual (M): p.2 pump details (adapter side view), p.27 removal at 120 deg with the cartridge on the spike, p.28 step 7 (cartridge plunger first into the compartment, pump upright) and step 8 (adapter at 90 deg onto the bayonet socket), p.29 adapter side + underside views ("Needle" at the centre of the nose), p.29 step 9 (turn clockwise to the stop, aligned with the housing), p.36 removal; Adapter & Tubing IFU figures (A); owner's product photo; safety notices 2016 (https://laegemiddelstyrelsen.dk/da/udstyr/sikkerhedsmeddelelser/2016/06/~/media/DFF3BCBB31A34F39B619A15AF08DE16D.ashx) and 2022 needle redesign / recall (https://laegemiddelstyrelsen.dk/da/udstyr/sikkerhedsmeddelelser/2022/05/~/media/031629A263BF4404ABB0B58747A4D39B.ashx).
+- FDA: no 510(k) for the Insight or its Flex / Tender / Rapid sets (openFDA); Roche entries only for UltraFlex (K122686, K101196) and FlexLink Plus (K143446). No US clearance -> no 510(k) summary with dimensions.
+
+**Interface (how it works):**
+1. **The adapter IS the pump's end cap.** The cartridge lies along the 84 mm length and goes in plunger first through the **52 x 19 end face** (M p.28 step 7, "hold the pump upright"). Locked, the adapter covers that whole end face incl. the battery cover ("correctly positioned when it is aligned with the pump's housing", M p.29; D689,523 "end cap removed"; turning back to 90 deg exposes the battery cover, M p.19).
+2. **Spike:** "a needle is located at the centre of the adapter nose" (A, M p.29). The nose is a cylindrical cup on the underside near one end; in the design views nothing stands past the rim, so the spike is probably recessed in the cup (ESTIMATE). It must hit the septum centrally and perpendicularly. The cartridge crimp cap stands proud of the compartment floor into that cup; on removal the cartridge stays on the spike (M p.27).
+3. **Lock:** bayonet. The nose goes into the notches of the housing with the adapter at 90 deg, then clockwise to the stop (M p.28-29; removal anticlockwise, lift-off at about 120 deg). D689,523 Fig. 6: two arc notches in the bore wall about 180 deg apart (60-80 deg arc each); D720,449 Fig. 5: two lugs on the nose rim on the adapter's long axis, one wide (about 5) and one narrow (about 1.5) = probably keyed.
+4. **Tubing:** leaves the far narrow end of the adapter along its long axis, in the underside plane (about 2 above the underside face, centred across the width), through a U notch / hook (D720,449 Figs 1, 2, 5, 6, 8; A). This is the owner's "tubing exits at the bottom".
+5. **Seal / vent:** patent: inner O-ring 230 on the cartridge cap (axial support), outer O-ring 235 on the housing face, optional 240 between septum and vent membrane; vent channel 220. Production: "minimum opening pressure adapter vent 0.65 bar" (M App. A); "the adapter is not watertight" (M p.36).
+6. **Underside step:** the tubing half of the underside stands 2.5-3.3 further toward the pump than the nose half (D720,449 Fig. 3, A); it probably covers the battery-cover area.
+
+**Dimension table** (multi-source; patents unscaled -> scaled with the pump 84 x 52 x 19 VERIFIED; cross-checks: tubing reads 1.9, cap about 8, adapter L/W 2.67 vs end face 2.74):
+| Feature | Value (mm) | Status | Sources / scale |
+|---|---|---|---|
+| Pump incl. adapter | 84 x 52 x 19 | VERIFIED | M App. A |
+| Pump body without adapter | 74-75 | ESTIMATE | 84 - adapter height |
+| Adapter length x width | 48-52 x 18-19 (= the end face) | ESTIMATE | D720,449 L/W 2.67 with W 19; M p.29 L/W 2.8; IFU 47.7 |
+| Adapter height (base to dome top) | 9-10 | ESTIMATE | D720,449 Figs 3 / 7; IFU 9.0; M ~10 |
+| Nose OD / flange at its base | ~13 +-1 / ~15.5 | ESTIMATE | D720,449 Figs 3 / 5 / 7; IFU 13.5 |
+| Nose protrusion below the base | 4-7 | ESTIMATE | IFU 4.1; D720,449 5.8-7.3 |
+| Nose axis from the nose end | ~12.5 (0.24 L), centred across the width | ESTIMATE | D720,449 Fig. 3 / 5; M p.29 0.29 L |
+| Lugs | 2, 180 deg apart on the long axis (locked), ~5 and ~1.5 wide | ESTIMATE | D720,449 Fig. 5 |
+| Spike | on the nose axis (VERIFIED), length unknown, recessed in the cup | ESTIMATE | IFU, M p.29 |
+| Tubing exit | far end, ~2 above the underside, centred, along the long axis; tubing OD ~1.9 | ESTIMATE | D720,449 Fig. 8 |
+| Underside step (tubing half) | 2.5-3.3 | ESTIMATE | D720,449 Fig. 3, IFU |
+| Compartment bore / counterbore | ~11.7-12.4 / ~15-17 | ESTIMATE | D689,523 Fig. 6 |
+| Bore centre | ~13-14 from the end-face edge, centred in the 19 | ESTIMATE | D689,523 Fig. 6, agrees with the nose |
+| Bayonet notches | 2, ~180 deg apart, ~60-80 deg arc, ~1 radial | ESTIMATE | D689,523 Fig. 6 |
+| Cartridge cap proud of the compartment floor | 4.5-5.5, cap OD ~8 | ESTIMATE | IFU, M p.28 |
+| Cartridge length incl. cap | ~44 | ESTIMATE | M p.2 photo L / OD 4.0 with OD 10.95 |
+Conflict to settle by measuring: nose OD (~13) reads larger than the bore (~12); both within +-1 of drawing error. The 2021-22 needle redesign means older drawings may differ from current lots.
+
+**Measure on real parts** (calipers, 3 samples): adapter L / W / H and dome, nose OD / ID / depth, spike free length and tip position vs the nose rim, lug widths / heights / angles (keyed?), underside step depth and extent, tubing exit height / offset / OD, vent location, O-rings; on the cartridge: OD, overall length, cap OD / height, stopper length / position.
+
+**CAD consequence (owner decision 2026-11-24, option A = flush):** variant A takes the Insight end-face cross-section (52 x 19, adapter flush, one outer block for housing + adapter); only the length can beat the Insight. Values in `params.json -> cart.variants.A`.
