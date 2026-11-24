@@ -30,11 +30,15 @@ def part_names(p: dict) -> list[str]:
     """Bodies of this variant: A = original Insight adapter, B = printed needle cap + bought needle / Luer hub / tubing connector."""
     if p["cart"]["adapter"]["type"] == "needle_cap":
         return [n for n in PART_NAMES if n not in ADAPTER_A] + ADAPTER_B
+    if p["cart"]["adapter"]["type"] == "insight_flat":
+        return [n for n in PART_NAMES if n != "lock_flag"]
     return PART_NAMES
 
 
 def mfg_parts(p: dict) -> dict:
     m = dict(MFG_PARTS)
+    if p["cart"]["adapter"]["type"] == "insight_flat":
+        m.pop("lock_flag")
     if p["cart"]["adapter"]["type"] == "needle_cap":
         m["b_cap"] = ["b_cap"]
     return m
@@ -42,7 +46,7 @@ def mfg_parts(p: dict) -> dict:
 EXCLUDE_PAIRS = [["pinion", "gear_rod"], ["rod", "rod_nut"], ["rod", "gear_rod"], ["rod_nut", "gear_rod"], ["rod", "slider"], ["rod", "pusher"], ["pusher", "stopper"],
                  ["stopper", "cartridge"], ["cart_cap", "cartridge"], ["adapter", "cart_cap"], ["adapter", "cartridge"], ["adapter", "adapter_lug_a"], ["adapter", "adapter_lug_b"],
                  ["adapter", "tubing"], ["motor_shaft", "pinion"], ["motor_shaft", "motor_boss"], ["motor_boss", "gearhead"], ["gearhead", "motor"], ["motor", "motor_rear_boss"],
-                 ["magnet", "pinion"], ["magnet", "motor_shaft"], ["lock_magnet", "lock_flag"], ["lock_flag", "adapter"], ["lid_gasket", "top"], ["lid_gasket", "bottom"],
+                 ["magnet", "pinion"], ["magnet", "motor_shaft"], ["lock_magnet", "lock_flag"], ["lock_magnet", "adapter"], ["lock_flag", "adapter"], ["lid_gasket", "top"], ["lid_gasket", "bottom"],
                  ["ko_battery", "ko_board"], ["ko_usb", "ko_board"], ["hall_tmag", "ko_tmag_board"], ["washer_r", "gear_rod"], ["washer_f", "gear_rod"], ["button", "bottom"], ["button", "top"],
                  ["b_cap", "cart_cap"], ["needle", "cart_cap"], ["needle", "cartridge"], ["needle", "luer_hub"], ["luer_hub", "luer_set"], ["lock_flag", "b_cap"]]
 
@@ -81,7 +85,11 @@ def geometry(p: dict) -> dict:
     big = max(big, 2 * r_groove * math.sin(math.radians(rc["sector_deg"])))
     zc = w + c["floor_clr"] + big / 2
     H = round(zc + big / 2 + c["roof_clr"] + sh["gasket_t"] + w, 2)
+    ad = c["adapter"]
+    flat = ad["type"] == "insight_flat"
     y_c = w + c["side_clr"] + big / 2
+    if flat:                                                  # the flat Insight adapter's connector-side end is flush with the -Y side
+        y_c = max(y_c, ad["conn_from_end"])
     a = g["m"] * (g["z_rod"] + g["z_pinion"]) / 2.0                     # centre distance rod axis -> motor axis (standard spur pair)
     y_m = y_c + a
     # x stack along lane 1
@@ -115,9 +123,15 @@ def geometry(p: dict) -> dict:
     lane2_y0 = y_c + big / 2 + c["lane_clr"]
     lane2_w = max(bat["w"], bd["w"])
     W = round(max(lane2_y0 + lane2_w + c["board_wall_clr"] + w, y_m + dr["motor_d"] / 2 + c["side_clr"] + w), 2)
-    x_front = x_n1 + ad["seat_to_cap"]                        # lane 1 alone sets the length now
+    ad_y = None
+    if flat:                                                  # the adapter lies flush along the front end face: the end face is as wide as the adapter is long
+        ad_y = [y_c - ad["conn_from_end"], y_c - ad["conn_from_end"] + ad["body_len"]]
+        W = round(max(W, ad_y[1]), 2)
+    bed = ad["bed_depth"] if flat else 0.0
+    x_seat = x_n1 + ad["seat_to_cap"]                         # adapter seat plane (bed floor for A, front face for B)
+    x_front = x_seat + bed                                    # lane 1 alone sets the length
     length = round(x_front, 2)
-    x_ad1 = x_front + ad["out_len"]
+    x_ad1 = x_seat + ad["body_h"] if flat else x_front + ad["out_len"]
     if ad["type"] == "needle_cap":
         nc = c["needle_cap"]
         x_ad1 = x_n1 - nc["tip_past_cap"] + nc["needle_len"] + nc["hub_len"] + 3.0     # cap + hub + coupled Luer collar
@@ -127,7 +141,10 @@ def geometry(p: dict) -> dict:
     y_bd1 = W - w - c["board_wall_clr"]
     y_bd0 = y_bd1 - bd["w"]
     x_bd0 = bd["x0"]
-    x_bd1 = collar[0] - c["board_front_clr"] if y_bd0 < collar_y1 else x_front - w - 0.3
+    x_bd1 = collar[0] - c["board_front_clr"] if y_bd0 < collar_y1 else x_front - w - bed - 0.3
+    sc = c["screws"]
+    if y_bd1 > W - sc["inset"] - sc["boss_d"] / 2:          # front lid-screw boss sits in the board's +Y corner: end the board before it
+        x_bd1 = min(x_bd1, x_front - max(sc["inset"], w + bed + sc["boss_d"] / 2 + 0.15) - sc["boss_d"] / 2 - 0.3)
     tm_top = zc + 2.6
     pz0 = round(max(zc + dr["motor_d"] / 2, tm_top) + 0.1 + bd["bottom_parts"], 3)
     pz = [pz0, pz0 + bd["t"]]
@@ -136,13 +153,13 @@ def geometry(p: dict) -> dict:
          "front_governed_by": "lane 1: cartridge + stroke + drive", "length_with_adapter": round(x_ad1, 2),
          "slider_full": [x_sl0, x_sl0 + sl["len"]], "rib_r": [x_rib_r0, x_rib_r1], "gear": [x_g0, x_g1], "rib_f": [x_rib_f0, x_rib_f1],
          "pusher_full": [x_pu0, x_pu1], "cart": [x_c0, x_c1], "neck": [x_c1, x_n1], "stopper_full": [x_st0, x_st1], "rod_full": [x_sl0, x_pu0],
-         "rod_len": round(x_pu0 - x_sl0, 2), "adapter": [x_front - ad["depth"], x_ad1], "collar": collar, "collar_y1": round(collar_y1, 3), "r_groove": r_groove,
+         "rod_len": round(x_pu0 - x_sl0, 2), "adapter": [x_seat - ad["depth"], x_ad1], "x_seat": x_seat, "bed": bed, "adapter_y": ad_y, "collar": collar, "collar_y1": round(collar_y1, 3), "r_groove": r_groove,
          "pinion": [x_pin0, x_pin1], "boss": [x_boss0, x_boss1], "gearhead": [x_gh0, x_boss0], "motor": [x_mo0, x_gh0], "rear_boss": [x_tail0, x_mo0],
          "magnet": [x_mag0, x_mag1], "tmag": [x_tm0, x_tm1], "lane2_y0": lane2_y0}
     L["board"] = {"x": [x_bd0, x_bd1], "y": [y_bd0, y_bd1], "z": [pz0 - bd["bottom_parts"], pz[1] + bd["top_parts"]], "pcb_z": pz,
                   "outline_mm": [round(x_bd1 - x_bd0, 2), bd["w"]], "area_mm2": round((x_bd1 - x_bd0) * bd["w"], 1)}
     xb0 = x_boss0 + c["board_gap_x"]                          # cell on the floor from the motor boss on: it passes under the pinion and the TMAG strip (both above z 4.75)
-    L["battery"] = {"x": [xb0, xb0 + bat["l"]], "y": [lane2_y0, lane2_y0 + bat["w"]], "z": [w, w + bat["t"]]}
+    L["battery"] = {"x": [xb0, xb0 + bat["l"]], "y": [y_bd0, y_bd0 + bat["w"]], "z": [w, w + bat["t"]]}            # cell under the board
     xu = x_bd1 - usb["x_from_board_east"]
     zu = (pz[0] + pz[1]) / 2
     L["usb"] = {"x": [xu - usb["w"] / 2, xu + usb["w"] / 2], "y": [W - w - usb["d"], W - w], "z": [zu - usb["h"] / 2, zu + usb["h"] / 2], "x_c": xu, "z_c": zu}
@@ -150,7 +167,9 @@ def geometry(p: dict) -> dict:
     L["button_z"] = round(pz0 - bt["below_pcb"], 3)
     lk = c["lock"]
     yh = collar_y1 + 0.1 + lk["hall_pkg"][1] / 2
-    L["lock"] = {"hall_x": [x_front - w - 0.1 - lk["hall_pkg"][0], x_front - w - 0.1], "hall_y": yh,
+    if flat:                                                  # magnet bonded in the adapter underside near its tubing end, hall behind the front plate
+        yh = ad_y[1] - lk["flat_mag_from_end"]
+    L["lock"] = {"hall_x": [x_front - w - bed - 0.1 - lk["hall_pkg"][0], x_front - w - bed - 0.1], "hall_y": yh,
                  "magnet_r": round(yh - y_c, 3)}
     L["empty"] = {"slider": [x_sl0 + stroke, x_sl0 + sl["len"] + stroke], "pusher": [x_pu0 + stroke, x_pu1 + stroke],
                   "stopper": [x_st0 + stroke, x_st1 + stroke], "rod": [x_sl0 + stroke, x_pu0 + stroke]}
@@ -178,12 +197,16 @@ def build_cartridge(s: Script, p: dict, L: dict) -> None:
     s.cyl("stopper", "X", (0, yc, zc), ca["id"], *L["stopper_full"])
     xa0, xa1 = L["adapter"]
     xf = L["x_front"]
+    lk, lo = c["lock"], L["lock"]
+    if ad["type"] == "insight_flat":
+        build_insight_flat(s, p, L)
+        s.cyl("lock_magnet", "X", (0, lo["hall_y"], zc), lk["mag_d"], L["x_seat"] + 0.05, L["x_seat"] + 0.05 + lk["mag_t"])    # bonded in a drilled pocket of the adapter underside (VERIFY)
+        return
     if ad["type"] == "needle_cap":
         build_needle_cap(s, p, L)
     else:
         build_insight_adapter(s, p, L)
     # adapter-locked detection: a printed flag clipped on the adapter body carries a d1 x 0.5 magnet in front of the lock hall (VERIFY on the sample)
-    lk, lo = c["lock"], L["lock"]
     s.box("lock_flag", (xf + 0.05, xf + 0.05 + lk["flag_t"]), (yc + ad["body_d"] / 2 - 0.6, lo["hall_y"] + 1.0), (zc - 1.0, zc + 1.0))
     s.cyl("lock_magnet", "X", (0, lo["hall_y"], zc), lk["mag_d"], xf + 0.05, xf + 0.05 + lk["mag_t"])
 
@@ -205,6 +228,26 @@ def build_insight_adapter(s: Script, p: dict, L: dict) -> None:
         y, z = _pol(yc, zc, rl, ang)
         s.cyl(nm, "X", (0, y, z), ad["lug_w"], xf - ad["lug_from_seat"] - ad["lug_t"], xf - ad["lug_from_seat"])
     s.cyl("tubing", "X", (0, yc, zc), ad["tube_d"], xa1 - 0.5, xa1 + 8.0)
+
+
+def build_insight_flat(s: Script, p: dict, L: dict) -> None:
+    """Variant A: the original Accu-Chek Insight Adapter & Tubing as seen in the manual / product photos: a flat, elongated, domed body that lies flush on the
+    end face (long axis along Y when locked), a short connector cylinder under its connector-side end goes into the receiver bore (needle on the septum,
+    two lugs, about 90 deg clockwise turn), tubing leaves the other narrow end. Envelope ESTIMATE from the manual renders (pump 52 x 19 as the scale)."""
+    c = p["cart"]
+    ca, ad, rc = c["cartridge"], c["adapter"], c["receiver"]
+    yc, zc, xs = L["y_c"], L["zc"], L["x_seat"]
+    y0, y1 = L["adapter_y"]
+    n1 = L["neck"][1]
+    s.stadium("adapter", (xs, L["adapter"][1]), (y0 + y1) / 2, zc, ad["body_len"], ad["body_w"])
+    s.cyl("t_ad_conn", "X", (0, yc, zc), ad["nose_od"], xs - ad["depth"], xs + 0.01)
+    s.join("adapter", ["t_ad_conn"])
+    s.cut("adapter", [s.cyl("t_ad_cav", "X", (0, yc, zc), ca["cap_od"] + 0.1, xs - ad["depth"] - 0.1, n1 + ad["cap_gap"])])
+    rl = ad["nose_od"] / 2 + ad["lug_h"] - ad["lug_w"] / 2
+    for nm, ang in (("adapter_lug_a", rc["lock_deg"]), ("adapter_lug_b", rc["lock_deg"] + 180.0)):
+        y, z = _pol(yc, zc, rl, ang)
+        s.cyl(nm, "X", (0, y, z), ad["lug_w"], xs - ad["lug_from_seat"] - ad["lug_t"], xs - ad["lug_from_seat"])
+    s.cyl("tubing", "Y", (xs + ad["body_h"] / 2, 0, zc), ad["tube_d"], y1 - 1.0, y1 + 8.0)
 
 
 def needle_cap_geom(p: dict, L: dict) -> dict:
@@ -304,11 +347,11 @@ def _receiver_cuts(s: Script, p: dict, L: dict, tag: str) -> list[str]:
     """Bore for the adapter nose, two axial entry channels at entry_deg / +180 and the lug groove (sector band +-sector_deg around +-Y only)."""
     c = p["cart"]
     ad, rc, ca = c["adapter"], c["receiver"], c["cartridge"]
-    yc, zc, xf = L["y_c"], L["zc"], L["x_front"]
-    xg0 = xf - ad["lug_from_seat"] - ad["lug_t"] - rc["lug_clr"]
-    xg1 = xf - ad["lug_from_seat"] + rc["lug_clr"]
-    tools = [s.cyl(f"t_rb_{tag}", "X", (0, yc, zc), rc["bore_d"], xf - ad["depth"] - 0.05, xf + 0.1),
-             s.cyl(f"t_rn_{tag}", "X", (0, yc, zc), ca["od"] + 2 * c["cradle_clr"], L["collar"][0] - 0.1, xf - ad["depth"] + 0.01)]
+    yc, zc, xf, xs = L["y_c"], L["zc"], L["x_front"], L["x_seat"]
+    xg0 = xs - ad["lug_from_seat"] - ad["lug_t"] - rc["lug_clr"]
+    xg1 = xs - ad["lug_from_seat"] + rc["lug_clr"]
+    tools = [s.cyl(f"t_rb_{tag}", "X", (0, yc, zc), rc["bore_d"], xs - ad["depth"] - 0.05, xf + 0.1),
+             s.cyl(f"t_rn_{tag}", "X", (0, yc, zc), ca["od"] + 2 * c["cradle_clr"], L["collar"][0] - 0.1, xs - ad["depth"] + 0.01)]
     hz = L["r_groove"] * math.sin(math.radians(rc["sector_deg"]))
     s.cyl(f"t_rg_{tag}", "X", (0, yc, zc), 2 * L["r_groove"], xg0, xg1)
     s.add("solid.combine", target=f"t_rg_{tag}", tools=[s.box(f"t_rgb_{tag}", (xg0 - 1, xg1 + 1), (yc - 20, yc + 20), (zc - hz, zc + hz))], operation="intersect", name=f"sector {tag}")
@@ -317,7 +360,16 @@ def _receiver_cuts(s: Script, p: dict, L: dict, tag: str) -> list[str]:
     for k, ang in enumerate((rc["entry_deg"], rc["entry_deg"] + 180.0)):
         y, z = _pol(yc, zc, rl, ang)
         tools.append(s.cyl(f"t_re{k}_{tag}", "X", (0, y, z), ad["lug_w"] + 2 * rc["lug_clr"], xg0, xf + 0.1))
+    if L.get("adapter_y"):
+        tools.append(bed_tool(s, p, L, tag))
     return tools
+
+
+def bed_tool(s: Script, p: dict, L: dict, tag: str) -> str:
+    """Variant A: shallow bed in the front face shaped like the flat adapter footprint (+clr), so the locked adapter sits flush and keyed."""
+    ad, clr = p["cart"]["adapter"], p["cart"]["adapter"]["bed_clr"]
+    y0, y1 = L["adapter_y"]
+    return s.stadium(f"t_bed_{tag}", (L["x_seat"], L["x_front"] + 0.1), (y0 + y1) / 2, L["zc"], ad["body_len"] + 2 * clr, ad["body_w"] + 2 * clr)
 
 
 def build_housing(s: Script, p: dict, L: dict) -> None:
@@ -335,6 +387,8 @@ def build_housing(s: Script, p: dict, L: dict) -> None:
     # receiver collar (lane 1 only) in front of the board east edge
     c0, c1 = L["collar"]
     joins.append(s.box("t_collar", (c0, Lp - w + 0.01), (w - 0.01, L["collar_y1"]), (w - 0.01, split)))
+    if L["bed"] > 0:                                          # thicker front wall behind the adapter bed
+        joins.append(s.box("t_fplate", (Lp - w - L["bed"] - 0.01, Lp - w + 0.01), (w - 0.01, W - w + 0.01), (w - 0.01, split)))
     # cartridge cradles, slider U channel, rear + front gear ribs with U slots (drop-in drive), motor saddles
     for k, xs in enumerate(c["cradle_x"]):
         x0 = L["cart"][0] + xs
@@ -383,7 +437,8 @@ def screw_points(p: dict, L: dict) -> list[tuple[float, float]]:
     sc = p["cart"]["screws"]
     d = sc["inset"]
     y_s = L["wall"] + sc["boss_d"] / 2 + 0.05                   # -Y screw: between the side wall and the slider-channel rail, in the tail zone
-    return [(d, L["width"] - d), (L["length"] - d, L["width"] - d), (sc["x_side"], y_s)]
+    x_f = L["length"] - max(d, L["wall"] + L["bed"] + sc["boss_d"] / 2 + 0.15)    # front boss clears the (thicker) front wall
+    return [(d, L["width"] - d), (x_f, L["width"] - d), (sc["x_side"], y_s)]
 
 
 def _screw_bosses_lid(s: Script, p: dict, L: dict, lt: float) -> list[str]:

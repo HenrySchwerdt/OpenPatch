@@ -7,8 +7,8 @@
   "orientation": "asis",
   "note": "tub, floor on the bed",
   "size_mm": [
-   72.81,
-   27.25,
+   73.81,
+   40.0,
    14.4
   ]
  },
@@ -20,8 +20,8 @@
   "orientation": "flip",
   "note": "lid, outer face on the bed (smooth side), bosses up",
   "size_mm": [
-   72.81,
-   27.25,
+   73.81,
+   40.0,
    14.7
   ]
  },
@@ -49,19 +49,6 @@
    9.0,
    9.0,
    1.2
-  ]
- },
- {
-  "file": "print_lock_flag.stl",
-  "bodies": [
-   "lock_flag"
-  ],
-  "orientation": "asis",
-  "note": "clip-on flag for the adapter-lock magnet",
-  "size_mm": [
-   1.0,
-   3.5,
-   2.0
   ]
  },
  {
@@ -100,7 +87,7 @@
   "orientation": "asis",
   "note": "main board + parts envelope with the USB-C receptacle block",
   "size_mm": [
-   60.01,
+   61.56,
    11.5,
    3.48
   ]

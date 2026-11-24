@@ -2004,11 +2004,11 @@
   "command": "solid.box",
   "params": {
    "length": 31.5,
-   "width": 10.599999999999998,
+   "width": 10.6,
    "height": 3.2,
    "corner": [
     28.909999999999997,
-    14.55,
+    14.550000000000002,
     1.2
    ],
    "body_name": "ko_battery",

@@ -51,7 +51,14 @@
   "lug_t": 1.2,
   "lug_from_seat": 2.2,
   "tube_d": 1.8,
-  "type": "insight"
+  "type": "insight_flat",
+  "body_len": 40.0,
+  "body_w": 12.0,
+  "body_h": 9.5,
+  "conn_from_end": 11.0,
+  "bed_depth": 1.0,
+  "bed_clr": 0.3,
+  "_geometry": "owner photo + manual p.28 / adapter IFU renders (scale: pump face 52 wide, edge 19): flat elongated domed body 36-48 x ~12 x 9-10, connector cylinder d10-12.5 protruding ~5 under the connector-side end (centre ~11 from that end), tubing out of the other narrow end; inserted with the long axis at 90 deg, turned clockwise to the stop so it lies flush along the end face. ALL ESTIMATE: measure the bought adapter (V010-CART.md measuring guide)"
  },
  "receiver": {
   "_comment": "bayonet socket for the adapter nose in a lane-1 collar; entry channels at entry_deg / +180, lock at lock_deg / +180 (manual: about 90 deg clockwise to the stop); the lug groove is cut only in a +-sector_deg band around +-Y so it does not set the height",
@@ -178,7 +185,8 @@
   ],
   "mag_d": 1.0,
   "mag_t": 0.5,
-  "flag_t": 1.0
+  "flag_t": 1.0,
+  "flat_mag_from_end": 8.0
  },
  "shell": {
   "corner_r": 4.0,
@@ -206,7 +214,14 @@
   "A": {
    "_comment": "Variant A: original Accu-Chek Insight Adapter & Tubing (needle + vent + tubing, bayonet into our receiver), Insight Flex head set at the far end (bench container)",
    "adapter": {
-    "type": "insight"
+    "type": "insight_flat",
+    "body_len": 40.0,
+    "body_w": 12.0,
+    "body_h": 9.5,
+    "conn_from_end": 11.0,
+    "bed_depth": 1.0,
+    "bed_clr": 0.3,
+    "_geometry": "owner photo + manual p.28 / adapter IFU renders (scale: pump face 52 wide, edge 19): flat elongated domed body 36-48 x ~12 x 9-10, connector cylinder d10-12.5 protruding ~5 under the connector-side end (centre ~11 from that end), tubing out of the other narrow end; inserted with the long axis at 90 deg, turned clockwise to the stop so it lies flush along the end face. ALL ESTIMATE: measure the bought adapter (V010-CART.md measuring guide)"
    }
   },
   "B": {

@@ -168,19 +168,31 @@ def coupons(p0: dict, outdir: Path) -> list[str]:
     s.cut("coupon_cradle", tools)
     s.add("file.export_stl", path=os.path.relpath(outdir / "coupon_cartridge_bore_ladder.stl", HERE), bodies=["coupon_cradle"], quality="standard")
     names = ["coupon_cartridge_bore_ladder.stl"]
-    for k, bd in enumerate(c["coupons"]["receiver_bores"]):
+    for k, bd in enumerate(c["coupons"]["receiver_bores"]):          # variant A: a 6.5 mm slice of the real front end (adapter bed + connector port + bayonet)
         pk = op_cart.prepare(apply_overrides(p0, [f"cart.receiver.bore_d={bd}"], None, None), "A")
+        Lk = op_cart.geometry(pk)
+        nm = f"coupon_front{k}"
+        x1 = Lk["length"]
+        x0 = x1 - pk["cart"]["receiver"]["collar_len"]
+        s.box(nm, (x0, x1), (0, Lk["width"]), (0, Lk["height"]))
+        s.cut(nm, op_cart._receiver_cuts(s, pk, Lk, f"f{k}"))
+        s.cut(nm, [s.box(f"t_fk{k}_{j}", (x0 - 0.1, x1 + 0.1), (Lk["width"] - 1.6 - 1.2 * j, Lk["width"] - 1.0 - 1.2 * j), (-0.1, 0.7)) for j in range(k + 1)])
+        s.add("solid.move", bodies=[nm], axis=[0, 1, 0], angle="-90 deg", origin=[x1, 0, 0])
+        s.add("file.export_stl", path=os.path.relpath(outdir / f"coupon_A_front_bore_{bd:.1f}.stl", HERE), bodies=[nm], quality="standard")
+        names.append(f"coupon_A_front_bore_{bd:.1f}.stl")
+    for k, bd in enumerate(c["coupons"]["receiver_bores"]):          # variant B: round socket only (the B cap has no bed)
+        pk = op_cart.prepare(apply_overrides(p0, [f"cart.receiver.bore_d={bd}"], None, None), "B")
         rl = pk["cart"]["receiver"]
         r_g = bd / 2 + pk["cart"]["adapter"]["lug_h"] + rl["lug_clr"]
         half = r_g + 2.0
-        Lc = {"y_c": half, "zc": half, "x_front": rl["collar_len"], "collar": [0.0, rl["collar_len"]], "r_groove": r_g}
-        nm = f"coupon_rcv{k}"
+        Lc = {"y_c": half, "zc": half, "x_front": rl["collar_len"], "x_seat": rl["collar_len"], "collar": [0.0, rl["collar_len"]], "r_groove": r_g}
+        nm = f"coupon_rcvb{k}"
         s.box(nm, (0, rl["collar_len"]), (0, 2 * half), (0, 2 * half))
         s.cut(nm, op_cart._receiver_cuts(s, pk, Lc, f"c{k}"))
         s.cut(nm, [s.box(f"t_rk{k}_{j}", (-0.1, rl["collar_len"] + 0.1), (0.8 + 1.2 * j, 1.4 + 1.2 * j), (-0.1, 0.7)) for j in range(k + 1)])
         s.add("solid.move", bodies=[nm], axis=[0, 1, 0], angle="-90 deg", origin=[0, 0, 0])
-        s.add("file.export_stl", path=os.path.relpath(outdir / f"coupon_receiver_bore_{bd:.1f}.stl", HERE), bodies=[nm], quality="standard")
-        names.append(f"coupon_receiver_bore_{bd:.1f}.stl")
+        s.add("file.export_stl", path=os.path.relpath(outdir / f"coupon_B_receiver_bore_{bd:.1f}.stl", HERE), bodies=[nm], quality="standard")
+        names.append(f"coupon_B_receiver_bore_{bd:.1f}.stl")
     pj = outdir / "coupons.script.json"
     pj.write_text(json.dumps(s.dumps()), encoding="utf-8")
     run_cli("run", str(pj), "--quiet")
