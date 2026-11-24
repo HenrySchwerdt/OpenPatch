@@ -1,5 +1,5 @@
-//! Full-step drive of a dual H-bridge in PHASE/ENABLE mode (DRV8835, MODE = VCC) for the 45-part cup board
-//! (`electronics/v010/INTERLOCK.md` I.6, `FIRMWARE-PINMAP.md` "v4 motor driver DRV8835 pins").
+//! Full-step drive of a dual H-bridge in PHASE/ENABLE mode (2 x DRV8838: U7A coil A, U7B coil B; same truth table as the former DRV8835 with MODE = VCC) for the 45-part cup board
+//! (`electronics/v010/INTERLOCK.md` I.6, `FIRMWARE-PINMAP.md` "v4 motor driver pins").
 //!
 //! The board has no STEP/DIR/STBY pins and no hardware step clock: the firmware itself walks the four lines
 //! `APHASE`, `AENBL`, `BPHASE`, `BENBL`. This module is the hardware independent half (host tested):
@@ -20,7 +20,7 @@
 
 use crate::hal::MotorDir;
 
-/// The four DRV8835 inputs. `true` = pin high. `aenbl` / `benbl` are the nRF side of the enables (`AENBL_MCU`, `BENBL_MCU`);
+/// The four driver inputs. `true` = pin high. `aenbl` / `benbl` are the nRF side of the enables (`AENBL_MCU`, `BENBL_MCU`);
 /// 1 = bridge driven, 0 = brake.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]

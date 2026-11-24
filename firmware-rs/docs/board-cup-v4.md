@@ -1,4 +1,4 @@
-# `board-cup-v4`: cup pod v4, 45 fitted parts (HJ-840 SiP, DRV8835, STM32C011 supervisor)
+# `board-cup-v4`: cup pod v4, 45 fitted parts (HJ-840 SiP, 2 x DRV8838, STM32C011 supervisor)
 
 > TEST PROJECT, never worn. Water only.
 
@@ -13,7 +13,7 @@ The pump application (`main.rs`) is still the E73 / DK application and is NOT po
 
 ## Host tested pieces (`openpatch-core`, the bring-up binary only binds them to pins)
 
-* `phase_drive`: DRV8835 full steps on `APHASE/AENBL/BPHASE/BENBL`. `(A,B)` = 00, 10, 11, 01 forward, reverse order for reverse, exactly one PHASE toggle per step (the supervisor counts these edges), brake (`AENBL = BENBL = 0`) at idle, PHASE lines untouched when de-energising, enables raised after and lowered before the phase lines.
+* `phase_drive`: DRV8838 full steps (U7A coil A, U7B coil B) on `APHASE/AENBL/BPHASE/BENBL`. `(A,B)` = 00, 10, 11, 01 forward, reverse order for reverse, exactly one PHASE toggle per step (the supervisor counts these edges), brake (`AENBL = BENBL = 0`) at idle, PHASE lines untouched when de-energising, enables raised after and lowered before the phase lines.
 * `burst`: bursts with rest gaps for the cell's peak current. `CellParams` (default Ampul 301030: 60 mAh realistic, 700 mA pulse limit, 150 ms, 90 mA average, 250 ms minimum rest) and `MotorLoad` (1.74 W, 88 %) are configurable PLACEHOLDERS: the vendor page gives no discharge rate. Default plan: 29 steps per burst at 200 pps, rest about 0.7 s at 3.8 V.
 * `battery`: `vddhdiv5_to_mv` (SAADC `VDDHDIV5`, 12 bit, 0.6 V reference, gain 1/6: `mV = raw x 18000 / 4096`), the cell supply policy (next section), `regout0_action` (`UICR.REGOUT0` = 3.3 V, HV mode: the HJ-840 has no LDO).
 * `led`: charging pulse (red, 1 Hz), full = green, low = red (single flash, double below 3.4 V), fault 4 Hz, button shows the battery colour. `charger_state(usb_detected, stat_low)`: MCP73832 STAT cannot tell "done" from "no cable", so the cable comes from `USBDETECTED` (`VBUS_P`).

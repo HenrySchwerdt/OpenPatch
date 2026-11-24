@@ -1,6 +1,6 @@
 //! Burst stepping that respects the cell's peak current (cup board v4, `electronics/v010/INTERLOCK.md` I.2).
 //!
-//! The motor (NFP-608-26.45, 26.5 ohm per phase, no chopper on the DRV8835) draws 0.36 A at 4.96 V = about 1.74 W while it is
+//! The motor (NFP-608-26.45, 26.5 ohm per phase, no chopper on the DRV8838) draws 0.36 A at 4.96 V = about 1.74 W while it is
 //! energised. Behind the 88 % boost that is 0.58 A at a 3.4 V cell and 0.66 A at 3.0 V: **6 to 10 C on a 60 to 90 mAh pouch cell**,
 //! and the bulk capacitors do not change that (they bridge microseconds, a burst lasts tens of milliseconds). So steps go in
 //! short bursts with rest gaps: the motor is energised only for the burst (`phase_drive::drive_burst` brakes at the end), the
@@ -63,7 +63,7 @@ pub struct MotorLoad {
 }
 
 impl MotorLoad {
-    /// NFP-608-26.45-SGM through the DRV8835 and the TPS61023 (INTERLOCK.md I.2 / I.6).
+    /// NFP-608-26.45-SGM through the DRV8838 bridges and the TPS61023 (INTERLOCK.md I.2 / I.6).
     pub const NFP_608_26_45: MotorLoad = MotorLoad { power_mw: 1_740, boost_eff_pct: 88 };
 }
 

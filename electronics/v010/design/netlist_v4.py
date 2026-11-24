@@ -104,12 +104,17 @@ def build():
     take("U3", "chg", pins={"1": "CHG_STAT", "2": "GND", "3": "VBAT", "4": "VBUS_P", "5": "CHG_PROG"})
     take("R3", "chg", pins={"1": "CHG_PROG", "2": "GND"}, value="47k", note="PROG 47k -> about 21 mA charge current")
     # VBAT sense: SAADC VDDHDIV5 channel (VDDH = VBAT), no divider
-    # ---------------------------------------------------------------- motor driver: DRV8835 (no chopper: 26.5 ohm coil, 5 V -> about 0.18 A per phase, resistance limited), full steps
-    new("U7", "DRV8835DSSR", ("Package_SON", "WSON-12-1EP_3x2mm_P0.5mm_EP1x2.65"),
-        {1: "VMOT", 2: "MOT_A1", 3: "MOT_A2", 4: "MOT_B1", 5: "MOT_B2", 6: "GND", 7: "BENBL", 8: "BPHASE", 9: "AENBL", 10: "APHASE", 11: "3V3", 12: "3V3", 13: "GND"},
-        "C129328", "DRV8835DSSR", group="drv",
-        note="dual H-bridge, VM 0-11 V, VCC 2-7 V, 1.5 A per bridge, MODE tied to VCC = PHASE/ENABLE (ENABLE low = brake: both outputs low); no current sense / limit (TI SLVSB18H): the current is set by the 26.5 ohm coil; pin map verified in SLVSB18H; land pattern matches the LCSC WSON-12 footprint (topology and pitch); JLC STOCK = 0 on 2026-11-20 (see cup/PIN-CHECK.md)")
-    C("C19", "100nF", "3V3", "GND", "drv")
+    # ---------------------------------------------------------------- motor driver: 2 x DRV8838 (one H-bridge per coil; no chopper: 26.5 ohm coil, 5 V -> about 0.18 A per phase, resistance limited), full steps
+    # owner decision 2026-11-24: every part must be in JLC stock; DRV8835DSSR (C129328) had stock 0. DRV8838 has the same PHASE/ENABLE truth table as the
+    # DRV8835 in PH/EN mode (TI SLVSBA4F table 7-2: EN low = brake, both outputs low; PH 0 -> OUT1 high), so nets, firmware pin map and supervisor phase counting stay.
+    DSG8 = ("Package_SON", "Texas_DSG0008A_WSON-8-1EP_2x2mm_P0.5mm_EP0.9x1.6mm")
+    for ref, o1, o2, en, ph in (("U7A", "MOT_A1", "MOT_A2", "AENBL", "APHASE"), ("U7B", "MOT_B1", "MOT_B2", "BENBL", "BPHASE")):
+        new(ref, "DRV8838DSGR", DSG8, {1: "VMOT", 2: o1, 3: o2, 4: "GND", 5: en, 6: ph, 7: "3V3", 8: "3V3", 9: "GND"}, "C86667", "DRV8838DSGR", group="drv",
+            note="single H-bridge for coil %s, VM 0-11 V, VCC 1.8-7 V, 1.8 A peak; pins (TI SLVSBA4F rev F, DSG package): 1 VM, 2 OUT1, 3 OUT2, 4 GND, 5 EN, 6 PH, "
+                 "7 nSLEEP (tied to 3V3: awake whenever the logic rail is up, as the DRV8835 was), 8 VCC, pad GND; no current sense or limit: the current is set by "
+                 "the coil resistance; the hardware cut stays in the load switch U20 on VMOT" % ("A" if ref == "U7A" else "B"))
+    C("C19", "100nF", "3V3", "GND", "drv", note="VCC bypass of U7A (datasheet: 0.1 uF at VCC)")
+    C("C20", "100nF", "3V3", "GND", "drv", note="VCC bypass of U7B (datasheet: 0.1 uF at VCC)")
     take("C21", "drv")
     for i, (net, lab) in enumerate((("MOT_A1", "A+"), ("MOT_A2", "A-"), ("MOT_B1", "B+"), ("MOT_B2", "B-"))):
         new("MP%d" % (i + 1), "motor lead pad %s" % lab, ("V010", "Wire_Pad_1.0x1.8"), {1: net}, bom=False, group="mot",
@@ -170,7 +175,8 @@ def build():
     R("R90", "100k", "MOT_ALLOW", "GND", "sw")
     R("RDK", "100k", "3V3", "DOCK_N", "sw", note="SPICE F1: pull-up on the hall output so an open hall joint reads UNDOCKED (a floating low line would read docked and enable forward undocked)")
     R("RNR", "100k", "3V3", "SUP_NRST", "wdt", note="SPICE F5: pull-up for the open-drain TPL5010 RSTn (the STM32C011 NRST weak pull-up is not relied on)")
-    C("C61", "100nF", "VMOT", "GND", "drv", note="SPICE F6: 0.1 uF at the DRV8835 VM pin (datasheet requirement, next to U7.1) in addition to the bulk C21")
+    C("C61", "100nF", "VMOT", "GND", "drv", note="SPICE F6: 0.1 uF at the VM pin of U7A (datasheet requirement) in addition to the bulk C21")
+    C("C62", "100nF", "VMOT", "GND", "drv", note="0.1 uF at the VM pin of U7B (datasheet requirement)")
     new("C71", "10uF 10V 0603", C0603, {1: "VBAT", 2: "GND"}, "C19702", "CL10A106KP8NNNC", group="boost", note="SPICE F3: second 10 uF at the TPS61023 VIN (boost pre-charge dip), next to U8")
     new("U20", "TPS2553DRVR", ("Package_SON", "WSON-6-1EP_2x2mm_P0.65mm_EP1x1.6mm"), {1: "VMOT", 2: "ILIM", 3: "OC_OK", 4: "MOT_ALLOW", 5: "GND", 6: "VMOT_PRE", 7: "GND"}, "C138719", "TPS2553DRVR", group="sw",
         note="current-limited high-side switch 2.5-6.5 V, 85 mohm, EN active high (hardware cut), FAULT open drain = OC_OK (low when the limit is active > deglitch), NOT the -1 latch variant; WSON-6 2x2 (DRV, 0.8 mm: fits the underside) pinout 1 OUT 2 ILIM 3 FAULT 4 EN 5 GND 6 IN, PowerPAD = GND, verified in the TI datasheet table 5-1 (2026-11-20 layout review)")

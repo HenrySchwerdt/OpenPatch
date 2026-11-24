@@ -289,33 +289,56 @@
   "board": "CUP"
  },
  {
-  "ref": "U7",
-  "value": "DRV8835DSSR",
+  "ref": "U7A",
+  "value": "DRV8838DSGR",
   "fp": [
    "Package_SON",
-   "WSON-12-1EP_3x2mm_P0.5mm_EP1x2.65"
+   "Texas_DSG0008A_WSON-8-1EP_2x2mm_P0.5mm_EP0.9x1.6mm"
   ],
   "pins": {
    "1": "VMOT",
    "2": "MOT_A1",
    "3": "MOT_A2",
-   "4": "MOT_B1",
-   "5": "MOT_B2",
-   "6": "GND",
-   "7": "BENBL",
-   "8": "BPHASE",
-   "9": "AENBL",
-   "10": "APHASE",
-   "11": "3V3",
-   "12": "3V3",
-   "13": "GND"
+   "4": "GND",
+   "5": "AENBL",
+   "6": "APHASE",
+   "7": "3V3",
+   "8": "3V3",
+   "9": "GND"
   },
-  "lcsc": "C129328",
-  "mpn": "DRV8835DSSR",
+  "lcsc": "C86667",
+  "mpn": "DRV8838DSGR",
   "side": "F",
   "bom": true,
   "dnp": false,
-  "note": "dual H-bridge, VM 0-11 V, VCC 2-7 V, 1.5 A per bridge, MODE tied to VCC = PHASE/ENABLE (ENABLE low = brake: both outputs low); no current sense / limit (TI SLVSB18H): the current is set by the 26.5 ohm coil; pin map verified in SLVSB18H; land pattern matches the LCSC WSON-12 footprint (topology and pitch); JLC STOCK = 0 on 2026-11-20 (see cup/PIN-CHECK.md)",
+  "note": "single H-bridge for coil A, VM 0-11 V, VCC 1.8-7 V, 1.8 A peak; pins (TI SLVSBA4F rev F, DSG package): 1 VM, 2 OUT1, 3 OUT2, 4 GND, 5 EN, 6 PH, 7 nSLEEP (tied to 3V3: awake whenever the logic rail is up, as the DRV8835 was), 8 VCC, pad GND; no current sense or limit: the current is set by the coil resistance; the hardware cut stays in the load switch U20 on VMOT",
+  "group": "drv",
+  "board": "CUP"
+ },
+ {
+  "ref": "U7B",
+  "value": "DRV8838DSGR",
+  "fp": [
+   "Package_SON",
+   "Texas_DSG0008A_WSON-8-1EP_2x2mm_P0.5mm_EP0.9x1.6mm"
+  ],
+  "pins": {
+   "1": "VMOT",
+   "2": "MOT_B1",
+   "3": "MOT_B2",
+   "4": "GND",
+   "5": "BENBL",
+   "6": "BPHASE",
+   "7": "3V3",
+   "8": "3V3",
+   "9": "GND"
+  },
+  "lcsc": "C86667",
+  "mpn": "DRV8838DSGR",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "single H-bridge for coil B, VM 0-11 V, VCC 1.8-7 V, 1.8 A peak; pins (TI SLVSBA4F rev F, DSG package): 1 VM, 2 OUT1, 3 OUT2, 4 GND, 5 EN, 6 PH, 7 nSLEEP (tied to 3V3: awake whenever the logic rail is up, as the DRV8835 was), 8 VCC, pad GND; no current sense or limit: the current is set by the coil resistance; the hardware cut stays in the load switch U20 on VMOT",
   "group": "drv",
   "board": "CUP"
  },
@@ -335,7 +358,27 @@
   "side": "F",
   "bom": true,
   "dnp": false,
-  "note": "",
+  "note": "VCC bypass of U7A (datasheet: 0.1 uF at VCC)",
+  "group": "drv",
+  "board": "CUP"
+ },
+ {
+  "ref": "C20",
+  "value": "100nF",
+  "fp": [
+   "Capacitor_SMD",
+   "C_0402_1005Metric"
+  ],
+  "pins": {
+   "1": "3V3",
+   "2": "GND"
+  },
+  "lcsc": "C1525",
+  "mpn": "CL05B104KO5NNNC",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "VCC bypass of U7B (datasheet: 0.1 uF at VCC)",
   "group": "drv",
   "board": "CUP"
  },
@@ -1189,7 +1232,27 @@
   "side": "F",
   "bom": true,
   "dnp": false,
-  "note": "SPICE F6: 0.1 uF at the DRV8835 VM pin (datasheet requirement, next to U7.1) in addition to the bulk C21",
+  "note": "SPICE F6: 0.1 uF at the VM pin of U7A (datasheet requirement) in addition to the bulk C21",
+  "group": "drv",
+  "board": "CUP"
+ },
+ {
+  "ref": "C62",
+  "value": "100nF",
+  "fp": [
+   "Capacitor_SMD",
+   "C_0402_1005Metric"
+  ],
+  "pins": {
+   "1": "VMOT",
+   "2": "GND"
+  },
+  "lcsc": "C1525",
+  "mpn": "CL05B104KO5NNNC",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "0.1 uF at the VM pin of U7B (datasheet requirement)",
   "group": "drv",
   "board": "CUP"
  },

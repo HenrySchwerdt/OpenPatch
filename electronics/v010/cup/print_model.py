@@ -2,7 +2,7 @@
 """3D-printable model of the populated cup board (fit check in the printed housing; NOT an electrical part).
 
 KiCad exports the board body and every part that has a library 3D model; the parts without one (HJ-840 module, USB-C receptacle,
-side button, sounder, RGB LED, STM32C011 QFN, AND3, dock hall, DRV8835 whose model file is missing) are added here as boxes with
+side button, sounder, RGB LED, STM32C011 QFN, AND3, dock hall, the two DRV8838) are added here as boxes with
 their datasheet body size and height. Output is in the POD frame of mechanical/out/v010-cup (x from the motor end, y from the
 tank-side wall, z from the skin side; board underside at z 5.3), so it drops straight into the printed housing.
 
@@ -30,7 +30,8 @@ BODIES = {
     "U30": (3.0, 3.0, 0.55, 0.0, 0.0),      # STM32C011 UFQFPN20
     "U36": (1.45, 1.0, 0.5, 0.0, 0.0),      # AND3 UFDFN-6
     "U4A": (1.1, 1.4, 0.4, 0.0, 0.0),       # DRV5032 X2SON
-    "U7": (3.0, 2.0, 0.8, 0.0, 0.0),        # DRV8835 WSON-12 (library model file missing)
+    "U7A": (2.0, 2.0, 0.8, 0.0, 0.0),       # DRV8838 WSON-8 (box, the library has no model for the DSG footprint)
+    "U7B": (2.0, 2.0, 0.8, 0.0, 0.0),
 }
 BOARD_T = G.BOARD_T
 Z_BOT = G.Z_BOT

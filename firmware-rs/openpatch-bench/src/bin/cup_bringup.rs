@@ -6,7 +6,7 @@
 //! 1. UICR: `REGOUT0` = 3.3 V (HV mode, no LDO), `PSELRESET`; reset once after the first write;
 //! 2. battery voltage from the SAADC `VDDHDIV5` channel (`openpatch_core::battery::vddhdiv5_to_mv`), logged and shown on the LED
 //!    (`openpatch_core::led`: charging pulse, full = green, low = red);
-//! 3. on a button press, ONE burst of the DRV8835 full-step sequence (`openpatch_core::phase_drive`) planned by
+//! 3. on a button press, ONE burst of the full-step sequence (`openpatch_core::phase_drive`) planned by
 //!    `openpatch_core::burst::plan_burst` for the cell's peak current, through the hardware gate:
 //!    `MOT_FWD` first, `ARM_CLK` edge, `MCU_EN` high, wait, burst, `MCU_EN` low, `MOT_FWD` back to forward. The direction follows the dock
 //!    hall (docked = forward, undocked = reverse): the hardware gate is "docked XOR reverse". The burst aborts when `SUP_OK` drops.
@@ -60,7 +60,7 @@ const STEP_PERIOD_US: u32 = 5_000;
 /// The supervisor's budget per armed window.
 const SUP_BUDGET_STEPS: u32 = 32;
 
-/// The four DRV8835 inputs on the GPIOs. Written in the safe order of `phase_drive::apply_in_safe_order`.
+/// The four driver inputs (PH/EN of U7A and U7B) on the GPIOs. Written in the safe order of `phase_drive::apply_in_safe_order`.
 struct Bridge {
     aphase: Output<'static>,
     bphase: Output<'static>,

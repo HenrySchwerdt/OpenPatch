@@ -109,5 +109,10 @@
   "delta_ccw": 0,
   "maxdev_mm": 0.125,
   "lcsc": "C370610"
+ },
+ "Texas_DSG0008A_WSON-8-1EP_2x2mm_P0.5mm_EP0.9x1.6mm": {
+  "delta_ccw": 0,
+  "maxdev_mm": 0.0,
+  "lcsc": "C86667"
  }
 }

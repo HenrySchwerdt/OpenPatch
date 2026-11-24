@@ -1,4 +1,4 @@
-//! Cup pod v4 board (45 fitted parts): HJ-840 nRF52840 SiP, DRV8835 motor driver, STM32C011 supervisor. ALL pin knowledge of this
+//! Cup pod v4 board (45 fitted parts): HJ-840 nRF52840 SiP, 2 x DRV8838 motor drivers, STM32C011 supervisor. ALL pin knowledge of this
 //! board is in this file, so a netlist change is a change here only.
 //!
 //! Source of truth: `electronics/v010/design/netlist_v4.py` (`HJ_PIN` pad -> nRF pin, signal -> pad assignment) and
@@ -7,8 +7,8 @@
 //!
 //! | HJ-840 pad | nRF pin | Net | Use |
 //! |---|---|---|---|
-//! | H5  | P0.08 | `APHASE`   | out: DRV8835 PHASE A, also supervisor input (PA) |
-//! | F4  | P0.07 | `BPHASE`   | out: DRV8835 PHASE B, also supervisor input |
+//! | H5  | P0.08 | `APHASE`   | out: U7A DRV8838 PH, also supervisor input (PA) |
+//! | F4  | P0.07 | `BPHASE`   | out: U7B DRV8838 PH, also supervisor input |
 //! | F5  | P0.27 | `AENBL`    | out: bridge A enable, 100 k pull-down: 1 = driven, 0 = brake |
 //! | E6  | P0.02 | `BENBL`    | out: bridge B enable |
 //! | G4  | P1.09 | `CHG_STAT` | in: MCP73832 STAT, low = charging (high / high-Z otherwise: use `USBDETECTED` for the cable) |

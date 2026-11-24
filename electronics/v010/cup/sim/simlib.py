@@ -22,13 +22,13 @@ os.makedirs(RES, exist_ok=True)
 RINT_NOM = 0.8
 C5_EFF = 6e-6        # C5 10 uF 10 V 0603 X5R, ~55 % left at 3.7 V (ASSUMPTION)
 CB1_EFF = 8e-6       # CB1 22 uF 10 V 0805 X5R: 8 uF = conservative figure of the netlist note (10 V part keeps ~11 uF at 5 V); case 1 sweeps 2..30 uF
-C21_EFF = 8e-6       # C21, same part, on VMOT (DRV8835 VM bulk)
+C21_EFF = 8e-6       # C21, same part, on VMOT (driver VM bulk)
 C60 = 0.1e-6
 L1 = 1e-6            # WPN252012E1R0MT
 R_ILIM = 47e3
 R_COIL = 26.5        # NFP-608-26.45-SGM, per phase
 L_COIL = 5e-3        # ASSUMPTION: no datasheet value in the repo; 6 mm PM stepper class 3..10 mH, swept 2..15 mH in case 4
-R_BRIDGE = 0.305     # DRV8835 HS+LS on resistance at 800 mA, VM = 5 V (datasheet typ)
+R_BRIDGE = 0.28      # DRV8838 HS+LS on resistance (TI SLVSBA4F typ 280 mOhm, max 330; DRV8835 before: 0.305)
 I_NRF = 5e-3         # ASSUMPTION: nRF52840 + supervisor etc. on VBAT through REG0 (INTERLOCK I.7 estimate 4..7 mA)
 
 

@@ -1,4 +1,4 @@
-"""Case 4: DRV8835 (behavioural switch-level bridge, PHASE/ENABLE mode, full steps) driving the 26.5 ohm / L coil from VM = 5 V (boost + TPS2553 chain).
+"""Case 4: 2 x DRV8838 (formerly DRV8835; same PHASE/ENABLE truth table; behavioural switch-level bridge, PHASE/ENABLE mode, full steps) driving the 26.5 ohm / L coil from VM = 5 V (boost + TPS2553 chain).
 Full-step sequence per INTERLOCK I.6: every step toggles exactly one PHASE line: A+B+ -> A-B+ -> A-B- -> A+B-.  ENABLE high while stepping.
 Measured: coil current, current into VM (through the TPS2553), VMOT spikes (energy returned by the winding), cell current, FAULT (incl. reverse-voltage deglitch)."""
 import json
@@ -33,10 +33,10 @@ def deck(rate, nsteps, lcoil=S.L_COIL, rscale=1.0, ocv=3.7, rint=S.RINT_NOM, t0=
     p = dict(name=name, ocv=ocv, rint=rint, drv={"sup_permit": C.step(1e-3), "mcu_en": C.step(1e-3), "dock_n": "0", "mot_fwd": "3.3", "arm_clk": C.pulse(3e-3)},
              tstop="%g" % tstop, tstep="2u")
     s = C.chain(p)
-    # replace the resistive motor load by the DRV8835 + coils
+    # replace the resistive motor load by the two DRV8838 bridges + coils
     lines = [l for l in s.splitlines() if not l.startswith("Bmot ")]
     s = "\n".join(lines) + "\n"
-    blk = ("* DRV8835 + NFP-608 coils (L = %g H assumed, R = %g ohm +/-)\n.model swh sw vt=0.5 vh=0.1 ron=%g roff=1e9\n.model swl sw vt=0.5 vh=0.1 ron=%g roff=1e9\n"
+    blk = ("* 2 x DRV8838 + NFP-608 coils (L = %g H assumed, R = %g ohm +/-)\n.model swh sw vt=0.5 vh=0.1 ron=%g roff=1e9\n.model swl sw vt=0.5 vh=0.1 ron=%g roff=1e9\n"
            ".model dbody d is=1e-9 n=1.1 rs=0.3\nVph_a pa 0 PWL(%s)\nVph_b pb 0 PWL(%s)\nVen_a ea 0 PWL(0 0 4m 0 4.001m 3.3)\nVen_b eb 0 PWL(0 0 4m 0 4.001m 3.3)\n"
            % (lcoil, S.R_COIL * rscale, 0.15, 0.15, " ".join("%g %g" % q for q in ptsA), " ".join("%g %g" % q for q in ptsB)))
     blk += bridge("A", "pa", "ea", "aout1", "aout2") + bridge("B", "pb", "eb", "bout1", "bout2")
@@ -118,7 +118,7 @@ def run(plot=True):
         axs[2].set_xlim(4, 40)
         for a in axs:
             a.grid(alpha=0.3)
-        fig.suptitle("Case 4: DRV8835 full steps at 200 steps/s, 26.5 ohm / 5 mH", fontsize=10)
+        fig.suptitle("Case 4: DRV8838 full steps at 200 steps/s, 26.5 ohm / 5 mH", fontsize=10)
         fig.tight_layout()
         fig.savefig(S.os.path.join(S.HERE, "plots", "case4_drv8835.png"), dpi=70)
         plt.close(fig)

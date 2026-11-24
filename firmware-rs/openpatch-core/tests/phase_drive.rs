@@ -1,4 +1,4 @@
-//! DRV8835 full-step sequence on APHASE / AENBL / BPHASE / BENBL (`phase_drive`): sequence, direction, de-energise at idle.
+//! DRV8838 full-step sequence on APHASE / AENBL / BPHASE / BENBL (`phase_drive`): sequence, direction, de-energise at idle.
 use openpatch_core::hal::MotorDir;
 use openpatch_core::phase_drive::*;
 

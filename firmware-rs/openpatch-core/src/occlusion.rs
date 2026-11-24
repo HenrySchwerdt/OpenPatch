@@ -1,7 +1,7 @@
 //! Occlusion detection by the TMAG5273 angle shortfall ONLY (cup board v4).
 //!
 //! The 45-part board has no motor current sense: the shunt + INA180 of the earlier boards are gone (`INTERLOCK.md` I.5 / I.6: a
-//! single shunt would need more than two parts, the DRV8835 has no sense pins), so the **current-rise warning is dropped on this
+//! single shunt would need more than two parts, the DRV8838 has no sense pins), so the **current-rise warning is dropped on this
 //! board** (`SafetySupervisor::set_occlusion_current_enabled(false)`, [`OcclusionSource::AngleOnly`]). What remains is the angle
 //! channel, which is a separate sensor on the rear flex strip and was always the primary detector:
 //!

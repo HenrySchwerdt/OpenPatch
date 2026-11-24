@@ -184,6 +184,13 @@ Rows FM4-QL/QD/QR (discrete legs), FM4-U11 (comparator) and the bleeder rows are
 | FM6-MP-1 | MP1..4 | solder joint / lead open | winding open | yes | TMAG angle shortfall | 3-31-001 |
 STSPIN220-specific rows (EN/FAULT, VREF, STBY, TOFF, current limit) are void.
 
+**2026-11-24: U7 is now two DRV8838 (U7A coil A, U7B coil B, `INTERLOCK.md` I.6b).** Rows FM6-U7-1 and FM6-U7-2 apply to each of U7A and U7B with the same effect and detection (one bridge per coil; a stuck bridge affects one winding only). New row:
+
+| FM id | Ref | Failure mode | Effect | Single-fault safe? | Readback | Code |
+|---|---|---|---|---|---|---|
+| FM6-U7-3 | U7A / U7B | nSLEEP or VCC pin open (solder joint) | that bridge stays off (Hi-Z, internal pull-down on nSLEEP): one coil not driven, the motor stalls or loses steps | yes (fail-safe) | TMAG angle shortfall | 3-31-001 |
+
+
 ## v4 reduction addendum (2026-11-20, 45 fitted parts)
 | FM id | Ref | Failure mode | Effect | Single-fault safe? | Code |
 |---|---|---|---|---|---|
