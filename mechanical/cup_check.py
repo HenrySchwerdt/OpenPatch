@@ -450,7 +450,7 @@ def check_size(outdir: Path, variant: str, p: dict) -> dict:
     warns.append(f"thrust: rod torque {th['T_rod_Nmm']} N mm, screw eta {th['eta_screw']}, bevel eta 0.9, collar term -> {th['F_avail_N']} N available (>= {THRUST_MIN_N} required); seal perimeter {th['perimeter_mm']} mm")
     dc = HERE.parent / "firmware-rs" / "openpatch-core" / "src" / "drive_cal.rs"
     if dc.exists():
-        m_ = re.search(r"Nfp608_26_45CupMiter1_1,[^;]*bore_area_x100:\s*(\d+)", dc.read_text())
+        m_ = re.search(r"Nfp608_26_45Cup59Miter1_1,[^;]*bore_area_x100:\s*(\d+)", dc.read_text())
         if m_ and abs(int(m_.group(1)) - L["bore_area"] * 100) > 0.5:
             targets.append(f"FIRMWARE: preset 0x26 (drive_cal.rs) has bore_area_x100 {m_.group(1)} but the CAD bore is {L['bore_area']:.3f} mm2 ({L['bore_w']} x {L['bore_h']}, U/step {L['u_per_step']:.6f}): "
                            f"re-derive uu_num / uu_den / bore_area_x100 (+ tests/preset_cup.rs) before any dosing run, else every step delivers {L['bore_area'] * 100 / int(m_.group(1)) - 1:+.1%}")
