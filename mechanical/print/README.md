@@ -84,3 +84,31 @@ The CAD gears are envelopes and the rod and nut have no thread, so a scaled prin
 - **Plunger nut:** AF 7.0 x 2.6 with 0.2 mm radial thread clearance; it goes into the plunger core's hex pocket.
 
 Print the screw upright in PETG and make two, because it is thin. Print the gears back face down at 0.1 mm layers. Scale the other kit parts by 200 %, or use the zip of the session.
+
+## 2:1 housing, sliced for the Sovol SV01 Pro (`OP-100_x2/`)
+
+The final OP-100 housing (bottom shell + lid, from `../out/v010-cup/`, state of 2026-11-24) is scaled to 200 %. Both parts are printed together in one job. The lid is flipped so its outer face is down.
+
+- `make_x2_housing.py` writes `OP-100_bottom_x2.stl` (95.9 x 73.2 x 15.1 mm), `OP-100_top_x2.stl` (95.9 x 73.2 x 6.2 mm, flipped) and the bed layout `OP-100_housing_x2_bed.stl`.
+- `slice_sv01pro.sh <stl> <gcode>` slices with the CuraEngine inside UltiMaker Cura (5.11, SV01 Pro definition, Titan extruder, 0.4 nozzle).
+  - CuraEngine alone ignores Cura's formula settings, so `cura_resolve.py` evaluates all 724 settings the way the Cura app does.
+  - Our overrides are in `sv01pro_pla_firstlayer.json`.
+- Result: **`OP-100_x2/OP-100_housing_x2_SV01PRO.gcode`**. PLA, 0.16 mm layers, 20 % grid infill, tree supports (for the dock-pocket roof and the motor saddles), 6 mm brim. About 1 h 50 min and about 38 g of filament (CuraEngine estimate).
+
+**First-layer fixes in that profile:**
+1. **A fresh bed mesh on every print.** The stock Sovol start code only runs `M420 S1`, which loads a saved mesh. If `G29` + `M500` was never run on the printer, that does nothing, and a tilted or warped bed ruins the first layer.
+   - The new start code heats the bed to 65 °C first, then homes and runs `G29`. This adds about 2 min.
+   - It then applies the mesh with a 10 mm fade (`M420 S1 Z10`).
+2. **Thick, wide, slow first layer:** 0.28 mm height, 120 % line width, 15 mm/s, part fan off. The fan ramps up over layers 1-4.
+3. **First-layer temperatures** 5 °C hotter: nozzle 210 °C, bed 65 °C. After that, 205 °C and 60 °C.
+4. **6 mm brim** against lifting corners.
+
+**If the first layer is still bad, check these on the printer (a slicer cannot fix them):**
+- **Z offset (probe offset):** set `M851 Z-…` from a paper test and save it with `M500`.
+  - Lines too thin or scratchy: the nozzle is too close. Raise it by 0.05 mm.
+  - Lines round and not sticking: the nozzle is too far. Lower it by 0.05 mm.
+- **Clean the bed:** isopropyl alcohol, no fingerprints.
+- **Tram the bed screws** roughly before `G29`: the probe can only compensate a few tenths of a millimetre.
+- **Slow or tight filament path:** check the Titan tension; a skipping extruder looks like poor adhesion.
+
+**Other materials:** for PETG, change the temperatures in `sv01pro_pla_firstlayer.json` and `BED0` / `NOZ0` in `slice_sv01pro.sh` (e.g. 235/240 °C nozzle, 75/80 °C bed), then re-run the slice.
