@@ -2,7 +2,8 @@
 """Dock of the cup pod: pocket open to the underside and the +X end face, 3.5 mm slide + two stainless L-springs + dock magnet/hall.  All cannula values TODO-MEASURE (photo estimate).
 
 The head either slides in from the open +X end (like the Insight pump) or the pod is lowered over it with the dome `travel` mm further from the needle than its
-latched position; the last `travel` mm toward the tank (= needle insertion) end when the two spring teeth drop into the dome side notches.  Needle axis: +Y at (x_n, z_n), leaving the tank front wall sideways.
+latched position (since challenge review #2 that pre-slide position lies OUTSIDE the end face: the pocket is only clr + A + clr long); the last `travel` mm toward
+the tank (= needle insertion) end when the two spring teeth drop into the dome side notches.  Needle axis: +Y at (x_n, z_n), leaving the tank front wall sideways.
 A spring-loaded guard sleeve covers the needle tip while no head is docked.
 """
 from __future__ import annotations
@@ -17,17 +18,21 @@ def layout(p: dict, x_face_tank: float, y_c: float) -> dict:
     d = p["cup"]["dock"]
     h, cl, g = d["head"], d["clip"], d["guard"]
     R = h["A_dome_d"] / 2
-    x_bf = x_face_tank + 0.05
+    hb = d["hub"]
+    x_bf = x_face_tank + d["mouth_seal"]["gap"]  # pocket mouth (walls + roof) = tank front face + compressed mouth seal (challenge review #5)
     x_f = x_bf + d["clr"]                       # dome -X tangent (septum side), latched
     x_d = x_f + R
     x_face = x_f + h["recess_depth"]            # septum face (recess floor)
     x_tip = x_face + h["needle_depth"]
-    pocket_len = d["clr"] + h["A_dome_d"] + d["travel"] + d["clr"]
+    reserve = d["travel"] if (d.get("in_pod_reserve") or not d.get("open_end")) else 0.0   # open end: the slide happens outside the end face (challenge review #2)
+    pocket_len = d["clr"] + h["A_dome_d"] + reserve + d["clr"]
     x_far = x_bf + pocket_len
-    return {"R": R, "x_bf": x_bf, "y_c": y_c, "z_n": h["septum_z"], "x_f": x_f, "x_d": x_d, "x_face": x_face, "x_tip": x_tip, "x_far": x_far, "pocket_len": pocket_len,
-            "half": d["pocket_half"], "x_hub": [x_face_tank - 1.2, x_face_tank - 0.5], "guard_dock": [x_face_tank + 0.05, x_face], "guard_free": [x_face + 0.1, x_tip + g["tip_cover"]],
+    x_plate1 = x_far + p["shell"]["wall"] if d.get("open_end") else x_d + h["base_l"] / 2 + d["clr"] + d["travel"]
+    x_hub1 = x_face_tank - hb["face_gap"]
+    return {"R": R, "x_bf": x_bf, "y_c": y_c, "z_n": h["septum_z"], "x_f": x_f, "x_d": x_d, "x_face": x_face, "x_tip": x_tip, "x_far": x_far, "pocket_len": pocket_len, "in_pod_reserve": reserve,
+            "half": d["pocket_half"], "x_hub": [x_hub1 - hb["len"], x_hub1], "guard_dock": [x_face_tank + 0.05, x_face], "guard_free": [x_face + 0.1, x_tip + g["tip_cover"]],
             "guard_free_end": x_tip + g["tip_cover"], "x_tooth": x_d, "arm_len": (x_far - 0.15) - x_d,
-            "plate_x": [x_d - h["base_l"] / 2 - d["clr"], x_d + h["base_l"] / 2 + d["clr"] + d["travel"]], "x_d0": x_d + d["travel"], "slide": d["travel"], "clip": cl}
+            "plate_x": [x_d - h["base_l"] / 2 - d["clr"], x_plate1], "x_d0": x_d + d["travel"], "slide": d["travel"], "clip": cl}
 
 
 def clip_stress(p: dict, K: dict) -> dict:
@@ -124,7 +129,7 @@ def build_needle(s: Script, p: dict, K: dict) -> None:
     nd, g, hb = p["needle"], p["cup"]["dock"]["guard"], p["cup"]["dock"]["hub"]
     yc, zn = K["y_c"], K["z_n"]
     s.cyl("needle", "X", (0, yc, zn), nd["od"], K["x_hub"][0], K["x_tip"])
-    s.tube("needle_hub", "X", (0, yc, zn), hb["d"], hb["id"], *K["x_hub"])                          # brass tube 1.5 x 0.2 (ID 1.1); the 30G needle is bonded in with CA
+    s.tube("needle_hub", "X", (0, yc, zn), hb["d"], hb["id"], *K["x_hub"])                          # centring hub: 23G tube (ID 0.34) pressed in the tank wall; 30G needle bonded in with CA
     s.tube("needle_guard", "X", (0, yc, zn), g["od"], g["id"], *K["guard_dock"])
 
 

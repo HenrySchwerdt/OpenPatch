@@ -14,10 +14,12 @@
    "stroke": 9.4
   },
   "OP-100": {
-   "stroke": 9.41
+   "stroke": 11.68,
+   "volume_U": 132.5
   },
   "OP-200": {
-   "stroke": 18.82
+   "stroke": 21.09,
+   "volume_U": 239.3
   }
  },
  "shell": {
@@ -49,7 +51,7 @@
  },
  "reservoir": {
   "w_in": 20.5,
-  "h_in": 5.5,
+  "h_in": 5.9,
   "wall": 0.8,
   "dead": 0.02,
   "plunger_len": 4.76,
@@ -770,7 +772,7 @@
  "reservoir_frozen": {
   "_comment": "CUP variant only (op_cup.prepare): un-frozen wide tank; bench keeps 16 x 5",
   "bore_w": 20.5,
-  "bore_h": 5.5,
+  "bore_h": 5.9,
   "bore_tol_plus": 0.05,
   "bore_tol_minus": 0.0,
   "bore_corner_r": 2.5,
@@ -781,7 +783,7 @@
   "port_chamfer": 0.2,
   "port_pos": "centre of the closed end face (y = bore centre, z = bore axis)",
   "outer_w": 21.7,
-  "outer_h": 6.7,
+  "outer_h": 7.1000000000000005,
   "outer_tol": "+-0.1",
   "length_tol": "+-0.1",
   "Ra_bore_um": 0.8,
@@ -1517,15 +1519,19 @@
    },
    "_geometry": "distances are measured from the mating axis (apex of the pitch cones) along the gear axis. Gear A (motor, 2 mm bore, D-shaft press fit): drawing 0.96..4.22; FACED to front 1.2 (0.2 clearance to the d2 angle magnet, which has radius 1.0 > 0.96) and back 3.4 (keeps the motor, the lane-2 saddle and the E board screw where they are; remaining bore length 2.2 mm). Gear B (rod, 1 mm bore drilled 1.25 + tapped M1.6, screwed onto the rod): drawing 0.96..3.32, not faced. Envelope = 45 degree tip cone from the front to the pitch circle (r = a + m cos 45), back cone down to the hub radius, hub cylinder; teeth are not modelled (envelope overlaps of the pair are the meshing teeth, EXCLUDE pair).",
    "motor_r": 3.0,
-   "clr_tank": 0.28,
+   "clr_tank": 0.1,
    "clr_boss": 0.1,
    "bore_clr": 0.04,
-   "_clr_tank": "0.2 + 0.08: gear B (back 3.32) is 0.08 shorter than the old z16 stack (3.4); the extra clearance keeps the whole lane-1 stack, the dock pocket and therefore the E board screw (dock front face + 2.24) at their previous x."
+   "_clr_tank": "challenge review 2026-11-24 #3: 0.28 -> 0.10 (micro-margin). The tank dry rim x_dry = max(drive stack + clr_tank, west board tab east edge + board_support.west_tab.tank_clr): in OP-100/200 the west tab sets it (op_cup.geometry)."
   },
   "rod": {
    "d": 1.6,
    "part": "DIN 975 threaded rod M1.6 x 125, zinc-plated steel (GHW 340975, BUY-LIST G1) or brass (G2, 350975); no stainless A2 M1.6 exists in small quantity; the rod never touches the liquid (cup_check)",
-   "eta_screw": 0.2
+   "eta_screw": 0.2,
+   "mu_thread_dry": 0.25,
+   "mu_thread_greased": 0.15,
+   "lubricated": true,
+   "_thrust": "challenge review #4: screw efficiency from the thread friction (eta = tan(lead) / tan(lead + atan(mu / cos 30))); the thread is greased at assembly (ASSEMBLY-CUP step 2: PTFE / silicone grease on the rod thread), dry values are the fallback case in cup_check.thrust. eta_screw 0.2 is the legacy constant (dry steel on brass)"
   },
   "nut": {
    "af": 3.5,
@@ -1536,7 +1542,16 @@
    "od": 2.5,
    "len": 1.0,
    "gap": 0.05,
-   "part": "brass tube MS63 2.5 x 0.45 (ID 1.6, GHW 913025) cut to 1.0, bonded on the rod (CA / retaining compound)"
+   "mu_dry": 0.15,
+   "part": "brass tube MS63 2.5 x 0.45 (ID 1.6, GHW 913025) cut to 1.0, bonded on the rod (CA / retaining compound)",
+   "_len": "challenge review #3 proposed 1.0 -> 0.7; kept at 1.0 because the west board tab, not the drive stack, sets the tank dry rim (no gain, better bond)",
+   "shim": {
+    "t": 0.1,
+    "od": 2.5,
+    "id": 1.65,
+    "mu": 0.08,
+    "part": "PTFE film 0.1 mm, punched washer OD 2.5 / ID 1.65 between the bush rear face and the collar (BUY-LIST Z13): the sliding thrust face of the forward direction (challenge review #4)"
+   }
   },
   "bush": {
    "od": 3.0,
@@ -1566,11 +1581,11 @@
   "plunger": {
    "clr": 0.1,
    "dead": 0.02,
-   "dry_in": 0.4,
+   "dry_in": 0.2,
    "front_wall": 0.9,
    "bore_d": 2.0,
-   "tip_in_nut_empty": 0.5,
-   "tip_clear_full": 0.4,
+   "tip_in_nut_empty": 0.2,
+   "tip_clear_full": 0.2,
    "nut_recess": 0.1,
    "nut_clr": 0.1,
    "ring_front_a": [
@@ -1580,7 +1595,8 @@
    "ring_front_b": [
     0.51,
     1.11
-   ]
+   ],
+   "_margins": "challenge review 2026-11-24 #3: dry_in 0.4 -> 0.2, tip_clear_full 0.4 -> 0.2, tip_in_nut_empty 0.5 -> 0.2 (the nut stays fully engaged, 1.3 mm). Seal rings: only the ACTIVE seal variant is built (seal.active_variant S2 = single front bead ring_front_b, challenge review #6); ring_front_a is kept as the twin-bead (T) option"
   },
   "motor": {
    "saddle_len": 1.5,
@@ -1619,6 +1635,13 @@
    "OP-100": 1.0,
    "OP-200": 2.0
   },
+  "outer_length": {
+   "OP-100": 47.96,
+   "OP-200": 66.78
+  },
+  "_outer_length": "owner 2026-11-24 ('couldn't the tank be bigger?'): the outer length is FIXED and the stroke fills it (op_cup.prepare); volume_ml is the nominal MINIMUM (the size name). The firmware reservoir capacity stays the nominal value until the bench confirms the bigger tank",
+  "floor_tank": 0.7,
+  "_floor_tank": "challenge review #9 (owner list #7): floor and roof 0.9 -> 0.7 over the tank only (0.2 mm recesses in the bottom-shell floor and the lid roof, y strip of the tank, x dry rim .. tank front); side walls stay 0.9 (rim groove). The rod axis stays at z 4.25 (0.7 + 7.1 / 2), so motor, gears, TMAG, board, USB-C and dock keep their absolute z. SLA only (bottom shell and lid are SLA anyway)",
   "lane2_inner": 13.0,
   "motor_y_ext": 21.1,
   "lane2_extra": 2.0,
@@ -1626,10 +1649,11 @@
   "reservoir": {
    "_comment": "CUP-POD tank, NOT frozen/ordered (user 2026-11-19): wider bore -> shorter stroke and cup. Overrides reservoir_frozen only inside the cup variant (bench keeps 16 x 5).",
    "bore_w": "derived from cup.width",
-   "bore_h": 5.5,
+   "bore_h": 5.9,
    "wall": 0.6,
    "end_wall": 2.5,
-   "port_d": 2.0
+   "port_d": 2.0,
+   "_bore_h": "5.5 -> 5.9 with floor_tank 0.7 (challenge review #9): area 106.3 -> 113.5 mm2; the plunger mould follows (op_mould, reservoir.h_in)"
   },
   "board": {
    "part": "main board 4-layer 0.8 mm + parts <= 1.3 mm (ISP1807 8x8x1.0, driver, charger, supervisor, piezo, button): RESERVED volume, no PCB design",
@@ -1654,10 +1678,10 @@
    "_pcb": "main board lane-2 body as agreed with the electronics agent 2026-11-20 (pod frame): west edge x >= 7.8, 0.8 mm thick at z 5.3-6.1, top parts <= 7.55 (lid inner 7.6), bottom parts >= 4.12 over the cell, none over the wire channel x < 9.4"
   },
   "usb": {
-   "part": "waterproof USB-C mid-mount receptacle 8.94 x 7.35 x 3.26 (VERIFY drawing) in the +Y long wall of lane 2 + small USB board",
+   "part": "HRO TYPE-C-31-M-14 (LCSC C223907) sink-board receptacle, mouth 8.94 x 3.26 at the board north edge (footprint origin = mouth, electronics/v010/footprints/V010.pretty/USB_C_HRO_31_M_14.kicad_mod)",
    "w": 9.4,
-   "d": 9.1,
-   "_d": "keep-out x 18.8-28.2 (shell tabs), depth 9.1: receptacle body incl. pad tails reaches back to y 26.6 (pre-order review M7, EasyEDA C223907 body 8.89 from the mouth at the board edge 35.5); was 7.35",
+   "d": 8.9,
+   "_d": "keep-out x 18.8-28.2 (shell tabs), y 26.6 (pad tails, EasyEDA body 8.89) to the mouth = board north edge 35.5 (footprint origin), pre-order review M7",
    "h": 3.26,
    "z_c": 5.7,
    "x_c": 23.5,
@@ -1666,16 +1690,20 @@
    "_pos": "mid-mount receptacle in a board-edge notch, centred on the board mid-plane z 5.7 and x 23.5 (board review 2026-11-20 fix 1); its keep-out bottom is clipped to z 4.12 (cell envelope top 4.1 incl. 0.2 swell: VERIFY the real receptacle underside)",
    "shape": "stadium",
    "_open": "owner 2026-11-24 (2:1 print): STADIUM opening 9.0 x 3.4 (full semicircular ends R1.7) matching the TYPE-C-31-M-14 (LCSC C223907) mouth 8.94 x 3.26 + clearance; a plug shell (8.25 x 2.4) passes with 0.37 / 0.5 mm per side; 0.3 x 45 deg chamfer on the outer edge",
-   "recess_margin": 0.85,
-   "recess_depth": 0.4,
-   "recess_z_max": 7.55,
    "gasket": {
     "in_w": 8.5,
     "in_h": 2.8,
-    "margin": 0.8,
-    "t": 0.4,
+    "half_x": 6.75,
+    "z0": 3.2,
     "z_max": 7.5,
-    "_": "stadium frame: inner 8.5 x 2.8 (overlaps the receptacle mouth rim 8.94 x 3.26 by 0.22 per side, plug shell 8.25 x 2.4 passes), outer = opening + 0.8, clipped at z 7.5 below the lid roof; cast silicone (Z4) or cut from the 0.4-0.5 mm sheet"
+    "t_free": 0.25,
+    "_": "challenge review 2026-11-24 (USB-C plug seats fully): flat cast frame (Z4) in the 0.2 mm gap between the receptacle mouth / board north edge (y 35.5) and the wall inner face (35.7), 0.25 free -> 20 % squeeze; inner stadium 8.5 x 2.8 (overlaps the mouth rim 8.94 x 3.26 by 0.22 per side, the plug shell 8.25 x 2.4 passes), outer x 23.5 +- 6.75 (covers the joint where the rim groove skips the USB-C zone), z 3.2-7.5. The 0.4 mm recess in the wall inner face is gone"
+   },
+   "cbore": {
+    "w": 12.6,
+    "h": 6.8,
+    "depth": 0.6,
+    "_": "outer stadium counterbore around the opening (both shells, open through the top fillet): the plug overmold (USB-C max 12.35 x 6.5) lands on its floor at y 36.0, 0.5 in front of the mouth (35.5) -> the plug mates fully (overmold-to-mouth 0.0-0.5); wall left at the opening 0.3"
    },
    "chamfer_out": 0.3
   },
@@ -1701,13 +1729,13 @@
    "pad_d": 1.6,
    "z_top": 5.3,
    "screw_w": [
-    8.9,
+    8.43,
     21.5
    ],
    "screw_e": {
     "dx_dock": 2.24,
     "y": 20.0,
-    "_": "x = dock pocket front face (x_bf) + 2.24 -> 37.40 in OP-100: the side_b leg moves with the dock"
+    "_": "x = dock pocket front face (x_bf) + 2.24 -> 40.90 in OP-100 (37.40 before the 3.5 mm in-pod slide reserve was removed, challenge review #2): the side_b leg moves with the dock"
    },
    "boss_d": 1.8,
    "pilot_d": 0.95,
@@ -1716,13 +1744,15 @@
    "ring_d": 2.8,
    "west_tab": {
     "x": [
-     7.8,
-     10.0
+     7.33,
+     9.53
     ],
     "y": [
      20.1,
      22.9
-    ]
+    ],
+    "tank_clr": 0.1,
+    "_": "challenge review #8: the 0.47 mm legacy motor-corner offset is gone (motor axis x 4.47 -> 4.00), the west tab and screw W move -0.47 with it (was x 7.8-10.0, screw 8.9); the tank dry rim stays tank_clr east of the tab"
    },
    "screw": "M1.2 x 4 cheese head (ISO 1207 / DIN 84: head d2.0 x 0.8), BRASS (non-magnetic; titanium as option), thread-forming into the resin pilot d0.95 x 3.6 (2.4 mm = 2 d engagement below the board); head top z 6.9 (lid inner 7.6)",
    "_screws": "user 2026-11-20: board screwed down from the top. No boss column fits under the lane-2 main body (the cell fills the lane width; east of the cell is < 3 mm from the HJ-840 antenna band x 42.85-43.4 / y 24-32), so the 2 screws sit in the two free full-height spots: west-south in the motor/tank channel (board tab x 7.8-10.0, y 20.1-22.9) and in the side_b leg; ledges + wall shelf + lid ribs carry the north side"
@@ -1732,13 +1762,15 @@
    "x_c": 33.0,
    "z_c": 6.35,
    "actuator_z": 6.7,
-   "actuator_tip_y_max": 35.35,
+   "actuator_tip_y_max": 35.32,
+   "actuator_tip_y_min": 35.2,
+   "_tip": "after the H8 board move (SW1 0.45 mm back, done by the electronics agent): tip y 35.20-35.32 (was agreed <= 35.35)",
    "_h8": "pre-order review H8 (2026-11-24): on the routed board SW1 (board y 81.85) puts the actuator tip at y 35.65-35.77 and its centre at z ~6.7; the cap needs tip <= 35.35, so SW1 must move back 0.45 mm (board y 82.30 -> tip 35.20-35.32). An O-ring-sealed cap cannot also give up 0.4 mm of the 0.9 mm wall.",
    "switch_travel": 0.25,
    "_x": "SW1 = ALPS SKSCLAE010 side push (electronics/v010/cup/PIN-CHECK.md M3) at board x 25.2 = pod x 33.0, actuator toward +Y; actuator height ~ board top 6.1 + 0.3 (VERIFY on the ALPS drawing), tip y <= 35.35 (agreed interface)",
    "stem_d": 1.6,
    "bore_d": 1.75,
-   "face_recess": 0.2,
+   "face_recess": 0.0,
    "face_chamfer": 0.15,
    "bore_chamfer": 0.25,
    "cbore_d": 2.4,
@@ -1763,7 +1795,7 @@
      6.35,
      7.05
     ],
-    "face_y": 35.4
+    "face_y": 35.37
    },
    "oring": {
     "id": 1.5,
@@ -1787,11 +1819,13 @@
    ]
   },
   "vent": {
-   "x_back": 3.0,
-   "y": 14.0,
    "hole_d": 0.8,
-   "recess_d": 5.0,
-   "recess_depth": 0.2
+   "dx_bf": 1.3,
+   "z": 3.4,
+   "disc_d": 2.0,
+   "disc_t": 0.15,
+   "part": "ePTFE vent membrane, adhesive-backed die-cut disc d2.0 (BUY-LIST Z14), bonded on the inner face of the -Y dock-pocket side wall over the d0.8 hole",
+   "_": "challenge review #5: hidden vent from the dock pocket (outside) through the -Y pocket side wall into the empty space beside the pocket (old ko_side_a); without it a sealed pod reaches about -16 kPa at empty (+1.7 N on the plunger). Clean top kept"
   },
   "joint": {
    "_comment": "owner 2026-11-24 (2:1 print, visible gap): the shells close plastic-to-plastic on the rim (lid bottom face = rim top = z 5.0, outer seam flush); the seal sits in a GROOVE in the bottom-shell rim at constant distance from the outer wall, compressed by a TONGUE on the lid. The 0.9 mm wall allows only a 0.45 mm groove (0.225 mm walls): a buyable 0.8-1.0 mm cord needs >= 1.9 mm of rim, i.e. +2 mm width and length (the tank and the board edge sit 0-0.2 mm from the wall inner faces), so the seal is a cast silicone ring of the groove shape (STL OP-xxx_lid_gasket.stl). Offsets are from the outer outline (R4.8 corners).",
@@ -1813,10 +1847,10 @@
    "band_h": 0.55,
    "band_wall": 0.85,
    "_band": "rim band z 4.45-5.0 thickens the bottom-shell wall to a constant 0.85 mm in the four corners (outer R4.8 vs inner R3.1 leaves only 0.57 on the diagonal), so the groove keeps a 0.175 inner wall there (0.85, not 0.9: the side_a / aux keep-outs reach to 0.03 of a 0.9 band)",
-   "usb_skip_half": 5.25,
+   "usb_skip_half": 6.65,
    "post_gap": 0.1,
    "rib_gap": 0.05,
-   "part": "cast silicone ring 0.32 x 0.4 (Shore A 40-60, BUY-LIST Z4 cast silicone in a printed 2-part mould), open at the USB-C frame: its two ends butt against the USB-C gasket frame (dab of Z4 at assembly)"
+   "part": "cast silicone ring 0.32 x 0.4 (Shore A 40-60, BUY-LIST Z4 cast silicone in a printed 2-part mould), open at the USB-C zone (x 23.5 +- 6.65, where the outer counterbore takes 0.6 of the wall): the joint there is covered on the wall inner face by the USB-C frame; dab of Z4 at the two ring ends"
   },
   "dock": {
    "_comment": "ALL values TODO-MEASURE (Insight Flex not measured). Head size re-estimated from the user photos by proportion (patch ~ 35 x 28 mm, head ~ 1/4 of the patch long side, 30G needle and tubing as scale): dome d8.0 x 4.2, base plate 9 x 9. Principle: pod lowered over the head into a bottom-open pocket (+0.2), slid `travel` mm toward the needle until the U-clip teeth drop into the dome side notches. Needle guard = spring-loaded sleeve (tip recessed when undocked).",
@@ -1841,6 +1875,8 @@
    },
    "clr": 0.2,
    "travel": 3.5,
+   "in_pod_reserve": false,
+   "_travel": "challenge review #2: with the open +X end the 3.5 mm slide happens OUTSIDE the end face, so the pocket is clr + A + clr long (in_pod_reserve false); set it true to get the old 11.9 mm pocket back",
    "pocket_half": 4.9,
    "pocket_wall": 0.4,
    "roof": 0.5,
@@ -1858,23 +1894,25 @@
     "spring_N": 0.3
    },
    "hub": {
-    "d": 1.5,
-    "id": 1.1,
-    "t": 0.7,
-    "press": 0.08,
-    "part": "brass tube MS63 1.5 x 0.2 (ID 1.1, GHW 913015) cut to 0.7, 30G needle bonded in with CA"
+    "d": 0.64,
+    "id": 0.34,
+    "len": 1.45,
+    "face_gap": 0.05,
+    "press": 0.04,
+    "seat_tol": 0.02,
+    "part": "centring hub = 23G stainless tube (OD 0.64, ID 0.34) cut to 1.45 from a Z1 blunt needle (fallback 22G, OD 0.72 / ID 0.41), pressed into a d0.60 seat in the tank front wall; the 30G needle (OD 0.31) is bonded in it with CA (radial play 0.015)",
+    "_": "challenge review #12: the old brass hub 1.5 x 0.2 (ID 1.1) left the 30G needle +-0.4 off axis"
    },
-   "hub_seal": {
-    "id": 2.5,
-    "od": 3.3,
-    "t": 0.5,
-    "groove_id": 2.4,
-    "groove_od": 3.4,
-    "groove_depth": 0.3,
-    "part": "flat ring cut from the 0.5 mm silicone sheet (BUY-LIST Z2, Shore A 60): no standard 3.2 x 2.4 x 0.4 micro O-ring is orderable"
+   "mouth_seal": {
+    "t_free": 0.3,
+    "gap": 0.25,
+    "hole_d": 1.8,
+    "part": "flat frame plate cast in Z4 silicone (0.3 sheet between two plates) or cut, outline = pocket walls + roof (10.6 x 4.2), hole d1.8 for the needle guard",
+    "_": "challenge review #5: closes the seam between the tank front face and the pocket mouth (walls + roof); replaces the hub gasket ring that sealed nothing; 17 % squeeze, the tank is pressed on it by the stop blocks (rear) and the pumping pressure"
    },
    "clip": {
-    "t": 0.1,
+    "t": 0.05,
+    "_t": "challenge review #2: the pocket is 3.5 shorter, arm 7.55 -> 4.05 mm; 0.1 sheet would see 1220 MPa, 0.05 sheet 608 MPa (allow 650), 0.15 N per spring",
     "b": 2.4,
     "z0": 1.4,
     "tooth_w": 0.6,
@@ -1883,12 +1921,12 @@
     "E_MPa": 190000,
     "yield_MPa": 1000,
     "allow_MPa": 650,
-    "material": "AISI 301 full hard (1.4310 C1300) 0.1 mm, laser-cut stencil part: two separate L-springs (arm + 90 deg anchor tab + bent-in tooth flap)",
+    "material": "AISI 301 full hard (1.4310 C1300) 0.05 mm, laser-cut stencil part: two separate L-springs (arm + 90 deg anchor tab + bent-in tooth flap)",
     "tab_len": 0.9,
     "slot_w": 0.2,
     "slot_x0_rel": -0.15,
     "anchor_inner": 0.1,
-    "_anchor": "owner 2026-11-24: the pocket is open at the +X end, so the U-clip bridge is gone; each arm ends in a 90 deg tab bent outward that is pushed from below into a 0.2 mm slot through an anchor block on the side wall at the open end (bonded with CA); the arm root stays where the bridge was (arm 7.55 mm)"
+    "_anchor": "owner 2026-11-24: the pocket is open at the +X end, so the U-clip bridge is gone; each arm ends in a 90 deg tab bent outward that is pushed from below into a 0.2 mm slot through an anchor block on the side wall at the open end (bonded with CA); the arm root stays where the bridge was (arm 4.05 mm with the 8.4 mm pocket)"
    },
    "hall": {
     "Br_T": 1.45,
@@ -1898,20 +1936,27 @@
   },
   "fill": {
    "hole_d": 1.7,
+   "hole_lead_in": 0.3,
    "needle_d": 0.4,
    "septum_d": 1.6,
    "septum_h": 1.0,
    "pocket_d": 1.7,
-   "pocket_top": 1.9,
    "chan_d": 1.0,
-   "chan_z": 2.2,
+   "chan_dz": 1.3,
+   "chan_into_bore": 0.1,
    "septum_dy": -4.0,
-   "out_d": 0.8
+   "out_d": 0.8,
+   "_": "z values relative to the tank underside (floor_tank); the fill channel runs 0.1 INTO the bore (challenge review #1: it stopped 0.1 short)"
+  },
+  "packing_voids": {
+   "_": "challenge review #7: empty volumes that are NOT tank-convertible (the tank section is constant) and are accepted by cup_packing by name; any other empty 4 x 4 column fails",
+   "side_a": "beside the dock pocket on the -Y side (old ko_side_a, empty; holds the vent membrane)",
+   "rear_a": "rear corner of lane 1 beside gear B / TMAG, behind the tank dry rim (old ko_io, empty)"
   }
  },
  "mode": "bench",
  "cup_active": true,
- "cup_bore_area": 106.25829444277281,
+ "cup_bore_area": 113.47971006786517,
  "drive_nfp": {
   "screw_d": 1.6,
   "nut_hole_d": 1.7,

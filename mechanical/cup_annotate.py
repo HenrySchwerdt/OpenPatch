@@ -49,7 +49,7 @@ def draw(p: dict, L: dict, svg_path: Path) -> Path:
     rect(K["x_d"] - 0.55, yr - 0.7, K["x_d"] + 0.55, yr + 0.7, "#ff7f00", "#703000")
     line(K["x_hub"][0], yr, K["x_tip"], yr, "#000", 1.6)
     rect(K["guard_dock"][0], yr - 0.7, K["guard_dock"][1], yr + 0.7, "#5ec8e8", "#046")
-    for k, (fill, st) in {"board": ("#2e8b57", "#145a32"), "aux": ("#7fbf7f", "#145a32"), "io": ("#d09020", "#704000"), "side_a": ("#c0a060", "#604000"), "side_b": ("#c0a060", "#604000"), "battery": ("#3a5fcd", "#1a2f80"), "usb": ("#8a3fd0", "#40206a")}.items():
+    for k, (fill, st) in {"board": ("#2e8b57", "#145a32"), "aux": ("#7fbf7f", "#145a32"), "side_b": ("#c0a060", "#604000"), "battery": ("#3a5fcd", "#1a2f80"), "usb": ("#8a3fd0", "#40206a")}.items():
         b = L[k]
         rect(b["x"][0], b["y"][0], b["x"][1], b["y"][1], fill, st, op=0.45, dash="5,3", sw=1.5)
     # lane 1: tank, plunger (FULL), nut, seals, rod, collar/bush, gear B + magnet + TMAG, motor column
@@ -58,7 +58,8 @@ def draw(p: dict, L: dict, svg_path: Path) -> Path:
     xr, xf = L["x_pr"], L["x_pf_full"]
     rect(xr, yr - L["bore_w"] / 2 + 0.1, xf, yr + L["bore_w"] / 2 - 0.1, "#e0803a", "#a04a10", op=0.85)
     rect(xr, yr - 1.0, xf - c["plunger"]["front_wall"], yr + 1.0, "#3b2a1a", "#000", op=0.9)
-    for a_, b_ in (c["plunger"]["ring_front_a"], c["plunger"]["ring_front_b"]):
+    import op_cup
+    for _nm, (a_, b_) in op_cup.active_rings(p):
         rect(xf - b_, yr - L["bore_w"] / 2 - 0.05, xf - a_, yr + L["bore_w"] / 2 + 0.05, "#dd2222", "#880000", op=0.9)
     rect(xr + c["plunger"]["nut_recess"], yr - 1.65, xr + L["nut_zone"], yr + 1.65, "#f0c040", "#806000")
     line(L["gear_b"][0], yr, L["x_tip"], yr, "#111", 3.0)
@@ -103,15 +104,15 @@ def draw(p: dict, L: dict, svg_path: Path) -> Path:
         (xc, L["gear_a_y"][0] + 1.1, "Gear A: miter bevel m0.3 z12 on the motor shaft (2 mm bore, faced)", "#e8b000"),
         (L["gear_b"][0] + 1.1, yr + 2.0, "Gear B: miter bevel m0.3 z12 tapped onto the rod (only 2 gears)", "#f2d020"),
         ((L["gear_b"][1] + L["x_pr"]) / 2, yr, "Rod M1.6 x 0.35 ends flush with gear B, rotating, axially fixed (%.1f mm)" % L["rod_len"], "#111111"),
-        ((xr + xf) / 2, yr + 4.0, "Plunger cup %.1f x 5.3, %.1f mm long, blind bore (drawn at FULL)" % (L["bore_w"] - 0.2, L["L_pl"]), "#e0803a"),
+        ((xr + xf) / 2, yr + 4.0, "Plunger cup %.1f x %.1f, %.1f mm long, blind bore (drawn at FULL)" % (L["bore_w"] - 0.2, L["bore_h"] - 0.2, L["L_pl"]), "#e0803a"),
         (xr + 0.8, yr + 1.65, "Brass nut M1.6 in the hex pocket (rear of the cup)", "#f0c040"),
-        (xf - 0.8, yr - L["bore_w"] / 2, "Two lip seals at the closed front end", "#dd2222"),
-        ((L["x_dry"] + xr) / 2 + 3, yr - 3.5, "Tank %.1f x 5.5 bore, closed walls, NO slot, open dry rim" % L["bore_w"], "#7fd0e0"),
+        (xf - 0.8, yr - L["bore_w"] / 2, "Single lip seal (S2) at the closed front end", "#dd2222"),
+        ((L["x_dry"] + xr) / 2 + 3, yr - 3.5, "Tank %.1f x %.1f bore (%.0f U), closed walls, NO slot, open dry rim" % (L["bore_w"], L["bore_h"], L["volume_U"]), "#7fd0e0"),
         (L["x_t0"] - 0.6, yr + 0.5, "Outlet through the front wall straight into the needle hub (+X)", "#1a6fd0"),
         (K["x_tip"] - 0.4, yr - 0.6, "30G needle (+X) with spring guard", "#000000"),
         (L["x_s"], L["y_s"], "Fill septum, UNDERSIDE of the front wall", "#f2a0c0"),
         (K["x_d"] + 1.5, yr + 2.5, "Dock U-slot %.1f wide, open below + at the end, insertion %.1f mm" % (2 * K["half"], K["slide"]), "#e07ac0"),
-        (K["x_tooth"], yr + 4.3, "Two L-springs 301 FH 0.1, teeth in the dome notches", "#b8c0c8"),
+        (K["x_tooth"], yr + 4.3, "Two L-springs 301 FH %.2f, teeth in the dome notches" % c["dock"]["clip"]["t"], "#b8c0c8"),
         (K["x_d"], yr - 1.5, "Dock magnet in the head + dock hall above the pocket roof", "#ff7f00"),
         (sum(L["magnet"]) / 2, yr - 0.2, "Diametric magnet on gear B's rear face", "#cc2222"),
         (sum(L["tmag"]) / 2, L["tmag_y"], "TMAG5273 beside the magnet (0.5 mm gap), tiny sensor tab", "#ffd400"),
@@ -119,13 +120,14 @@ def draw(p: dict, L: dict, svg_path: Path) -> Path:
         (sum(L["usb"]["x"]) / 2, sum(L["usb"]["y"]) / 2, "USB-C mid-mount in a board notch, STADIUM opening x %.1f-%.1f in the +Y wall, z %.2f-%.2f" % (L["elec_interface"]["usb_opening"]["x"][0], L["elec_interface"]["usb_opening"]["x"][1], L["elec_interface"]["usb_opening"]["z"][0], L["elec_interface"]["usb_opening"]["z"][1]), "#8a3fd0"),
         (sum(L["board"]["x"]) / 2, L["board"]["y"][1] - 1.5, "Main board x 7.8-43.4 z 5.3-6.1 (+ top parts to 7.55)", "#2e8b57"),
         (sum(L["aux"]["x"]) / 2, L["aux"]["y"][1] - 2.0, "Antenna clearance east of the board (no parts)", "#7fbf7f"),
-        (sum(L["io"]["x"]) / 2, sum(L["io"]["y"]) / 2, "Rear-corner keep-out (reserved space, no part)", "#d09020"),
+        (sum(L["voids"]["rear_a"]["x"]) / 2, sum(L["voids"]["rear_a"]["y"]) / 2, "Rear corner of lane 1: empty, not tank-convertible (accepted void)", "#d09020"),
+        (sum(L["voids"]["side_a"]["x"]) / 2, sum(L["voids"]["side_a"]["y"]) / 2, "Beside the pocket: empty except the hidden vent (d0.8 + ePTFE disc)", "#c0a060"),
         (sum(L["side_b"]["x"]) / 2, sum(L["side_b"]["y"]) / 2, "Board-leg keep-out: sounder + dock hall under the board (reserved space)", "#c0a060"),
-        (L["bush"][0] + 0.5, yr - 1.5, "Collar + bush + printed rib (thrust bearing)", "#b0701c"),
+        (L["bush"][0] + 0.5, yr - 1.5, "Collar + PTFE shim + bush + printed rib (thrust bearing)", "#b0701c"),
         (sum(L["elec_interface"]["wire_channel"]["x"]) / 2, 28.0, "Wire channel x %.1f-%.1f: motor 4 + cell 2 (soldered) + TMAG strip" % tuple(L["elec_interface"]["wire_channel"]["x"]), "#ffb0b0"),
         (c["board_support"]["ledges"][0][0], c["board_support"]["ledges"][0][1], "Board ledges d1.0 top z 5.3 + lid ribs above (part-free pads d1.6)", "#555555"),
         (sum(c["board_support"]["shelf_x"]) / 2, c["board_support"]["shelf_y0"] + 0.3, "West wall shelf z 5.3 + lid rib above (part-free pad)", "#555555"),
-        (L["board_screws"][0][0], L["board_screws"][0][1], "Board screw W: M1.2x4 brass into boss d1.8 (board tab x 7.8-10.0)", "#f0c040"),
+        (L["board_screws"][0][0], L["board_screws"][0][1], "Board screw W: M1.2x4 brass into boss d1.8 (board tab x %.2f-%.2f)" % tuple(c["board_support"]["west_tab"]["x"]), "#f0c040"),
         (L["board_screws"][1][0], L["board_screws"][1][1], "Board screw E: M1.2x4 brass into boss d1.8 (side_b leg)", "#f0c040"),
         (c["button"]["x_c"], W - w - 0.5, "Side button: printed cap d%.1f + O-ring %.1f x %.1f in the lid wall, pad on SW1, stroke 0.3" % (c["button"]["stem_d"], c["button"]["oring"]["id"], c["button"]["oring"]["cs"]), "#ff9900"),
     ]

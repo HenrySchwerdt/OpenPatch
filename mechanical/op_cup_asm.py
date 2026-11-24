@@ -6,15 +6,15 @@ from op_cmds import Script
 
 # assembly order (each group drops in from above unless noted); used by cup_check (drop test), ASSEMBLY-CUP.md and the exploded render
 ORDER = [
-    ("1 housing", ["bottom"]),
-    ("2 tank + plunger + rod cartridge", ["reservoir", "plunger_core", "seal_a", "seal_b", "nut", "rod", "gear_b", "bush_rod", "thrust_collar", "magnet", "septum"]),
+    ("1 housing (+ ePTFE vent disc bonded on the pocket side wall)", ["bottom", "vent_membrane"]),
+    ("2 mouth seal + tank + plunger + rod cartridge", ["mouth_gasket", "reservoir", "plunger_core", "seal_b", "nut", "rod", "gear_b", "bush_rod", "collar_shim", "thrust_collar", "magnet", "septum"]),
     ("3 motor + gear A", ["motor", "gearhead", "motor_boss", "motor_rear_boss", "motor_shaft", "gear_a", "motor_term"]),
     ("4 battery (301030)", ["ko_battery"]),
-    ("5 board + USB-C (PCBA with SW1, LED, sounder; motor 4 + cell 2 wires soldered to its west-end pads first)", ["ko_board", "ko_board_tab", "ko_usb", "ko_aux", "ko_io", "ko_side_a", "ko_side_b", "ko_tmag_board", "hall_tmag", "ko_dock_board", "hall_dock"]),
+    ("5 board + USB-C (PCBA with SW1, LED, sounder; motor 4 + cell 2 wires soldered to its west-end pads first)", ["ko_board", "ko_board_tab", "ko_usb", "ko_aux", "ko_side_b", "ko_tmag_board", "hall_tmag", "ko_dock_board", "hall_dock"]),
     ("6 seal ring + USB-C frame + lid (button cap + O-ring pre-fitted in the lid) + 3 screws", ["lid_gasket", "usb_gasket", "top", "button_oring", "button_cap"]),
-    ("7 dock parts from BELOW through the pocket (springs: tabs pushed up into the anchor slots)", ["hub_gasket", "needle_hub", "needle", "needle_guard", "dock_clip"]),
+    ("7 dock parts from BELOW through the pocket (springs: tabs pushed up into the anchor slots)", ["needle_hub", "needle", "needle_guard", "dock_clip"]),
 ]
-FROM_BELOW = {"hub_gasket", "needle_hub", "needle", "needle_guard", "dock_clip", "cannula_adapter", "dock_magnet"}
+FROM_BELOW = {"needle_hub", "needle", "needle_guard", "dock_clip", "cannula_adapter", "dock_magnet"}
 
 
 def corner_posts(L: dict) -> list[tuple[float, float]]:
@@ -58,14 +58,20 @@ def build(s: Script, p: dict, L: dict) -> None:
     # ---- (2) motor cradle: U saddles with snap lips (built in op_cup.py) hold the can; nothing hangs from the lid; FPC groove from the pin pocket toward lane 2
     yt = L["gearhead_y"][0] + dr["term_x"]
     cuts.append(s.box("t_fpc_groove", (xc, L["battery"]["x"][0] - 0.1), (yt - 1.1, yt + 1.1), (0.35, w + 0.01)))
-    # ---- (3) tank seat: rear stop blocks (datum at the dry rim), front datum = dock pocket face; O-ring face groove around the needle-hub seat
+    # ---- (3) tank seat: rear stop blocks (datum at the dry rim, touching), front = mouth seal plate on the pocket mouth (walls + roof): it closes the seam between the
+    #          tank front face and the dock pocket (challenge review #5; the old hub ring sealed nothing). The plate is drawn compressed (gap), hole for the needle guard
     for k, (y0, y1) in enumerate(((7.4, 9.4), (yr + 5.0, yr + 7.0))):
-        joins.append(s.box(f"t_stop{k}", (L["x_dry"] - 0.7, L["x_dry"] - 0.05), (y0, y1), (w - 0.1, 2.0)))
+        joins.append(s.box(f"t_stop{k}", (L["x_dry"] - 0.7, L["x_dry"]), (y0, y1), (w - 0.1, 2.0)))
     zn = K["z_n"]
-    hs = c["dock"]["hub_seal"]                      # flat ring cut from the 0.5 mm silicone sheet (no standard 3.2 x 2.4 x 0.4 O-ring is orderable): seated in the groove, protrudes t - depth
-    s.tube("t_hog", "X", (0, yr, zn), hs["groove_od"], hs["groove_id"], L["x_t0"] - hs["groove_depth"], L["x_t0"] + 0.01)
-    s.cut("reservoir", ["t_hog"])
-    s.tube("hub_gasket", "X", (0, yr, zn), hs["od"], hs["id"], L["x_t0"] - hs["groove_depth"], L["x_t0"] - hs["groove_depth"] + hs["t"])
+    dk = c["dock"]
+    hy_ = K["half"] + dk["pocket_wall"]
+    z_top = dk["head"]["B_dome_h"] + dk["clr"] + dk["roof"]
+    s.box("mouth_gasket", (L["x_t0"], K["x_bf"]), (yr - hy_, yr + hy_), (L["z_tank0"], z_top))
+    s.cut("mouth_gasket", [s.cyl("t_mg_hole", "X", (0, yr, zn), dk["mouth_seal"]["hole_d"], L["x_t0"] - 0.1, K["x_bf"] + 0.1)])
+    # hidden vent membrane (ePTFE disc) on the inner (side_a) face of the -Y pocket wall over the d0.8 vent hole cut in op_cup.build_housing
+    vt = c["vent"]
+    yw = yr - hy_
+    s.cyl("vent_membrane", "Y", (K["x_bf"] + vt["dx_bf"], 0, vt["z"]), vt["disc_d"], yw - vt["disc_t"], yw)
     # ---- (4) bearing rib is a U cradle (slot open to the top); relief pockets for gear A / B already cut
     cuts.append(s.box("t_rib_slot", (L["bush"][0] - 0.05, L["bush"][1] + 0.05), (yr - (bu["od"] + bu["bore_clr"]) / 2, yr + (bu["od"] + bu["bore_clr"]) / 2), (zc, zc + 3.0)))
     # ---- (6) battery tray: 0.4 mm floor recess (swell / wire reserve, lateral retention)
@@ -115,17 +121,18 @@ def build_button(s: Script, c: dict, L: dict, tcuts: list) -> None:
 
 
 def build_usb(s: Script, c: dict, L: dict, cuts: list, tcuts: list) -> None:
+    """USB-C seat (challenge review 2026-11-24, plug must seat fully): stadium opening + outer stadium counterbore (overmold lands 0.5 in front of the mouth),
+    flat gasket frame in the 0.2 gap between the receptacle mouth (board north edge) and the wall inner face; no inner recess any more."""
     usb = c["usb"]
     W, w = L["width"], L["wall"]
     u = L["usb"]
     xu, zu = u["x_c"], u["z_c"]
-    ow, oh, m, ch, g = usb["open_w"], usb["open_h"], usb["recess_margin"], usb["chamfer_out"], usb["gasket"]
+    ow, oh, ch, g, cb = usb["open_w"], usb["open_h"], usb["chamfer_out"], usb["gasket"], usb["cbore"]
+    y_cb = W - cb["depth"]
     for sfx, lst in (("b", cuts), ("t", tcuts)):
         lst.append(s.stadium_y(f"t_usb_open_{sfx}", (W - w - 0.1, W + 0.1), xu, zu, ow, oh))
-        lst.append(s.stadium_y(f"t_usb_ch_{sfx}", (W - ch, W + 0.01), xu, zu, ow, oh, taper_deg=45.0))
-        rec = s.stadium_y(f"t_usb_rec_{sfx}", (W - w - 0.05, W - w + usb["recess_depth"]), xu, zu, ow + 2 * m, oh + 2 * m)
-        s.cut(rec, [s.box(f"t_usb_rec_clip_{sfx}", (xu - ow, xu + ow), (W - w - 0.2, W), (usb["recess_z_max"], zu + oh))])
-        lst.append(rec)
-    s.stadium_y("usb_gasket", (W - w, W - w + g["t"]), xu, zu, ow + 2 * g["margin"], oh + 2 * g["margin"])
-    s.cut("usb_gasket", [s.stadium_y("t_ug_in", (W - w - 0.1, W - w + g["t"] + 0.1), xu, zu, g["in_w"], g["in_h"]),
-                         s.box("t_ug_clip", (xu - ow, xu + ow), (W - w - 0.2, W), (g["z_max"], zu + oh))])
+        lst.append(s.stadium_y(f"t_usb_ch_{sfx}", (y_cb - ch, y_cb + 0.01), xu, zu, ow, oh, taper_deg=45.0))
+        lst.append(s.stadium_y(f"t_usb_cb_{sfx}", (y_cb, W + 0.1), xu, zu, cb["w"], cb["h"]))
+    y_m = c["board"]["pcb_y"][1]
+    s.box("usb_gasket", (xu - g["half_x"], xu + g["half_x"]), (y_m, W - w), (g["z0"], g["z_max"]))
+    s.cut("usb_gasket", [s.stadium_y("t_ug_in", (y_m - 0.1, W - w + 0.1), xu, zu, g["in_w"], g["in_h"])])

@@ -1,50 +1,57 @@
 {
  "variant": "OP-100",
- "stroke": 9.41,
- "length": 47.963214892687255,
+ "stroke": 11.68,
+ "length": 47.96,
  "width": 36.6,
  "height": 8.5,
  "wall": 0.9,
  "zc": 4.25,
  "y_r": 11.75,
  "res_w_out": 21.7,
- "res_h_out": 6.7,
- "xc": 4.473214892687258,
- "x_dry": 10.173214892687257,
- "x_pr": 10.573214892687258,
- "x_pf_full": 23.18321489268726,
- "x_pf_empty": 32.59321489268726,
- "x_in": 32.61321489268726,
- "x_t0": 35.11321489268726,
- "x_tip": 21.883214892687256,
- "x_s": 33.51321489268726,
+ "res_h_out": 7.1000000000000005,
+ "z_tank0": 0.7,
+ "x_dry_stack": 9.620000000000001,
+ "shim": [
+  8.370000000000001,
+  8.47
+ ],
+ "volume_U": 132.5,
+ "xc": 4.0,
+ "x_dry": 9.629999999999999,
+ "x_pr": 9.829999999999998,
+ "x_pf_full": 24.21,
+ "x_pf_empty": 35.89,
+ "x_in": 35.910000000000004,
+ "x_t0": 38.410000000000004,
+ "x_tip": 23.109999999999996,
+ "x_s": 36.81,
  "y_s": 7.75,
- "L_pl": 12.610000000000001,
+ "L_pl": 14.38,
  "nut_zone": 1.4000000000000001,
- "tank_len": 24.940000000000005,
+ "tank_len": 28.780000000000005,
  "collar": [
-  8.893214892687258,
-  9.893214892687258
+  8.520000000000001,
+  9.520000000000001
  ],
  "gear_b": [
-  5.433214892687258,
-  7.793214892687258
+  4.96,
+  7.32
  ],
  "gear_a_y": [
   12.95,
   15.15
  ],
  "bush": [
-  7.843214892687258,
-  8.843214892687257
+  7.37,
+  8.370000000000001
  ],
  "magnet": [
-  4.433214892687258,
-  5.433214892687258
+  3.96,
+  4.96
  ],
  "tmag": [
-  2.673214892687258,
-  5.573214892687258
+  2.2,
+  5.1
  ],
  "tmag_y": 8.85,
  "boss_y": [
@@ -64,42 +71,44 @@
   32.85
  ],
  "y_motor_end": 32.85,
- "rod_len": 16.45,
+ "rod_len": 18.149999999999995,
  "dock": {
   "R": 4.0,
-  "x_bf": 35.16321489268726,
+  "x_bf": 38.660000000000004,
   "y_c": 11.75,
   "z_n": 2.6,
-  "x_f": 35.36321489268726,
-  "x_d": 39.36321489268726,
-  "x_face": 36.16321489268726,
-  "x_tip": 37.76321489268726,
-  "x_far": 47.063214892687256,
-  "pocket_len": 11.899999999999999,
+  "x_f": 38.86000000000001,
+  "x_d": 42.86000000000001,
+  "x_face": 39.660000000000004,
+  "x_tip": 41.260000000000005,
+  "x_far": 47.06,
+  "pocket_len": 8.399999999999999,
+  "in_pod_reserve": 0.0,
   "half": 4.9,
   "x_hub": [
-   33.91321489268726,
-   34.61321489268726
+   36.910000000000004,
+   38.36000000000001
   ],
   "guard_dock": [
-   35.16321489268726,
-   36.16321489268726
+   38.46,
+   39.660000000000004
   ],
   "guard_free": [
-   36.26321489268726,
-   38.16321489268726
+   39.760000000000005,
+   41.660000000000004
   ],
-  "guard_free_end": 38.16321489268726,
-  "x_tooth": 39.36321489268726,
-  "arm_len": 7.549999999999997,
+  "guard_free_end": 41.660000000000004,
+  "x_tooth": 42.86000000000001,
+  "arm_len": 4.049999999999997,
   "plate_x": [
-   34.66321489268726,
-   47.56321489268726
+   38.160000000000004,
+   47.96
   ],
-  "x_d0": 42.86321489268726,
+  "x_d0": 46.36000000000001,
   "slide": 3.5,
   "clip": {
-   "t": 0.1,
+   "t": 0.05,
+   "_t": "challenge review #2: the pocket is 3.5 shorter, arm 7.55 -> 4.05 mm; 0.1 sheet would see 1220 MPa, 0.05 sheet 608 MPa (allow 650), 0.15 N per spring",
    "b": 2.4,
    "z0": 1.4,
    "tooth_w": 0.6,
@@ -108,12 +117,12 @@
    "E_MPa": 190000,
    "yield_MPa": 1000,
    "allow_MPa": 650,
-   "material": "AISI 301 full hard (1.4310 C1300) 0.1 mm, laser-cut stencil part: two separate L-springs (arm + 90 deg anchor tab + bent-in tooth flap)",
+   "material": "AISI 301 full hard (1.4310 C1300) 0.05 mm, laser-cut stencil part: two separate L-springs (arm + 90 deg anchor tab + bent-in tooth flap)",
    "tab_len": 0.9,
    "slot_w": 0.2,
    "slot_x0_rel": -0.15,
    "anchor_inner": 0.1,
-   "_anchor": "owner 2026-11-24: the pocket is open at the +X end, so the U-clip bridge is gone; each arm ends in a 90 deg tab bent outward that is pushed from below into a 0.2 mm slot through an anchor block on the side wall at the open end (bonded with CA); the arm root stays where the bridge was (arm 7.55 mm)"
+   "_anchor": "owner 2026-11-24: the pocket is open at the +X end, so the U-clip bridge is gone; each arm ends in a 90 deg tab bent outward that is pushed from below into a 0.2 mm slot through an anchor block on the side wall at the open end (bonded with CA); the arm root stays where the bridge was (arm 4.05 mm with the 8.4 mm pocket)"
   }
  },
  "lane2_y": [
@@ -121,15 +130,15 @@
   35.6
  ],
  "bore_w": 20.5,
- "bore_h": 5.5,
- "bore_area": 106.25829444277281,
- "aspect": 3.727272727272727,
+ "bore_h": 5.9,
+ "bore_area": 113.47971006786517,
+ "aspect": 3.4745762711864403,
  "ratio": 1.0,
- "u_per_step": 0.007030321938557747,
+ "u_per_step": 0.0075081093617680155,
  "battery": {
   "x": [
-   9.373214892687258,
-   40.87321489268726
+   8.9,
+   40.4
   ],
   "y": [
    22.799999999999997,
@@ -147,7 +156,7 @@
   ],
   "y": [
    26.6,
-   35.7
+   35.5
   ],
   "z": [
    4.12,
@@ -177,7 +186,7 @@
  "aux": {
   "x": [
    43.5,
-   44.36321489268725
+   44.36
   ],
   "y": [
    22.799999999999997,
@@ -188,38 +197,10 @@
    7.5
   ]
  },
- "io": {
-  "x": [
-   4.0,
-   9.973214892687258
-  ],
-  "y": [
-   1.0,
-   7.249999999999999
-  ],
-  "z": [
-   1.0,
-   7.5
-  ]
- },
- "side_a": {
-  "x": [
-   35.16321489268726,
-   44.16321489268726
-  ],
-  "y": [
-   1.0,
-   6.35
-  ],
-  "z": [
-   1.0,
-   7.5
-  ]
- },
  "side_b": {
   "x": [
-   35.16321489268726,
-   46.76321489268726
+   38.660000000000004,
+   46.760000000000005
   ],
   "y": [
    17.15,
@@ -232,31 +213,53 @@
  },
  "dock_board": {
   "x": [
-   36.36321489268726,
-   42.36321489268726
+   41.36000000000001,
+   44.36000000000001
   ],
   "y": [
-   8.75,
-   14.75
+   10.4,
+   17.15
   ],
   "z": [
    5.3,
    5.9
   ]
  },
+ "voids": {
+  "side_a": {
+   "x": [
+    38.410000000000004,
+    47.06
+   ],
+   "y": [
+    0.9,
+    6.449999999999999
+   ]
+  },
+  "rear_a": {
+   "x": [
+    0.9,
+    9.629999999999999
+   ],
+   "y": [
+    0.9,
+    9.74
+   ]
+  }
+ },
  "board_screws": [
   [
-   8.9,
+   8.43,
    21.5
   ],
   [
-   37.403,
+   40.9,
    20.0
   ]
  ],
  "lane2_fit": {
   "need_x": 34.6,
-  "have_x": 37.69
+  "have_x": 38.160000000000004
  },
  "elec_interface": {
   "_comment": "pod frame (x = 0 motor/rear end, y = 0 tank-side wall, z = 0 skin side), mm; agreed with the electronics agent (board review 2026-11-20)",
@@ -280,22 +283,41 @@
    "x_c": 23.5,
    "z_c": 5.7,
    "wall_inner_y": 35.7,
-   "gasket_recess": {
-    "shape": "stadium, clipped at z 7.55",
+   "receptacle_mouth_y": 35.5,
+   "outer_counterbore": {
+    "shape": "stadium 12.6 x 6.8, open through the top fillet",
     "x": [
-     18.15,
-     28.85
+     17.2,
+     29.8
     ],
     "z": [
-     3.15,
-     7.55
+     2.3,
+     8.5
     ],
-    "depth_y": 0.4
+    "floor_y": 36.0
    },
-   "gasket_frame_inner": [
-    8.5,
-    2.8
-   ]
+   "plug_overmold_face_to_mouth": 0.5,
+   "wall_at_opening": 0.3,
+   "gasket_frame": {
+    "y": [
+     35.5,
+     35.7
+    ],
+    "x": [
+     16.75,
+     30.25
+    ],
+    "z": [
+     3.2,
+     7.5
+    ],
+    "inner": [
+     8.5,
+     2.8
+    ],
+    "t_free": 0.25,
+    "note": "flat cast silicone frame squeezed between the receptacle front / board north edge (y 35.5) and the wall inner face: the board must not move north of y 35.5 (VERIFY board position tolerance, screws W/E)"
+   }
   },
   "usb_receptacle_keepout": {
    "x": [
@@ -304,7 +326,7 @@
    ],
    "y": [
     26.6,
-    35.7
+    35.5
    ],
    "z": [
     4.12,
@@ -315,8 +337,8 @@
   },
   "wire_channel": {
    "x": [
-    7.5,
-    9.37
+    7.03,
+    8.9
    ],
    "y": [
     22.799999999999997,
@@ -330,8 +352,8 @@
   },
   "cell": {
    "x": [
-    9.373214892687258,
-    40.87321489268726
+    8.9,
+    40.4
    ],
    "y": [
     22.799999999999997,
@@ -375,7 +397,7 @@
   "button": {
    "actuator_x": 33.0,
    "actuator_z": 6.7,
-   "actuator_tip_y_max": 35.35,
+   "actuator_tip_y_max": 35.32,
    "part": "lid",
    "cap": {
     "axis_z": 6.35,
@@ -389,7 +411,7 @@
       6.35,
       7.05
      ],
-     "contact_face_y": 35.4
+     "contact_face_y": 35.37
     },
     "flange": {
      "x": [
@@ -406,13 +428,20 @@
      ]
     },
     "stroke_to_actuate": 0.3,
+    "stroke_to_actuate_max": 0.42,
+    "pressed_flange_y_min_worst": 35.08,
+    "actuator_tip_y_window": [
+     35.2,
+     35.32
+    ],
+    "key_face_recess": 0.0,
     "pressed_flange_y_min": 35.2,
-    "note": "board keeps x 32.4-34.5, y >= 35.35, z >= 6.10 free except the SW1 actuator; the flange bar (x 31.4-34.6, z 6.20-7.50) travels to y 35.20 when pressed: SW1 body front face must be at y < that (VERIFY)"
+    "note": "board keeps x 32.4-34.5, y >= 35.32, z >= 6.10 free except the SW1 actuator; the flange bar (x 31.4-34.6, z 6.20-7.50) travels to y 35.20 when pressed: SW1 body front face must be at y < that (VERIFY)"
    }
   },
   "board_screws": [
    {
-    "x": 8.9,
+    "x": 8.43,
     "y": 21.5,
     "hole_d_npth": 1.4,
     "keepout_ring_d_both_faces": 2.8,
@@ -422,7 +451,7 @@
     "screw": "M1.2 x 4 cheese head (ISO 1207 / DIN 84: head d2.0 x 0.8), BRASS (non-magnetic; titanium as option), thread-forming into the resin pilot d0.95 x 3.6 (2.4 mm = 2 d engagement below the board); head top z 6.9 (lid inner 7.6)"
    },
    {
-    "x": 37.403,
+    "x": 40.9,
     "y": 20.0,
     "hole_d_npth": 1.4,
     "keepout_ring_d_both_faces": 2.8,
@@ -434,23 +463,116 @@
   ],
   "west_tab": {
    "x": [
-    7.8,
-    10.0
+    7.33,
+    9.53
    ],
    "y": [
     20.1,
     22.9
    ]
   },
+  "dock_hall": {
+   "x": 42.86,
+   "y": 11.75,
+   "z_below_board": [
+    4.9,
+    5.3
+   ],
+   "note": "U4A centre = docked head magnet centre"
+  },
+  "dock_finger": {
+   "x": [
+    41.36,
+    44.36
+   ],
+   "y": [
+    10.4,
+    17.15
+   ],
+   "note": "board finger over the pocket roof (z 4.9) carrying U4A on its underside; must stay east of the tank front x 38.41"
+  },
+  "side_b_leg": {
+   "x_min": 38.9,
+   "x_max": 46.5,
+   "y": [
+    17.15,
+    22.9
+   ],
+   "note": "board leg south of the main body beside the dock pocket; the tank (top z 7.8, y <= 22.44 at the board underside) ends at x 38.41: no board west of x_min"
+  },
   "lane2_saddle": {
    "y": [
     29.95,
     31.45
    ],
-   "x_max": 7.843,
+   "x_max": 7.37,
    "lip_top_z": 5.2,
-   "x_at_lip_top": 7.707,
+   "x_at_lip_top": 7.233,
    "bore_r": 3.05
+  },
+  "board_outline_changes_2026_11_24": {
+   "_comment": "challenge review #2 / #8 (pod frame). Against cupgeom.OUTLINE_POD_BOARD of 2026-11-24: west tab -0.47, side_b leg west end +3.5, hall finger +3.5; main body, north edge, USB-C notch, east tab, NE corner unchanged (outer length kept)",
+   "west_tab": {
+    "x": [
+     7.33,
+     9.53
+    ],
+    "y": [
+     20.1,
+     22.9
+    ],
+    "was_x": [
+     7.8,
+     10.0
+    ]
+   },
+   "screw_W": {
+    "xy": [
+     8.43,
+     21.5
+    ],
+    "was": [
+     8.9,
+     21.5
+    ]
+   },
+   "screw_E": {
+    "xy": [
+     40.9,
+     20.0
+    ],
+    "was": [
+     37.403,
+     20.0
+    ]
+   },
+   "side_b_leg_x_min": 38.9,
+   "side_b_leg_x_min_was": 35.4,
+   "hall_finger_x": [
+    41.36,
+    44.36
+   ],
+   "hall_finger_x_was": [
+    37.9,
+    40.9
+   ],
+   "dock_hall_U4A_xy": [
+    42.86,
+    11.75
+   ],
+   "dock_hall_was": [
+    39.363,
+    11.75
+   ],
+   "cell_x": [
+    8.9,
+    40.4
+   ],
+   "no_bottom_parts_west_of_x": 8.9,
+   "tmag_strip_x": [
+    2.2,
+    5.1
+   ]
   }
  },
  "envelope": {

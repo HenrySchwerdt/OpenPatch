@@ -19,13 +19,13 @@ COLORS = {
     "magnet": "color=#cc2222", "hall_tmag": "color=#ffd400", "end_cap": "color=#d8dde3", "end_cap_lid": "opacity=0.6,color=#e6eaee", "cap_gasket": "color=#222222", "cap_oring": "color=#aa3333",
     "septum": "color=#f2a0c0", "needle": "color=#000000", "needle_hub": "color=#5ec8e8", "cannula_adapter": "opacity=0.55,color=#7a5cc7",
     "dock_magnet": "color=#cc2222", "hall_dock": "color=#ff7f00", "button_cap": "color=#ff9900", "button_oring": "color=#aa3333", "lid_gasket": "color=#c04040", "usb_gasket": "color=#c04040",
-    "ko_dock_board": "opacity=0.45,color=#2e8b57", "dock_clip": "color=#b8c0c8", "needle_guard": "opacity=0.6,color=#5ec8e8", "ko_side_a": "opacity=0.45,color=#c0a060", "ko_side_b": "opacity=0.45,color=#c0a060", "ko_io": "opacity=0.45,color=#d09020", "ko_aux": "opacity=0.35,color=#7fbf7f", "ko_board": "opacity=0.35,color=#2e8b57", "ko_board_tab": "opacity=0.35,color=#2e8b57", "ko_battery": "opacity=0.4,color=#3a5fcd", "ko_usb": "opacity=0.45,color=#8a3fd0", "ko_tmag_board": "opacity=0.45,color=#2e8b57",
+    "ko_dock_board": "opacity=0.45,color=#2e8b57", "dock_clip": "color=#b8c0c8", "needle_guard": "opacity=0.6,color=#5ec8e8", "ko_side_b": "opacity=0.45,color=#c0a060", "mouth_gasket": "color=#c04040", "collar_shim": "color=#f4f4f4", "vent_membrane": "color=#e8e8ff", "ko_aux": "opacity=0.35,color=#7fbf7f", "ko_board": "opacity=0.35,color=#2e8b57", "ko_board_tab": "opacity=0.35,color=#2e8b57", "ko_battery": "opacity=0.4,color=#3a5fcd", "ko_usb": "opacity=0.45,color=#8a3fd0", "ko_tmag_board": "opacity=0.45,color=#2e8b57",
 }
 EXPLODE = {"top": (0, 0, 24), "button_cap": (0, 6, 24), "button_oring": (0, 3, 24), "lid_gasket": (0, 0, 20), "ko_board": (0, 0, 16), "ko_board_tab": (0, 0, 16), "ko_battery": (0, 0, 16), "ko_tmag_board": (0, 0, 11), "end_cap_lid": (0, 0, 17), "cap_gasket": (0, 0, 12), "septum": (0, 0, 9),
            "plunger_core": (0, 0, 13), "seal_a": (0, 0, 13), "seal_b": (0, 0, 13), "nut": (0, 0, 19), "rod": (0, 0, 21), "gear_b": (0, 0, 15),
            "gear_a": (0, 0, 15), "bush_rod": (0, 0, 9), "magnet": (0, 0, 15), "hall_tmag": (0, 0, 12), "reservoir": (0, 0, 7), "motor": (0, 0, 9), "gearhead": (0, 0, 9),
            "motor_boss": (0, 0, 9), "motor_shaft": (0, 0, 12), "motor_rear_boss": (0, 0, 9), "motor_term": (0, 0, -5), "needle": (0, 0, -7), "needle_hub": (0, 0, -7),
-           "cap_oring": (0, 0, 5), "dock_clip": (0, 0, 10), "needle_guard": (0, 0, -7), "ko_dock_board": (0, 0, 16), "cannula_adapter": (0, 0, -15), "dock_magnet": (0, 0, -19), "hall_dock": (0, 0, 13), "ko_usb": (0, 0, -3), "ko_io": (0, 0, 14), "ko_side_a": (0, 0, 14), "ko_side_b": (0, 0, 14), "ko_aux": (0, 0, 16)}
+           "cap_oring": (0, 0, 5), "dock_clip": (0, 0, 10), "needle_guard": (0, 0, -7), "ko_dock_board": (0, 0, 16), "cannula_adapter": (0, 0, -15), "dock_magnet": (0, 0, -19), "hall_dock": (0, 0, 13), "ko_usb": (0, 0, -3), "ko_side_b": (0, 0, 14), "ko_aux": (0, 0, 16), "mouth_gasket": (0, 0, 6), "collar_shim": (0, 0, 9), "vent_membrane": (0, 0, 12)}
 
 
 def _cols(created: set) -> list[str]:
@@ -85,7 +85,7 @@ def shots(sc: Path, outdir: Path, tag: str, L: dict, created: set) -> None:
 
 def asm_shots(sc: Path, outdir: Path, tag: str, L: dict, created: set) -> None:
     import op_cup_asm
-    cols = _cols(created) + ["--body", "lid_gasket:color=#c04040", "--body", "usb_gasket:color=#c04040", "--body", "hub_gasket:color=#c04040"]
+    cols = _cols(created) + ["--body", "lid_gasket:color=#c04040", "--body", "usb_gasket:color=#c04040", "--body", "mouth_gasket:color=#c04040"]
     offs = [0, 9, 18, 26, 34, 44, -12]
     ex = Script()
     ex.add("parameters.add", name="p_dummy_explode2", expression="0", comment="assembly exploded view")
@@ -128,4 +128,4 @@ def main(p0: dict, sizes: list[str] | None, outdir: str | None, no_snapshots: bo
     for v in sizes:
         L = generate_size(copy.deepcopy(p), v, out, (not no_snapshots) and v in snapshot_sizes)
         e = L["envelope"]
-        print(f"{v}: L={L['length']:.2f} W={L['width']:.2f} H={L['height']:.1f} U/step={L['u_per_step']:.5f} env={e['bbox_volume_ml']} ml  tank {L['tank_len']:.1f}  plunger {L['L_pl']:.1f}  rod {L['rod_len']:.1f} -> {out}")
+        print(f"{v}: L={L['length']:.2f} W={L['width']:.2f} H={L['height']:.1f} U/step={L['u_per_step']:.5f} env={e['bbox_volume_ml']} ml  stroke {L['stroke']:.3f}  volume {L['volume_U']} U  tank {L['tank_len']:.1f}  plunger {L['L_pl']:.1f}  rod {L['rod_len']:.1f} -> {out}")

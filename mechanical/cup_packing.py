@@ -76,7 +76,7 @@ def run(outdir: Path, variant: str) -> dict:
                 lane[keys[0] if y < ylim else keys[1]][0] += CELL * CELL
     return {"variant": variant, "free_mm2": {k_: round(v[0], 1) for k_, v in lane.items()}, "plan_mm2": {k_: round(v[1], 1) for k_, v in lane.items()},
             "largest_empty_rect": {"area_mm2": round(best[0], 1), "x0y0x1y1": [round(v, 2) for v in best[1]] if best[1] else None},
-            "rect_4x4_found": bool(hits), "rect_4x4_first": [round(v, 1) for v in hits[0]] if hits else None, "n_4x4_cells": len(hits)}
+            "rect_4x4_found": bool(hits), "rect_4x4_first": [round(v, 1) for v in hits[0]] if hits else None, "n_4x4_cells": len(hits), "hits": hits}
 
 
 if __name__ == "__main__":

@@ -54,7 +54,28 @@ def prepare(p0: dict) -> dict:
     dr.update(p["drive_presets"][dr.get("active_preset") or "nfp_608_26"])
     dr["nut_af"], dr["nut_len"] = c["nut"]["af"], c["nut"]["len"]                   # real brass DIN 934 M1.6 (AF 3.5, h 1.3); the bench keeps drive.nut_af 3.2
     p["drive_nfp"] = dr
+    fit_stroke_to_length(p)
     return p
+
+
+def fit_stroke_to_length(p: dict) -> None:
+    """Owner 2026-11-24: keep the outer length (cup.outer_length) and give every freed mm to the tank.  Lane 1 is length = const + 2 x stroke
+    (fixed rod screwing into the cup), so the stroke is solved from the nominal-volume layout; it is rounded DOWN to 1 um."""
+    c = p["cup"]
+    for v in c["sizes"]:
+        target = c.get("outer_length", {}).get(v)
+        if target is None:
+            continue
+        s0 = p["variants"][v]["stroke"]
+        G0 = geometry(p, v)
+        L0 = G0["dock"]["x_far"] + G0["wall"]                                  # lane-1 length (lane 2 may set the nominal length)
+        if G0["length"] > target + 1e-6:
+            raise SystemExit(f"{v}: nominal {c['volume_ml'][v]} ml needs {L0:.2f} mm > outer_length {target}")
+        p["variants"][v]["stroke"] = math.floor((s0 + (target - L0) / 2.0) * 1000.0) / 1000.0
+        L1 = geometry(p, v)
+        if abs(L1["length"] - target) > 0.003:
+            raise SystemExit(f"{v}: stroke fit failed (lane 2 sets the length?): {L1['length']:.3f} vs {target}")
+        p["variants"][v]["volume_U"] = round(p["variants"][v]["stroke"] * p["cup_bore_area"] / 10.0, 1)
 
 
 def geometry(p: dict, variant: str) -> dict:
@@ -65,11 +86,12 @@ def geometry(p: dict, variant: str) -> dict:
     w, W, H = sh["wall"], sh["width"], sh["height"]
     s = p["variants"][variant]["stroke"]
     res_w, res_h = fz["outer_w"], fz["outer_h"]
-    zc, y_r = w + res_h / 2, w + res_w / 2
+    z_t0 = c.get("floor_tank", w)                                           # tank underside = floor top over the tank (0.7 recess, challenge review #9)
+    zc, y_r = z_t0 + res_h / 2, w + res_w / 2
     dk, fl = c["dock"], c["fill"]
     r_in = sh["corner_r"] - w
 
-    W_x = W - c.get("lane2_extra", 0.0)        # x layout (motor column, tank, dock, length) stays referenced to the pre-2026-11-22 corner: lane-2 widening moves y only
+    W_x = W                                    # real corner (challenge review #8): the 0.47 mm offset to the pre-2026-11-22 34.6 corner is gone
 
     def corner_clear(y_edge: float) -> float:
         dy = y_edge - (W_x - w - r_in)
@@ -87,9 +109,12 @@ def geometry(p: dict, variant: str) -> dict:
     ty = y_r - mg["d"] / 2 - tm["gap"] - tm["pkg"][1] / 2
     x_b0 = x_gb1 + bu["gear_gap"]                                           # bush front face: reverse-thrust stop of the gear B hub
     x_b1 = x_b0 + bu["len"]
-    x_col0 = x_b1 + co["gap"]
+    x_sh0, x_sh1 = x_b1, x_b1 + co["shim"]["t"]                            # PTFE shim on the bush rear face (challenge review #4)
+    x_col0 = x_sh1 + co["gap"]
     x_col1 = x_col0 + co["len"]
-    x_dry = x_col1 + g["clr_tank"]
+    wt = c["board_support"]["west_tab"]
+    x_dry_stack = x_col1 + g["clr_tank"]
+    x_dry = max(x_dry_stack, wt["x"][1] + wt["tank_clr"])                  # the west board tab (screw W) sits beside the tank rear end
     nut_zone = p["drive"]["nut_len"] + pl["nut_recess"]
     L_pl = pl["front_wall"] + pl["tip_clear_full"] + pl["tip_in_nut_empty"] + s + nut_zone
     x_pr = x_dry + pl["dry_in"]                  # plunger rear face at FULL
@@ -107,7 +132,8 @@ def geometry(p: dict, variant: str) -> dict:
     lane2_y = [w + res_w + 0.2, W - w - 0.1]
     bat, u, bd = c["battery"], c["usb"], c["board"]
     x_l2 = xl2
-    L = {"variant": variant, "stroke": s, "length": length, "width": W, "height": H, "wall": w, "zc": zc, "y_r": y_r, "res_w_out": res_w, "res_h_out": res_h,
+    L = {"variant": variant, "stroke": s, "length": length, "width": W, "height": H, "wall": w, "zc": zc, "y_r": y_r, "res_w_out": res_w, "res_h_out": res_h, "z_tank0": z_t0,
+         "x_dry_stack": x_dry_stack, "shim": [x_sh0, x_sh1], "volume_U": round(s * p["cup_bore_area"] / 10.0, 1),
          "xc": xc, "x_dry": x_dry, "x_pr": x_pr, "x_pf_full": x_pf_full, "x_pf_empty": x_pf_empty, "x_in": x_in, "x_t0": x_t0, "x_tip": x_tip, "x_s": x_s, "y_s": y_s, "L_pl": L_pl, "nut_zone": nut_zone,
          "tank_len": x_t0 - x_dry, "collar": [x_col0, x_col1], "gear_b": [x_gb0, x_gb1], "gear_a_y": [y_g0, y_g1], "bush": [x_b0, x_b1], "magnet": [x_m0, x_m1], "tmag": [x_h0, x_h1], "tmag_y": ty,
          "boss_y": [y_boss0, y_body0], "gearhead_y": [y_body0, y_gh1], "motor_y": [y_gh1, y_mo1], "rear_boss_y": [y_mo1, y_tail1], "y_motor_end": y_tail1,
@@ -118,17 +144,18 @@ def geometry(p: dict, variant: str) -> dict:
     tb = bat["z0"] + bat["t"]                                                    # cell top incl. 0.2 swell allowance (3.0 + 0.2)
     L["battery"] = {"x": [x_l2, xb1], "y": [lane2_y[0], lane2_y[0] + bat["w"]], "z": [bat["z0"], tb]}
     # USB-C mid-mount receptacle in a notch of the board north edge, centred on the board mid-plane; keep-out bottom clipped to the cell envelope top (+0.02)
-    L["usb"] = {"x": [u["x_c"] - u["w"] / 2, u["x_c"] + u["w"] / 2], "y": [W - w - u["d"], W - w], "z": [max(u["z_c"] - u["h"] / 2, tb + 0.02), u["z_c"] + u["h"] / 2],
+    L["usb"] = {"x": [u["x_c"] - u["w"] / 2, u["x_c"] + u["w"] / 2], "y": [bd["pcb_y"][1] - u["d"], bd["pcb_y"][1]], "z": [max(u["z_c"] - u["h"] / 2, tb + 0.02), u["z_c"] + u["h"] / 2],
                 "z_c": u["z_c"], "x_c": u["x_c"]}
     # main board (lane-2 body) incl. top parts (<= top_max) and bottom parts over the cell (>= cell top + 0.02); the notches (USB-C, wire channel, support pads, button) are cut in CAD
     L["board"] = {"x": list(bd["pcb_x"]), "y": list(bd["pcb_y"]), "z": [tb + 0.02, bd["top_max"]], "pcb_z": list(bd["pcb_z"])}
     xa0 = bd["pcb_x"][1] + 0.1                                                    # east of the board: antenna clearance (kept free of parts)
     L["aux"] = {"x": [xa0, max(xa0 + 0.5, length - 3.6)], "y": list(lane2_y), "z": [4.9, bd["z1"]]}
-    L["io"] = {"x": [w + 3.1, x_dry - 0.2], "y": [w + 0.1, ty - tm["pkg"][1] / 2 - 0.2], "z": [w + 0.1, bd["z1"]]}
     hy = K["half"] + p["cup"]["dock"]["pocket_wall"] + 0.1
-    L["side_a"] = {"x": [K["x_bf"], length - 3.8], "y": [w + 0.1, y_r - hy], "z": [w + 0.1, bd["z1"]]}
+    # ko_io (rear corner) and ko_side_a are gone (challenge review #7/#8: empty since the parts moved to the main board); their space is a named accepted void
     L["side_b"] = {"x": [K["x_bf"], length - w - 0.3], "y": [y_r + hy, w + res_w - 0.1], "z": [w + 0.1, bd["z1"]]}
-    L["dock_board"] = {"x": [K["x_d"] - 3.0, K["x_d"] + 3.0], "y": [y_r - 3.0, y_r + 3.0], "z": [5.3, 5.9]}
+    L["dock_board"] = {"x": [K["x_d"] - 1.5, K["x_d"] + 1.5], "y": [y_r - 1.35, y_r + hy], "z": [5.3, 5.9]}     # the real 3.0 wide hall finger of the board (cupgeom)
+    L["voids"] = {"side_a": {"x": [x_t0, length - w], "y": [w, y_r - K["half"] - p["cup"]["dock"]["pocket_wall"]]},
+                  "rear_a": {"x": [w, x_dry], "y": [w, y_r - g["tip_od"] / 2]}}                      # below the gear B / magnet / bush stack, behind the tank
     bsp = c["board_support"]
     L["board_screws"] = [list(bsp["screw_w"]), [round(K["x_bf"] + bsp["screw_e"]["dx_dock"], 3), bsp["screw_e"]["y"]]]       # W (board tab), E (side_b leg)
     L["lane2_fit"] = {"need_x": bat["l"] + 3.1, "have_x": length - w - x_l2}
@@ -138,10 +165,13 @@ def geometry(p: dict, variant: str) -> dict:
         "_comment": "pod frame (x = 0 motor/rear end, y = 0 tank-side wall, z = 0 skin side), mm; agreed with the electronics agent (board review 2026-11-20)",
         "board_west_edge_min_x": bd["pcb_x"][0], "board_z": list(bd["pcb_z"]), "lid_inner_z": H - w, "top_parts_max_z": bd["top_max"],
         "usb_opening": {"shape": "stadium (full semicircular ends R%.2f), 0.3 x 45 deg outer chamfer" % (u["open_h"] / 2), "x": [u["x_c"] - u["open_w"] / 2, u["x_c"] + u["open_w"] / 2],
-                        "z": [u["z_c"] - u["open_h"] / 2, u["z_c"] + u["open_h"] / 2], "x_c": u["x_c"], "z_c": u["z_c"], "wall_inner_y": W - w,
-                        "gasket_recess": {"shape": "stadium, clipped at z %.2f" % u["recess_z_max"], "x": [u["x_c"] - u["open_w"] / 2 - u["recess_margin"], u["x_c"] + u["open_w"] / 2 + u["recess_margin"]],
-                                          "z": [u["z_c"] - u["open_h"] / 2 - u["recess_margin"], u["recess_z_max"]], "depth_y": u["recess_depth"]},
-                        "gasket_frame_inner": [u["gasket"]["in_w"], u["gasket"]["in_h"]]},
+                        "z": [u["z_c"] - u["open_h"] / 2, u["z_c"] + u["open_h"] / 2], "x_c": u["x_c"], "z_c": u["z_c"], "wall_inner_y": W - w, "receptacle_mouth_y": bd["pcb_y"][1],
+                        "outer_counterbore": {"shape": "stadium %.1f x %.1f, open through the top fillet" % (u["cbore"]["w"], u["cbore"]["h"]), "x": [u["x_c"] - u["cbore"]["w"] / 2, u["x_c"] + u["cbore"]["w"] / 2],
+                                              "z": [round(u["z_c"] - u["cbore"]["h"] / 2, 3), H], "floor_y": round(W - u["cbore"]["depth"], 3)},
+                        "plug_overmold_face_to_mouth": round(W - u["cbore"]["depth"] - bd["pcb_y"][1], 3), "wall_at_opening": round(w - u["cbore"]["depth"], 3),
+                        "gasket_frame": {"y": [bd["pcb_y"][1], W - w], "x": [u["x_c"] - u["gasket"]["half_x"], u["x_c"] + u["gasket"]["half_x"]], "z": [u["gasket"]["z0"], u["gasket"]["z_max"]],
+                                         "inner": [u["gasket"]["in_w"], u["gasket"]["in_h"]], "t_free": u["gasket"]["t_free"],
+                                         "note": "flat cast silicone frame squeezed between the receptacle front / board north edge (y 35.5) and the wall inner face: the board must not move north of y 35.5 (VERIFY board position tolerance, screws W/E)"}},
         "usb_receptacle_keepout": L["usb"],
         "wire_channel": {"x": [round(xc + 3.0 + 0.03, 2), round(x_l2, 2)], "y": list(lane2_y), "z": [w, bd["pcb_z"][0]], "note": "motor 4 + cell 2 + TMAG strip; no bottom-side parts over it"},
         "cell": {"x": L["battery"]["x"], "y": L["battery"]["y"], "z": L["battery"]["z"], "lead_end": "WEST (VERIFY-ON-SAMPLE)"},
@@ -153,16 +183,33 @@ def geometry(p: dict, variant: str) -> dict:
                    "cap": {"axis_z": bt["z_c"], "stem_d": bt["stem_d"], "pad": {"x": bt["pad"]["x"], "z": bt["pad"]["z"], "contact_face_y": bt["pad"]["face_y"]},
                            "flange": {"x": bt["flange"]["x"], "z": bt["flange"]["z"], "y": [round(W - w - bt["flange"]["t"], 3), W - w]},
                            "stroke_to_actuate": round(bt["pad"]["face_y"] - bt["actuator_tip_y_max"] + bt["switch_travel"], 3),
+                           "stroke_to_actuate_max": round(bt["pad"]["face_y"] - bt.get("actuator_tip_y_min", bt["actuator_tip_y_max"]) + bt["switch_travel"], 3),
+                           "pressed_flange_y_min_worst": round(W - w - bt["flange"]["t"] - (bt["pad"]["face_y"] - bt.get("actuator_tip_y_min", bt["actuator_tip_y_max"]) + bt["switch_travel"]), 3),
+                           "actuator_tip_y_window": [bt.get("actuator_tip_y_min", bt["actuator_tip_y_max"]), bt["actuator_tip_y_max"]], "key_face_recess": bt["face_recess"],
                            "pressed_flange_y_min": round(W - w - bt["flange"]["t"] - (bt["pad"]["face_y"] - bt["actuator_tip_y_max"] + bt["switch_travel"]), 3),
                            "note": "board keeps x %.1f-%.1f, y >= %.2f, z >= %.2f free except the SW1 actuator; the flange bar (x %.1f-%.1f, z %.2f-%.2f) travels to y %.2f when pressed: SW1 body front face must be at y < that (VERIFY)" % (
                                bt["kb_notch_x"][0], bt["kb_notch_x"][1], bt["actuator_tip_y_max"], bd["pcb_z"][1], bt["flange"]["x"][0], bt["flange"]["x"][1], bt["flange"]["z"][0], bt["flange"]["z"][1],
                                W - w - bt["flange"]["t"] - (bt["pad"]["face_y"] - bt["actuator_tip_y_max"] + bt["switch_travel"]))}},
         "board_screws": [{"x": x, "y": y, "hole_d_npth": bs["hole_d"], "keepout_ring_d_both_faces": bs["ring_d"], "boss_d": bs["boss_d"], "boss_top_z": bs["z_top"],
                           "pilot": "d%.2f x %.1f deep" % (bs["pilot_d"], bs["pilot_depth"]), "screw": bs["screw"]} for x, y in L["board_screws"]],
-        "west_tab": bs["west_tab"],
+        "west_tab": {"x": bs["west_tab"]["x"], "y": bs["west_tab"]["y"]},
+        "dock_hall": {"x": round(K["x_d"], 3), "y": round(K["y_c"], 3), "z_below_board": [round(L["dock_board"]["z"][0] - 0.4, 3), L["dock_board"]["z"][0]], "note": "U4A centre = docked head magnet centre"},
+        "dock_finger": {"x": [round(K["x_d"] - 1.5, 3), round(K["x_d"] + 1.5, 3)], "y": [round(y_r - 1.35, 3), round(y_r + hy, 3)], "note": "board finger over the pocket roof (z 4.9) carrying U4A on its underside; must stay east of the tank front x %.2f" % L["x_t0"]},
+        "side_b_leg": {"x_min": round(K["x_bf"] + 0.24, 3), "x_max": round(length - w - 0.56, 3), "y": [round(y_r + hy, 3), bd["pcb_y"][0]],
+                       "note": "board leg south of the main body beside the dock pocket; the tank (top z 7.8, y <= 22.44 at the board underside) ends at x %.2f: no board west of x_min" % L["x_t0"]},
         "lane2_saddle": {"y": [L["motor_y"][1] - 2.2, L["motor_y"][1] - 2.2 + c["motor"]["saddle_len"]], "x_max": round(xc + c["motor"]["lane2_r_out"], 3), "lip_top_z": c["motor"]["lane2_lip_z"],
                          "x_at_lip_top": round(xc + math.sqrt(c["motor"]["lane2_r_out"] ** 2 - (c["motor"]["lane2_lip_z"] - zc) ** 2), 3), "bore_r": r2},
     }
+    wt_ = bs["west_tab"]
+    L["elec_interface"]["board_outline_changes_2026_11_24"] = {
+        "_comment": "challenge review #2 / #8 (pod frame). Against cupgeom.OUTLINE_POD_BOARD of 2026-11-24: west tab -0.47, side_b leg west end +3.5, hall finger +3.5; main body, north edge, USB-C notch, east tab, NE corner unchanged (outer length kept)",
+        "west_tab": {"x": wt_["x"], "y": wt_["y"], "was_x": [7.8, 10.0]},
+        "screw_W": {"xy": L["board_screws"][0], "was": [8.9, 21.5]},
+        "screw_E": {"xy": L["board_screws"][1], "was": [37.403, 20.0]},
+        "side_b_leg_x_min": round(K["x_bf"] + 0.24, 3), "side_b_leg_x_min_was": 35.4,
+        "hall_finger_x": [round(K["x_d"] - 1.5, 3), round(K["x_d"] + 1.5, 3)], "hall_finger_x_was": [37.9, 40.9],
+        "dock_hall_U4A_xy": [round(K["x_d"], 3), round(K["y_c"], 3)], "dock_hall_was": [39.363, 11.75],
+        "cell_x": [round(x_l2, 3), round(x_l2 + bat["l"], 3)], "no_bottom_parts_west_of_x": round(x_l2, 3), "tmag_strip_x": [round(L["tmag"][0], 3), round(L["tmag"][1], 3)]}
     L["envelope"] = {"bbox_mm": [round(length, 2), W, H], "bbox_volume_ml": round(length * W * H / 1000.0, 2)}
     return L
 
@@ -170,16 +217,16 @@ def geometry(p: dict, variant: str) -> dict:
 def build_tank_and_plunger(s: Script, p: dict, L: dict) -> None:
     fz, sl, pl, dr, fl, hb = p["reservoir_frozen"], p["seal"], p["cup"]["plunger"], p["drive_nfp"], p["cup"]["fill"], p["cup"]["dock"]["hub"]
     zc, yr, K = L["zc"], L["y_r"], L["dock"]
-    zn = K["z_n"]
+    zn, z0 = K["z_n"], L["z_tank0"]
     s.stadium("reservoir", (L["x_dry"], L["x_t0"]), yr, zc, L["res_w_out"], L["res_h_out"])
     s.stadium("t_chamber", (L["x_dry"] - 0.1, L["x_in"]), yr, zc, fz["bore_w"], fz["bore_h"])
     tools = ["t_chamber",
              s.cyl("t_oA", "X", (0, yr, zn), fl["out_d"], L["x_in"] - 0.1, L["x_t0"] + 0.1),                               # outlet straight through the front wall (+X)
-             s.cyl("t_hseat", "X", (0, yr, zn), hb["d"] - hb["press"], K["x_hub"][0], L["x_t0"] + 0.1),                  # press-fit seat of the needle hub
-             s.cyl("t_spk", "Z", (L["x_s"], L["y_s"], 0), fl["pocket_d"], 0.85, fl["pocket_top"]),                       # fill septum pocket on the underside
-             s.cyl("t_fC", "X", (0, L["y_s"], fl["chan_z"]), fl["chan_d"], L["x_s"], L["x_in"] + 0.1)]                   # fill channel into the bore front lower corner
+             s.cyl("t_hseat", "X", (0, yr, zn), hb["d"] - hb["press"], K["x_hub"][0], L["x_t0"] + 0.1),                  # press-fit seat of the centring hub
+             s.cyl("t_spk", "Z", (L["x_s"], L["y_s"], 0), fl["pocket_d"], z0 - 0.05, z0 + fl["septum_h"]),               # fill septum pocket on the underside
+             s.cyl("t_fC", "X", (0, L["y_s"], z0 + fl["chan_dz"]), fl["chan_d"], L["x_s"], L["x_in"] - fl["chan_into_bore"])]   # fill channel, runs 0.1 INTO the bore (challenge review #1)
     s.cut("reservoir", tools)
-    s.cyl("septum", "Z", (L["x_s"], L["y_s"], 0), fl["septum_d"], 0.9, 0.9 + fl["septum_h"])
+    s.cyl("septum", "Z", (L["x_s"], L["y_s"], 0), fl["septum_d"], z0, z0 + fl["septum_h"])
     # plunger cup (FULL state): front face = x_pf_full (right), open rear = x_pr (left)
     c = pl["clr"]
     wc, hc = fz["bore_w"] - 2 * c, fz["bore_h"] - 2 * c
@@ -187,19 +234,26 @@ def build_tank_and_plunger(s: Script, p: dict, L: dict) -> None:
     xr, xf, nz = L["x_pr"], L["x_pf_full"], L["nut_zone"]
     s.stadium("plunger_core", (xr, xf), yr, zc, wc, hc)
     tools = []
-    for k, (a, b) in enumerate((pl["ring_front_a"], pl["ring_front_b"])):
+    rings = active_rings(p)
+    for k, (nm, (a, b)) in enumerate(rings):
         s.stadium_ring(f"t_gr{k}", (xf - b, xf - a), yr, zc, wc + 0.8, hc + 0.8, wc - 2 * gd, hc - 2 * gd)
         tools.append(f"t_gr{k}")
     tools.append(s.cyl("t_pbore", "X", (0, yr, zc), pl["bore_d"], xr - 0.1, xf - pl["front_wall"]))
     tools.append(s.hexprism("t_phex", (xr - 0.1, xr + nz), yr, zc, (dr["nut_af"] + pl["nut_clr"]) / 2, angle=HEX_APOTHEM_ANGLE))
     s.cut("plunger_core", tools)
     ao = sl["assembly_gap"]
-    for k, nm in enumerate(("seal_a", "seal_b")):
-        a, b = (pl["ring_front_a"], pl["ring_front_b"])[k]
+    for nm, (a, b) in rings:
         s.stadium_ring(nm, (xf - b, xf - a), yr, zc, fz["bore_w"] - ao, fz["bore_h"] - ao, wc - 2 * gd, hc - 2 * gd)
     s.hexprism("nut", (xr + pl["nut_recess"], xr + nz), yr, zc, dr["nut_af"] / 2, angle=HEX_APOTHEM_ANGLE)
     s.cyl("t_nbore", "X", (0, yr, zc), p["cup"]["rod"]["d"] + 0.05, xr - 0.1, xr + nz + 0.1)
     s.cut("nut", ["t_nbore"])
+
+
+def active_rings(p: dict) -> list[tuple[str, list[float]]]:
+    """Seal beads actually built: the rings of seal.active_variant (S2 = single front bead "b"; T = twin "a" + "b"), challenge review #6."""
+    pl = p["cup"]["plunger"]
+    rings = p["seal"]["variants"][p["seal"]["active_variant"]]["rings"]
+    return [(f"seal_{r}", pl[f"ring_front_{r}"]) for r in ("a", "b") if r in rings]
 
 
 def gear_profile(g: dict, front: float, back: float, hub_d: float) -> list[tuple[float, float, float, float]]:
@@ -242,6 +296,7 @@ def build_drive(s: Script, p: dict, L: dict) -> None:
     build_gear(s, "gear_b", "X", (0, yr, zc), xc, gear_profile(g, g["front_b"], g["back_b"], g["hub_b_d"]), rd["d"] + g["bore_clr"])      # M1.6 tapped bore modelled at the rod size + clearance
     s.tube("bush_rod", "X", (0, yr, zc), bu["od"], bu["id"], *L["bush"])
     s.tube("thrust_collar", "X", (0, yr, zc), co["od"], rd["d"] + 0.04, *L["collar"])
+    s.tube("collar_shim", "X", (0, yr, zc), co["shim"]["od"], co["shim"]["id"], *L["shim"])                    # PTFE thrust washer (challenge review #4)
     s.cyl("magnet", "X", (0, yr, zc), mg["d"], *L["magnet"])
     px, py, pz = tm["pkg"]
     s.box("hall_tmag", (L["tmag"][0], L["tmag"][1]), (L["tmag_y"] - py / 2, L["tmag_y"] + py / 2), (zc - pz / 2, zc + pz / 2))
@@ -263,7 +318,7 @@ def build_drive(s: Script, p: dict, L: dict) -> None:
 def build_electronics_boxes(s: Script, p: dict, L: dict) -> None:
     tm, K = p["cup"]["tmag"], L["dock"]
     zc = L["zc"]
-    for nm, k in (("ko_board", "board"), ("ko_aux", "aux"), ("ko_io", "io"), ("ko_side_a", "side_a"), ("ko_side_b", "side_b"), ("ko_battery", "battery"), ("ko_usb", "usb"), ("ko_dock_board", "dock_board")):
+    for nm, k in (("ko_board", "board"), ("ko_aux", "aux"), ("ko_side_b", "side_b"), ("ko_battery", "battery"), ("ko_usb", "usb"), ("ko_dock_board", "dock_board")):
         b = L[k]
         s.box(nm, tuple(b["x"]), tuple(b["y"]), tuple(b["z"]))
     cut_board_keepout(s, p, L)
@@ -318,7 +373,13 @@ def build_housing(s: Script, p: dict, L: dict) -> None:
     x_open = Lp + 0.1 if dk.get("open_end") else K["x_far"]
     cuts = [s.box("t_pk_in", (K["x_bf"] - 0.02, x_open), (yr - half, yr + half), (-0.1, z_roof0)),
             s.box("t_pk_win", (K["plate_x"][0], K["plate_x"][1]), (yr - half, yr + half), (-0.1, w + 0.05)),
-            s.cyl("t_floor_fill", "Z", (L["x_s"], L["y_s"], 0), c["fill"]["hole_d"], -0.1, w + 0.05)]
+            s.cyl("t_floor_fill", "Z", (L["x_s"], L["y_s"], 0), c["fill"]["hole_d"], -0.1, w + 0.05),
+            s.cone("t_floor_fill_li", "Z", (L["x_s"], L["y_s"], 0), c["fill"]["hole_d"] / 2 + c["fill"]["hole_lead_in"] + 0.1, c["fill"]["hole_d"] / 2 - 0.01,
+                   -0.1, c["fill"]["hole_lead_in"]),                                                         # 45 deg lead-in for the fill needle / septum (challenge review)
+            # floor 0.7 under the tank (challenge review #9): 0.2 recess over the whole tank footprint
+            s.box("t_floor_tank", (L["x_dry"], K["x_bf"]), (w - 0.01, yr + L["res_w_out"] / 2), (L["z_tank0"], w + 0.01)),
+            # hidden vent (challenge review #5): d0.8 through the -Y pocket side wall into the empty side_a space, ePTFE disc on its inner face (built in op_cup_asm)
+            s.cyl("t_vent", "Y", (K["x_bf"] + c["vent"]["dx_bf"], 0, c["vent"]["z"]), c["vent"]["hole_d"], yr - half - dk["pocket_wall"] - 0.05, yr - half + 0.05)]
     if dk.get("open_end"):
         open_join, open_cut = dock.open_end_tools(s, p, K, Lp, z_roof0)
     else:
@@ -340,9 +401,12 @@ def build_housing(s: Script, p: dict, L: dict) -> None:
         # z 5.2 so it stays below the board underside (z 5.3): wrap 180 + 31.6 (-X lip) + 18.1 (+X lip) = 230 deg at the bore, mouth 5.53 < can d6.0 (snap kept)
         lane2 = y0 > L["lane2_y"][0]
         rb = 3.0 + c["motor"]["saddle_clr"]
-        r_out = min(rb + c["motor"]["snap_t"], xc - w, c["motor"]["lane2_r_out"] if lane2 else 9.0)
+        # -X side: the can is 0.1 from the wall inner face since the 0.47 offset is gone (challenge review #8); the C-ring merges into the wall there (stays 0.2 inside
+        # the outer face) and is cut above the joint z (lap), where the lid wall takes over
+        r_out = min(rb + c["motor"]["snap_t"], xc - 0.2, c["motor"]["lane2_r_out"] if lane2 else 9.0)
         joins.append(s.cyl(f"t_sad{k}", "Y", (xc, 0, zc), 2 * r_out, y0, y0 + sl))
         cuts.append(s.box(f"t_sad_top{k}", (xc - 4.0, xc + 4.0), (y0 - 0.1, y0 + sl + 0.1), (zc + c["motor"]["snap_h"], zc + 4.0)))
+        cuts.append(s.box(f"t_sad_w{k}", (-0.1, w), (y0 - 0.1, y0 + sl + 0.1), (lap, zc + 4.0)))
         if lane2:
             cuts.append(s.box(f"t_sad_lip{k}", (xc, xc + 4.0), (y0 - 0.1, y0 + sl + 0.1), (c["motor"]["lane2_lip_z"], zc + 4.0)))
     s.join("bottom", joins)
@@ -358,7 +422,7 @@ def build_housing(s: Script, p: dict, L: dict) -> None:
     s.rrect("top", (0, Lp), (0, W), rr, (lap_t, H))
     s.fillet_chain("top", (Lp / 2, 0.0, H), c["top_fillet"])                    # smooth pebble top: largest fillet the unchanged inner cavity allows (min wall 0.5)
     s.rrect("t_cavt", (w, Lp - w), (w, W - w), r - w, (lap_t - 0.1, H - w))
-    s.cut("top", ["t_cavt"])
+    s.cut("top", ["t_cavt", s.box("t_roof_tank", (L["x_dry"], L["x_t0"]), (yr - L["res_w_out"] / 2 + 1.7, yr + L["res_w_out"] / 2 - 1.7), (H - w - 0.01, H - L["z_tank0"]))])   # roof 0.7 over the tank
 
 
 def build(p: dict, variant: str) -> tuple[Script, dict]:
@@ -373,10 +437,10 @@ def build(p: dict, variant: str) -> tuple[Script, dict]:
     return s, L
 
 
-MFG_PARTS = {"bottom": ["bottom"], "top": ["top"], "reservoir": ["reservoir"], "plunger_core": ["plunger_core"], "plunger_seal": ["seal_a", "seal_b"],
-             "thrust_collar": ["thrust_collar"], "lid_gasket": ["lid_gasket"], "usb_gasket": ["usb_gasket"], "button_cap": ["button_cap"]}
-PURCHASED = ["nut", "rod", "bush_rod", "gear_a", "gear_b", "motor", "gearhead", "motor_boss", "motor_shaft", "motor_rear_boss", "motor_term", "magnet", "hall_tmag", "septum",
-             "hub_gasket", "needle", "needle_hub", "needle_guard", "cannula_adapter", "dock_magnet", "dock_clip", "hall_dock", "button_oring"]
-KEEPOUT = ["ko_board", "ko_board_tab", "ko_aux", "ko_io", "ko_side_a", "ko_side_b", "ko_battery", "ko_usb", "ko_tmag_board", "ko_dock_board"]
+MFG_PARTS = {"bottom": ["bottom"], "top": ["top"], "reservoir": ["reservoir"], "plunger_core": ["plunger_core"], "plunger_seal": ["seal_b"],
+             "thrust_collar": ["thrust_collar"], "lid_gasket": ["lid_gasket"], "usb_gasket": ["usb_gasket"], "button_cap": ["button_cap"], "mouth_gasket": ["mouth_gasket"]}
+PURCHASED = ["nut", "rod", "bush_rod", "collar_shim", "gear_a", "gear_b", "motor", "gearhead", "motor_boss", "motor_shaft", "motor_rear_boss", "motor_term", "magnet", "hall_tmag", "septum",
+             "needle", "needle_hub", "needle_guard", "cannula_adapter", "dock_magnet", "dock_clip", "hall_dock", "button_oring", "vent_membrane"]
+KEEPOUT = ["ko_board", "ko_board_tab", "ko_aux", "ko_side_b", "ko_battery", "ko_usb", "ko_tmag_board", "ko_dock_board"]
 PART_NAMES = [b for v in MFG_PARTS.values() for b in v] + PURCHASED + KEEPOUT
-EXCLUDE_PAIRS = [["gear_a", "gear_b"], ["needle_guard", "needle_hub"], ["needle_hub", "reservoir"], ["lid_gasket", "top"], ["hub_gasket", "reservoir"]]
+EXCLUDE_PAIRS = [["gear_a", "gear_b"], ["needle_guard", "needle_hub"], ["needle_hub", "reservoir"], ["lid_gasket", "top"]]

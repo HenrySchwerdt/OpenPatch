@@ -32,20 +32,97 @@ def run_extra(sc: Path, s: Script, exclude: list) -> dict:
     return next(r for r in json.loads(res.stdout) if "interferences" in r)
 
 
-def thrust(p: dict, L: dict) -> dict:
-    """NFP-608-26.45 pull-out torque -> rod -> screw -> plunger force vs. seal friction + occlusion pressure (estimates, VERIFY on the bench)."""
-    g = p["cup"]["gears"]
+def screw_eta(mu: float, d: float = 1.6, pitch: float = 0.35) -> float:
+    """Efficiency of a 60 deg metric thread driving the nut: tan(lead) / tan(lead + atan(mu / cos 30)), pitch diameter d - 0.6495 p."""
+    d2 = d - 0.6495 * pitch
+    lam = math.atan(pitch / (math.pi * d2))
+    return math.tan(lam) / math.tan(lam + math.atan(mu / math.cos(math.radians(30.0))))
+
+
+def thrust(p: dict, L: dict, lubricated: bool | None = None) -> dict:
+    """NFP-608-26.45 pull-out torque -> rod -> screw + forward thrust face (collar on the PTFE shim on the bush) -> plunger force vs. seal friction + occlusion pressure
+    (+ vacuum if the shell is sealed without a vent).  Challenge review #4: the collar friction torque mu_c F r_c was missing.  Estimates, VERIFY on the bench."""
+    c, g = p["cup"], p["cup"]["gears"]
+    rd, co, bu = c["rod"], c["collar"], c["bush"]
+    lub = rd.get("lubricated", False) if lubricated is None else lubricated
     T_gb = 1.6 * 9.80665e-3 * 10.0 * 26.45 * 0.64                 # N mm at the gearhead output (1.6 gf cm pull-out x 26.45 x 0.64, parts.md)
-    eta_b, eta_s, pitch = 0.9, p["cup"]["rod"]["eta_screw"], p["drive"]["screw_pitch"]
+    eta_b, pitch = 0.9, p["drive"]["screw_pitch"]
+    mu_t = rd["mu_thread_greased"] if lub else rd["mu_thread_dry"]
+    eta_s = screw_eta(mu_t, rd["d"], pitch)
     T_rod = T_gb * (g["z_rod"] / g["z_motor"]) * eta_b
-    F = 2 * math.pi * eta_s * T_rod / pitch
+    sh = co.get("shim")
+    mu_c = sh["mu"] if (sh and lub) else co["mu_dry"]
+    r1, r2 = max(bu["id"], sh["id"] if sh else 0.0) / 2, min(co["od"], bu["od"]) / 2
+    r_c = 2.0 / 3.0 * (r2 ** 3 - r1 ** 3) / (r2 ** 2 - r1 ** 2)  # mean friction radius of the annular thrust face
+    F = T_rod / (pitch / (2 * math.pi * eta_s) + mu_c * r_c)
+    F_no_collar = 2 * math.pi * eta_s * T_rod / pitch
     A = L["bore_area"]
     perim = 2 * (L["bore_w"] - L["bore_h"]) + math.pi * L["bore_h"]
-    f_seal = 1.6 * perim / (2 * (16.0 - 5.0) + math.pi * 5.0)      # bench breakaway ~1.6 N at the 16 x 5 perimeter (spec 3b), scaled by perimeter
+    beads = len(p["seal"]["variants"][p["seal"]["active_variant"]]["rings"])
+    f_seal = 1.6 * perim / (2 * (16.0 - 5.0) + math.pi * 5.0) * (1.0 if beads == 1 else 1.7)   # bench breakaway ~1.6 N (single bead) at the 16 x 5 perimeter (spec 3b), twin bead 1.7x
     f_occ = 30e3 * A * 1e-6                                       # 30 kPa occlusion alarm threshold
-    need = f_seal + f_occ
-    return {"T_rod_Nmm": round(T_rod, 2), "F_avail_N": round(F, 1), "F_seal_N": round(f_seal, 1), "F_occ_N": round(f_occ, 1), "F_need_N": round(need, 1),
-            "F_need_SF2_N": round(2 * need, 1), "perimeter_mm": round(perim, 1), "area_mm2": round(A, 1)}
+    f_vac = 0.0 if c.get("vent", {}).get("hole_d") else 16e3 * A * 1e-6     # sealed shell without vent: about -16 kPa at empty
+    need = f_seal + f_occ + f_vac
+    return {"T_rod_Nmm": round(T_rod, 2), "F_avail_N": round(F, 2), "F_no_collar_N": round(F_no_collar, 2), "eta_screw": round(eta_s, 3), "mu_thread": mu_t, "mu_collar": mu_c,
+            "r_collar_mm": round(r_c, 3), "lubricated": lub, "F_seal_N": round(f_seal, 2), "F_occ_N": round(f_occ, 2), "F_vac_N": round(f_vac, 2), "F_need_N": round(need, 2),
+            "F_need_SF2_N": round(2 * need, 1), "margin": round(F / need, 2), "perimeter_mm": round(perim, 1), "area_mm2": round(A, 1), "beads": beads}
+
+
+def stl_inside(path: Path):
+    """Point-in-solid test on an exported STL (binary or ASCII): ray along +Z, crossing parity.  Returns a function (x, y, z) -> bool."""
+    import struct
+    data = path.read_bytes()
+    tris = []
+    if data[:5] == b"solid" and b"facet" in data[:400]:
+        vs = [tuple(map(float, ln.split()[1:4])) for ln in data.decode("ascii", "replace").splitlines() if ln.strip().startswith("vertex")]
+        tris = [vs[i:i + 3] for i in range(0, len(vs) - 2, 3)]
+    else:
+        n = struct.unpack("<I", data[80:84])[0]
+        for k in range(n):
+            v = struct.unpack("<12f", data[84 + 50 * k:84 + 50 * k + 48])
+            tris.append(((v[3], v[4], v[5]), (v[6], v[7], v[8]), (v[9], v[10], v[11])))
+
+    def inside(x: float, y: float, z: float) -> bool:
+        x, y = x + 1.37e-4, y + 0.91e-4                                       # jitter: keep the ray off mesh edges / vertices on the axis planes
+        cnt = 0
+        for (a, b, c_) in tris:
+            if min(a[0], b[0], c_[0]) > x or max(a[0], b[0], c_[0]) < x or min(a[1], b[1], c_[1]) > y or max(a[1], b[1], c_[1]) < y:
+                continue
+            d = (b[0] - a[0]) * (c_[1] - a[1]) - (c_[0] - a[0]) * (b[1] - a[1])
+            if abs(d) < 1e-12:
+                continue
+            l1 = ((b[0] - x) * (c_[1] - y) - (c_[0] - x) * (b[1] - y)) / d
+            l2 = ((c_[0] - x) * (a[1] - y) - (a[0] - x) * (c_[1] - y)) / d
+            l3 = 1.0 - l1 - l2
+            if min(l1, l2, l3) < 0:
+                continue
+            if l1 * a[2] + l2 * b[2] + l3 * c_[2] > z:
+                cnt += 1
+        return cnt % 2 == 1
+    return inside
+
+
+def fluid_paths(outdir: Path, variant: str, p: dict, L: dict) -> tuple[list, list]:
+    """Challenge review #1: probe the EXPORTED tank STL along the fill path (septum pocket -> channel -> bore) and the outlet (bore -> hub seat -> front face):
+    every probe point must be outside the PP (open), and the path must end inside the bore."""
+    fl, K = p["cup"]["fill"], L["dock"]
+    stl = outdir / f"{variant}_reservoir.stl"
+    if not stl.exists():
+        return [f"fill/outlet probe: {stl.name} missing"], []
+    ins = stl_inside(stl)
+    z0, zch = L["z_tank0"], L["z_tank0"] + fl["chan_dz"]
+    xs0 = L["x_s"] - 0.05                                                    # inside the channel, off its end face (the channel runs -X from the septum axis to the bore)
+    probes = {"fill (septum pocket -> channel -> bore)": [(xs0, L["y_s"], z) for z in (z0 + fl["septum_h"] - 0.1, z0 + fl["septum_h"] - 0.02, z0 + fl["septum_h"] + 0.05, zch)]
+              + [(xs0 + (L["x_in"] - 0.05 - xs0) * k / 20.0, L["y_s"], zch) for k in range(1, 21)],
+              "outlet (bore -> hub seat -> front face)": [(L["x_in"] - 0.05 + (L["x_t0"] + 0.02 - L["x_in"]) * k / 24.0, L["y_r"], K["z_n"]) for k in range(25)]}
+    prob, note = [], []
+    for nm, pts in probes.items():
+        blocked = [pt for pt in pts if ins(*pt)]
+        if blocked:
+            prob.append(f"{nm} BLOCKED in the exported STL at x {blocked[0][0]:.3f} (y {blocked[0][1]:.2f}, z {blocked[0][2]:.2f}): {len(blocked)} of {len(pts)} probe points inside PP")
+        else:
+            note.append(f"{nm}: open over {len(pts)} STL probe points (x {min(q[0] for q in pts):.2f}..{max(q[0] for q in pts):.2f})")
+    return prob, note
 
 
 def gear_mesh(p: dict, L: dict, ga: dict, gb: dict, mg: dict, sh: dict) -> tuple[list, list]:
@@ -146,8 +223,9 @@ def check_size(outdir: Path, variant: str, p: dict) -> dict:
     bs, rd, mg, tm, cl, gbb = bb("bush_rod"), bb("rod"), bb("magnet"), bb("hall_tmag"), bb("thrust_collar"), bb("gear_b")
     # axial load path (no sleeve): forward thrust (plunger pushed out, rod pulled -X): nut -> rod thread -> collar (bonded on the rod) -> bush rear face -> bush (bonded in the U rib) -> housing;
     # reverse thrust (plunger pulled back, rod pushed +X): nut -> rod thread -> thread in gear B hub (tapped M1.6 + retaining compound) -> hub back face -> bush front face -> bush -> housing
-    if not (0.0 <= cl["min"][0] - bs["max"][0] <= 0.15):
-        problems.append(f"collar not seated on the bush tank-side face (gap {cl['min'][0] - bs['max'][0]:.3f}): -X thrust has no stop")
+    shb = bb("collar_shim")
+    if abs(shb["min"][0] - bs["max"][0]) > 0.011 or not (0.0 <= cl["min"][0] - shb["max"][0] <= 0.15):
+        problems.append(f"collar not seated on the PTFE shim on the bush tank-side face (shim gap {shb['min'][0] - bs['max'][0]:.3f}, collar gap {cl['min'][0] - shb['max'][0]:.3f}): -X thrust has no stop")
     if not (0.0 <= bs["min"][0] - gbb["max"][0] <= 0.15):
         problems.append(f"gear B hub back face not seated on the bush motor-side face (gap {bs['min'][0] - gbb['max'][0]:.3f}): +X (reverse) thrust has no stop")
     cg_, bu_ = p["cup"]["gears"], p["cup"]["bush"]
@@ -204,7 +282,9 @@ def check_size(outdir: Path, variant: str, p: dict) -> dict:
             problems.append(f"rod tip only {gap:.2f} mm behind the cup bottom at {st} (< {clr})")
     nut_front_e = L["x_pr"] + L["nut_zone"] + L["stroke"]
     if not (p["cup"]["plunger"]["tip_in_nut_empty"] - 1e-6 <= tip - nut_front_e <= p["cup"]["plunger"]["tip_in_nut_empty"] + 1e-6):
-        problems.append("rod tip not 0.5 mm beyond the nut front face at empty")
+        problems.append(f"rod tip not {p['cup']['plunger']['tip_in_nut_empty']} mm beyond the nut front face at empty")
+    if tip - nut_front_e < 0.0:
+        problems.append("nut not fully engaged at empty")
     if p["cup"]["plunger"]["bore_d"] / 2 <= p["cup"]["rod"]["d"] / 2:
         problems.append("rod radius >= plunger bore radius")
     wet = Script()
@@ -254,8 +334,11 @@ def check_size(outdir: Path, variant: str, p: dict) -> dict:
         problems.append("H14: fill-septum hole is not inside the Velcro patch footprint")
     if in_win:
         problems.append("H14: fill-septum hole lies in the dock window (reachable while docked)")
-    if by["septum"]["bbox"]["min"][2] < 0.89 or by["septum"]["bbox"]["max"][2] > fl["pocket_top"] + 1e-6:
+    if by["septum"]["bbox"]["min"][2] < L["z_tank0"] - 0.01 or by["septum"]["bbox"]["max"][2] > L["z_tank0"] + fl["septum_h"] + 1e-6:
         problems.append("fill septum not on the underside of the tank")
+    fp, fn = fluid_paths(outdir, variant, p, L)
+    problems += fp
+    warns += fn
     # ---- dock: needle covered, dome path, clips, hall, footprint budget
     nd = by["needle"]["bbox"]
     if K["guard_free_end"] - K["x_tip"] < 0.3:
@@ -273,6 +356,11 @@ def check_size(outdir: Path, variant: str, p: dict) -> dict:
         problems.append(f"lane 2 contents ({L['lane2_fit']['need_x']:.1f} mm) longer than lane 1 ({L['lane2_fit']['have_x']:.1f} mm)")
     if not (3.0 <= K["slide"] <= 4.0):
         problems.append(f"slide travel {K['slide']} outside 3..4 mm")
+    dkp = p["cup"]["dock"]
+    if open_end and K["in_pod_reserve"] == 0.0 and abs(K["pocket_len"] - (2 * dkp["clr"] + hh["A_dome_d"])) > 1e-6:
+        problems.append(f"open-end pocket {K['pocket_len']:.2f} != clr + A + clr")
+    if open_end and K["in_pod_reserve"] == 0.0:
+        warns.append(f"dock pocket {K['pocket_len']:.2f} = 0.2 + A {hh['A_dome_d']} (TODO-MEASURE) + 0.2; the {K['slide']} mm slide starts with the dome {K['slide'] + K['R'] - (K['x_far'] - K['x_d']) - w:.2f} mm outside the end face (open end, swept free above)")
     if K["pocket_len"] > 12.0 + 1e-9 or 2 * K["half"] > 10.0 + 1e-9:
         problems.append(f"dock pocket {K['pocket_len']:.1f} x {2 * K['half']:.1f} exceeds the 12 x 10 budget")
     plate_len = K["plate_x"][1] - K["plate_x"][0]
@@ -281,12 +369,47 @@ def check_size(outdir: Path, variant: str, p: dict) -> dict:
     st = dock.clip_stress(p, K)
     if st["sigma_need"] > p["cup"]["dock"]["clip"]["allow_MPa"]:
         problems.append(f"dock spring bending stress {st['sigma_need']:.0f} MPa > allowable {p['cup']['dock']['clip']['allow_MPa']}")
-    warns.append(f"dock L-springs 301 FH 0.1 mm: arm {st['arm_len']:.1f} mm, needed travel {st['need_travel']:.2f} -> {st['sigma_need']:.0f} MPa (allow {p['cup']['dock']['clip']['allow_MPa']}), tip force {st['F_need_N']:.3f} N/clip; "
+    warns.append(f"dock L-springs 301 FH {p['cup']['dock']['clip']['t']} mm: arm {st['arm_len']:.1f} mm, needed travel {st['need_travel']:.2f} -> {st['sigma_need']:.0f} MPa (allow {p['cup']['dock']['clip']['allow_MPa']}), tip force {st['F_need_N']:.3f} N/clip; "
                  f"1.8 mm travel -> {st['sigma_1p8']:.0f} MPa; a 3.5 mm arm allows only {st['short_arm_3p5_travel']:.2f} mm, 1.8 mm needs >= {st['arm_for_1p8']:.1f} mm")
     hw = dock.hall_window(p)
     if hw["assert_radius_mm"] > 0.8 or hw["assert_radius_mm"] <= 0.0:
         problems.append(f"dock hall asserts within {hw['assert_radius_mm']} mm of the final position (> 0.8): not only when slid + latched")
     warns.append(f"dock hall (dipole model, VERIFY): B0 {hw['B0_mT']} mT, Bop {hw['bop_mT']} mT -> asserts only within {hw['assert_radius_mm']} mm of the final position (slide {hw['slide_mm']} mm)")
+    # ---- pocket-mouth seal (challenge review #5): plate covers the walls + roof end faces, squeeze, hole clears the guard; hidden vent
+    ms = p["cup"]["dock"]["mouth_seal"]
+    mg_ = bb("mouth_gasket")
+    hy_ = K["half"] + p["cup"]["dock"]["pocket_wall"]
+    z_rt = hh["B_dome_h"] + p["cup"]["dock"]["clr"] + p["cup"]["dock"]["roof"]
+    if abs(mg_["min"][0] - L["x_t0"]) > 1e-3 or abs(mg_["max"][0] - K["x_bf"]) > 1e-3 or mg_["min"][1] > L["y_r"] - hy_ + 1e-3 or mg_["max"][1] < L["y_r"] + hy_ - 1e-3 or mg_["max"][2] < z_rt - 1e-3:
+        problems.append("mouth seal does not span the tank face .. pocket mouth (walls + roof): open seam into the pod")
+    sq_m = 1 - ms["gap"] / ms["t_free"]
+    if not (0.1 <= sq_m <= 0.3):
+        problems.append(f"mouth seal squeeze {sq_m:.0%} outside 10-30 %")
+    if ms["hole_d"] < p["cup"]["dock"]["guard"]["od"] + 0.2 or ms["hole_d"] / 2 > p["cup"]["dock"]["head"]["recess_d"] / 2:
+        problems.append("mouth seal hole does not clear the needle guard (or exceeds the septum recess)")
+    vt = p["cup"]["vent"]
+    vm = bb("vent_membrane")
+    if vt["disc_d"] < vt["hole_d"] + 1.0 or vm["max"][1] > L["y_r"] - hy_ + 1e-3:
+        problems.append("vent membrane does not cover the vent hole with >= 0.5 mm bond rim on the inner wall face")
+    warns.append(f"pocket-mouth seal plate {2 * hy_:.1f} x {z_rt - L['z_tank0']:.1f} x {ms['t_free']} (Z4) in the {ms['gap']} gap tank face .. pocket walls + roof: squeeze {sq_m:.0%}; "
+                 f"vent d{vt['hole_d']} through the -Y pocket wall at x {K['x_bf'] + vt['dx_bf']:.2f}, z {vt['z']}, ePTFE disc d{vt['disc_d']} inside (no vacuum on the plunger)")
+    # ---- needle vs head septum: worst-case radial stack against the capture radius (recess d - guard OD) / 2 (challenge review section 4)
+    hb_ = p["cup"]["dock"]["hub"]
+    play = (hb_["id"] - p["needle"]["od"]) / 2
+    free_len = K["x_tip"] - K["x_hub"][1]
+    n_off = hb_["seat_tol"] + play + play / hb_["len"] * free_len        # seat position + radial play + tilt over the free length
+    lat_spring = p["cup"]["dock"]["clip"]["arm_inner_clr"]
+    lat_plate = K["half"] - hh["base_w"] / 2
+    z_unc = abs(3.0 - hh["septum_z"])                                  # measurement sheet placeholder C = 3.0 vs CAD 2.6 (TODO-MEASURE)
+    cap = (hh["recess_d"] - p["cup"]["dock"]["guard"]["od"]) / 2
+    stack = n_off + lat_spring + z_unc
+    stack_rss = math.sqrt(n_off ** 2 + lat_spring ** 2 + z_unc ** 2)
+    stack_plate = n_off + lat_plate + z_unc
+    if stack > cap + 1e-6:
+        problems.append(f"needle vs septum worst case {stack:.2f} > capture {cap:.2f}")
+    warns.append(f"needle vs head septum: needle tip off axis {n_off:.3f} (seat +-{hb_['seat_tol']}, play {play:.3f}, tilt over {free_len:.2f} free), dome lateral +-{lat_spring} (spring arms; base plate alone +-{lat_plate:.1f}), "
+                 f"septum height unknown {z_unc:.1f} (C 3.0 sheet vs 2.6 CAD): worst case {stack:.2f} / RSS {stack_rss:.2f} vs capture {cap:.2f} (recess d{hh['recess_d']} - guard d{p['cup']['dock']['guard']['od']}); "
+                 f"without the spring centring {stack_plate:.2f}{' > capture: measure C' if stack_plate > cap else ''}")
     # ---- reserved volumes inside the cavity, not overlapping each other (interference test above) 
     for n in op_cup.KEEPOUT:
         b = bb(n)
@@ -294,11 +417,15 @@ def check_size(outdir: Path, variant: str, p: dict) -> dict:
             problems.append(f"keep-out {n} outside the cavity")
     # ---- thrust / U per step
     th = thrust(p, L)
+    thd = thrust(p, L, lubricated=False)
     if th["F_avail_N"] < THRUST_MIN_N:
         problems.append(f"thrust {th['F_avail_N']} N < {THRUST_MIN_N} N")
     if th["F_avail_N"] < 1.5 * th["F_need_N"]:
-        problems.append(f"thrust margin {th['F_avail_N'] / th['F_need_N']:.2f}x < 1.5x: no bought miter pair with a ratio < 1 exists (BUY-LIST 0), raise the screw efficiency (steel rod, lubricant) or the pull-out torque")
-    warns.append(f"thrust margin {th['F_avail_N'] / th['F_need_N']:.2f}x (available {th['F_avail_N']} N / needed {th['F_need_N']} N)")
+        problems.append(f"thrust margin {th['margin']:.2f}x < 1.5x: no bought miter pair with a ratio < 1 exists (BUY-LIST 0), raise the screw efficiency (lubricant) or lower the collar friction")
+    warns.append(f"thrust margin {th['margin']:.2f}x (greased thread mu {th['mu_thread']} -> eta {th['eta_screw']}, PTFE shim mu {th['mu_collar']} at r {th['r_collar_mm']}: available {th['F_avail_N']} N "
+                 f"[{th['F_no_collar_N']} N without the collar term] / needed {th['F_need_N']} N = seal {th['F_seal_N']} ({th['beads']} bead) + 30 kPa {th['F_occ_N']} + vacuum {th['F_vac_N']} (vented))")
+    warns.append(f"thrust DRY fallback (no grease, no shim): thread mu {thd['mu_thread']} -> eta {thd['eta_screw']}, collar mu {thd['mu_collar']}: {thd['F_avail_N']} N = {thd['margin']:.2f}x: "
+                 f"the lubrication + PTFE shim are REQUIRED (ASSEMBLY-CUP step 2)")
     # rib / bush load path (estimates): bush bonded (CA) in the U rib bore, half of its surface carries the load; rib = cantilever wall from the floor
     bu_, cl_ = p["cup"]["bush"], p["cup"]["collar"]
     F = th["F_avail_N"]
@@ -315,10 +442,18 @@ def check_size(outdir: Path, variant: str, p: dict) -> dict:
     guide = (L["L_pl"] / (L["bore_w"] - 0.2))
     if guide < 0.5:
         problems.append(f"plunger guide length/width {guide:.2f} < 0.5: add guide fins")
-    warns.append(f"anti-tilt: cup body {L['L_pl']:.1f} mm sliding on {L['bore_w'] - 0.2:.1f} mm width (L/W {guide:.2f}) + 2 rings {p['cup']['plunger']['ring_front_a'][0] - p['cup']['plunger']['ring_front_b'][0]:.2f} mm apart")
+    warns.append(f"anti-tilt: cup body {L['L_pl']:.1f} mm sliding on {L['bore_w'] - 0.2:.1f} mm width (L/W {guide:.2f}); seal beads {[n for n, _ in op_cup.active_rings(p)]} (variant {p['seal']['active_variant']})")
+    if [n for n, _ in op_cup.active_rings(p)] != ["seal_b"]:
+        problems.append("seal variant is not the single front bead: update op_cup.MFG_PARTS / ORDER (seal_a)")
     if th["F_avail_N"] < th["F_need_SF2_N"]:
         warns.append(f"thrust {th['F_avail_N']} N covers the {th['F_need_N']} N need (seal {th['F_seal_N']} + 30 kPa occlusion {th['F_occ_N']}) but NOT a safety factor 2 ({th['F_need_SF2_N']} N): the only bought miter pair is 1:1 (a z12 : z15 pair was not found), so the margin has to come from the screw efficiency / motor torque")
-    warns.append(f"thrust: rod torque {th['T_rod_Nmm']} N mm, screw eta 0.2, bevel eta 0.9 -> {th['F_avail_N']} N available (>= {THRUST_MIN_N} required); seal perimeter {th['perimeter_mm']} mm")
+    warns.append(f"thrust: rod torque {th['T_rod_Nmm']} N mm, screw eta {th['eta_screw']}, bevel eta 0.9, collar term -> {th['F_avail_N']} N available (>= {THRUST_MIN_N} required); seal perimeter {th['perimeter_mm']} mm")
+    dc = HERE.parent / "firmware-rs" / "openpatch-core" / "src" / "drive_cal.rs"
+    if dc.exists():
+        m_ = re.search(r"Nfp608_26_45CupMiter1_1,[^;]*bore_area_x100:\s*(\d+)", dc.read_text())
+        if m_ and abs(int(m_.group(1)) - L["bore_area"] * 100) > 0.5:
+            targets.append(f"FIRMWARE: preset 0x26 (drive_cal.rs) has bore_area_x100 {m_.group(1)} but the CAD bore is {L['bore_area']:.3f} mm2 ({L['bore_w']} x {L['bore_h']}, U/step {L['u_per_step']:.6f}): "
+                           f"re-derive uu_num / uu_den / bore_area_x100 (+ tests/preset_cup.rs) before any dosing run, else every step delivers {L['bore_area'] * 100 / int(m_.group(1)) - 1:+.1%}")
     warns.append(f"U/step = {L['u_per_step']:.5f} (0.35 mm x {L['ratio']:.2f} / (20 x 26.45) x {L['bore_area']:.1f} mm2 / 10); 1 mm of plunger = {L['bore_area'] / 10:.1f} U; plunger aspect {L['aspect']:.1f} (limit 4.5)")
     if L["aspect"] > 4.5:
         problems.append(f"plunger aspect ratio {L['aspect']:.1f} > 4.5")
@@ -349,8 +484,11 @@ def check_size(outdir: Path, variant: str, p: dict) -> dict:
     if wall_cb < 0.15:
         problems.append(f"button counterbore leaves only {wall_cb:.2f} mm under the top fillet")
     stroke = bt["pad"]["face_y"] - bt["actuator_tip_y_max"] + bt["switch_travel"]
-    if not (0.29 <= stroke <= 0.41):
-        problems.append(f"button stroke to actuate {stroke:.2f} outside 0.3-0.4")
+    stroke_max = bt["pad"]["face_y"] - bt.get("actuator_tip_y_min", bt["actuator_tip_y_max"]) + bt["switch_travel"]
+    if not (0.29 <= stroke <= 0.41) or stroke_max > 0.45:
+        problems.append(f"button stroke to actuate {stroke:.2f}..{stroke_max:.2f} outside 0.3-0.45")
+    if bt["pad"]["face_y"] < bt["actuator_tip_y_max"] + 0.03:
+        problems.append("button pad rests on (pre-loads) the SW1 actuator")
     if bt["flange"]["z"][0] < zb1 + 0.05 or bt["pad"]["z"][0] < zb1 + 0.05:
         problems.append("button flange / pad reach down to the board top (would hit the board edge when pressed)")
     if not (bt["pad"]["z"][0] - 1e-6 <= bt["actuator_z"] <= bt["pad"]["z"][1] + 1e-6):
@@ -361,10 +499,30 @@ def check_size(outdir: Path, variant: str, p: dict) -> dict:
         problems.append(f"button O-ring radial squeeze {sq:.0%} outside 8-30 %")
     if bt["cbore_depth"] < bt["oring"]["cs"] - 1e-6:
         problems.append("button O-ring counterbore shallower than the cord")
-    if bt["flange"]["x"][0] < us["x_c"] + us["open_w"] / 2 + us["recess_margin"] + 0.3:
-        problems.append("button flange overlaps the USB-C gasket recess in x")
-    warns.append("button / board handshake (pre-order review H8): the routed board puts the SW1 tip at y 35.65-35.77 (z ~6.7); this cap needs tip <= %.2f, i.e. SW1 moved back 0.45 mm on the board (board y 82.30). OPEN until the board is changed" % bt["actuator_tip_y_max"])
-    warns.append(f"button cap: stem d{bt['stem_d']} at x {bt['x_c']}, z {bt['z_c']} in the lid wall, stroke {stroke:.2f} (gap {bt['pad']['face_y'] - bt['actuator_tip_y_max']:.2f} + switch {bt['switch_travel']}), "
+    if bt["flange"]["x"][0] < us["x_c"] + us["gasket"]["half_x"] + 0.3:
+        problems.append("button flange overlaps the USB-C gasket frame in x")
+    # USB-C (challenge review: the plug must seat fully): overmold face (counterbore floor) 0.0-0.5 in front of the mouth, frame squeeze, groove skip covers the counterbore
+    cbu, gu = us["cbore"], us["gasket"]
+    y_mouth = cb["pcb_y"][1]
+    om = (L["width"] - cbu["depth"]) - y_mouth
+    if not (0.0 <= om <= 0.5 + 1e-6):
+        problems.append(f"USB-C: plug overmold face {om:.2f} mm in front of the receptacle mouth (needs 0.0-0.5 to mate fully)")
+    if w - cbu["depth"] < 0.25:
+        problems.append(f"USB-C: wall left at the opening {w - cbu['depth']:.2f} < 0.25")
+    gap_u = (L["width"] - w) - y_mouth
+    sq_u = 1 - gap_u / gu["t_free"]
+    if not (0.1 <= sq_u <= 0.3):
+        problems.append(f"USB-C frame squeeze {sq_u:.0%} outside 10-30 % (gap {gap_u:.2f}, free {gu['t_free']})")
+    sk_u = p["cup"]["joint"]["usb_skip_half"]
+    if sk_u < cbu["w"] / 2 + 0.3 or gu["half_x"] < sk_u:
+        problems.append(f"USB-C: rim-groove skip +-{sk_u} must exceed the counterbore half {cbu['w'] / 2} + 0.3 and lie inside the frame half {gu['half_x']}")
+    if cbu["w"] < 12.35 or cbu["h"] < 6.5:
+        warns.append(f"USB-C counterbore {cbu['w']} x {cbu['h']} smaller than the max USB-C plug overmold 12.35 x 6.5: large overmolds stop on the outer face")
+    warns.append(f"USB-C: mouth (board north edge) y {y_mouth}, wall inner face {L['width'] - w}, outer counterbore {cbu['w']} x {cbu['h']} x {cbu['depth']} deep -> plug overmold face {om:.2f} in front of the mouth "
+                 f"(was 1.1 + 0.4 recess), wall at the opening {w - cbu['depth']:.2f}; flat frame {2 * gu['half_x']:.1f} x {gu['z_max'] - gu['z0']:.1f} in the {gap_u:.2f} gap, free {gu['t_free']} -> squeeze {sq_u:.0%} (VERIFY: depends on the board position, screws W/E)")
+    warns.append("button / board handshake (pre-order review H8): the cap is built for the SW1 tip at y %.2f-%.2f, i.e. SW1 moved back 0.45 mm on the board (board y 82.30, electronics agent); with the old tip 35.65-35.77 the pad would pre-load the switch" % (bt.get("actuator_tip_y_min", 0), bt["actuator_tip_y_max"]))
+    warns.append(f"button cap: stem d{bt['stem_d']} at x {bt['x_c']}, z {bt['z_c']} in the lid wall, key face recess {bt['face_recess']}, stroke {stroke:.2f}..{stroke_max:.2f} (rest gap {bt['pad']['face_y'] - bt['actuator_tip_y_max']:.2f}..{bt['pad']['face_y'] - bt.get('actuator_tip_y_min', bt['actuator_tip_y_max']):.2f} + switch {bt['switch_travel']}), "
+                 f"flange travels to y {L['width'] - w - bt['flange']['t'] - stroke_max:.2f} (SW1 body face must be below), "
                  f"O-ring {bt['oring']['id']} x {bt['oring']['cs']} squeeze {sq:.0%}, wall under the fillet behind the counterbore {wall_cb:.2f} mm")
     # shell joint: hard stop on the rim, seal squeeze and groove fill, posts / ribs / screw heads clear of the lid roof
     jt = p["cup"]["joint"]
@@ -437,12 +595,24 @@ def check_size(outdir: Path, variant: str, p: dict) -> dict:
             blocked.setdefault(d_[5:], []).append(o_)
     for n, o in blocked.items():
         problems.append(f"assembly: {n} cannot drop in from above, blocked by {sorted(set(o))}")
-    warns.append("assembly order (drop test passed for): " + "; ".join(f"{g}: {len([x for x in names if f'drop_{x}' in {c_['params'].get('body_name') for c_ in tools.dumps()}])} parts" for g, names in op_cup_asm.ORDER[:5]) + "; dock parts (hub + O-ring + needle + guard + springs) are pressed in from BELOW through the pocket (documented exception); button cap + O-ring go into the lid from inside before it is closed")
+    warns.append("assembly order (drop test passed for): " + "; ".join(f"{g}: {len([x for x in names if f'drop_{x}' in {c_['params'].get('body_name') for c_ in tools.dumps()}])} parts" for g, names in op_cup_asm.ORDER[:5]) + "; dock parts (centring hub + needle + guard + springs) are pressed in from BELOW through the pocket (documented exception); button cap + O-ring go into the lid from inside before it is closed")
     import cup_packing
     pk = cup_packing.run(outdir, variant)
-    if pk["rect_4x4_found"]:
-        problems.append(f"packing: empty full-height rectangle >= 4 x 4 mm remains (first at x,y = {pk['rect_4x4_first']}, {pk['n_4x4_cells']} cells): shorten/narrow or fill it")
-    warns.append(f"packing: free plan area {pk['free_mm2']} of {pk['plan_mm2']} mm2 (full-height bbox model), largest empty rectangle {pk['largest_empty_rect']['area_mm2']} mm2 at {pk['largest_empty_rect']['x0y0x1y1']}, no 4 x 4 hole")
+    vd = L["voids"]
+    side = cup_packing.MIN_SIDE
+
+    def accepted(x0: float, y0: float) -> str | None:
+        for nm_v, b_v in vd.items():
+            if b_v["x"][0] - 1e-6 <= x0 and x0 + side <= b_v["x"][1] + 1e-6 and b_v["y"][0] - 1e-6 <= y0 and y0 + side <= b_v["y"][1] + 1e-6:
+                return nm_v
+        return None
+    bad = [h for h in pk["hits"] if accepted(*h) is None]
+    used = sorted({accepted(*h) for h in pk["hits"]} - {None})
+    if bad:
+        problems.append(f"packing: empty full-height 4 x 4 mm column outside the accepted voids (first at x,y = {[round(v, 1) for v in bad[0]]}, {len(bad)} cells): shorten/narrow or fill it")
+    va = {k_: round((b_["x"][1] - b_["x"][0]) * (b_["y"][1] - b_["y"][0]), 1) for k_, b_ in vd.items()}
+    warns.append(f"packing (honest: no empty reservation boxes): free plan area {pk['free_mm2']} of {pk['plan_mm2']} mm2 (full-height bbox model), largest empty rectangle {pk['largest_empty_rect']['area_mm2']} mm2 at "
+                 f"{pk['largest_empty_rect']['x0y0x1y1']}; 4 x 4 columns only in the accepted, not tank-convertible voids {used} (plan mm2 {va}: {p['cup']['packing_voids']})")
     for part in ("bottom", "top", "reservoir", "plunger_core", "plunger_seal", "lid_gasket", "usb_gasket", "button_cap"):
         for ext in ("step", "stl"):
             if not (outdir / f"{variant}_{part}.{ext}").exists():

@@ -61,7 +61,7 @@
 
 - Hard targets incl. battery and electronics: **OP-100 ≤ 45 mm**, **OP-200 ≤ 54 mm with the full 200 U** (user decision 2026-11-19 after the drive study showed ≤ 52 mm would cap OP-200 at ~180 U) (Omnipod DASH: 52 × 39 × 14.5 mm, 200 U), width ≤ 32 mm, height ≤ 8.5 mm. A design that misses them is not accepted silently; the gap and the next lever are reported.
 - **Status (2026-11-19):** both v0.1.0 models **miss** the targets.
-  - **Cup pod, layout A (`--drive cup`, the build candidate):** OP-100 47.96, OP-200 66.78, width **36.6** (34.6 until 2026-11-22).
+  - **Cup pod, layout A (`--drive cup`, the build candidate):** OP-100 47.96, OP-200 66.78, width **36.6** (34.6 until 2026-11-22); since 2026-11-24 the stroke fills that length (challenge review): OP-100 holds **132.5 U**, OP-200 **239.3 U** (bore 20.5 x 5.9), the size names stay the nominal minimum and the firmware capacity stays nominal until the bench confirms it.
     - **Owner decision 2026-11-22:** lane 2 (cell + main board) gets 2.0 mm more in y, because the 6-layer main board could not be routed in the old outline (only about 2.6 mm between the USB-C notch and the board south edge). Lane 2 = cell width + 0.4 + 2.0 = 13.0 mm (`cup.lane2_extra`), y 22.8-35.6 in the pod frame. The tank (lane 1, bore 20.5 x 5.5), the strokes and all x positions are unchanged.
     - The cell stays on the south side of lane 2 (y 22.8-33.4). The main board spans y 22.9-35.5 (south edge unchanged). Everything on the north wall moved +2.0 in y: USB-C opening (wall inner face y 35.7), side button, north ledge (41.5, 34.1) and wall shelf (y from 34.9).
   - **Coaxial comparison model (`--variant v010`, `mechanical/V010.md`):** OP-100 58.2, OP-200 66.9, width 32. With every lever applied it reaches about 49 / 58 mm; the translating screw's dry tail is the blocker.
@@ -209,6 +209,22 @@ Tightening items from the cup board SPICE report (`electronics/v010/cup/sim/REPO
 | A move is **stopped** when VBAT under load, measured after the first step of each burst, is below | **2.8 V** (`MOTOR_LOAD_ABORT_MV`) | 2.6 to 3.0 V | F2. Raises `A-A0-004` instance 1 (cell sag under load; FRU = cell, action = charge or replace the cell). The existing 3.0 V check after 20 steps remains. |
 | The boost converter is enabled only when the **resting** cell voltage is at least | **3.4 V** (`BOOST_ENABLE_MIN_MV`) | no | F3: the boost pre-charge draws about 1 A. The start gate checks it before the 3.7 V rule, so it holds for every configuration of the rest threshold. |
 | `SUP_PERMIT` stays low after any reset or brown-out for at least | **10 ms** (`MIN_RESET_HOLDOFF_MS`) | longer only | F7: a short 3V3 dip must not be followed by an immediate permit. Provisioning also sets the supervisor option byte BOR level = highest, next to nBOOT_SEL. |
+
+### 7b. v0.1.0 cup board: accepted deviations from §7a (recorded 2026-11-24, pre-order review H7; owner sign-off required before the order)
+
+The cup board (`electronics/v010/cup/`, netlist `electronics/v010/design/netlist_v4.py`) does not implement §7a exactly. Each deviation below was decided earlier in `electronics/v010/INTERLOCK.md` section I; this list records them here so that no safety requirement is relaxed silently. Bench test project, water only, never worn.
+
+| # | §7a says | The board has | Accepted on | Why / what remains | Reference |
+|---|---|---|---|---|---|
+| D1 | dock = 2-of-2 hall sensors | **one** DRV5032 hall (U4A) | 2026-11-19 | a second hall cannot see the d1 x 0.5 magnet; open: supervisor stuck-hall check, second magnet + hall pair (mechanics). Bring-up gate: `DOCK_N` must toggle with the magnet before any motor test | INTERLOCK I, I.1(a), (c) |
+| D2 | supervisor with its **own supply rail** | supervisor powered from the nRF52840 REG0 (3V3) | 2026-11-20 | a dead rail removes `MOT_ALLOW` and the boost enable (fail-safe); the supervisor is not independent of the nRF regulator | INTERLOCK I.8 "HJ-840 high-voltage mode", FMEA FM7-U1-1 |
+| D3 | supervisor firmware independent of the main MCU | supervisor **re-flashable by the nRF** through the ST ROM bootloader | 2026-11-20 | only signed images, only with the motor supply cut; resumable in TPL5010 windows; SWD recovery pads TPS1-3 on the top side (2026-11-24) | INTERLOCK I.4, I.9 |
+| D4 | two series supply switches, pure hardware | **one** hardware switch (TPS2553 load switch, EN = `MOT_ALLOW`) plus the boost EN (`SUP_PERMIT`, supervisor) as the second cut | 2026-11-20 | the boost has true input/output disconnection in shutdown (TI SLVSF14B), so `SUP_PERMIT` low really cuts `VMOT_PRE`; the second cut is controlled by the supervisor, not by discrete logic | INTERLOCK I.5, I.8 |
+| D5 | HW-A step budget **in discrete logic**, mandatory for v0.1.0 | the step budget is counted by the **supervisor firmware** (no discrete counter on the board); the supervisor platform binary does not exist yet | 2026-11-20 | a runaway inside one watchdog window is bounded only by the supervisor firmware and the TPL5010 window; the hardware still needs latch AND permit AND `MCU_EN` AND (docked XOR reverse) | INTERLOCK I.7, `firmware-rs/openpatch-supervisor` |
+| D6 | docked + reverse blocked in hardware (H15) | **met again**: `DOCK_XOR = DOCK_N XOR MOT_FWD` (U33) in the hardware enable | 2026-11-20 | listed because I.7 had dropped it and I.8 restored it | INTERLOCK I.8 |
+| D7 | (new 2026-11-24) DRV8838 `nSLEEP` | `nSLEEP` of both drivers = `MOT_ALLOW`: the bridges sleep whenever the hardware enable is low | 2026-11-24 | tightens: one more cut at the driver, 0.6-1 mA idle drain removed (review M2) | INTERLOCK I.9 |
+
+The §7 dose limits and the §7a rules for diagnostics are unchanged. A Rev B board must remove D1, D2, D4 and D5 or record them again with an owner decision.
 
 ## 7a. Diagnostics and hardware independence (requirement, 2026-11-19)
 
