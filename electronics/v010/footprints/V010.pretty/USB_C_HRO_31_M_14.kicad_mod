@@ -1,6 +1,6 @@
 (footprint "USB_C_HRO_31_M_14" (version 20240108) (generator "v010_gen")
   (layer "F.Cu")
-  (descr "HRO TYPE-C-31-M-14 (LCSC C223907) sink-board 16P receptacle, land pattern = LCSC/EasyEDA footprint (matches the HRO drawing: 12 pads in one row, A1/B12 B1/A12 A4/B9 B4/A9 merged). Origin = mouth at the board edge, centre; body toward +y; pad row at y 8.02; board notch x +-4.57 (+0.13 clearance) from the edge to y 6.3 and x +-3.2 to y 7.0 (Edge.Cuts in cupgeom.OUTLINE). Pad names are the merged HRO names; 4 x S = shield tabs (THT slots), 2 peg holes d0.6")
+  (descr "HRO TYPE-C-31-M-14 (LCSC C223907) sink-board 16P receptacle, land pattern = LCSC/EasyEDA footprint (matches the HRO drawing: 12 pads in one row, A1/B12 B1/A12 A4/B9 B4/A9 merged). Origin = mouth at the board edge, centre; body toward +y; pad row at y 8.02; board notch = HRO/EasyEDA cut x +-4.57 to y 6.3 and x +-3.2 to y 7.0, on the board x +-4.57 to y 6.22 and x +-3.15 to y 7.0 with R0.5 corner fillets so the peg holes keep 0.3 mm webs (cupgeom._usb_notch, pre-order review H4); JLC CPL origin = pad row - 2.94 mm (local y 5.08, tools/gen_jlc_rot_offsets.py). Pad names are the merged HRO names; 4 x S = shield tabs (THT slots), 2 peg holes d0.6")
   (attr smd)
   (fp_text reference "REF**" (at 0 -1.5) (layer "F.SilkS") (effects (font (size 0.6 0.6) (thickness 0.1))))
   (fp_text value "USB_C_HRO_31_M_14" (at 0 10.0) (layer "F.Fab") (effects (font (size 0.6 0.6) (thickness 0.1))))

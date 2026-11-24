@@ -1,0 +1,536 @@
+{
+ "C11702": {
+  "fp": "R_0402_1005Metric",
+  "refs": [
+   "R74"
+  ],
+  "lcsc_fp": "R0402",
+  "delta_ccw": 0,
+  "origin_mm": [
+   0.0,
+   0.0
+  ],
+  "maxdev_mm": 0.077,
+  "matched_pads": 2,
+  "margin_mm": 0.592
+ },
+ "C130445": {
+  "fp": "SW_SKSCLAE010",
+  "refs": [
+   "SW1"
+  ],
+  "lcsc_fp": "SW-SMD_4P-L3.5-W2.9-P1.30-LS4.8",
+  "delta_ccw": 180,
+  "origin_mm": [
+   0.0,
+   0.0
+  ],
+  "maxdev_mm": 0.15,
+  "matched_pads": 2,
+  "margin_mm": 1.159
+ },
+ "C138719": {
+  "fp": "WSON-6-1EP_2x2mm_P0.65mm_EP1x1.6mm",
+  "refs": [
+   "U20"
+  ],
+  "lcsc_fp": "WSON-6_L2.0-W2.0-P0.65-TL-EP",
+  "delta_ccw": 0,
+  "origin_mm": [
+   0.0,
+   0.0
+  ],
+  "maxdev_mm": 0.141,
+  "matched_pads": 7,
+  "margin_mm": 1.554
+ },
+ "C140267": {
+  "fp": "VSSOP-8_2.3x2mm_P0.5mm",
+  "refs": [
+   "U6"
+  ],
+  "lcsc_fp": "VSSOP-8_L2.1-W2.4-P0.50-LS3.2-BR",
+  "delta_ccw": 180,
+  "origin_mm": [
+   0.0,
+   -0.0
+  ],
+  "maxdev_mm": 0.15,
+  "matched_pads": 8,
+  "margin_mm": 2.24
+ },
+ "C15127": {
+  "fp": "SOT-23",
+  "refs": [
+   "Q1"
+  ],
+  "lcsc_fp": "SOT-23_L2.9-W1.3-P1.90-LS2.4-BR",
+  "delta_ccw": 180,
+  "origin_mm": [
+   0.071,
+   -0.0
+  ],
+  "maxdev_mm": 0.283,
+  "matched_pads": 3,
+  "margin_mm": 1.695
+ },
+ "C1525": {
+  "fp": "C_0402_1005Metric",
+  "refs": [
+   "C19",
+   "C20",
+   "C50",
+   "C60",
+   "C61",
+   "C62",
+   "C81",
+   "C82"
+  ],
+  "lcsc_fp": "C0402",
+  "delta_ccw": 0,
+  "origin_mm": [
+   0.0,
+   0.0
+  ],
+  "maxdev_mm": 0.06,
+  "matched_pads": 2,
+  "margin_mm": 0.578
+ },
+ "C19666": {
+  "fp": "C_0603_1608Metric",
+  "refs": [
+   "C70"
+  ],
+  "lcsc_fp": "C0603",
+  "delta_ccw": 0,
+  "origin_mm": [
+   0.0,
+   0.0
+  ],
+  "maxdev_mm": 0.075,
+  "matched_pads": 2,
+  "margin_mm": 0.969
+ },
+ "C19702": {
+  "fp": "C_0603_1608Metric",
+  "refs": [
+   "C5",
+   "C71",
+   "CU1"
+  ],
+  "lcsc_fp": "C0603",
+  "delta_ccw": 0,
+  "origin_mm": [
+   0.0,
+   0.0
+  ],
+  "maxdev_mm": 0.075,
+  "matched_pads": 2,
+  "margin_mm": 0.969
+ },
+ "C2128": {
+  "fp": "D_SOD-323",
+  "refs": [
+   "D6"
+  ],
+  "lcsc_fp": "SOD-323_L1.8-W1.3-LS2.5-RD",
+  "delta_ccw": 0,
+  "origin_mm": [
+   0.0,
+   0.0
+  ],
+  "maxdev_mm": 0.122,
+  "matched_pads": 2,
+  "margin_mm": 1.451
+ },
+ "C223907": {
+  "fp": "USB_C_HRO_31_M_14",
+  "refs": [
+   "JU1"
+  ],
+  "lcsc_fp": "USB-C-SMD_12P-P0.50-H-F_TYPE-C-31-M-14",
+  "delta_ccw": 180,
+  "origin_mm": [
+   0.0,
+   5.08
+  ],
+  "maxdev_mm": 0.005,
+  "matched_pads": 13,
+  "margin_mm": 6.604
+ },
+ "C232391": {
+  "fp": "SOT-323_SC-70",
+  "refs": [
+   "QBA"
+  ],
+  "lcsc_fp": "SOT-323-3_L2.0-W1.3-P1.30-LS2.1-BR",
+  "delta_ccw": 180,
+  "origin_mm": [
+   0.003,
+   0.0
+  ],
+  "maxdev_mm": 0.014,
+  "matched_pads": 3,
+  "margin_mm": 1.669
+ },
+ "C23345": {
+  "fp": "R_0603_1608Metric",
+  "refs": [
+   "RBZ"
+  ],
+  "lcsc_fp": "R0603",
+  "delta_ccw": 0,
+  "origin_mm": [
+   0.0,
+   0.0
+  ],
+  "maxdev_mm": 0.072,
+  "matched_pads": 2,
+  "margin_mm": 1.046
+ },
+ "C25741": {
+  "fp": "R_0402_1005Metric",
+  "refs": [
+   "R16",
+   "R18",
+   "R29",
+   "R82",
+   "R90",
+   "R92",
+   "RDA",
+   "RDK",
+   "RNR"
+  ],
+  "lcsc_fp": "R0402",
+  "delta_ccw": 0,
+  "origin_mm": [
+   0.0,
+   0.0
+  ],
+  "maxdev_mm": 0.077,
+  "matched_pads": 2,
+  "margin_mm": 0.592
+ },
+ "C25744": {
+  "fp": "R_0402_1005Metric",
+  "refs": [
+   "R57",
+   "R58"
+  ],
+  "lcsc_fp": "R0402",
+  "delta_ccw": 0,
+  "origin_mm": [
+   0.0,
+   0.0
+  ],
+  "maxdev_mm": 0.077,
+  "matched_pads": 2,
+  "margin_mm": 0.592
+ },
+ "C25767": {
+  "fp": "R_0402_1005Metric",
+  "refs": [
+   "R55"
+  ],
+  "lcsc_fp": "R0402",
+  "delta_ccw": 0,
+  "origin_mm": [
+   0.0,
+   0.0
+  ],
+  "maxdev_mm": 0.077,
+  "matched_pads": 2,
+  "margin_mm": 0.592
+ },
+ "C25776": {
+  "fp": "R_0402_1005Metric",
+  "refs": [
+   "R56"
+  ],
+  "lcsc_fp": "R0402",
+  "delta_ccw": 0,
+  "origin_mm": [
+   0.0,
+   0.0
+  ],
+  "maxdev_mm": 0.077,
+  "matched_pads": 2,
+  "margin_mm": 0.592
+ },
+ "C25792": {
+  "fp": "R_0402_1005Metric",
+  "refs": [
+   "R3",
+   "R91"
+  ],
+  "lcsc_fp": "R0402",
+  "delta_ccw": 0,
+  "origin_mm": [
+   0.0,
+   0.0
+  ],
+  "maxdev_mm": 0.077,
+  "matched_pads": 2,
+  "margin_mm": 0.592
+ },
+ "C25900": {
+  "fp": "R_0402_1005Metric",
+  "refs": [
+   "RI1",
+   "RI2"
+  ],
+  "lcsc_fp": "R0402",
+  "delta_ccw": 0,
+  "origin_mm": [
+   0.0,
+   0.0
+  ],
+  "maxdev_mm": 0.077,
+  "matched_pads": 2,
+  "margin_mm": 0.592
+ },
+ "C25905": {
+  "fp": "R_0402_1005Metric",
+  "refs": [
+   "RU1",
+   "RU2"
+  ],
+  "lcsc_fp": "R0402",
+  "delta_ccw": 0,
+  "origin_mm": [
+   0.0,
+   0.0
+  ],
+  "maxdev_mm": 0.077,
+  "matched_pads": 2,
+  "margin_mm": 0.592
+ },
+ "C25917": {
+  "fp": "R_0402_1005Metric",
+  "refs": [
+   "R26"
+  ],
+  "lcsc_fp": "R0402",
+  "delta_ccw": 0,
+  "origin_mm": [
+   0.0,
+   0.0
+  ],
+  "maxdev_mm": 0.077,
+  "matched_pads": 2,
+  "margin_mm": 0.592
+ },
+ "C2827693": {
+  "fp": "SOT-666",
+  "refs": [
+   "UU1"
+  ],
+  "lcsc_fp": "SOT-666-6_L1.6-W1.2-P0.50-LS1.6-BL",
+  "delta_ccw": 90,
+  "origin_mm": [
+   0.0,
+   0.0
+  ],
+  "maxdev_mm": 0.175,
+  "matched_pads": 6,
+  "margin_mm": 1.192
+ },
+ "C3029071": {
+  "fp": "LED_RGB_1615_4P",
+  "refs": [
+   "LD1"
+  ],
+  "lcsc_fp": "LED-SMD_4P-L1.6-W1.5-TR-1",
+  "delta_ccw": 0,
+  "origin_mm": [
+   0.0,
+   0.0
+  ],
+  "maxdev_mm": 0.125,
+  "matched_pads": 4,
+  "margin_mm": 1.039
+ },
+ "C370610": {
+  "fp": "L_1008_2520Metric",
+  "refs": [
+   "L1"
+  ],
+  "lcsc_fp": "IND-SMD_L2.5-W2.0_FHD252012S-6R8MT",
+  "delta_ccw": 0,
+  "origin_mm": [
+   0.0,
+   -0.0
+  ],
+  "maxdev_mm": 0.125,
+  "matched_pads": 2,
+  "margin_mm": 1.31
+ },
+ "C38066": {
+  "fp": "SOT-23-5",
+  "refs": [
+   "U3"
+  ],
+  "lcsc_fp": "SOT-23-5_L3.0-W1.7-P0.95-LS2.8-BR",
+  "delta_ccw": 180,
+  "origin_mm": [
+   0.033,
+   -0.0
+  ],
+  "maxdev_mm": 0.195,
+  "matched_pads": 5,
+  "margin_mm": 2.349
+ },
+ "C391027": {
+  "fp": "BZ_4020",
+  "refs": [
+   "BZ1"
+  ],
+  "lcsc_fp": "BUZ-SMD_L4.0-W4.0-P3.50-L",
+  "delta_ccw": 0,
+  "origin_mm": [
+   0.0,
+   0.0
+  ],
+  "maxdev_mm": 0.425,
+  "matched_pads": 2,
+  "margin_mm": 1.77
+ },
+ "C45783": {
+  "fp": "C_0805_2012Metric",
+  "refs": [
+   "C21",
+   "CB1"
+  ],
+  "lcsc_fp": "C0805",
+  "delta_ccw": 0,
+  "origin_mm": [
+   0.0,
+   0.0
+  ],
+  "maxdev_mm": 0.05,
+  "matched_pads": 2,
+  "margin_mm": 1.329
+ },
+ "C473912": {
+  "fp": "SOT-23-6",
+  "refs": [
+   "U5"
+  ],
+  "lcsc_fp": "SOT-23-6_L2.9-W1.6-P0.95-LS2.8-BR",
+  "delta_ccw": 180,
+  "origin_mm": [
+   0.0,
+   -0.0
+  ],
+  "maxdev_mm": 0.213,
+  "matched_pads": 6,
+  "margin_mm": 2.095
+ },
+ "C48995440": {
+  "fp": "SOT-353_SC-70-5",
+  "refs": [
+   "U33"
+  ],
+  "lcsc_fp": "SOT-353_L2.1-W1.3-P0.65-LS2.3-BR",
+  "delta_ccw": 180,
+  "origin_mm": [
+   0.001,
+   0.0
+  ],
+  "maxdev_mm": 0.008,
+  "matched_pads": 5,
+  "margin_mm": 1.692
+ },
+ "C50052094": {
+  "fp": "HJ840",
+  "refs": [
+   "U1"
+  ],
+  "lcsc_fp": "LGA-64_L7.0-W6.2-P0.90-R8-C8-S0.65-BL",
+  "delta_ccw": 90,
+  "origin_mm": [
+   0.0,
+   -0.0
+  ],
+  "maxdev_mm": 0.0,
+  "matched_pads": 64,
+  "margin_mm": 5.495
+ },
+ "C507223": {
+  "fp": "SOT-353_SC-70-5",
+  "refs": [
+   "U32",
+   "U34"
+  ],
+  "lcsc_fp": "SC-70-5_L2.1-W1.3-P0.65-LS2.1-BR",
+  "delta_ccw": 180,
+  "origin_mm": [
+   0.053,
+   0.0
+  ],
+  "maxdev_mm": 0.315,
+  "matched_pads": 5,
+  "margin_mm": 1.687
+ },
+ "C5456188": {
+  "fp": "UFQFPN-20_3x3_P0.5",
+  "refs": [
+   "U30"
+  ],
+  "lcsc_fp": "UFQFPN-20_L3.0-W3.0-P0.50-TL",
+  "delta_ccw": 0,
+  "origin_mm": [
+   -0.0,
+   -0.004
+  ],
+  "maxdev_mm": 0.113,
+  "matched_pads": 20,
+  "margin_mm": 2.489
+ },
+ "C54929506": {
+  "fp": "UFDFN-6_1.45x1.0_P0.5",
+  "refs": [
+   "U36"
+  ],
+  "lcsc_fp": "UFDFN-6_L1.45-W1.0-P0.50-BL",
+  "delta_ccw": 0,
+  "origin_mm": [
+   0.0,
+   0.001
+  ],
+  "maxdev_mm": 0.006,
+  "matched_pads": 6,
+  "margin_mm": 0.877
+ },
+ "C86667": {
+  "fp": "Texas_DSG0008A_WSON-8-1EP_2x2mm_P0.5mm_EP0.9x1.6mm",
+  "refs": [
+   "U7A",
+   "U7B"
+  ],
+  "lcsc_fp": "WSON-8_L2.0-W2.0-P0.50-TL-EP",
+  "delta_ccw": 0,
+  "origin_mm": [
+   -0.0,
+   -0.0
+  ],
+  "maxdev_mm": 0.0,
+  "matched_pads": 9,
+  "margin_mm": 1.712
+ },
+ "C919459": {
+  "fp": "SOT-563",
+  "refs": [
+   "U8"
+  ],
+  "lcsc_fp": "SOT-563_L1.6-W1.2-P0.50-LS1.6-BR",
+  "delta_ccw": 180,
+  "origin_mm": [
+   0.0,
+   0.0
+  ],
+  "maxdev_mm": 0.037,
+  "matched_pads": 6,
+  "margin_mm": 1.23
+ }
+}

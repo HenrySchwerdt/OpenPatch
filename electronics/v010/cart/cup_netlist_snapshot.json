@@ -1,0 +1,1646 @@
+[
+ {
+  "ref": "U1",
+  "value": "HJ-840 nRF52840 SiP",
+  "fp": [
+   "V010",
+   "HJ840"
+  ],
+  "pins": {
+   "A1": "GND",
+   "H8": "GND",
+   "A7": "ANT",
+   "A8": "ANT",
+   "H2": "VBAT",
+   "H3": "3V3",
+   "H4": "3V3",
+   "F1": "USB_DP",
+   "G1": "USB_DM",
+   "F2": "VBUS_P",
+   "E1": "NRST",
+   "C2": "SWDIO",
+   "C3": "SWDCLK",
+   "H7": "VMOT_SENSE",
+   "H5": "APHASE",
+   "F4": "BPHASE",
+   "F5": "AENBL",
+   "E6": "BENBL",
+   "G4": "CHG_STAT",
+   "G5": "OC_OK",
+   "E7": "LATCH_Q",
+   "E8": "DOCK_N",
+   "F3": "SUP_OK",
+   "D8": "LED_R",
+   "C8": "LED_G",
+   "D7": "LED_B",
+   "E3": "SUP_TXD",
+   "E2": "SUP_RXD",
+   "D1": "SUP_BOOT0",
+   "G3": "SUP_NRST",
+   "F8": "MOT_FWD",
+   "D2": "BTN_N",
+   "G8": "I2C_SCL",
+   "F7": "I2C_SDA",
+   "G7": "ARM_CLK",
+   "E4": "MCU_EN",
+   "C7": "BUZ_A"
+  },
+  "lcsc": "C50052094",
+  "mpn": "HJ-840",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "HJSIP HJ-840 LGA64 6.2 x 7.0 x 1.0, JLC stock about 90, integrated antenna (A7 ANT bridged to A8 BOARD_ANT by a top-layer track, net ANT), HIGH-VOLTAGE mode: VDDH = VBAT, VDD pins H3/H4 = the 3V3 rail supplied by the module regulator REG0 (UICR REGOUT0 must be set to 3.3 V once, default 1.8 V; flash with 3.3 V on both the cell + pad and the SWD 3V3 pad = normal-voltage mode); DCCH, DEC1, DEC5, DECUSB not connected (module has its own filter capacitors; DC/DC off, LDO mode: VERIFY with figure 2.4 of the manual); NFC pins not used; no parts under the module, no copper in the antenna area",
+  "group": "mcu",
+  "board": "CUP"
+ },
+ {
+  "ref": "C70",
+  "value": "4.7uF 16V 0603",
+  "fp": [
+   "Capacitor_SMD",
+   "C_0603_1608Metric"
+  ],
+  "pins": {
+   "1": "3V3",
+   "2": "GND"
+  },
+  "lcsc": "C19666",
+  "mpn": "CL10A475KO8NNNC",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "3V3 = nRF52840 REG0 output: 4.7 uF at VDD H3/H4 (review C3); HV mode relies on REG0, max 25 mA external at TX <= 4 dBm (nRF52840 PS v1.7 p.84 via DevZone, verify)",
+  "group": "mcu",
+  "board": "CUP"
+ },
+ {
+  "ref": "SP1",
+  "value": "cell lead pad +",
+  "fp": [
+   "V010",
+   "Wire_Pad_1.0x1.6"
+  ],
+  "pins": {
+   "1": "VCELL"
+  },
+  "lcsc": null,
+  "mpn": null,
+  "side": "F",
+  "bom": false,
+  "dnp": false,
+  "note": "hand-solder pad 1.0 x 1.6 for the cell lead + (Ampul 301030 has two flying wires, user solders them LAST, after the PCM check); large + on the silkscreen; 1.0 mm to any other exposed copper",
+  "group": "batt",
+  "board": "CUP"
+ },
+ {
+  "ref": "SP2",
+  "value": "cell lead pad -",
+  "fp": [
+   "V010",
+   "Wire_Pad_1.0x1.6"
+  ],
+  "pins": {
+   "1": "GND"
+  },
+  "lcsc": null,
+  "mpn": null,
+  "side": "F",
+  "bom": false,
+  "dnp": false,
+  "note": "hand-solder pad 1.0 x 1.6 for the cell lead - (Ampul 301030 has two flying wires, user solders them LAST, after the PCM check); large - on the silkscreen; 1.0 mm to any other exposed copper",
+  "group": "batt",
+  "board": "CUP"
+ },
+ {
+  "ref": "Q1",
+  "value": "AO3401A (cell reverse-polarity P-FET)",
+  "fp": [
+   "Package_TO_SOT_SMD",
+   "SOT-23"
+  ],
+  "pins": {
+   "1": "GND",
+   "2": "VBAT",
+   "3": "VCELL"
+  },
+  "lcsc": "C15127",
+  "mpn": "AO3401A",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "reverse-polarity protection of the cell (review H6): drain on the cell +, source on VBAT, gate on GND. Correct cell: body diode, then the channel (Vgs = -VBAT) conducts; reversed cell: off. RDS(on) 85 mohm at Vgs -2.5 V (60 at -4.5): about 60 mV at the 0.7 A boost peak. Charging (21 mA) flows source -> drain through the on channel. JLC basic part. SOT-23 1 G 2 S 3 D",
+  "group": "batt",
+  "board": "CUP"
+ },
+ {
+  "ref": "C5",
+  "value": "10uF",
+  "fp": [
+   "Capacitor_SMD",
+   "C_0603_1608Metric"
+  ],
+  "pins": {
+   "1": "VBAT",
+   "2": "GND"
+  },
+  "lcsc": "C19702",
+  "mpn": "CL10A106KP8NNNC",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "pwr",
+  "board": "CUP"
+ },
+ {
+  "ref": "JU1",
+  "value": "USB-C 16P sink-board TYPE-C-31-M-14",
+  "fp": [
+   "V010",
+   "USB_C_HRO_31_M_14"
+  ],
+  "pins": {
+   "A1B12": "GND",
+   "B1A12": "GND",
+   "S": "GND",
+   "A4B9": "VBUS_P",
+   "B4A9": "VBUS_P",
+   "A5": "CC1",
+   "B5": "CC2",
+   "A6": "USB_DP",
+   "B6": "USB_DP",
+   "A7": "USB_DM",
+   "B7": "USB_DM"
+  },
+  "lcsc": "C223907",
+  "mpn": "TYPE-C-31-M-14",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "JLC-stocked (2143) HRO sink-board 16P USB-C receptacle in a 9.4 x 6.7 mm notch of the +Y edge (+ 6.6 x 0.7 sub-notch), centre x 23.5; pads = the official LCSC/HRO land pattern (12 SMD pads in one row, merged power pads, 4 shield THT slots, 2 peg holes); SBU pads A8/B8 not connected; pin check 2026-11-20 (cup/PIN-CHECK.md); height vs lid inner z 7.6 and cell top 4.1: mechanics VERIFY",
+  "group": "usb",
+  "board": "CUP"
+ },
+ {
+  "ref": "RU1",
+  "value": "5.1k",
+  "fp": [
+   "Resistor_SMD",
+   "R_0402_1005Metric"
+  ],
+  "pins": {
+   "1": "CC1",
+   "2": "GND"
+  },
+  "lcsc": "C25905",
+  "mpn": "0402WGF5101TCE",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "usb",
+  "board": "CUP"
+ },
+ {
+  "ref": "RU2",
+  "value": "5.1k",
+  "fp": [
+   "Resistor_SMD",
+   "R_0402_1005Metric"
+  ],
+  "pins": {
+   "1": "CC2",
+   "2": "GND"
+  },
+  "lcsc": "C25905",
+  "mpn": "0402WGF5101TCE",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "usb",
+  "board": "CUP"
+ },
+ {
+  "ref": "UU1",
+  "value": "USBLC6-2P6",
+  "fp": [
+   "Package_TO_SOT_SMD",
+   "SOT-666"
+  ],
+  "pins": {
+   "1": "USB_DP",
+   "2": "GND",
+   "3": "USB_DM",
+   "4": "USB_DM",
+   "5": "VBUS_P",
+   "6": "USB_DP"
+  },
+  "lcsc": "C2827693",
+  "mpn": "USBLC6-2P6",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "ESD on D+/D-",
+  "group": "usb",
+  "board": "CUP"
+ },
+ {
+  "ref": "CU1",
+  "value": "10uF",
+  "fp": [
+   "Capacitor_SMD",
+   "C_0603_1608Metric"
+  ],
+  "pins": {
+   "1": "VBUS_P",
+   "2": "GND"
+  },
+  "lcsc": "C19702",
+  "mpn": "CL10A106KP8NNNC",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "usb",
+  "board": "CUP"
+ },
+ {
+  "ref": "U3",
+  "value": "MCP73832T-2ACI/OT",
+  "fp": [
+   "Package_TO_SOT_SMD",
+   "SOT-23-5"
+  ],
+  "pins": {
+   "1": "CHG_STAT",
+   "2": "GND",
+   "3": "VBAT",
+   "4": "VBUS_P",
+   "5": "CHG_PROG"
+  },
+  "lcsc": "C38066",
+  "mpn": "MCP73832T-2ACI/OT",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "chg",
+  "board": "CUP"
+ },
+ {
+  "ref": "R3",
+  "value": "47k",
+  "fp": [
+   "Resistor_SMD",
+   "R_0402_1005Metric"
+  ],
+  "pins": {
+   "1": "CHG_PROG",
+   "2": "GND"
+  },
+  "lcsc": "C25792",
+  "mpn": "0402WGF4702TCE",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "PROG 47k -> about 21 mA charge current",
+  "group": "chg",
+  "board": "CUP"
+ },
+ {
+  "ref": "U7A",
+  "value": "DRV8838DSGR",
+  "fp": [
+   "Package_SON",
+   "Texas_DSG0008A_WSON-8-1EP_2x2mm_P0.5mm_EP0.9x1.6mm"
+  ],
+  "pins": {
+   "1": "VMOT",
+   "2": "MOT_A1",
+   "3": "MOT_A2",
+   "4": "GND",
+   "5": "AENBL",
+   "6": "APHASE",
+   "7": "MOT_ALLOW",
+   "8": "3V3",
+   "9": "GND"
+  },
+  "lcsc": "C86667",
+  "mpn": "DRV8838DSGR",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "single H-bridge for coil A, VM 0-11 V, VCC 1.8-7 V, 1.8 A peak; pins (TI SLVSBA4F rev F, DSG package): 1 VM, 2 OUT1, 3 OUT2, 4 GND, 5 EN, 6 PH, 7 nSLEEP = MOT_ALLOW (review M2 2026-11-24: asleep, 5 nA, whenever the hardware enable is low; awake 300 uA only while the motor may run; wake-up 30 us, the firmware waits settle_ms = 10 ms after the enable), 8 VCC, pad GND; no current sense or limit: the current is set by the coil resistance; the hardware cut stays in the load switch U20 on VMOT",
+  "group": "drv",
+  "board": "CUP"
+ },
+ {
+  "ref": "U7B",
+  "value": "DRV8838DSGR",
+  "fp": [
+   "Package_SON",
+   "Texas_DSG0008A_WSON-8-1EP_2x2mm_P0.5mm_EP0.9x1.6mm"
+  ],
+  "pins": {
+   "1": "VMOT",
+   "2": "MOT_B1",
+   "3": "MOT_B2",
+   "4": "GND",
+   "5": "BENBL",
+   "6": "BPHASE",
+   "7": "MOT_ALLOW",
+   "8": "3V3",
+   "9": "GND"
+  },
+  "lcsc": "C86667",
+  "mpn": "DRV8838DSGR",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "single H-bridge for coil B, VM 0-11 V, VCC 1.8-7 V, 1.8 A peak; pins (TI SLVSBA4F rev F, DSG package): 1 VM, 2 OUT1, 3 OUT2, 4 GND, 5 EN, 6 PH, 7 nSLEEP = MOT_ALLOW (review M2 2026-11-24: asleep, 5 nA, whenever the hardware enable is low; awake 300 uA only while the motor may run; wake-up 30 us, the firmware waits settle_ms = 10 ms after the enable), 8 VCC, pad GND; no current sense or limit: the current is set by the coil resistance; the hardware cut stays in the load switch U20 on VMOT",
+  "group": "drv",
+  "board": "CUP"
+ },
+ {
+  "ref": "C19",
+  "value": "100nF",
+  "fp": [
+   "Capacitor_SMD",
+   "C_0402_1005Metric"
+  ],
+  "pins": {
+   "1": "3V3",
+   "2": "GND"
+  },
+  "lcsc": "C1525",
+  "mpn": "CL05B104KO5NNNC",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "VCC bypass of U7A (datasheet: 0.1 uF at VCC)",
+  "group": "drv",
+  "board": "CUP"
+ },
+ {
+  "ref": "C20",
+  "value": "100nF",
+  "fp": [
+   "Capacitor_SMD",
+   "C_0402_1005Metric"
+  ],
+  "pins": {
+   "1": "3V3",
+   "2": "GND"
+  },
+  "lcsc": "C1525",
+  "mpn": "CL05B104KO5NNNC",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "VCC bypass of U7B (datasheet: 0.1 uF at VCC)",
+  "group": "drv",
+  "board": "CUP"
+ },
+ {
+  "ref": "C21",
+  "value": "22uF",
+  "fp": [
+   "Capacitor_SMD",
+   "C_0805_2012Metric"
+  ],
+  "pins": {
+   "1": "VMOT",
+   "2": "GND"
+  },
+  "lcsc": "C45783",
+  "mpn": "CL21A226MAQNNNE",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "drv",
+  "board": "CUP"
+ },
+ {
+  "ref": "MP1",
+  "value": "motor lead pad A+",
+  "fp": [
+   "V010",
+   "Wire_Pad_0.7x1.6"
+  ],
+  "pins": {
+   "1": "MOT_A1"
+  },
+  "lcsc": null,
+  "mpn": null,
+  "side": "F",
+  "bom": false,
+  "dnp": false,
+  "note": "hand-solder pad 0.7 x 1.6 (1.35 mm pitch, review H6) for the motor lead A+ (cut the JST plug of the NFP-608 lead, solder 4 wires, strain relief by glue/tie), silkscreen label, west edge next to the motor lead exit (x 7.5 to 13, y about 24); VERIFY against the motor CAD",
+  "group": "mot",
+  "board": "CUP"
+ },
+ {
+  "ref": "MP2",
+  "value": "motor lead pad A-",
+  "fp": [
+   "V010",
+   "Wire_Pad_0.7x1.6"
+  ],
+  "pins": {
+   "1": "MOT_A2"
+  },
+  "lcsc": null,
+  "mpn": null,
+  "side": "F",
+  "bom": false,
+  "dnp": false,
+  "note": "hand-solder pad 0.7 x 1.6 (1.35 mm pitch, review H6) for the motor lead A- (cut the JST plug of the NFP-608 lead, solder 4 wires, strain relief by glue/tie), silkscreen label, west edge next to the motor lead exit (x 7.5 to 13, y about 24); VERIFY against the motor CAD",
+  "group": "mot",
+  "board": "CUP"
+ },
+ {
+  "ref": "MP3",
+  "value": "motor lead pad B+",
+  "fp": [
+   "V010",
+   "Wire_Pad_0.7x1.6"
+  ],
+  "pins": {
+   "1": "MOT_B1"
+  },
+  "lcsc": null,
+  "mpn": null,
+  "side": "F",
+  "bom": false,
+  "dnp": false,
+  "note": "hand-solder pad 0.7 x 1.6 (1.35 mm pitch, review H6) for the motor lead B+ (cut the JST plug of the NFP-608 lead, solder 4 wires, strain relief by glue/tie), silkscreen label, west edge next to the motor lead exit (x 7.5 to 13, y about 24); VERIFY against the motor CAD",
+  "group": "mot",
+  "board": "CUP"
+ },
+ {
+  "ref": "MP4",
+  "value": "motor lead pad B-",
+  "fp": [
+   "V010",
+   "Wire_Pad_0.7x1.6"
+  ],
+  "pins": {
+   "1": "MOT_B2"
+  },
+  "lcsc": null,
+  "mpn": null,
+  "side": "F",
+  "bom": false,
+  "dnp": false,
+  "note": "hand-solder pad 0.7 x 1.6 (1.35 mm pitch, review H6) for the motor lead B- (cut the JST plug of the NFP-608 lead, solder 4 wires, strain relief by glue/tie), silkscreen label, west edge next to the motor lead exit (x 7.5 to 13, y about 24); VERIFY against the motor CAD",
+  "group": "mot",
+  "board": "CUP"
+ },
+ {
+  "ref": "TL1",
+  "value": "REAR strip pad (3V3)",
+  "fp": [
+   "V010",
+   "FPC_Pad_1.2x0.6"
+  ],
+  "pins": {
+   "1": "3V3"
+  },
+  "lcsc": null,
+  "mpn": null,
+  "side": "B",
+  "bom": false,
+  "dnp": false,
+  "note": "ENIG pad pair with the REAR flex strip (TMAG5273 at gear B)",
+  "group": "rear",
+  "board": "CUP"
+ },
+ {
+  "ref": "TL2",
+  "value": "REAR strip pad (GND)",
+  "fp": [
+   "V010",
+   "FPC_Pad_1.2x0.6"
+  ],
+  "pins": {
+   "1": "GND"
+  },
+  "lcsc": null,
+  "mpn": null,
+  "side": "B",
+  "bom": false,
+  "dnp": false,
+  "note": "ENIG pad pair with the REAR flex strip (TMAG5273 at gear B)",
+  "group": "rear",
+  "board": "CUP"
+ },
+ {
+  "ref": "TL3",
+  "value": "REAR strip pad (I2C_SDA)",
+  "fp": [
+   "V010",
+   "FPC_Pad_1.2x0.6"
+  ],
+  "pins": {
+   "1": "I2C_SDA"
+  },
+  "lcsc": null,
+  "mpn": null,
+  "side": "B",
+  "bom": false,
+  "dnp": false,
+  "note": "ENIG pad pair with the REAR flex strip (TMAG5273 at gear B)",
+  "group": "rear",
+  "board": "CUP"
+ },
+ {
+  "ref": "TL4",
+  "value": "REAR strip pad (I2C_SCL)",
+  "fp": [
+   "V010",
+   "FPC_Pad_1.2x0.6"
+  ],
+  "pins": {
+   "1": "I2C_SCL"
+  },
+  "lcsc": null,
+  "mpn": null,
+  "side": "B",
+  "bom": false,
+  "dnp": false,
+  "note": "ENIG pad pair with the REAR flex strip (TMAG5273 at gear B)",
+  "group": "rear",
+  "board": "CUP"
+ },
+ {
+  "ref": "LD1",
+  "value": "RGB LED SZYY1615RGB-B (common anode)",
+  "fp": [
+   "V010",
+   "LED_RGB_1615_4P"
+  ],
+  "pins": {
+   "1": "LED_R",
+   "2": "LED_G",
+   "3": "LED_B",
+   "4": "LED_A"
+  },
+  "lcsc": "C3029071",
+  "mpn": "SZYY1615RGB-B",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "top-facing status RGB LED under the clear lid, common anode through ONE 1k from VBAT (GPIO high = off even at 4.2 V, no idle current); one lit channel about 0.7 to 1.7 mA; pad order and common anode (pin 4) verified in the vendor drawing; green and blue VF 2.8 to 3.4 V: dim below about 3.4 V cell voltage",
+  "group": "ui",
+  "board": "CUP"
+ },
+ {
+  "ref": "R74",
+  "value": "1k",
+  "fp": [
+   "Resistor_SMD",
+   "R_0402_1005Metric"
+  ],
+  "pins": {
+   "1": "VBAT",
+   "2": "LED_A"
+  },
+  "lcsc": "C11702",
+  "mpn": "0402WGF1001TCE",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "ui",
+  "board": "CUP"
+ },
+ {
+  "ref": "SW1",
+  "value": "SKSCLAE010 side tact",
+  "fp": [
+   "V010",
+   "SW_SKSCLAE010"
+  ],
+  "pins": {
+   "1": "BTN_N",
+   "2": "BTN_N",
+   "3": "GND",
+   "4": "GND"
+  },
+  "lcsc": "C130445",
+  "mpn": "SKSCLAE010",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "ALPS SKSCLAE010 side-push tact 4.85 x 3.55 x 1.25 (JLC stock 873, extended). Pin check 2026-11-20: the earlier SKRPACE010 (C139797) is a TOP-push switch 2.5 mm high and was replaced; pins 1+2 and 3+4 are two contact pairs, actuator faces local -y (north wall when placed at rot 0); internal nRF pull-up, no external resistor",
+  "group": "ui",
+  "board": "CUP"
+ },
+ {
+  "ref": "BZ1",
+  "value": "FUET-4020 SMD magnetic sounder",
+  "fp": [
+   "V010",
+   "BZ_4020"
+  ],
+  "pins": {
+   "1": "VBAT",
+   "2": "PZ_C"
+  },
+  "lcsc": "C391027",
+  "mpn": "FUET-4020",
+  "side": "B",
+  "bom": true,
+  "dnp": false,
+  "note": "fitted: 4 x 4 x 2.0 mm SMD magnetic sounder on the bottom side of the side_b block (2.0 mm part, 4.3 mm free below the board, 2.3 mm spare), pod position about (39.0, 20.2), z 3.3 to 5.3; driven by QBA + D6, off by default; vendor data: 4 kHz square wave 2 to 4 Vp, rated 3 V / max 90 mA, coil 17 ohm, MIN 65 dB at 10 cm (drive with PWM at 4 kHz, never DC: 4.2 V / 17 ohm = 0.25 A); alternatives MLT-5020 C94598 (5 x 5), Cy-SMD-4020-3040 C968744",
+  "group": "ui",
+  "board": "CUP"
+ },
+ {
+  "ref": "D6",
+  "value": "1N4148WS (sounder flyback)",
+  "fp": [
+   "Diode_SMD",
+   "D_SOD-323"
+  ],
+  "pins": {
+   "1": "VBAT",
+   "2": "PZ_C"
+  },
+  "lcsc": "C2128",
+  "mpn": "1N4148WS",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "flyback across the sounder coil (cathode pad 1 on VBAT)",
+  "group": "ui",
+  "board": "CUP"
+ },
+ {
+  "ref": "RDA",
+  "value": "100k",
+  "fp": [
+   "Resistor_SMD",
+   "R_0402_1005Metric"
+  ],
+  "pins": {
+   "1": "BUZ_A",
+   "2": "GND"
+  },
+  "lcsc": "C25741",
+  "mpn": "0402WGF1003TCE",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "ui",
+  "board": "CUP"
+ },
+ {
+  "ref": "RBZ",
+  "value": "22R 0603",
+  "fp": [
+   "Resistor_SMD",
+   "R_0603_1608Metric"
+  ],
+  "pins": {
+   "1": "PZ_C",
+   "2": "PZ_A"
+  },
+  "lcsc": "C23345",
+  "mpn": "0603WAF220JT5E",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "series resistor of the sounder (review m4): coil 17 +-3 ohm (vendor), 4.2 V / (17 + 22 + about 3 ohm) = 100 mA peak, vendor maximum 90 mA at 3 V; 0.1 W 0603 at 50 % duty, alarm bursts only; flyback D6 across the coil only",
+  "group": "ui",
+  "board": "CUP"
+ },
+ {
+  "ref": "RI1",
+  "value": "4.7k",
+  "fp": [
+   "Resistor_SMD",
+   "R_0402_1005Metric"
+  ],
+  "pins": {
+   "1": "3V3",
+   "2": "I2C_SDA"
+  },
+  "lcsc": "C25900",
+  "mpn": "0402WGF4701TCE",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "I2C pull-up (review m2)",
+  "group": "mcu",
+  "board": "CUP"
+ },
+ {
+  "ref": "RI2",
+  "value": "4.7k",
+  "fp": [
+   "Resistor_SMD",
+   "R_0402_1005Metric"
+  ],
+  "pins": {
+   "1": "3V3",
+   "2": "I2C_SCL"
+  },
+  "lcsc": "C25900",
+  "mpn": "0402WGF4701TCE",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "I2C pull-up (review m2)",
+  "group": "mcu",
+  "board": "CUP"
+ },
+ {
+  "ref": "U4A",
+  "value": "DRV5032FADMRR",
+  "fp": [
+   "Bench",
+   "DRV5032_X2SON-4_DMR0004B"
+  ],
+  "pins": {
+   "1": "3V3",
+   "2": "GND",
+   "4": "DOCK_N",
+   "5": "GND"
+  },
+  "lcsc": "C2152496",
+  "mpn": "DRV5032FADMRR",
+  "side": "B",
+  "bom": true,
+  "dnp": false,
+  "note": "dock hall on the underside of the dock leg, centred on the dock magnet axis (z 4.9-5.3); VERIFY threshold. Single hall: a second hall cannot see the d1 x 0.5 magnet (Bz of the dipole changes sign about 1 mm off axis)",
+  "group": "dock",
+  "board": "CUP"
+ },
+ {
+  "ref": "TPR1",
+  "value": "recovery pad SWDIO",
+  "fp": [
+   "V010",
+   "TP_Pad_D0.6"
+  ],
+  "pins": {
+   "1": "SWDIO"
+  },
+  "lcsc": null,
+  "mpn": null,
+  "side": "B",
+  "bom": false,
+  "dnp": false,
+  "note": "0.6 mm bare pad on the underside of the hall finger at 1.27 mm pitch: first SWD flash (pogo clip / JLC programming) and recovery, both variants",
+  "group": "tpr",
+  "board": "CUP"
+ },
+ {
+  "ref": "TPR2",
+  "value": "recovery pad SWDCLK",
+  "fp": [
+   "V010",
+   "TP_Pad_D0.6"
+  ],
+  "pins": {
+   "1": "SWDCLK"
+  },
+  "lcsc": null,
+  "mpn": null,
+  "side": "B",
+  "bom": false,
+  "dnp": false,
+  "note": "0.6 mm bare pad on the underside of the hall finger at 1.27 mm pitch: first SWD flash (pogo clip / JLC programming) and recovery, both variants",
+  "group": "tpr",
+  "board": "CUP"
+ },
+ {
+  "ref": "TPR3",
+  "value": "recovery pad GND",
+  "fp": [
+   "V010",
+   "TP_Pad_D0.6"
+  ],
+  "pins": {
+   "1": "GND"
+  },
+  "lcsc": null,
+  "mpn": null,
+  "side": "B",
+  "bom": false,
+  "dnp": false,
+  "note": "0.6 mm bare pad on the underside of the hall finger at 1.27 mm pitch: first SWD flash (pogo clip / JLC programming) and recovery, both variants",
+  "group": "tpr",
+  "board": "CUP"
+ },
+ {
+  "ref": "TPR4",
+  "value": "recovery pad 3V3",
+  "fp": [
+   "V010",
+   "TP_Pad_D0.6"
+  ],
+  "pins": {
+   "1": "3V3"
+  },
+  "lcsc": null,
+  "mpn": null,
+  "side": "B",
+  "bom": false,
+  "dnp": false,
+  "note": "0.6 mm bare pad on the underside of the hall finger at 1.27 mm pitch: first SWD flash (pogo clip / JLC programming) and recovery, both variants",
+  "group": "tpr",
+  "board": "CUP"
+ },
+ {
+  "ref": "TPS1",
+  "value": "supervisor SWD pad PA13 SWDIO",
+  "fp": [
+   "V010",
+   "TP_Pad_D0.6"
+  ],
+  "pins": {
+   "1": "BPHASE"
+  },
+  "lcsc": null,
+  "mpn": null,
+  "side": "F",
+  "bom": false,
+  "dnp": false,
+  "note": "0.6 mm bare top-side pad: supervisor PA13 SWDIO for an SWD probe (connect under reset); the nRF must hold BPHASE / SUP_BOOT0 as inputs (high-Z) while a probe is attached",
+  "group": "tps",
+  "board": "CUP"
+ },
+ {
+  "ref": "TPS2",
+  "value": "supervisor SWD pad PA14 SWCLK",
+  "fp": [
+   "V010",
+   "TP_Pad_D0.6"
+  ],
+  "pins": {
+   "1": "SUP_BOOT0"
+  },
+  "lcsc": null,
+  "mpn": null,
+  "side": "F",
+  "bom": false,
+  "dnp": false,
+  "note": "0.6 mm bare top-side pad: supervisor PA14 SWCLK for an SWD probe (connect under reset); the nRF must hold BPHASE / SUP_BOOT0 as inputs (high-Z) while a probe is attached",
+  "group": "tps",
+  "board": "CUP"
+ },
+ {
+  "ref": "TPS3",
+  "value": "supervisor SWD pad NRST",
+  "fp": [
+   "V010",
+   "TP_Pad_D0.6"
+  ],
+  "pins": {
+   "1": "SUP_NRST"
+  },
+  "lcsc": null,
+  "mpn": null,
+  "side": "F",
+  "bom": false,
+  "dnp": false,
+  "note": "0.6 mm bare top-side pad: supervisor NRST for an SWD probe (connect under reset); the nRF must hold BPHASE / SUP_BOOT0 as inputs (high-Z) while a probe is attached",
+  "group": "tps",
+  "board": "CUP"
+ },
+ {
+  "ref": "U30",
+  "value": "STM32C011F4U6",
+  "fp": [
+   "V010",
+   "UFQFPN-20_3x3_P0.5"
+  ],
+  "pins": {
+   "19": "MCU_EN",
+   "20": "SUP_DONE",
+   "1": "SUP_WAKE",
+   "2": "3V3",
+   "3": "GND",
+   "4": "SUP_NRST",
+   "5": "ARM_CLK",
+   "6": "APHASE",
+   "7": "MOT_FWD",
+   "8": "OC_OK",
+   "10": "SUP_PERMIT",
+   "11": "SUP_OK",
+   "12": "NRST",
+   "14": "SUP_TXD",
+   "15": "SUP_RXD",
+   "16": "BPHASE",
+   "17": "SUP_BOOT0",
+   "18": "DOCK_N"
+  },
+  "lcsc": "C5456188",
+  "mpn": "STM32C011F4U6",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "independent supervisor (INTERLOCK.md H, I); UFQFPN20 pin map from DS13866 rev 5 table 12 (pin check 2026-11-20: the earlier TSSOP20 numbering was wrong on this package): 19 PB7 MCU_EN, 20 PC14 SUP_DONE, 1 PC15 SUP_WAKE, 2 VDD, 3 VSS, 4 NRST, 5 PA0 ARM_CLK, 6 PA1 APHASE, 7 PA2 MOT_FWD, 8 PA3 OC_OK, 10 PA5 SUP_PERMIT, 11 PA6 SUP_OK, 12 PA7 NRST(nRF), 14 PA11 TXD (bootloader USART1 TX), 15 PA12 RXD, 16 PA13 BPHASE (SWDIO at reset, pull-up), 17 PA14-BOOT0 (internal pull-down at reset), 18 PB6 DOCK_N; no exposed pad; BOOT0 pin only effective when option bit nBOOT_SEL = 0 (blank part boots the system loader through the empty-flash check)",
+  "group": "sup",
+  "board": "CUP"
+ },
+ {
+  "ref": "C50",
+  "value": "100nF",
+  "fp": [
+   "Capacitor_SMD",
+   "C_0402_1005Metric"
+  ],
+  "pins": {
+   "1": "3V3",
+   "2": "GND"
+  },
+  "lcsc": "C1525",
+  "mpn": "CL05B104KO5NNNC",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "sup",
+  "board": "CUP"
+ },
+ {
+  "ref": "C80",
+  "value": "100nF",
+  "fp": [
+   "Capacitor_SMD",
+   "C_0402_1005Metric"
+  ],
+  "pins": {
+   "1": "3V3",
+   "2": "GND"
+  },
+  "lcsc": "C1525",
+  "mpn": "CL05B104KO5NNNC",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "DRV5032 VCC bypass (TI: at least 0.1 uF at VCC), top side of the hall finger",
+  "group": "dock",
+  "board": "CUP"
+ },
+ {
+  "ref": "C81",
+  "value": "100nF",
+  "fp": [
+   "Capacitor_SMD",
+   "C_0402_1005Metric"
+  ],
+  "pins": {
+   "1": "3V3",
+   "2": "GND"
+  },
+  "lcsc": "C1525",
+  "mpn": "CL05B104KO5NNNC",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "bypass shared by the latch U6 and the XOR U33",
+  "group": "wdt",
+  "board": "CUP"
+ },
+ {
+  "ref": "C82",
+  "value": "100nF",
+  "fp": [
+   "Capacitor_SMD",
+   "C_0402_1005Metric"
+  ],
+  "pins": {
+   "1": "3V3",
+   "2": "GND"
+  },
+  "lcsc": "C1525",
+  "mpn": "CL05B104KO5NNNC",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "bypass shared by the AND3 U36 and the TPL5010 U5",
+  "group": "wdt",
+  "board": "CUP"
+ },
+ {
+  "ref": "U5",
+  "value": "TPL5010DDCR",
+  "fp": [
+   "Package_TO_SOT_SMD",
+   "SOT-23-6"
+  ],
+  "pins": {
+   "1": "3V3",
+   "2": "GND",
+   "3": "WDT_DELAY",
+   "4": "SUP_DONE",
+   "5": "SUP_WAKE",
+   "6": "SUP_NRST"
+  },
+  "lcsc": "C473912",
+  "mpn": "TPL5010DDCR",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "independent timer now watches the SUPERVISOR: no DONE after WAKE -> RSTn low: resets the supervisor and clears the latch",
+  "group": "wdt",
+  "board": "CUP"
+ },
+ {
+  "ref": "R26",
+  "value": "6.8k",
+  "fp": [
+   "Resistor_SMD",
+   "R_0402_1005Metric"
+  ],
+  "pins": {
+   "1": "WDT_DELAY",
+   "2": "GND"
+  },
+  "lcsc": "C25917",
+  "mpn": "0402WGF6801TCE",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "TPL5010 interval resistor: 6.79 kohm = 2 s (SNAS651A table 3), 1 %; 10 k would give about 7.6 s (review C1)",
+  "group": "wdt",
+  "board": "CUP"
+ },
+ {
+  "ref": "U6",
+  "value": "SN74AUP1G74DCUR",
+  "fp": [
+   "Package_SO",
+   "VSSOP-8_2.3x2mm_P0.5mm"
+  ],
+  "pins": {
+   "1": "ARM_CLK",
+   "2": "3V3",
+   "3": null,
+   "4": "GND",
+   "5": "LATCH_Q",
+   "6": "LATCH_CLR_N",
+   "7": "3V3",
+   "8": "3V3"
+  },
+  "lcsc": "C140267",
+  "mpn": "SN74AUP1G74DCUR",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "interlock latch: set by an ARM_CLK edge, cleared by LATCH_CLR_N (power-up, TPL5010 timeout, supervisor reset, over-current)",
+  "group": "wdt",
+  "board": "CUP"
+ },
+ {
+  "ref": "U32",
+  "value": "SN74AUP1G08DCKR (AND)",
+  "fp": [
+   "Package_TO_SOT_SMD",
+   "SOT-353_SC-70-5"
+  ],
+  "pins": {
+   "1": "SUP_NRST",
+   "2": "OC_OK",
+   "3": "GND",
+   "4": "LATCH_CLR_N",
+   "5": "3V3"
+  },
+  "lcsc": "C507223",
+  "mpn": "SN74AUP1G08DCKR",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "LATCH_CLR_N = SUP_NRST AND OC_OK: any supervisor reset / TPL5010 timeout or an over-current trip clears the latch (no diodes)",
+  "group": "wdt",
+  "board": "CUP"
+ },
+ {
+  "ref": "R29",
+  "value": "100k",
+  "fp": [
+   "Resistor_SMD",
+   "R_0402_1005Metric"
+  ],
+  "pins": {
+   "1": "ARM_CLK",
+   "2": "GND"
+  },
+  "lcsc": "C25741",
+  "mpn": "0402WGF1003TCE",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "wdt",
+  "board": "CUP"
+ },
+ {
+  "ref": "R82",
+  "value": "100k",
+  "fp": [
+   "Resistor_SMD",
+   "R_0402_1005Metric"
+  ],
+  "pins": {
+   "1": "SUP_PERMIT",
+   "2": "GND"
+  },
+  "lcsc": "C25741",
+  "mpn": "0402WGF1003TCE",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "sw",
+  "board": "CUP"
+ },
+ {
+  "ref": "R16",
+  "value": "100k",
+  "fp": [
+   "Resistor_SMD",
+   "R_0402_1005Metric"
+  ],
+  "pins": {
+   "1": "3V3",
+   "2": "MOT_FWD"
+  },
+  "lcsc": "C25741",
+  "mpn": "0402WGF1003TCE",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "forward-intent line pull-up: default = forward = blocked when undocked",
+  "group": "sw",
+  "board": "CUP"
+ },
+ {
+  "ref": "QBA",
+  "value": "2N7002W",
+  "fp": [
+   "Package_TO_SOT_SMD",
+   "SOT-323_SC-70"
+  ],
+  "pins": {
+   "1": "BUZ_A",
+   "2": "GND",
+   "3": "PZ_A"
+  },
+  "lcsc": "C232391",
+  "mpn": "2N7002WT1G",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "sounder drive leg (100 k pull-down RDA), off by default",
+  "group": "ui",
+  "board": "CUP"
+ },
+ {
+  "ref": "U33",
+  "value": "74AUP1G86GW-TP (XOR)",
+  "fp": [
+   "Package_TO_SOT_SMD",
+   "SOT-353_SC-70-5"
+  ],
+  "pins": {
+   "1": "DOCK_N",
+   "2": "MOT_FWD",
+   "3": "GND",
+   "4": "DOCK_XOR",
+   "5": "3V3"
+  },
+  "lcsc": "C48995440",
+  "mpn": "74AUP1G86GW-TP",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "DOCK_XOR = DOCK_N XOR MOT_FWD = DOCKED XOR DIR_REVERSE (DOCK_N is active low, MOT_FWD high = forward): docked+forward and undocked+reverse allowed, undocked+forward and docked+reverse (H15) blocked; reset default MOT_FWD high (R16) = forward = blocked when undocked; JLC stock 3001 (review C2)",
+  "group": "sw",
+  "board": "CUP"
+ },
+ {
+  "ref": "U36",
+  "value": "EM74AUP1G11GM (AND3)",
+  "fp": [
+   "V010",
+   "UFDFN-6_1.45x1.0_P0.5"
+  ],
+  "pins": {
+   "1": "LATCH_Q",
+   "2": "GND",
+   "3": "SUP_PERMIT",
+   "4": "PERM_L",
+   "5": "3V3",
+   "6": "MCU_EN"
+  },
+  "lcsc": "C54929506",
+  "mpn": "EM74AUP1G11GM",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "PERM_L = LATCH_Q AND SUP_PERMIT AND MCU_EN (review M1: CLAUDE.md rule motor only with MCU enable AND watchdog in hardware); 74AUP1G11 pinout 1 A 2 GND 3 B 4 Y 5 VCC 6 C (LCSC symbol); the SC-70-6 74AUP1G11GW has JLC stock 3, this DFN-6 1.0 x 1.45 clone has 9000",
+  "group": "sw",
+  "board": "CUP"
+ },
+ {
+  "ref": "R18",
+  "value": "100k",
+  "fp": [
+   "Resistor_SMD",
+   "R_0402_1005Metric"
+  ],
+  "pins": {
+   "1": "MCU_EN",
+   "2": "GND"
+  },
+  "lcsc": "C25741",
+  "mpn": "0402WGF1003TCE",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "sw",
+  "board": "CUP"
+ },
+ {
+  "ref": "U34",
+  "value": "SN74AUP1G08DCKR (AND)",
+  "fp": [
+   "Package_TO_SOT_SMD",
+   "SOT-353_SC-70-5"
+  ],
+  "pins": {
+   "1": "PERM_L",
+   "2": "DOCK_XOR",
+   "3": "GND",
+   "4": "MOT_ALLOW",
+   "5": "3V3"
+  },
+  "lcsc": "C507223",
+  "mpn": "SN74AUP1G08DCKR",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "MOT_ALLOW = LATCH_Q AND SUP_PERMIT AND MCU_EN AND (DOCKED XOR reverse): the single hardware enable of the load switch (pure logic, no software)",
+  "group": "sw",
+  "board": "CUP"
+ },
+ {
+  "ref": "R90",
+  "value": "100k",
+  "fp": [
+   "Resistor_SMD",
+   "R_0402_1005Metric"
+  ],
+  "pins": {
+   "1": "MOT_ALLOW",
+   "2": "GND"
+  },
+  "lcsc": "C25741",
+  "mpn": "0402WGF1003TCE",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "sw",
+  "board": "CUP"
+ },
+ {
+  "ref": "RDK",
+  "value": "100k",
+  "fp": [
+   "Resistor_SMD",
+   "R_0402_1005Metric"
+  ],
+  "pins": {
+   "1": "3V3",
+   "2": "DOCK_N"
+  },
+  "lcsc": "C25741",
+  "mpn": "0402WGF1003TCE",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "SPICE F1: pull-up on the hall output so an open hall joint reads UNDOCKED (a floating low line would read docked and enable forward undocked)",
+  "group": "sw",
+  "board": "CUP"
+ },
+ {
+  "ref": "RNR",
+  "value": "100k",
+  "fp": [
+   "Resistor_SMD",
+   "R_0402_1005Metric"
+  ],
+  "pins": {
+   "1": "3V3",
+   "2": "SUP_NRST"
+  },
+  "lcsc": "C25741",
+  "mpn": "0402WGF1003TCE",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "SPICE F5: pull-up for the open-drain TPL5010 RSTn (the STM32C011 NRST weak pull-up is not relied on)",
+  "group": "wdt",
+  "board": "CUP"
+ },
+ {
+  "ref": "C61",
+  "value": "100nF",
+  "fp": [
+   "Capacitor_SMD",
+   "C_0402_1005Metric"
+  ],
+  "pins": {
+   "1": "VMOT",
+   "2": "GND"
+  },
+  "lcsc": "C1525",
+  "mpn": "CL05B104KO5NNNC",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "SPICE F6: 0.1 uF at the VM pin of U7A (datasheet requirement) in addition to the bulk C21",
+  "group": "drv",
+  "board": "CUP"
+ },
+ {
+  "ref": "C62",
+  "value": "100nF",
+  "fp": [
+   "Capacitor_SMD",
+   "C_0402_1005Metric"
+  ],
+  "pins": {
+   "1": "VMOT",
+   "2": "GND"
+  },
+  "lcsc": "C1525",
+  "mpn": "CL05B104KO5NNNC",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "0.1 uF at the VM pin of U7B (datasheet requirement)",
+  "group": "drv",
+  "board": "CUP"
+ },
+ {
+  "ref": "C71",
+  "value": "10uF 10V 0603",
+  "fp": [
+   "Capacitor_SMD",
+   "C_0603_1608Metric"
+  ],
+  "pins": {
+   "1": "VBAT",
+   "2": "GND"
+  },
+  "lcsc": "C19702",
+  "mpn": "CL10A106KP8NNNC",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "SPICE F3: second 10 uF at the TPS61023 VIN (boost pre-charge dip), next to U8",
+  "group": "boost",
+  "board": "CUP"
+ },
+ {
+  "ref": "U20",
+  "value": "TPS2553DRVR",
+  "fp": [
+   "Package_SON",
+   "WSON-6-1EP_2x2mm_P0.65mm_EP1x1.6mm"
+  ],
+  "pins": {
+   "1": "VMOT",
+   "2": "ILIM",
+   "3": "OC_OK",
+   "4": "MOT_ALLOW",
+   "5": "GND",
+   "6": "VMOT_PRE",
+   "7": "GND"
+  },
+  "lcsc": "C138719",
+  "mpn": "TPS2553DRVR",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "current-limited high-side switch 2.5-6.5 V, 85 mohm, EN active high (hardware cut), FAULT open drain = OC_OK (low when the limit is active > deglitch), NOT the -1 latch variant; WSON-6 2x2 (DRV, 0.8 mm: fits the underside) pinout 1 OUT 2 ILIM 3 FAULT 4 EN 5 GND 6 IN, PowerPAD = GND, verified in the TI datasheet table 5-1 (2026-11-20 layout review)",
+  "group": "sw",
+  "board": "CUP"
+ },
+ {
+  "ref": "R91",
+  "value": "47k",
+  "fp": [
+   "Resistor_SMD",
+   "R_0402_1005Metric"
+  ],
+  "pins": {
+   "1": "ILIM",
+   "2": "GND"
+  },
+  "lcsc": "C25792",
+  "mpn": "0402WGF4702TCE",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "ILIM resistor 47k: TI table 49.9k = 475/520/565 mA, from the TPS2553 equations (SLVS841G eq. 1-3) 47 k gives 506/557/616 mA (min/typ/max): above the worst-case motor current 0.40 A (5 V, 23.9 ohm coil, 1 ohm bridge), well below the 1.5 A bridge rating",
+  "group": "sw",
+  "board": "CUP"
+ },
+ {
+  "ref": "R92",
+  "value": "100k",
+  "fp": [
+   "Resistor_SMD",
+   "R_0402_1005Metric"
+  ],
+  "pins": {
+   "1": "3V3",
+   "2": "OC_OK"
+  },
+  "lcsc": "C25741",
+  "mpn": "0402WGF1003TCE",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "sw",
+  "board": "CUP"
+ },
+ {
+  "ref": "C60",
+  "value": "100nF",
+  "fp": [
+   "Capacitor_SMD",
+   "C_0402_1005Metric"
+  ],
+  "pins": {
+   "1": "VMOT_PRE",
+   "2": "GND"
+  },
+  "lcsc": "C1525",
+  "mpn": "CL05B104KO5NNNC",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "sw",
+  "board": "CUP"
+ },
+ {
+  "ref": "R57",
+  "value": "10k",
+  "fp": [
+   "Resistor_SMD",
+   "R_0402_1005Metric"
+  ],
+  "pins": {
+   "1": "VMOT",
+   "2": "VMOT_SENSE"
+  },
+  "lcsc": "C25744",
+  "mpn": "0402WGF1002TCE",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "VMOT sense divider 10k/10k = also the bleeder of the VM capacitors (time constant about 0.6 s), reads 2.5 V at 5 V",
+  "group": "oc",
+  "board": "CUP"
+ },
+ {
+  "ref": "R58",
+  "value": "10k",
+  "fp": [
+   "Resistor_SMD",
+   "R_0402_1005Metric"
+  ],
+  "pins": {
+   "1": "VMOT_SENSE",
+   "2": "GND"
+  },
+  "lcsc": "C25744",
+  "mpn": "0402WGF1002TCE",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "oc",
+  "board": "CUP"
+ },
+ {
+  "ref": "U8",
+  "value": "TPS61023DRLR",
+  "fp": [
+   "Package_TO_SOT_SMD",
+   "SOT-563"
+  ],
+  "pins": {
+   "1": "BST_FB",
+   "2": "SUP_PERMIT",
+   "3": "VBAT",
+   "4": "GND",
+   "5": "BST_SW",
+   "6": "VMOT_PRE"
+  },
+  "lcsc": "C919459",
+  "mpn": "TPS61023DRLR",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "sync boost 3.7 A switch, 0.5-5.5 V in, 1 uA off, about 90 % at 0.3 A out; VIN from the cell, EN = SUP_PERMIT (supervisor second cut); pinout verified in SLVSF14B: 1 FB 2 EN 3 VIN 4 GND 5 SW 6 VOUT; output OVP 5.7 V typ",
+  "group": "boost",
+  "board": "CUP"
+ },
+ {
+  "ref": "L1",
+  "value": "1uH 2520 (WPN252012E1R0MT)",
+  "fp": [
+   "Inductor_SMD",
+   "L_1008_2520Metric"
+  ],
+  "pins": {
+   "1": "VBAT",
+   "2": "BST_SW"
+  },
+  "lcsc": "C370610",
+  "mpn": "WPN252012E1R0MT",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "1 uH 2.5 x 2.0 x 1.2; Isat VERIFY >= 2.5 A",
+  "group": "boost",
+  "board": "CUP"
+ },
+ {
+  "ref": "R55",
+  "value": "220k",
+  "fp": [
+   "Resistor_SMD",
+   "R_0402_1005Metric"
+  ],
+  "pins": {
+   "1": "VMOT_PRE",
+   "2": "BST_FB"
+  },
+  "lcsc": "C25767",
+  "mpn": "0402WGF2203TCE",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "FB divider 220k/30k, FB 0.595 V -> 4.96 V",
+  "group": "boost",
+  "board": "CUP"
+ },
+ {
+  "ref": "R56",
+  "value": "30k",
+  "fp": [
+   "Resistor_SMD",
+   "R_0402_1005Metric"
+  ],
+  "pins": {
+   "1": "BST_FB",
+   "2": "GND"
+  },
+  "lcsc": "C25776",
+  "mpn": "0402WGF3002TCE",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "",
+  "group": "boost",
+  "board": "CUP"
+ },
+ {
+  "ref": "CB1",
+  "value": "22uF 25V X5R 0805",
+  "fp": [
+   "Capacitor_SMD",
+   "C_0805_2012Metric"
+  ],
+  "pins": {
+   "1": "VMOT_PRE",
+   "2": "GND"
+  },
+  "lcsc": "C45783",
+  "mpn": "CL21A226MAQNNNE",
+  "side": "F",
+  "bom": true,
+  "dnp": false,
+  "note": "bulk on the boost output (basic part, 25 V rated per JLC); about 8 uF effective at 5 V DC bias",
+  "group": "boost",
+  "board": "CUP"
+ }
+]
