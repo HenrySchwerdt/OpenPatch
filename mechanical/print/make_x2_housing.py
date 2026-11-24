@@ -72,7 +72,14 @@ def main() -> int:
     x0 = -total_w / 2
     b = bottom + np.array([x0, -sb[1] / 2, 0])
     l = lid + np.array([x0 + sb[0] + GAP, -sl[1] / 2, 0])
-    write_stl(OUT / "OP-100_housing_x2_bed.stl", np.concatenate([b, l]), "OP-100 housing x2 bed layout")
+    parts = [b, l]
+    cap_src = SRC / "OP-100_button_cap.stl"
+    if cap_src.exists():  # button cap (added 2026-11-24), printed beside the shells
+        cap = to_floor(read_stl(cap_src) * SCALE)
+        write_stl(OUT / "OP-100_button_cap_x2.stl", cap, "OP-100 button cap x2")
+        sc = cap.reshape(-1, 3).max(axis=0)
+        parts.append(cap + np.array([-sc[0] / 2, -max(sb[1], sl[1]) / 2 - GAP - sc[1], 0]))
+    write_stl(OUT / "OP-100_housing_x2_bed.stl", np.concatenate(parts), "OP-100 housing x2 bed layout")
     print(f"bottom x2: {sb[0]:.2f} x {sb[1]:.2f} x {sb[2]:.2f} mm")
     print(f"lid    x2: {sl[0]:.2f} x {sl[1]:.2f} x {sl[2]:.2f} mm (flipped)")
     print(f"bed layout x {x0 + BED_W / 2:.1f}..{x0 + total_w + BED_W / 2:.1f}")

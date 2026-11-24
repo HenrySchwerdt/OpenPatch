@@ -93,7 +93,7 @@ The final OP-100 housing (bottom shell + lid, from `../out/v010-cup/`, state of 
 - `slice_sv01pro.sh <stl> <gcode>` slices with the CuraEngine inside UltiMaker Cura (5.11, SV01 Pro definition, Titan extruder, 0.4 nozzle).
   - CuraEngine alone ignores Cura's formula settings, so `cura_resolve.py` evaluates all 724 settings the way the Cura app does.
   - Our overrides are in `sv01pro_pla_firstlayer.json`.
-- Result: **`OP-100_x2/OP-100_housing_x2_SV01PRO.gcode`**. PLA, 0.16 mm layers, 20 % grid infill, tree supports (for the dock-pocket roof and the motor saddles), 6 mm brim. About 1 h 50 min and about 38 g of filament (CuraEngine estimate).
+- Result: **`OP-100_x2/POD2X.gcode`** (sliced with `Z_ADJUST=-0.15`; includes the button cap). PLA, 0.16 mm layers, 20 % grid infill, tree supports (for the dock-pocket roof and the motor saddles), 6 mm brim. About 1 h 50 min and about 38 g of filament (CuraEngine estimate).
 
 **First-layer fixes in that profile:**
 1. **A fresh bed mesh on every print.** The stock Sovol start code only runs `M420 S1`, which loads a saved mesh. If `G29` + `M500` was never run on the printer, that does nothing, and a tilted or warped bed ruins the first layer.
