@@ -58,6 +58,9 @@ def empty_bodies(p: dict, L: dict) -> tuple[Script, list]:
 
 
 def run_extra(sc: Path, s: Script, exclude: list) -> dict:
+    created = {c["params"].get("body_name") for c in s.dumps()}
+    present = C._present_bodies(sc) | created
+    exclude = [pr for pr in exclude if all(n in present for n in pr)]
     cmds = s.dumps() + [{"command": "inspect.interference", "params": {"exclude_pairs": exclude}}]
     with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False) as fh:
         json.dump(cmds, fh)
@@ -70,12 +73,22 @@ def run_extra(sc: Path, s: Script, exclude: list) -> dict:
 
 
 def main() -> int:
-    out = HERE / "out" / "v010-cart"
+    import argparse
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--variant", action="append", choices=["A", "B"])
+    vs = ap.parse_args().variant or ["A", "B"]
+    return max(check_variant(v) for v in vs)
+
+
+def check_variant(variant: str) -> int:
+    global TAG
+    TAG = f"OP-CART-{variant}"
+    out = HERE / "out" / "v010-cart" / variant
     sc = out / f"{TAG}.sc"
     if not sc.exists():
         print("run cart_gen.py first")
         return 2
-    p = op_cart.prepare(load_params())
+    p = op_cart.prepare(load_params(), variant)
     p["cart"] = json.loads((out / "params.used.json").read_text())         # check what was generated (incl. --set overrides)
     L = json.loads((out / f"{TAG}.mech.json").read_text())
     c, tg = p["cart"], p["cart"]["targets"]
@@ -83,14 +96,17 @@ def main() -> int:
     res = C.eval_design(sc, op_cart.EXCLUDE_PAIRS)
     meas = next(r for r in res if "bodies" in r and "body_count" in r)
     by = {b["name"]: b for b in meas["bodies"]}
-    for nm in op_cart.PART_NAMES:
+    for nm in op_cart.part_names(p):
         if nm not in by:
             prob.append(f"body {nm} missing")
     housing = [by[n] for n in ("bottom", "top") if n in by]
     lo, hi = C.envelope(housing)
     dims = [round(hi[i] - lo[i], 2) for i in range(3)]
-    allb = [b for n, b in by.items() if not n.startswith("ko_") and n not in ("tubing",)]
+    allb = [b for n, b in by.items() if not n.startswith("ko_") and n not in ("tubing", "needle", "luer_hub", "luer_set")]      # bought tubing-side parts reported separately
     lo2, hi2 = C.envelope(allb)
+    if "luer_set" in by:
+        lo3, hi3 = C.envelope([by[n] for n in ("bottom", "top", "luer_set")])
+        note.append(f"variant B with the Luer hub + coupled tubing collar: {round(hi3[0] - lo3[0], 2)} mm long (needle 12 mm + hub 11 mm sit outside the housing)")
     note.append(f"housing {dims[0]} x {dims[1]} x {dims[2]} mm; with adapter (tubing stub excluded) {round(hi2[0] - lo2[0], 2)} x {round(hi2[1] - lo2[1], 2)} x {round(hi2[2] - lo2[2], 2)} mm")
     if dims[2] > tg["height"] - 0.01 or hi2[2] - lo2[2] > tg["height"] - 0.01:
         prob.append(f"height {dims[2]} not below the Insight {tg['height']}")
@@ -143,15 +159,23 @@ def main() -> int:
                 f"stall pressure {t['stall_pressure_kPa']:.0f} kPa (Insight max 350)")
     if t["ratio"] < MARGIN:
         prob.append(f"thrust margin {t['ratio']} < {MARGIN}")
-    # board unchanged
+    # new board outline: at least the cup board's area (same chip set; the cup board is 6 layers, so 4 layers need more area: report the ratio)
     cb = p["cup"]["board"]
-    if abs((cb["pcb_x"][1] - cb["pcb_x"][0]) - c["board"]["l"]) > 1e-6 or abs((cb["pcb_y"][1] - cb["pcb_y"][0]) - c["board"]["w"]) > 1e-6 or cb["pcb_z"] != c["board"]["pcb_z"]:
-        prob.append("cart board envelope differs from the cup-pod main board (cup.board.pcb_*)")
-    for part in op_cart.MFG_PARTS:
-        for ext in ("step", "stl"):
+    a_cup = (cb["pcb_x"][1] - cb["pcb_x"][0]) * (cb["pcb_y"][1] - cb["pcb_y"][0])
+    a_new = L["board"]["area_mm2"]
+    note.append(f"board outline {L['board']['outline_mm'][0]} x {L['board']['outline_mm'][1]} mm = {a_new} mm2 = {a_new / a_cup:.2f}x the cup board ({a_cup:.0f} mm2, 6 layers)")
+    if a_new < a_cup:
+        prob.append("new board outline smaller than the cup board area")
+    for part in op_cart.mfg_parts(p):
+        for ext in ("step",):
             if not (out / f"{TAG}_{part}.{ext}").exists():
                 prob.append(f"missing export {TAG}_{part}.{ext}")
-    note.append(f"U/step {L['u_per_step']:.5f}; front set by {L['front_governed_by']} (neck {L['x_front_neck']}, board {L['x_front_board']})")
+    kit = json.loads((out / "print" / "print_kit.json").read_text())
+    for r in kit:
+        if not (out / "print" / r["file"]).exists():
+            prob.append(f"missing print file {r['file']}")
+    note.append(f"print kit: {len(kit)} STLs in {out / 'print'}")
+    note.append(f"U/step {L['u_per_step']:.5f}; length set by {L['front_governed_by']}")
     rep = {"dims": dims, "thrust": t, "problems": prob, "notes": note}
     (out / "check.json").write_text(json.dumps(rep, indent=1), encoding="utf-8")
     for n in note:

@@ -11,11 +11,13 @@ REFERENCE = [
     ("Omnipod DASH / 5 pod", 52.0, 39.0, 14.5, "Insulet chart, VERIFIED"),
     ("OpenPatch cup pod OP-100", 47.96, 36.6, 8.5, "V010-CUP.md (CAD)"),
 ]
-COLS = ["#9aa4ae", "#b9a37a", "#8fb0d8", "#7fbf7f", "#e0803a"]
+COLS = ["#9aa4ae", "#b9a37a", "#8fb0d8", "#7fbf7f", "#e0803a", "#d0604a"]
 
 
-def draw(L: dict, path: Path) -> None:
-    rows = REFERENCE + [("OpenPatch cart pump (body / with adapter)", L["length_with_adapter"], L["width"], L["height"], f"this CAD, body {L['length']:.1f} long")]
+def draw(Ls: dict, path: Path) -> None:
+    rows = REFERENCE + [(f"OpenPatch cart pump {v} (body / with adapter)", L["length_with_adapter"], L["width"], L["height"], f"this CAD, body {L['length']:.1f} long")
+                        for v, L in Ls.items()]
+    bodies = {len(REFERENCE) + k: L["length"] for k, L in enumerate(Ls.values())}
     s = 4.0                                    # px per mm
     x0, y0, gap = 40, 80, 28
     out = ['<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="{h}">', '<rect width="100%" height="100%" fill="#fff"/>',
@@ -24,8 +26,8 @@ def draw(L: dict, path: Path) -> None:
     for k, (nm, l, w, h, src) in enumerate(rows):
         col = COLS[k]
         out.append(f'<rect x="{x0}" y="{y}" width="{l * s:.1f}" height="{w * s:.1f}" rx="12" fill="{col}" fill-opacity="0.55" stroke="#333"/>')
-        if k == len(rows) - 1:
-            out.append(f'<rect x="{x0}" y="{y}" width="{L["length"] * s:.1f}" height="{w * s:.1f}" rx="12" fill="{col}" fill-opacity="0.8" stroke="#000" stroke-width="2"/>')
+        if k in bodies:
+            out.append(f'<rect x="{x0}" y="{y}" width="{bodies[k] * s:.1f}" height="{w * s:.1f}" rx="12" fill="{col}" fill-opacity="0.8" stroke="#000" stroke-width="2"/>')
         xe = x0 + 90 * s
         out.append(f'<rect x="{xe}" y="{y}" width="{w * s:.1f}" height="{h * s:.1f}" rx="8" fill="{col}" fill-opacity="0.7" stroke="#333"/>')
         xt = xe + 56 * s

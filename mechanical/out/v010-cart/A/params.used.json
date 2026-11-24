@@ -1,0 +1,246 @@
+{
+ "_comment": "v0.1.0 'cart' pump (op_cart.py, cart_gen.py, cart_check.py, V010-CART.md): Accu-Chek Insight-type 1.6 ml cartridge + original Insight Adapter & Tubing, NFP-608-26.45 + spur pair + translating M2 piston rod, cup-pod main board unchanged. TEST ONLY, WATER ONLY. Every cartridge / adapter number is an ESTIMATE until measured on a sample (docs/insight-research.md: no drawings are public).",
+ "volume_ml": 1.6,
+ "wall": 1.2,
+ "_fdm": "FDM-first (owner 2026-11-24): wall 1.2 (3 perimeters at 0.4), fits +0.2..0.3 on every printed-to-bought interface (cradle, receiver bore, lug groove, slider channel, motor saddles, button), see V010-CART.md print guide",
+ "floor_clr": 0.15,
+ "roof_clr": 0.15,
+ "side_clr": 0.15,
+ "lane_clr": 0.3,
+ "rear_clr": 0.2,
+ "travel_margin": 0.3,
+ "pusher_clr": 0.2,
+ "board_wall_clr": 0.9,
+ "board_gap_x": 0.6,
+ "board_front_clr": 0.3,
+ "board_ledge_d": 1.0,
+ "stack_ref_wall": 0.9,
+ "cradle_x": [
+  3.0,
+  18.0
+ ],
+ "cradle_t": 1.2,
+ "cradle_clr": 0.3,
+ "motor_saddle_t": 1.2,
+ "cartridge": {
+  "part": "Accu-Chek Insight-class 1.6 ml glass cartridge: NovoRapid PumpCart format (type 1 glass, bromobutyl stopper, bromobutyl/polyisoprene septum, SmPC 6.5 VERIFIED); bench sample = EMPTY mylife YpsoPump Reservoir 1.6 ml (PZN 11160770, same cartridge class, fit with the Insight adapter UNVERIFIED). WATER ONLY.",
+  "status": "ISO 13926-1 cartridge family (SCHOTT TopLine/StandardLine table, VERIFIED for the ISO rows): 1.6 ml ISO row OD 10.95 / ID 9.25; crimp neck collar d4 7.15 +-0.2, neck d5 5.5 +-0.25, bore d6 3.15, neck+collar h1 5.0, collar h2 2.9 (shared by all ISO rows 8.65-11.6 OD). That the PumpCart / YpsoPump Reservoir IS the 1.6 ml ISO row, the cap OD 7.8, the barrel length and the stopper are ESTIMATE: MEASURE (docs/insight-research.md section 7); the fit coupons print a bore ladder 11.0-11.8",
+  "od": 10.95,
+  "id": 9.25,
+  "barrel_len": 33.5,
+  "shoulder_inset": 1.2,
+  "neck_od": 5.5,
+  "neck_id": 3.15,
+  "neck_len": 5.3,
+  "cap_od": 7.8,
+  "cap_len": 3.2,
+  "stopper_len": 6.5,
+  "stopper_recess": 0.8
+ },
+ "adapter": {
+  "part": "original Accu-Chek Insight Adapter & Tubing 40 cm (REF 06485472001, PZN 08460327, 10 per box): adapter with central needle, bayonet nose, vent (>= 0.65 bar), tubing integrated. Unmodified apart from the clip-on lock flag.",
+  "status": "ALL geometry ESTIMATE (manual: nose enters the housing notches, turns clockwise to a stop, flush with the housing); MEASURE",
+  "nose_od": 12.4,
+  "depth": 5.5,
+  "body_d": 14.0,
+  "out_len": 6.5,
+  "seat_to_cap": 1.0,
+  "cap_gap": 0.3,
+  "lug_w": 1.6,
+  "lug_h": 0.8,
+  "lug_t": 1.2,
+  "lug_from_seat": 2.2,
+  "tube_d": 1.8,
+  "type": "insight"
+ },
+ "receiver": {
+  "_comment": "bayonet socket for the adapter nose in a lane-1 collar; entry channels at entry_deg / +180, lock at lock_deg / +180 (manual: about 90 deg clockwise to the stop); the lug groove is cut only in a +-sector_deg band around +-Y so it does not set the height",
+  "bore_d": 12.9,
+  "collar_len": 6.5,
+  "collar_wall": 0.6,
+  "lug_clr": 0.25,
+  "entry_deg": -45.0,
+  "lock_deg": 45.0,
+  "sector_deg": 55.0
+ },
+ "gears": {
+  "part": "brass spur gears module 0.3: pinion z12 bore 2.0 (on the NFP D-shaft, Loctite 648; root d 2.85, rim 0.42), gear z40 (tip d 12.6) with a hex pocket for the M2 nut (drill + file or print-and-bond), CANDIDATE listings in BUY-LIST section 7",
+  "m": 0.3,
+  "z_pinion": 12,
+  "z_rod": 40,
+  "face_rod": 2.0,
+  "face_pinion": 2.0,
+  "washer_t": 0.2,
+  "washer_od": 5.0,
+  "pinion_boss_clr": 0.1,
+  "eta": 0.95
+ },
+ "rod": {
+  "part": "DIN 975 threaded rod M2 x 0.4, brass or zinc-plated steel (GHW), cut to rod_len; never wet (behind the stopper)",
+  "d": 2.0,
+  "pitch": 0.4,
+  "eta_screw": 0.25
+ },
+ "nut": {
+  "part": "DIN 934 M2 brass, AF 4.0, h 1.6, bonded in the gear hex pocket",
+  "af": 4.0,
+  "h": 1.6
+ },
+ "slider": {
+  "part": "printed anti-rotation slider bonded on the rod rear end, runs in the U channel of the tub",
+  "w": 3.2,
+  "h": 3.2,
+  "len": 2.5,
+  "clr": 0.2,
+  "rail_t": 1.0,
+  "rail_drop": 0.2
+ },
+ "pusher": {
+  "part": "printed / turned pusher disc on the rod front end, flat face on the stopper",
+  "d": 9.0,
+  "t": 1.2,
+  "bore_depth": 0.9
+ },
+ "ribs": {
+  "t": 1.0,
+  "slot_w": 2.5
+ },
+ "magnet": {
+  "d": 2.0,
+  "t": 1.0,
+  "note": "diametric d2 x 1 (BUY-LIST A4) bonded on the pinion front face / shaft end"
+ },
+ "tmag": {
+  "gap": 0.5,
+  "pkg": [
+   2.9,
+   2.8,
+   1.45
+  ],
+  "board_t": 0.6
+ },
+ "board": {
+  "part": "NEW cart board outline (owner 2026-11-24): same chip set as the cup board (HJ-840, STM32C011, TPL5010, TPS2553, TPS61023, DRV8838, MCP73832, USB-C, RGB LED, sounder, side button, TMAG strip), no dock hall (adapter-lock hall on a pigtail instead), 4 layers 0.8 mm if it routes (long narrow outline over the whole lane 2); length follows the housing (x0 .. collar), width w; parts <= 1.45 top / 1.2 bottom. Fit print: dummy only",
+  "x0": 6.0,
+  "w": 10.6,
+  "t": 0.8,
+  "top_parts": 1.45,
+  "bottom_parts": 1.2
+ },
+ "battery": {
+  "part": "Ampul 301030 (cup.battery)",
+  "l": 31.5,
+  "w": 10.6,
+  "t": 3.2,
+  "z0": 0.9,
+  "x_off_board": 1.7
+ },
+ "usb": {
+  "w": 8.94,
+  "d": 7.35,
+  "h": 3.26,
+  "x_from_board_east": 16.0,
+  "open_w": 9.4,
+  "open_h": 3.4
+ },
+ "button": {
+  "x_from_board_east": 5.5,
+  "below_pcb": 0.65,
+  "_comment": "sealed button in the +Y wall in front of the board's side switch SW1 (SKSCLAE010, actuator toward +Y). Cap = flush mushroom: head d5.0 in a 0.8 deep outside recess (+0.3 clr), stem d2.4 through the d2.5 hole, barb ring d3.2 x 0.5 snaps behind the wall; the head flange seals on the recess floor. Print in TPU 95A (FDM) or cast in silicone A40 in the printed 2-part mould (mould STL follow-up). z_c = board top + 0.6 (actuator centre, VERIFY on the board).",
+  "z_c": 6.7,
+  "cap_d": 5.0,
+  "clr": 0.3,
+  "recess": 0.8,
+  "dome": 0.3,
+  "hole_d": 2.5,
+  "stem_in": 0.7,
+  "barb_d": 3.2,
+  "barb_t": 0.5
+ },
+ "screws": {
+  "_comment": "lid held by 3 x M2 x 8 cheese/pan head screws from the UNDERSIDE (no screws on top): head in a flush counterbore of the floor, thread-forming into d1.6 pilots of lid bosses that reach down to 0.2 above the floor",
+  "inset": 3.8,
+  "boss_d": 3.6,
+  "x_side": 14.0,
+  "boss_gap": 0.2,
+  "pilot_d": 1.6,
+  "pilot_depth": 7.0,
+  "clear_d": 2.3,
+  "head_d": 3.8,
+  "head_h": 1.0
+ },
+ "lock": {
+  "_comment": "adapter-locked sensing: the board's dock hall input (DRV5032) on a short flex at the front wall reads a d1 x 0.5 magnet on a clip-on flag of the adapter; it drives the existing DOCKED gate (forward only when locked, reverse only when unlocked)",
+  "hall_pkg": [
+   1.1,
+   1.4,
+   1.1
+  ],
+  "mag_d": 1.0,
+  "mag_t": 0.5,
+  "flag_t": 1.0
+ },
+ "shell": {
+  "corner_r": 4.0,
+  "edge_break": 0.3,
+  "top_fillet": 1.0,
+  "gasket_t": 0.5
+ },
+ "coupons": {
+  "cradle_bores": [
+   11.0,
+   11.2,
+   11.4,
+   11.6,
+   11.8
+  ],
+  "cradle_h": 6.0,
+  "receiver_bores": [
+   12.6,
+   12.9,
+   13.2
+  ],
+  "_comment": "print these first (cart_gen.py -> out/v010-cart/coupons): the cartridge must slide through its hole with a light touch -> cradle_clr; the adapter nose must enter the receiver and turn to the stop -> receiver.bore_d / lug geometry"
+ },
+ "variants": {
+  "A": {
+   "_comment": "Variant A: original Accu-Chek Insight Adapter & Tubing (needle + vent + tubing, bayonet into our receiver), Insight Flex head set at the far end (bench container)",
+   "adapter": {
+    "type": "insight"
+   }
+  },
+  "B": {
+   "_comment": "Variant B: printed bayonet cap (same receiver as A) that centres a standard Luer-lock hypodermic needle (B. Braun Sterican 27G 0.40 x 12 mm, female Luer hub) on the septum axis and presses the crimp cap axially (like the Insight adapter's O-ring); the hub takes a Luer tubing set (Accu-Chek FlexLink transfer set, Luer-lock pump end: gender VERIFY, else add a male-male Luer-lock coupler). No commercial cartridge-to-Luer adapter exists (research 2026-11-24). Needle and hub numbers ESTIMATE.",
+   "adapter": {
+    "type": "needle_cap",
+    "out_len": 4.0
+   },
+   "needle_cap": {
+    "needle_d": 0.4,
+    "needle_len": 12.0,
+    "tip_past_cap": 2.5,
+    "hole_d": 0.7,
+    "hub_nose_d": 4.4,
+    "hub_nose_len": 3.0,
+    "hub_seat": 0.8,
+    "hub_d": 7.6,
+    "hub_len": 11.0,
+    "pocket_d": 8.0,
+    "coupler_clear_d": 10.6,
+    "press_ring_t": 0.6,
+    "wall": 1.2,
+    "_hub": "Sterican-type female Luer-lock hub: nose cone d~4.4 at the needle end, body + lug flange d~7.6, length ~11 (ESTIMATE, measure); the mating male Luer-lock collar needs d~10 clear around the hub top"
+   }
+  }
+ },
+ "targets": {
+  "_comment": "smaller than the Accu-Chek Insight (84 x 52 x 19 with adapter, user manual Appendix A VERIFIED) in every axis",
+  "length_with_adapter": 84.0,
+  "width": 52.0,
+  "height": 19.0,
+  "height_goal": 15.0
+ },
+ "_variant": "A",
+ "_bore_area": 67.20063035569417,
+ "_stroke": 23.81
+}

@@ -1,0 +1,2292 @@
+[
+ {
+  "command": "sketch.create",
+  "params": {
+   "plane": "XY",
+   "offset": 0
+  }
+ },
+ {
+  "command": "sketch.rectangle.rounded",
+  "params": {
+   "p0": [
+    0,
+    0
+   ],
+   "p1": [
+    72.81,
+    27.25
+   ],
+   "radius": 4.0
+  }
+ },
+ {
+  "command": "sketch.finish",
+  "params": {}
+ },
+ {
+  "command": "solid.extrude",
+  "params": {
+   "distance": 14.400000000000002,
+   "body_name": "bottom",
+   "name": "bottom"
+  }
+ },
+ {
+  "command": "solid.fillet",
+  "params": {
+   "edges": [
+    [
+     36.405,
+     0.0,
+     0.0
+    ]
+   ],
+   "radius": 1.0,
+   "body": "bottom",
+   "name": "fillet bottom"
+  }
+ },
+ {
+  "command": "sketch.create",
+  "params": {
+   "plane": "XY",
+   "offset": 1.2
+  }
+ },
+ {
+  "command": "sketch.rectangle.rounded",
+  "params": {
+   "p0": [
+    1.2,
+    1.2
+   ],
+   "p1": [
+    71.61,
+    26.05
+   ],
+   "radius": 2.8
+  }
+ },
+ {
+  "command": "sketch.finish",
+  "params": {}
+ },
+ {
+  "command": "solid.extrude",
+  "params": {
+   "distance": 13.300000000000002,
+   "body_name": "t_cav",
+   "name": "t_cav"
+  }
+ },
+ {
+  "command": "solid.combine",
+  "params": {
+   "target": "bottom",
+   "tools": [
+    "t_cav"
+   ],
+   "operation": "cut",
+   "name": "cut bottom"
+  }
+ },
+ {
+  "command": "solid.box",
+  "params": {
+   "length": 5.310000000000002,
+   "width": 14.71,
+   "height": 13.210000000000003,
+   "corner": [
+    66.31,
+    1.19,
+    1.19
+   ],
+   "body_name": "t_collar",
+   "name": "t_collar"
+  }
+ },
+ {
+  "command": "solid.box",
+  "params": {
+   "length": 1.2000000000000028,
+   "width": 12.684999999999999,
+   "height": 6.609999999999999,
+   "corner": [
+    36.010000000000005,
+    1.19,
+    1.19
+   ],
+   "body_name": "t_cr0",
+   "name": "t_cr0"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 11.549999999999999,
+   "height": 1.4000000000000057,
+   "base": [
+    35.910000000000004,
+    7.8,
+    7.8
+   ],
+   "axis": "X",
+   "body_name": "t_cr_b0",
+   "name": "t_cr_b0"
+  }
+ },
+ {
+  "command": "solid.box",
+  "params": {
+   "length": 1.2000000000000028,
+   "width": 12.684999999999999,
+   "height": 6.609999999999999,
+   "corner": [
+    51.010000000000005,
+    1.19,
+    1.19
+   ],
+   "body_name": "t_cr1",
+   "name": "t_cr1"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 11.549999999999999,
+   "height": 1.4000000000000057,
+   "base": [
+    50.910000000000004,
+    7.8,
+    7.8
+   ],
+   "axis": "X",
+   "body_name": "t_cr_b1",
+   "name": "t_cr_b1"
+  }
+ },
+ {
+  "command": "solid.box",
+  "params": {
+   "length": 26.83,
+   "width": 5.6,
+   "height": 8.010000000000002,
+   "corner": [
+    1.19,
+    5.0,
+    1.19
+   ],
+   "body_name": "t_ch",
+   "name": "t_ch"
+  }
+ },
+ {
+  "command": "solid.box",
+  "params": {
+   "length": 26.81,
+   "width": 3.5999999999999996,
+   "height": 5.800000000000002,
+   "corner": [
+    1.2999999999999998,
+    6.0,
+    5.999999999999999
+   ],
+   "body_name": "t_ch_in",
+   "name": "t_ch_in"
+  }
+ },
+ {
+  "command": "solid.box",
+  "params": {
+   "length": 1.0,
+   "width": 11.21,
+   "height": 13.210000000000003,
+   "corner": [
+    28.009999999999998,
+    1.19,
+    1.19
+   ],
+   "body_name": "t_rib_r",
+   "name": "t_rib_r"
+  }
+ },
+ {
+  "command": "solid.box",
+  "params": {
+   "length": 1.2000000000000028,
+   "width": 2.500000000000001,
+   "height": 6.700000000000002,
+   "corner": [
+    27.909999999999997,
+    6.55,
+    7.8
+   ],
+   "body_name": "t_rib_r_slot",
+   "name": "t_rib_r_slot"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 2.5,
+   "height": 1.2000000000000028,
+   "base": [
+    27.909999999999997,
+    7.8,
+    7.8
+   ],
+   "axis": "X",
+   "body_name": "t_rib_r_hole",
+   "name": "t_rib_r_hole"
+  }
+ },
+ {
+  "command": "solid.box",
+  "params": {
+   "length": 1.0,
+   "width": 11.21,
+   "height": 13.210000000000003,
+   "corner": [
+    31.409999999999997,
+    1.19,
+    1.19
+   ],
+   "body_name": "t_rib_f",
+   "name": "t_rib_f"
+  }
+ },
+ {
+  "command": "solid.box",
+  "params": {
+   "length": 1.2000000000000028,
+   "width": 2.500000000000001,
+   "height": 6.700000000000002,
+   "corner": [
+    31.309999999999995,
+    6.55,
+    7.8
+   ],
+   "body_name": "t_rib_f_slot",
+   "name": "t_rib_f_slot"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 2.5,
+   "height": 1.2000000000000028,
+   "base": [
+    31.309999999999995,
+    7.8,
+    7.8
+   ],
+   "axis": "X",
+   "body_name": "t_rib_f_hole",
+   "name": "t_rib_f_hole"
+  }
+ },
+ {
+  "command": "solid.box",
+  "params": {
+   "length": 1.1999999999999993,
+   "width": 7.199999999999999,
+   "height": 6.609999999999999,
+   "corner": [
+    13.209999999999994,
+    12.0,
+    1.19
+   ],
+   "body_name": "t_ms0",
+   "name": "t_ms0"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 6.1,
+   "height": 1.3999999999999986,
+   "base": [
+    13.109999999999994,
+    15.6,
+    7.8
+   ],
+   "axis": "X",
+   "body_name": "t_ms_b0",
+   "name": "t_ms_b0"
+  }
+ },
+ {
+  "command": "solid.box",
+  "params": {
+   "length": 1.1999999999999993,
+   "width": 7.199999999999999,
+   "height": 6.609999999999999,
+   "corner": [
+    22.209999999999994,
+    12.0,
+    1.19
+   ],
+   "body_name": "t_ms1",
+   "name": "t_ms1"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 6.1,
+   "height": 1.4000000000000021,
+   "base": [
+    22.109999999999992,
+    15.6,
+    7.8
+   ],
+   "axis": "X",
+   "body_name": "t_ms_b1",
+   "name": "t_ms_b1"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 1.0,
+   "height": 10.91,
+   "base": [
+    7.2,
+    15.550000000000002,
+    1.19
+   ],
+   "axis": "Z",
+   "body_name": "t_led0",
+   "name": "t_led0"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 1.0,
+   "height": 10.91,
+   "base": [
+    65.01,
+    15.450000000000003,
+    1.19
+   ],
+   "axis": "Z",
+   "body_name": "t_led1",
+   "name": "t_led1"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 1.0,
+   "height": 10.91,
+   "base": [
+    65.01,
+    24.250000000000004,
+    1.19
+   ],
+   "axis": "Z",
+   "body_name": "t_led2",
+   "name": "t_led2"
+  }
+ },
+ {
+  "command": "solid.combine",
+  "params": {
+   "target": "bottom",
+   "tools": [
+    "t_collar",
+    "t_cr0",
+    "t_cr1",
+    "t_ch",
+    "t_rib_r",
+    "t_rib_f",
+    "t_ms0",
+    "t_ms1",
+    "t_led0",
+    "t_led1",
+    "t_led2"
+   ],
+   "operation": "join",
+   "name": "join bottom"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 12.9,
+   "height": 5.6499999999999915,
+   "base": [
+    67.26,
+    7.8,
+    7.8
+   ],
+   "axis": "X",
+   "body_name": "t_rb_b",
+   "name": "t_rb_b"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 11.549999999999999,
+   "height": 1.1099999999999994,
+   "base": [
+    66.21000000000001,
+    7.8,
+    7.8
+   ],
+   "axis": "X",
+   "body_name": "t_rn_b",
+   "name": "t_rn_b"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 15.0,
+   "height": 1.7000000000000028,
+   "base": [
+    69.16,
+    7.8,
+    7.8
+   ],
+   "axis": "X",
+   "body_name": "t_rg_b",
+   "name": "t_rg_b"
+  }
+ },
+ {
+  "command": "solid.box",
+  "params": {
+   "length": 3.700000000000003,
+   "width": 40.0,
+   "height": 12.287280664334878,
+   "corner": [
+    68.16,
+    -12.2,
+    1.656359667832561
+   ],
+   "body_name": "t_rgb_b",
+   "name": "t_rgb_b"
+  }
+ },
+ {
+  "command": "solid.combine",
+  "params": {
+   "target": "t_rg_b",
+   "tools": [
+    "t_rgb_b"
+   ],
+   "operation": "intersect",
+   "name": "sector b"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 2.1,
+   "height": 3.75,
+   "base": [
+    69.16,
+    12.184062043356594,
+    3.415937956643406
+   ],
+   "axis": "X",
+   "body_name": "t_re0_b",
+   "name": "t_re0_b"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 2.1,
+   "height": 3.75,
+   "base": [
+    69.16,
+    3.415937956643406,
+    12.184062043356594
+   ],
+   "axis": "X",
+   "body_name": "t_re1_b",
+   "name": "t_re1_b"
+  }
+ },
+ {
+  "command": "solid.box",
+  "params": {
+   "length": 9.400000000000006,
+   "width": 1.4000000000000021,
+   "height": 3.3999999999999986,
+   "corner": [
+    45.31,
+    25.95,
+    10.8
+   ],
+   "body_name": "t_usb_open",
+   "name": "t_usb_open"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 2.3,
+   "height": 1.4000000000000001,
+   "base": [
+    3.8,
+    23.45,
+    -0.1
+   ],
+   "axis": "Z",
+   "body_name": "t_sh0",
+   "name": "t_sh0"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 4.1,
+   "height": 1.1,
+   "base": [
+    3.8,
+    23.45,
+    -0.1
+   ],
+   "axis": "Z",
+   "body_name": "t_scb0",
+   "name": "t_scb0"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 2.3,
+   "height": 1.4000000000000001,
+   "base": [
+    69.01,
+    23.45,
+    -0.1
+   ],
+   "axis": "Z",
+   "body_name": "t_sh1",
+   "name": "t_sh1"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 4.1,
+   "height": 1.1,
+   "base": [
+    69.01,
+    23.45,
+    -0.1
+   ],
+   "axis": "Z",
+   "body_name": "t_scb1",
+   "name": "t_scb1"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 2.3,
+   "height": 1.4000000000000001,
+   "base": [
+    14.0,
+    3.05,
+    -0.1
+   ],
+   "axis": "Z",
+   "body_name": "t_sh2",
+   "name": "t_sh2"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 4.1,
+   "height": 1.1,
+   "base": [
+    14.0,
+    3.05,
+    -0.1
+   ],
+   "axis": "Z",
+   "body_name": "t_scb2",
+   "name": "t_scb2"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 2.5,
+   "height": 1.4000000000000021,
+   "base": [
+    60.51,
+    25.95,
+    11.45
+   ],
+   "axis": "Y",
+   "body_name": "t_bh_b",
+   "name": "t_bh_b"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 5.3,
+   "height": 0.9000000000000021,
+   "base": [
+    60.51,
+    26.45,
+    11.45
+   ],
+   "axis": "Y",
+   "body_name": "t_bc_b",
+   "name": "t_bc_b"
+  }
+ },
+ {
+  "command": "solid.combine",
+  "params": {
+   "target": "bottom",
+   "tools": [
+    "t_cr_b0",
+    "t_cr_b1",
+    "t_ch_in",
+    "t_rib_r_slot",
+    "t_rib_r_hole",
+    "t_rib_f_slot",
+    "t_rib_f_hole",
+    "t_ms_b0",
+    "t_ms_b1",
+    "t_rb_b",
+    "t_rn_b",
+    "t_rg_b",
+    "t_re0_b",
+    "t_re1_b",
+    "t_usb_open",
+    "t_sh0",
+    "t_scb0",
+    "t_sh1",
+    "t_scb1",
+    "t_sh2",
+    "t_scb2",
+    "t_bh_b",
+    "t_bc_b"
+   ],
+   "operation": "cut",
+   "name": "cut bottom"
+  }
+ },
+ {
+  "command": "sketch.create",
+  "params": {
+   "plane": "XY",
+   "offset": 14.900000000000002
+  }
+ },
+ {
+  "command": "sketch.rectangle.rounded",
+  "params": {
+   "p0": [
+    0,
+    0
+   ],
+   "p1": [
+    72.81,
+    27.25
+   ],
+   "radius": 4.0
+  }
+ },
+ {
+  "command": "sketch.finish",
+  "params": {}
+ },
+ {
+  "command": "solid.extrude",
+  "params": {
+   "distance": 1.1999999999999993,
+   "body_name": "top",
+   "name": "top"
+  }
+ },
+ {
+  "command": "solid.fillet",
+  "params": {
+   "edges": [
+    [
+     36.405,
+     0.0,
+     16.1
+    ]
+   ],
+   "radius": 1.0,
+   "body": "top",
+   "name": "fillet top"
+  }
+ },
+ {
+  "command": "solid.box",
+  "params": {
+   "length": 1.0,
+   "width": 2.4800000000000013,
+   "height": 6.010000000000002,
+   "corner": [
+    28.009999999999998,
+    6.56,
+    8.9
+   ],
+   "body_name": "t_lr_r",
+   "name": "t_lr_r"
+  }
+ },
+ {
+  "command": "solid.box",
+  "params": {
+   "length": 1.0,
+   "width": 2.4800000000000013,
+   "height": 6.010000000000002,
+   "corner": [
+    31.409999999999997,
+    6.56,
+    8.9
+   ],
+   "body_name": "t_lr_f",
+   "name": "t_lr_f"
+  }
+ },
+ {
+  "command": "solid.box",
+  "params": {
+   "length": 1.0,
+   "width": 1.0,
+   "height": 2.0100000000000016,
+   "corner": [
+    62.010000000000005,
+    14.850000000000003,
+    12.9
+   ],
+   "body_name": "t_lr_bd",
+   "name": "t_lr_bd"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 3.6,
+   "height": 13.510000000000002,
+   "base": [
+    3.8,
+    23.45,
+    1.4
+   ],
+   "axis": "Z",
+   "body_name": "t_lboss0",
+   "name": "t_lboss0"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 3.6,
+   "height": 13.510000000000002,
+   "base": [
+    69.01,
+    23.45,
+    1.4
+   ],
+   "axis": "Z",
+   "body_name": "t_lboss1",
+   "name": "t_lboss1"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 3.6,
+   "height": 13.510000000000002,
+   "base": [
+    14.0,
+    3.05,
+    1.4
+   ],
+   "axis": "Z",
+   "body_name": "t_lboss2",
+   "name": "t_lboss2"
+  }
+ },
+ {
+  "command": "solid.combine",
+  "params": {
+   "target": "top",
+   "tools": [
+    "t_lr_r",
+    "t_lr_f",
+    "t_lr_bd",
+    "t_lboss0",
+    "t_lboss1",
+    "t_lboss2"
+   ],
+   "operation": "join",
+   "name": "join top"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 12.9,
+   "height": 5.6499999999999915,
+   "base": [
+    67.26,
+    7.8,
+    7.8
+   ],
+   "axis": "X",
+   "body_name": "t_rb_t",
+   "name": "t_rb_t"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 11.549999999999999,
+   "height": 1.1099999999999994,
+   "base": [
+    66.21000000000001,
+    7.8,
+    7.8
+   ],
+   "axis": "X",
+   "body_name": "t_rn_t",
+   "name": "t_rn_t"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 15.0,
+   "height": 1.7000000000000028,
+   "base": [
+    69.16,
+    7.8,
+    7.8
+   ],
+   "axis": "X",
+   "body_name": "t_rg_t",
+   "name": "t_rg_t"
+  }
+ },
+ {
+  "command": "solid.box",
+  "params": {
+   "length": 3.700000000000003,
+   "width": 40.0,
+   "height": 12.287280664334878,
+   "corner": [
+    68.16,
+    -12.2,
+    1.656359667832561
+   ],
+   "body_name": "t_rgb_t",
+   "name": "t_rgb_t"
+  }
+ },
+ {
+  "command": "solid.combine",
+  "params": {
+   "target": "t_rg_t",
+   "tools": [
+    "t_rgb_t"
+   ],
+   "operation": "intersect",
+   "name": "sector t"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 2.1,
+   "height": 3.75,
+   "base": [
+    69.16,
+    12.184062043356594,
+    3.415937956643406
+   ],
+   "axis": "X",
+   "body_name": "t_re0_t",
+   "name": "t_re0_t"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 2.1,
+   "height": 3.75,
+   "base": [
+    69.16,
+    3.415937956643406,
+    12.184062043356594
+   ],
+   "axis": "X",
+   "body_name": "t_re1_t",
+   "name": "t_re1_t"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 1.6,
+   "height": 7.1000000000000005,
+   "base": [
+    3.8,
+    23.45,
+    1.2999999999999998
+   ],
+   "axis": "Z",
+   "body_name": "t_lpil0",
+   "name": "t_lpil0"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 1.6,
+   "height": 7.1000000000000005,
+   "base": [
+    69.01,
+    23.45,
+    1.2999999999999998
+   ],
+   "axis": "Z",
+   "body_name": "t_lpil1",
+   "name": "t_lpil1"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 1.6,
+   "height": 7.1000000000000005,
+   "base": [
+    14.0,
+    3.05,
+    1.2999999999999998
+   ],
+   "axis": "Z",
+   "body_name": "t_lpil2",
+   "name": "t_lpil2"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 2.5,
+   "height": 1.4000000000000021,
+   "base": [
+    60.51,
+    25.95,
+    11.45
+   ],
+   "axis": "Y",
+   "body_name": "t_bh_t",
+   "name": "t_bh_t"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 5.3,
+   "height": 0.9000000000000021,
+   "base": [
+    60.51,
+    26.45,
+    11.45
+   ],
+   "axis": "Y",
+   "body_name": "t_bc_t",
+   "name": "t_bc_t"
+  }
+ },
+ {
+  "command": "solid.combine",
+  "params": {
+   "target": "top",
+   "tools": [
+    "t_rb_t",
+    "t_rn_t",
+    "t_rg_t",
+    "t_re0_t",
+    "t_re1_t",
+    "t_lpil0",
+    "t_lpil1",
+    "t_lpil2",
+    "t_bh_t",
+    "t_bc_t"
+   ],
+   "operation": "cut",
+   "name": "cut top"
+  }
+ },
+ {
+  "command": "sketch.create",
+  "params": {
+   "plane": "XY",
+   "offset": 14.400000000000002
+  }
+ },
+ {
+  "command": "sketch.rectangle.rounded",
+  "params": {
+   "p0": [
+    0.3,
+    0.3
+   ],
+   "p1": [
+    72.51,
+    26.95
+   ],
+   "radius": 3.7
+  }
+ },
+ {
+  "command": "sketch.finish",
+  "params": {}
+ },
+ {
+  "command": "solid.extrude",
+  "params": {
+   "distance": 0.5,
+   "body_name": "lid_gasket",
+   "name": "lid_gasket"
+  }
+ },
+ {
+  "command": "sketch.create",
+  "params": {
+   "plane": "XY",
+   "offset": 14.300000000000002
+  }
+ },
+ {
+  "command": "sketch.rectangle.rounded",
+  "params": {
+   "p0": [
+    1.3,
+    1.3
+   ],
+   "p1": [
+    71.51,
+    25.95
+   ],
+   "radius": 2.6999999999999997
+  }
+ },
+ {
+  "command": "sketch.finish",
+  "params": {}
+ },
+ {
+  "command": "solid.extrude",
+  "params": {
+   "distance": 0.6999999999999993,
+   "body_name": "t_lg_in",
+   "name": "t_lg_in"
+  }
+ },
+ {
+  "command": "solid.combine",
+  "params": {
+   "target": "lid_gasket",
+   "tools": [
+    "t_lg_in"
+   ],
+   "operation": "cut",
+   "name": "cut lid_gasket"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 10.95,
+   "height": 32.3,
+   "base": [
+    33.010000000000005,
+    7.8,
+    7.8
+   ],
+   "axis": "X",
+   "body_name": "cartridge",
+   "name": "cartridge"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 9.25,
+   "height": 32.49999999999999,
+   "base": [
+    32.910000000000004,
+    7.8,
+    7.8
+   ],
+   "axis": "X",
+   "body_name": "t_cartridge_bore",
+   "name": "t_cartridge_bore"
+  }
+ },
+ {
+  "command": "solid.combine",
+  "params": {
+   "target": "cartridge",
+   "tools": [
+    "t_cartridge_bore"
+   ],
+   "operation": "cut",
+   "name": "cut cartridge"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 10.95,
+   "height": 1.210000000000008,
+   "base": [
+    65.3,
+    7.8,
+    7.8
+   ],
+   "axis": "X",
+   "body_name": "t_cart_sh",
+   "name": "t_cart_sh"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 5.5,
+   "height": 2.1200000000000045,
+   "base": [
+    66.5,
+    7.8,
+    7.8
+   ],
+   "axis": "X",
+   "body_name": "t_cart_neck",
+   "name": "t_cart_neck"
+  }
+ },
+ {
+  "command": "solid.combine",
+  "params": {
+   "target": "cartridge",
+   "tools": [
+    "t_cart_sh",
+    "t_cart_neck"
+   ],
+   "operation": "join",
+   "name": "join cartridge"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 3.15,
+   "height": 6.6499999999999915,
+   "base": [
+    65.26,
+    7.8,
+    7.8
+   ],
+   "axis": "X",
+   "body_name": "t_cart_nb",
+   "name": "t_cart_nb"
+  }
+ },
+ {
+  "command": "solid.combine",
+  "params": {
+   "target": "cartridge",
+   "tools": [
+    "t_cart_nb"
+   ],
+   "operation": "cut",
+   "name": "cut cartridge"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 7.8,
+   "height": 3.200000000000003,
+   "base": [
+    68.61,
+    7.8,
+    7.8
+   ],
+   "axis": "X",
+   "body_name": "cart_cap",
+   "name": "cart_cap"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 9.25,
+   "height": 6.5,
+   "base": [
+    33.81,
+    7.8,
+    7.8
+   ],
+   "axis": "X",
+   "body_name": "stopper",
+   "name": "stopper"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 12.4,
+   "height": 5.5,
+   "base": [
+    67.31,
+    7.8,
+    7.8
+   ],
+   "axis": "X",
+   "body_name": "b_cap",
+   "name": "b_cap"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 14.0,
+   "height": 9.299999999999997,
+   "base": [
+    72.81,
+    7.8,
+    7.8
+   ],
+   "axis": "X",
+   "body_name": "t_bc_body",
+   "name": "t_bc_body"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 1.6,
+   "height": 1.2000000000000028,
+   "base": [
+    69.41,
+    12.184062043356594,
+    12.184062043356594
+   ],
+   "axis": "X",
+   "body_name": "t_bc_lug0",
+   "name": "t_bc_lug0"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 1.6,
+   "height": 1.2000000000000028,
+   "base": [
+    69.41,
+    3.415937956643404,
+    3.415937956643406
+   ],
+   "axis": "X",
+   "body_name": "t_bc_lug1",
+   "name": "t_bc_lug1"
+  }
+ },
+ {
+  "command": "solid.combine",
+  "params": {
+   "target": "b_cap",
+   "tools": [
+    "t_bc_body",
+    "t_bc_lug0",
+    "t_bc_lug1"
+   ],
+   "operation": "join",
+   "name": "join b_cap"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 8.1,
+   "height": 4.599999999999994,
+   "base": [
+    67.21000000000001,
+    7.8,
+    7.8
+   ],
+   "axis": "X",
+   "body_name": "t_bc_cav",
+   "name": "t_bc_cav"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 0.7,
+   "height": 9.61,
+   "base": [
+    71.71000000000001,
+    7.8,
+    7.8
+   ],
+   "axis": "X",
+   "body_name": "t_bc_ndl",
+   "name": "t_bc_ndl"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 4.65,
+   "height": 0.8999999999999915,
+   "base": [
+    81.31,
+    7.8,
+    7.8
+   ],
+   "axis": "X",
+   "body_name": "t_bc_hub",
+   "name": "t_bc_hub"
+  }
+ },
+ {
+  "command": "solid.combine",
+  "params": {
+   "target": "b_cap",
+   "tools": [
+    "t_bc_cav",
+    "t_bc_ndl",
+    "t_bc_hub"
+   ],
+   "operation": "cut",
+   "name": "cut b_cap"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 0.4,
+   "height": 12.5,
+   "base": [
+    69.31,
+    7.8,
+    7.8
+   ],
+   "axis": "X",
+   "body_name": "needle",
+   "name": "needle"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 4.4,
+   "height": 3.0,
+   "base": [
+    81.31,
+    7.8,
+    7.8
+   ],
+   "axis": "X",
+   "body_name": "luer_hub",
+   "name": "luer_hub"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 7.6,
+   "height": 8.010000000000005,
+   "base": [
+    84.3,
+    7.8,
+    7.8
+   ],
+   "axis": "X",
+   "body_name": "t_lh_body",
+   "name": "t_lh_body"
+  }
+ },
+ {
+  "command": "solid.combine",
+  "params": {
+   "target": "luer_hub",
+   "tools": [
+    "t_lh_body"
+   ],
+   "operation": "join",
+   "name": "join luer_hub"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 10.0,
+   "height": 9.0,
+   "base": [
+    86.31,
+    7.8,
+    7.8
+   ],
+   "axis": "X",
+   "body_name": "luer_set",
+   "name": "luer_set"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 7.8,
+   "height": 6.109999999999999,
+   "base": [
+    86.21000000000001,
+    7.8,
+    7.8
+   ],
+   "axis": "X",
+   "body_name": "t_ls_in",
+   "name": "t_ls_in"
+  }
+ },
+ {
+  "command": "solid.combine",
+  "params": {
+   "target": "luer_set",
+   "tools": [
+    "t_ls_in"
+   ],
+   "operation": "cut",
+   "name": "cut luer_set"
+  }
+ },
+ {
+  "command": "solid.box",
+  "params": {
+   "length": 1.0,
+   "width": 3.4999999999999982,
+   "height": 2.000000000000001,
+   "corner": [
+    72.86,
+    14.200000000000001,
+    6.8
+   ],
+   "body_name": "lock_flag",
+   "name": "lock_flag"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 1.0,
+   "height": 0.5,
+   "base": [
+    72.86,
+    16.7,
+    7.8
+   ],
+   "axis": "X",
+   "body_name": "lock_magnet",
+   "name": "lock_magnet"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 2.0,
+   "height": 31.21,
+   "base": [
+    1.4,
+    7.8,
+    7.8
+   ],
+   "axis": "X",
+   "body_name": "rod",
+   "name": "rod"
+  }
+ },
+ {
+  "command": "solid.box",
+  "params": {
+   "length": 2.5,
+   "width": 3.200000000000001,
+   "height": 3.200000000000001,
+   "corner": [
+    1.4,
+    6.199999999999999,
+    6.199999999999999
+   ],
+   "body_name": "slider",
+   "name": "slider"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 2.0,
+   "height": 2.7,
+   "base": [
+    1.2999999999999998,
+    7.8,
+    7.8
+   ],
+   "axis": "X",
+   "body_name": "t_sl_bore",
+   "name": "t_sl_bore"
+  }
+ },
+ {
+  "command": "solid.combine",
+  "params": {
+   "target": "slider",
+   "tools": [
+    "t_sl_bore"
+   ],
+   "operation": "cut",
+   "name": "cut slider"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 9.0,
+   "height": 1.2000000000000028,
+   "base": [
+    32.61,
+    7.8,
+    7.8
+   ],
+   "axis": "X",
+   "body_name": "pusher",
+   "name": "pusher"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 2.0,
+   "height": 1.0,
+   "base": [
+    32.51,
+    7.8,
+    7.8
+   ],
+   "axis": "X",
+   "body_name": "t_pu_bore",
+   "name": "t_pu_bore"
+  }
+ },
+ {
+  "command": "solid.combine",
+  "params": {
+   "target": "pusher",
+   "tools": [
+    "t_pu_bore"
+   ],
+   "operation": "cut",
+   "name": "cut pusher"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 12.6,
+   "height": 2.0,
+   "base": [
+    29.209999999999997,
+    7.8,
+    7.8
+   ],
+   "axis": "X",
+   "body_name": "gear_rod",
+   "name": "gear_rod"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 2.2,
+   "height": 2.200000000000003,
+   "base": [
+    29.109999999999996,
+    7.8,
+    7.8
+   ],
+   "axis": "X",
+   "body_name": "t_gear_rod_bore",
+   "name": "t_gear_rod_bore"
+  }
+ },
+ {
+  "command": "solid.combine",
+  "params": {
+   "target": "gear_rod",
+   "tools": [
+    "t_gear_rod_bore"
+   ],
+   "operation": "cut",
+   "name": "cut gear_rod"
+  }
+ },
+ {
+  "command": "sketch.create",
+  "params": {
+   "plane": "YZ",
+   "offset": 29.109999999999996
+  }
+ },
+ {
+  "command": "sketch.polygon.circumscribed",
+  "params": {
+   "center": [
+    7.8,
+    7.8
+   ],
+   "radius": 2.03,
+   "sides": 6,
+   "angle": 0.0
+  }
+ },
+ {
+  "command": "sketch.finish",
+  "params": {}
+ },
+ {
+  "command": "solid.extrude",
+  "params": {
+   "distance": 1.7000000000000028,
+   "body_name": "t_gear_hex",
+   "name": "t_gear_hex"
+  }
+ },
+ {
+  "command": "solid.combine",
+  "params": {
+   "target": "gear_rod",
+   "tools": [
+    "t_gear_hex"
+   ],
+   "operation": "cut",
+   "name": "cut gear_rod"
+  }
+ },
+ {
+  "command": "sketch.create",
+  "params": {
+   "plane": "YZ",
+   "offset": 29.209999999999997
+  }
+ },
+ {
+  "command": "sketch.polygon.circumscribed",
+  "params": {
+   "center": [
+    7.8,
+    7.8
+   ],
+   "radius": 2.0,
+   "sides": 6,
+   "angle": 0.0
+  }
+ },
+ {
+  "command": "sketch.finish",
+  "params": {}
+ },
+ {
+  "command": "solid.extrude",
+  "params": {
+   "distance": 1.6000000000000014,
+   "body_name": "rod_nut",
+   "name": "rod_nut"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 2.0,
+   "height": 1.8000000000000043,
+   "base": [
+    29.109999999999996,
+    7.8,
+    7.8
+   ],
+   "axis": "X",
+   "body_name": "t_nut_bore",
+   "name": "t_nut_bore"
+  }
+ },
+ {
+  "command": "solid.combine",
+  "params": {
+   "target": "rod_nut",
+   "tools": [
+    "t_nut_bore"
+   ],
+   "operation": "cut",
+   "name": "cut rod_nut"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 5.0,
+   "height": 0.1999999999999993,
+   "base": [
+    29.009999999999998,
+    7.8,
+    7.8
+   ],
+   "axis": "X",
+   "body_name": "washer_r",
+   "name": "washer_r"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 2.2,
+   "height": 0.40000000000000213,
+   "base": [
+    28.909999999999997,
+    7.8,
+    7.8
+   ],
+   "axis": "X",
+   "body_name": "t_washer_r_bore",
+   "name": "t_washer_r_bore"
+  }
+ },
+ {
+  "command": "solid.combine",
+  "params": {
+   "target": "washer_r",
+   "tools": [
+    "t_washer_r_bore"
+   ],
+   "operation": "cut",
+   "name": "cut washer_r"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 5.0,
+   "height": 0.1999999999999993,
+   "base": [
+    31.209999999999997,
+    7.8,
+    7.8
+   ],
+   "axis": "X",
+   "body_name": "washer_f",
+   "name": "washer_f"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 2.2,
+   "height": 0.40000000000000213,
+   "base": [
+    31.109999999999996,
+    7.8,
+    7.8
+   ],
+   "axis": "X",
+   "body_name": "t_washer_f_bore",
+   "name": "t_washer_f_bore"
+  }
+ },
+ {
+  "command": "solid.combine",
+  "params": {
+   "target": "washer_f",
+   "tools": [
+    "t_washer_f_bore"
+   ],
+   "operation": "cut",
+   "name": "cut washer_f"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 4.2,
+   "height": 2.0,
+   "base": [
+    29.209999999999997,
+    15.6,
+    7.8
+   ],
+   "axis": "X",
+   "body_name": "pinion",
+   "name": "pinion"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 2.0,
+   "height": 2.200000000000003,
+   "base": [
+    29.109999999999996,
+    15.6,
+    7.8
+   ],
+   "axis": "X",
+   "body_name": "t_pinion_bore",
+   "name": "t_pinion_bore"
+  }
+ },
+ {
+  "command": "solid.combine",
+  "params": {
+   "target": "pinion",
+   "tools": [
+    "t_pinion_bore"
+   ],
+   "operation": "cut",
+   "name": "cut pinion"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 2.0,
+   "height": 2.900000000000002,
+   "base": [
+    28.309999999999995,
+    15.6,
+    7.8
+   ],
+   "axis": "X",
+   "body_name": "motor_shaft",
+   "name": "motor_shaft"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 3.5,
+   "height": 0.8000000000000007,
+   "base": [
+    28.309999999999995,
+    15.6,
+    7.8
+   ],
+   "axis": "X",
+   "body_name": "motor_boss",
+   "name": "motor_boss"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 6.0,
+   "height": 8.100000000000001,
+   "base": [
+    20.209999999999994,
+    15.6,
+    7.8
+   ],
+   "axis": "X",
+   "body_name": "gearhead",
+   "name": "gearhead"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 6.0,
+   "height": 8.0,
+   "base": [
+    12.209999999999994,
+    15.6,
+    7.8
+   ],
+   "axis": "X",
+   "body_name": "motor",
+   "name": "motor"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 2.6,
+   "height": 0.6999999999999993,
+   "base": [
+    11.509999999999994,
+    15.6,
+    7.8
+   ],
+   "axis": "X",
+   "body_name": "motor_rear_boss",
+   "name": "motor_rear_boss"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 2.0,
+   "height": 0.9999999999999964,
+   "base": [
+    31.209999999999997,
+    15.6,
+    7.8
+   ],
+   "axis": "X",
+   "body_name": "magnet",
+   "name": "magnet"
+  }
+ },
+ {
+  "command": "solid.box",
+  "params": {
+   "length": 1.4500000000000028,
+   "width": 2.9000000000000004,
+   "height": 2.799999999999999,
+   "corner": [
+    32.709999999999994,
+    14.15,
+    6.4
+   ],
+   "body_name": "hall_tmag",
+   "name": "hall_tmag"
+  }
+ },
+ {
+  "command": "solid.box",
+  "params": {
+   "length": 0.6000000000000014,
+   "width": 4.725000000000001,
+   "height": 5.200000000000001,
+   "corner": [
+    34.16,
+    13.474999999999998,
+    5.199999999999999
+   ],
+   "body_name": "ko_tmag_board",
+   "name": "ko_tmag_board"
+  }
+ },
+ {
+  "command": "solid.box",
+  "params": {
+   "length": 60.010000000000005,
+   "width": 10.6,
+   "height": 3.4499999999999993,
+   "corner": [
+    6.0,
+    14.550000000000002,
+    10.9
+   ],
+   "body_name": "ko_board",
+   "name": "ko_board"
+  }
+ },
+ {
+  "command": "solid.box",
+  "params": {
+   "length": 31.5,
+   "width": 10.599999999999998,
+   "height": 3.2,
+   "corner": [
+    28.909999999999997,
+    14.55,
+    1.2
+   ],
+   "body_name": "ko_battery",
+   "name": "ko_battery"
+  }
+ },
+ {
+  "command": "solid.box",
+  "params": {
+   "length": 8.939999999999998,
+   "width": 7.349999999999998,
+   "height": 3.259999999999998,
+   "corner": [
+    45.540000000000006,
+    18.700000000000003,
+    10.870000000000001
+   ],
+   "body_name": "ko_usb",
+   "name": "ko_usb"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 1.6,
+   "height": 1.299999999999999,
+   "base": [
+    7.2,
+    15.550000000000002,
+    10.8
+   ],
+   "axis": "Z",
+   "body_name": "t_kb_pad0",
+   "name": "t_kb_pad0"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 1.6,
+   "height": 1.299999999999999,
+   "base": [
+    65.01,
+    15.450000000000003,
+    10.8
+   ],
+   "axis": "Z",
+   "body_name": "t_kb_pad1",
+   "name": "t_kb_pad1"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 1.6,
+   "height": 1.299999999999999,
+   "base": [
+    65.01,
+    24.250000000000004,
+    10.8
+   ],
+   "axis": "Z",
+   "body_name": "t_kb_pad2",
+   "name": "t_kb_pad2"
+  }
+ },
+ {
+  "command": "solid.box",
+  "params": {
+   "length": 1.5999999999999943,
+   "width": 1.5999999999999996,
+   "height": 1.549999999999999,
+   "corner": [
+    61.71000000000001,
+    14.550000000000002,
+    12.9
+   ],
+   "body_name": "t_kb_rib",
+   "name": "t_kb_rib"
+  }
+ },
+ {
+  "command": "solid.combine",
+  "params": {
+   "target": "ko_board",
+   "tools": [
+    "t_kb_pad0",
+    "t_kb_pad1",
+    "t_kb_pad2",
+    "t_kb_rib"
+   ],
+   "operation": "cut",
+   "name": "cut ko_board"
+  }
+ },
+ {
+  "command": "solid.box",
+  "params": {
+   "length": 1.0999999999999943,
+   "width": 1.3999999999999986,
+   "height": 1.0999999999999996,
+   "corner": [
+    70.41000000000001,
+    16.0,
+    7.25
+   ],
+   "body_name": "hall_lock",
+   "name": "hall_lock"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 5.0,
+   "height": 1.1000000000000014,
+   "base": [
+    60.51,
+    26.45,
+    11.45
+   ],
+   "axis": "Y",
+   "body_name": "button",
+   "name": "button"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 2.4,
+   "height": 1.1099999999999994,
+   "base": [
+    60.51,
+    25.35,
+    11.45
+   ],
+   "axis": "Y",
+   "body_name": "t_btn_stem",
+   "name": "t_btn_stem"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 3.2,
+   "height": 0.5,
+   "base": [
+    60.51,
+    25.5,
+    11.45
+   ],
+   "axis": "Y",
+   "body_name": "t_btn_barb",
+   "name": "t_btn_barb"
+  }
+ },
+ {
+  "command": "solid.combine",
+  "params": {
+   "target": "button",
+   "tools": [
+    "t_btn_stem",
+    "t_btn_barb"
+   ],
+   "operation": "join",
+   "name": "join button"
+  }
+ },
+ {
+  "command": "file.export_step",
+  "params": {
+   "path": "out/v010-cart/B/OP-CART-B_assembly.step",
+   "bodies": [
+    "bottom",
+    "top",
+    "slider",
+    "pusher",
+    "lock_flag",
+    "button",
+    "lid_gasket",
+    "cartridge",
+    "stopper",
+    "cart_cap",
+    "rod",
+    "rod_nut",
+    "gear_rod",
+    "pinion",
+    "washer_r",
+    "washer_f",
+    "motor",
+    "gearhead",
+    "motor_boss",
+    "motor_shaft",
+    "motor_rear_boss",
+    "magnet",
+    "hall_tmag",
+    "lock_magnet",
+    "hall_lock",
+    "ko_board",
+    "ko_battery",
+    "ko_usb",
+    "ko_tmag_board",
+    "b_cap",
+    "needle",
+    "luer_hub",
+    "luer_set"
+   ]
+  }
+ },
+ {
+  "command": "file.export_step",
+  "params": {
+   "path": "out/v010-cart/B/OP-CART-B_bottom.step",
+   "bodies": [
+    "bottom"
+   ]
+  }
+ },
+ {
+  "command": "file.export_step",
+  "params": {
+   "path": "out/v010-cart/B/OP-CART-B_top.step",
+   "bodies": [
+    "top"
+   ]
+  }
+ },
+ {
+  "command": "file.export_step",
+  "params": {
+   "path": "out/v010-cart/B/OP-CART-B_slider.step",
+   "bodies": [
+    "slider"
+   ]
+  }
+ },
+ {
+  "command": "file.export_step",
+  "params": {
+   "path": "out/v010-cart/B/OP-CART-B_pusher.step",
+   "bodies": [
+    "pusher"
+   ]
+  }
+ },
+ {
+  "command": "file.export_step",
+  "params": {
+   "path": "out/v010-cart/B/OP-CART-B_lock_flag.step",
+   "bodies": [
+    "lock_flag"
+   ]
+  }
+ },
+ {
+  "command": "file.export_step",
+  "params": {
+   "path": "out/v010-cart/B/OP-CART-B_button.step",
+   "bodies": [
+    "button"
+   ]
+  }
+ },
+ {
+  "command": "file.export_step",
+  "params": {
+   "path": "out/v010-cart/B/OP-CART-B_lid_gasket.step",
+   "bodies": [
+    "lid_gasket"
+   ]
+  }
+ },
+ {
+  "command": "file.export_step",
+  "params": {
+   "path": "out/v010-cart/B/OP-CART-B_b_cap.step",
+   "bodies": [
+    "b_cap"
+   ]
+  }
+ }
+]

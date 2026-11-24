@@ -1,0 +1,176 @@
+[
+ {
+  "file": "print_bottom.stl",
+  "bodies": [
+   "bottom"
+  ],
+  "orientation": "asis",
+  "note": "tub, floor on the bed",
+  "size_mm": [
+   72.81,
+   27.25,
+   14.4
+  ]
+ },
+ {
+  "file": "print_lid.stl",
+  "bodies": [
+   "top"
+  ],
+  "orientation": "flip",
+  "note": "lid, outer face on the bed (smooth side), bosses up",
+  "size_mm": [
+   72.81,
+   27.25,
+   14.7
+  ]
+ },
+ {
+  "file": "print_slider.stl",
+  "bodies": [
+   "slider"
+  ],
+  "orientation": "up_x",
+  "note": "anti-rotation slider",
+  "size_mm": [
+   3.2,
+   3.2,
+   2.5
+  ]
+ },
+ {
+  "file": "print_pusher.stl",
+  "bodies": [
+   "pusher"
+  ],
+  "orientation": "up_x",
+  "note": "pusher disc, flat face down",
+  "size_mm": [
+   9.0,
+   9.0,
+   1.2
+  ]
+ },
+ {
+  "file": "print_lock_flag.stl",
+  "bodies": [
+   "lock_flag"
+  ],
+  "orientation": "asis",
+  "note": "clip-on flag for the adapter-lock magnet",
+  "size_mm": [
+   1.0,
+   3.5,
+   2.0
+  ]
+ },
+ {
+  "file": "print_b_cap.stl",
+  "bodies": [
+   "b_cap"
+  ],
+  "orientation": "up_x",
+  "note": "variant B needle cap (bayonet nose + needle guide + hub seat), print upright, nose down",
+  "size_mm": [
+   14.0,
+   14.0,
+   14.8
+  ]
+ },
+ {
+  "file": "print_button_tpu.stl",
+  "bodies": [
+   "button"
+  ],
+  "orientation": "up_y",
+  "note": "button cap, print in TPU 95A (or cast silicone)",
+  "size_mm": [
+   5.0,
+   5.0,
+   2.2
+  ]
+ },
+ {
+  "file": "dummy_cartridge.stl",
+  "bodies": [
+   "cartridge",
+   "cart_cap"
+  ],
+  "orientation": "up_x",
+  "note": "cartridge stand-in (ESTIMATE geometry) until the real one arrives",
+  "size_mm": [
+   10.95,
+   10.95,
+   38.8
+  ]
+ },
+ {
+  "file": "dummy_board.stl",
+  "bodies": [
+   "ko_board",
+   "ko_usb"
+  ],
+  "orientation": "asis",
+  "note": "main board + parts envelope with the USB-C receptacle block",
+  "size_mm": [
+   60.01,
+   11.5,
+   3.48
+  ]
+ },
+ {
+  "file": "dummy_cell.stl",
+  "bodies": [
+   "ko_battery"
+  ],
+  "orientation": "asis",
+  "note": "Ampul 301030 envelope",
+  "size_mm": [
+   31.5,
+   10.6,
+   3.2
+  ]
+ },
+ {
+  "file": "dummy_motor.stl",
+  "bodies": [
+   "motor",
+   "gearhead",
+   "motor_boss",
+   "motor_rear_boss"
+  ],
+  "orientation": "up_x",
+  "note": "NFP-608 envelope (shaft not included: use a 2 mm pin)",
+  "size_mm": [
+   6.0,
+   6.0,
+   17.6
+  ]
+ },
+ {
+  "file": "dummy_gear.stl",
+  "bodies": [
+   "gear_rod"
+  ],
+  "orientation": "up_x",
+  "note": "z40 gear tip-circle disc with the nut hex pocket",
+  "size_mm": [
+   12.6,
+   12.6,
+   2.0
+  ]
+ },
+ {
+  "file": "dummy_pinion.stl",
+  "bodies": [
+   "pinion"
+  ],
+  "orientation": "up_x",
+  "note": "z12 pinion tip-circle disc",
+  "size_mm": [
+   4.2,
+   4.2,
+   2.0
+  ]
+ }
+]

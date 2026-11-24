@@ -1,79 +1,98 @@
-> **TEST ONLY - NOT FOR HUMAN USE** (see `../DISCLAIMER.md`). Bench only, **water only**: the cartridge is never filled with insulin or any other drug, and the tubing ends in a container on a scale, never on a person.
+> **TEST ONLY - NOT FOR HUMAN USE** (see `../DISCLAIMER.md`). Bench only, **water only**: the cartridge is never filled with insulin or any other drug; the line ends in a container on a scale, never on a person.
 
-# v0.1.0 "cart" pump: Insight-class cartridge + original Insight adapter (`cart_gen.py`, `cart_check.py`)
+# v0.1.0 "cart" pump: Insight cartridge, variants A and B (`cart_gen.py`, `cart_check.py`)
 
-A second, simpler OpenPatch variant next to the cup pod (`V010-CUP.md`). It is a small **tubed** bench pump: a bought Accu-Chek Insight-class 1.6 ml glass cartridge, the **original Accu-Chek Insight Adapter & Tubing** locked into a bayonet receiver, our NFP-608-26.45 geared stepper, the Ampul 301030 cell, USB-C, and the **cup-pod main board unchanged**.
-Research and sources: `../docs/insight-research.md`. **No cartridge or adapter drawing is public: every cartridge / adapter number below is an ESTIMATE until measured on a sample** (list at the end).
+A small, minimal tubed bench pump. The reservoir is the **Accu-Chek Insight 1.6 ml glass cartridge** (ISO 13926-1 cartridge family). Nothing wet is made by us.
+| Variant | On the cartridge | Tubing / site end |
+|---|---|---|
+| **A** | the **original Accu-Chek Insight Adapter & Tubing** (needle, vent and tubing in one part), locked in our bayonet receiver | Insight tubing -> Insight Flex head set |
+| **B** | our **printed bayonet cap**: it centres a standard Luer-lock hypodermic needle (27G, 0.40 x 12 mm) on the septum and presses the crimp cap | needle hub (female Luer) -> Luer tubing set (Accu-Chek FlexLink, Luer pump end) -> head set; Insight Flex compatibility UNVERIFIED (`../docs/insight-research.md` §7) |
+The housing, drive and electronics are **identical** for A and B; only the part in the receiver differs.
 
-Files: `op_cart.py` (layout + CAD), `cart_gen.py` (driver, exports, renders), `cart_check.py` (checks), `cart_compare.py` (size figure); parameters in `params.json -> cart`. Output: `out/v010-cart/` (`OP-CART.sc`, assembly STEP, per-part STEP + STL for bottom, top, slider, pusher, lock flag, lid gasket, `OP-CART.mech.json`, `check.json`, renders).
-Separate scripts on purpose: the cup files (`generate.py`, `check.py`, `op_cup*.py`, `cup_*.py`) are not touched.
-
+Research: `../docs/insight-research.md`. Parameters: `params.json -> cart` (+ `cart.variants.A / B`). Code: `op_cart.py` (layout + CAD), `cart_gen.py` (exports, print kit, coupons, renders), `cart_check.py` (checks), `cart_compare.py` (size figure). The cup files are not touched.
 ```
-SOLIDCRAFT_CLI=/Applications/SolidCraft.app/Contents/MacOS/solidcraft-cli python3 cart_gen.py      # ~10 s incl. renders
-python3 cart_check.py                                                                               # PASS / FAIL, writes check.json
-python3 cart_gen.py --set cart.cartridge.od=11.2 --set cart.receiver.bore_d=12.4                    # after measuring a sample
+SOLIDCRAFT_CLI=/Applications/SolidCraft.app/Contents/MacOS/solidcraft-cli python3 cart_gen.py      # A + B + coupons, ~20 s with renders
+python3 cart_check.py                                                                               # A + B, PASS / FAIL
+python3 cart_gen.py --set cart.cartridge.od=11.1 --set cart.receiver.bore_d=13.2                    # after measuring
 ```
 
-## What is simpler than the cup pod
-| Cup pod | Cart pump |
-|---|---|
-| custom stadium tank (CNC), cast cup plunger + 2 lip seals, fill septum, pressure-fill procedure | **bought glass cartridge with its own stopper and septum**; nothing wet is made by us |
-| dock pocket, U-clip, spring needle guard, 30G needle + hub, cannula fit coupon | **original Insight adapter** (needle, vent, tubing) in a two-lug bayonet socket |
-| miter pair, magnet clash, sealed rod-in-plunger nut | one spur pair, one nut bonded in the gear, one translating rod |
-| patch on the body (8.5 mm) | tubed bench unit (15.2 mm); no on-body use in any case |
-| new PCB per housing change | **same main board** (`electronics/v010/cup`, routed, DRC 0), same firmware hardware |
-
-## Layout (top view, +X toward the adapter, +Y toward the USB-C wall; z = 0 underside)
-**Lane 1 (cartridge axis, y 7.35, z 7.35):** rear wall -> U channel with the printed anti-rotation **slider** bonded on the rod end (x 1.1-4.1 at FULL, travels the stroke) -> rear rib (x 26.05) -> washer -> **gear nut** = brass spur gear m0.3 z40 (tip d12.6, x 27.25-29.25) with an M2 brass nut bonded in a hex pocket -> washer -> front rib (x 29.45-30.45) -> printed **pusher disc** d9.0 on the rod front end -> **stopper** -> **cartridge** (x 31.05-67.05, neck to 71.55) in two U cradles -> **receiver collar** (x 69.3-75.8) with the adapter bayonet -> **adapter** outside (to x 82.3) + tubing.
-**Lane 2:** motor NFP-608-26.45 **parallel to the rod** in the tail zone (x 9.55-27.15, axis y 15.15), pinion m0.3 z12 on the D-shaft flush with the gear, diametric d2 x 1 magnet on the pinion face, TMAG5273 strip in front of it (x 30.75-32.8; same sensor and strip as the cup pod) -> the **cup main board** 35.6 x 12.6 x 0.8 (x 33.4-69.0, y 13.95-26.55, z 5.3-6.1, parts 4.12-7.55) with the **Ampul 301030** under it (x 35.1-66.6, z 0.9-4.1) and the USB-C mid-mount in the +Y wall (opening x 44.4-53.8, z 4.0-7.4; board-relative position as in the cup pod) -> adapter-lock hall at the front wall.
-Motor and cell wires reach the board's west-end pads exactly as in the cup pod (spec §1a soldering exception).
-
-Renders: `out/v010-cart/OP-CART_iso.png`, `_iso_lid_off.png`, `_exploded.png`, `_section_side_axis.png` (rod / gear / cartridge stack), `_section_top_axis.png`, `_section_cross_gear.png`, `_section_cross_receiver.png`, `size_comparison.png`.
-
-## Size (CAD, check PASS)
-| | L x W x H (mm) | box volume | note |
+## Size (CAD, both PASS)
+| | L x W x H (mm) | box | source |
 |---|---|---|---|
-| **OpenPatch cart pump, body** | **75.8 x 27.65 x 15.2** | 31.9 ml | front set by the board east edge + collar (cartridge alone would allow 72.55) |
-| **OpenPatch cart pump, with adapter** | **82.3 x 27.65 x 15.2** | 34.6 ml | adapter body estimate 14.0 x 6.5 outside |
-| Accu-Chek Insight, with adapter | 84 x 52 x 19 | 83 ml | user manual App. A, VERIFIED |
-| mylife YpsoPump (same cartridge class) | 78 x 46 x 16 | 57 ml | ESTIMATE (search excerpt) |
-| Omnipod DASH / 5 pod | 52 x 39 x 14.5 | 29 ml | Insulet chart, VERIFIED (patch, 200 U) |
-| OpenPatch cup pod OP-100 | 47.96 x 36.6 x 8.5 | 14.9 ml | `V010-CUP.md` (patch, 100 U) |
+| **Cart pump A/B, housing** | **72.8 x 27.25 x 16.1** | 31.9 ml | this CAD (FDM walls 1.2) |
+| Cart pump A, with the Insight adapter | 79.3 x 27.55 x 16.1 | 34.8 ml | adapter protrusion 6.5 = ESTIMATE |
+| Cart pump B, with the printed cap / with hub + Luer collar | 82.1 / 95.3 x 27.25 x 16.1 | | the 12 mm needle + 11 mm hub sit outside |
+| **Accu-Chek Insight, with adapter** | **84 x 52 x 19** | 83 ml | user manual App. A, **VERIFIED** (body without adapter about 72: ESTIMATE) |
+| mylife YpsoPump | 78 x 46 x 16 | 57 ml | search excerpt |
+| Omnipod DASH / 5 | 52 x 39 x 14.5 | 29 ml | Insulet, VERIFIED |
+| OpenPatch cup pod OP-100 | 47.96 x 36.6 x 8.5 | 15 ml | `V010-CUP.md` |
+A is smaller than the Insight in every axis (with adapter 79.3 vs 84, 27.25 vs 52, 16.1 vs 19) and is 42 % of its box volume. The 15 mm height goal is missed: the height comes from the receiver bore 12.9 + 2 x (0.15 + 1.2 + 0.5 gasket).
 
-The cart pump is smaller than the Insight in every axis: -1.7 mm long (with adapter), **-24 mm narrow**, **-3.8 mm thin**, **42 % of its box volume**. Length is set by the glass cartridge (36 mm barrel + neck, ESTIMATE) plus the stroke behind it (21.65 mm) - the price of a non-telescopic rod. Height is set by the receiver bore 12.6 (adapter nose estimate 12.4) and the z40 gear tip circle 12.6; the bayonet groove lies only in the +-Y flank sectors (+-55 deg) so the lugs do not add height. The 15.0 mm height goal is missed by 0.2 (TARGET line in `cart_check.py`).
+## Length stack (lane 1, this is what sets the length)
+| Item | mm | Note |
+|---|---|---|
+| rear wall + clearance | 1.2 + 0.2 | FDM wall |
+| anti-rotation slider | 2.5 | printed, bonded on the rod |
+| **stroke** (rod tail at FULL) | **23.81** | 1.6 ml / 67.2 mm2 (ID 9.25) |
+| travel margin | 0.3 | |
+| rear rib + washer + gear nut + washer + front rib | 1.0 + 0.2 + 2.0 + 0.2 + 1.0 | gear m0.3 z40 with the M2 nut |
+| pusher clearance + pusher | 0.2 + 1.2 | |
+| stopper recess (overlap) | -0.8 | stopper rear face 0.8 inside the barrel |
+| **cartridge barrel** | **33.5** | ESTIMATE (stopper 6.5 + stroke + shoulder) |
+| neck + crimp cap | 5.3 | ISO h1 5.0 + crimp |
+| cap face to housing front (adapter seat) | 1.0 | ESTIMATE |
+| **total** | **72.81** | |
+What limits it: **cartridge (38.8) + stroke (23.8) = 62.6 mm, 86 % of the length.** The rod must sit behind the stopper at FULL, because the stopper is a plain rubber plug (nothing can key a nut inside the glass), so a non-telescopic drive always has that tail. Already done: motor **beside** the rod (in the tail zone, not in line), board **over** the motor and cell (lane 2 no longer sets the length; it did until today, 76.1), cell **under** the pinion / TMAG strip, 0.2-0.3 mm clearances only. Next step if it must get shorter: a **two-stage telescopic screw** (tube + rod, keyed tube) would cut the tail to about half the stroke plus the nut length: about **-9 to -10 mm** (63 mm housing), at the cost of a custom threaded tube. Not done for the fit print (owner: keep it minimal).
 
-## Drive
-* **Principle:** gear nut fixed axially, threaded rod translating (anti-rotation slider in a U channel). The rod is behind the stopper at all times, so it is never wet. A rotating rod with a translating nut would need the rod to pass through the stopper at FULL; that is why the rod translates.
-* **Parts:** pinion m0.3 z12 (bore 2.0 on the NFP D-shaft, Loctite 648), gear m0.3 z40 (centre distance 7.8 = m (z1 + z2) / 2), DIN 975 M2 x 0.4 rod 29.55 mm long, DIN 934 M2 brass nut (AF 4.0, h 1.6) bonded in the gear, two 0.2 mm washers (PTFE or brass) against the ribs. Both ribs have U slots open to the top: the rod + gear + nut subassembly drops in from above and the lid ribs cap the slots (no press fits, no tools).
-* **Axial load path:** stopper -> pusher -> rod -> thread -> nut -> gear -> rear washer -> rear rib -> tub. Reverse (retract): gear -> front washer -> front rib. The cartridge is held forward by the adapter (bayonet lugs -> collar) and backward by the front rib (0.2 mm gap behind it).
-* **Resolution:** 0.4 mm / (20 x 26.45 x 40/12) x 73.9 mm2 = **0.00168 U per full step** (0.0168 ul; 1 U = 596 steps). Firmware needs a new drive preset (bore area 73.9, ratio 12:40, pitch 0.4): follow-up, not part of this change.
-* **Thrust (`cart_check.thrust`, estimates):** NFP pull-out 2.65 N mm x 40/12 x 0.95 = 8.4 N mm at the nut; M2 x 0.4 at eta 0.25 -> **33.0 N**. Need: stopper breakaway 8 N (ESTIMATE, measure) + 150 kPa occlusion design point on 73.9 mm2 (11.1 N) = 19.1 N -> **1.73x** (rule >= 1.5x met). The stall force corresponds to **447 kPa** on the cartridge, above the Insight's 350 kPa maximum: occlusion must be detected by the firmware (TMAG angle shortfall, as in the cup pod) long before stall; the bench rig adds a pressure gauge.
-* **Stroke:** 1.6 ml / 73.9 mm2 = 21.65 mm; available in the estimated barrel 28.0 mm. At EMPTY the rod rear end is still 4.5 mm behind the nut and the slider 0.3 mm off the rear rib (`cart_check` moves rod, slider, pusher and stopper to EMPTY and re-runs the interference check).
+## Dimensions of every part and interface (pod frame: x = 0 rear face, y = 0 cartridge-side wall, z = 0 underside)
+| Part / interface | Dimensions (mm) | Status |
+|---|---|---|
+| Cartridge barrel | OD 10.95, ID 9.25, length to the shoulder 33.5 | OD / ID = ISO 13926-1 1.6 ml row (SCHOTT table, VERIFIED for the ISO row); that the Insight cartridge is that row and the length: **MEASURE** |
+| Cartridge neck / crimp cap | neck d5.5, collar d7.15, h1 5.0 (h2 2.9); cap d7.8 x 3.2 | neck / collar VERIFIED (ISO, shared by all rows); cap OD **MEASURE** |
+| Stopper | d9.25 x 6.5, rear face 0.8 inside the barrel at FULL | ESTIMATE, **MEASURE** |
+| Cartridge seat | 2 U cradles (x +3 / +18 from the cartridge rear), bore 11.55 (+0.3 per side); axis y 7.8, z 7.8; cartridge x 33.0-66.5, neck to 71.8 | FDM fit, coupon 11.0-11.8 |
+| Receiver (adapter seat), lane-1 collar | x 66.3-72.8, bore 12.9 x 5.5 deep from the front face, lug groove r 7.5 in +-55 deg sectors around +-Y, entry channels at -45 / 135 deg, lock at 45 / 225 deg (90 deg turn) | ESTIMATE (manual: bayonet, clockwise to the stop, 90 / 120 deg marks); coupons 12.6 / 12.9 / 13.2 |
+| Insight adapter (A) | nose d12.4 x 5.5, lugs 2 x (1.6 wide, 0.8 high, 1.2 long, 2.2 behind the seat face), body d14 x 6.5 outside | ESTIMATE, **MEASURE** |
+| Needle cap (B, printed) | same nose + lugs as A; cap pocket d8.1 to the crimp cap face; needle hole d0.7; hub seat d4.65 x 0.8; body d14, ends at x 82.1 | ours; hub numbers ESTIMATE |
+| Needle + hub (B, bought) | 27G 0.40 x 12 mm (B. Braun Sterican type), tip 2.5 past the cap face; hub nose d4.4 x 3, body d7.6, hub length 11 | ESTIMATE, **MEASURE** |
+| Piston rod | M2 x 0.4 DIN 975, x 1.4-32.6 at FULL (31.2 long), travels 23.8 | catalogue |
+| Gear nut / pinion | m0.3 z40 (tip d12.6, face 2.0, x 29.2-31.2) with M2 nut AF 4.0 x 1.6 bonded; pinion m0.3 z12 (tip d4.2) on the motor shaft; centre distance 7.8 | catalogue (listings in BUY-LIST §7) |
+| Ribs | rear x 28.0-29.0, front x 31.4-32.4, U slots 2.5 wide open to the top (drop-in drive), lid ribs cap them | ours |
+| Slider / channel | 3.2 x 3.2 x 2.5 in a 3.6 wide U channel x 1.2-28.0 | ours (FDM +0.2) |
+| Pusher | d9.0 x 1.2, rod pocket d2 x 0.9 | ours |
+| Motor | NFP-608-26.45: can d6, x 11.5-29.1 (tail, motor, gearhead, boss), axis y 15.6 / z 7.8, two snap saddles | datasheet (VERIFIED in `params.json` drive_presets) |
+| Angle sensor | magnet d2 x 1 on the pinion face, TMAG5273 strip x 32.7-34.8 | as cup pod |
+| **Board (new outline, same chip set)** | **60.0 x 10.6 x 0.8**, x 6.0-66.0, y 14.55-25.15, pcb z 12.1-12.9, top parts <= 1.45, bottom parts <= 1.2 (over the motor and cell); 3 posts from the floor + 1 lid rib | outline = this CAD; 1.42x the cup board area, so 4 layers may route (VERIFY in KiCad) |
+| Cell | Ampul 301030 envelope 31.5 x 10.6 x 3.2, x 28.9-60.4 on the floor, under the pinion / strip and the board | VERIFY on the sample (owner has it) |
+| USB-C | mid-mount 8.94 x 7.35 x 3.26 on the board north edge, centre x 50.0, z 12.5; wall opening 9.4 x 3.4 | as cup board part |
+| Button | sealed cap in the +Y wall at x 60.5, z 11.45 (side switch on the board underside, actuator +Y): hole d2.5, outside recess d5.3 x 0.8; cap = head d5.0 (+0.3 dome), stem d2.4, barb d3.2 x 0.5 | ours; print TPU 95A or cast silicone A40 |
+| Adapter-lock hall | DRV5032 at x 70.4-71.5, y 16.7 (pigtail), magnet d1 x 0.5 on a clip-on flag at r 8.9 | VERIFY |
+| Lid screws | 3 x M2 x 8 from the UNDERSIDE (flush counterbores d4.1 x 1.0), into d1.6 pilots of lid bosses d3.6: (3.8, W-3.8), (L-3.8, W-3.8), (14.0, 3.05) | ours |
+| Shell | walls 1.2, vertical corners R4.0, top and bottom edges R1.0, flat 0.5 silicone gasket on the split z 14.4, flat lid 1.2 | ours |
 
-## Adapter receiver and lock detection
-* Bore d12.6 for the adapter nose (5.5 deep), two axial entry channels at -45 / 135 deg, lug groove over the 90 deg turn to the lock position 45 / 225 deg, all ESTIMATE (`cart.receiver`, `cart.adapter`). The manual describes a clockwise turn to a stop, flush with the housing, with 90 and 120 deg marks: measure and set `entry_deg` / `lock_deg`. Expect to print a **receiver fit coupon** first (only the collar, 4-6 variants of bore and groove), like the dock coupon of the cup pod: follow-up.
-* The adapter carries the forward thrust of the cartridge and presses the cap against its own nose; we do not modify the adapter. Its needle pierces the septum when it is seated; the alignment comes from the nose in the bore (manual: the needle must meet the septum centrally and perpendicularly).
-* **Adapter locked = the existing DOCKED input.** A printed clip-on flag on the adapter body carries a d1 x 0.5 magnet; a DRV5032 just inside the front wall (x 73.7-74.8, y 15.95, on a 3-wire pigtail to the board's dock-hall pads, VERIFY whether the board's own DRV5032 can see it instead) reads it in the locked position only. The interlock stays as it is: **motor supply = MCU_EN AND watchdog latch AND supervisor permit AND (LOCKED XOR DIR_REVERSE)**: forward only with the adapter locked, rod retraction (cartridge change) only with the adapter off, TPS2553 over-current clears the latch (`electronics/v010/INTERLOCK.md`).
+## Drive (unchanged principle)
+Gear nut fixed axially between two ribs, M2 rod translating, anti-rotation slider; the rod stays behind the stopper (never wet). U/step 0.4 / (20 x 26.45 x 40/12) x 67.2 = **0.00152 U**. Thrust estimate 33 N vs need 18.1 N (8 N stopper ESTIMATE + 150 kPa) = 1.83x; stall about 490 kPa (Insight max 350), so firmware occlusion detection (angle shortfall) must act well before stall.
+**Motor choice (owner: free choice, cheap):** the comparison is in BUY-LIST §7b. Summary: the NFP-608 + 3.33:1 spur stage has the lowest and most bounded stall force; a 10 mm geared stepper (GM12-10BY, 1:20-1:30, about 9 EUR delivered) is cheaper and would drive the M2 rod almost directly, but its holding torque is about 4x its pull-out torque (90-140 N on the rod when blocked) and it needs firmware stall detection and a reduced coil voltage; DC gearmotors with encoders are rejected (stall force unbounded with the DRV8838). Kept: NFP-608 in the fit print (dummy).
 
-## Electronics reuse
-Same board, same parts and nets: HJ-840 nRF52840, STM32C011 supervisor, TPL5010 watchdog latch, TPS2553 load switch, TPS61023 boost, 2 x DRV8838, MCP73832 charger, USB-C (DFU + charging), RGB LED, side button (lid flex window at x 58.6 on the +Y wall: not modelled yet), sounder, TMAG5273 on its strip. Only the housing interface differs: board supported by 3 floor ledges (part-free d1.6 pads) and 1 lid rib; the two M1.2 board screws of the cup pod are not modelled yet (open item). Antenna end (east) faces the plastic collar, no metal within 0.3 mm.
+## Interlock / electronics
+Same chip set and interlock as the cup board: motor supply = MCU_EN AND watchdog latch (TPL5010) AND supervisor permit AND (ADAPTER LOCKED XOR DIR_REVERSE); the cup board's dock hall becomes the adapter-lock hall on a pigtail; TPS2553 over-current clears the latch. New board outline only (`electronics/` follow-up: route a 60 x 10.6 board, 4 layers if possible).
 
-## Assembly (bench)
-1. Bond the M2 brass nut into the z40 gear hex pocket (CA); press the z12 pinion on the NFP shaft (Loctite 648); bond the angle magnet on the pinion face.
-2. Screw the M2 rod through the gear nut, bond the slider on its rear end and the pusher disc on its front end.
-3. Snap the motor into its two saddles, drop the rod / gear subassembly with both washers into the rib slots (slider into the U channel); check the mesh by hand.
-4. Fit the cell, solder motor and cell wires to the board pads (spec §1a exception), lay the board on its ledges, TMAG strip and lock hall in place, lid with gasket, screws.
-5. Cartridge change (water only): adapter off -> firmware retracts the rod (reverse allowed only without the adapter) -> empty cartridge out of the front bore -> new cartridge filled with water, stopper first -> adapter on, turn to the stop -> firmware advances until the pusher touches the stopper (current / angle shortfall) -> prime into the container.
+## Fit print (tomorrow): what to print and how
+Files: `out/v010-cart/coupons/`, `out/v010-cart/A/print/`, `out/v010-cart/B/print/` (every STL laid flat and moved to the origin; sizes in `print_kit.json`).
+1. **Coupons first** (PLA/PETG, 0.2 layer, 15 min): `coupon_cartridge_bore_ladder.stl` (holes 11.0 / 11.2 / 11.4 / 11.6 / 11.8, notch count 1-5 from small to large): the cartridge must slide in with a light touch; `coupon_receiver_bore_12.6/12.9/13.2.stl` (notches 1-3): the Insight adapter nose must enter, turn about 90 deg clockwise to the stop and sit firm. Enter the winners: `cart.cradle_clr = (hole - OD) / 2`, `cart.receiver.bore_d`, then regenerate.
+2. **Housing** (PETG preferred, 0.4 nozzle, 0.15-0.2 layer, 3 perimeters, 20 % infill): `print_bottom.stl` floor on the bed (supports only under the USB-C / button openings if your slicer asks); `print_lid.stl` outer face on the bed, bosses up.
+3. **Small parts**: `print_slider`, `print_pusher` (0.1 layer), `print_lock_flag`, `print_button_tpu` (TPU 95A, head down), variant B `print_b_cap` (nose down, 0.1 layer, PETG).
+4. **Dummies** (any material): `dummy_board` (60.0 x 10.6 board + part envelope + USB-C block), `dummy_cell`, `dummy_motor`, `dummy_gear`, `dummy_pinion`, `dummy_cartridge` (use the real cartridge if you have it).
+Tolerances built in: +0.3 per side on the cartridge cradle, +0.25 on the lug groove and entry channels, +0.2 on the slider channel, +0.05 on the motor saddles (snap), +0.3 on the button recess, 0.2 gap on the lid bosses. If your printer runs tight, scale nothing: change `cart.cradle_clr` / `cart.receiver.lug_clr` and regenerate.
+**Fit checklist:** cartridge slides into the cradles and out through the front bore; adapter (A) or B cap enters, turns to the stop, holds the cartridge without axial play and the needle meets the septum centrally (look through the bore before turning); Insight Flex / Luer set connects at the tubing end; rod + gear + washers drop into the rib slots and the slider runs in its channel over the full stroke; motor dummy snaps into its saddles; cell dummy fits under the TMAG strip; board dummy lies on its 3 posts with the USB-C block in the wall opening; button cap snaps in flush; lid closes on the gasket with 3 screws from below and nothing on top. Note every misfit with the part name and a caliper value.
 
-## Checks (`cart_check.py`, all PASS 2026-11-24)
-No interference at FULL and at EMPTY (moving parts copied at the end of stroke; a negative test with `--set cart.travel_margin=-1.0` fails as it should), housing closed, height below the Insight (19) and length / width below it, stroke <= available travel, rod engaged in the nut over the whole stroke, slider inside its channel, rod / pusher never in the wet volume, gear centre distance = m (z1 + z2) / 2, pinion tip clear of the rod, gear tip clear of the floor, thrust >= 1.5x need, board envelope identical to `cup.board`, all exports present.
-Not checked / not modelled: gear teeth (envelopes only, the pair is an EXCLUDE pair), board screws, button window, vent, wire paths, tolerance stack of the bayonet.
+## Checks (`cart_check.py`, A and B PASS 2026-11-24)
+No interference at FULL and EMPTY (moving parts copied to the end of stroke; a negative test fails as it should), housing closed, height / length / width below the Insight (B: with its cap; the hub + Luer collar is reported), stroke <= available travel, rod engaged over the whole stroke, slider in its channel, rod never wet, gear centre distance and clearances, thrust >= 1.5x, board outline >= the cup board area, all exports present.
 
 ## Open items
-1. **Measure a sample** (see `../docs/insight-research.md`): cartridge OD / ID / length / neck / cap / stopper; adapter nose, lugs, rotation angle, needle; stopper breakaway and glide force with water. Update `params.json -> cart`, regenerate, re-check.
-2. Confirm that an empty YpsoPump Reservoir fits and seals with the Insight adapter (1 bar water hold); otherwise find an empty Insight-format cartridge.
-3. Receiver fit coupon (collar only, variant set), then freeze `cart.receiver`.
-4. Board screws (2 x M1.2 as in the cup pod) and the side-button flex window in the +Y lid wall; vent with ePTFE.
-5. Firmware drive preset for the cart (U/step 0.00168, bore 73.9 mm2), "find the stopper" routine after each cartridge change, occlusion threshold well below the 447 kPa stall pressure.
-6. Patent: US9205190B2 (Roche, active to about 2029) describes a gear wheel threaded on a piston rod; read claim 1 before any publication of hardware beyond this bench study (`../docs/insight-research.md` §6).
-7. Optional size reduction: a telescopic rod would cut about 15 mm of length; a new board outline over the tail zone could cut the width to about 19 mm. Both cost the "reuse unchanged" simplicity and are not pursued now.
+1. Measure cartridge, stopper, adapter and needle hub (list in `../docs/insight-research.md`), enter in `params.json -> cart`, regenerate.
+2. B: check the FlexLink Luer gender against the needle hub (female) and whether a FlexLink head can be replaced by an Insight Flex head (the owner wants an Insight Flex cannula at the site end for both variants).
+3. Route the new 60 x 10.6 board (same chip set, 4 layers if possible), then the order package (BUY-LIST §7, JLC files, cost per pump).
+4. Motor decision (BUY-LIST §7b), firmware drive preset (U/step 0.00152).
+5. Telescopic screw if the length must drop below about 70 mm.
+6. Patent: US9205190B2 (gear wheel threaded on a piston rod, Roche, active to about 2029): read claim 1 before publishing hardware.

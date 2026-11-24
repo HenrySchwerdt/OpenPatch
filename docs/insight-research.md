@@ -43,7 +43,7 @@ Purpose: mechanical reverse engineering for `mechanical/V010-CART.md` (a small b
 |---|---|---|---|
 | Motor | "brushless motor", safety component | VERIFIED | M p.101 |
 | Control | two microprocessors plus a supervisor processor; motor switched off on overdelivery (E7) | VERIFIED | M p.101 |
-| Piston rod | "piston rod" (EN) / "Gewindestange" = threaded rod (DE); rewinds automatically at each cartridge change | VERIFIED | M p.27, H |
+| Piston rod | "piston rod" (EN manual) / "threaded rod" (German handling sheet); rewinds automatically at each cartridge change | VERIFIED | M p.27, H |
 | Rod to stopper | the cartridge goes in stopper first; after the adapter is locked the pump "detects the position of the plunger" (sensing method not public) | VERIFIED behaviour | A step 4 |
 | Telescopic rod, gear ratio, lead, encoder, occlusion sensing method | not public; no teardown found | must be measured / unknown | - |
 
@@ -59,7 +59,7 @@ Purpose: mechanical reverse engineering for `mechanical/V010-CART.md` (a small b
 | Label feature | white band at the plunger end; the stopper must not be past it | VERIFIED | H |
 | Empty self-fill Insight cartridge | offered in pump versions 1.0-2.1 ("prefilled / self-filled"); version 3.0 (Dec 2018) shows only "1.6 ml" | VERIFIED table; ESTIMATE that self-fill was discontinued | V |
 | **OD, length, ID, stopper size, neck, crimp cap, wall** | **not published** by Roche or Novo Nordisk | **must measure** | - |
-| CAD placeholder (Penfill-class glass) | OD 11.6, ID 9.7, barrel 36, neck 7.2 x 4.5, cap 7.8 x 3.0, stopper 9.7 x 6.0 | ESTIMATE | `params.json -> cart.cartridge` |
+| CAD values (since 2026-11-24, see §7) | ISO 13926-1 1.6 ml row: OD 10.95, ID 9.25; neck 5.5, collar 7.15, h1 5.0; cap 7.8 x 3.2, barrel 33.5, stopper 9.25 x 6.5 | ISO rows VERIFIED, mapping to the Insight cartridge ESTIMATE | `params.json -> cart.cartridge` |
 
 **Empty cartridges for the bench:** no current Roche REF/PZN for an empty Insight cartridge was found (price list P, UK order page). The practical bench source is the **mylife YpsoPump Reservoir 1.6 ml** (empty glass self-fill cartridge of the same 1.6 ml class, PZN 11160770, 10 per pack, about 50-61 EUR: ESTIMATE from search excerpts). Whether it fits and seals with the Insight adapter is **UNVERIFIED**. Do not buy NovoRapid PumpCart: it is a prescription drug and this project is water only.
 
@@ -112,3 +112,42 @@ Enter the values in `mechanical/params.json -> cart.cartridge / cart.adapter / c
 | Accu-Chek Insight Adapter & Tubing 70 cm (alternative) | 06485499001 / 15379353 | https://www.docmorris.de/accuchek-insight-adapter-schlauch-70-cm/15379353 | 48.45 EUR RRP | |
 | mylife YpsoPump Reservoir 1.6 ml, 10 pcs (empty glass) | PZN 11160770 | https://www.docmorris.de/mylife-ypsopump-reservoir/11160770 | about 50-61 EUR (ESTIMATE) | fit with the Insight adapter UNVERIFIED |
 | Insight Flex head sets 6 mm (optional) | PZN 08459755 | https://www.docmorris.de/accu-chek-insight-flex-6-mm/08459755 | 80.10 EUR list | only for a connector fit test; not needed for the container bench |
+
+## 7. Update 2026-11-24 (second research pass): cartridge standard, adapter internals, Flex / FlexLink, variant B
+
+### 7.1 The cartridge is an ISO 13926-1 pen cartridge format
+SCHOTT TopLine (https://media.schott.com/api/public/content/52830d43591e4e929f12dfc14687786a) and StandardLine (https://media.schott.com/api/public/content/79cef30f8ec1439da113d780a4a059bc) cartridge sheets, "formats according to pen ISO 13926-1", crimp neck finish (table read, VERIFIED):
+| Parameter | 1.5 ml ISO | **1.6 ml ISO** | 3.0 ml ISO (Penfill class) | 3.0 ml slim |
+|---|---|---|---|---|
+| barrel OD d1 | 8.65 | **10.95** | 11.6 | 10.85 +-0.1 |
+| barrel ID d2 | 6.85 | **9.25** | 9.7 | 8.65 +-0.09 |
+| d3 min | 6.55 | 8.95 | 9.35 | 8.35 |
+Neck, shared by all ISO rows 8.65-11.6 OD (VERIFIED): collar d4 **7.15 +-0.2**, neck d5 **5.5 +-0.25**, neck bore d6 3.15 +-0.2, neck + collar h1 **5.0 +-0.2**, collar h2 **2.9 +-0.1**; overall length "agreed between manufacturer and customer" (drawing range 35-120).
+Crimp cap axial length "typically 2 mm to 3 mm" and cartridge volumes "about 1.5 ml or about 3 ml" (US9554967B2 text, VERIFIED). ISO 13926-1:2026 itself is paywalled (https://www.iso.org/standard/89250.html).
+**So the owner is right that it is a standard format with a standard neck.** Which row: the 1.6 ml ISO row (OD 10.95 / ID 9.25) is the best match by name and volume, but no source ties the PumpCart / YpsoPump Reservoir to it: ESTIMATE until measured (bracket 10.85-11.6 -> the fit coupon prints a bore ladder 11.0-11.8). With ID 9.25: 67.2 ul per mm, 1.6 ml = 23.8 mm stroke. Overall length incl. cap about 38-41 mm (derived: stopper 6.5 + stroke + shoulder + neck), ESTIMATE.
+
+### 7.2 How the Insight adapter attaches, pierces, seals and locks (US9554967B2 embodiment + IFU)
+| Item | Finding | Status |
+|---|---|---|
+| Coupling | bayonet into the cartridge-compartment socket; nose into the housing notches at 90 deg; clockwise to the stop (90 / 120 deg marks), flush with the housing; removal anticlockwise | VERIFIED (IFU A) |
+| Piercing | needle in the centre of the nose; must meet the septum centrally and perpendicularly, else it bends | VERIFIED (IFU A) |
+| Sealing / preload | O-ring 230 presses on the crimp cap and loads the cartridge axially; O-ring 235 seals the adapter to the housing; optional O-ring 240 separates septum and vent | VERIFIED as a patent embodiment (https://patents.google.com/patent/US9554967B2/en) |
+| Vent | hydrophobic ring membrane on the cap face, vent channel 220 bypasses the O-rings | VERIFIED as an embodiment |
+| Keying / anti-rotation | ribs on the cap / alignment part engage the adapter guide 215; alignment members 3 x 120 deg or 4 x 90 deg | VERIFIED as an embodiment |
+| Lug count, lug size, needle gauge, any dimension | not stated anywhere | MEASURE |
+Envelope ESTIMATE (used in the CAD): nose d12.4 x 5.5 (it must pass a cartridge of about 11 mm through the same opening), 2 lugs 1.6 x 0.8, body d14, about 6.5-12 outside the housing (84 - 72).
+
+### 7.3 Insight Flex at the site end, FlexLink with Luer
+| Item | Value | Status |
+|---|---|---|
+| Insight Flex head sets without tubing | PZN 08459755 / 08459761 / 08459778 (6 / 8 / 10 mm), 10 pcs, 80.10 EUR list | VERIFIED (price list P) |
+| Tubings that fit the Insight Flex head | all Insight Adapter & Tubing (Flex, Tender, Rapid share one coupling) | VERIFIED (TLV 602/2015) |
+| Tubing ID | about 0.41 mm (from 40 ul per 30 cm); OD not published (about 1.6-1.8) | ESTIMATE |
+| Accu-Chek FlexLink (Combo) | head set + transfer set with a **Luer-lock connector (J) at the pump end**, side-wing connector at the site end; 8/30 PZN 01022469, 6/30 09517087, 10/30 01022506, 10 heads + 10 tubings, 117.60 EUR list / 152.10 RRP | VERIFIED (FlexLink IFU https://www.accu-chek.co.uk/document/accu-chek-flexlink-instructions-use/download, price list P) |
+| FlexLink head == Insight Flex head? | **UNVERIFIED**: DE lists FlexLink with LinkAssist, Insight Flex with LinkAssist Plus (different heads?); a UK chart pairs "FlexLink Plus / Insight Flex" (probably the same head, ESTIMATE); FlexLink Plus is not in the DE price list | open |
+
+### 7.4 Variant B (Insight cartridge + cheapest established alternative to the Insight adapter)
+* **mylife YpsoPump Orbit sets**: the YpsoPump uses the same 1.6 ml cartridge class (IFU: self-filled 1.6 ml reservoir or NovoRapid PumpCart; https://a.storyblok.com/f/287658439214273/x/7a73cd2966/ypu_eifu_ref_700009424_uk-en_v02.pdf, VERIFIED); its Orbit adaptor sits on the cartridge and turns clockwise to a click / stop in the **YpsoPump housing** (geometry not public), site end = Orbit 360 deg base (not Insight Flex), 110-155 EUR per box (medpex / DocMorris excerpts). Rejected: proprietary on both ends, dearer.
+* **Cartridge-to-Luer adapters**: no established commercial product found (InsuJet's cartridge adaptor fits only its own system).
+* **Chosen B chain**: our printed bayonet cap centres a standard Luer-lock hypodermic needle (27G 0.40 x 12 mm, female Luer hub) on the septum axis and preloads the crimp cap like O-ring 230 -> the hub takes the Luer-lock pump end of an **Accu-Chek FlexLink** transfer set -> FlexLink head (or, if 7.3 is confirmed on the bench, an Insight Flex head). Gender check: the hypodermic hub is female; if the FlexLink pump end is also female, add a male-male Luer-lock coupler (lab part).
+* Bench only, into a container, water only.
