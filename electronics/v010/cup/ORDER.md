@@ -2,14 +2,14 @@
 
 # ORDER: JLCPCB 6-layer + PCBA for the CUP board (5 boards, all parts JLC-stocked, no consignment)
 
-**Nothing was ordered. STOP before paying: one blocker left.**
+**Nothing was ordered. No blocker left in the design (2026-11-24); the checks below are done on the JLC quote page before paying.**
 
-1. ~~The board is not fully routed.~~ Done 2026-11-22: fully routed, DRC 0 errors and 0 unconnected on both variants (`ROUTING-GUIDE.md`).
-2. **DRV8835DSSR (C129328) has JLC stock 0** (checked again 2026-11-22). Options: JLC global sourcing / pre-order of C129328 for U7 (no board change, longer lead time), or a replacement (2 x DRV8837DSGR C39159, or DRV8833CRTER C701801: `PIN-CHECK.md`), which changes the driver footprint, the routing around U7 and the firmware pin map.
+1. Fully routed, DRC 0 errors and 0 unconnected on both variants (`ROUTING-GUIDE.md`).
+2. **Every BOM line is in JLC stock** (live check 2026-11-24, `jlc_stock_2026-11-24.json`). The motor driver is now **2 x DRV8838DSGR (C86667, U7A / U7B)** instead of the DRV8835 (stock 0); same PHASE/ENABLE logic (`../INTERLOCK.md` I.6b). Low stock: STM32C011F4U6 35, HJ-840 85: order 2-3 spares of each.
 
 **Two packages, one layout** (`variants.py`): `jlc/` = CLEAN (no interlock test pads), `jlc-dev/` = DEV (six bare 0.6 mm interlock test pads TPD1-TPD6 on the underside, `variants/TESTPOINTS.md`). Order one of them; the parts, BOM and CPL are the same.
 
-Files (all generated, `../tools/export_cup_jlc.py`, same set in `jlc-dev/`): `jlc/openpatch-cup-gerbers.zip` (Gerber X2 + Excellon, 6 copper layers, mask, paste, silk, edge), `jlc/BOM-jlcpcb.csv` (34 lines, 53 placements, LCSC numbers), `jlc/CPL-jlcpcb.csv` (rotation = KiCad rotation minus the offset between our footprint and the official LCSC footprint, `jlc_rot_offsets.json`), `jlc/NOT-ASSEMBLED.csv` (bare pads, wire pads, DNP match capacitors).
+Files (all generated, `../tools/export_cup_jlc.py`, same set in `jlc-dev/`): `jlc/openpatch-cup-gerbers.zip` (Gerber X2 + Excellon, 6 copper layers, mask, paste, silk, edge), `jlc/BOM-jlcpcb.csv` (34 lines, 56 placements, LCSC numbers), `jlc/CPL-jlcpcb.csv` (rotation = KiCad rotation minus the offset between our footprint and the official LCSC footprint, `jlc_rot_offsets.json`), `jlc/NOT-ASSEMBLED.csv` (bare pads, wire pads, DNP match capacitors).
 
 ## PCB options (JLCPCB quote page)
 
@@ -33,7 +33,7 @@ Files (all generated, `../tools/export_cup_jlc.py`, same set in `jlc-dev/`): `jl
 
 ## Checks before paying (JLC 3D preview / DFM)
 
-1. **Pin 1 / polarity of every IC, the LED, the diode and the sounder** in the 3D preview. CPL rotations were derived from pad geometry (our footprint vs the official LCSC footprint): HJ-840, USB-C, STM32, SOT-23-x, SC-70-5, DFN-6, VSSOP-8, WSON-12, X2SON. **Bottom-side parts are the usual trap** (BZ1, U4A DRV5032, C19, RDK, RI1 and others): KiCad reports the bottom rotation in the board frame and JLC mirrors it; check at least U4A and BZ1 in the preview and flip the CPL rotation by 180 degrees if they are wrong.
+1. **Pin 1 / polarity of every IC, the LED, the diode and the sounder** in the 3D preview. CPL rotations were derived from pad geometry (our footprint vs the official LCSC footprint): HJ-840, USB-C, STM32, SOT-23-x, SC-70-5, DFN-6, VSSOP-8, WSON-12, X2SON. **Bottom-side parts are the usual trap** (BZ1, U4A DRV5032, C19, RDK, RI1 and others): KiCad reports the bottom rotation in the board frame and JLC mirrors it; check at least U4A, BZ1 and the two drivers U7A / U7B (pin 1 = VM) in the preview and flip the CPL rotation by 180 degrees if they are wrong.
 2. **USB-C** TYPE-C-31-M-14: the connector sits in a 9.4 x 6.7 mm notch; the body must be placed from the top with the pads facing the board (a "sink-board" part). Check the 3D preview: the shell tabs go into the 4 plated slots, the two peg holes d0.6 take the plastic pegs.
 3. **HJ-840** antenna: the keep-out (x 42.0-43.3, all layers) is the previous estimate; the module manual has no antenna dimensions. The sounder and its pads sit 2.6 mm from the antenna end: **bench RSSI test** (`PIN-CHECK.md`).
 4. **Gerber check**: open the zip in a Gerber viewer: USB notch, tab with the screw hole at the west edge, SW1 near the north edge, no copper in the antenna area.

@@ -1,12 +1,17 @@
 # Project status & handover
 
 > This file is the **entry point for every new session** (another machine, another Claude subscription, another person).
-> It is updated on every push. Last updated: **2026-11-22 (cup board fully routed, DRC 0)**.
+> It is updated on every push. Last updated: **2026-11-24 (motor driver swapped to 2 x DRV8838, every part in JLC stock)**.
+
+## Every part in JLC stock: 2 x DRV8838 instead of the DRV8835 (2026-11-24, owner decision, electronics)
+- Owner: everything we use must be in JLC stock. Live check of all 34 BOM lines: only DRV8835DSSR (C129328) was at 0. Replaced by **2 x DRV8838DSGR (C86667, stock 1457)**: same PHASE/ENABLE truth table (TI SLVSBA4F rev F), so nets, firmware pin map, phase sequence and supervisor counting are unchanged (firmware: comments only, tests green). U7A coil A, U7B coil B, nSLEEP and VCC on 3V3, C20 / C62 added (`electronics/v010/INTERLOCK.md` I.6b, FMEA FM6-U7-3).
+- Board re-routed around the drivers: **0 DRC errors, 0 unconnected** on master and both variants; JLC packages `jlc/` and `jlc-dev/` regenerated (56 placements, 34 lines, 22 extended); `COST.md` from a new live snapshot: parts 17.2 USD per board, order of 5 about 300 EUR delivered. SPICE re-run: case 4 still PASS (0.184 A per coil).
+- Order blockers: none in the design. Low stock: STM32C011 35, HJ-840 85 (order spares). Still to check on the quote page: fees for filled vias in pads and 0.15 mm drills; bottom-side rotations in the 3D preview (U4A, BZ1, U7A, U7B).
 
 ## Cup board fully routed, DRC 0 (2026-11-22, electronics)
 - `electronics/v010/cup/cup.kicad_pcb` is routed on the 2 mm deeper outline (`cupgeom.py` Y1 = 35.5, placement shifted +2.0 for every part north of by 8.55): **0 DRC errors, 0 unconnected** on the master and on both variants (`variants/cup_clean.kicad_pcb`, `variants/cup_dev.kicad_pcb`). Flow and the hand fixes: `cup/ROUTING-GUIDE.md` (negotiation 100 iterations, greedy rip-up with rollback in `rr_route.py --greedy`, then 0.05 mm hand fixes, a filled via in U36 pad 2, solid zone connection for 7 starved GND pads).
 - Pad labels A+ / A- / B+ / B- / + / - no longer overlap (`silk_labels.py`); the DEV test pads keep 0.21 mm from foreign drills (`variants.py`).
-- JLC packages regenerated: `jlc/` (CLEAN) and `jlc-dev/` (DEV); `ORDER.md`, `COST.md` updated. **Only blocker left: DRV8835DSSR (C129328) JLC stock 0** (global sourcing, or a replacement driver that changes the board around U7 and the firmware pin map). The board uses filled vias in pads (POFV, 71) and 0.15 mm via drills: check the JLC quote page for fees.
+- JLC packages regenerated: `jlc/` (CLEAN) and `jlc-dev/` (DEV); `ORDER.md`, `COST.md` updated. (The DRV8835 stock blocker was resolved on 2026-11-24, see above.) The board uses filled vias in pads (POFV, 71) and 0.15 mm via drills: check the JLC quote page for fees.
 - Open: print-kit board model (`print_model.py`), stale button x values in `ASSEMBLY-CUP.md`, two mechanics PNGs.
 
 ## Cup pod 2 mm wider for board routing (2026-11-22, owner decision, mechanics)

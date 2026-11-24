@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Parts cost of the CUP board from cup/jlc_stock_2026-11-20.json (live JLC parts API snapshot) and cup/jlc/BOM-jlcpcb.csv.  usage: python3 cost_cup.py [boards=5]
+"""Parts cost of the CUP board from the newest cup/jlc_stock_<date>.json (live JLC parts API snapshot) and cup/jlc/BOM-jlcpcb.csv.  usage: python3 cost_cup.py [boards=5]
 Prints a markdown table (used for cup/COST.md): per-line quantity, tier unit price, stock, basic/extended, and the totals."""
 import csv
 import json
@@ -9,7 +9,9 @@ import sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 CUP = os.path.join(HERE, "..", "cup")
 N = int(sys.argv[1]) if len(sys.argv) > 1 else 5
-stock = json.load(open(os.path.join(CUP, "jlc_stock_2026-11-20.json")))
+import glob
+SNAP = sorted(glob.glob(os.path.join(CUP, "jlc_stock_*.json")))[-1]      # newest live snapshot
+stock = json.load(open(SNAP))
 rows = list(csv.DictReader(open(os.path.join(CUP, "jlc", "BOM-jlcpcb.csv"))))
 tot, ext, basic, lines = 0.0, 0, 0, []
 for r in rows:

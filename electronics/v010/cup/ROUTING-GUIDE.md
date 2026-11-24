@@ -4,9 +4,11 @@
 
 ## STATE 2026-11-22: fully routed, DRC 0 (board widened by 2 mm)
 
+**Update 2026-11-24 (driver swap, `../INTERLOCK.md` I.6b):** U7 (DRV8835) replaced by U7A / U7B (DRV8838) plus C20 / C62 on the underside. Re-route without a full run: the new placed board (`build_cup.py`, `OP_BUS=0`) got all tracks and vias of the routed board except a 6.4 x 6.3 mm window around the drivers; `finish_route.py` + `rr_route.py --greedy` closed all but `BPHASE` / `BENBL` at U7B; those got two escape vias west of U7B pins 5 / 6 after a 3V3 track that wrapped round U7B was ripped up and re-routed. Hand fixes: GND via through C21 pad 2 / R82 pad 2 (an underside GND island) after a 0.35 mm I2C_SDA detour on In3; solid zone connection also on U7A / U7B pad 9. Result: 0 errors, 0 unconnected on the master and both variants, 56 placements.
+
 **Board:** `cup/cup.kicad_pcb` (routed master), `variants/cup_clean.kicad_pcb` and `variants/cup_dev.kicad_pcb` (the master plus the six DEV interlock test pads on the underside, `variants/TESTPOINTS.md`). 6 layers, 0.8 mm, outline 38.8 x 25.2 mm bounding box (the lane-2 part of the board is 2 mm deeper than before: `cupgeom.py` Y1 = 35.5), 69 footprints, 172 vias (71 of them filled vias in SMD pads, JLC POFV), min track / space 0.10 / 0.10 mm.
 
-**DRC (`drc.json`, `variants/drc_clean.json`, `variants/drc_dev.json`): 0 errors, 0 unconnected items** on all three boards. Remaining warnings (silk only): the USB-C body silk overhangs the board edge (4, connector sits in the notch by design) and the U7 pin-1 mark is clipped by the C61 mask opening on the underside (1).
+**DRC (`drc.json`, `variants/drc_clean.json`, `variants/drc_dev.json`): 0 errors, 0 unconnected items** on all three boards. Remaining warnings (silk only): the USB-C body silk overhangs the board edge (4, the connector sits in the notch by design); on DEV one test pad clips a part outline on the underside silk (1).
 
 **How it was routed (reproducible up to the last hand fixes, which live in the committed board):**
 1. `build_cup.py` with `OP_BUS=0` (no bus trunks) -> placed board.
