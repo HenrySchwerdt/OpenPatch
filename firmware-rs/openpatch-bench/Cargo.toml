@@ -22,7 +22,8 @@ board-nrf52840-dk = []      # Nordic nRF52840-DK, no motor driver / interlock (d
 dir-forward-high = []             # R97 fitted instead of R96: forward = DIR high (DIR_FORWARD_HIGH = true)
 
 # ---- drive calibration preset (exactly one, no default; stored on first boot, compared at every boot) ----
-drive-nfp-608-26-45-cup-miter-1-1 = []   # PRIMARY (scripts/build.sh default), v0.1.0 cup pod: NFP-608-26.45 -> miter z16:z16 (1:1) -> M1.6 rod into a cup plunger, bore 20.5 x 5.5, 0.00703 U/step (id 0x26); NO check valve: suction draw refused, assisted pressure fill only
+drive-nfp-608-26-45-cup59-miter-1-1 = []   # PRIMARY (scripts/build.sh default), v0.1.0 cup pod, current CAD (mechanics 2026-11-24): NFP-608-26.45 -> miter z12:z12 (1:1) -> M1.6 rod into a cup plunger, bore 20.5 x 5.9, 0.007508 U/step (id 0x27); NO check valve: suction draw refused, assisted pressure fill only
+drive-nfp-608-26-45-cup-miter-1-1 = []     # v0.1.0 cup pod with the PREVIOUS 20.5 x 5.5 tank only: same drive, 0.00703 U/step (id 0x26); never on a 5.9 tank (-6.4 % per step); NO check valve
 drive-nfp-608-26-45-g16-20 = []   # bench variant (previous primary): NFP-608-26.45 + GHW 16T -> 20T step-down pair, ratio 33.0625, 0.003949 U/step (id 0x25)
 drive-nfp-608-26-45-g15-12 = []   # option, NOT the current CAD: NFP-608-26.45, gear pair 15T -> 12T, ratio 21.16 (id 0x24)
 drive-nfp-608-26-45-g1-1 = []     # option, NOT the current CAD: NFP-608-26.45 coaxial (id 0x20)

@@ -1,7 +1,8 @@
 //! v0.1.0 "cup" drive: NFP-608-26.45 (20 steps/rev, 26.45) -> miter pair z16:z16 (1:1) -> M1.6 x 0.35 rod rotating into a
 //! cup plunger in a stadium bore 20.5 x 5.5 mm (`mechanical/out/v010-cup/*.mech.json`: bore_w 20.5, bore_area 106.258 mm^2,
 //! u_per_step 0.0070303; V010-CUP.md still quotes 20.3, the regenerated CAD data says 20.5). TEST PROJECT: water only.
-//! There is no check valve: this pod must NEVER aspirate (FillMode::Draw is refused), only the assisted pressure fill exists.
+//! SUPERSEDED for new builds by preset 0x27 (bore 20.5 x 5.9, `preset_cup59.rs`) since the mechanics challenge-review pass
+//! 2026-11-24; 0x26 stays for pods built with the 5.5 tank. There is no check valve: this pod must NEVER aspirate (FillMode::Draw is refused), only the assisted pressure fill exists.
 mod common;
 use common::*;
 use openpatch_core::drive_cal::{DriveId, NFP_608_2645_CUP_MITER_1_1 as P, NFP_608_2645_G16_20, PRESETS};
@@ -147,7 +148,8 @@ fn cup_preset_keeps_the_assisted_pressure_fill() {
 #[test]
 fn other_presets_still_allow_the_draw_mode() {
     for p in PRESETS {
-        assert_eq!(p.allows_draw(), p.id != DriveId::Nfp608_26_45CupMiter1_1, "{:?}", p.id);
+        let cup = matches!(p.id, DriveId::Nfp608_26_45CupMiter1_1 | DriveId::Nfp608_26_45Cup59Miter1_1);
+        assert_eq!(p.allows_draw(), !cup, "{:?}: both cup bores (0x26, 0x27) have no check valve", p.id);
     }
 }
 

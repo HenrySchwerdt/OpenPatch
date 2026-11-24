@@ -7,7 +7,7 @@ Pins: `openpatch-bench/src/board/cup_v4.rs` is the single place (table in its he
 ```sh
 cd firmware-rs/openpatch-bench
 # pump application (BLE, protocol, safety task, persistence, DFU confirm) on the cup board
-cargo build --release --target-dir target/cup --no-default-features --features board-cup-v4,drive-nfp-608-26-45-cup-miter-1-1,angle-tmag
+cargo build --release --target-dir target/cup --no-default-features --features board-cup-v4,drive-nfp-608-26-45-cup59-miter-1-1,angle-tmag
 # bring-up binary
 cargo build --release --target thumbv7em-none-eabihf --no-default-features --features board-cup-v4 --bin cup_bringup
 ```

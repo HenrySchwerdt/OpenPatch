@@ -16,7 +16,10 @@
 //!   529/16): 661.25 steps/turn -> 2 088 800 / 529 uU = 3 948.6 uU/step (0.003949 U; the mechanical report
 //!   quotes 0.00395 / 0.003951 with a 74.63 mm^2 area). `gear_ratio_x100` is 3306 (33.0625 rounded to
 //!   0.01): it only feeds the angle plausibility check (0.0076 % off), the dose uses the exact rational.
-//! * `Nfp608_26_45CupMiter1_1` (**v0.1.0 cup pod**, default of `scripts/build.sh`): miter pair 1:1, stadium bore 20.5 x 5.5:
+//! * `Nfp608_26_45Cup59Miter1_1` (**v0.1.0 cup pod, current CAD**, default of `scripts/build.sh`, id 0x27): miter pair 1:1,
+//!   stadium bore 20.5 x 5.9 (challenge-review pass 2026-11-24): 897 624 525 / 119 554 uU = 7 508.1 uU/step (0.007508 U),
+//!   133 steps per U, derivation at the constant. No suction draw.
+//! * `Nfp608_26_45CupMiter1_1` (v0.1.0 cup pod, PREVIOUS bore 20.5 x 5.5, id 0x26, kept for pods built with that tank):
 //!   840 503 125 / 119 554 uU = 7 030.3 uU/step (0.00703 U), 142 steps per U, derivation at the constant. No suction draw.
 //! * `Nfp608_26_45G15_12` (purchased gear pair, 15 T on the motor, 12 T on the screw, effective ratio
 //!   26.45 x 12/15 = 21.16): 423.2 steps/turn -> 3 263 750 / 529 uU = 6 169.7 uU/step. NOT the pair in the
@@ -53,6 +56,9 @@ pub enum DriveId {
     /// v0.1.0 "cup" pod: NFP-608-26.45 -> miter bevel pair z16:z16 (1:1) -> M1.6 x 0.35 rod rotating into a cup plunger in a
     /// stadium bore 20.5 x 5.5 mm (106.26 mm^2). NO check valve: this pod never aspirates (`Preset::allows_draw` is false).
     Nfp608_26_45CupMiter1_1 = 0x26,
+    /// v0.1.0 "cup" pod after the challenge-review pass (mechanics 2026-11-24): the same drive as 0x26 but the stadium bore is
+    /// 20.5 x 5.9 mm (113.48 mm^2), +6.8 % per step. NO check valve: never aspirates (`Preset::allows_draw` is false).
+    Nfp608_26_45Cup59Miter1_1 = 0x27,
     /// Insulin BENCH RIG: NFP direct pushing a standard 1 ml U100 syringe plunger. The barrel area
     /// is an assumed 17.94 mm^2 (ID 4.78 mm): VERIFY against the measured barrel ID of the rig.
     SyringeRig1ml = 0x30,
@@ -76,7 +82,7 @@ pub struct Preset {
     pub uu_den: u32,
     /// Plunger face area of the reservoir in 0.01 mm^2 (the SAME area the `uu_num / uu_den` derivation uses, rounded to
     /// 0.01 mm^2): converts a plunger TRAVEL into a volume or a step count for THIS drive (lost motion / take-up).
-    /// 74.60 mm^2 (16 x 5 stadium, bench pods), 106.26 mm^2 (cup pod 20.5 x 5.5), 17.94 mm^2 (1 ml syringe rig).
+    /// 74.60 mm^2 (16 x 5 stadium, bench pods), 106.26 mm^2 (cup pod 20.5 x 5.5), 113.48 mm^2 (cup pod 20.5 x 5.9), 17.94 mm^2 (1 ml syringe rig).
     pub bore_area_x100: u32,
 }
 
@@ -97,11 +103,11 @@ impl Preset {
     }
 
     /// Whether the suction draw (`FillMode::Draw`: the motor retracts the plunger and the pod pulls fluid in by itself) is
-    /// allowed. The cup pod has no check valve between the tank and the needle: a suction draw could aspirate from the
+    /// allowed. The cup pod (both bores, 0x26 and 0x27) has no check valve between the tank and the needle: a suction draw could aspirate from the
     /// cannula side, so it is refused there. Only the assisted pressure fill (the user pushes, the motor retracts at a
     /// fixed rate) exists on that pod.
     pub const fn allows_draw(&self) -> bool {
-        !matches!(self.id, DriveId::Nfp608_26_45CupMiter1_1)
+        !matches!(self.id, DriveId::Nfp608_26_45CupMiter1_1 | DriveId::Nfp608_26_45Cup59Miter1_1)
     }
 
     pub const fn cal(&self) -> PulseCal {
@@ -123,7 +129,8 @@ pub const NFP_608_2645_G15_12: Preset =
 /// rounded as 3306); uU/step = 130 550 / 33.0625 = 130 550 * 16 / 529 = 2 088 800 / 529 (exact).
 pub const NFP_608_2645_G16_20: Preset =
     Preset { id: DriveId::Nfp608_26_45G16_20, steps_per_rev: 20, gear_ratio_x100: 3306, uu_num: 2_088_800, uu_den: 529, bore_area_x100: 7460 };
-/// v0.1.0 CUP POD (`mechanical/out/v010-cup/*.mech.json`: bore 20.5 x 5.5, bore_area 106.258 mm^2, u_per_step 0.0070303; the
+/// v0.1.0 CUP POD, PREVIOUS BORE (superseded by [`NFP_608_2645_CUP59_MITER_1_1`] since the challenge-review pass 2026-11-24;
+/// kept for pods built with the 5.5 tank: a pod must report the preset of the tank it really has). Bore 20.5 x 5.5, bore_area 106.258 mm^2, u_per_step 0.0070303; the
 /// V010-CUP.md table still says 20.3, the regenerated CAD data says 20.5). Miter pair 1:1 -> rod turns once per gearhead turn,
 /// so the ratio stays 26.45 (x100 = 2645, exact) and the angle check sees 20 x 26.45 = 529 steps per rod turn.
 /// Stadium area, exact rational: A = h (w - h) + pi (h/2)^2 with h = 5.5, w = 20.5, pi ~ 355/113 (rel. error 8.5e-8):
@@ -133,6 +140,15 @@ pub const NFP_608_2645_G16_20: Preset =
 /// (0.00703 U). Fits u32; `pulses_to_micro` widens to u64.
 pub const NFP_608_2645_CUP_MITER_1_1: Preset =
     Preset { id: DriveId::Nfp608_26_45CupMiter1_1, steps_per_rev: 20, gear_ratio_x100: 2645, uu_num: 840_503_125, uu_den: 119_554, bore_area_x100: 10626 };
+/// v0.1.0 CUP POD, CURRENT CAD (mechanics commit 7879e22, `mechanical/out/v010-cup/*.mech.json`: bore 20.5 x 5.9, bore_area
+/// 113.4797 mm^2, u_per_step 0.0075081). Same drive as 0x26 (miter 1:1, ratio 26.45, 529 steps per rod turn), only the bore changed.
+/// Stadium area, exact rational: A = h (w - h) + pi (h/2)^2 with h = 5.9, w = 20.5, pi ~ 355/113 (rel. error 8.5e-8):
+///   A = 86.14 + (355/113)(3481/400) = 5 129 283 / 45 200 mm^2 = 113.4797 mm^2 (CAD with exact pi: 113.4797, rel. 2e-8).
+/// uU/step = (0.35 / 529) x (5 129 283 / 45 200) x 1e5 = 35000 x 5 129 283 / (529 x 45 200) = 897 624 525 / 119 554 = 7 508.11 uU
+/// (0.007508 U, +6.8 % vs 0x26). Fits u32 (< 2^32); `pulses_to_micro` widens to u64. The CAD tank is 132.5 / 239.3 U, but the
+/// reservoir capacity stays the nominal `CAPACITY_100` / `CAPACITY_200` (a capacity is not part of a preset).
+pub const NFP_608_2645_CUP59_MITER_1_1: Preset =
+    Preset { id: DriveId::Nfp608_26_45Cup59Miter1_1, steps_per_rev: 20, gear_ratio_x100: 2645, uu_num: 897_624_525, uu_den: 119_554, bore_area_x100: 11348 };
 /// VERIFY: barrel area 17.94 mm^2 is an assumption (BD-class 1 ml U100, ID 4.78 mm) until the
 /// mechanics agent publishes the measured value. uU/step = 0.35 / 529 * 17.94 / 10 * 1e6.
 pub const SYRINGE_RIG_1ML: Preset =
@@ -156,6 +172,7 @@ pub const PRESETS: &[Preset] = &[
     NFP_608_2645_G15_12,
     NFP_608_2645_G16_20,
     NFP_608_2645_CUP_MITER_1_1,
+    NFP_608_2645_CUP59_MITER_1_1,
     SYRINGE_RIG_1ML,
     ZWBPD006006_6_43,
     ZWBPD006006_4_8,

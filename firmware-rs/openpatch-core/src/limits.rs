@@ -219,7 +219,7 @@ pub const LOST_MOTION_NUT_UM: u32 = 30;
 /// Total lost motion at a reversal as a plunger TRAVEL, micrometre ([`LOST_MOTION_SOCKET_UM`] + [`LOST_MOTION_NUT_UM`] =
 /// 0.33 mm). A travel, not a volume: the volume (and the step count) it stands for depends on the bore of the ACTIVE drive
 /// preset (`drive_cal::Preset::bore_area_x100`: 74.6 mm^2 = 2.46 U = 623 steps on the 16:20 bench pod, 106.26 mm^2 = 3.51 U
-/// = 494 steps on the cup pod); there is deliberately no global plunger area.
+/// = 499 steps on the 5.5 cup pod (0x26), 113.48 mm^2 = 3.74 U = 499 steps on the 5.9 cup pod (0x27)); there is deliberately no global plunger area.
 pub const LOST_MOTION_TOTAL_UM: u32 = LOST_MOTION_SOCKET_UM + LOST_MOTION_NUT_UM;
 /// Forward TRAVEL run BEFORE the first prime after a reversal (an assisted fill, or a draw where the preset allows it):
 /// after the reversal the first forward travel only takes up the free motion of the socket and the nut and the elasticity

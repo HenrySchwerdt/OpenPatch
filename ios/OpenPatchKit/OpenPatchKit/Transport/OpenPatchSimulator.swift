@@ -11,8 +11,8 @@ public final class OpenPatchSimulator {
     private var pairTransports: [PodRole: SimulatedTransport] = [:]
     private var pairTimers: [PodRole: DispatchSourceTimer] = [:]
     private let queue = DispatchQueue(label: "org.openpatch.simulator")
-    /// The simulated pod is the cup pod: assisted pressure fill only, 0.00703 U per step.
-    public static let simulatedDrive = DriveCalibration.nfp608_26_45_cupMiter1_1
+    /// The simulated pod is the cup pod (current CAD, bore 20.5 x 5.9, preset 0x27): assisted pressure fill only, 0.007508 U per step.
+    public static let simulatedDrive = DriveCalibration.nfp608_26_45_cup59Miter1_1
 
     public var pod: SimulatedPod? { queue.sync { transport?.pod } }
 

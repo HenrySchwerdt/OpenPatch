@@ -195,7 +195,7 @@ final class FirmwareParityTests: XCTestCase {
         let m = try XCTUnwrap(regex.firstMatch(in: source, range: NSRange(source.startIndex..., in: source)))
         let list = String(source[Range(m.range(at: 1), in: source)!])
         let forbidden = Set(list.components(separatedBy: "|").map { $0.trimmingCharacters(in: .whitespaces).replacingOccurrences(of: "DriveId::", with: "") }.compactMap { ids[$0] })
-        XCTAssertEqual(forbidden, [0x26])
+        XCTAssertEqual(forbidden, [0x26, 0x27], "both cup bores have no check valve")
         for drive in DriveCalibration.firmwarePresets {
             XCTAssertEqual(drive.allowsSuctionDraw, !forbidden.contains(Int(drive.driveID)), drive.presetName ?? "")
         }

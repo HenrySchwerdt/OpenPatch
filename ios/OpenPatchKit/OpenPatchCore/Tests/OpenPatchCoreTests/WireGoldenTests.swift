@@ -44,7 +44,7 @@ final class WireGoldenTests: XCTestCase {
     /// (a refused amount that is not a multiple of 0.05 U, an unknown sub-op): decode only.
     private func command(for name: String) throws -> Command? {
         if name.hasPrefix("get_status") || name == "replayed_get_status_is_dropped" { return .getStatus }
-        if name.hasPrefix("prime_71_steps") { return .prime }
+        if name.hasPrefix("prime_"), name.contains("_steps_try_") { return .prime }   // 0.5 U in steps of the preset (67 on 0x27)
         switch name {
         case "set_pairing": return .setPairing(pairID: pair, role: .a)
         case "assisted_fill_20u": return .assistedFill(pulses: 400)
@@ -156,7 +156,7 @@ final class WireGoldenTests: XCTestCase {
                 XCTAssertEqual(calibration.microUnitsPerStep, UInt32(st["cal_uu_per_step"]!), name)
                 XCTAssertEqual(calibration.stepsPerRevolution, UInt16(st["cal_steps_per_rev"]!), name)
                 XCTAssertEqual(calibration.gearRatioTimes100, UInt16(st["cal_gear_ratio_x100"]!), name)
-                XCTAssertEqual(calibration, .nfp608_26_45_cupMiter1_1, "\(name): the cup pod's DRIVE_CAL is a known drive")
+                XCTAssertEqual(calibration, .nfp608_26_45_cup59Miter1_1, "\(name): the cup pod's DRIVE_CAL (0x27, bore 20.5 x 5.9) is a known drive")
                 XCTAssertEqual(Int(parsed.reservoirPulses), st["reservoir_mu"]! / 50, name)
                 XCTAssertEqual(Int(parsed.totalDeliveredPulses), st["delivered_mu"]! / 50, name)
                 let fill = try XCTUnwrap(parsed.fill, "\(name): the cup pod reports its fill state")
@@ -222,7 +222,7 @@ final class WireGoldenTests: XCTestCase {
         XCTAssertEqual(drawing.fill?.requestedUnits, 20.0)
         let done = try status(0, "get_status_draw_done")
         XCTAssertEqual(done.fill?.state, .done)
-        XCTAssertEqual(try XCTUnwrap(done.fill).drawnUnits, 19.994, accuracy: 0.0005, "step exact: a whole number of 7.03 mU steps")
+        XCTAssertEqual(try XCTUnwrap(done.fill).drawnUnits, 19.994, accuracy: 0.0005, "step exact: a whole number of 7.508 mU steps")
         XCTAssertTrue(try XCTUnwrap(done.fill).primeRequired)
         XCTAssertEqual(done.reservoirUnits, 19.95, accuracy: 0.051, "whole 0.05 U pulses")
         let aborted = try status(1, "get_status_aborted")
@@ -233,7 +233,7 @@ final class WireGoldenTests: XCTestCase {
         XCTAssertLessThan(try XCTUnwrap(stalled.fill).drawnUnits, 30)
         // the prime answers `Hourly` once (take-up of the drive's lost motion), and the phone sees it as such
         let steps = scenarios[0]["steps"] as! [[String: Any]]
-        let first = try XCTUnwrap(steps.first { $0["name"] as? String == "prime_71_steps_try_1" })
+        let first = try XCTUnwrap(steps.first { $0["name"] as? String == "prime_67_steps_try_1" })
         let message = try V1.decode(Data(bytes((first["response"] as! [String: Any])["wire"] as! String)))
         XCTAssertEqual(message.result, .hourly)
         XCTAssertEqual(V1Transport.nack(for: .hourly, command: .prime), .hourlyLimit)

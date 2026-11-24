@@ -29,6 +29,22 @@ final class AssistedFillTests: XCTestCase {
         XCTAssertEqual(cup.maxPrimeSteps, 74, "0.524 U of needle volume / 7.03 mU")
     }
 
+    func test_cup59PresetIsKnown_isTheBiggerBore_andOnlyAssistedPressureIsAllowed() {
+        let cup59 = DriveCalibration.nfp608_26_45_cup59Miter1_1
+        XCTAssertTrue(cup59.isKnown)
+        XCTAssertEqual(cup59.driveID, 0x27)
+        XCTAssertEqual(cup59.presetName, "nfp-608-26-45-cup59-miter-1-1")
+        XCTAssertFalse(cup59.allowsSuctionDraw, "same pod, same missing check valve")
+        XCTAssertEqual(cup59.allowedFillModes, [.assistedPressure])
+        XCTAssertEqual(cup59.unitsPerStep, 0.007508, accuracy: 1e-8)
+        XCTAssertEqual(cup59.maxPrimeSteps, 69, "0.524 U of needle volume / 7.508 mU")
+        XCTAssertEqual(cup59.quantizedUnits(1.0), 133 * 0.007508, accuracy: 1e-9)
+        XCTAssertEqual(DriveCalibration.firmwarePresets.first, cup59, "the current CAD's drive comes first")
+        // the id pins the volume per step: 0x27 with the 0x26 numbers (or the reverse) is refused
+        XCTAssertFalse(DriveCalibration(driveID: 0x27, microUnitsPerStep: 7_030, stepsPerRevolution: 20, gearRatioTimes100: 2_645).isKnown)
+        XCTAssertFalse(DriveCalibration(driveID: 0x26, microUnitsPerStep: 7_508, stepsPerRevolution: 20, gearRatioTimes100: 2_645).isKnown)
+    }
+
     func test_theOtherAcceptedFirmwareDriveMayDrawButUsesAssistedPressureFirst() {
         XCTAssertEqual(DriveCalibration.nfp608_26_45_g16_20.allowedFillModes, [.assistedPressure, .suctionDraw])
         XCTAssertEqual(DriveCalibration.zwbpd006006_5_1.allowedFillModes, [.manualConfirm], "the C reference has no AssistedFill")

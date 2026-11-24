@@ -9,9 +9,9 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 EXTRA=""
 [[ "${1:-}" == "--dev" ]] && EXTRA=",dev-plaintext"
-# No implicit drive default in the app: pass it explicitly. Matrix: bench-e73 and nrf52840-dk, NFP-608-26.45 + miter pair 1:1 into the cup plunger (v0.1.0 cup pod, the current CAD) + a syringe rig build on the DK.
-# Bench variants (NOT the cup pod): DRIVE=drive-nfp-608-26-45-g16-20 | drive-nfp-608-26-45-g15-12 | drive-nfp-608-26-45-g1-1 | drive-syringe-rig-1ml | drive-zwbpd006006-6-43 | drive-zwbpd006006-4-8 | drive-faulhaber-adm0620-16
-DRIVE="${DRIVE:-drive-nfp-608-26-45-cup-miter-1-1}"
+# No implicit drive default in the app: pass it explicitly. Matrix: bench-e73 and nrf52840-dk, NFP-608-26.45 + miter pair 1:1 into the cup plunger, bore 20.5 x 5.9 (v0.1.0 cup pod, the current CAD, preset 0x27) + a syringe rig build on the DK.
+# Cup pod with the previous 20.5 x 5.5 tank: DRIVE=drive-nfp-608-26-45-cup-miter-1-1 (0x26). Bench variants (NOT the cup pod): DRIVE=drive-nfp-608-26-45-g16-20 | drive-nfp-608-26-45-g15-12 | drive-nfp-608-26-45-g1-1 | drive-syringe-rig-1ml | drive-zwbpd006006-6-43 | drive-zwbpd006006-4-8 | drive-faulhaber-adm0620-16
+DRIVE="${DRIVE:-drive-nfp-608-26-45-cup59-miter-1-1}"
 # Angle source: angle-tmag (default) or angle-qdec-fallback (NOT sufficient for the 3 %/turn check).
 ANGLE="${ANGLE:-angle-tmag}"
 

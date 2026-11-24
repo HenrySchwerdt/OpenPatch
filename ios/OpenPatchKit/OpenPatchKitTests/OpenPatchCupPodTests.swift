@@ -4,7 +4,7 @@ import XCTest
 @testable import OpenPatchKit
 
 /// The cup pod from Trio's side, on the bench: assisted pressure fill, take-up prime, doses of SMB size, and everything that goes
-/// wrong with a reply (uncertain delivery). The pod is the simulator with the cup drive (0.00703 U per step).
+/// wrong with a reply (uncertain delivery). The pod is the simulator with the cup drive (0x27, 0.007508 U per step).
 final class OpenPatchCupPodTests: XCTestCase {
     private var pod: SimulatedPod!
     private var transport: SimulatedTransport!
@@ -12,7 +12,7 @@ final class OpenPatchCupPodTests: XCTestCase {
     private var delegate: TestPumpManagerDelegate!
     private let queue = DispatchQueue(label: "test.delegate.cup")
     private var savedFactory: ((OpenPatchPumpManagerState) -> OpenPatchTransport)!
-    private let cup = DriveCalibration.nfp608_26_45_cupMiter1_1
+    private let cup = DriveCalibration.nfp608_26_45_cup59Miter1_1
 
     override func setUp() {
         super.setUp()

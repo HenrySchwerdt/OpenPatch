@@ -6,14 +6,19 @@ import Foundation
 /// tuples (`DriveCalibration.known`) and nothing else. Which presets exist, their ids and their numbers are checked against
 /// the firmware source by `FirmwarePresetParityTests`.
 public extension DriveCalibration {
-    /// v0.1.0 cup pod: NFP-608-26.45 -> miter pair z16:z16 (1:1) -> rod into a cup plunger in a 20.5 x 5.5 mm stadium bore:
+    /// v0.1.0 cup pod, current CAD (mechanics 2026-11-24): NFP-608-26.45 -> miter pair 1:1 -> rod into a cup plunger in a
+    /// 20.5 x 5.9 mm stadium bore (113.48 mm^2): 897 624 525 / 119 554 uU = 7 508.1 uU per step (0.007508 U, 133 steps per U).
+    /// NO check valve, never aspirates.
+    static let nfp608_26_45_cup59Miter1_1 = DriveCalibration(driveID: 0x27, microUnitsPerStep: 7_508, stepsPerRevolution: 20, gearRatioTimes100: 2_645)
+    /// v0.1.0 cup pod with the PREVIOUS 20.5 x 5.5 mm bore (pods built before the 5.9 tank): same drive,
     /// 840 503 125 / 119 554 uU = 7 030.3 uU per step (0.00703 U, 142 steps per U). NO check valve, never aspirates.
     static let nfp608_26_45_cupMiter1_1 = DriveCalibration(driveID: 0x26, microUnitsPerStep: 7_030, stepsPerRevolution: 20, gearRatioTimes100: 2_645)
     /// The firmware presets the app accepts: the drives of pods that are actually built (`mechanical/`): the 16:20 step-down pod
-    /// and the v0.1.0 cup pod. The other firmware presets (0x20 coaxial, 0x21 / 0x22 Zhaowei, 0x23 Faulhaber, 0x24 15:12 pair,
+    /// and the v0.1.0 cup pod (0x27 with the 5.9 bore, the current CAD, and 0x26 with the previous 5.5 bore: each id pins its
+    /// own volume per step, so a pod is accepted only with the numbers of its own tank). The other firmware presets (0x20 coaxial, 0x21 / 0x22 Zhaowei, 0x23 Faulhaber, 0x24 15:12 pair,
     /// 0x30 syringe rig) are REFUSED on purpose: no pod is built with them, and a pod that reports one is a wrong or foreign
     /// build whose volume per step must not be trusted (the 15:12 pair would dose +56 %).
-    static let firmwarePresets: [DriveCalibration] = [.nfp608_26_45_g16_20, .nfp608_26_45_cupMiter1_1]
+    static let firmwarePresets: [DriveCalibration] = [.nfp608_26_45_cup59Miter1_1, .nfp608_26_45_g16_20, .nfp608_26_45_cupMiter1_1]
 
     /// Firmware presets that exist but are not accepted by the app, with the reason (checked by `FirmwareParityTests`).
     static let refusedFirmwarePresetIDs: [UInt16: String] = [
@@ -30,6 +35,7 @@ public extension DriveCalibration {
         case 2: return "faulhaber-adm0620-16-1 (legacy)"
         case 0x25: return "nfp-608-26-45-g16-20"
         case 0x26: return "nfp-608-26-45-cup-miter-1-1"
+        case 0x27: return "nfp-608-26-45-cup59-miter-1-1"
         default: return nil
         }
     }
@@ -40,7 +46,7 @@ public extension DriveCalibration {
     var allowsSuctionDraw: Bool {
         guard isKnown else { return false }
         switch driveID {
-        case 0x26: return false
+        case 0x26, 0x27: return false   // both cup bores
         case 1, 2: return false     // the C reference has no draw at all
         default: return true        // 0x25: has a check valve
         }

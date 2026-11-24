@@ -129,3 +129,22 @@ fn bucket_caps_equal_the_cores_limits_for_the_cup_drive() {
     assert_eq!(CFG.hour_cap_steps, cal.mu_to_pulses(MilliUnits(hourly_mu as u32)).0, "15 U/h with the calibration margin, in steps");
     assert_eq!(CFG.minute_cap_steps, cal.mu_to_pulses(MAX_PER_MIN).0, "1.7 U/min in steps");
 }
+
+/// The 20.5 x 5.9 cup bore (preset 0x27, current CAD) doses 6.8 % more per step: its supervisor caps are recomputed from the core,
+/// and they are TIGHTER in steps than the 0x26 caps (running the 0x26 caps on a 5.9 pod would let 6.8 % more volume through).
+#[test]
+fn bucket_caps_equal_the_cores_limits_for_the_cup59_drive() {
+    use openpatch_core::drive_cal::NFP_608_2645_CUP59_MITER_1_1 as CUP59;
+    let c59 = Config::CUP59_MITER_1_1;
+    let cal = CUP59.cal();
+    let hourly_mu = MAX_HOURLY.0 as u64 * 100 / (100 + HOURLY_CAL_MARGIN_PCT as u64);
+    assert_eq!(c59.hour_cap_steps, cal.mu_to_pulses(MilliUnits(hourly_mu as u32)).0, "15 U/h with the calibration margin, in steps");
+    assert_eq!(c59.minute_cap_steps, cal.mu_to_pulses(MAX_PER_MIN).0, "1.7 U/min in steps");
+    assert_eq!((c59.hour_cap_steps, c59.minute_cap_steps), (1_920, 226));
+    assert!(c59.hour_cap_steps < CFG.hour_cap_steps && c59.minute_cap_steps < CFG.minute_cap_steps);
+    // in volume both caps stay at or below the core limits
+    assert!(cal.pulses_to_mu(openpatch_core::Pulses(c59.hour_cap_steps)).0 as u64 <= hourly_mu);
+    assert!(cal.pulses_to_mu(openpatch_core::Pulses(c59.minute_cap_steps)).0 <= MAX_PER_MIN.0);
+    // everything that is not a volume is the same as on 0x26
+    assert_eq!(Config { hour_cap_steps: CFG.hour_cap_steps, minute_cap_steps: CFG.minute_cap_steps, ..c59 }, CFG);
+}

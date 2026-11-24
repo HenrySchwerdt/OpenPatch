@@ -300,7 +300,7 @@ self-maintained Trio fork.
   the pod" after 30 min without a successful status read (raised once, retracted by the next read).
 * **Drive calibration.** There is no global "units per step" any more. The pod reports `DRIVE_CAL` in every `GetStatus`; the app accepts only the
   known drives (`DriveCalibration.known`: the two legacy C drives ZWBPD006006 5:1 = 0.0261 U/step and Faulhaber 16:1 = 0.0082 U/step, the 16:20 pod
-  `0x25` = 0.003948 U/step, and the **v0.1.0 cup pod `0x26` (`nfp-608-26-45-cup-miter-1-1`) = 0.00703 U/step**) and refuses to pair-and-fill, prime, bolus,
+  `0x25` = 0.003948 U/step, and the **v0.1.0 cup pod `0x27` (`nfp-608-26-45-cup59-miter-1-1`, bore 20.5 x 5.9) = 0.007508 U/step**, and the same pod with the previous 20.5 x 5.5 tank `0x26` (`nfp-608-26-45-cup-miter-1-1`) = 0.00703 U/step) and refuses to pair-and-fill, prime, bolus,
   set a temp basal or resume with a pod that reports none or an unknown one (clear error in the UI). The other firmware presets (`0x20`..`0x24`, `0x30`) are refused
   on purpose (`DriveCalibration.refusedFirmwarePresetIDs`, checked against `drive_cal.rs`). Suspend and cancel always work. The preset name, id, volume per step,
   refill method and link security are shown in Settings -> OpenPatch -> Drive.

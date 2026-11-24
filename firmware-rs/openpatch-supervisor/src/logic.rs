@@ -73,7 +73,7 @@ impl Config {
         }
     }
 
-    /// Cup drive `nfp-608-26-45-cup-miter-1-1` (id 0x26, 7.0303 mU per step): 15 U/h reduced by the 4 % calibration margin
+    /// Cup drive `nfp-608-26-45-cup-miter-1-1` (id 0x26, previous bore 20.5 x 5.5, 7.0303 mU per step): 15 U/h reduced by the 4 % calibration margin
     /// (`limits::HOURLY_CAL_MARGIN_PCT`) = 14 423 mU = 2051 steps; 1.7 U/min = 241 steps. The integration test recomputes both from
     /// the core's limits and calibration, so a change of the drive or of the limits breaks it.
     pub const CUP_MITER_1_1: Config = Config {
@@ -91,6 +91,12 @@ impl Config {
         minute_cap_steps: 241,
         reset_holdoff_ms: MIN_RESET_HOLDOFF_MS,
     };
+
+    /// Cup drive `nfp-608-26-45-cup59-miter-1-1` (id 0x27, bore 20.5 x 5.9, 7.5081 mU per step, the current CAD): the same
+    /// windows and budgets as [`Config::CUP_MITER_1_1`], the volume caps recomputed for the bigger bore: 14 423 mU = 1920 steps,
+    /// 1.7 U/min = 226 steps (the 0x26 caps would let 6.8 % more volume through on this pod). Checked against the core by
+    /// `tests/post_and_agreement.rs`.
+    pub const CUP59_MITER_1_1: Config = Config { hour_cap_steps: 1_920, minute_cap_steps: 226, ..Config::CUP_MITER_1_1 };
 }
 
 /// Why the supervisor is (or went) into `FAULT` / `LOCKED`, also the "last fault reason" of the status frame.
