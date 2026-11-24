@@ -63,7 +63,7 @@
 - **Status (2026-11-19):** both v0.1.0 models **miss** the targets.
   - **Cup pod, layout A (`--drive cup`, the build candidate):** OP-100 47.96, OP-200 66.78, width **36.6** (34.6 until 2026-11-22).
     - **Owner decision 2026-11-22:** lane 2 (cell + main board) gets 2.0 mm more in y, because the 6-layer main board could not be routed in the old outline (only about 2.6 mm between the USB-C notch and the board south edge). Lane 2 = cell width + 0.4 + 2.0 = 13.0 mm (`cup.lane2_extra`), y 22.8-35.6 in the pod frame. The tank (lane 1, bore 20.5 x 5.5), the strokes and all x positions are unchanged.
-    - The cell stays on the south side of lane 2 (y 22.8-33.4). The main board spans y 22.9-35.5 (south edge unchanged). Everything on the north wall moved +2.0 in y: USB-C opening (wall inner face y 35.7), button nub, north ledge (41.5, 34.1) and wall shelf (y from 34.9).
+    - The cell stays on the south side of lane 2 (y 22.8-33.4). The main board spans y 22.9-35.5 (south edge unchanged). Everything on the north wall moved +2.0 in y: USB-C opening (wall inner face y 35.7), side button, north ledge (41.5, 34.1) and wall shelf (y from 34.9).
   - **Coaxial comparison model (`--variant v010`, `mechanical/V010.md`):** OP-100 58.2, OP-200 66.9, width 32. With every lever applied it reaches about 49 / 58 mm; the translating screw's dry tail is the blocker.
 - Levers, in order: (1) stack battery + board above the dock tunnel (≈ 3 mm free above the cannula head) instead of a tail; (2) low-profile radio (≤ 1.3 mm) on the lid side + spring contacts instead of connectors; (3) coaxial leadscrew in the reservoir axis (Omnipod-style) + wider bore → shorter stroke; (4) minimal fluid path without valve (§3c).
 
@@ -82,6 +82,14 @@
 - The lid is printed in **clear resin** (JLC3DP clear SLA, polished/clear-coated outside) so reservoir, water level, plunger and drive are visible. The **fill window slot in the lid is removed**; the fill scale (ticks every 10 U, long every 50 U) becomes a shallow engraving on the lid inner face above the plunger travel.
 - Everything under the lid is therefore visible: tidy cable routing, no labels needed inside; light-sensitive parts (none in the bench pod) must be checked for v0.1.0 (e.g. hall sensors are fine, the TMAG is fine; LEDs may light up the housing).
 - Wall thickness and stiffness rules unchanged; clear resin is water-only like all printed parts.
+
+## 2e. Cup pod housing details after the 2:1 test print (decision 2026-11-24, owner)
+
+All values in `mechanical/params.json -> cup.usb / cup.button / cup.dock / cup.joint`; details in `mechanical/V010-CUP.md`.
+- **Shell joint:** the lid sits plastic-to-plastic on the bottom-shell rim (z 5.0, flush outer seam, no gap). Seal = cast silicone ring 0.32 x 0.4 in a 0.45 x 0.45 groove in the rim (0.225 from the outer face), pressed by a 0.30 x 0.13 tongue under the lid: **20 % squeeze, 78 % groove fill**. Lid posts end 0.1 below the lid roof and the lid hold-down ribs 0.05 above the board, so only the rim carries the lid. A buyable 0.8-1.0 mm cord would need about 1.9 mm of rim (+2 mm width and length); not taken.
+- **USB-C opening:** stadium 9.0 x 3.4 (R1.7 ends) centred x 23.5, z 5.7 in the +Y wall, 0.3 x 45 degree outer chamfer; stadium gasket frame (inner 8.5 x 2.8, outer 10.6 x 5.0, 0.4 thick) in a matching 0.4 mm recess.
+- **Side button:** printed cap (stem d1.6, key face recessed 0.2) through the +Y lid wall at x 33.0, z 6.35, inserted from inside (flange bar inside), O-ring 1.5 x 0.5 silicone in a d2.4 x 0.5 counterbore (rod seal, 20 % squeeze), stroke to actuate 0.30; requires the SW1 actuator tip at y <= 35.35 (the routed board has 35.65-35.77: SW1 to move back 0.45 mm, pre-order review H8). A d3.0 cap does not fit between the shell joint (z 5.0), the lid roof (7.6) and the R1.8 top fillet.
+- **Dock:** the pocket is open to the underside AND to the +X end face (U-slot 9.8 wide, 4.4 high); the head slides in from the end. The U-clip is replaced by two 301 FH L-springs anchored in slots of two anchor blocks at the open end (arm 7.55, unchanged stress 350 MPa). Slide stop, needle, guard, dock hall (39.36, 11.75) and roof (z 4.4-4.9 under the board at 5.3) unchanged.
 
 ## 3. Reservoir (flat, "stadium" cross-section)
 
@@ -171,7 +179,7 @@ The fully integrated pod board does not route on 17.1 × 29 mm (see `electronics
 - Battery (Rev A, CAD-verified): flat Li-Po, max **8.6 / 12.6 / 13.2 × 11.2 × 3.2 mm** for OP-70/100/200 → est. **~17 / 25 / 26 mAh**, with PCM. Accepted for Rev A (bench test sample only, decision 2026-11-18); Rev B targets ≥ 40 mAh.
 - Charging: **Qi receiver TI BQ51003** (2.5 W class) + charge controller **BQ25120A** (or MCP73832), receiver coil **Ø 17.6 mm flat (Ø20 costs +2.4 mm length), on flex PCB or Würth 760308101xxx class**. Alternative later: NFC-WLC (ST25/PTX30W).
 - Buzzer: ⚠️ 9 × 9 × 2 mm piezo does NOT fit (free space only 1.6 / 5.6 / 6.2 × 2.6 mm). Rev A: no buzzer (alarms via BLE/Trio only; optional DNP footprint ≤ 5 × 2.6 mm); Rev B must have an audible alarm. Top-side component height under the coil: 1.4 mm.
-- Button: 1× (emergency stop / alarm acknowledgment), through a housing membrane.
+- Button: 1× (emergency stop / alarm acknowledgment). Cup pod (owner 2026-11-24): separate printed button cap in a round hole of the side wall, sealed by an O-ring (§2e); the earlier thin flex membrane is dropped.
 - PCB: 4-layer, 0.6 mm; shape: rectangle with L-cutout (outline from mechanical/out/OP-xx.layout.json).
 - Height stack (away from the body): base 0.9 | battery 3.2 | PCB+components 1.6 | lid 0.9 → remainder coil/tolerance. Reservoir+motor lie in the same plane as battery+PCB (side by side, not stacked).
 

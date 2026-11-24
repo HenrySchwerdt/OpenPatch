@@ -105,6 +105,27 @@ class Script:
         self.add("solid.extrude", distance=x[1] - x[0], taper=f"{taper_deg:.4f} deg", body_name=name, name=name)
         return name
 
+    def stadium_y(self, name: str, y: tuple[float, float], xc: float, zc: float,
+                  w: float, h: float, taper_deg: float | None = None) -> str:
+        """Stadium (w in X, h in Z, full semicircular ends) extruded along +Y from y[0] to y[1]; optional draft as in stadium_taper.
+        The XZ sketch plane maps (a, b) -> x = a, z = -b (see prism_xz)."""
+        half = (w - h) / 2
+        self.add("sketch.create", plane="XZ", offset=y[0])
+        self.add("sketch.slot.center_to_center", p0=[xc - half, -zc], p1=[xc + half, -zc], width=h)
+        self.add("sketch.finish")
+        extra = {"taper": f"{taper_deg:.4f} deg"} if taper_deg is not None else {}
+        self.add("solid.extrude", distance=y[1] - y[0], body_name=name, name=name, **extra)
+        return name
+
+    def rrect_ring(self, name: str, x: tuple[float, float], y: tuple[float, float], r: float,
+                   off: tuple[float, float], z: tuple[float, float]) -> str:
+        """Band between two inward offsets (off[0] < off[1]) of a rounded rectangle (corner radius r), extruded z[0]..z[1]."""
+        a, b = off
+        self.rrect(name, (x[0] + a, x[1] - a), (y[0] + a, y[1] - a), r - a, z)
+        self.rrect(f"t_{name}_in", (x[0] + b, x[1] - b), (y[0] + b, y[1] - b), r - b, (z[0] - 0.1, z[1] + 0.1))
+        self.cut(name, [f"t_{name}_in"])
+        return name
+
     def stadium_ring(self, name: str, x: tuple[float, float], yc: float, zc: float,
                      w_out: float, h_out: float, w_in: float, h_in: float) -> str:
         self.stadium(name, x, yc, zc, w_out, h_out)

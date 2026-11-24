@@ -60,9 +60,9 @@ GHW also sells the A2 DIN 975 rod only from M2 (sold out): **no stainless M1.6 r
 | # | Function | Spec | Listing | Price | Pack | Qty | Line | Ship | Status |
 |---|---|---|---|---|---|---|---|---|---|
 | Z1 | Outlet needle 30G + fill needle 27G (`cup.fill.needle_d` 0.4) | 30G blunt, OD 0.31, cut to length | KSJEHW 90-pc blunt dosing needle set 14G-30G, 13 mm (6 per size), https://www.amazon.de/dp/B0H11LP18S | 7.99 | 90 | 1 | 7.99 | ~Nov 25 | VERIFIED |
-| Z2 | Rim gasket + head washers | gasket 0.5 thick, 20 % squeeze; washer 0.3 (d2.4/d1.3) | sarian silicone sheet 200 x 300, **0.5 mm translucent**, https://www.amazon.de/dp/B0CHYYJBYV | 7.64 | 1 | 1 | 7.64 | ~Nov 25 | VERIFIED: **Shore A 60** (spec 40-50); no 0.3 mm thickness offered |
+| Z2 | Hub seal ring, USB-C frame (cut); was rim gasket + head washers | rim gasket now cast (Z4, 2026-11-24); washer 0.3 dropped | sarian silicone sheet 200 x 300, **0.5 mm translucent**, https://www.amazon.de/dp/B0CHYYJBYV | 7.64 | 1 | 1 | 7.64 | ~Nov 25 | VERIFIED: **Shore A 60** (spec 40-50); no 0.3 mm thickness offered |
 | Z3 | Fill septum | d1.6 x 1.0 in a d1.7 pocket | same listing, **1 mm translucent** | 8.49 | 1 | 1 | 8.49 | same | VERIFIED (Shore 60) |
-| Z4 | Plunger seals (cast) | 2-part silicone, Shore A ~40, 1:1 | TFC Baseline 200 Shore **35**, 1:1, 1 kg, https://www.amazon.de/dp/B0CZRW8RLX | 26.80 | 1 kg | 1 | 26.80 | Nov 21-23 | CANDIDATE: page does not say platinum/addition cure. RESION 40 Shore A 1:1 1 kg (https://www.amazon.de/dp/B0B5S25NNL, 33.99, page read, cure system also not stated) is the alternative |
+| Z4 | Plunger seals + rim seal ring (cast, 2026-11-24: ring 0.32 x 0.4 in the rim groove, STL `OP-xxx_lid_gasket.stl`) | 2-part silicone, Shore A ~40, 1:1 | TFC Baseline 200 Shore **35**, 1:1, 1 kg, https://www.amazon.de/dp/B0CZRW8RLX | 26.80 | 1 kg | 1 | 26.80 | Nov 21-23 | CANDIDATE: page does not say platinum/addition cure. RESION 40 Shore A 1:1 1 kg (https://www.amazon.de/dp/B0B5S25NNL, 33.99, page read, cure system also not stated) is the alternative |
 | Z5 | Retaining compound (gear A on the D-shaft) | Loctite 638 | **Loctite 648**, 5 ml (sold by Amazon), https://www.amazon.de/dp/B0000WRNVM | 8.29 | 5 ml | 1 | 8.29 | ~Nov 25 | VERIFIED (648 = high-strength retaining compound, substitute; 638 not confirmed on amazon.de) |
 | Z6 | CA glue (magnet on gear B, needle in hub) | cyanoacrylate | Loctite Super Glue Power Flex gel 3 g, https://www.amazon.de/dp/B005HJQ3FK | 6.99 | 3 g | 1 | 6.99 | ~Nov 25 | VERIFIED |
 | Z7 | Motor / cell wires | 30 AWG | sourcing map 30 AWG silicone stranded, 3 m, B0CHVKG8NL | 8.19 | 3 m | 1 | 8.19 | n/v | CANDIDATE (search list) |
@@ -70,6 +70,7 @@ GHW also sells the A2 DIN 975 rod only from M2 (sold out): **no stainless M1.6 r
 | Z9 | Kapton tape | 5 mm | QUARKZMAN polyimide tape 5 mm x 33 m, 2 rolls, B0F1XTLVXW | 4.59 | 2 | 1 | 4.59 | n/v | CANDIDATE |
 | Z10 | Hook-and-loop (bench fixture mounting only) | self-adhesive | Velcro tape 20 mm x 5 m, black, B0DTKPGH2X | 6.79 | 5 m | 1 | 6.79 | n/v | CANDIDATE |
 | Z11 | Punch for septum discs | d1.5-1.6 | Biopsy punch 1.5 mm, B0CJ8C32GF | 10.99 | 1 | 1 | 10.99 | n/v | CANDIDATE |
+| Z12 | Side-button O-ring (cup pod, 2026-11-24) | **O-ring ID 1.5 x CS 0.5, silicone (VMQ) ~70 Shore A** (NBR acceptable for water-only bench use); 2 per pod + spares | micro O-ring assortment or a specialist shop (e.g. O-Ring-Store / Kirchner Dichtungen); listing NOT searched yet | n/v | 10+ | 1 | n/v | n/v | TO SOURCE (not in the cart total) |
 | | | | | | | | **105.25** | free delivery on most lines | |
 
 ## 4. Cart D: motor (nfpshop.com / precisionminidrives.com)
@@ -88,7 +89,7 @@ GHW also sells the A2 DIN 975 rod only from M2 (sold out): **no stainless M1.6 r
 | D Motor (nfpshop) | **~33 USD + ~12-30 USD shipping** (estimate, page not read) |
 | **Sum A-C** | **212.06 EUR** + motor + 2 shipping lines |
 
-Big-ticket items that can be dropped: Z4 casting silicone (26.80, only if the seals are cast at home), A3 fallback gears (16.32), Z11 punch (10.99, a sharpened 1.5 mm brass tube works).
+Big-ticket items that can be dropped: Z4 casting silicone (26.80; since 2026-11-24 it also casts the rim seal ring, so drop it only if the seals are bought cast), A3 fallback gears (16.32), Z11 punch (10.99, a sharpened 1.5 mm brass tube works).
 
 ## 6. Parts that do NOT exist as specified (CAD / spec must change)
 

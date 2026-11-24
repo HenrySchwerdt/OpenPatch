@@ -18,10 +18,10 @@ COLORS = {
     "motor": "color=#8a8f98", "gearhead": "color=#b9bec6", "motor_boss": "color=#9a9a9a", "motor_shaft": "color=#555555", "motor_rear_boss": "color=#666666", "motor_term": "color=#c06020",
     "magnet": "color=#cc2222", "hall_tmag": "color=#ffd400", "end_cap": "color=#d8dde3", "end_cap_lid": "opacity=0.6,color=#e6eaee", "cap_gasket": "color=#222222", "cap_oring": "color=#aa3333",
     "septum": "color=#f2a0c0", "needle": "color=#000000", "needle_hub": "color=#5ec8e8", "cannula_adapter": "opacity=0.55,color=#7a5cc7",
-    "dock_magnet": "color=#cc2222", "hall_dock": "color=#ff7f00",
+    "dock_magnet": "color=#cc2222", "hall_dock": "color=#ff7f00", "button_cap": "color=#ff9900", "button_oring": "color=#aa3333", "lid_gasket": "color=#c04040", "usb_gasket": "color=#c04040",
     "ko_dock_board": "opacity=0.45,color=#2e8b57", "dock_clip": "color=#b8c0c8", "needle_guard": "opacity=0.6,color=#5ec8e8", "ko_side_a": "opacity=0.45,color=#c0a060", "ko_side_b": "opacity=0.45,color=#c0a060", "ko_io": "opacity=0.45,color=#d09020", "ko_aux": "opacity=0.35,color=#7fbf7f", "ko_board": "opacity=0.35,color=#2e8b57", "ko_board_tab": "opacity=0.35,color=#2e8b57", "ko_battery": "opacity=0.4,color=#3a5fcd", "ko_usb": "opacity=0.45,color=#8a3fd0", "ko_tmag_board": "opacity=0.45,color=#2e8b57",
 }
-EXPLODE = {"top": (0, 0, 24), "ko_board": (0, 0, 16), "ko_board_tab": (0, 0, 16), "ko_battery": (0, 0, 16), "ko_tmag_board": (0, 0, 11), "end_cap_lid": (0, 0, 17), "cap_gasket": (0, 0, 12), "septum": (0, 0, 9),
+EXPLODE = {"top": (0, 0, 24), "button_cap": (0, 6, 24), "button_oring": (0, 3, 24), "lid_gasket": (0, 0, 20), "ko_board": (0, 0, 16), "ko_board_tab": (0, 0, 16), "ko_battery": (0, 0, 16), "ko_tmag_board": (0, 0, 11), "end_cap_lid": (0, 0, 17), "cap_gasket": (0, 0, 12), "septum": (0, 0, 9),
            "plunger_core": (0, 0, 13), "seal_a": (0, 0, 13), "seal_b": (0, 0, 13), "nut": (0, 0, 19), "rod": (0, 0, 21), "gear_b": (0, 0, 15),
            "gear_a": (0, 0, 15), "bush_rod": (0, 0, 9), "magnet": (0, 0, 15), "hall_tmag": (0, 0, 12), "reservoir": (0, 0, 7), "motor": (0, 0, 9), "gearhead": (0, 0, 9),
            "motor_boss": (0, 0, 9), "motor_shaft": (0, 0, 12), "motor_rear_boss": (0, 0, 9), "motor_term": (0, 0, -5), "needle": (0, 0, -7), "needle_hub": (0, 0, -7),

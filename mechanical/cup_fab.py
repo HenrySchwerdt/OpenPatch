@@ -18,15 +18,17 @@ def run(p: dict, out: Path, L: dict) -> dict:
     K = L["dock"]
     fab = out / "fab"
     (fab / "stencil").mkdir(parents=True, exist_ok=True)
-    dxf = dock.dxf_u_clip(p, K, fab / "stencil" / "u_clip_301FH_0p10.dxf")
+    for old in ("u_clip_301FH_0p10.dxf", "u_clip_data.json"):                       # U-clip replaced by two L-springs (open-end pocket, owner 2026-11-24)
+        (fab / "stencil" / old).unlink(missing_ok=True)
+    dxf = dock.dxf_u_clip(p, K, fab / "stencil" / "dock_springs_301FH_0p10.dxf")
     st, hw = dock.clip_stress(p, K), dock.hall_window(p)
     c = p["cup"]["dock"]
-    (fab / "stencil" / "u_clip_data.json").write_text(json.dumps({
+    (fab / "stencil" / "dock_springs_data.json").write_text(json.dumps({
         "status": "ALL DOCK VALUES TODO-MEASURE (Insight Flex not measured; head estimated from photos).  Order: laser-cut stainless stencil sheet, flat pattern in the DXF (layer CUT = outline, BEND = bend lines; "
-                  "two clips), then bend over a 0.15 mm radius.  JLCPCB/PCBWay stencil service cuts 0.1 / 0.12 / 0.15 mm sheets; the SMT-stencil steel is usually 304 or 316L (spring temper NOT guaranteed): "
+                  "four L-springs = two pods: bend the anchor tab 90 deg outward, the tooth flap ~45 deg inward pointing toward the tank), bend over a 0.15 mm radius.  JLCPCB/PCBWay stencil service cuts 0.1 / 0.12 / 0.15 mm sheets; the SMT-stencil steel is usually 304 or 316L (spring temper NOT guaranteed): "
                   "order the 301 FH foil (or full-hard 1.4310) as a custom cut / or use 304 stencil steel for the first fit test and expect a lower allowable stress (VERIFY).",
         "material": c["clip"]["material"], "thickness_mm": c["clip"]["t"], "dxf": dxf, "stress": st, "hall": hw,
-        "latch_force": {"engage_N_per_clip": round(st["F_need_N"], 3), "note": "vertical tooth faces lock the head; release by lifting both teeth with a 0.5 mm pick; retention limited by the notch (placeholder), not by the clip"},
+        "latch_force": {"engage_N_per_clip": round(st["F_need_N"], 3), "note": "the barb-shaped tooth flaps ride over the dome when the head slides in from the open end and lock in the notches; release by spreading both arms with a 0.5 mm pick from below; retention limited by the notch (placeholder), not by the springs"},
         "allowable": f"{c['clip']['allow_MPa']} MPa = 0.65 x Rp0.2 ({c['clip']['yield_MPa']} MPa, 301 FH) for a few hundred snaps (fatigue not analysed)"}, indent=1), encoding="utf-8")
     # ---- dock fit-test coupon: pocket + window + needle stop wall, head variants (dome d x notch depth), same clip
     cp = fab / "dock-coupon"
@@ -35,8 +37,11 @@ def run(p: dict, out: Path, L: dict) -> dict:
     half, z_roof0 = K["half"], p["cup"]["dock"]["head"]["B_dome_h"] + c["clr"]
     lx = K["pocket_len"] + 1.2
     s.box("dock_fixture", (-1.0, lx), (-half - c["pocket_wall"], half + c["pocket_wall"]), (0, z_roof0 + c["roof"]))
-    s.cut("dock_fixture", [s.box("t_in", (0.0, K["pocket_len"]), (-half, half), (-0.1, z_roof0)),
+    s.cut("dock_fixture", [s.box("t_in", (0.0, lx + 0.1), (-half, half), (-0.1, z_roof0)),                # open to the underside and the end, like the pod
                            s.cyl("t_hub", "X", (0, 0, K["z_n"]), p["cup"]["dock"]["hub"]["d"] - p["cup"]["dock"]["hub"]["press"], -1.1, 0.1)])
+    oj, oc = dock.open_end_tools(s, p, dock.layout(p, -0.05, 0.0), lx, z_roof0, prefix="t_cfx")
+    s.join("dock_fixture", oj)
+    s.cut("dock_fixture", oc)
     rows = []
     vi = 0
     for dn in N_STEPS:

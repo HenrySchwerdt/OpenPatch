@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: LicenseRef-OpenPatch
-"""Dock of the cup pod: bottom-open pocket in lane 2 + 3.5 mm slide + stainless U-clip + dock magnet/hall.  All cannula values TODO-MEASURE (photo estimate).
+"""Dock of the cup pod: pocket open to the underside and the +X end face, 3.5 mm slide + two stainless L-springs + dock magnet/hall.  All cannula values TODO-MEASURE (photo estimate).
 
-The pod is lowered over the head with the dome `travel` mm further from the needle than its latched position, then slid toward the tank by `travel`
-(= needle insertion) until the two U-clip teeth drop into the dome side notches.  Needle axis: +Y at (x_n, z_n), leaving the tank front wall sideways.
+The head either slides in from the open +X end (like the Insight pump) or the pod is lowered over it with the dome `travel` mm further from the needle than its
+latched position; the last `travel` mm toward the tank (= needle insertion) end when the two spring teeth drop into the dome side notches.  Needle axis: +Y at (x_n, z_n), leaving the tank front wall sideways.
 A spring-loaded guard sleeve covers the needle tip while no head is docked.
 """
 from __future__ import annotations
@@ -72,16 +72,49 @@ def build_head(s: Script, p: dict, K: dict, name: str = "cannula_adapter", mag: 
     s.cyl(mag, "Z", (xd, yc, 0), h["magnet_d"], h["B_dome_h"] - h["magnet_t"], h["B_dome_h"])
 
 
+def open_end_tools(s: Script, p: dict, K: dict, x_end: float, z_roof0: float, prefix: str = "t_oe") -> tuple[list[str], list[str]]:
+    """Open-end pocket (owner 2026-11-24): anchor blocks on both side walls at the open +X end (arm root + tab slot), 45 deg lead-in on the end-face
+    edges of the opening and chamfers on the two bottom edges of the pocket.  Returns (join tools, cut tools); join them after the pocket cut."""
+    d, c, h = p["cup"]["dock"], K["clip"], p["cup"]["dock"]["head"]
+    yc, half, R = K["y_c"], K["half"], K["R"]
+    y_arm_out = R + c["arm_inner_clr"] + c["t"]                    # arm outer face = anchor block inner face
+    x_root = K["x_far"] + c["slot_x0_rel"]                         # arm root (where the U-clip bridge used to be)
+    joins, cuts = [], []
+    for k, sg in enumerate((-1, 1)):
+        y0, y1 = sorted((yc + sg * y_arm_out, yc + sg * (half + 0.01)))
+        joins.append(s.box(f"{prefix}_blk{k}", (x_root, x_end), (y0, y1), (d["anchor_z0"], z_roof0 + 0.01)))
+        # tab slot: 0.2 wide in x, from the arm face through the block into the side wall (0.1 skin left), open to the underside (tab pushed up from below)
+        ys0, ys1 = sorted((yc + sg * (y_arm_out - 0.15), yc + sg * (half + d["pocket_wall"] - 0.1)))
+        cuts.append(s.box(f"{prefix}_slot{k}", (x_root, x_root + c["slot_w"]), (ys0, ys1), (-0.1, c["z0"] + c["b"] + 0.1)))
+        # lead-in on the vertical end-face edge: from the block face (x_end - lead_in) out to half + lead_in_to (x_end)
+        li, lt = d["lead_in"], d["lead_in_to"]
+        ya = yc + sg * (y_arm_out - 0.01)
+        pts = [(x_end - li, ya), (x_end + 0.1, ya), (x_end + 0.1, yc + sg * (y_arm_out + lt * (li + 0.1) / li))]
+        cuts.append(s.polyprism(f"{prefix}_li{k}", pts if sg > 0 else pts[::-1], (-0.1, z_roof0)))
+        # bottom edge chamfer along the pocket (head lowered from below or slid in from the end finds the opening)
+        ch = d["bottom_chamfer"]
+        tri = [(yc + sg * (half - 0.01), -0.1), (yc + sg * (half + ch + 0.1), -0.1), (yc + sg * (half - 0.01), ch + 0.01)]
+        cuts.append(s.prism_yz(f"{prefix}_bc{k}", tri if sg > 0 else tri[::-1], K["x_bf"], x_end + 0.1))
+    return joins, cuts
+
+
 def build_clip(s: Script, p: dict, K: dict) -> None:
+    """Two L-springs (301 FH 0.1): arm along each side wall with the latch tooth at the dome notch, anchor tab bent 90 deg outward into the slot of the anchor block
+    at the open end (owner 2026-11-24, the U-clip bridge would block the open end).  One body `dock_clip` for both springs."""
     c, h = K["clip"], p["cup"]["dock"]["head"]
-    yc, R, xt, xb = K["y_c"], K["R"], K["x_tooth"], K["x_far"] - 0.15
+    yc, R, xt = K["y_c"], K["R"], K["x_tooth"]
     t, z0, b = c["t"], c["z0"], c["b"]
     yin = R + c["arm_inner_clr"]
-    s.box("dock_clip", (xb, xb + t), (yc - yin - t, yc + yin + t), (z0, z0 + b))                        # bridge at the far end wall
+    x_tab = K["x_far"] + c["slot_x0_rel"] + (c["slot_w"] - t) / 2      # tab centred in its slot
     parts = []
     for k, sg in enumerate((-1, 1)):
         y0, y1 = sorted((yc + sg * yin, yc + sg * (yin + t)))
-        parts.append(s.box(f"t_ca{k}", (xt - c["tooth_w"] / 2, xb + 0.01), (y0, y1), (z0, z0 + b)))
+        nm = "dock_clip" if k == 0 else f"t_ca{k}"
+        s.box(nm, (xt - c["tooth_w"] / 2, x_tab + t), (y0, y1), (z0, z0 + b))
+        if k:
+            parts.append(nm)
+        ya0, ya1 = sorted((yc + sg * yin, yc + sg * (yin + c["tab_len"])))
+        parts.append(s.box(f"t_ctab{k}", (x_tab, x_tab + t), (ya0, ya1), (z0, z0 + b)))
         yt0, yt1 = sorted((yc + sg * (R - h["notch_depth"]), yc + sg * (yin + 0.01)))
         parts.append(s.box(f"t_ct{k}", (xt - c["tooth_w"] / 2, xt + c["tooth_w"] / 2), (yt0, yt1), (h["notch_z"][0] + 0.2, h["notch_z"][1] - 0.2)))
     s.join("dock_clip", parts)
@@ -96,24 +129,25 @@ def build_needle(s: Script, p: dict, K: dict) -> None:
 
 
 def dxf_u_clip(p: dict, K: dict, path) -> dict:
-    """Flat pattern of the U-clip (one strip, bent twice, tooth flaps bent in) as ASCII DXF R12: layer CUT = outline, BEND = bend lines.  Two clips."""
+    """Flat pattern of the dock L-springs as ASCII DXF R12: layer CUT = outline, BEND = bend lines.  Each strip: anchor tab - bend - arm - tooth flap
+    (bent in 45 deg, pointing toward the tank = barb).  Four strips = two pods (owner 2026-11-24: open-end pocket, no U bridge)."""
     c = K["clip"]
-    span = 2 * (K["R"] + c["arm_inner_clr"]) + c["t"]
     ba = math.pi / 2 * (0.15 + 0.4 * c["t"])
-    arm = K["arm_len"] + c["tooth_w"] / 2
-    total = arm + ba + span + ba + arm
+    arm = K["arm_len"] + c["tooth_w"] / 2 + (c["slot_w"] - c["t"]) / 2 + 0.05
+    tab = c["tab_len"] - c["t"]
+    total = tab + ba + arm
     b, tw, tl = c["b"], c["tooth_w"], c["tooth_len"]
     ents: list[str] = []
 
     def ln(x0, y0, x1, y1, layer):
         ents.append(f"0\nLINE\n8\n{layer}\n10\n{x0:.4f}\n20\n{y0:.4f}\n30\n0\n11\n{x1:.4f}\n21\n{y1:.4f}\n31\n0")
-    for i in range(2):
+    for i in range(4):
         oy = i * (b + 3.0)
-        o = [(0, oy), (total, oy), (total, oy + (b - tw) / 2), (total + tl, oy + (b - tw) / 2), (total + tl, oy + (b + tw) / 2), (total, oy + (b + tw) / 2), (total, oy + b),
-             (0, oy + b), (0, oy + (b + tw) / 2), (-tl, oy + (b + tw) / 2), (-tl, oy + (b - tw) / 2), (0, oy + (b - tw) / 2)]
-        for a, bb in zip(o, o[1:] + o[:1]):
-            ln(a[0], a[1], bb[0], bb[1], "CUT")
-        for xb in (arm + ba / 2, arm + ba + span + ba / 2, 0.0, total):
+        o = [(0, oy), (total, oy), (total, oy + (b - tw) / 2), (total + tl, oy + (b - tw) / 2), (total + tl, oy + (b + tw) / 2), (total, oy + (b + tw) / 2), (total, oy + b), (0, oy + b)]
+        for a_, bb in zip(o, o[1:] + o[:1]):
+            ln(a_[0], a_[1], bb[0], bb[1], "CUT")
+        for xb in (tab + ba / 2, total):
             ln(xb, oy - 0.3, xb, oy + b + 0.3, "BEND")
     path.write_text("0\nSECTION\n2\nHEADER\n9\n$INSUNITS\n70\n4\n0\nENDSEC\n0\nSECTION\n2\nENTITIES\n" + "\n".join(ents) + "\n0\nENDSEC\n0\nEOF\n", encoding="ascii")
-    return {"flat_length_mm": round(total, 2), "strip_width_mm": b, "thickness_mm": c["t"], "tooth_tab_mm": [tl, tw], "clips_in_file": 2}
+    return {"flat_length_mm": round(total, 2), "strip_width_mm": b, "thickness_mm": c["t"], "tooth_tab_mm": [tl, tw], "anchor_tab_mm": c["tab_len"], "strips_in_file": 4,
+            "shape": "L-spring: tab 90 deg outward into the anchor slot, tooth flap bent in 45 deg toward the tank (barb)"}

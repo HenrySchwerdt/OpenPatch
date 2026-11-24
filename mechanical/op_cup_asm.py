@@ -11,8 +11,8 @@ ORDER = [
     ("3 motor + gear A", ["motor", "gearhead", "motor_boss", "motor_rear_boss", "motor_shaft", "gear_a", "motor_term"]),
     ("4 battery (301030)", ["ko_battery"]),
     ("5 board + USB-C + piezo/button (PCBA; motor 4 + cell 2 wires soldered to its west-end pads first)", ["ko_board", "ko_board_tab", "ko_usb", "ko_aux", "ko_io", "ko_side_a", "ko_side_b", "ko_tmag_board", "hall_tmag", "ko_dock_board", "hall_dock"]),
-    ("6 gaskets + lid + 3 screws", ["lid_gasket", "usb_gasket", "top"]),
-    ("7 dock parts from BELOW through the pocket window", ["hub_gasket", "needle_hub", "needle", "needle_guard", "dock_clip"]),
+    ("6 seal ring + USB-C frame + lid (button cap + O-ring pre-fitted in the lid) + 3 screws", ["lid_gasket", "usb_gasket", "top", "button_oring", "button_cap"]),
+    ("7 dock parts from BELOW through the pocket (springs: tabs pushed up into the anchor slots)", ["hub_gasket", "needle_hub", "needle", "needle_guard", "dock_clip"]),
 ]
 FROM_BELOW = {"hub_gasket", "needle_hub", "needle", "needle_guard", "dock_clip", "cannula_adapter", "dock_magnet"}
 
@@ -30,17 +30,31 @@ def build(s: Script, p: dict, L: dict) -> None:
     bu, usb, bat = c["bush"], c["usb"], c["battery"]
     posts = corner_posts(L)
     joins, cuts, tcuts, tjoins = [], [], [], []
-    # ---- (1) lid closure from the TOP: 3 posts in the bottom corners (thread-forming M1.2 into d1.0 pilots, 4 mm deep); flush countersunk heads in the clear lid, sealed under the head by a
-    #          0.3 mm silicone washer; the lid roof rests on the post tops; flat silicone gasket on the rim
+    # ---- (1) shell joint (owner 2026-11-24): lid bottom face sits on the bottom-shell rim at z = lap (plastic-to-plastic hard stop, flush outer seam); seal ring in a groove in the
+    #          rim at constant distance from the outer wall, pressed by a tongue under the lid; 3 posts in the bottom corners (thread-forming M1.2 into d1.0 pilots, 4 mm deep),
+    #          post tops `post_gap` below the lid roof so only the rim carries the lid; flush countersunk heads in the clear lid, sealed with a dab of silicone
+    jt = c["joint"]
     rr = c["corner_r_outer"]
     for k, (px, py) in enumerate(posts):
-        joins.append(s.cyl(f"t_post{k}", "Z", (px, py, 0), 2.0, w - 0.1, H - w - 0.05))
+        joins.append(s.cyl(f"t_post{k}", "Z", (px, py, 0), 2.0, w - 0.1, H - w - jt["post_gap"]))
         cuts.append(s.cyl(f"t_pilot{k}", "Z", (px, py, 0), 1.0, H - w - 4.0, H - w))
-        tcuts += [s.cyl(f"t_tcl{k}", "Z", (px, py, 0), 2.4, lap + 0.3, H - w + 0.05), s.cyl(f"t_thole{k}", "Z", (px, py, 0), 1.4, H - w - 0.1, H + 0.1),
+        tcuts += [s.cyl(f"t_tcl{k}", "Z", (px, py, 0), 2.4, lap + 0.001, H - w + 0.05), s.cyl(f"t_thole{k}", "Z", (px, py, 0), 1.4, H - w - 0.1, H + 0.1),
                   s.cyl(f"t_thead{k}", "Z", (px, py, 0), 2.4, H - 0.6, H + 0.1)]
-    s.rrect("lid_gasket", (0.15, Lp - 0.15), (0.15, W - 0.15), rr - 0.15, (lap, lap + 0.5))
-    s.rrect("t_gk_in", (0.55, Lp - 0.55), (0.55, W - 0.55), rr - 0.55, (lap - 0.1, lap + 0.6))
-    s.cut("lid_gasket", ["t_gk_in"])
+    u = L["usb"]
+    xu, zu = u["x_c"], u["z_c"]
+    sk = jt["usb_skip_half"]
+    rim = ((0, Lp), (0, W))
+
+    def usb_skip(name: str) -> str:              # groove, tongue and seal end at the USB-C gasket frame (the frame carries the seal across the joint there)
+        return s.box(name, (xu - sk, xu + sk), (W - 2.0, W + 0.1), (lap - 1.0, lap + 1.0))
+    s.rrect_ring("t_groove", *rim, rr, tuple(jt["groove_off"]), (lap - jt["groove_depth"], lap + 0.01))
+    s.cut("t_groove", [usb_skip("t_gr_usb")])
+    cuts.append("t_groove")
+    s.rrect_ring("t_tongue", *rim, rr, tuple(jt["tongue_off"]), (lap - jt["tongue_h"], lap + 0.01))
+    s.cut("t_tongue", [usb_skip("t_to_usb")])
+    tjoins.append("t_tongue")
+    s.rrect_ring("lid_gasket", *rim, rr, tuple(jt["seal_off"]), (lap - jt["groove_depth"], lap - jt["groove_depth"] + jt["seal_h"]))
+    s.cut("lid_gasket", [usb_skip("t_lg_usb")])
     # ---- (2) motor cradle: U saddles with snap lips (built in op_cup.py) hold the can; nothing hangs from the lid; FPC groove from the pin pocket toward lane 2
     yt = L["gearhead_y"][0] + dr["term_x"]
     cuts.append(s.box("t_fpc_groove", (xc, L["battery"]["x"][0] - 0.1), (yt - 1.1, yt + 1.1), (0.35, w + 0.01)))
@@ -63,29 +77,55 @@ def build(s: Script, p: dict, L: dict) -> None:
     zb1 = c["board"]["pcb_z"][1]
     for k, (x, y) in enumerate(bs["ledges"]):
         joins.append(s.cyl(f"t_ledge{k}", "Z", (x, y, 0), bs["ledge_d"], w - 0.1, bs["z_top"]))
-        tjoins.append(s.cyl(f"t_hold{k}", "Z", (x, y, 0), bs["rib_d"], zb1, H - w + 0.05))
+        tjoins.append(s.cyl(f"t_hold{k}", "Z", (x, y, 0), bs["rib_d"], zb1 + jt["rib_gap"], H - w + 0.05))
     for k, (x, y) in enumerate(L["board_screws"]):                                   # board screw bosses (top = board underside), thread-forming pilot from the top
         joins.append(s.cyl(f"t_sboss{k}", "Z", (x, y, 0), bs["boss_d"], w - 0.1, bs["z_top"]))
         cuts.append(s.cyl(f"t_spilot{k}", "Z", (x, y, 0), bs["pilot_d"], bs["z_top"] - bs["pilot_depth"], bs["z_top"] + 0.01))
-    joins.append(s.box("t_shelf", tuple(bs["shelf_x"]), (bs["shelf_y0"], W - w + 0.05), (w - 0.1, bs["z_top"])))
-    tjoins.append(s.box("t_hold_w", tuple(bs["shelf_x"]), (bs["shelf_y0"], W - w + 0.05), (zb1, H - w + 0.05)))
-    # ---- (7b) side button (fix 6): flex window in the +Y LID wall, recessed from outside to a 0.45 mm membrane (below the R1.8 top fillet), 0.3 mm inner nub on the SW1 actuator
-    bt = c["button"]
-    tcuts.append(s.box("t_btn_win", tuple(bt["win_x"]), (W - w + bt["wall_left"], W + 0.1), tuple(bt["win_z"])))
-    tjoins.append(s.box("t_btn_nub", (bt["x_c"] - bt["nub_w"] / 2, bt["x_c"] + bt["nub_w"] / 2), (W - w - bt["nub_t"], W - w + 0.05), tuple(bt["nub_z"])))
-    # ---- (8) USB-C seat: opening through bottom wall AND lid wall, gasket recess 0.4 deep in the wall inner face, silicone frame (centre x 23.5, board mid-plane z 5.7)
-    u = L["usb"]
-    xu, zu = u["x_c"], u["z_c"]
-    cuts.append(s.box("t_usb_rec", (xu - usb["open_w"] / 2 - 0.9, xu + usb["open_w"] / 2 + 0.9), (W - w - 0.05, W - w + 0.4), (zu - usb["open_h"] / 2 - 0.9, min(lap, zu + usb["open_h"] / 2 + 0.9))))
-    tcuts += [s.box("t_usb_open_t", (xu - usb["open_w"] / 2, xu + usb["open_w"] / 2), (W - w - 0.1, W + 0.1), (lap, zu + usb["open_h"] / 2)),
-              s.box("t_usb_rec_t", (xu - usb["open_w"] / 2 - 0.9, xu + usb["open_w"] / 2 + 0.9), (W - w - 0.05, W - w + 0.4), (lap + 0.4, zu + usb["open_h"] / 2 + 0.9))]
-    s.box("usb_gasket", (xu - usb["open_w"] / 2 - 0.8, xu + usb["open_w"] / 2 + 0.8), (W - w, W - w + 0.4), (max(zu - usb["open_h"] / 2 - 0.8, w + 0.1), min(lap, zu + usb["open_h"] / 2 + 0.8)))
-    s.cut("usb_gasket", [s.box("t_ug_in", (xu - usb["open_w"] / 2, xu + usb["open_w"] / 2), (W - w - 0.1, W - w + 0.5), (zu - usb["open_h"] / 2, zu + usb["open_h"] / 2))])
-    s.cut("lid_gasket", [s.box("t_lg_usb", (xu - usb["open_w"] / 2 - 0.9, xu + usb["open_w"] / 2 + 0.9), (W - w - 0.2, W + 0.1), (lap - 0.1, lap + 0.6))])
-    # ---- (9) U-clip bridge slot in the pocket end wall (clip is pressed in from below), pocket mouth lead-in chamfer on the window edge
-    z0 = K["clip"]["z0"]
-    cuts.append(s.box("t_clip_slot", (K["x_far"] - 0.2, K["x_far"] + 0.3), (yr - K["R"] - 0.6, yr + K["R"] + 0.6), (z0 - 0.1, z0 + K["clip"]["b"] + 0.1)))
+    joins.append(s.box("t_shelf", tuple(bs["shelf_x"]), (bs["shelf_y0"], W - w + 0.05), (w - 0.1, lap)))           # above the rim the shelf stays inside the lid wall face
+    joins.append(s.box("t_shelf_t", tuple(bs["shelf_x"]), (bs["shelf_y0"], W - w), (lap - 0.01, bs["z_top"])))
+    tjoins.append(s.box("t_hold_w", tuple(bs["shelf_x"]), (bs["shelf_y0"], W - w + 0.05), (zb1 + jt["rib_gap"], H - w + 0.05)))
+    # ---- (7b) side button (owner 2026-11-24): printed cap in a round hole through the +Y LID wall, inserted from inside (flange bar inside), O-ring rod seal in a counterbore
+    build_button(s, c, L, tcuts)
+    # ---- (8) USB-C seat: STADIUM opening through bottom AND lid wall with a 0.3 x 45 deg outer chamfer, stadium gasket recess in the wall inner face, stadium silicone frame
+    build_usb(s, c, L, cuts, tcuts)
     s.join("bottom", joins)
     s.cut("bottom", cuts)
     s.join("top", tjoins)
     s.cut("top", tcuts)
+
+
+def build_button(s: Script, c: dict, L: dict, tcuts: list) -> None:
+    """Button cap (MFG part `button_cap`) + O-ring (`button_oring`) + their lid cuts.  y: wall inner face W - w, outer face W; the cap is drawn at rest."""
+    bt = c["button"]
+    W, w = L["width"], L["wall"]
+    xb, zb = bt["x_c"], bt["z_c"]
+    yi, yo = W - w, W
+    yc = yi + bt["cbore_depth"]
+    tcuts += [s.cyl("t_btn_cb", "Y", (xb, 0, zb), bt["cbore_d"], yi - 0.05, yc),
+              s.cyl("t_btn_bore", "Y", (xb, 0, zb), bt["bore_d"], yc - 0.01, yo + 0.1),
+              s.cone("t_btn_ch", "Y", (xb, 0, zb), bt["bore_d"] / 2, bt["bore_d"] / 2 + bt["bore_chamfer"] + 0.1, yo - bt["bore_chamfer"], yo + 0.1)]
+    yf = yo - bt["face_recess"]
+    fc = bt["face_chamfer"]
+    s.cyl("button_cap", "Y", (xb, 0, zb), bt["stem_d"], yi - 0.1, yf - fc)
+    parts = [s.cone("t_bc_ch", "Y", (xb, 0, zb), bt["stem_d"] / 2, bt["stem_d"] / 2 - fc, yf - fc, yf),
+             s.box("t_bc_fl", tuple(bt["flange"]["x"]), (yi - bt["flange"]["t"], yi), tuple(bt["flange"]["z"])),
+             s.box("t_bc_pad", tuple(bt["pad"]["x"]), (bt["pad"]["face_y"], yi - bt["flange"]["t"] + 0.01), tuple(bt["pad"]["z"]))]
+    s.join("button_cap", parts)
+    s.tube("button_oring", "Y", (xb, 0, zb), bt["cbore_d"] - 0.01, bt["stem_d"] + 0.01, yi, yc - 0.005)          # drawn installed: 0.5 CS squeezed radially into the 0.4 gland (d2.4 / d1.6)
+
+
+def build_usb(s: Script, c: dict, L: dict, cuts: list, tcuts: list) -> None:
+    usb = c["usb"]
+    W, w = L["width"], L["wall"]
+    u = L["usb"]
+    xu, zu = u["x_c"], u["z_c"]
+    ow, oh, m, ch, g = usb["open_w"], usb["open_h"], usb["recess_margin"], usb["chamfer_out"], usb["gasket"]
+    for sfx, lst in (("b", cuts), ("t", tcuts)):
+        lst.append(s.stadium_y(f"t_usb_open_{sfx}", (W - w - 0.1, W + 0.1), xu, zu, ow, oh))
+        lst.append(s.stadium_y(f"t_usb_ch_{sfx}", (W - ch, W + 0.01), xu, zu, ow, oh, taper_deg=45.0))
+        rec = s.stadium_y(f"t_usb_rec_{sfx}", (W - w - 0.05, W - w + usb["recess_depth"]), xu, zu, ow + 2 * m, oh + 2 * m)
+        s.cut(rec, [s.box(f"t_usb_rec_clip_{sfx}", (xu - ow, xu + ow), (W - w - 0.2, W), (usb["recess_z_max"], zu + oh))])
+        lst.append(rec)
+    s.stadium_y("usb_gasket", (W - w, W - w + g["t"]), xu, zu, ow + 2 * g["margin"], oh + 2 * g["margin"])
+    s.cut("usb_gasket", [s.stadium_y("t_ug_in", (W - w - 0.1, W - w + g["t"] + 0.1), xu, zu, g["in_w"], g["in_h"]),
+                         s.box("t_ug_clip", (xu - ow, xu + ow), (W - w - 0.2, W), (g["z_max"], zu + oh))])

@@ -211,8 +211,10 @@ def check_size(outdir: Path, variant: str, p: dict) -> dict:
     wet.stadium("wet_full", (L["x_pf_full"], L["x_in"]), yr, zc, L["bore_w"], L["bore_h"])
     wet.stadium("wet_empty", (L["x_pf_empty"] - 0.001, L["x_in"]), yr, zc, L["bore_w"], L["bore_h"])
     hh = p["cup"]["dock"]["head"]
-    wet.box("dome_sweep", (K["x_f"], K["x_d"] + K["R"] + K["slide"]), (K["y_c"] - K["R"], K["y_c"] + K["R"]), (0.0, hh["B_dome_h"] + 0.05))
-    wet.box("plate_sweep", (K["plate_x"][0] + 0.2, K["plate_x"][1] - 0.2), (K["y_c"] - hh["base_w"] / 2, K["y_c"] + hh["base_w"] / 2), (0.0, hh["base_t"]))
+    open_end = p["cup"]["dock"].get("open_end")
+    x_sw = L["length"] + 1.0 if open_end else K["x_d"] + K["R"] + K["slide"]          # open end: the head slides in from outside the end face
+    wet.box("dome_sweep", (K["x_f"], x_sw), (K["y_c"] - K["R"], K["y_c"] + K["R"]), (0.0, hh["B_dome_h"] + 0.05))
+    wet.box("plate_sweep", (K["plate_x"][0] + 0.2, x_sw if open_end else K["plate_x"][1] - 0.2), (K["y_c"] - hh["base_w"] / 2, K["y_c"] + hh["base_w"] / 2), (0.0, hh["base_t"]))
     ex2 = excl + [["wet_full", "wet_empty"], ["dome_sweep", "plate_sweep"]]
     ok_dock = ["cannula_adapter", "dock_magnet", "dock_clip", "needle", "needle_hub", "needle_guard"]
     ex2 += [[a, b] for a in ("dome_sweep", "plate_sweep") for b in ok_dock]
@@ -278,8 +280,8 @@ def check_size(outdir: Path, variant: str, p: dict) -> dict:
         warns.append(f"base-plate window {plate_len:.1f} mm long (> 12): base plate {p['cup']['dock']['head']['base_l']} + 2 x {p['cup']['dock']['clr']} clearance + {K['slide']} slide; <= 12 needs a base plate <= {12 - 0.4 - K['slide']:.1f} mm (TODO-MEASURE)")
     st = dock.clip_stress(p, K)
     if st["sigma_need"] > p["cup"]["dock"]["clip"]["allow_MPa"]:
-        problems.append(f"U-clip bending stress {st['sigma_need']:.0f} MPa > allowable {p['cup']['dock']['clip']['allow_MPa']}")
-    warns.append(f"U-clip 301 FH 0.1 mm: arm {st['arm_len']:.1f} mm, needed travel {st['need_travel']:.2f} -> {st['sigma_need']:.0f} MPa (allow {p['cup']['dock']['clip']['allow_MPa']}), tip force {st['F_need_N']:.3f} N/clip; "
+        problems.append(f"dock spring bending stress {st['sigma_need']:.0f} MPa > allowable {p['cup']['dock']['clip']['allow_MPa']}")
+    warns.append(f"dock L-springs 301 FH 0.1 mm: arm {st['arm_len']:.1f} mm, needed travel {st['need_travel']:.2f} -> {st['sigma_need']:.0f} MPa (allow {p['cup']['dock']['clip']['allow_MPa']}), tip force {st['F_need_N']:.3f} N/clip; "
                  f"1.8 mm travel -> {st['sigma_1p8']:.0f} MPa; a 3.5 mm arm allows only {st['short_arm_3p5_travel']:.2f} mm, 1.8 mm needs >= {st['arm_for_1p8']:.1f} mm")
     hw = dock.hall_window(p)
     if hw["assert_radius_mm"] > 0.8 or hw["assert_radius_mm"] <= 0.0:
@@ -336,11 +338,61 @@ def check_size(outdir: Path, variant: str, p: dict) -> dict:
         problems.append(f"USB-C centre z {us['z_c']} off the board mid-plane {(zb0 + zb1) / 2}")
     if us["z_c"] + us["open_h"] / 2 > L["height"] - w - 0.1:
         problems.append("USB-C opening reaches the lid roof")
-    lap_t = p["shell"]["lap_low"] + 0.4
-    if bt["win_z"][1] > L["height"] - p["cup"]["top_fillet"] + 1e-6 or bt["win_z"][0] < lap_t + 0.1:
-        problems.append(f"button window z {bt['win_z']} not on the flat lid wall ({lap_t + 0.1:.2f}..{L['height'] - p['cup']['top_fillet']:.2f})")
-    if bt["win_x"][0] < us["x_c"] + us["open_w"] / 2 + 0.9 + 0.2:
-        problems.append("button window overlaps the USB-C gasket recess in x (thin sliver)")
+    # side button cap (owner 2026-11-24): inside the lid wall between the joint and the roof, pad on the actuator, stroke 0.3-0.4, O-ring gland
+    lap, H, tf = p["shell"]["lap_low"], L["height"], p["cup"]["top_fillet"]
+    r_cb = bt["cbore_d"] / 2
+    if bt["z_c"] - r_cb < lap + 0.1 or bt["z_c"] + r_cb > H - w - 0.03:
+        problems.append(f"button counterbore z {bt['z_c'] - r_cb:.2f}..{bt['z_c'] + r_cb:.2f} not inside the lid wall ({lap + 0.1:.2f}..{H - w - 0.03:.2f})")
+    zt = bt["z_c"] + r_cb                                                           # wall left behind the counterbore at its top (outer R1.8 fillet)
+    y_out = L["width"] - tf + math.sqrt(max(tf ** 2 - max(0.0, zt - (H - tf)) ** 2, 0.0))
+    wall_cb = y_out - (L["width"] - w + bt["cbore_depth"])
+    if wall_cb < 0.15:
+        problems.append(f"button counterbore leaves only {wall_cb:.2f} mm under the top fillet")
+    stroke = bt["pad"]["face_y"] - bt["actuator_tip_y_max"] + bt["switch_travel"]
+    if not (0.29 <= stroke <= 0.41):
+        problems.append(f"button stroke to actuate {stroke:.2f} outside 0.3-0.4")
+    if bt["flange"]["z"][0] < zb1 + 0.05 or bt["pad"]["z"][0] < zb1 + 0.05:
+        problems.append("button flange / pad reach down to the board top (would hit the board edge when pressed)")
+    if not (bt["pad"]["z"][0] - 1e-6 <= bt["actuator_z"] <= bt["pad"]["z"][1] + 1e-6):
+        problems.append(f"button pad z {bt['pad']['z']} does not cover the actuator z {bt['actuator_z']}")
+    gl = (bt["cbore_d"] - bt["stem_d"]) / 2
+    sq = 1 - gl / bt["oring"]["cs"]
+    if not (0.08 <= sq <= 0.3):
+        problems.append(f"button O-ring radial squeeze {sq:.0%} outside 8-30 %")
+    if bt["cbore_depth"] < bt["oring"]["cs"] - 1e-6:
+        problems.append("button O-ring counterbore shallower than the cord")
+    if bt["flange"]["x"][0] < us["x_c"] + us["open_w"] / 2 + us["recess_margin"] + 0.3:
+        problems.append("button flange overlaps the USB-C gasket recess in x")
+    warns.append("button / board handshake (pre-order review H8): the routed board puts the SW1 tip at y 35.65-35.77 (z ~6.7); this cap needs tip <= %.2f, i.e. SW1 moved back 0.45 mm on the board (board y 82.30). OPEN until the board is changed" % bt["actuator_tip_y_max"])
+    warns.append(f"button cap: stem d{bt['stem_d']} at x {bt['x_c']}, z {bt['z_c']} in the lid wall, stroke {stroke:.2f} (gap {bt['pad']['face_y'] - bt['actuator_tip_y_max']:.2f} + switch {bt['switch_travel']}), "
+                 f"O-ring {bt['oring']['id']} x {bt['oring']['cs']} squeeze {sq:.0%}, wall under the fillet behind the counterbore {wall_cb:.2f} mm")
+    # shell joint: hard stop on the rim, seal squeeze and groove fill, posts / ribs / screw heads clear of the lid roof
+    jt = p["cup"]["joint"]
+    g_w = jt["groove_off"][1] - jt["groove_off"][0]
+    t_w = jt["tongue_off"][1] - jt["tongue_off"][0]
+    s_w = jt["seal_off"][1] - jt["seal_off"][0]
+    comp = jt["groove_depth"] - jt["tongue_h"]
+    squeeze = 1 - comp / jt["seal_h"]
+    fill = s_w * jt["seal_h"] / (g_w * jt["groove_depth"] - t_w * jt["tongue_h"])
+    if not (0.18 <= squeeze <= 0.27):
+        problems.append(f"seal squeeze {squeeze:.0%} outside 18-27 %")
+    if fill > 0.85:
+        problems.append(f"seal groove fill {fill:.0%} > 85 %")
+    if s_w * jt["seal_h"] / comp > g_w:
+        problems.append("compressed seal wider than the groove")
+    if not (jt["groove_off"][0] < jt["tongue_off"][0] and jt["tongue_off"][1] < jt["groove_off"][1]):
+        problems.append("tongue not inside the groove")
+    if min(jt["groove_off"][0], w - jt["groove_off"][1]) < 0.2:
+        problems.append("groove wall < 0.2 mm")
+    post_top, roof = H - w - jt["post_gap"], H - w
+    if post_top > roof - 0.05:
+        problems.append(f"lid posts (top {post_top:.2f}) can hold the lid off the rim (roof {roof:.2f})")
+    if jt["rib_gap"] < 0.03:
+        problems.append("lid hold-down ribs nominally touch the board: they can prop the lid off the rim")
+    sh_top = zb1 + 0.8                                                             # M1.2 cheese head 0.8 on the board top
+    warns.append(f"shell joint: lid on the rim at z {lap} (hard stop, no gap); groove {g_w:.2f} x {jt['groove_depth']} at {jt['groove_off'][0]} from the outer wall, tongue {t_w:.2f} x {jt['tongue_h']}, "
+                 f"seal {s_w:.2f} x {jt['seal_h']} -> squeeze {squeeze:.0%}, fill {fill:.0%}; post tops {post_top:.2f} / ribs {zb1 + jt['rib_gap']:.2f} (board top {zb1}) / board screw heads {sh_top:.2f} vs lid roof {roof:.2f}: "
+                 f"nothing reaches the roof. Earlier print: lid face 0.4 above the rim (flat 0.5 gasket) and post tops 0.05 below the roof -> 0.35 mm gap even without the gasket (0.7 mm at 2:1)")
     if bsu["z_top"] != zb0:
         problems.append("support tops not at the board underside")
     if (L["height"] - w) - zb1 < 0.8 + 0.3:
@@ -353,7 +405,7 @@ def check_size(outdir: Path, variant: str, p: dict) -> dict:
     if wc[1] - wc[0] < 1.8:
         problems.append(f"wire channel x {wc} narrower than 1.8 mm")
     warns.append(f"board interface: USB-C opening x {us['x_c'] - us['open_w'] / 2:.1f}..{us['x_c'] + us['open_w'] / 2:.1f}, z {us['z_c'] - us['open_h'] / 2:.2f}..{us['z_c'] + us['open_h'] / 2:.2f}; "
-                 f"wire channel x {wc[0]}..{wc[1]}; cell x {L['battery']['x'][0]:.2f}..{L['battery']['x'][1]:.2f}; board screws {L['board_screws']}; button nub x {bt['x_c']} face y {L['elec_interface']['button']['nub']['contact_face_y']}")
+                 f"wire channel x {wc[0]}..{wc[1]}; cell x {L['battery']['x'][0]:.2f}..{L['battery']['x'][1]:.2f}; board screws {L['board_screws']}; button pad x {bt['pad']['x']} face y {bt['pad']['face_y']}")
     # ---- assembly: every group drops in from above in ORDER (drop path = own bbox x-y swept from the part bottom to the cavity ceiling, free of the housing and of earlier groups)
     import op_cup_asm
     tools = Script()
@@ -362,7 +414,7 @@ def check_size(outdir: Path, variant: str, p: dict) -> dict:
         for n in names:
             grp[n] = gi
     for n, gi in grp.items():
-        if n in ("bottom", "top", "lid_gasket", "usb_gasket") or n in op_cup_asm.FROM_BELOW or n not in by or gi >= 6:
+        if n in ("bottom", "top", "lid_gasket", "usb_gasket", "button_cap", "button_oring") or n in op_cup_asm.FROM_BELOW or n not in by or gi >= 6:
             continue
         mn, mx = bb(n)["min"], bb(n)["max"]
         z_lo = zc + p["cup"]["motor"]["snap_h"] if n in ("motor", "gearhead", "motor_boss", "motor_rear_boss") else zc if n == "bush_rod" else mn[2] + 0.01
@@ -385,13 +437,13 @@ def check_size(outdir: Path, variant: str, p: dict) -> dict:
             blocked.setdefault(d_[5:], []).append(o_)
     for n, o in blocked.items():
         problems.append(f"assembly: {n} cannot drop in from above, blocked by {sorted(set(o))}")
-    warns.append("assembly order (drop test passed for): " + "; ".join(f"{g}: {len([x for x in names if f'drop_{x}' in {c_['params'].get('body_name') for c_ in tools.dumps()}])} parts" for g, names in op_cup_asm.ORDER[:5]) + "; dock parts (hub + O-ring + needle + guard + clip) are pressed in from BELOW through the pocket window (documented exception)")
+    warns.append("assembly order (drop test passed for): " + "; ".join(f"{g}: {len([x for x in names if f'drop_{x}' in {c_['params'].get('body_name') for c_ in tools.dumps()}])} parts" for g, names in op_cup_asm.ORDER[:5]) + "; dock parts (hub + O-ring + needle + guard + springs) are pressed in from BELOW through the pocket (documented exception); button cap + O-ring go into the lid from inside before it is closed")
     import cup_packing
     pk = cup_packing.run(outdir, variant)
     if pk["rect_4x4_found"]:
         problems.append(f"packing: empty full-height rectangle >= 4 x 4 mm remains (first at x,y = {pk['rect_4x4_first']}, {pk['n_4x4_cells']} cells): shorten/narrow or fill it")
     warns.append(f"packing: free plan area {pk['free_mm2']} of {pk['plan_mm2']} mm2 (full-height bbox model), largest empty rectangle {pk['largest_empty_rect']['area_mm2']} mm2 at {pk['largest_empty_rect']['x0y0x1y1']}, no 4 x 4 hole")
-    for part in ("bottom", "top", "reservoir", "plunger_core", "plunger_seal"):
+    for part in ("bottom", "top", "reservoir", "plunger_core", "plunger_seal", "lid_gasket", "usb_gasket", "button_cap"):
         for ext in ("step", "stl"):
             if not (outdir / f"{variant}_{part}.{ext}").exists():
                 problems.append(f"missing export {variant}_{part}.{ext}")

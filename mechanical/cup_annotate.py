@@ -35,14 +35,16 @@ def draw(p: dict, L: dict, svg_path: Path) -> Path:
     line(0.9, L["lane2_y"][0] - 0.1, Ln - 0.9, L["lane2_y"][0] - 0.1, "#888", 1.0, "6,4")
     # dock at the right end of lane 1: pocket, plate path, head, clips, needle
     rect(K["x_bf"], yr - K["half"] - 0.4, Ln - w, yr + K["half"] + 0.4, "#e8f0ff", "#4a6a9a", op=0.5)
-    rect(K["x_bf"], yr - K["half"], K["x_far"], yr + K["half"], "#ffffff", "#4a6a9a", op=0.9, dash="5,3")
+    rect(K["x_bf"], yr - K["half"], Ln + 0.3, yr + K["half"], "#ffffff", "#4a6a9a", op=0.9, dash="5,3")                      # open to the underside and the +X end
     circ(K["x_d0"], yr, K["R"], "none", "#2a6a9a", dash="4,3")
     circ(K["x_d"], yr, K["R"], "#e8f6ff", "#2a6a9a", op=0.6)
     hh = c["dock"]["head"]
     rect(K["x_d"] - hh["base_l"] / 2, yr - hh["base_w"] / 2, K["x_d"] + hh["base_l"] / 2, yr + hh["base_w"] / 2, "none", "#7a5cc7", dash="3,3")
     for sg in (-1, 1):
         ya = yr + sg * (K["R"] + c["dock"]["clip"]["arm_inner_clr"])
-        rect(K["x_tooth"], min(ya, ya + sg * 0.1), K["x_far"] - 0.15, max(ya, ya + sg * 0.1), "#b8c0c8", "#445", sw=2)
+        rect(K["x_tooth"], min(ya, ya + sg * 0.1), K["x_far"] - 0.1, max(ya, ya + sg * 0.1), "#b8c0c8", "#445", sw=2)
+        rect(K["x_far"] - 0.15, min(ya, ya + sg * 0.9), K["x_far"] - 0.05, max(ya, ya + sg * 0.9), "#b8c0c8", "#445", sw=2)       # anchor tab in its slot
+        rect(K["x_far"] - 0.15, min(ya + sg * 0.1, yr + sg * K["half"]), Ln, max(ya + sg * 0.1, yr + sg * K["half"]), "#c9d3dd", "#4a6a9a", op=0.8)   # anchor block
         rect(K["x_tooth"] - 0.3, yr + sg * 3.5 - 0.1, K["x_tooth"] + 0.3, yr + sg * 4.0 + 0.1, "#445", "#000")
     rect(K["x_d"] - 0.55, yr - 0.7, K["x_d"] + 0.55, yr + 0.7, "#ff7f00", "#703000")
     line(K["x_hub"][0], yr, K["x_tip"], yr, "#000", 1.6)
@@ -75,7 +77,7 @@ def draw(p: dict, L: dict, svg_path: Path) -> Path:
     rect(xc - 3, L["motor_y"][0], xc + 3, L["motor_y"][1], "#8a8f98", "#444")
     rect(xc - 1.3, L["rear_boss_y"][0], xc + 1.3, L["rear_boss_y"][1], "#666", "#333")
     circ(L["x_s"], L["y_s"], 1.0, "#f2a0c0", "#a03060", op=0.95)
-    # board interface (board review 2026-11-20): USB-C opening, wire channel, supports + lid ribs, board screws, button flex window + nub
+    # board interface (board review 2026-11-20): USB-C opening, wire channel, supports + lid ribs, board screws, button cap
     E, bs = L["elec_interface"], c["board_support"]
     uo = E["usb_opening"]
     rect(uo["x"][0], W - w, uo["x"][1], W, "#8a3fd0", "#40206a", op=0.9)
@@ -91,10 +93,11 @@ def draw(p: dict, L: dict, svg_path: Path) -> Path:
         circ(x, y, bs["ring_d"] / 2, "none", "#c00", dash="2,2")
         circ(x, y, bs["boss_d"] / 2, "#999", "#000")
         circ(x, y, bs["hole_d"] / 2, "#f0c040", "#806000")
-    bw = E["button"]["flex_window"]
-    rect(bw["x"][0], W - w + bw["wall_left"], bw["x"][1], W, "#ff9900", "#804000", op=0.9)
-    nb = E["button"]["nub"]
-    rect(nb["x"][0], nb["contact_face_y"], nb["x"][1], W - w, "#804000", "#000")
+    bc = E["button"]["cap"]
+    bt = c["button"]
+    rect(bc["flange"]["x"][0], bc["flange"]["y"][0], bc["flange"]["x"][1], bc["flange"]["y"][1], "#ff9900", "#804000", op=0.9)
+    rect(bt["x_c"] - bt["stem_d"] / 2, W - w, bt["x_c"] + bt["stem_d"] / 2, W - bt["face_recess"], "#ff9900", "#804000", op=0.9)
+    rect(bc["pad"]["x"][0], bc["pad"]["contact_face_y"], bc["pad"]["x"][1], bc["flange"]["y"][0], "#804000", "#000")
     items = [
         (xc, (L["motor_y"][0] + L["motor_y"][1]) / 2, "Motor NFP-608-26.45 TRANSVERSE (axis Y), last element at the rear, spans both lanes", "#8a8f98"),
         (xc, L["gear_a_y"][0] + 1.1, "Gear A: miter bevel m0.3 z12 on the motor shaft (2 mm bore, faced)", "#e8b000"),
@@ -107,13 +110,13 @@ def draw(p: dict, L: dict, svg_path: Path) -> Path:
         (L["x_t0"] - 0.6, yr + 0.5, "Outlet through the front wall straight into the needle hub (+X)", "#1a6fd0"),
         (K["x_tip"] - 0.4, yr - 0.6, "30G needle (+X) with spring guard", "#000000"),
         (L["x_s"], L["y_s"], "Fill septum, UNDERSIDE of the front wall", "#f2a0c0"),
-        (K["x_d"] + 1.5, yr + 2.5, "Dock: place-down pocket %.1f x %.1f, slide %.1f mm, head latched" % (K["pocket_len"], 2 * K["half"], K["slide"]), "#e07ac0"),
-        (K["x_tooth"], yr + 4.3, "U-clip (301 FH 0.1 mm) arms + teeth in the dome notches", "#b8c0c8"),
+        (K["x_d"] + 1.5, yr + 2.5, "Dock U-slot %.1f wide, open below + at the end, insertion %.1f mm" % (2 * K["half"], K["slide"]), "#e07ac0"),
+        (K["x_tooth"], yr + 4.3, "Two L-springs 301 FH 0.1, teeth in the dome notches", "#b8c0c8"),
         (K["x_d"], yr - 1.5, "Dock magnet in the head + dock hall above the pocket roof", "#ff7f00"),
         (sum(L["magnet"]) / 2, yr - 0.2, "Diametric magnet on gear B's rear face", "#cc2222"),
         (sum(L["tmag"]) / 2, L["tmag_y"], "TMAG5273 beside the magnet (0.5 mm gap), tiny sensor tab", "#ffd400"),
         (sum(L["battery"]["x"]) / 2, L["battery"]["y"][0] + 5, "Cell Ampul 301030 x %.1f-%.1f, leads WEST (VERIFY on sample)" % tuple(L["battery"]["x"]), "#3a5fcd"),
-        (sum(L["usb"]["x"]) / 2, sum(L["usb"]["y"]) / 2, "USB-C mid-mount in a board notch, opening x %.1f-%.1f in the +Y wall, z %.2f-%.2f" % (L["elec_interface"]["usb_opening"]["x"][0], L["elec_interface"]["usb_opening"]["x"][1], L["elec_interface"]["usb_opening"]["z"][0], L["elec_interface"]["usb_opening"]["z"][1]), "#8a3fd0"),
+        (sum(L["usb"]["x"]) / 2, sum(L["usb"]["y"]) / 2, "USB-C mid-mount in a board notch, STADIUM opening x %.1f-%.1f in the +Y wall, z %.2f-%.2f" % (L["elec_interface"]["usb_opening"]["x"][0], L["elec_interface"]["usb_opening"]["x"][1], L["elec_interface"]["usb_opening"]["z"][0], L["elec_interface"]["usb_opening"]["z"][1]), "#8a3fd0"),
         (sum(L["board"]["x"]) / 2, L["board"]["y"][1] - 1.5, "Main board x 7.8-43.4 z 5.3-6.1 (+ top parts to 7.55)", "#2e8b57"),
         (sum(L["aux"]["x"]) / 2, L["aux"]["y"][1] - 2.0, "Antenna clearance east of the board (no parts)", "#7fbf7f"),
         (sum(L["io"]["x"]) / 2, sum(L["io"]["y"]) / 2, "Rear-corner keep-out: button, LED, buzzer, charger strip (full height)", "#d09020"),
@@ -124,7 +127,7 @@ def draw(p: dict, L: dict, svg_path: Path) -> Path:
         (sum(c["board_support"]["shelf_x"]) / 2, c["board_support"]["shelf_y0"] + 0.3, "West wall shelf z 5.3 + lid rib above (part-free pad)", "#555555"),
         (L["board_screws"][0][0], L["board_screws"][0][1], "Board screw W: M1.2x4 brass into boss d1.8 (board tab x 7.8-10.0)", "#f0c040"),
         (L["board_screws"][1][0], L["board_screws"][1][1], "Board screw E: M1.2x4 brass into boss d1.8 (side_b leg)", "#f0c040"),
-        (c["button"]["x_c"], W - w - 0.5, "Side button SW1 (+Y): lid flex window 0.45 wall + 0.3 nub, z 5.6-6.7", "#ff9900"),
+        (c["button"]["x_c"], W - w - 0.5, "Side button: printed cap d%.1f + O-ring %.1f x %.1f in the lid wall, pad on SW1, stroke 0.3" % (c["button"]["stem_d"], c["button"]["oring"]["id"], c["button"]["oring"]["cs"]), "#ff9900"),
     ]
     n_rows = (len(items) + 1) // 2
     H = int(W * S + 2 * M + 40 + 22 * n_rows)

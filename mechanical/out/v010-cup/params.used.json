@@ -1655,14 +1655,29 @@
   },
   "usb": {
    "part": "waterproof USB-C mid-mount receptacle 8.94 x 7.35 x 3.26 (VERIFY drawing) in the +Y long wall of lane 2 + small USB board",
-   "w": 8.94,
-   "d": 7.35,
+   "w": 9.4,
+   "d": 9.1,
+   "_d": "keep-out x 18.8-28.2 (shell tabs), depth 9.1: receptacle body incl. pad tails reaches back to y 26.6 (pre-order review M7, EasyEDA C223907 body 8.89 from the mouth at the board edge 35.5); was 7.35",
    "h": 3.26,
    "z_c": 5.7,
    "x_c": 23.5,
-   "open_w": 9.4,
+   "open_w": 9.0,
    "open_h": 3.4,
-   "_pos": "mid-mount receptacle in a board-edge notch, centred on the board mid-plane z 5.7 and x 23.5 (board review 2026-11-20 fix 1); its keep-out bottom is clipped to z 4.12 (cell envelope top 4.1 incl. 0.2 swell: VERIFY the real receptacle underside)"
+   "_pos": "mid-mount receptacle in a board-edge notch, centred on the board mid-plane z 5.7 and x 23.5 (board review 2026-11-20 fix 1); its keep-out bottom is clipped to z 4.12 (cell envelope top 4.1 incl. 0.2 swell: VERIFY the real receptacle underside)",
+   "shape": "stadium",
+   "_open": "owner 2026-11-24 (2:1 print): STADIUM opening 9.0 x 3.4 (full semicircular ends R1.7) matching the TYPE-C-31-M-14 (LCSC C223907) mouth 8.94 x 3.26 + clearance; a plug shell (8.25 x 2.4) passes with 0.37 / 0.5 mm per side; 0.3 x 45 deg chamfer on the outer edge",
+   "recess_margin": 0.85,
+   "recess_depth": 0.4,
+   "recess_z_max": 7.55,
+   "gasket": {
+    "in_w": 8.5,
+    "in_h": 2.8,
+    "margin": 0.8,
+    "t": 0.4,
+    "z_max": 7.5,
+    "_": "stadium frame: inner 8.5 x 2.8 (overlaps the receptacle mouth rim 8.94 x 3.26 by 0.22 per side, plug shell 8.25 x 2.4 passes), outer = opening + 0.8, clipped at z 7.5 below the lid roof; cast silicone (Z4) or cut from the 0.4-0.5 mm sheet"
+   },
+   "chamfer_out": 0.3
   },
   "board_support": {
    "_comment": "board review 2026-11-20 fix 5: 3-point support of the main board (2 floor ledges at the east end + 1 wall shelf at the west end, top z 5.3 = board underside) and 3 lid hold-down ribs pressing the board top (z 6.1) at the same x/y; part-free pads d1.6 (contact d1.0 + alignment) on both board faces at these points",
@@ -1713,24 +1728,52 @@
    "_screws": "user 2026-11-20: board screwed down from the top. No boss column fits under the lane-2 main body (the cell fills the lane width; east of the cell is < 3 mm from the HJ-840 antenna band x 42.85-43.4 / y 24-32), so the 2 screws sit in the two free full-height spots: west-south in the motor/tank channel (board tab x 7.8-10.0, y 20.1-22.9) and in the side_b leg; ledges + wall shelf + lid ribs carry the north side"
   },
   "button": {
-   "_comment": "board review 2026-11-20 fix 6: SW1 (SKRPACE010 side-actuated) at the board north edge, actuator toward +Y; flex zone in the +Y LID wall (lid starts at z 5.4), recessed from outside so the remaining wall is 0.45 (SLA resin), below the R1.8 top fillet (starts z 6.7); inner nub 0.3 mm touches the actuator",
+   "_comment": "owner 2026-11-24 (2:1 print): the flex window is replaced by a separate printed BUTTON CAP in a round hole through the +Y LID wall (the whole button is above the shell joint z 5.0 and below the lid roof 7.6). Cap = stem d1.6 (key face recessed 0.2, 0.15 edge chamfer) + inner flange bar (keeps it from falling out, retains the O-ring) + 0.8 wide pad on the SW1 actuator. Seal = O-ring ID 1.5 x CS 0.5 silicone in a d2.4 x 0.5 counterbore on the wall inner face (rod seal on the stem, 17 % radial squeeze). A d3.0 cap / ID 2.0 O-ring does not fit: the lid wall between the joint (z 5.0) and the roof (7.6) with the R1.8 top fillet leaves a d2.4 round feature at most (see V010-CUP.md).",
    "x_c": 33.0,
-   "win_x": [
+   "z_c": 6.35,
+   "actuator_z": 6.7,
+   "actuator_tip_y_max": 35.35,
+   "_h8": "pre-order review H8 (2026-11-24): on the routed board SW1 (board y 81.85) puts the actuator tip at y 35.65-35.77 and its centre at z ~6.7; the cap needs tip <= 35.35, so SW1 must move back 0.45 mm (board y 82.30 -> tip 35.20-35.32). An O-ring-sealed cap cannot also give up 0.4 mm of the 0.9 mm wall.",
+   "switch_travel": 0.25,
+   "_x": "SW1 = ALPS SKSCLAE010 side push (electronics/v010/cup/PIN-CHECK.md M3) at board x 25.2 = pod x 33.0, actuator toward +Y; actuator height ~ board top 6.1 + 0.3 (VERIFY on the ALPS drawing), tip y <= 35.35 (agreed interface)",
+   "stem_d": 1.6,
+   "bore_d": 1.75,
+   "face_recess": 0.2,
+   "face_chamfer": 0.15,
+   "bore_chamfer": 0.25,
+   "cbore_d": 2.4,
+   "cbore_depth": 0.5,
+   "flange": {
+    "x": [
+     31.4,
+     34.6
+    ],
+    "z": [
+     6.2,
+     7.5
+    ],
+    "t": 0.2
+   },
+   "pad": {
+    "x": [
+     32.6,
+     33.4
+    ],
+    "z": [
+     6.35,
+     7.05
+    ],
+    "face_y": 35.4
+   },
+   "oring": {
+    "id": 1.5,
+    "cs": 0.5,
+    "part": "O-ring 1.5 x 0.5 silicone (VMQ, ~70 Shore A), micro O-ring assortment (BUY-LIST Z12)"
+   },
+   "kb_notch_x": [
     32.4,
     34.5
-   ],
-   "_win_x": "follows SW1 on the hand-placed board (board x 25.2 = pod x 33.0, 2026-11-21); the window keeps its old offsets -0.6 / +1.5 from the actuator and stays clear of the USB-C gasket recess (ends x 29.1)",
-   "win_z": [
-    5.6,
-    6.7
-   ],
-   "wall_left": 0.45,
-   "nub_w": 0.8,
-   "nub_z": [
-    6.15,
-    6.65
-   ],
-   "nub_t": 0.3
+   ]
   },
   "hall_dock": {
    "pkg": [
@@ -1749,6 +1792,31 @@
    "hole_d": 0.8,
    "recess_d": 5.0,
    "recess_depth": 0.2
+  },
+  "joint": {
+   "_comment": "owner 2026-11-24 (2:1 print, visible gap): the shells close plastic-to-plastic on the rim (lid bottom face = rim top = z 5.0, outer seam flush); the seal sits in a GROOVE in the bottom-shell rim at constant distance from the outer wall, compressed by a TONGUE on the lid. The 0.9 mm wall allows only a 0.45 mm groove (0.225 mm walls): a buyable 0.8-1.0 mm cord needs >= 1.9 mm of rim, i.e. +2 mm width and length (the tank and the board edge sit 0-0.2 mm from the wall inner faces), so the seal is a cast silicone ring of the groove shape (STL OP-xxx_lid_gasket.stl). Offsets are from the outer outline (R4.8 corners).",
+   "groove_off": [
+    0.225,
+    0.675
+   ],
+   "groove_depth": 0.45,
+   "tongue_off": [
+    0.3,
+    0.6
+   ],
+   "tongue_h": 0.13,
+   "seal_off": [
+    0.29,
+    0.61
+   ],
+   "seal_h": 0.4,
+   "band_h": 0.55,
+   "band_wall": 0.85,
+   "_band": "rim band z 4.45-5.0 thickens the bottom-shell wall to a constant 0.85 mm in the four corners (outer R4.8 vs inner R3.1 leaves only 0.57 on the diagonal), so the groove keeps a 0.175 inner wall there (0.85, not 0.9: the side_a / aux keep-outs reach to 0.03 of a 0.9 band)",
+   "usb_skip_half": 5.25,
+   "post_gap": 0.1,
+   "rib_gap": 0.05,
+   "part": "cast silicone ring 0.32 x 0.4 (Shore A 40-60, BUY-LIST Z4 cast silicone in a printed 2-part mould), open at the USB-C frame: its two ends butt against the USB-C gasket frame (dab of Z4 at assembly)"
   },
   "dock": {
    "_comment": "ALL values TODO-MEASURE (Insight Flex not measured). Head size re-estimated from the user photos by proportion (patch ~ 35 x 28 mm, head ~ 1/4 of the patch long side, 30G needle and tubing as scale): dome d8.0 x 4.2, base plate 9 x 9. Principle: pod lowered over the head into a bottom-open pocket (+0.2), slid `travel` mm toward the needle until the U-clip teeth drop into the dome side notches. Needle guard = spring-loaded sleeve (tip recessed when undocked).",
@@ -1777,6 +1845,11 @@
    "pocket_wall": 0.4,
    "roof": 0.5,
    "end_wall": 0.5,
+   "open_end": true,
+   "lead_in": 0.6,
+   "lead_in_to": 0.9,
+   "bottom_chamfer": 0.4,
+   "anchor_z0": 0.8,
    "guard": {
     "od": 1.4,
     "id": 0.45,
@@ -1810,7 +1883,12 @@
     "E_MPa": 190000,
     "yield_MPa": 1000,
     "allow_MPa": 650,
-    "material": "AISI 301 full hard (1.4310 C1300) 0.1 mm, laser-cut stencil part, bent to a U"
+    "material": "AISI 301 full hard (1.4310 C1300) 0.1 mm, laser-cut stencil part: two separate L-springs (arm + 90 deg anchor tab + bent-in tooth flap)",
+    "tab_len": 0.9,
+    "slot_w": 0.2,
+    "slot_x0_rel": -0.15,
+    "anchor_inner": 0.1,
+    "_anchor": "owner 2026-11-24: the pocket is open at the +X end, so the U-clip bridge is gone; each arm ends in a 90 deg tab bent outward that is pushed from below into a 0.2 mm slot through an anchor block on the side wall at the open end (bonded with CA); the arm root stays where the bridge was (arm 7.55 mm)"
    },
    "hall": {
     "Br_T": 1.45,

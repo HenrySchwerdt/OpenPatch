@@ -108,7 +108,12 @@
    "E_MPa": 190000,
    "yield_MPa": 1000,
    "allow_MPa": 650,
-   "material": "AISI 301 full hard (1.4310 C1300) 0.1 mm, laser-cut stencil part, bent to a U"
+   "material": "AISI 301 full hard (1.4310 C1300) 0.1 mm, laser-cut stencil part: two separate L-springs (arm + 90 deg anchor tab + bent-in tooth flap)",
+   "tab_len": 0.9,
+   "slot_w": 0.2,
+   "slot_x0_rel": -0.15,
+   "anchor_inner": 0.1,
+   "_anchor": "owner 2026-11-24: the pocket is open at the +X end, so the U-clip bridge is gone; each arm ends in a 90 deg tab bent outward that is pushed from below into a 0.2 mm slot through an anchor block on the side wall at the open end (bonded with CA); the arm root stays where the bridge was (arm 7.55 mm)"
   }
  },
  "lane2_y": [
@@ -137,11 +142,11 @@
  },
  "usb": {
   "x": [
-   19.03,
-   27.97
+   18.8,
+   28.2
   ],
   "y": [
-   28.35,
+   26.6,
    35.7
   ],
   "z": [
@@ -263,9 +268,10 @@
   "lid_inner_z": 7.6,
   "top_parts_max_z": 7.55,
   "usb_opening": {
+   "shape": "stadium (full semicircular ends R1.70), 0.3 x 45 deg outer chamfer",
    "x": [
-    18.8,
-    28.2
+    19.0,
+    28.0
    ],
    "z": [
     4.0,
@@ -275,20 +281,29 @@
    "z_c": 5.7,
    "wall_inner_y": 35.7,
    "gasket_recess": {
+    "shape": "stadium, clipped at z 7.55",
     "x": [
-     17.900000000000002,
-     29.099999999999998
+     18.15,
+     28.85
+    ],
+    "z": [
+     3.15,
+     7.55
     ],
     "depth_y": 0.4
-   }
+   },
+   "gasket_frame_inner": [
+    8.5,
+    2.8
+   ]
   },
   "usb_receptacle_keepout": {
    "x": [
-    19.03,
-    27.97
+    18.8,
+    28.2
    ],
    "y": [
-    28.35,
+    26.6,
     35.7
    ],
    "z": [
@@ -359,28 +374,40 @@
   ],
   "button": {
    "actuator_x": 33.0,
-   "flex_window": {
-    "x": [
-     32.4,
-     34.5
-    ],
-    "z": [
-     5.6,
-     6.7
-    ],
-    "wall_left": 0.45,
-    "part": "lid"
-   },
-   "nub": {
-    "x": [
-     32.6,
-     33.4
-    ],
-    "z": [
-     6.15,
-     6.65
-    ],
-    "contact_face_y": 35.4
+   "actuator_z": 6.7,
+   "actuator_tip_y_max": 35.35,
+   "part": "lid",
+   "cap": {
+    "axis_z": 6.35,
+    "stem_d": 1.6,
+    "pad": {
+     "x": [
+      32.6,
+      33.4
+     ],
+     "z": [
+      6.35,
+      7.05
+     ],
+     "contact_face_y": 35.4
+    },
+    "flange": {
+     "x": [
+      31.4,
+      34.6
+     ],
+     "z": [
+      6.2,
+      7.5
+     ],
+     "y": [
+      35.5,
+      35.7
+     ]
+    },
+    "stroke_to_actuate": 0.3,
+    "pressed_flange_y_min": 35.2,
+    "note": "board keeps x 32.4-34.5, y >= 35.35, z >= 6.10 free except the SW1 actuator; the flange bar (x 31.4-34.6, z 6.20-7.50) travels to y 35.20 when pressed: SW1 body front face must be at y < that (VERIFY)"
    }
   },
   "board_screws": [

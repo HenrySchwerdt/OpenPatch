@@ -137,8 +137,11 @@ def geometry(p: dict, variant: str) -> dict:
     L["elec_interface"] = {
         "_comment": "pod frame (x = 0 motor/rear end, y = 0 tank-side wall, z = 0 skin side), mm; agreed with the electronics agent (board review 2026-11-20)",
         "board_west_edge_min_x": bd["pcb_x"][0], "board_z": list(bd["pcb_z"]), "lid_inner_z": H - w, "top_parts_max_z": bd["top_max"],
-        "usb_opening": {"x": [u["x_c"] - u["open_w"] / 2, u["x_c"] + u["open_w"] / 2], "z": [u["z_c"] - u["open_h"] / 2, u["z_c"] + u["open_h"] / 2], "x_c": u["x_c"], "z_c": u["z_c"],
-                        "wall_inner_y": W - w, "gasket_recess": {"x": [u["x_c"] - u["open_w"] / 2 - 0.9, u["x_c"] + u["open_w"] / 2 + 0.9], "depth_y": 0.4}},
+        "usb_opening": {"shape": "stadium (full semicircular ends R%.2f), 0.3 x 45 deg outer chamfer" % (u["open_h"] / 2), "x": [u["x_c"] - u["open_w"] / 2, u["x_c"] + u["open_w"] / 2],
+                        "z": [u["z_c"] - u["open_h"] / 2, u["z_c"] + u["open_h"] / 2], "x_c": u["x_c"], "z_c": u["z_c"], "wall_inner_y": W - w,
+                        "gasket_recess": {"shape": "stadium, clipped at z %.2f" % u["recess_z_max"], "x": [u["x_c"] - u["open_w"] / 2 - u["recess_margin"], u["x_c"] + u["open_w"] / 2 + u["recess_margin"]],
+                                          "z": [u["z_c"] - u["open_h"] / 2 - u["recess_margin"], u["recess_z_max"]], "depth_y": u["recess_depth"]},
+                        "gasket_frame_inner": [u["gasket"]["in_w"], u["gasket"]["in_h"]]},
         "usb_receptacle_keepout": L["usb"],
         "wire_channel": {"x": [round(xc + 3.0 + 0.03, 2), round(x_l2, 2)], "y": list(lane2_y), "z": [w, bd["pcb_z"][0]], "note": "motor 4 + cell 2 + TMAG strip; no bottom-side parts over it"},
         "cell": {"x": L["battery"]["x"], "y": L["battery"]["y"], "z": L["battery"]["z"], "lead_end": "WEST (VERIFY-ON-SAMPLE)"},
@@ -146,8 +149,14 @@ def geometry(p: dict, variant: str) -> dict:
                           "part_free_d_both_faces": bs["pad_d"]} for x, y in bs["ledges"]]
                         + [{"x": round(sum(bs["shelf_x"]) / 2, 2), "y": round((bs["shelf_y0"] + bd["pcb_y"][1]) / 2, 2), "kind": "wall shelf below + wall rib above, contact x %.1f-%.1f, y %.1f-board edge" % (bs["shelf_x"][0], bs["shelf_x"][1], bs["shelf_y0"]),
                             "part_free_rect_both_faces": {"x": [bs["shelf_x"][0] - 0.3, bs["shelf_x"][1] + 0.3], "y": [bs["shelf_y0"] - 0.3, bd["pcb_y"][1]]}}],
-        "button": {"actuator_x": bt["x_c"], "flex_window": {"x": bt["win_x"], "z": bt["win_z"], "wall_left": bt["wall_left"], "part": "lid"},
-                   "nub": {"x": [bt["x_c"] - bt["nub_w"] / 2, bt["x_c"] + bt["nub_w"] / 2], "z": bt["nub_z"], "contact_face_y": round(W - w - bt["nub_t"], 3)}},
+        "button": {"actuator_x": bt["x_c"], "actuator_z": bt["actuator_z"], "actuator_tip_y_max": bt["actuator_tip_y_max"], "part": "lid",
+                   "cap": {"axis_z": bt["z_c"], "stem_d": bt["stem_d"], "pad": {"x": bt["pad"]["x"], "z": bt["pad"]["z"], "contact_face_y": bt["pad"]["face_y"]},
+                           "flange": {"x": bt["flange"]["x"], "z": bt["flange"]["z"], "y": [round(W - w - bt["flange"]["t"], 3), W - w]},
+                           "stroke_to_actuate": round(bt["pad"]["face_y"] - bt["actuator_tip_y_max"] + bt["switch_travel"], 3),
+                           "pressed_flange_y_min": round(W - w - bt["flange"]["t"] - (bt["pad"]["face_y"] - bt["actuator_tip_y_max"] + bt["switch_travel"]), 3),
+                           "note": "board keeps x %.1f-%.1f, y >= %.2f, z >= %.2f free except the SW1 actuator; the flange bar (x %.1f-%.1f, z %.2f-%.2f) travels to y %.2f when pressed: SW1 body front face must be at y < that (VERIFY)" % (
+                               bt["kb_notch_x"][0], bt["kb_notch_x"][1], bt["actuator_tip_y_max"], bd["pcb_z"][1], bt["flange"]["x"][0], bt["flange"]["x"][1], bt["flange"]["z"][0], bt["flange"]["z"][1],
+                               W - w - bt["flange"]["t"] - (bt["pad"]["face_y"] - bt["actuator_tip_y_max"] + bt["switch_travel"]))}},
         "board_screws": [{"x": x, "y": y, "hole_d_npth": bs["hole_d"], "keepout_ring_d_both_faces": bs["ring_d"], "boss_d": bs["boss_d"], "boss_top_z": bs["z_top"],
                           "pilot": "d%.2f x %.1f deep" % (bs["pilot_d"], bs["pilot_depth"]), "screw": bs["screw"]} for x, y in L["board_screws"]],
         "west_tab": bs["west_tab"],
@@ -280,7 +289,7 @@ def cut_board_keepout(s: Script, p: dict, L: dict) -> None:
     lo, hi = b["z"][0] - 0.1, b["z"][1] + 0.1
     tools = [s.box("t_kb_usb", (u["x"][0] - 0.1, u["x"][1] + 0.1), (u["y"][0] - 0.1, b["y"][1] + 0.1), (lo, hi)),
              s.box("t_kb_wire", (b["x"][0] - 0.1, L["battery"]["x"][0] + 0.03), (b["y"][0] - 0.1, b["y"][1] + 0.1), (lo, z0)),
-             s.box("t_kb_btn", (bt["win_x"][0], bt["win_x"][1]), (L["width"] - L["wall"] - bt["nub_t"] - 0.05, b["y"][1] + 0.1), (z1, hi))]
+             s.box("t_kb_btn", tuple(bt["kb_notch_x"]), (bt["actuator_tip_y_max"], b["y"][1] + 0.1), (z1, hi))]
     for k, (x, y) in enumerate(bs["ledges"]):
         tools += [s.cyl(f"t_kb_pl{k}", "Z", (x, y, 0), bs["pad_d"], lo, z0), s.cyl(f"t_kb_pu{k}", "Z", (x, y, 0), bs["pad_d"], z1, hi)]
     m = (bs["pad_d"] - bs["ledge_d"]) / 2
@@ -300,15 +309,22 @@ def build_housing(s: Script, p: dict, L: dict) -> None:
     s.fillet_chain("bottom", (Lp / 2, 0.0, 0.0), c["bottom_break"])             # flat bottom, 0.3 mm edge break only
     s.rrect("t_cav", (w, Lp - w), (w, W - w), r - w, (w, lap + 0.1))
     s.cut("bottom", ["t_cav"])
+    jt = c["joint"]
+    # rim band (z 4.45-5.0): constant 0.9 mm wall also in the four corners so the seal groove keeps its inner wall (outer R4.8 vs cavity R3.1 leaves 0.57 on the diagonal)
+    s.join("bottom", [s.rrect_ring("t_rim_band", (0, Lp), (0, W), rr, (0.0, jt["band_wall"]), (lap - jt["band_h"], lap))])
     z_roof0 = dk["head"]["B_dome_h"] + dk["clr"]
     joins = [s.box("t_pk", (K["x_bf"], Lp - w + 0.01), (yr - half - dk["pocket_wall"], yr + half + dk["pocket_wall"]), (w - 0.1, z_roof0 + dk["roof"]))]
-    cuts = [s.box("t_pk_in", (K["x_bf"] - 0.02, K["x_far"]), (yr - half, yr + half), (-0.1, z_roof0)),
+    # pocket open to the underside AND to the +X end face (owner 2026-11-24): the head slides in from the end; the end wall stays above the opening as a lintel (z_roof0..rim)
+    x_open = Lp + 0.1 if dk.get("open_end") else K["x_far"]
+    cuts = [s.box("t_pk_in", (K["x_bf"] - 0.02, x_open), (yr - half, yr + half), (-0.1, z_roof0)),
             s.box("t_pk_win", (K["plate_x"][0], K["plate_x"][1]), (yr - half, yr + half), (-0.1, w + 0.05)),
             s.cyl("t_floor_fill", "Z", (L["x_s"], L["y_s"], 0), c["fill"]["hole_d"], -0.1, w + 0.05)]
+    if dk.get("open_end"):
+        open_join, open_cut = dock.open_end_tools(s, p, K, Lp, z_roof0)
+    else:
+        open_join, open_cut = [], []
     # no floor relief under the gears any more: the z12 envelopes (tip radius 2.01) keep 1.34 mm to the floor (the z16 tips had 0.65)
-    u, usb = L["usb"], c["usb"]
-    xu, zu = u["x_c"], u["z_c"]
-    cuts.append(s.box("t_usb_open", (xu - usb["open_w"] / 2, xu + usb["open_w"] / 2), (W - w - 0.1, W + 0.1), (zu - usb["open_h"] / 2, zu + usb["open_h"] / 2)))
+    # USB-C opening (stadium, both shells) is cut in op_cup_asm (8)
     bx, by, bh = dr["term_block"]
     yt = L["gearhead_y"][0] + dr["term_x"]
     cuts.append(s.box("t_pin_pocket", (xc - by / 2 - 0.4, xc + by / 2 + 0.4), (yt - bx / 2 - 0.4, yt + dr["pin_tab_len"] + 0.4), (0.35, w + 0.01)))
@@ -334,7 +350,11 @@ def build_housing(s: Script, p: dict, L: dict) -> None:
     for k, y0 in enumerate(ys):
         cuts.append(s.cyl(f"t_sad_bore{k}", "Y", (xc, 0, zc), 6.0 + 2 * c["motor"]["saddle_clr"], y0 - 0.05, y0 + sl + 0.05))
     s.cut("bottom", cuts)
-    lap_t = lap + 0.4                                                           # lid starts 0.4 above the rim: flat gasket between
+    if open_join:                                                               # anchor blocks after the pocket cut, then their slots and the lead-in chamfers
+        s.join("bottom", open_join)
+    if open_cut:
+        s.cut("bottom", open_cut)
+    lap_t = lap                                                                 # lid bottom face sits on the rim (hard stop, owner 2026-11-24); the seal is in the rim groove
     s.rrect("top", (0, Lp), (0, W), rr, (lap_t, H))
     s.fillet_chain("top", (Lp / 2, 0.0, H), c["top_fillet"])                    # smooth pebble top: largest fillet the unchanged inner cavity allows (min wall 0.5)
     s.rrect("t_cavt", (w, Lp - w), (w, W - w), r - w, (lap_t - 0.1, H - w))
@@ -354,9 +374,9 @@ def build(p: dict, variant: str) -> tuple[Script, dict]:
 
 
 MFG_PARTS = {"bottom": ["bottom"], "top": ["top"], "reservoir": ["reservoir"], "plunger_core": ["plunger_core"], "plunger_seal": ["seal_a", "seal_b"],
-             "thrust_collar": ["thrust_collar"], "lid_gasket": ["lid_gasket"], "usb_gasket": ["usb_gasket"]}
+             "thrust_collar": ["thrust_collar"], "lid_gasket": ["lid_gasket"], "usb_gasket": ["usb_gasket"], "button_cap": ["button_cap"]}
 PURCHASED = ["nut", "rod", "bush_rod", "gear_a", "gear_b", "motor", "gearhead", "motor_boss", "motor_shaft", "motor_rear_boss", "motor_term", "magnet", "hall_tmag", "septum",
-             "hub_gasket", "needle", "needle_hub", "needle_guard", "cannula_adapter", "dock_magnet", "dock_clip", "hall_dock"]
+             "hub_gasket", "needle", "needle_hub", "needle_guard", "cannula_adapter", "dock_magnet", "dock_clip", "hall_dock", "button_oring"]
 KEEPOUT = ["ko_board", "ko_board_tab", "ko_aux", "ko_io", "ko_side_a", "ko_side_b", "ko_battery", "ko_usb", "ko_tmag_board", "ko_dock_board"]
 PART_NAMES = [b for v in MFG_PARTS.values() for b in v] + PURCHASED + KEEPOUT
 EXCLUDE_PAIRS = [["gear_a", "gear_b"], ["needle_guard", "needle_hub"], ["needle_hub", "reservoir"], ["lid_gasket", "top"], ["hub_gasket", "reservoir"]]
