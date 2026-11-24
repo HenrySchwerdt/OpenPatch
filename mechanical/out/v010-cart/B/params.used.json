@@ -147,7 +147,7 @@
   "open_h": 3.4
  },
  "button": {
-  "x_from_board_east": 5.5,
+  "x_from_board_east": 26.0,
   "below_pcb": 0.65,
   "_comment": "sealed button in the +Y wall in front of the board's side switch SW1 (SKSCLAE010, actuator toward +Y). Cap = flush mushroom: head d5.0 in a 0.8 deep outside recess (+0.3 clr), stem d2.4 through the d2.5 hole, barb ring d3.2 x 0.5 snaps behind the wall; the head flange seals on the recess floor. Print in TPU 95A (FDM) or cast in silicone A40 in the printed 2-part mould (mould STL follow-up). z_c = board top + 0.6 (actuator centre, VERIFY on the board).",
   "z_c": 6.7,
