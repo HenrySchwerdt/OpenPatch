@@ -136,6 +136,7 @@
  "board": {
   "part": "NEW cart board outline (owner 2026-11-24): same chip set as the cup board (HJ-840, STM32C011, TPL5010, TPS2553, TPS61023, DRV8838, MCP73832, USB-C, RGB LED, sounder, side button, TMAG strip), no dock hall (adapter-lock hall on a pigtail instead), 4 layers 0.8 mm if it routes (long narrow outline over the whole lane 2); length follows the housing (x0 .. collar), width w; parts <= 1.45 top / 1.2 bottom. Fit print: dummy only",
   "x0": 6.0,
+  "l": 57.0,
   "w": 10.6,
   "t": 0.8,
   "top_parts": 1.45,

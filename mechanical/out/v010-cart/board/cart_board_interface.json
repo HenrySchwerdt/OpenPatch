@@ -1,0 +1,121 @@
+{
+ "_comment": "cart board (variants A and B share it). Frame: origin west-south corner, +x toward the cartridge cap end, +y = north edge (USB-C wall). Same chip set as electronics/v010/cup (HJ-840, STM32C011, TPL5010, TPS2553, TPS61023, 2 x DRV8838, MCP73832, USB-C, RGB LED, sounder, side button, TMAG5273 strip); no dock hall on the board (adapter-lock DRV5032 on a 3-wire pigtail). Interlock unchanged (INTERLOCK.md).",
+ "outline_mm": [
+  57.0,
+  10.6
+ ],
+ "thickness_mm": 0.8,
+ "layers_target": 4,
+ "corner_r": 0.5,
+ "parts_height_max_mm": {
+  "top": 1.45,
+  "bottom": 1.2
+ },
+ "usb_c": {
+  "part": "TYPE-C-31-M-14 mid-mount (C223907), as the cup board",
+  "centre_x": 41.0,
+  "edge": "north",
+  "mouth_beyond_edge": 0.9,
+  "notch_outer": {
+   "w": 9.4,
+   "depth": 5.5
+  },
+  "notch_inner": {
+   "w": 6.6,
+   "depth": 6.15
+  },
+  "note": "receptacle mouth flush with the housing wall inner face, which is board_wall_clr beyond the north edge (cup notch geometry kept relative to the mouth)"
+ },
+ "button_sw1": {
+  "part": "SKSCLAE010 side switch (cup BOM) on the BOTTOM face",
+  "x": 51.5,
+  "edge": "north",
+  "actuator": "+y, tip at the north edge",
+  "centre_below_pcb_bottom": 0.65
+ },
+ "support_pads_part_free_both_faces": {
+  "d": 1.6,
+  "xy_A": [
+   [
+    1.2,
+    1.0,
+    1.6
+   ],
+   [
+    56.0,
+    0.9,
+    1.6
+   ],
+   [
+    56.0,
+    9.7,
+    1.6
+   ]
+  ],
+  "xy_B": [
+   [
+    1.2,
+    1.0,
+    1.6
+   ],
+   [
+    56.0,
+    0.9,
+    1.6
+   ],
+   [
+    56.0,
+    9.7,
+    1.6
+   ]
+  ]
+ },
+ "lid_rib_pad_top_face": {
+  "x": [
+   52.7,
+   54.3
+  ],
+  "y": [
+   -0.0,
+   1.6
+  ]
+ },
+ "antenna_zone": {
+  "x": [
+   54.0,
+   57.0
+  ],
+  "y": [
+   0,
+   10.6
+  ],
+  "rule": "HJ-840 antenna end at the EAST end, no copper on any layer, no parts (VERIFY against the HJ-840 footprint)"
+ },
+ "wire_pads_west_end": {
+  "x": [
+   0.3,
+   4.0
+  ],
+  "note": "motor 4 + cell 2 + TMAG strip + lock-hall pigtail soldered at the west end (spec 1a exception, as the cup pod)"
+ },
+ "per_variant": {
+  "A": {
+   "pump_frame_origin": [
+    6.0,
+    39.3,
+    13.8
+   ],
+   "east_edge_max_x": 63.36,
+   "under_board": "cell (front); motor / TMAG strip are beside the board (wired)"
+  },
+  "B": {
+   "pump_frame_origin": [
+    6.0,
+    14.55,
+    12.1
+   ],
+   "east_edge_max_x": 64.61,
+   "under_board": "motor + pinion + TMAG strip (rear), cell (front)"
+  }
+ }
+}

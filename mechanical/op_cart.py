@@ -162,6 +162,10 @@ def geometry(p: dict) -> dict:
          "rod_len": round(x_pu0 - x_sl0, 2), "adapter": [x_seat - ad["depth"], x_ad1], "x_seat": x_seat, "bed": bed, "adapter_y": ad_y, "collar": collar, "collar_y1": round(collar_y1, 3), "r_groove": r_groove,
          "pinion": [x_pin0, x_pin1], "boss": [x_boss0, x_boss1], "gearhead": [x_gh0, x_boss0], "motor": [x_mo0, x_gh0], "rear_boss": [x_tail0, x_mo0],
          "magnet": [x_mag0, x_mag1], "tmag": [x_tm0, x_tm1], "lane2_y0": lane2_y0}
+    x_bd1_max = x_bd1
+    if bd.get("l"):                                           # one common board for A and B (fixed outline), must fit the shorter lane
+        x_bd1 = x_bd0 + bd["l"]
+    L["board_x1_max"] = round(x_bd1_max, 3)
     L["board"] = {"x": [x_bd0, x_bd1], "y": [y_bd0, y_bd1], "z": [pz0 - bd["bottom_parts"], pz[1] + bd["top_parts"]], "pcb_z": pz,
                   "outline_mm": [round(x_bd1 - x_bd0, 2), bd["w"]], "area_mm2": round((x_bd1 - x_bd0) * bd["w"], 1)}
     xb0 = x_boss0 + c["board_gap_x"]                          # cell on the floor from the motor boss on: it passes under the pinion and the TMAG strip (both above z 4.75)

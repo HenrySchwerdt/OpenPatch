@@ -126,7 +126,9 @@ AliExpress pages read in a browser session (cookies declined): 1005010269458834 
 | K3 | A (site end) | Accu-Chek Insight Flex head sets 6 mm, 10 pcs (no tubing) | **08459755** | https://www.docmorris.de/accu-chek-insight-flex-6-mm/08459755 | 80.10 list / 103.60 RRP | V |
 | K4 | B | Accu-Chek FlexLink 8/30 (10 heads + 10 Luer-lock tubings) | **01022469** | https://www.docmorris.de/accuchek-flexlink-830-mit-adapter/01022469 | 117.60 list / 152.10 RRP | V; head vs Insight Flex head UNVERIFIED |
 | K5 | B | Hypodermic needles Luer-lock 27G 0.40 x 12 mm (e.g. B. Braun Sterican Gr. 20), 100 pcs | any pharmacy / lab supplier | | about 5-10 | E (hub dimensions to measure) |
-| K6 | B | Male-male Luer-lock coupler (only if the FlexLink pump end is female like the needle hub) | lab supplier | | about 1 each | E |
+| K6 | B | Male-male Luer-lock coupler: **needed for every Luer set** (all pump-end connectors are female, like the needle hub): pluriselect Combifix | https://www.pluriselect.com/en/shop/1366 | | 25-30 / 10 | E (snippet) |
+| K7 | B (bench pick 2026-11-24) | **B. Braun Venofix A 25G 0.5 x 19, 30 cm tubing** (steel winged needle, locking Luer), water into a container | **17935284** | https://www.docmorris.de/venofix-a-venenpunktionsb25-g-05x19mm/17935284 | 0.59 each | V |
+> Variant B's printed cap takes **any standard Luer-lock pump set** without a CAD change (e.g. mylife Orbit micro Luer, PZN 09892448; Neria Guard 12 cm for a realistic 0.04 ml dead volume); DANA sets use a left-hand Luer and do not lock. Ranked candidates: `docs/insight-research.md` §7.7. Per-pump cost and the order package: `docs/CART-ORDER.md`.
 
 ### 7b. Motor options (owner: free choice, cheap, delivery must stay verifiable, interlock unchanged)
 Force window on the M2 x 0.4 rod (eta 0.25): >= 7.3 N mm at the nut for 19 N x 1.5; stall should stay near 30 N (about 400-450 kPa on the glass).

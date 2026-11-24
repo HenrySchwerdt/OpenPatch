@@ -164,6 +164,8 @@ def check_variant(variant: str) -> int:
     a_cup = (cb["pcb_x"][1] - cb["pcb_x"][0]) * (cb["pcb_y"][1] - cb["pcb_y"][0])
     a_new = L["board"]["area_mm2"]
     note.append(f"board outline {L['board']['outline_mm'][0]} x {L['board']['outline_mm'][1]} mm = {a_new} mm2 = {a_new / a_cup:.2f}x the cup board ({a_cup:.0f} mm2, 6 layers)")
+    if L["board"]["x"][1] > L["board_x1_max"] + 1e-6:
+        prob.append(f"common board ({L['board']['outline_mm'][0]} long) does not fit this variant (east edge max {L['board_x1_max']})")
     if a_new < a_cup:
         prob.append("new board outline smaller than the cup board area")
     for part in op_cart.mfg_parts(p):

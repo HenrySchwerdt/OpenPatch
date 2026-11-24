@@ -22,7 +22,7 @@
   "moving parts checked at FULL and EMPTY (stroke 23.81 mm)",
   "stroke 23.81 / avail 25.0 mm; rod 30.21 mm, 3.00 mm behind the nut at EMPTY; slider 0.3 mm off the rear washer at EMPTY",
   "thrust 33.0 N vs need 18.1 N (seal 8.0 ESTIMATE + 150 kPa 10.1 N): 1.83x; stall pressure 492 kPa (Insight max 350)",
-  "board outline 58.61 x 10.6 mm = 621.3 mm2 = 1.39x the cup board (449 mm2, 6 layers)",
+  "board outline 57.0 x 10.6 mm = 604.2 mm2 = 1.35x the cup board (449 mm2, 6 layers)",
   "print kit: 13 STLs in /Users/henryschwerdtner/dev/ai-insulin-pump/.claude/worktrees/insight-cart-pump-a5b548/mechanical/out/v010-cart/B/print",
   "U/step 0.00152; length set by lane 1: cartridge + stroke + drive"
  ]
