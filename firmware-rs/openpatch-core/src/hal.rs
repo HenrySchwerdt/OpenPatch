@@ -40,8 +40,11 @@ pub enum MotorFault {
     SupplyUnexpected,
     /// An earlier power-down could not be verified: the interlock is latched failed.
     InterlockFailed,
-    /// The step generator did not finish in time.
+    /// The step generator did not finish in time (or the request was outside the burst limits).
     Timeout,
+    /// The cell cannot supply the move (cup board: resting voltage below the start gate, sag under load, or a USB cable present).
+    /// The HAL raises the precise diagnostic (`A-A0-004`) through `take_diag`.
+    CellSupply,
 }
 
 pub trait Hal {
@@ -63,6 +66,13 @@ pub trait Hal {
     /// requests the supply. Default: direction independent, same as `motor_enable(true)`.
     fn motor_enable_dir(&mut self, _dir: MotorDir) {
         self.motor_enable(true);
+    }
+    /// How many steps in `dir` the board can execute in ONE call right now. `None` (the default): no limit, the core behaves as it
+    /// always did. `Some(0)`: not now (the cup board v4 must wait for the supervisor's arm interval and the cell rest): the core
+    /// carries the scheduled steps to the next tick (bounded by `limits::MAX_DEFERRED_STEPS`, never across a suspend, a veto or a
+    /// short burst) and a draw skips this tick. `Some(n)`: the core asks for at most `n` steps per call on the periodic paths.
+    fn motor_capacity(&mut self, _dir: MotorDir) -> Option<u32> {
+        None
     }
     /// Cause of the most recent short / failed burst or refused power-up, if the HAL knows it
     /// (take-and-clear). Default: unknown (the core only sees fewer steps than requested).

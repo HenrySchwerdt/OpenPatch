@@ -103,12 +103,18 @@ impl<H: Hal> Pump<H> {
             self.draw_finish(draw_state::ABORTED, reason);
             return;
         }
+        // a board that cannot take a burst now (cup board v4: supervisor arm interval, cell rest) skips this tick: not a stall
+        let cap = self.hal.motor_capacity(MotorDir::Reverse);
+        if cap == Some(0) {
+            return;
+        }
         let Some(a0) = self.hal.angle_read() else {
             self.sv.raise(Raise::new(codes::ANGLE_CHANNEL_LOST));
             self.draw_finish(draw_state::ABORTED, 2);
             return;
         };
         let chunk = if self.cfg.strict_draw { draw_chunk_steps(self.draw.pps) } else { DRAW_CHUNK_STEPS };
+        let chunk = cap.map_or(chunk, |c| chunk.min(c));
         let steps = Pulses(self.draw.remaining_steps.min(chunk));
         // DIR = reverse is set before the supply is requested (the bench gate needs it).
         self.hal.motor_enable_dir(MotorDir::Reverse);

@@ -419,6 +419,32 @@ impl<H: Hal> Pump<H> {
         done
     }
 
+    /// Delivery through a board with a limited capacity per call (`Hal::motor_capacity`): ask for at most `cap` of the pending
+    /// steps; what only the capacity held back waits for the next tick (bounded by `MAX_DEFERRED_STEPS`). A suspended engine, a
+    /// supervisor veto (fewer approved than asked) or a short burst drops everything pending, exactly like the uncapped path drops
+    /// what it did not execute.
+    fn deliver_capped(&mut self, t: Millis, cap: u32) {
+        if self.de.is_suspended() {
+            self.de.commit(Pulses(0));
+            return;
+        }
+        let ask = Pulses(self.de.pending_steps().0.min(cap));
+        let approved = if ask.0 > 0 { self.approve_blind_safe(t, ask) } else { Pulses(0) };
+        let executed = if approved.0 > 0 { self.run_motor(approved) } else { Pulses(0) };
+        if approved < ask || executed < approved {
+            self.de.commit(executed); // veto or short burst: nothing is carried
+        } else {
+            self.de.commit_partial(executed);
+            let carried = self.de.pending_steps().0;
+            if carried > MAX_DEFERRED_STEPS {
+                self.de.drop_pending(Pulses(carried - MAX_DEFERRED_STEPS));
+            }
+        }
+        if executed < approved {
+            self.raise_steps_short(executed, approved);
+        }
+    }
+
     /// Raises the catalogue code of a HAL motor fault (the HAL reports, the core decides policy).
     /// Refused requests (forward while undocked, reverse while docked) have no hardware cause: the
     /// core's own `7-70-005` follows from the burst that did not run.
@@ -431,6 +457,8 @@ impl<H: Hal> Pump<H> {
             MotorFault::Timeout => Some(codes::STEP_COUNT_SHORT),
             MotorFault::ReverseWhileDocked => Some(codes::REVERSE_REQUESTED_WHILE_DOCKED),
             MotorFault::ForwardWhileUndocked => None,
+            // the HAL raised `A-A0-004` itself (instance 1 sag under load, 2 refused at rest) through `take_diag`
+            MotorFault::CellSupply => None,
         };
         match code {
             Some(c) => self.hal_rec = self.sv.raise(Raise::new(c).c(executed.0)),
@@ -694,11 +722,16 @@ impl<H: Hal> Pump<H> {
         self.drain_hal_diag();
 
         let requested = self.de.tick(dt);
-        let approved = self.approve_blind_safe(t, requested);
-        let executed = if approved.0 > 0 { self.run_motor(approved) } else { Pulses(0) };
-        self.de.commit(executed);
-        if executed < approved {
-            self.raise_steps_short(executed, approved);
+        match self.hal.motor_capacity(crate::hal::MotorDir::Forward) {
+            None => {
+                let approved = self.approve_blind_safe(t, requested);
+                let executed = if approved.0 > 0 { self.run_motor(approved) } else { Pulses(0) };
+                self.de.commit(executed);
+                if executed < approved {
+                    self.raise_steps_short(executed, approved);
+                }
+            }
+            Some(cap) => self.deliver_capped(t, cap),
         }
         self.draw_step();
 

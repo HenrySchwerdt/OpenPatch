@@ -241,6 +241,11 @@ pub const fn prime_commands_for_path() -> u32 {
     (PRIME_PATH_MU.0 + MAX_PRIME.0 - 1) / MAX_PRIME.0
 }
 
+/// Largest number of scheduled forward steps carried to the next tick when the board has no capacity right now
+/// (`Hal::motor_capacity`, cup board v4: one arm per 1.1 s). 64 steps = 0.45 U on the cup drive; more is dropped (counted in
+/// `dropped_steps`), never delivered late in a lump. A NEW limit (tightening only); boards without a capacity never carry.
+pub const MAX_DEFERRED_STEPS: u32 = 64;
+
 pub const FW_VERSION: u16 = 0x0200;
 
 /// `7-7B-001 TICK_OVERRUN`: a safety tick later than this (nominal 1 s) raises a warning.

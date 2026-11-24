@@ -11,6 +11,7 @@ pub mod battery;
 pub mod bench;
 pub mod bench_ctl;
 pub mod burst;
+pub mod cup_ctl;
 pub mod delivery;
 pub mod diag;
 pub mod drive_cal;

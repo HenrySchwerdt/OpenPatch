@@ -56,6 +56,10 @@ pub struct MockState {
     pub ex_peak: Option<u16>,
     /// Last rate passed to `set_draw_rate_pps`.
     pub draw_rate_pps: Option<u32>,
+    /// `motor_capacity`: empty = `None` (no limit, the default of every board but the cup board); else the values are returned in
+    /// turn, one per call (cycled).
+    pub capacity_pattern: Vec<u32>,
+    pub capacity_calls: usize,
 }
 
 impl Default for MockState {
@@ -92,6 +96,8 @@ impl Default for MockState {
             ex_vmot_missing: false,
             ex_peak: None,
             draw_rate_pps: None,
+            capacity_pattern: Vec::new(),
+            capacity_calls: 0,
         }
     }
 }
@@ -202,6 +208,15 @@ impl Hal for MockHal {
     }
     fn breadcrumb(&mut self) -> u32 {
         self.0.borrow().breadcrumb
+    }
+    fn motor_capacity(&mut self, _dir: MotorDir) -> Option<u32> {
+        let mut m = self.0.borrow_mut();
+        if m.capacity_pattern.is_empty() {
+            return None;
+        }
+        let v = m.capacity_pattern[m.capacity_calls % m.capacity_pattern.len()];
+        m.capacity_calls += 1;
+        Some(v)
     }
     fn take_diag(&mut self) -> Option<openpatch_core::hal::DiagEvent> {
         let mut m = self.0.borrow_mut();
