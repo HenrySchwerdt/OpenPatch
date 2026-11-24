@@ -17,6 +17,8 @@ usb-dfu = []
 default = ["board-bench-e73"]
 board-bench-e73 = []
 board-nrf52840-dk = []
+# cup pod v4: no TPL5010 on the nRF (it watches the supervisor), so no DONE path during the swap
+board-cup-v4 = []
 
 [dependencies]
 embassy-boot-nrf = { version = "=0.12.0", default-features = false }

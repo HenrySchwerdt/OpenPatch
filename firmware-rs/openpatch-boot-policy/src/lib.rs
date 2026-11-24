@@ -12,12 +12,16 @@
 //!    (`mark_booted`), so an image that is reverted never raises it ([`counter::bump_after_confirmed_boot`]).
 //! 4. **Hardware id.** An image for another board is refused.
 //! 5. **DFU transport rules** ([`dfu`]): sequential writes only, size bounded, manifest last, the transport cannot arm anything.
+//! 6. **Bootloader write protection** ([`acl`]): before the jump to the application the bootloader code is write- and erase-protected
+//!    with the nRF52840 ACL peripheral until the next reset (region arithmetic and policy here, three register writes per region in
+//!    the bootloader).
 //!
 //! The USB DFU class glue (embassy-usb + the DFU class) is behind the `usb-dfu` feature of `openpatch-bootloader` and calls
 //! [`dfu::DfuReceiver`]; it is not buildable on the host.
 #![no_std]
 #![forbid(unsafe_code)]
 
+pub mod acl;
 pub mod counter;
 pub mod dfu;
 pub mod manifest;

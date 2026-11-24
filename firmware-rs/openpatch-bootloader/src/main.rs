@@ -8,7 +8,9 @@
 //!    verified before arming the swap). An invalid pending update is cancelled.
 //! 2. `embassy_boot_nrf::BootLoader::prepare` performs the power-fail-safe swap, or the revert of a
 //!    trial boot that was not confirmed by the application (`mark_booted`).
-//! 3. Jump to the application in ACTIVE.
+//! 3. Write- and erase-protect the bootloader code with the ACL peripheral (`openpatch_boot_policy::acl`, locked until the next
+//!    reset; the state page, the application areas and the UICR rollback counter stay writable, see `docs/bootloader-v2.md`).
+//! 4. Jump to the application in ACTIVE.
 //!
 //! No `unsafe` besides the final jump (inside `BootLoader::load`).
 #![no_std]
@@ -239,7 +241,7 @@ fn main() -> ! {
     // WDT_DONE idles LOW (the qualifier needs a clean rising edge); the pulse itself comes from the hardware path.
     #[cfg(feature = "board-bench-e73")]
     let _done = Output::new(p.P0_28, embassy_nrf::gpio::Level::Low, embassy_nrf::gpio::OutputDrive::Standard);
-    #[cfg(not(any(feature = "board-bench-e73", feature = "board-nrf52840-dk")))]
+    #[cfg(not(any(feature = "board-bench-e73", feature = "board-nrf52840-dk", feature = "board-cup-v4")))]
     compile_error!("enable exactly one board feature");
     done_path::arm();
 
@@ -261,8 +263,44 @@ fn main() -> ! {
     let active_offset = cfg.active.offset();
     let bl: BootLoader = BootLoader::prepare(cfg);
     done_path::disarm();
+    // Last flash write of the bootloader is done (swap / revert / counter raise): lock the bootloader code until the next reset.
+    protect_bootloader();
     // SAFETY: ACTIVE holds a vector table (linked at ACTIVE_START); `load` sets VTOR/MSP and jumps.
     unsafe { bl.load(active_offset) }
+}
+
+/// Configure the ACL regions planned by the host tested policy (`openpatch_boot_policy::acl::plan_bootloader`). The registers are
+/// write-once until reset (nRF52840 PS, ACL). A plan error or a read-back mismatch is not fatal: the application still starts (an
+/// unprotected bootloader is a security finding, a bootloader that never boots a signed application would brick the bench pod).
+/// TODO(verify-on-hardware): PERM read-back after the write, and a write / erase attempt from the application ends in a BusFault.
+fn protect_bootloader() {
+    use policy::acl::{plan_bootloader, FlashMap, Span};
+    let map = FlashMap {
+        page: layout::PAGE,
+        flash_size: layout::FLASH_SIZE,
+        bootloader: Span::new(layout::BOOTLOADER_START, layout::BOOTLOADER_SIZE),
+        state: Span::new(layout::STATE_START, layout::STATE_SIZE),
+        active: Span::new(layout::ACTIVE_START, layout::ACTIVE_SIZE),
+        dfu: Span::new(layout::DFU_START, layout::DFU_SIZE),
+        storage: Span::new(layout::STORAGE_START, layout::STORAGE_SIZE),
+    };
+    let Ok(plan) = plan_bootloader(&map) else { return };
+    let acl = embassy_nrf::pac::ACL;
+    for e in plan.entries() {
+        let r = acl.acl(e.region as usize);
+        r.addr().write_value(e.addr);
+        r.size().write_value(e.size);
+        r.perm().write_value(embassy_nrf::pac::acl::regs::Perm(e.perm));
+    }
+    let _ = plan.verify(|reg| {
+        let n = ((reg - policy::acl::reg_addr(0)) / 0x10) as usize;
+        let r = acl.acl(n);
+        match (reg - policy::acl::reg_addr(0)) % 0x10 {
+            0x0 => r.addr().read(),
+            0x4 => r.size().read(),
+            _ => r.perm().read().0,
+        }
+    });
 }
 
 /// Minimal `static` once-cell (no extra dependency, single-threaded bootloader).

@@ -37,6 +37,7 @@ Unverified, in order of risk:
 6. QDEC with the DRV5032FA hall switches (20 Hz sampling), SAADC scan timing, TWIM probe of the TMAG5273.
 7. UICR PSELRESET write + single reset on a fresh module.
 8. Bootloader swap / revert / pending-update verification (only the signature scheme was cross-checked on the host: sigtool signature verified with `salty`).
+9. Bootloader ACL write protection (`openpatch_boot_policy::acl`, `docs/bootloader-v2.md`): TODO(verify-on-hardware) PERM read-back, BusFault on a write / erase of a bootloader page from the application, whether `ERASEUICR` / `ERASEALL` bypass it (the UICR rollback counter is not covered by the ACL).
 
 ## Implemented as a stub (`TODO(stub)` in the sources)
 
