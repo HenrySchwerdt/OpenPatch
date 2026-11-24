@@ -1,59 +1,59 @@
 {
  "u32_stuck": {
   "no_supervisor": {
-   "vmot_60_80ms": 0.265919522,
+   "vmot_60_80ms": 0.265910595,
    "isw_60_80ms_a": 0.5516933789999998,
    "allow_70ms": 3.29514816
   },
   "supervisor_drops_permit": {
-   "vmot_60_80ms": -3.3788621e-13,
+   "vmot_60_80ms": -3.37874866e-13,
    "isw_60_80ms_a": -7.010000000000002e-13,
    "allow_70ms": 0.0
   }
  },
  "short": {
-  "vmot_run_v": 4.92187076,
-  "i_run_a": 0.367481368,
+  "vmot_run_v": 4.92183709,
+  "i_run_a": 0.367821678,
   "ios_a": 0.5516933789999998,
   "ios_min_a": 0.551693379,
-  "t_fault_ms": 7.494453946842866,
-  "t_clrn_after_fault_us": -7.865021134367822e-06,
-  "t_allow_low_after_fault_us": -2.744936916654339e-05,
+  "t_fault_ms": 7.494453988940067,
+  "t_clrn_after_fault_us": -6.517654471682732e-06,
+  "t_allow_low_after_fault_us": 0.00011105993208415654,
   "t_vmot_lt_0v5_after_fault_ms": null,
-  "vmot_max_80_105ms": -9.38886066e-12,
+  "vmot_max_80_105ms": -9.38010989e-12,
   "allow_max_80_105ms": 0.0,
   "ocok_released_after_cut": true,
-  "vmot_after_rearm": 4.92187076
+  "vmot_after_rearm": 4.92183709
  },
  "stall_worst": {
-  "i_a": 0.407442649,
+  "i_a": 0.40786109599999987,
   "fault": false,
-  "vmot": 4.91791879
+  "vmot": 4.91787742
  },
  "watchdog": {
   "t_perml_low_after_rstn_us": 0.17507295085872343,
-  "t_vmot_lt_0v5_ms": 1.5903329646070539,
-  "vmot_max_after_rstn_release": -9.38886066e-12,
-  "vmot_before": 4.92187076
+  "t_vmot_lt_0v5_ms": 1.5902417880960806,
+  "vmot_max_after_rstn_release": -9.38010989e-12,
+  "vmot_before": 4.92183709
  },
  "mismatch": {
-  "t_v3v3_lt_0v8_ms": 3.0338270044838467,
-  "t_allow_lt_0v66_ms": 2.677964989996548,
-  "t_permit_lt_1v2_ms": 2.840870245072777,
+  "t_v3v3_lt_0v8_ms": 3.03382305301992,
+  "t_allow_lt_0v66_ms": 2.6779594952610757,
+  "t_permit_lt_1v2_ms": 2.840865461662116,
   "t_vpre_lt_1v_ms": null,
   "t_vmot_lt_0v5_ms": null,
-  "allow_max_after_ms": 0.482641033,
-  "vmot_at_120ms": 2.9145098941120002,
-  "vpre_at_120ms": 4.748921113555999
+  "allow_max_after_ms": 0.482641688,
+  "vmot_at_120ms": 2.914527114816,
+  "vpre_at_120ms": 4.748949422432
  },
  "mismatch_permit_stuck": {
-  "t_v3v3_lt_0v8_ms": 3.0338270044838467,
-  "t_allow_lt_0v66_ms": 2.677964989996548,
+  "t_v3v3_lt_0v8_ms": 3.03382305301992,
+  "t_allow_lt_0v66_ms": 2.6779594952610757,
   "t_permit_lt_1v2_ms": null,
   "t_vpre_lt_1v_ms": null,
   "t_vmot_lt_0v5_ms": null,
-  "allow_max_after_ms": 0.482907852,
-  "vmot_at_120ms": 2.9144995677520003,
+  "allow_max_after_ms": 0.482908507,
+  "vmot_at_120ms": 2.914516788664,
   "vpre_at_120ms": 4.95833309
  }
 }

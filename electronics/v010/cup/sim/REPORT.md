@@ -2,6 +2,8 @@
 
 # SPICE verification of the cup v4 board (power, cut path, enable logic, motor drive)
 
+**Re-run 2026-11-24 for the driver swap (DRV8835 -> 2 x DRV8838, `../../INTERLOCK.md` I.6b):** the behavioural bridge now uses the DRV8838 on-resistance (280 mOhm typ instead of 305). Case 4 still PASS: 0.184 A per coil, supply peak 0.368 A, no fault. Cases 1-3 move by less than 0.2 %; the collapse cases (3.0 V and 3.4 V cell with 1.2 / 1.6 ohm) still collapse, only the sampled value at the stop instant differs (it is taken during the collapse). The text below names the DRV8835; the truth table and the results apply to the DRV8838 pair.
+
 Run everything with `./run_all.sh`, which takes about 12 minutes. `fetch_models.sh` downloads the TI model zips into `models/`. That folder is gitignored because of the TI licence.
 
 The simulated design is the **corrected** netlist from the 2026-11-20 netlist review:
