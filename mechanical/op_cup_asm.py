@@ -10,7 +10,7 @@ ORDER = [
     ("2 tank + plunger + rod cartridge", ["reservoir", "plunger_core", "seal_a", "seal_b", "nut", "rod", "gear_b", "bush_rod", "thrust_collar", "magnet", "septum"]),
     ("3 motor + gear A", ["motor", "gearhead", "motor_boss", "motor_rear_boss", "motor_shaft", "gear_a", "motor_term"]),
     ("4 battery (301030)", ["ko_battery"]),
-    ("5 board + USB-C + piezo/button (PCBA; motor 4 + cell 2 wires soldered to its west-end pads first)", ["ko_board", "ko_board_tab", "ko_usb", "ko_aux", "ko_io", "ko_side_a", "ko_side_b", "ko_tmag_board", "hall_tmag", "ko_dock_board", "hall_dock"]),
+    ("5 board + USB-C (PCBA with SW1, LED, sounder; motor 4 + cell 2 wires soldered to its west-end pads first)", ["ko_board", "ko_board_tab", "ko_usb", "ko_aux", "ko_io", "ko_side_a", "ko_side_b", "ko_tmag_board", "hall_tmag", "ko_dock_board", "hall_dock"]),
     ("6 seal ring + USB-C frame + lid (button cap + O-ring pre-fitted in the lid) + 3 screws", ["lid_gasket", "usb_gasket", "top", "button_oring", "button_cap"]),
     ("7 dock parts from BELOW through the pocket (springs: tabs pushed up into the anchor slots)", ["hub_gasket", "needle_hub", "needle", "needle_guard", "dock_clip"]),
 ]

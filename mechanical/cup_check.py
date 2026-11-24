@@ -325,7 +325,7 @@ def check_size(outdir: Path, variant: str, p: dict) -> dict:
     dv = (math.pi * (fl["out_d"] / 2) ** 2 * (L["x_t0"] - L["x_in"]) + L["bore_area"] * dead) / 10.0
     warns.append(f"dead volume at empty ~ {dv:.2f} U (outlet bore d{fl['out_d']} through the front wall + gap {dead} mm x {L['bore_area']:.0f} mm2)")
     warns.append(f"layout A: motor column x {L['xc'] - 3:.1f}..{L['xc'] + 3:.1f} (rear), tank x {L['x_dry']:.1f}..{L['x_t0']:.1f} ({L['tank_len']:.1f}), dock x {K['x_bf']:.1f}..{K['x_far']:.1f}; lane 2 y {L['lane2_y'][0]:.1f}..{L['lane2_y'][1]:.1f}: "
-                 f"battery x {L['battery']['x'][0]:.1f}..{L['battery']['x'][1]:.1f}, board above, USB-C (+Y wall) x {L['usb']['x'][0]:.1f}..{L['usb']['x'][1]:.1f}, aux/piezo/button x {L['aux']['x'][0]:.1f}..{L['aux']['x'][1]:.1f}")
+                 f"battery x {L['battery']['x'][0]:.1f}..{L['battery']['x'][1]:.1f}, board above, USB-C (+Y wall) x {L['usb']['x'][0]:.1f}..{L['usb']['x'][1]:.1f}, aux keep-out x {L['aux']['x'][0]:.1f}..{L['aux']['x'][1]:.1f}")
     # ---- board interface (board review 2026-11-20): saddle below the board, USB-C on the board mid-plane and inside the lid, button window below the fillet,
     #      support / screw tops at the board underside, screws >= 3 mm from the HJ-840 antenna band, wire channel open
     cb, mo, us, bt, bsu = p["cup"]["board"], p["cup"]["motor"], p["cup"]["usb"], p["cup"]["button"], p["cup"]["board_support"]
