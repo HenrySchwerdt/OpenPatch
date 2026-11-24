@@ -42,7 +42,7 @@ Cup pod per pod at 5: board about 60 EUR (6-layer, same chip set) + mechanics ab
 | Empty 1.6 ml glass cartridge (mylife YpsoPump Reservoir, PZN 11160770) | A + B | 5.02 per cartridge (50.19 / 10, DocMorris, V) | https://www.docmorris.de/mylife-ypsopump-reservoir/11160770 |
 | Accu-Chek Insight Adapter & Tubing 70 cm (PZN 15379353) / 40 cm (PZN 08460327) | A | about 4.84 per set (48.44 / 10, medizinfuchs snippet; Roche list 48.45 RRP) | https://www.medizinfuchs.de/accu-chek-insight.html |
 | Accu-Chek Insight Flex head set 6 mm (PZN 08459755), optional | A | 8.01 per head (80.10 / 10 list, V) | https://www.docmorris.de/accu-chek-insight-flex-6-mm/08459755 |
-| B. Braun Venofix A 25G 0.5 x 19, 30 cm (PZN 17935284) | B | 0.59 each (V) | https://www.docmorris.de/venofix-a-venenpunktionsb25-g-05x19mm/17935284 |
+| B. Braun Venofix A 25G 0.5 x 19, 30 cm (PZN 17935284): plumbing stand-in only; realistic soft-cannula set see BUY-LIST K8 / K9 (~EUR 4 bench sample from China, or FlexLink ~13.7 EUR) | B | 0.59 each (V) | https://www.docmorris.de/venofix-a-venenpunktionsb25-g-05x19mm/17935284 |
 | Male-male Luer-lock coupler (pluriselect Combifix) | B | about 2.5-3 (25-30 / 10, snippet); reusable on the water bench | https://www.pluriselect.com/en/shop/1366 |
 | Luer-lock needle 27G 0.40 x 12 (B. Braun Sterican, 100 pcs) | B | about 0.05-0.10 (E) | any pharmacy |
 Variant B also takes **any standard Luer-lock pump set** (e.g. mylife Orbit micro Luer, PZN 09892448) without a CAD change; DANA sets do NOT lock (left-hand Luer).
