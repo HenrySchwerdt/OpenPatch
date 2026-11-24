@@ -43,12 +43,15 @@
 //! Power: HV mode (VDDH = the cell, REG0 supplies the 3V3 rail on the VDD pads): `UICR.REGOUT0` must be 3.3 V ([`regout0_setup`]); the
 //! module has no LDO and no 32 kHz crystal (`LfclkSource::InternalRC`).
 use embassy_nrf::gpio::AnyPin;
-use embassy_nrf::saadc::Input as _;
-use embassy_nrf::{Peri, Peripherals};
+use embassy_nrf::Peri;
 
 pub const BOARD_NAME: &str = "cup-v4";
 /// LED pins are active low.
 pub const LED_ACTIVE_HIGH: bool = false;
+/// The side button pulls `BTN_N` low (internal pull-up).
+pub const BUTTON_ACTIVE_LOW: bool = true;
+/// DOCKED is the real hall (a leg of the hardware gate), never simulated.
+pub const DOCK_SIMULATED: bool = false;
 /// Hall output polarity: low = docked.
 pub const DOCK_ACTIVE_LOW: bool = true;
 /// `MOT_FWD` level for forward.
@@ -58,12 +61,10 @@ pub const I2C_FREQUENCY_HZ: u32 = 100_000;
 /// TPL5010 interval (R26 6.8 k): about 2.0 s. Kick timing and the "one watchdog interval" bound use it.
 pub const TPL5010_INTERVAL_MS: u32 = 2_000;
 
-/// All pins of the board by function.
+/// All pins of the board by function (the SAADC, NVMC and WDT peripherals are taken separately by the caller).
 pub struct CupIo {
-    pub saadc: Peri<'static, embassy_nrf::peripherals::SAADC>,
     /// `VMOT_SENSE` (P0.04, AIN2).
     pub vmot_sense: embassy_nrf::saadc::AnyInput<'static>,
-    pub nvmc: Peri<'static, embassy_nrf::peripherals::NVMC>,
     pub aphase: Peri<'static, AnyPin>,
     pub bphase: Peri<'static, AnyPin>,
     pub aenbl: Peri<'static, AnyPin>,
@@ -89,37 +90,39 @@ pub struct CupIo {
     pub buz_a: Peri<'static, AnyPin>,
 }
 
-/// Moves the board pins and the peripherals the bring-up firmware needs out of `p` (partial move).
-pub fn take(p: Peripherals) -> CupIo {
-    CupIo {
-        saadc: p.SAADC,
-        vmot_sense: p.P0_04.degrade_saadc(),
-        nvmc: p.NVMC,
-        aphase: p.P0_08.into(),
-        bphase: p.P0_07.into(),
-        aenbl: p.P0_27.into(),
-        benbl: p.P0_02.into(),
-        chg_stat: p.P1_09.into(),
-        oc_ok: p.P0_05.into(),
-        latch_q: p.P0_28.into(),
-        dock_n: p.P0_03.into(),
-        sup_ok: p.P0_11.into(),
-        led_r: p.P0_31.into(),
-        led_g: p.P1_12.into(),
-        led_b: p.P1_13.into(),
-        sup_rx: p.P0_16.into(),
-        sup_tx: p.P0_15.into(),
-        sup_boot0: p.P0_19.into(),
-        sup_nrst: p.P0_12.into(),
-        mot_fwd: p.P0_29.into(),
-        button: p.P1_00.into(),
-        i2c_scl: p.P0_06.into(),
-        i2c_sda: p.P0_30.into(),
-        arm_clk: p.P0_26.into(),
-        mcu_en: p.P1_08.into(),
-        buz_a: p.P1_11.into(),
-    }
+/// Moves the board pins out of `$p` (an owned `embassy_nrf::Peripherals`, partial move): the rest of `$p` stays usable, so the
+/// pump application can take the board independent peripherals afterwards. `CupIo` must be in scope at the call site.
+macro_rules! cup_pins {
+    ($p:ident) => {
+        CupIo {
+            vmot_sense: embassy_nrf::saadc::Input::degrade_saadc($p.P0_04),
+            aphase: $p.P0_08.into(),
+            bphase: $p.P0_07.into(),
+            aenbl: $p.P0_27.into(),
+            benbl: $p.P0_02.into(),
+            chg_stat: $p.P1_09.into(),
+            oc_ok: $p.P0_05.into(),
+            latch_q: $p.P0_28.into(),
+            dock_n: $p.P0_03.into(),
+            sup_ok: $p.P0_11.into(),
+            led_r: $p.P0_31.into(),
+            led_g: $p.P1_12.into(),
+            led_b: $p.P1_13.into(),
+            sup_rx: $p.P0_16.into(),
+            sup_tx: $p.P0_15.into(),
+            sup_boot0: $p.P0_19.into(),
+            sup_nrst: $p.P0_12.into(),
+            mot_fwd: $p.P0_29.into(),
+            button: $p.P1_00.into(),
+            i2c_scl: $p.P0_06.into(),
+            i2c_sda: $p.P0_30.into(),
+            arm_clk: $p.P0_26.into(),
+            mcu_en: $p.P1_08.into(),
+            buz_a: $p.P1_11.into(),
+        }
+    };
 }
+pub(crate) use cup_pins;
 
 /// One-time UICR handling (runs before anything else): `REGOUT0` = 3.3 V, `PSELRESET` = P0.18. The decision is the host tested
 /// `openpatch_core::battery::regout0_action`. A fresh module resets once after the write (the new rail voltage needs a reset); a

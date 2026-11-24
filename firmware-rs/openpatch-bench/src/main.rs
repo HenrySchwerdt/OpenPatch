@@ -1,4 +1,4 @@
-//! OpenPatch bench controller firmware (Embassy, nRF52840).
+//! OpenPatch pump firmware (Embassy, nRF52840): bench controller (E73), nRF52840-DK, and the cup pod v4 (`board-cup-v4`).
 //!
 //! TEST PROJECT. NOT a medical device. NEVER to be connected to a body or used with insulin on a
 //! person (see DISCLAIMER.md). Bench tests use WATER ONLY.
@@ -24,7 +24,12 @@ mod pairing;
 mod safety;
 mod shared;
 mod storage;
+#[cfg(feature = "board-cup-v4")]
+mod sup_link;
+#[cfg(not(feature = "board-cup-v4"))]
 mod ui;
+#[cfg(feature = "board-cup-v4")]
+mod ui_cup;
 
 use defmt_rtt as _;
 use embassy_boot::AlignedBuffer;
@@ -41,6 +46,7 @@ use panic_probe as _;
 use static_cell::StaticCell;
 
 use crate::config::*;
+#[cfg(not(feature = "board-cup-v4"))]
 use crate::hal::{adc::Adc, stepper::Stepper, BenchHal, BoardIoDriver};
 use crate::irqs::Irqs;
 
@@ -80,17 +86,32 @@ async fn main(spawner: Spawner) {
     let p = embassy_nrf::init(irqs::embassy_config());
     board::uicr_setup();
     irqs::set_driver_priorities();
+    #[cfg(not(feature = "board-cup-v4"))]
     let (io, common) = board::take(p);
+    #[cfg(feature = "board-cup-v4")]
+    let (io, common, wdt_p, uarte_p) = board::take(p);
 
     // ---- radio stack: MPSL (with timeslots for flash) + SDC ----
     let mpsl_p = mpsl::Peripherals::new(common.rtc0, common.timer0, common.temp, common.ppi_ch19, common.ppi_ch30, common.ppi_ch31);
-    // 32.768 kHz crystal on P0.00 / P0.01 (bench board and DK)
-    let lfclk_cfg = mpsl::raw::mpsl_clock_lfclk_cfg_t {
-        source: mpsl::raw::MPSL_CLOCK_LF_SRC_XTAL as u8,
-        rc_ctiv: 0,
-        rc_temp_ctiv: 0,
-        accuracy_ppm: 20,
-        skip_wait_lfclk_started: mpsl::raw::MPSL_DEFAULT_SKIP_WAIT_LFCLK_STARTED != 0,
+    // 32.768 kHz crystal on P0.00 / P0.01 (bench board and DK); internal RC with calibration on the cup pod (no crystal on the
+    // HJ-840 board): calibrate every 4 s (rc_ctiv 16 x 0.25 s), and at least every 2nd interval when the temperature changed, 500 ppm.
+    // TODO(verify-on-hardware): BLE connection stability on the RC clock.
+    let lfclk_cfg = if irqs::LFCLK_RC {
+        mpsl::raw::mpsl_clock_lfclk_cfg_t {
+            source: mpsl::raw::MPSL_CLOCK_LF_SRC_RC as u8,
+            rc_ctiv: 16,
+            rc_temp_ctiv: 2,
+            accuracy_ppm: 500,
+            skip_wait_lfclk_started: mpsl::raw::MPSL_DEFAULT_SKIP_WAIT_LFCLK_STARTED != 0,
+        }
+    } else {
+        mpsl::raw::mpsl_clock_lfclk_cfg_t {
+            source: mpsl::raw::MPSL_CLOCK_LF_SRC_XTAL as u8,
+            rc_ctiv: 0,
+            rc_temp_ctiv: 0,
+            accuracy_ppm: 20,
+            skip_wait_lfclk_started: mpsl::raw::MPSL_DEFAULT_SKIP_WAIT_LFCLK_STARTED != 0,
+        }
     };
     static MPSL: StaticCell<MultiprotocolServiceLayer<'static>> = StaticCell::new();
     static SESSION_MEM: StaticCell<mpsl::SessionMem<1>> = StaticCell::new();
@@ -148,63 +169,88 @@ async fn main(spawner: Spawner) {
         boot.cal
     );
 
-    // ---- drive / analog / encoder hardware ----
-    let mut io = io;
-    let adc = Adc::new(common.saadc, io.adc_isense, io.adc_vmot, io.adc_vbus).await;
-    let stepper = Stepper::new(common.pwm1, io.mot_stck, common.timer1, common.ppi_ch0.into(), common.ppi_ch1.into());
-    let angle = if board::ENCODER_SIMULATED {
-        defmt::warn!("angle SIMULATED from the executed pulses (board {})", board::BOARD_NAME);
-        hal::angle::AngleSource::Simulated { num: 0 }
-    } else if cfg!(feature = "angle-qdec-fallback") {
-        defmt::warn!("angle from the DRV5032 hall quadrature (angle-qdec-fallback): NOT sufficient for the 3 %/revolution check");
-        hal::angle::AngleSource::Qdec
-    } else {
-        match hal::tmag::Tmag::init(common.twispi0, io.i2c_sda, io.i2c_scl).await {
-            Some(sensor) => hal::angle::AngleSource::Tmag { sensor, tracker: Default::default() },
-            None => {
-                // No sensor: `angle_read` must return None. A fault-parked source does exactly that.
-                hal::angle::AngleSource::Missing
+    #[cfg(not(feature = "board-cup-v4"))]
+    let (hal, ui_pins) = {
+        // ---- drive / analog / encoder hardware (bench controller / DK) ----
+        let mut io = io;
+        let adc = Adc::new(common.saadc, io.adc_isense, io.adc_vmot, io.adc_vbus).await;
+        let stepper = Stepper::new(common.pwm1, io.mot_stck, common.timer1, common.ppi_ch0.into(), common.ppi_ch1.into());
+        let angle = if board::ENCODER_SIMULATED {
+            defmt::warn!("angle SIMULATED from the executed pulses (board {})", board::BOARD_NAME);
+            hal::angle::AngleSource::Simulated { num: 0 }
+        } else if cfg!(feature = "angle-qdec-fallback") {
+            defmt::warn!("angle from the DRV5032 hall quadrature (angle-qdec-fallback): NOT sufficient for the 3 %/revolution check");
+            hal::angle::AngleSource::Qdec
+        } else {
+            match hal::tmag::Tmag::init(common.twispi0, io.i2c_sda, io.i2c_scl).await {
+                Some(sensor) => hal::angle::AngleSource::Tmag { sensor, tracker: Default::default() },
+                None => {
+                    // No sensor: `angle_read` must return None. A fault-parked source does exactly that.
+                    hal::angle::AngleSource::Missing
+                }
             }
+        };
+        if cfg!(any(feature = "angle-qdec-fallback", feature = "coarse-qdec")) {
+            spawner.spawn(hal::encoder::qdec_task(hal::encoder::new_qdec(common.qdec, io.hall_a, io.hall_b)).unwrap());
         }
-    };
-    if cfg!(any(feature = "angle-qdec-fallback", feature = "coarse-qdec")) {
-        spawner.spawn(hal::encoder::qdec_task(hal::encoder::new_qdec(common.qdec, io.hall_a, io.hall_b)).unwrap());
-    }
 
-    let drv = BoardIoDriver {
-        dir: io.mot_dir,
-        stby: io.mot_stby,
-        en_fault: io.mot_en_fault,
-        interlock: io.interlock.take(),
-    };
-    let (done_pin, wake_pin) = match io.watchdog.take() {
-        Some(w) => (Some(w.done), Some(w.wake)),
-        None => (None, None),
-    };
-    shared::DOCK_SIM.store(DOCK_SIM_INITIAL, core::sync::atomic::Ordering::Relaxed);
-    let dock_pin = io.dock_n.take().filter(|_| !DOCK_FROM_SOFTWARE);
-    let mut hal = BenchHal::new(stepper, adc, angle, drv, dock_pin, done_pin);
-    // TPL5010: WAKE edge -> GPIOTE ch7 -> PPI ch2 -> EGU3 interrupt -> ONE DONE pulse while the permit holds (hal/wdt.rs).
-    // The WAKE pin itself is configured by the GPIOTE channel; `common.gpiote_ch7` / `ppi_ch2` are claimed here so nothing
-    // else can take them.
-    let _claimed = (common.gpiote_ch7, common.ppi_ch2);
-    if wake_pin.is_some() {
-        hal::wdt::init();
-        // Provisional permit for the boot: the TPL5010 must not time out while the rest of the firmware starts (BLE, flash
-        // settings). It lapses after `DONE_PERMIT_MS`; the first verified safety tick renews it, a failed POST-S revokes it.
-        hal::wdt::grant_permit();
-    }
-    // POST-S (passive): rails, supply absent, latch clear, gate closed, own pins, FFC / pod, dock path. Findings are
-    // raised by the core on its first tick.
-    hal.boot_post_s();
-    if hal.watchdog_must_lapse() {
-        hal::wdt::revoke_permit();
-    }
+        let drv = BoardIoDriver {
+            dir: io.mot_dir,
+            stby: io.mot_stby,
+            en_fault: io.mot_en_fault,
+            interlock: io.interlock.take(),
+        };
+        let (done_pin, wake_pin) = match io.watchdog.take() {
+            Some(w) => (Some(w.done), Some(w.wake)),
+            None => (None, None),
+        };
+        shared::DOCK_SIM.store(DOCK_SIM_INITIAL, core::sync::atomic::Ordering::Relaxed);
+        let dock_pin = io.dock_n.take().filter(|_| !DOCK_FROM_SOFTWARE);
+        let mut hal = BenchHal::new(stepper, adc, angle, drv, dock_pin, done_pin);
+        // TPL5010: WAKE edge -> GPIOTE ch7 -> PPI ch2 -> EGU3 interrupt -> ONE DONE pulse while the permit holds (hal/wdt.rs).
+        // The WAKE pin itself is configured by the GPIOTE channel; `common.gpiote_ch7` / `ppi_ch2` are claimed here so nothing
+        // else can take them.
+        let _claimed = (common.gpiote_ch7, common.ppi_ch2);
+        if wake_pin.is_some() {
+            hal::wdt::init();
+            // Provisional permit for the boot: the TPL5010 must not time out while the rest of the firmware starts (BLE, flash
+            // settings). It lapses after `DONE_PERMIT_MS`; the first verified safety tick renews it, a failed POST-S revokes it.
+            hal::wdt::grant_permit();
+        }
+        // POST-S (passive): rails, supply absent, latch clear, gate closed, own pins, FFC / pod, dock path. Findings are
+        // raised by the core on its first tick.
+        hal.boot_post_s();
+        if hal.watchdog_must_lapse() {
+            hal::wdt::revoke_permit();
+        }
 
+        (hal, (io.button, io.dock_sim_button.take(), io.led_status, io.led_alarm, io.buzzer))
+    };
+    // ---- cup pod v4: phase drive, cup gate, supervisor link, nRF watchdog (src/hal/cup.rs) ----
+    #[cfg(feature = "board-cup-v4")]
+    let (hal, rest) = {
+        let (hp, rest) = hal::cup::CupHalPins::split(io);
+        let mut hal = hal::cup::CupHal::new(hp, common.saadc, common.twispi0).await;
+        // passive boot check (supply cut, MCU_EN low): findings are raised by the core on its first tick
+        hal.boot_check();
+        // the nRF watchdog starts only now (after BLE and the settings load); fed after verified ticks only (hal/cup.rs)
+        let mut wcfg = embassy_nrf::wdt::Config::default();
+        wcfg.timeout_ticks = 32_768 * CUP_WDT_TIMEOUT_S;
+        match embassy_nrf::wdt::Watchdog::try_new::<_, 1>(wdt_p, wcfg) {
+            Ok((_wdt, [h])) => hal.set_watchdog(h),
+            Err(_) => defmt::error!("nRF watchdog already running with another configuration: not fed, it will reset the MCU"),
+        }
+        // not used on this board (no step clock, no hall pair, no TPL5010 DONE path): claimed so nothing else takes them
+        let _unused = (common.pwm1, common.timer1, common.ppi_ch0, common.ppi_ch1, common.ppi_ch2, common.qdec, common.gpiote_ch7);
+        (hal, rest)
+    };
     // ---- pump + session ----
     let cal = boot.cal.cal();
     let evt_start = boot.evt_ceiling.max(1);
     let mut pump = Pump::new(hal, cal.as_ref(), RESERVOIR_CAPACITY, evt_start);
+    // cup pod v4: no shunt, occlusion from the angle shortfall only (docs/board-cup-v4.md)
+    #[cfg(feature = "board-cup-v4")]
+    pump.supervisor_mut().set_occlusion_source(openpatch_core::occlusion::OcclusionSource::AngleOnly);
     let mut key_src = crypto::key_source();
     let mut session = crypto::make_session(&mut key_src);
     let bs = safety::BootState {
@@ -223,9 +269,17 @@ async fn main(spawner: Spawner) {
     hp.spawn(safety::safety_task(pump, session, bs).unwrap());
 
     // ---- thread mode tasks ----
+    #[cfg(not(feature = "board-cup-v4"))]
     spawner.spawn(
-        ui::ui_task(common.pwm0, io.button, io.dock_sim_button.take(), io.led_status, io.led_alarm, io.buzzer).unwrap(),
+        ui::ui_task(common.pwm0, ui_pins.0, ui_pins.1, ui_pins.2, ui_pins.3, ui_pins.4).unwrap(),
     );
+    #[cfg(feature = "board-cup-v4")]
+    {
+        spawner.spawn(
+            ui_cup::ui_task(common.pwm0, rest.button, rest.led_r, rest.led_g, rest.led_b, rest.buz_a, rest.chg_stat).unwrap(),
+        );
+        spawner.spawn(sup_link::sup_link_task(uarte_p, rest.sup_rx, rest.sup_tx, rest.sup_boot0, rest.sup_nrst).unwrap());
+    }
     spawner.spawn(storage::persist_task(settings).unwrap());
     static ALIGNED: StaticCell<AlignedBuffer<4>> = StaticCell::new();
     spawner.spawn(dfu::confirm_task(dfu::new_updater(flash, ALIGNED.init(AlignedBuffer([0; 4])))).unwrap());

@@ -117,10 +117,28 @@ impl<F: NorFlash> NorFlash for KickFlash<F> {
     const WRITE_SIZE: usize = F::WRITE_SIZE;
     const ERASE_SIZE: usize = F::ERASE_SIZE;
     fn erase(&mut self, from: u32, to: u32) -> Result<(), Self::Error> {
+        feed_nrf_wdt();
         self.flash.erase(from, to)
     }
     fn write(&mut self, offset: u32, bytes: &[u8]) -> Result<(), Self::Error> {
+        feed_nrf_wdt();
         self.flash.write(offset, bytes)
+    }
+}
+
+/// The cup pod application runs the nRF52840 watchdog (3 s). If it is still running after the soft reset into a DFU swap
+/// (TODO(verify-on-hardware): whether a soft reset stops the WDT), a swap of several seconds must not be cut by it: reload every
+/// enabled reload request register before each flash operation and before the jump. A watchdog that is not running is not touched.
+fn feed_nrf_wdt() {
+    let w = embassy_nrf::pac::WDT;
+    if !w.runstatus().read().runstatus() {
+        return;
+    }
+    let en = w.rren().read();
+    for n in 0..8 {
+        if en.rr(n) {
+            w.rr(n).write_value(embassy_nrf::pac::wdt::regs::Rr(0x6E52_4635));
+        }
     }
 }
 
@@ -265,6 +283,7 @@ fn main() -> ! {
     done_path::disarm();
     // Last flash write of the bootloader is done (swap / revert / counter raise): lock the bootloader code until the next reset.
     protect_bootloader();
+    feed_nrf_wdt();
     // SAFETY: ACTIVE holds a vector table (linked at ACTIVE_START); `load` sets VTOR/MSP and jumps.
     unsafe { bl.load(active_offset) }
 }

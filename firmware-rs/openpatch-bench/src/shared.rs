@@ -120,12 +120,14 @@ pub static BEEP_REQ: AtomicBool = AtomicBool::new(false);
 /// Two beeps requested (draw finished / stalled).
 pub static DOUBLE_BEEP_REQ: AtomicBool = AtomicBool::new(false);
 /// Simulated DOCKED input (DK; written by the UI task, read by the HAL).
+#[cfg_attr(feature = "board-cup-v4", allow(dead_code))]
 pub static DOCK_SIM: AtomicBool = AtomicBool::new(false);
 /// QDEC edge counter (written by the encoder task, read by the HAL).
 pub static ENC_COUNTS: AtomicI32 = AtomicI32::new(0);
 /// TPL5010 DONE permit: the millisecond timestamp (`embassy_time`, wrapping u32) until which the WAKE interrupt may answer
 /// with a DONE pulse. Written only by the safety task after a verified tick (`hal::BenchHal::service_watchdog`) and by the
 /// POST (`BenchPins::kick`); read by the WAKE interrupt (`hal::wdt`). Starts expired: no DONE before the first verified tick.
+#[cfg_attr(feature = "board-cup-v4", allow(dead_code))]
 pub static DONE_PERMIT_UNTIL_MS: AtomicU32 = AtomicU32::new(0);
 /// WAKE edges seen / DONE pulses issued (written by the WAKE interrupt; diagnostics, `1-04-001` interval checks).
 #[allow(dead_code)]
@@ -140,3 +142,12 @@ pub static INTERLOCK_FAILED: AtomicBool = AtomicBool::new(false);
 pub static TMAG_PRESENT: AtomicBool = AtomicBool::new(false);
 /// Set by the safety task when it has a fault latched (alarm LED).
 pub static FAULT_LATCHED: AtomicBool = AtomicBool::new(false);
+/// Cup pod v4: last cell voltage the HAL measured (`VDDHDIV5`), for the LED.
+#[allow(dead_code)]
+pub static VBAT_MV: core::sync::atomic::AtomicU16 = core::sync::atomic::AtomicU16::new(0);
+/// Cup pod v4: last supervisor state from its status frame (`openpatch_supervisor::logic::State` as u8, 0xFF = none yet) and when it
+/// arrived (ms, wrapping).
+#[allow(dead_code)]
+pub static SUP_STATE: core::sync::atomic::AtomicU8 = core::sync::atomic::AtomicU8::new(0xFF);
+#[allow(dead_code)]
+pub static SUP_LAST_RX_MS: AtomicU32 = AtomicU32::new(0);

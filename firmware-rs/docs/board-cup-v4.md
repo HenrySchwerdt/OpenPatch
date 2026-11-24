@@ -2,16 +2,40 @@
 
 > TEST PROJECT, never worn. Water only.
 
-Pins: `openpatch-bench/src/board/cup_v4.rs` is the single place (table in its header); the source of truth is `electronics/v010/design/netlist_v4.py` / `netlist_v4_cup.json` (the HJ-840 table in `FIRMWARE-PINMAP.md` is stale). Only the bring-up binary `src/bin/cup_bringup.rs` uses it so far:
+Pins: `openpatch-bench/src/board/cup_v4.rs` is the single place (table in its header); the source of truth is `electronics/v010/design/netlist_v4.py` / `netlist_v4_cup.json` (the HJ-840 table in `FIRMWARE-PINMAP.md` is stale). The pump application and the bring-up binary both use it:
 
 ```sh
 cd firmware-rs/openpatch-bench
+# pump application (BLE, protocol, safety task, persistence, DFU confirm) on the cup board
+cargo build --release --target-dir target/cup --no-default-features --features board-cup-v4,drive-nfp-608-26-45-cup-miter-1-1,angle-tmag
+# bring-up binary
 cargo build --release --target thumbv7em-none-eabihf --no-default-features --features board-cup-v4 --bin cup_bringup
 ```
 
-The pump application (`main.rs`) is still the E73 / DK application and is NOT ported.
+`scripts/build.sh` builds both the cup bootloader (`board-cup-v4`) and the cup application.
 
-## Host tested pieces (`openpatch-core`, the bring-up binary only binds them to pins)
+## Pump application on the cup board (2026-11-24)
+
+Board selection follows the existing pattern (exactly one `board-*` feature): `board::take` moves the cup pins (`cup_pins!`) plus the board independent peripherals, `hal::BoardHal` is `hal::cup::CupHal`, the safety task, BLE, storage, protocol, bench mode and the DFU confirmation are unchanged and shared with the E73 / DK builds.
+
+* **Motor:** `openpatch_core::cup_ctl::CupCtl` (host tested, `openpatch-core/tests/cup_ctl.rs`, 18 tests) over the four bridge GPIOs, the gate (`MOT_FWD`, `MCU_EN` with read-back, `ARM_CLK`) and the readbacks (`LATCH_Q`, `SUP_OK`, `OC_OK`, `DOCK_N`), `VMOT_SENSE` and `VDDHDIV5`. Order: `MOT_FWD` first, `MCU_EN`, ONE `ARM_CLK` edge (the supervisor accepts an arm only while `MCU_EN` is high, `openpatch_supervisor::logic::try_arm`; the bring-up binary had arm before `MCU_EN` and is corrected), settle 10 ms, verify. Each burst is a `burst::plan_burst` plan (at most the 32-step supervisor budget, the cell peak current), run by `phase_drive::drive_burst` with checks before EVERY step: `SUP_OK`, `LATCH_Q`, `OC_OK`, dock level unchanged, VMOT present, and `battery::LoadGuard` (2.8 V after step 1, 3.0 V after step 20; diag `A-A0-004` instance 1). The resting cell is gated before `MCU_EN` (`battery::start_gate`: charger, 3.4 V F3, 3.7 V F2; instance 2). A supply already present before the arm, a supply that does not fall within 3 s after `MCU_EN` low or rises at idle, and an `MCU_EN` that reads back high at idle latch the interlock failure (`1-06-001` / `GATE_INPUT_READBACK_MISMATCH`). `MOT_FWD` returns to its reset default (forward) only after VMOT was seen below 0.3 V.
+* **Supervisor arm interval and cell rest:** one arm per burst, at least 1.1 s apart (supervisor 1.0 s + 10 % for its LSI clock), and the planned rest after each burst. The core asks `Hal::motor_capacity` first (new, default `None` = unchanged behaviour on every other board): 0 = not now, the scheduled steps wait for the next tick (at most `limits::MAX_DEFERRED_STEPS` = 64, never across a suspend, a veto or a short burst; `openpatch-core/tests/motor_capacity.rs`), a draw skips the tick; otherwise the request is at most one planned burst. A larger single request (a prime of 64 steps) is split by the HAL into bursts with their own arm and waits (about 2.6 s, `TICK_OVERRUN` warning possible). Consequence: delivery and assisted fill run at most one burst (29 steps at 200 pps) per 1.1 s, i.e. the assisted fill reaches about 0.2 U/s instead of 0.79 U/s (cell limit, not a firmware choice).
+* **Watchdog:** the TPL5010 on this board watches the SUPERVISOR, so the nRF uses its internal WDT (3 s, started after BLE and the settings load), fed only after `CupCtl::idle_check` passed (supply cut, `MCU_EN` low, nothing latched) and between the verified bursts of a long request. The bootloader reloads a running WDT before every flash operation of a swap and before the jump.
+* **Occlusion:** angle shortfall only (`OcclusionSource::AngleOnly`, no shunt); no motor current peak is reported.
+* **UI** (`ui_cup.rs`): RGB LED from `openpatch_core::led::LedState` (fault, charging from `USBDETECTED` + `CHG_STAT`, battery colour from the last `VDDHDIV5` reading), blue blink while the pairing window is open, fast red on an interlock failure; side button (internal pull-up) = pairing window / silence, 3 s hold = emergency stop; sounder on `BUZ_A` (PWM0). The LED channels are on/off (no PWM dimming).
+* **Supervisor link** (`sup_link.rs`, UARTE1 115200 8N1): status frames decoded (`openpatch_supervisor::status`) into `SUP_STATE` / `SUP_LAST_RX_MS` and logged; the task holds `SUP_BOOT0` low and `SUP_NRST` released (open drain).
+* **Clock:** internal RC LF clock for embassy and MPSL (calibration every 4 s, 500 ppm); I2C at 100 kHz for the TMAG5273.
+* **Refused at compile time on this board:** `angle-qdec-fallback` / `coarse-qdec` (no hall pair), `dock-simulated` (DOCK_N is a gate leg), `dir-forward-high` (the direction line is `MOT_FWD`).
+
+**Not ported / open (each a known gap, nothing silently covered):**
+1. Supervisor challenge/response (INTERLOCK.md H: `[0x5A, seq, crc16(ch XOR K[seq mod 16])]` within 20 ms): only the receive side of the status frame exists; the response frame, the table `K` and the STM32 shell are not in the repository. A supervisor that requires the link stays in `LINK_WAIT` and never permits (motor cut, fail safe). The status frame is logged, not yet turned into diagnostic records (the proposed `1-0F-*` codes are not in the catalogue), and the step count cross-check against the supervisor (`SUP_COUNT_MISMATCH`) is not implemented.
+2. POST proofs (A01 gate cut, A02 dock gate, A12 over-current, A13 reverse while docked) report `Unsupported` (UNKNOWN, never OK): the bench board's proofs used `DOCK_TEST`, `OC_TEST`, `LATCH_CLR_N`, which this board does not have. A cup POST needs a procedure with the user's dock / undock action (INTERLOCK.md I.3 item 2). Only the passive boot check (supply cut, `MCU_EN` low) runs.
+3. The stuck-asserted dock hall plausibility check (INTERLOCK.md I.1 (a)) is still open (as before the port).
+4. TMAG5273 sleep after boot is not done (the angle is needed for every burst).
+5. Supervisor update driver (`openpatch-supflash` integration point above), USB DFU glue in the bootloader.
+6. TODO(verify-on-hardware): every timing value of `CupCfg::DEFAULT` (settle 10 ms, VMOT on 4.0 V / off 0.3 V, fall timeout 3 s with the real bleeders, arm spacing 1.1 s against the supervisor's LSI clock), the WDT timeout against the longest blocking path and its behaviour across the DFU soft reset, the RC LF clock with BLE, the sounder frequency, the 8N1 status link, `USBDETECTED` as the charger signal.
+
+## Host tested pieces (`openpatch-core`; the application and the bring-up binary only bind them to pins)
 
 * `phase_drive`: DRV8838 full steps (U7A coil A, U7B coil B) on `APHASE/AENBL/BPHASE/BENBL`. `(A,B)` = 00, 10, 11, 01 forward, reverse order for reverse, exactly one PHASE toggle per step (the supervisor counts these edges), brake (`AENBL = BENBL = 0`) at idle, PHASE lines untouched when de-energising, enables raised after and lowered before the phase lines.
 * `burst`: bursts with rest gaps for the cell's peak current. `CellParams` (default Ampul 301030: 60 mAh realistic, 700 mA pulse limit, 150 ms, 90 mA average, 250 ms minimum rest) and `MotorLoad` (1.74 W, 88 %) are configurable PLACEHOLDERS: the vendor page gives no discharge rate. Default plan: 29 steps per burst at 200 pps, rest about 0.7 s at 3.8 V.
@@ -33,7 +57,7 @@ The simulation showed that the droop margin depends on the unmeasured cell resis
 * **F3 dependency.** `start_gate` checks, in this order: charger, boost enable (3.4 V, independent of the configuration), rest threshold. With the defaults the 3.7 V rule subsumes the 3.4 V rule; the test `a_passed_start_gate_implies_the_boost_minimum_for_every_configuration` sweeps 0 to 5 V against every valid and a hand built configuration, so the boost can never be enabled below 3.4 V even if the rest threshold is lowered to the floor. Measure the resting voltage before `MCU_EN` goes high.
 * **Loaded abort.** `LoadGuard::keep_going(steps_made, sample)` is the `keep_going` callback of `phase_drive::drive_burst` (asked before every step with the steps already made): it samples VBAT through the closure at `steps_made == 1` and `== 20` only, stops the burst on the first violation and stays tripped. A failed ADC sample must be reported as 0 mV (aborts). Burst rests are unchanged; a retry starts with the resting check again.
 * **Diagnostics.** New code `A-A0-004` `CELL_SAG_UNDER_LOAD` (fault, FRU = cell `BATT`, action charge = `CHECK_POWER` in the generated tables, text "Battery too weak for the motor. Charge or replace the cell."; legacy fault bit 3 like `BATTERY_CRITICAL`, so resume needs an acknowledge after charging). Instance 1 = move stopped under load (`SagAbort::raise`: ctx_a = loaded mV, ctx_b = threshold, ctx_c = steps made); instance 2 = move refused at rest (`rest_refusal_raise`: ctx_a = resting mV, ctx_b = threshold). Catalogue schema 4, 155 codes.
-* **Not changed / open.** The pin map is untouched. The bring-up binary (`cup_bringup`) plans with the defaults through `plan_burst`, so the 3.7 V rule applies there; it does not yet call `LoadGuard` (the ADC read is async, the burst callback is not): wiring that is part of porting the pump application. The status LED still shows "critical" below 3.4 V only, so between 3.4 and 3.7 V a refused start is reported by the `A-A0-004` fault, not by the LED colour. Replace the 3.7 V interim value after the cell ESR measurement and record it in spec section 7.
+* **Not changed / open.** The pin map is untouched. The pump application calls `LoadGuard` in every burst (`cup_ctl`, blocking SAADC read in the step callback); the bring-up binary (`cup_bringup`) still only plans with `plan_burst` (3.7 V rule) and does not call `LoadGuard`. The status LED still shows "critical" below 3.4 V only, so between 3.4 and 3.7 V a refused start is reported by the `A-A0-004` fault, not by the LED colour. Replace the 3.7 V interim value after the cell ESR measurement and record it in spec section 7.
 
 ## Supervisor (`openpatch-supervisor`)
 
@@ -55,4 +79,4 @@ The gate is `docked XOR reverse` (docked + reverse is cut in hardware; the core 
 
 ## Not done
 
-Porting the pump application to this board (replace the STSPIN220 `BenchCtl` / `Stepper` by `phase_drive` and the burst plan, `VMOT_SENSE` only), `USBDETECTED`, TMAG sleep, the TPL5010 kick path, the UART challenge/response, the nRF side of the supervisor update, the STM32C0 platform shell, USB DFU glue.
+See "Not ported / open" above: the UART challenge/response, cup POST proofs, TMAG sleep, the supervisor update driver (the state machine is done, `openpatch-supflash`), the STM32C0 platform shell, USB DFU glue. Done since: the pump application port, `USBDETECTED`, `LoadGuard` wiring; the TPL5010 kick path does not exist on the nRF side of this board (the nRF uses its own WDT).

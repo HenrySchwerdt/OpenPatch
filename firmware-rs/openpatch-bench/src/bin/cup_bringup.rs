@@ -8,7 +8,8 @@
 //!    (`openpatch_core::led`: charging pulse, full = green, low = red);
 //! 3. on a button press, ONE burst of the full-step sequence (`openpatch_core::phase_drive`) planned by
 //!    `openpatch_core::burst::plan_burst` for the cell's peak current, through the hardware gate:
-//!    `MOT_FWD` first, `ARM_CLK` edge, `MCU_EN` high, wait, burst, `MCU_EN` low, `MOT_FWD` back to forward. The direction follows the dock
+//!    `MOT_FWD` first, `MCU_EN` high, `ARM_CLK` edge (the supervisor accepts an arm only while `MCU_EN` is high), wait, burst, `MCU_EN`
+//!    low, `MOT_FWD` back to forward. The direction follows the dock
 //!    hall (docked = forward, undocked = reverse): the hardware gate is "docked XOR reverse". The burst aborts when `SUP_OK` drops.
 //!
 //! The firmware cannot move the motor on its own: the supply needs the latch, the supervisor permit AND `MCU_EN` in hardware.
@@ -129,7 +130,11 @@ async fn main(_spawner: Spawner) {
     // no 32 kHz crystal on the HJ-840 board: internal RC
     cfg.lfclk_source = embassy_nrf::config::LfclkSource::InternalRC;
     let p = embassy_nrf::init(cfg);
-    let io = cup_v4::take(p);
+    let io = {
+        use cup_v4::CupIo;
+        cup_v4::cup_pins!(p)
+    };
+    let saadc = p.SAADC;
 
     // Outputs: everything that can permit motion starts LOW / braked (the board pull-downs agree).
     let mut mot_fwd = Output::new(io.mot_fwd, Level::from(cup_v4::MOT_FWD_FORWARD_HIGH), OutputDrive::Standard);
@@ -160,7 +165,7 @@ async fn main(_spawner: Spawner) {
     acfg.resolution = Resolution::_12bit;
     let mut ch = ChannelConfig::single_ended(VddhDiv5Input);
     ch.time = Time::_40US;
-    let mut adc = Saadc::new(io.saadc, Irqs, acfg, [ch]);
+    let mut adc = Saadc::new(saadc, Irqs, acfg, [ch]);
     adc.calibrate().await;
 
     defmt::info!("cup-v4 bring-up: REGOUT0 ok, board {}", cup_v4::BOARD_NAME);
@@ -214,13 +219,15 @@ async fn run_one_burst(
             return;
         }
     };
-    // 1. direction FIRST (it is part of the hardware gate), 2. arm edge, 3. MCU_EN
+    // 1. direction FIRST (it is part of the hardware gate), 2. MCU_EN, 3. arm edge (the supervisor refuses an arm while MCU_EN is
+    // low: `openpatch_supervisor::logic`, INTERLOCK.md H; same order as `openpatch_core::cup_ctl`)
     mot_fwd.set_level(Level::from(matches!(dir, MotorDir::Forward) == cup_v4::MOT_FWD_FORWARD_HIGH));
+    block_for(Duration::from_micros(100));
+    mcu_en.set_high();
     block_for(Duration::from_micros(100));
     arm_clk.set_high();
     block_for(Duration::from_micros(10));
     arm_clk.set_low();
-    mcu_en.set_high();
     block_for(Duration::from_millis(10)); // the supply switch and the boost start
     let mut st = PhaseStepper::new();
     let mut delay = Delay;

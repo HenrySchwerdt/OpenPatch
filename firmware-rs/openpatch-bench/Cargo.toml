@@ -15,7 +15,7 @@ default = ["board-bench-e73", "angle-tmag"]
 
 # ---- board (exactly one) ----
 board-bench-e73 = ["embassy-nrf/nfc-pins-as-gpio"]   # electronics/bench/pin-assignment.md (Ebyte E73-2G4M08S1CX); P0.09 / P0.10 are OC_OK / PGATE_MON: UICR.NFCPINS = GPIO (written by embassy_nrf::init)
-board-cup-v4 = []   # cup pod v4 (45 parts): src/board/cup_v4.rs, bring-up binary src/bin/cup_bringup.rs (not the pump application yet)
+board-cup-v4 = []   # cup pod v4 (45 parts): src/board/cup_v4.rs, pump application (hal/cup.rs, ui_cup.rs, sup_link.rs) and the bring-up binary src/bin/cup_bringup.rs
 board-nrf52840-dk = []      # Nordic nRF52840-DK, no motor driver / interlock (docs/boards.md)
 
 # ---- MOT_DIR polarity (INTERLOCK.md R96 / R97): default R96 fitted, forward = DIR low ----
@@ -96,6 +96,8 @@ critical-section = "=1.2.0"
 
 openpatch-core = { path = "../openpatch-core", features = ["defmt"] }
 openpatch-proto = { path = "../openpatch-proto", features = ["defmt", "aes-ccm", "key-agreement"] }
+# Cup pod v4: the supervisor status frame (no defmt feature: the supervisor crate uses another defmt major version)
+openpatch-supervisor = { path = "../openpatch-supervisor" }
 # Pod side DRBG for the session key agreement (docs/04-protocol.md section 5.2): seeded once per boot from the nRF52840 TRNG.
 rand_chacha = { version = "0.3.1", default-features = false }
 

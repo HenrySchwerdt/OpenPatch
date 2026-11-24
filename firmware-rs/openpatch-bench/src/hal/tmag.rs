@@ -38,7 +38,8 @@ impl Tmag {
     pub async fn init(twi: Peri<'static, TWISPI0>, sda: Peri<'static, AnyPin>, scl: Peri<'static, AnyPin>) -> Option<Tmag> {
         static TXBUF: StaticCell<[u8; 8]> = StaticCell::new();
         let mut cfg = twim::Config::default();
-        cfg.frequency = twim::Frequency::K400;
+        // cup pod v4: 100 kHz on the 4.7 k pull-ups of the rear strip (board::I2C_FREQUENCY_HZ); bench board / DK: 400 kHz
+        cfg.frequency = if cfg!(feature = "board-cup-v4") { twim::Frequency::K100 } else { twim::Frequency::K400 };
         let mut t = Twim::new(twi, Irqs, sda, scl, cfg, TXBUF.init([0; 8]));
         let mut id = [0u8; 2];
         // tstart_power_up is 270 us (datasheet electrical table); the board has been powered for ages here.

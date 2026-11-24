@@ -21,6 +21,9 @@ echo "== drive guard (exactly one drive feature)"
 echo "== bootloader"
 ( cd "$ROOT/openpatch-bootloader" && cargo build --release )
 rust-size "$ROOT/openpatch-bootloader/target/thumbv7em-none-eabihf/release/openpatch-bootloader"
+echo "== bootloader (cup pod v4)"
+( cd "$ROOT/openpatch-bootloader" && cargo build --release --target-dir target/cup --no-default-features --features board-cup-v4 )
+rust-size "$ROOT/openpatch-bootloader/target/cup/thumbv7em-none-eabihf/release/openpatch-bootloader"
 
 mkdir -p "$ROOT/openpatch-bench/target/images"
 build_app() { # <name> <board feature> [drive override]
@@ -35,6 +38,8 @@ build_app() { # <name> <board feature> [drive override]
 }
 build_app e73 board-bench-e73
 build_app dk board-nrf52840-dk
+# cup pod v4 (HJ-840, 2 x DRV8838, STM32C011 supervisor): the pump application on the integrated board (angle-tmag only)
+ANGLE=angle-tmag build_app cup board-cup-v4
 # bench rig: NFP direct on a 1 ml U100 syringe, software DOCKED (DK only); draw capable
 build_app rig board-nrf52840-dk,dock-simulated drive-syringe-rig-1ml
 echo "done. Flash: probe-rs download --chip nRF52840_xxAA <bootloader elf>, then the app elf (see docs/bootloader.md)."

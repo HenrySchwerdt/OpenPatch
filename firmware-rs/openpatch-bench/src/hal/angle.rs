@@ -14,6 +14,7 @@ use super::tmag::Tmag;
 use crate::config::*;
 use crate::shared::ENC_COUNTS;
 
+#[cfg_attr(feature = "board-cup-v4", allow(dead_code))] // Qdec / Simulated: bench board and DK only
 pub enum AngleSource {
     Tmag { sensor: Tmag, tracker: Tracker },
     Qdec,
@@ -46,6 +47,7 @@ impl Tracker {
     }
 }
 
+#[cfg_attr(feature = "board-cup-v4", allow(dead_code))]
 impl AngleSource {
     /// Current cumulative angle in counts, `None` if the sensor is missing.
     pub fn read(&mut self) -> Option<i64> {

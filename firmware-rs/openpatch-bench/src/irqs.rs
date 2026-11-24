@@ -22,6 +22,12 @@ bind_interrupts!(pub struct Irqs {
     RTC0 => nrf_sdc::mpsl::HighPrioInterruptHandler;
 });
 
+// Cup pod v4: the supervisor UART (status link, and later the ROM bootloader update).
+#[cfg(feature = "board-cup-v4")]
+bind_interrupts!(pub struct CupIrqs {
+    UARTE1 => embassy_nrf::uarte::InterruptHandler<peripherals::UARTE1>;
+});
+
 pub const PRIO_DRIVERS: Priority = Priority::P3;
 pub const PRIO_SAFETY_EXECUTOR: Priority = Priority::P5;
 
@@ -30,11 +36,19 @@ pub fn embassy_config() -> embassy_nrf::config::Config {
     let mut c = embassy_nrf::config::Config::default();
     c.time_interrupt_priority = Priority::P2;
     c.gpiote_interrupt_priority = Priority::P2;
-    // Same source as the MPSL clock configuration in main.rs: the 32.768 kHz crystal on P0.00/P0.01
-    // (fitted on the bench board and on the DK), so MPSL does not switch the clock under RTC1.
-    c.lfclk_source = embassy_nrf::config::LfclkSource::ExternalXtal;
+    // Same source as the MPSL clock configuration in main.rs (`LFCLK_RC`): the 32.768 kHz crystal on P0.00/P0.01 on the bench
+    // board and on the DK, the internal RC on the cup pod (the HJ-840 board has no crystal), so MPSL does not switch the clock
+    // under RTC1.
+    c.lfclk_source = if LFCLK_RC {
+        embassy_nrf::config::LfclkSource::InternalRC
+    } else {
+        embassy_nrf::config::LfclkSource::ExternalXtal
+    };
     c
 }
+
+/// The low frequency clock is the internal RC oscillator (cup pod v4, no 32 kHz crystal).
+pub const LFCLK_RC: bool = cfg!(feature = "board-cup-v4");
 
 /// Driver interrupts the application uses (the radio interrupts are set by MPSL itself).
 pub fn set_driver_priorities() {
@@ -42,4 +56,6 @@ pub fn set_driver_priorities() {
     interrupt::QDEC.set_priority(PRIO_DRIVERS);
     interrupt::TWISPI0.set_priority(PRIO_DRIVERS);
     interrupt::RNG.set_priority(PRIO_DRIVERS);
+    #[cfg(feature = "board-cup-v4")]
+    interrupt::UARTE1.set_priority(PRIO_DRIVERS);
 }

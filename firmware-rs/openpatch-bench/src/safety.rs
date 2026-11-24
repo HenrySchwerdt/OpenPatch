@@ -20,7 +20,7 @@ use openpatch_proto::{decode_frame, Session, FRAME_MAX, SEQ_MAX};
 
 use crate::bench_mode::BenchCtl;
 use crate::config::*;
-use crate::hal::BenchHal;
+use crate::hal::BoardHal;
 use crate::shared::*;
 use crate::storage::{PersistMsg, PodRec};
 
@@ -39,7 +39,7 @@ struct Policy {
 }
 
 impl Policy {
-    fn housekeeping(&mut self, pump: &Pump<BenchHal>) {
+    fn housekeeping(&mut self, pump: &Pump<BoardHal>) {
         // event id ceiling
         let next = pump.log().next_id();
         if next + EVT_CEILING_HEADROOM > self.evt_ceiling {
@@ -130,7 +130,7 @@ pub struct BootState {
 }
 
 /// Restore everything the platform persisted into a fresh `Pump` and `Session`.
-pub fn restore(pump: &mut Pump<BenchHal>, session: &mut Session<AesCcm>, b: &BootState) {
+pub fn restore(pump: &mut Pump<BoardHal>, session: &mut Session<AesCcm>, b: &BootState) {
     if let Some((fill, consumed)) = b.reservoir {
         pump.reservoir_mut().restore(MilliUnits(fill), Pulses(consumed));
     }
@@ -156,7 +156,7 @@ pub fn restore(pump: &mut Pump<BenchHal>, session: &mut Session<AesCcm>, b: &Boo
 }
 
 #[embassy_executor::task]
-pub async fn safety_task(mut pump: Pump<BenchHal>, mut session: Session<AesCcm>, boot: BootState) -> ! {
+pub async fn safety_task(mut pump: Pump<BoardHal>, mut session: Session<AesCcm>, boot: BootState) -> ! {
     let mut policy = Policy {
         seq_ceiling: boot.seq_ceiling.unwrap_or(0),
         last_ceiling_write: Instant::now() - Duration::from_secs(10),
@@ -251,7 +251,7 @@ pub async fn safety_task(mut pump: Pump<BenchHal>, mut session: Session<AesCcm>,
 
 /// Alert characteristic: draw progress / done / stalled / fault frames (type 0x90, own seq counter,
 /// encrypted with nonce direction 2 when a session key exists).
-fn drain_notifications(pump: &mut Pump<BenchHal>, session: &mut Session<AesCcm>) {
+fn drain_notifications(pump: &mut Pump<BoardHal>, session: &mut Session<AesCcm>) {
     let encrypt = !cfg!(feature = "dev-plaintext");
     loop {
         let mut out = [0u8; FRAME_MAX];
@@ -269,7 +269,7 @@ fn drain_notifications(pump: &mut Pump<BenchHal>, session: &mut Session<AesCcm>)
     }
 }
 
-fn publish_status(pump: &Pump<BenchHal>) {
+fn publish_status(pump: &Pump<BoardHal>) {
     DELIVERING.store(pump.engine().bolus_active(), Ordering::Relaxed);
     FAULT_LATCHED.store(!pump.supervisor().faults().is_empty(), Ordering::Relaxed);
 }

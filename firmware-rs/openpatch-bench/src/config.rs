@@ -35,6 +35,14 @@ compile_error!("select EXACTLY ONE drive feature (no default); the project defau
 #[cfg(all(feature = "dock-simulated", feature = "board-bench-e73", not(feature = "unsafe-bench-override")))]
 compile_error!("dock-simulated is refused on board-bench-e73 (hardware interlock board): add `unsafe-bench-override` only if you know the interlock gate still needs the real DOCKED");
 
+// Cup pod v4: no hall pair (no QDEC fallback / cross-check), the dock hall is a hardware gate input (no software DOCKED), and the
+// direction line is MOT_FWD with a fixed polarity (board::MOT_FWD_FORWARD_HIGH), not the STSPIN220 DIR option of the bench board.
+#[cfg(all(feature = "board-cup-v4", any(feature = "angle-qdec-fallback", feature = "coarse-qdec")))]
+compile_error!("board-cup-v4 has no hall pair: use angle-tmag (no angle-qdec-fallback / coarse-qdec)");
+#[cfg(all(feature = "board-cup-v4", feature = "dock-simulated"))]
+compile_error!("board-cup-v4: DOCK_N is a leg of the hardware gate, a software DOCKED is refused");
+#[cfg(all(feature = "board-cup-v4", feature = "dir-forward-high"))]
+compile_error!("board-cup-v4: the direction line is MOT_FWD (board::MOT_FWD_FORWARD_HIGH), dir-forward-high does not apply");
 #[cfg(all(feature = "angle-tmag", feature = "angle-qdec-fallback"))]
 compile_error!("enable exactly one angle source: angle-tmag | angle-qdec-fallback");
 #[cfg(not(any(feature = "angle-tmag", feature = "angle-qdec-fallback")))]
@@ -208,6 +216,10 @@ pub const BOOT_OK_TICKS: u32 = 30;
 /// TPL5010 DONE permit: the safety task grants it after every verified tick; the WAKE interrupt issues the DONE pulse only
 /// inside this window (shorter than the TPL5010 interval of about 2 s). A hung safety task stops refreshing it.
 pub const DONE_PERMIT_MS: u32 = 1_500;
+/// Cup pod v4: timeout of the nRF52840 watchdog (fed only after a verified tick and between the bursts of a long request; the
+/// longest blocking path, a 64-step prime in three bursts with two 1.1 s arm waits, stays below 2 s between two feeds).
+/// TODO(verify-on-hardware).
+pub const CUP_WDT_TIMEOUT_S: u32 = 3;
 
 // ---------------------------------------------------------------------------------------------
 // Persistence policy (protocol section 6.1)

@@ -1279,6 +1279,7 @@ dependencies = [
  "nrf-sdc",
  "openpatch-core",
  "openpatch-proto",
+ "openpatch-supervisor",
  "panic-probe",
  "rand_chacha",
  "sequential-storage",
@@ -1319,6 +1320,10 @@ dependencies = [
  "subtle",
  "x25519-dalek",
 ]
+
+[[package]]
+name = "openpatch-supervisor"
+version = "0.1.0"
 
 [[package]]
 name = "p256"

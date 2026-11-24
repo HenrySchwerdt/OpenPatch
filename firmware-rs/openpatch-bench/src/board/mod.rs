@@ -2,18 +2,20 @@
 //!
 //! * `board-bench-e73` (default): `electronics/bench/pin-assignment.md`, applied exactly.
 //! * `board-nrf52840-dk`: Nordic nRF52840-DK, see `firmware-rs/docs/boards.md`.
+//! * `board-cup-v4`: the cup pod v4 (HJ-840, 2 x DRV8838, STM32C011 supervisor), `cup_v4.rs`, `firmware-rs/docs/board-cup-v4.md`.
 //!
 //! Everything board specific is in this directory; the rest of the firmware only sees [`BoardIo`],
 //! [`Common`] and the consts below.
+#[allow(unused_imports)]
 use embassy_nrf::gpio::AnyPin;
 use embassy_nrf::peripherals as per;
+#[allow(unused_imports)]
 use embassy_nrf::saadc::AnyInput;
 use embassy_nrf::Peri;
 
-#[cfg(all(feature = "board-bench-e73", feature = "board-nrf52840-dk"))]
-compile_error!("enable exactly one board feature (board-bench-e73 | board-nrf52840-dk)");
-#[cfg(not(any(feature = "board-bench-e73", feature = "board-nrf52840-dk")))]
-compile_error!("enable exactly one board feature (board-bench-e73 | board-nrf52840-dk)");
+const BOARD_FEATURES: u8 =
+    cfg!(feature = "board-bench-e73") as u8 + cfg!(feature = "board-nrf52840-dk") as u8 + cfg!(feature = "board-cup-v4") as u8;
+const _: () = assert!(BOARD_FEATURES == 1, "enable exactly one board feature (board-bench-e73 | board-nrf52840-dk | board-cup-v4)");
 
 #[cfg(feature = "board-bench-e73")]
 mod e73;
@@ -25,6 +27,14 @@ mod dk;
 #[cfg(feature = "board-nrf52840-dk")]
 pub use dk::*;
 
+#[cfg(feature = "board-cup-v4")]
+#[allow(dead_code)] // shared with the bring-up binary: not every constant is used by the pump application
+mod cup_v4;
+#[cfg(feature = "board-cup-v4")]
+pub use cup_v4::*;
+
+
+#[cfg(not(feature = "board-cup-v4"))]
 /// Hardware interlock pins (E73 bench board only): `MOT_ALLOW = MCU_EN AND LATCH_Q AND OC_OK AND (DOCKED_H XOR DIR_REV)`
 /// (`electronics/bench/INTERLOCK.md`). Outputs can only remove permission; the "diag" inputs are readbacks.
 pub struct InterlockPins {
@@ -52,6 +62,7 @@ pub struct InterlockPins {
     pub pod_id_n: Peri<'static, AnyPin>,
 }
 
+#[cfg(not(feature = "board-cup-v4"))]
 /// External TPL5010 watchdog pins. WAKE is sensed in hardware (GPIOTE -> PPI -> EGU3 interrupt) and DONE is pulsed from
 /// that interrupt within microseconds: the board's qualifier only accepts a DONE edge while WAKE is high (<= 20 ms).
 pub struct WatchdogPins {
@@ -61,6 +72,7 @@ pub struct WatchdogPins {
     pub wake: Peri<'static, AnyPin>,
 }
 
+#[cfg(not(feature = "board-cup-v4"))]
 /// All board pins by function.
 pub struct BoardIo {
     pub mot_stck: Peri<'static, AnyPin>,
@@ -160,4 +172,21 @@ macro_rules! take_common {
         }
     };
 }
+#[allow(unused_imports)]
 pub(crate) use take_common;
+
+/// Cup pod v4: the board pins, the shared peripherals and the watchdog (partial moves out of `p`).
+#[cfg(feature = "board-cup-v4")]
+pub fn take(p: embassy_nrf::Peripherals) -> (CupIo, Common, Peri<'static, per::WDT>, Peri<'static, per::UARTE1>) {
+    let io = cup_pins!(p);
+    let wdt = p.WDT;
+    let uarte = p.UARTE1;
+    let common = take_common!(p);
+    (io, common, wdt, uarte)
+}
+
+/// UICR: `REGOUT0` = 3.3 V (HV mode) and `PSELRESET`, reset once after the first write.
+#[cfg(feature = "board-cup-v4")]
+pub fn uicr_setup() {
+    regout0_setup();
+}

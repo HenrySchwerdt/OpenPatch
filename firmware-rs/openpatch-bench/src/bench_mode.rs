@@ -13,7 +13,7 @@ use openpatch_core::Pump;
 use openpatch_core::Error;
 
 use crate::config::*;
-use crate::hal::BenchHal;
+use crate::hal::BoardHal;
 use crate::shared::{CsvLine, BENCH_ACTIVE, CSV_OUT};
 
 enum Phase {
@@ -66,7 +66,7 @@ impl BenchCtl {
         note(format_args!("# bench start pulses={} amount_mu={} pause_ms={}", pulses, amount_mu, pause_ms));
     }
 
-    pub fn abort(&mut self, pump: &mut Pump<BenchHal>) {
+    pub fn abort(&mut self, pump: &mut Pump<BoardHal>) {
         if let Phase::Running(r) = &mut self.phase {
             r.abort(pump);
         } else {
@@ -86,7 +86,7 @@ impl BenchCtl {
     }
 
     /// Call after every `Pump::tick`.
-    pub fn step(&mut self, pump: &mut Pump<BenchHal>, now: Millis) {
+    pub fn step(&mut self, pump: &mut Pump<BoardHal>, now: Millis) {
         match &mut self.phase {
             Phase::Idle => {}
             Phase::Preparing(cfg) => {
