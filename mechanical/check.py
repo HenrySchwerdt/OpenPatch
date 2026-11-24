@@ -87,12 +87,14 @@ def declared_walls(p: dict, L: dict) -> list[tuple[str, float, bool]]:
         ("plunger_flange", sl["flange"], True),
         ("plunger_front_flange", rs["plunger_len"] - sl["ring_b"][1], True),
         ("plunger_groove_to_socket_wall", sl["socket_x"][0] - sl["ring_a"][1], True),
-        ("plunger_purge_bridge", rs["plunger_len"] - sl["ring_b"][1] - sl["purge"]["groove_d"], True),
         ("plunger_socket_wall_z", ((rs["h_in"] - 2 * rs["plunger_clr"]) - (dr["arm_t"] + 0.1)) / 2, False),
         ("tongue_x", dr["tongue_x"], False),
         ("septum_boss_wall", (p["septum"]["boss_d"] - (p["septum"]["d"] * (1.0 - p["dock"]["cap"]["septum_compress"]) if (p.get("mode") == "bench" and p["dock"]["cap"].get("septum_compress")) else p["septum"]["d"] + 2 * p["septum"]["bore_clr"])) / 2, True),
         ("screw_dome_wall", (p["screws"]["boss_d"] - p["screws"]["pilot"]) / 2, False),
     ]
+    if "purge" in sl:      # outputs generated before the purge groove existed (stale params.used.json of the integrated variant) have no such bridge
+        out.insert(out.index(next(w for w in out if w[0] == "plunger_groove_to_socket_wall")) + 1,
+                   ("plunger_purge_bridge", rs["plunger_len"] - sl["ring_b"][1] - sl["purge"]["groove_d"], True))
     return [(n, round(t, 3), e) for n, t, e in out]
 
 
