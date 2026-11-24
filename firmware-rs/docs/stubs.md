@@ -38,6 +38,7 @@ Unverified, in order of risk:
 7. UICR PSELRESET write + single reset on a fresh module.
 8. Bootloader swap / revert / pending-update verification (only the signature scheme was cross-checked on the host: sigtool signature verified with `salty`).
 9. Bootloader ACL write protection (`openpatch_boot_policy::acl`, `docs/bootloader-v2.md`): TODO(verify-on-hardware) PERM read-back, BusFault on a write / erase of a bootloader page from the application, whether `ERASEUICR` / `ERASEALL` bypass it (the UICR rollback counter is not covered by the ACL).
+10. Supervisor flashing over the STM32 ROM bootloader (`openpatch-supflash`, `docs/board-cup-v4.md`): host tested against a simulated bootloader only. TODO(verify-on-hardware): product id 0x443 (AN2606 not readable here), RDP probe behaviour, Readout Unprotect keeps nBOOT_SEL / BOR, all timeouts in `openpatch_supflash::timing`, 8E1 on the nRF UARTE. The embedded driver is not wired (image storage, minimum version source and UART hand-over are undefined).
 
 ## Implemented as a stub (`TODO(stub)` in the sources)
 

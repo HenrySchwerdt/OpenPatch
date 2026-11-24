@@ -18,6 +18,11 @@ pub const HEADER_LEN: usize = 20;
 pub const DOMAIN: &[u8; 5] = b"OPFW2";
 /// Hardware id of the 45-part cup board v4 (nRF52840 HJ-840).
 pub const HW_ID_CUP_V4: u32 = 0x0C0F_0004;
+/// Hardware id of the STM32C011F4 supervisor image on the cup board v4 (flashed by the nRF through the ST ROM bootloader,
+/// `openpatch-supflash`). Distinct from [`HW_ID_CUP_V4`]: the id is signed, so an nRF image is never a supervisor image and back.
+pub const HW_ID_SUP_C011: u32 = 0x0C0F_C011;
+/// Flash of the STM32C011F4 (16 KiB at 0x0800_0000): the largest supervisor image.
+pub const SUP_C011_FLASH_SIZE: u32 = 16 * 1024;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct Manifest {

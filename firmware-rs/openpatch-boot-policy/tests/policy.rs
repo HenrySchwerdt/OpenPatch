@@ -401,3 +401,45 @@ fn a_transfer_of_an_unsigned_image_completes_but_cannot_be_armed() {
     assert!(rx.is_complete());
     assert_eq!(check(&f.mem[APP as usize..], &f.mem[..500], Some(&pubkey()), &EMPTY), Err(Reject::BadSignature));
 }
+
+// ---- other images (the STM32C011 supervisor): same manifest, explicit minimum version, the signed digest is handed out ----------
+
+fn check_sup(manifest: &[u8], img: &[u8], key: Option<&Key>, min: u32) -> Result<VerifiedImage, Reject> {
+    let ctx = ImageContext { verifier: key, hw_id: HW_ID_SUP_C011, max_image: SUP_C011_FLASH_SIZE, min_version: min };
+    verify_image::<Sha, Key, Mem>(manifest, &mut Mem(img.to_vec()), &ctx)
+}
+
+#[test]
+fn a_signed_supervisor_image_is_accepted_and_its_signed_digest_is_returned() {
+    let img = image(9_000);
+    let m = sign(&sk(), &img, 4, HW_ID_SUP_C011);
+    let v = check_sup(&m, &img, Some(&pubkey()), 4).unwrap();
+    assert_eq!((v.version(), v.image_len()), (4, 9_000));
+    let mut h = Sha512::new();
+    Digest::update(&mut h, DOMAIN);
+    Digest::update(&mut h, &m[..HEADER_LEN]);
+    Digest::update(&mut h, &img);
+    let d: [u8; 64] = h.finalize().into();
+    assert_eq!(v.digest(), &d);
+    // the digest is the same function a flasher recomputes while it streams the image
+    assert_eq!(&signed_digest::<Sha>(&Manifest::parse(&m).unwrap(), &img), v.digest());
+}
+
+#[test]
+fn a_supervisor_image_is_refused_unsigned_downgraded_oversize_or_for_the_nrf() {
+    let img = image(2_000);
+    let good = sign(&sk(), &img, 5, HW_ID_SUP_C011);
+    assert_eq!(check_sup(&good, &img, None, 0), Err(Reject::NoKey));
+    let evil = sign(&SigningKey::from_bytes(&[1u8; 32]), &img, 5, HW_ID_SUP_C011);
+    assert_eq!(check_sup(&evil, &img, Some(&pubkey()), 0), Err(Reject::BadSignature));
+    assert_eq!(check_sup(&good, &img, Some(&pubkey()), 6), Err(Reject::Rollback { version: 5, minimum: 6 }));
+    // an nRF application image signed with the same key is not a supervisor image (hardware id is signed)
+    let nrf = sign(&sk(), &img, 5, HW_ID_CUP_V4);
+    assert_eq!(check_sup(&nrf, &img, Some(&pubkey()), 0), Err(Reject::WrongHardware { got: HW_ID_CUP_V4 }));
+    // larger than the 16 KiB of the STM32C011F4
+    let big = image(SUP_C011_FLASH_SIZE as usize + 8);
+    let mb = sign(&sk(), &big, 5, HW_ID_SUP_C011);
+    assert_eq!(check_sup(&mb, &big, Some(&pubkey()), 0), Err(Reject::TooLarge));
+    // and a supervisor image is never armed as an nRF update
+    assert_eq!(check(&good, &img, Some(&pubkey()), &EMPTY), Err(Reject::WrongHardware { got: HW_ID_SUP_C011 }));
+}

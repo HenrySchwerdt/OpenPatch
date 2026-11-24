@@ -27,5 +27,7 @@ pub mod dfu;
 pub mod manifest;
 pub mod verify;
 
-pub use manifest::{Manifest, ManifestError, HW_ID_CUP_V4, MANIFEST_LEN};
-pub use verify::{verify_pending, ArmToken, Digest512, ImageSource, Reject, SigCheck};
+pub use manifest::{Manifest, ManifestError, HEADER_LEN, HW_ID_CUP_V4, HW_ID_SUP_C011, MANIFEST_LEN, SUP_C011_FLASH_SIZE};
+pub use verify::{
+    digest_start, signed_digest, verify_image, verify_pending, ArmToken, Digest512, ImageContext, ImageSource, Reject, SigCheck, VerifiedImage,
+};

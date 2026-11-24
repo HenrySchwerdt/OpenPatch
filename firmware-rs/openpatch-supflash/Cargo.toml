@@ -1,0 +1,16 @@
+[package]
+name = "openpatch-supflash"
+description = "OpenPatch: nRF side flashing of the STM32C011 supervisor through the ST ROM bootloader (USART, AN3155 framing). Sans-IO state machine: verified image only (openpatch-boot-policy), supply cut enforced (openpatch-supervisor flash_guard), read-back verify. no_std, no alloc, no unsafe."
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+openpatch-supervisor = { path = "../openpatch-supervisor" }
+openpatch-boot-policy = { path = "../openpatch-boot-policy" }
+
+# Real Ed25519 + SHA-512 in the tests, same pinned versions as openpatch-boot-policy.
+[dev-dependencies]
+ed25519-dalek = { version = "=2.2.0", default-features = false, features = ["std"] }
+sha2 = "=0.10.9"
