@@ -31,11 +31,12 @@ PUCK_D, PUCK_H = 19.0, 9.0
 LUG_OD = 13.0 + 0.8          # bevel cone outer diameter (13 across the lug flats + clearance)
 WIN_X = 6.5 + 0.4            # window flat, from the axis (lug flat at 6.5 + clearance)
 GROOVE_R = 7.6               # undercut radius: the big lug's corners (6.5 out, 3.25 to the side) sweep r 7.27
-WIN_SMALL, WIN_BIG = 4.5 + 1.0, 6.5 + 1.0   # window widths (lug chord + clearance; lugs are ~174 deg apart, not 180)
-UNDERCUT_H = 1.9             # lug 1-1.5 thick + clearance
+WIN_SMALL, WIN_BIG = 4.5 + 1.3, 6.5 + 1.3   # window widths (lug chord + clearance; lugs are ~174 deg apart, not 180)
+UNDERCUT_H = 2.1             # lug 1-1.5 thick + clearance (1.9 was a bit catchy)
 TAB_W, TAB_L, TAB_H = 7.0, 6.0, 3.0
 BORES = (11.7, 12.0)
 LIPS = (2.4, 2.9, 3.4)
+SEAL_D, SEAL_DEPTH = 15.6, 0.8   # recess for the adapter's d15 x 1 seal ring so the adapter sits flush
 LUG_FLANK_DEG = 45.0       # lug hook flank is bevelled (owner photos 2026-11-25), lip underside matches
 PITCH = 30.0
 
@@ -54,6 +55,10 @@ def puck(bore: float, lip: float, label: str):
         for sx, w in ((1, WIN_BIG), (-1, WIN_SMALL)):
             with Locations((sx * WIN_X / 2, 0, top - lip)):
                 Box(WIN_X, w, lip, align=(Align.CENTER, Align.CENTER, Align.MIN), mode=Mode.SUBTRACT)
+        # seal recess in the face (owner 2026-11-25: original has a groove for the seal, adapter sits flush)
+        if SEAL_DEPTH > 0:
+            with Locations((0, 0, top - SEAL_DEPTH)):
+                Cylinder(SEAL_D / 2, SEAL_DEPTH, align=(Align.CENTER, Align.CENTER, Align.MIN), mode=Mode.SUBTRACT)
         # undercut ring below the lip (full turn)
         with Locations((0, 0, top - lip - UNDERCUT_H)):
             Cylinder(GROOVE_R, UNDERCUT_H, align=(Align.CENTER, Align.CENTER, Align.MIN), mode=Mode.SUBTRACT)
