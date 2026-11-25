@@ -17,7 +17,7 @@
  "problems": [],
  "notes": [
   "housing 68.61 x 52.0 x 19.0 mm; with adapter (tubing stub excluded) 78.11 x 52.3 x 19.0 mm",
-  "TARGET: height 19.0 > goal 15.0 (set by the receiver bore / cartridge OD estimate 15.4)",
+  "TARGET: height 19.0 > goal 15.0 (set by the receiver bore / cartridge OD estimate 12.6)",
   "moving parts checked at FULL and EMPTY (stroke 23.81 mm)",
   "stroke 23.81 / avail 25.0 mm; rod 33.11 mm, 5.20 mm behind the nut at EMPTY; slider 0.3 mm off the rear washer at EMPTY",
   "thrust 33.0 N vs need 18.1 N (seal 8.0 ESTIMATE + 150 kPa 10.1 N): 1.83x; stall pressure 492 kPa (Insight max 350)",

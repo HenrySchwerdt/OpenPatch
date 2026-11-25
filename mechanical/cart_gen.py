@@ -23,7 +23,7 @@ TAG = "OP-CART"
 COLORS = {
     "top": "opacity=0.15,color=#9fb3c8", "bottom": "opacity=0.45,color=#c9d3dd", "lid_gasket": "opacity=0.5,color=#c04040",
     "cartridge": "opacity=0.35,color=#bfe6f2", "stopper": "color=#333333", "cart_cap": "color=#b8b8b8",
-    "adapter": "opacity=0.8,color=#3a78c8", "b_cap": "opacity=0.85,color=#3a78c8", "needle": "color=#202020", "luer_hub": "color=#f0f0f0", "luer_set": "opacity=0.6,color=#c8e0f0", "adapter_lug_a": "color=#2a58a0", "adapter_lug_b": "color=#2a58a0", "tubing": "opacity=0.6,color=#e8f4ff",
+    "adapter": "opacity=0.8,color=#3a78c8", "b_cap": "opacity=0.85,color=#3a78c8", "needle": "color=#202020", "luer_hub": "color=#f0f0f0", "luer_set": "opacity=0.6,color=#c8e0f0", "adapter_lug_a": "color=#2a58a0", "adapter_lug_b": "color=#2a58a0", "adapter_seal": "color=#f4f4f4", "tubing": "opacity=0.6,color=#e8f4ff",
     "lock_flag": "color=#f0c040", "lock_magnet": "color=#cc2222", "hall_lock": "color=#ff7f00",
     "rod": "color=#a07020", "rod_nut": "color=#d8b040", "gear_rod": "color=#e8b000", "pinion": "color=#f2d020", "washer_r": "color=#888888", "washer_f": "color=#888888",
     "slider": "color=#e0803a", "pusher": "color=#e0803a", "yoke": "color=#e0803a", "stem": "color=#a07020",
@@ -34,7 +34,7 @@ COLORS = {
 EXPLODE = {"top": (0, 0, 26), "lid_gasket": (0, 0, 20), "ko_board": (0, 0, 15), "ko_usb": (0, 0, 15), "ko_battery": (0, 0, 9), "ko_tmag_board": (0, 0, 12), "hall_tmag": (0, 0, 12),
            "magnet": (0, 0, 10), "pinion": (0, 0, 10), "motor_shaft": (0, 0, 8), "motor": (0, 0, 8), "gearhead": (0, 0, 8), "motor_boss": (0, 0, 8), "motor_rear_boss": (0, 0, 8),
            "gear_rod": (0, 0, 13), "rod_nut": (0, 0, 13), "washer_r": (0, 0, 11), "washer_f": (0, 0, 11), "rod": (0, 0, 17), "slider": (0, 0, 17), "pusher": (0, 0, 17), "yoke": (0, 0, 17), "stem": (0, 0, 17),
-           "cartridge": (8, 0, 22), "stopper": (8, 0, 22), "cart_cap": (8, 0, 22), "adapter": (22, 0, 4), "adapter_lug_a": (22, 0, 4), "adapter_lug_b": (22, 0, 4),
+           "cartridge": (8, 0, 22), "stopper": (8, 0, 22), "cart_cap": (8, 0, 22), "adapter": (22, 0, 4), "adapter_lug_a": (22, 0, 4), "adapter_lug_b": (22, 0, 4), "adapter_seal": (22, 0, 4),
            "tubing": (22, 0, 4), "lock_flag": (22, 0, 4), "lock_magnet": (22, 0, 4), "hall_lock": (0, 0, 6),
            "b_cap": (22, 0, 4), "needle": (30, 0, 4), "luer_hub": (34, 0, 4), "luer_set": (40, 0, 4)}
 
@@ -169,7 +169,8 @@ def coupons(p0: dict, outdir: Path) -> list[str]:
     s.cut("coupon_cradle", tools)
     s.add("file.export_stl", path=os.path.relpath(outdir / "coupon_cartridge_bore_ladder.stl", HERE), bodies=["coupon_cradle"], quality="standard")
     names = ["coupon_cartridge_bore_ladder.stl"]
-    for k, bd in enumerate(c["coupons"]["receiver_bores_A"]):        # variant A: a 6.5 mm slice of the real front end (adapter bed + connector port + bayonet)
+    bores_a = [] if c["receiver"].get("type") == "cup_bayonet" else c["coupons"]["receiver_bores_A"]    # A cup socket: see cart_lock_coupons.py
+    for k, bd in enumerate(bores_a):                                  # variant A (old lug model): a 6.5 mm slice of the real front end
         pk = op_cart.prepare(apply_overrides(p0, [f"cart.variants.A.receiver.bore_d={bd}"], None, None), "A")
         Lk = op_cart.geometry(pk)
         nm = f"coupon_front{k}"

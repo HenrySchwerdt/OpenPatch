@@ -18,11 +18,11 @@ import math
 from op_cmds import Script
 
 MFG_PARTS = {"bottom": ["bottom"], "top": ["top"], "slider": ["slider"], "pusher": ["pusher"], "lock_flag": ["lock_flag"], "button": ["button"], "lid_gasket": ["lid_gasket"]}
-PURCHASED = ["cartridge", "stopper", "cart_cap", "adapter", "adapter_lug_a", "adapter_lug_b", "tubing", "rod", "rod_nut", "gear_rod", "pinion", "washer_r", "washer_f",
+PURCHASED = ["cartridge", "stopper", "cart_cap", "adapter", "adapter_lug_a", "adapter_lug_b", "adapter_seal", "tubing", "rod", "rod_nut", "gear_rod", "pinion", "washer_r", "washer_f",
              "motor", "gearhead", "motor_boss", "motor_shaft", "motor_rear_boss", "magnet", "hall_tmag", "lock_magnet", "hall_lock"]
 KEEPOUT = ["ko_board", "ko_battery", "ko_usb", "ko_tmag_board"]
 PART_NAMES = [b for v in MFG_PARTS.values() for b in v] + PURCHASED + KEEPOUT
-ADAPTER_A = ["adapter", "adapter_lug_a", "adapter_lug_b", "tubing"]
+ADAPTER_A = ["adapter", "adapter_lug_a", "adapter_lug_b", "adapter_seal", "tubing"]
 ADAPTER_B = ["b_cap", "needle", "luer_hub", "luer_set"]
 
 
@@ -50,7 +50,7 @@ def mfg_parts(p: dict) -> dict:
     return m
 # pairs that touch or overlap by design (bonded, threaded, meshing, press fit, needle through the septum, stacked keep-outs)
 EXCLUDE_PAIRS = [["pinion", "gear_rod"], ["rod", "rod_nut"], ["rod", "gear_rod"], ["rod_nut", "gear_rod"], ["rod", "slider"], ["rod", "pusher"], ["pusher", "stopper"],
-                 ["stopper", "cartridge"], ["cart_cap", "cartridge"], ["adapter", "cart_cap"], ["adapter", "cartridge"], ["adapter", "adapter_lug_a"], ["adapter", "adapter_lug_b"],
+                 ["stopper", "cartridge"], ["cart_cap", "cartridge"], ["adapter", "cart_cap"], ["adapter", "cartridge"], ["adapter", "adapter_lug_a"], ["adapter", "adapter_lug_b"], ["adapter", "adapter_seal"], ["adapter_seal", "adapter_lug_a"],
                  ["adapter", "tubing"], ["motor_shaft", "pinion"], ["motor_shaft", "motor_boss"], ["motor_boss", "gearhead"], ["gearhead", "motor"], ["motor", "motor_rear_boss"],
                  ["magnet", "pinion"], ["magnet", "motor_shaft"], ["lock_magnet", "lock_flag"], ["lock_magnet", "adapter"], ["lock_flag", "adapter"], ["lid_gasket", "top"], ["lid_gasket", "bottom"],
                  ["ko_battery", "ko_board"], ["ko_usb", "ko_board"], ["hall_tmag", "ko_tmag_board"], ["washer_r", "gear_rod"], ["washer_f", "gear_rod"], ["button", "bottom"], ["button", "top"],
@@ -89,6 +89,8 @@ def geometry(p: dict) -> dict:
     # height: cartridge barrel, gear tip circle and receiver bore share the axis; the bayonet groove lies in the +-Y flank sectors only (|angle| <= sector)
     big = max(ca["od"] + 2 * c["cradle_clr"], gear_od, rc["bore_d"])
     r_groove = rc["bore_d"] / 2 + ad["lug_h"] + rc["lug_clr"]
+    if rc.get("type") == "cup_bayonet":                      # A since 2026-11-25: socket for the adapter cup, lip ring = bore_d
+        r_groove = rc["bore_d"] / 2
     big = max(big, 2 * r_groove * math.sin(math.radians(rc["sector_deg"])))
     zc = w + c["floor_clr"] + big / 2
     H = round(zc + big / 2 + c["roof_clr"] + sh["gasket_t"] + w, 2)
@@ -308,6 +310,10 @@ def build_insight_flat(s: Script, p: dict, L: dict) -> None:
     s.fillet_chain("adapter", (Lt / 2, 0.0, 0.0), sh["top_fillet"])
     s.fillet_chain("adapter", (Lt / 2, 0.0, H), sh["top_fillet"])
     s.add("solid.combine", target="adapter", tools=[s.box("t_ad_keep", (xs, Lt + 1), (-1, W + 1), (-1, H + 1))], operation="intersect", name="adapter end")
+    if rc.get("type") == "cup_bayonet":
+        _adapter_cup(s, p, L)
+        s.cyl("tubing", "Y", (xs + ad["tube_x_above_base"], 0, zc), ad["tube_d"], y1 - 1.0, y1 + 8.0)
+        return
     st = step_box(p, L, 0.0)
     s.box("t_ad_step", (xs - ad["step_h"], xs + 0.01), st[0], st[1])          # key step under the tubing half
     s.cyl("t_ad_conn", "X", (0, yc, zc), ad["nose_od"], xs - ad["depth"], xs + 0.01)
@@ -318,6 +324,37 @@ def build_insight_flat(s: Script, p: dict, L: dict) -> None:
         y, z = _pol(yc, zc, rl, ang)
         s.cyl(nm, "X", (0, y, z), ad["lug_w"], xs - ad["lug_from_seat"] - ad["lug_t"], xs - ad["lug_from_seat"])
     s.cyl("tubing", "Y", (xs + ad["tube_x_above_base"], 0, zc), ad["tube_d"], y1 - 1.0, y1 + 8.0)       # far end, ~2 above the underside (D720,449 Fig. 8)
+
+
+def _adapter_cup(s: Script, p: dict, L: dict) -> None:
+    """Dummy of the real adapter's underside (owner photos 2026-11-25, PHOTO-ESTIMATE): body sits seal_gap off the face on the white ring, cup + rim lips
+    in the socket (lips under the tabs = locked), far half beyond the arc stands step_h proud into the face recess."""
+    c = p["cart"]
+    ad, rc, ca = c["adapter"], c["receiver"], c["cartridge"]
+    cp = ad["cup"]
+    yc, zc, xs, W, H = L["y_c"], L["zc"], L["x_seat"], L["width"], L["height"]
+    Lt = L["length_total"]
+    n1 = L["neck"][1]
+    g = cp["seal_gap"]
+    s.cut("adapter", [s.box("t_ad_gap", (xs - 1, xs + g), (-1, W + 1), (-1, H + 1))])
+    s.box("t_ad_step", (xs + g - ad["step_h"], xs + g + 0.01), (-1, W + 1), (-1, H + 1))
+    s.cut("t_ad_step", [s.cyl("t_ad_stc", "X", (0, yc, zc), 2 * cp["step_r"], xs - 5, xs + 5)])
+    s.add("solid.combine", target="t_ad_step", tools=[outline_prism(s, p, L, "t_ad_stk", 0.0, (0, H))], operation="intersect", name="step in outline")
+    s.cyl("t_ad_cup", "X", (0, yc, zc), cp["od"], xs - cp["proud"], xs + g + 0.01)
+    s.join("adapter", ["t_ad_step", "t_ad_cup"])
+    s.cut("adapter", [s.cyl("t_ad_cav", "X", (0, yc, zc), max(cp["id"], ca["cap_od"] + 0.1), xs - cp["proud"] - 0.1, n1 + ad["cap_gap"])])
+    h = cp["lip_od"] / 2 * math.sin(math.radians(cp["lip_arc_deg"] / 2))
+    for k, nm in enumerate(("adapter_lug_a", "adapter_lug_b")):                                                     # the two rim lips (locked position)
+        deg = rc["lock_deg"] + 180.0 * k
+        s.cyl(nm, "X", (0, yc, zc), cp["lip_od"], xs - cp["proud"], xs - cp["proud"] + cp["lip_h"])
+        s.cut(nm, [s.cyl(f"t_ad_lipin{k}", "X", (0, yc, zc), cp["od"] + 0.01, xs - cp["proud"] - 1, xs)])
+        s.box(f"t_ad_half{k}", (xs - 10, xs + 1), (yc, yc + 30), (zc - 30, zc + 30))
+        if abs(deg) > 1e-6:
+            s.add("solid.move", bodies=[f"t_ad_half{k}"], axis=[1, 0, 0], angle=f"{deg} deg", origin=[0, yc, zc])
+        s.add("solid.combine", target=nm, tools=[f"t_ad_half{k}"], operation="intersect", name=f"lip {k} side")      # one side first: one piece per body
+        s.add("solid.combine", target=nm, tools=[_band(s, f"t_ad_lipb{k}", L, (xs - 10, xs + 1), h, deg)], operation="intersect", name=f"lip {k} arc")
+    s.cyl("adapter_seal", "X", (0, yc, zc), cp["seal_od"], xs, xs + g)                                              # white ring (compressed)
+    s.cut("adapter_seal", [s.cyl("t_ad_sealin", "X", (0, yc, zc), cp["od"] + 0.02, xs - 1, xs + 1)])
 
 
 def needle_cap_geom(p: dict, L: dict) -> dict:
@@ -477,6 +514,8 @@ def _receiver_cuts(s: Script, p: dict, L: dict, tag: str) -> list[str]:
     """Bore for the adapter nose, two axial entry channels at entry_deg / +180 and the lug groove (sector band +-sector_deg around +-Y only)."""
     c = p["cart"]
     ad, rc, ca = c["adapter"], c["receiver"], c["cartridge"]
+    if rc.get("type") == "cup_bayonet":
+        return _cup_socket_cuts(s, p, L, tag)
     yc, zc, xf, xs = L["y_c"], L["zc"], L["x_front"], L["x_seat"]
     xg0 = xs - ad["lug_from_seat"] - ad["lug_t"] - rc["lug_clr"]
     xg1 = xs - ad["lug_from_seat"] + rc["lug_clr"]
@@ -495,6 +534,53 @@ def _receiver_cuts(s: Script, p: dict, L: dict, tag: str) -> list[str]:
         tools.append(s.cyl(f"t_rcb_{tag}", "X", (0, yc, zc), rc["cbore_d"], xs - rc["cbore_depth"], xf + 0.1))
     if L.get("adapter_y"):
         tools.append(bed_tool(s, p, L, tag))
+    return tools
+
+
+def cup_geom(p: dict, L: dict) -> dict:
+    """Derived cup-socket numbers (variant A, owner photos 2026-11-25): tab depth, entry band half-width, recess radius / depth, hook position."""
+    ad, rc = p["cart"]["adapter"], p["cart"]["receiver"]
+    cp = ad["cup"]
+    tab_depth = cp["proud"] - cp["lip_h"] - rc["tab_axial_clr"]
+    band_h = cp["lip_od"] / 2 * math.sin(math.radians(cp["lip_arc_deg"] / 2)) + rc["lip_clr"]
+    r_rec = cp["step_r"] - rc["step_clr"]
+    rec_d = ad["step_h"] - cp["seal_gap"] + rc["step_clr"]
+    yh = L["y_c"] + math.sqrt(max(cp["hook_r"] ** 2 - cp["hook_off"] ** 2, 0.0))
+    return {"tab_depth": tab_depth, "band_h": band_h, "r_rec": r_rec, "rec_d": rec_d, "y_hook": yh}
+
+
+def _band(s: Script, name: str, L: dict, x: tuple[float, float], h: float, deg: float) -> str:
+    """Slab through the socket axis, half-width h, containing the directions deg and deg + 180 (0 = +Y, 90 = +Z)."""
+    yc, zc = L["y_c"], L["zc"]
+    s.box(name, x, (yc - 30, yc + 30), (zc - h, zc + h))
+    if abs(deg) > 1e-6:
+        s.add("solid.move", bodies=[name], axis=[1, 0, 0], angle=f"{deg} deg", origin=[0, yc, zc])
+    return name
+
+
+def _cup_socket_cuts(s: Script, p: dict, L: dict, tag: str) -> list[str]:
+    """Socket for the Insight adapter cup: tab bore (retaining tabs), entry gaps, lip ring under the tabs, cartridge passage, step recess with catch notches."""
+    c = p["cart"]
+    ad, rc, ca = c["adapter"], c["receiver"], c["cartridge"]
+    cp = ad["cup"]
+    yc, zc, xf, xs, W, H = L["y_c"], L["zc"], L["x_front"], L["x_seat"], L["width"], L["height"]
+    G = cup_geom(p, L)
+    x_tab = xs - G["tab_depth"]
+    x_bot = xs - cp["proud"] - rc["tab_axial_clr"]
+    tools = [s.cyl(f"t_rt_{tag}", "X", (0, yc, zc), rc["tab_id"], x_tab - 0.01, xf + 0.1),                       # through the tabs (cup body)
+             s.cyl(f"t_rl_{tag}", "X", (0, yc, zc), rc["bore_d"], x_bot, x_tab + 0.01),                           # lip ring under the tabs
+             s.cyl(f"t_rn_{tag}", "X", (0, yc, zc), ca["od"] + 2 * c["cradle_clr"], L["collar"][0] - 0.1, x_bot + 0.01)]
+    s.cyl(f"t_re_{tag}", "X", (0, yc, zc), rc["bore_d"], x_tab - 0.01, xf + 0.1)                                 # entry gaps = bore inside the band
+    s.add("solid.combine", target=f"t_re_{tag}", tools=[_band(s, f"t_reb_{tag}", L, (x_tab - 1, xf + 1), G["band_h"], rc["entry_deg"])],
+          operation="intersect", name=f"entry gaps {tag}")
+    tools.append(f"t_re_{tag}")
+    s.box(f"t_rs_{tag}", (xs - G["rec_d"], xf + 0.1), (-1, W + 1), (-1, H + 1))                                  # recess outside r_rec (raised far half)
+    s.cut(f"t_rs_{tag}", [s.cyl(f"t_rsc_{tag}", "X", (0, yc, zc), 2 * G["r_rec"], xs - G["rec_d"] - 1, xf + 1)])
+    tools.append(f"t_rs_{tag}")
+    for k, sg in enumerate((1, -1)):                                                                          # catch notch in the arc riser (both sides)
+        zh = zc + sg * cp["hook_off"]
+        tools.append(s.box(f"t_rk{k}_{tag}", (xs - G["rec_d"] - rc["catch_extra"], xf + 0.1), (G["y_hook"] - rc["catch_d"] - 0.6, G["y_hook"] + 0.5),
+                           (zh - rc["catch_w"] / 2, zh + rc["catch_w"] / 2)))
     return tools
 
 
@@ -598,7 +684,8 @@ def build_housing(s: Script, p: dict, L: dict) -> None:
     s.join("top", tj)
     s.cut("top", _receiver_cuts(s, p, L, "t") + _screw_pilots_lid(s, p, L, lt) + _button_cuts(s, p, L, "t"))
     outline_prism(s, p, L, "lid_gasket", 0.3, (split, lt))
-    s.cut("lid_gasket", [outline_prism(s, p, L, "t_lg_in", w + 0.1, (split - 0.1, lt + 0.1)), s.box("t_lg_x", (Lp - 0.3, Lt + 1), (-1, W + 1), (-1, H + 1))])
+    x_lg = Lp - 0.3 - (cup_geom(p, L)["rec_d"] if rc.get("type") == "cup_bayonet" else 0.0)     # A cup socket: gasket stops behind the face recess
+    s.cut("lid_gasket", [outline_prism(s, p, L, "t_lg_in", w + 0.1, (split - 0.1, lt + 0.1)), s.box("t_lg_x", (x_lg, Lt + 1), (-1, W + 1), (-1, H + 1))])
 
 
 def shell_len(L: dict) -> float:
