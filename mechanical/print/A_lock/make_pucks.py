@@ -28,7 +28,9 @@ from build123d import (Align, Axis, Box, BuildPart, BuildSketch, Cone, Cylinder,
 HERE = Path(__file__).resolve().parent
 OUT = HERE / "pucks"
 PUCK_D, PUCK_H = 19.0, 9.0
-LUG_OD = 13.0 + 0.8          # window / undercut outer diameter (lug OD + clearance)
+LUG_OD = 13.0 + 0.8          # bevel cone outer diameter (13 across the lug flats + clearance)
+WIN_X = 6.5 + 0.4            # window flat, from the axis (lug flat at 6.5 + clearance)
+GROOVE_R = 7.6               # undercut radius: the big lug's corners (6.5 out, 3.25 to the side) sweep r 7.27
 WIN_SMALL, WIN_BIG = 4.5 + 1.0, 6.5 + 1.0   # window widths (lug chord + clearance; lugs are ~174 deg apart, not 180)
 UNDERCUT_H = 1.9             # lug 1-1.5 thick + clearance
 TAB_W, TAB_L, TAB_H = 7.0, 6.0, 3.0
@@ -46,18 +48,15 @@ def puck(bore: float, lip: float, label: str):
             Box(TAB_L + 2.0, TAB_W, TAB_H, align=(Align.CENTER, Align.CENTER, Align.MIN))
         # through bore
         Cylinder(bore / 2, PUCK_H, align=(Align.CENTER, Align.CENTER, Align.MIN), mode=Mode.SUBTRACT)
-        # keyed windows on the X axis (big lug +X, small lug -X), face down to the lip, clipped to LUG_OD
-        r0 = bore / 2 - 0.5
+        # keyed windows (big lug +X, small lug -X), face down to the lip. Top view of the lugs (owner photo
+        # 2026-11-25): straight outer edge at 6.5 from the cup axis with blunt ends, not an arc, so the
+        # windows are flat-ended slots out to WIN_X instead of thin crescents
         for sx, w in ((1, WIN_BIG), (-1, WIN_SMALL)):
-            with BuildPart(mode=Mode.PRIVATE) as win:
-                with Locations((sx * (r0 + LUG_OD / 2) / 2, 0, top - lip)):
-                    Box(LUG_OD / 2 - r0, w, lip, align=(Align.CENTER, Align.CENTER, Align.MIN))
-                with Locations((0, 0, top - lip)):
-                    Cylinder(LUG_OD / 2, lip, align=(Align.CENTER, Align.CENTER, Align.MIN), mode=Mode.INTERSECT)
-            p.part = p.part - win.part
+            with Locations((sx * WIN_X / 2, 0, top - lip)):
+                Box(WIN_X, w, lip, align=(Align.CENTER, Align.CENTER, Align.MIN), mode=Mode.SUBTRACT)
         # undercut ring below the lip (full turn)
         with Locations((0, 0, top - lip - UNDERCUT_H)):
-            Cylinder(LUG_OD / 2, UNDERCUT_H, align=(Align.CENTER, Align.CENTER, Align.MIN), mode=Mode.SUBTRACT)
+            Cylinder(GROOVE_R, UNDERCUT_H, align=(Align.CENTER, Align.CENTER, Align.MIN), mode=Mode.SUBTRACT)
         # bevelled lip underside: the lugs' hook flank is sloped, a square lip corner would block the turn
         import math
         cone_h = (LUG_OD / 2 - bore / 2) * math.tan(math.radians(LUG_FLANK_DEG))
