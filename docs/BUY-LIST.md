@@ -113,7 +113,7 @@ Tools assumed but not priced: pin vise, drills 1.25 / 1.6 / 1.7, M1.6 tap, calip
 ## Evidence (all retrieved 2026-11-20)
 AliExpress pages read in a browser session (cookies declined): 1005010269458834 (drawing in the description), 1005009147007928, 1005007902363549, 1005010279518166, 1005009598719720, 1005013654231446. GHW pages: Gewindestange Stahl / Messing / Edelstahl A2, DIN 934 Messing, 6KT A2 ähnlich DIN 934, DIN 934 A2 (M1.6 = SW 3.5, 10 pcs 2.30 EUR), DIN 963 A2, Messing Rundrohr alle Größen. modellbau-profi.de Kegelrad Modul 0,5 catalogue. supermagnete S-02-01-N. Amazon.de product pages B0H11LP18S, B0CHYYJBYV, B0CZRW8RLX, B0B5S25NNL, B0000WRNVM, B005HJQ3FK (read); B0CHVKG8NL, B0C143M8ZH, B0F1XTLVXW, B0DTKPGH2X, B0CJ8C32GF from search result lists only. nfpshop.com: not reachable.
 
-## 7. "Cart" pump (Insight cartridge, variants A and B, `mechanical/V010-CART.md`, updated 2026-11-24)
+## 7. "Cart" pump (Insight cartridge, variants A and B, `mechanical/V010-CART.md`, updated 2026-11-25)
 
 > Water only: cartridges are bought EMPTY and filled with water; never buy or use a prefilled drug cartridge (NovoRapid PumpCart is prescription-only and out of scope). Sources: `docs/insight-research.md` §3-4 and §7. V = read on the page, E = estimate.
 > Reused from the cup pod (no extra line): angle magnet d2 x 1 (A4), lock-flag magnet d1 x 0.5 (A5), Ampul 301030 cell (owner has it), wires / heat shrink / Loctite 648 / CA (Z5-Z8), silicone sheet 0.5 for the lid gasket (Z2).
@@ -145,11 +145,12 @@ Force window on the M2 x 0.4 rod (eta 0.25): >= 7.3 N mm at the nut for 19 N x 1
 | # | Item | Spec (CAD) | Listing | Price | Status |
 |---|---|---|---|---|---|
 | G-c1 | Pinion | m0.3 **z12**, brass, bore 2.0 | https://de.aliexpress.com/item/1005009996910236.html (10-15T, 2 / 1.98 bore, 10 pcs) | 4.19 / 10 pcs | V |
-| G-c2 | Gear nut | m0.3 **z40**, brass, 2 mm thick, bore 1.98 (opened to the M2 nut hex AF 4.0) | https://de.aliexpress.com/item/1005010114512381.html (30-60T) or GHW Stirnrad Modul 0.3 40T-B https://ghw-modellbau.de/Stirnrad-Messing-Modul-03-10-120-Z | 2.15 each / 3.70 (GHW) | V |
-| G-c3 | Piston rod | DIN 975 M2 x 0.4, cut to 31.2 | GHW DIN 975 Gewindestange (same pages as G1 / G2), variant M2 | about 1.9 | E (variant not read) |
-| G-c4 | Nut | DIN 934 M2 brass AF 4.0 x 1.6 | GHW DIN 934 Messing (same page as G3), variant M2 | n/v | E |
+| G-c2 | Gear (B: gear nut, A: on the screw) | m0.3 **z40**, brass, 2 mm thick, bore 1.98 (B: opened to the M2 nut hex AF 4.0; A: bonded on the screw end, bore as is) | https://de.aliexpress.com/item/1005010114512381.html (30-60T) or GHW Stirnrad Modul 0.3 40T-B https://ghw-modellbau.de/Stirnrad-Messing-Modul-03-10-120-Z | 2.15 each / 3.70 (GHW) | V |
+| G-c3 | Piston rod (B) / lead screw (A) | DIN 975 M2 x 0.4, cut to 31.2 (B) / 33.1 (A) | GHW DIN 975 Gewindestange (same pages as G1 / G2), variant M2 | about 1.9 | E (variant not read) |
+| G-c4 | Nut | DIN 934 M2 brass AF 4.0 x 1.6 (B: in the gear; A: pressed into the printed yoke) | GHW DIN 934 Messing (same page as G3), variant M2 | n/v | E |
+| G-c4a | Stem (A only, since 2026-11-25) | round rod d3.0 x 24.1, brass or steel, cut, bonded into yoke and pusher | any 3 mm brass round rod (e.g. GHW brass round rod, or a hobby store) | about 0.3 | E |
 | G-c5 | Lid screws | 3 x M2 x 8 cheese / pan head, thread-forming into PETG (d1.6 pilot) | any (e.g. GHW DIN 84 / DIN 7985) | about 0.1 each | E |
-| G-c6 | Thrust washers | 2 x 0.2 mm, d5.0 / d2.2 (PTFE film or brass shim, punched) | | | E |
+| G-c6 | Thrust washers (B) | 2 x 0.2 mm, d5.0 / d2.2 (PTFE film or brass shim, punched) | | | E |
 | G-c7 | Button cap | printed TPU 95A (`print_button_tpu.stl`) or cast silicone A40 | | | ours |
 | G-c8 | Lock hall | DRV5032FA on a 3-wire pigtail (LCSC C2152496, in the board BOM) | | about 0.3 | V (board BOM) |
 | P | Printed parts | `out/v010-cart/{A,B}/print/*.stl`, coupons `out/v010-cart/coupons/` | own FDM (PETG) or JLC3DP | | first: coupons, then bottom + lid |

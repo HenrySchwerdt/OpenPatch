@@ -26,14 +26,14 @@ COLORS = {
     "adapter": "opacity=0.8,color=#3a78c8", "b_cap": "opacity=0.85,color=#3a78c8", "needle": "color=#202020", "luer_hub": "color=#f0f0f0", "luer_set": "opacity=0.6,color=#c8e0f0", "adapter_lug_a": "color=#2a58a0", "adapter_lug_b": "color=#2a58a0", "tubing": "opacity=0.6,color=#e8f4ff",
     "lock_flag": "color=#f0c040", "lock_magnet": "color=#cc2222", "hall_lock": "color=#ff7f00",
     "rod": "color=#a07020", "rod_nut": "color=#d8b040", "gear_rod": "color=#e8b000", "pinion": "color=#f2d020", "washer_r": "color=#888888", "washer_f": "color=#888888",
-    "slider": "color=#e0803a", "pusher": "color=#e0803a",
+    "slider": "color=#e0803a", "pusher": "color=#e0803a", "yoke": "color=#e0803a", "stem": "color=#a07020",
     "motor": "color=#8a8f98", "gearhead": "color=#b9bec6", "motor_boss": "color=#9a9a9a", "motor_shaft": "color=#555555", "motor_rear_boss": "color=#666666",
     "magnet": "color=#cc2222", "hall_tmag": "color=#ffd400", "ko_tmag_board": "opacity=0.5,color=#2e8b57",
     "ko_board": "opacity=0.45,color=#2e8b57", "ko_battery": "opacity=0.5,color=#3a5fcd", "ko_usb": "opacity=0.6,color=#8a3fd0",
 }
 EXPLODE = {"top": (0, 0, 26), "lid_gasket": (0, 0, 20), "ko_board": (0, 0, 15), "ko_usb": (0, 0, 15), "ko_battery": (0, 0, 9), "ko_tmag_board": (0, 0, 12), "hall_tmag": (0, 0, 12),
            "magnet": (0, 0, 10), "pinion": (0, 0, 10), "motor_shaft": (0, 0, 8), "motor": (0, 0, 8), "gearhead": (0, 0, 8), "motor_boss": (0, 0, 8), "motor_rear_boss": (0, 0, 8),
-           "gear_rod": (0, 0, 13), "rod_nut": (0, 0, 13), "washer_r": (0, 0, 11), "washer_f": (0, 0, 11), "rod": (0, 0, 17), "slider": (0, 0, 17), "pusher": (0, 0, 17),
+           "gear_rod": (0, 0, 13), "rod_nut": (0, 0, 13), "washer_r": (0, 0, 11), "washer_f": (0, 0, 11), "rod": (0, 0, 17), "slider": (0, 0, 17), "pusher": (0, 0, 17), "yoke": (0, 0, 17), "stem": (0, 0, 17),
            "cartridge": (8, 0, 22), "stopper": (8, 0, 22), "cart_cap": (8, 0, 22), "adapter": (22, 0, 4), "adapter_lug_a": (22, 0, 4), "adapter_lug_b": (22, 0, 4),
            "tubing": (22, 0, 4), "lock_flag": (22, 0, 4), "lock_magnet": (22, 0, 4), "hall_lock": (0, 0, 6),
            "b_cap": (22, 0, 4), "needle": (30, 0, 4), "luer_hub": (34, 0, 4), "luer_set": (40, 0, 4)}
@@ -77,6 +77,7 @@ PRINT_BODIES = {
     "print_bottom": (["bottom"], "asis", "tub, floor on the bed"),
     "print_lid": (["top"], "flip", "lid, outer face on the bed (smooth side), bosses up"),
     "print_slider": (["slider"], "up_x", "anti-rotation slider"),
+    "print_yoke": (["yoke"], "up_x", "yoke drive: yoke (nut pocket + stem socket + foot), print flat"),
     "print_pusher": (["pusher"], "up_x", "pusher disc, flat face down"),
     "print_lock_flag": (["lock_flag"], "asis", "clip-on flag for the adapter-lock magnet"),
     "print_b_cap": (["b_cap"], "up_x", "variant B needle cap (bayonet nose + needle guide + hub seat), print upright, nose down"),
@@ -217,6 +218,8 @@ def generate(p0: dict, variant: str, outroot: Path, snapshots: bool) -> dict:
     ad = p["cart"]["adapter"]
     L["_lug_from_front"] = ad["lug_from_seat"] + ad["lug_t"] / 2
     L["variant"] = variant
+    if p["cart"]["shell"].get("taper"):
+        L["plan_outline"] = op_cart.outline_points(p, L, 0.0, step=2.0)     # tapered plan for the size figure
     created = {c["params"].get("body_name") for c in s.dumps() if c["params"].get("body_name")}
     asm = [b for b in op_cart.part_names(p) if b in created]
     s.export_step(str(out / f"{TAG}_assembly.step"), asm)

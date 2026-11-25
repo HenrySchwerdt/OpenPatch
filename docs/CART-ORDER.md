@@ -2,7 +2,7 @@
 
 # Cart pump: per-pump cost and order package (2026-11-24)
 
-Design: `mechanical/V010-CART.md` (variants A and B share drive, board and electronics). Research and prices: `docs/insight-research.md` §3-7, `docs/BUY-LIST.md` §7. V = price read on the listing, E = estimate. EUR, incl. VAT; USD x 0.92.
+Design: `mechanical/V010-CART.md` (variants A and B share chip set, motor and gears; since 2026-11-25 A has a yoke drive and its own 20.5 x 28.9 board outline, B the 57.0 x 10.6 strip; board cost per variant is the same, the chip set sets it). Research and prices: `docs/insight-research.md` §3-7, `docs/BUY-LIST.md` §7. V = price read on the listing, E = estimate. EUR, incl. VAT; USD x 0.92.
 
 ## Per-pump cost (hardware, without consumables)
 | Item | qty 1 | qty 5 | qty 10 | Basis |
@@ -51,7 +51,7 @@ Per test: A about 9.9 EUR (cartridge + adapter & tubing), B about 5.7 EUR (cartr
 ## Order package for 5 pumps (first real bench test, after the fit print works)
 | # | Shop | Items (qty) | Approx. total |
 |---|---|---|---|
-| 1 | **JLCPCB** | cart board 4-layer 0.8 mm ENIG, 10 PCBs, 5 assembled (PCBA both sides) + TMAG strips in the panel. **Blocked: the cart board is not routed yet**; outline + interface ready (`mechanical/out/v010-cart/board/`) | about 260 EUR |
+| 1 | **JLCPCB** | cart board 4-layer 0.8 mm ENIG, 10 PCBs, 5 assembled (PCBA both sides) + TMAG strips in the panel. **Blocked: the cart board is not routed yet**; outlines + interfaces ready (`mechanical/out/v010-cart/board/cart_board_{A,B}_*`); order one variant's board per JLC order | about 260 EUR |
 | 2 | **nfpshop.com** | NFP-608-26.45-SGM x 6 | about 55 EUR |
 | 3 | **AliExpress** | z12 m0.3 brass gears (1 lot of 10, 1005009996910236), z40 m0.3 brass (5, 1005010114512381), angle magnets d2x1 (1 pack, 1005010279518166), lock magnets d1x0.5 (1 pack, 1005009598719720) | about 35 EUR |
 | 4 | **GHW-Modellbau** | DIN 975 M2 rod brass x 2, DIN 934 M2 brass nuts (1 pack), DIN 84 / 7985 M2 x 8 screws (1 pack) | about 15 EUR |

@@ -10,8 +10,8 @@
   "command": "sketch.rectangle.rounded",
   "params": {
    "p0": [
-    0,
-    0
+    0.0,
+    0.0
    ],
    "p1": [
     71.41,
@@ -78,6 +78,32 @@
    "distance": 13.300000000000002,
    "body_name": "t_cav",
    "name": "t_cav"
+  }
+ },
+ {
+  "command": "solid.box",
+  "params": {
+   "length": 71.21,
+   "width": 29.25,
+   "height": 18.1,
+   "corner": [
+    -1,
+    -1,
+    -1
+   ],
+   "body_name": "t_cav_x",
+   "name": "t_cav_x"
+  }
+ },
+ {
+  "command": "solid.combine",
+  "params": {
+   "target": "t_cav",
+   "tools": [
+    "t_cav_x"
+   ],
+   "operation": "intersect",
+   "name": "cavity front"
   }
  },
  {
@@ -676,8 +702,8 @@
   "command": "sketch.rectangle.rounded",
   "params": {
    "p0": [
-    0,
-    0
+    0.0,
+    0.0
    ],
    "p1": [
     71.41,
@@ -1066,7 +1092,7 @@
     70.11,
     25.95
    ],
-   "radius": 2.6999999999999997
+   "radius": 2.7
   }
  },
  {
@@ -1082,11 +1108,27 @@
   }
  },
  {
+  "command": "solid.box",
+  "params": {
+   "length": 1.2999999999999972,
+   "width": 29.25,
+   "height": 18.1,
+   "corner": [
+    71.11,
+    -1,
+    -1
+   ],
+   "body_name": "t_lg_x",
+   "name": "t_lg_x"
+  }
+ },
+ {
   "command": "solid.combine",
   "params": {
    "target": "lid_gasket",
    "tools": [
-    "t_lg_in"
+    "t_lg_in",
+    "t_lg_x"
    ],
    "operation": "cut",
    "name": "cut lid_gasket"

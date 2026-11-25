@@ -18,6 +18,7 @@ def draw(Ls: dict, path: Path) -> None:
     rows = REFERENCE + [(f"OpenPatch cart pump {v} (body / with adapter)", L["length_with_adapter"], L["width"], L["height"], f"this CAD, body {L['length']:.1f} long")
                         for v, L in Ls.items()]
     bodies = {len(REFERENCE) + k: L["length"] for k, L in enumerate(Ls.values())}
+    outlines = {len(REFERENCE) + k: L.get("plan_outline") for k, L in enumerate(Ls.values())}
     s = 4.0                                    # px per mm
     x0, y0, gap = 40, 80, 28
     out = ['<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="{h}">', '<rect width="100%" height="100%" fill="#fff"/>',
@@ -25,8 +26,14 @@ def draw(Ls: dict, path: Path) -> None:
     y = y0
     for k, (nm, l, w, h, src) in enumerate(rows):
         col = COLS[k]
-        out.append(f'<rect x="{x0}" y="{y}" width="{l * s:.1f}" height="{w * s:.1f}" rx="12" fill="{col}" fill-opacity="0.55" stroke="#333"/>')
-        if k in bodies:
+        plan = outlines.get(k)
+        if plan:                                # tapered plan outline (A), drawn with +Y up like the others' top view
+            pts = " ".join(f"{x0 + px * s:.1f},{y + (w - py) * s:.1f}" for px, py in plan)
+            out.append(f'<polygon points="{pts}" fill="{col}" fill-opacity="0.55" stroke="#333"/>')
+            out.append(f'<line x1="{x0 + bodies[k] * s:.1f}" y1="{y}" x2="{x0 + bodies[k] * s:.1f}" y2="{y + w * s:.1f}" stroke="#000" stroke-width="2" stroke-dasharray="6 4"/>')
+        else:
+            out.append(f'<rect x="{x0}" y="{y}" width="{l * s:.1f}" height="{w * s:.1f}" rx="12" fill="{col}" fill-opacity="0.55" stroke="#333"/>')
+        if k in bodies and not plan:
             out.append(f'<rect x="{x0}" y="{y}" width="{bodies[k] * s:.1f}" height="{w * s:.1f}" rx="12" fill="{col}" fill-opacity="0.8" stroke="#000" stroke-width="2"/>')
         xe = x0 + 90 * s
         out.append(f'<rect x="{xe}" y="{y}" width="{w * s:.1f}" height="{h * s:.1f}" rx="8" fill="{col}" fill-opacity="0.7" stroke="#333"/>')

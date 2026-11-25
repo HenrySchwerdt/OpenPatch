@@ -44,6 +44,19 @@ def empty_bodies(p: dict, L: dict) -> tuple[Script, list]:
     yc, zc = L["y_c"], L["zc"]
     E = L["empty"]
     s = Script()
+    if L.get("yoke"):                                      # yoke drive: yoke (+ nut), stem, pusher, stopper move; the screw stays
+        st = L["stroke"]
+        op_cart.build_yoke(s, p, L, "e_yoke", st)
+        s.cyl("e_stem", "X", (0, yc, zc), c["yoke"]["stem_d"], L["slider_full"][0] + c["yoke"]["stem_in"] + st, L["stem"][1] + c["pusher"]["stem_in"] + st)
+        s.cyl("e_pusher", "X", (0, yc, zc), c["pusher"]["d"], *E["pusher"])
+        s.cyl("e_stopper", "X", (0, yc, zc), c["cartridge"]["id"], *E["stopper"])
+        moving = ["yoke", "stem", "pusher", "stopper", "rod_nut"]
+        es = ["e_yoke", "e_stem", "e_pusher", "e_stopper"]
+        ex = []
+        for a in es:
+            ex += [[a, m] for m in moving] + [[a, b] for b in es if b != a]
+        ex += [["e_yoke", "rod"], ["e_stopper", "cartridge"]]
+        return s, ex
     s.cyl("e_rod", "X", (0, yc, zc), c["rod"]["d"], *E["rod"])
     s.box("e_slider", tuple(E["slider"]), (yc - c["slider"]["w"] / 2, yc + c["slider"]["w"] / 2), (zc - c["slider"]["h"] / 2, zc + c["slider"]["h"] / 2))
     s.cyl("e_pusher", "X", (0, yc, zc), c["pusher"]["d"], *E["pusher"])
@@ -134,12 +147,18 @@ def check_variant(variant: str) -> int:
         prob.append(f"stroke {L['stroke']} > available {L['stroke_avail']} in the cartridge (estimate)")
     E = L["empty"]
     g0, g1 = L["gear"]
-    if E["rod"][0] > g0 - 0.1:
-        prob.append(f"rod rear end {E['rod'][0]:.2f} passes the nut (starts {g0:.2f}) before EMPTY")
-    if L["rod_full"][1] < g0 + c["nut"]["h"] + 0.5:
-        prob.append("rod front end not through the nut at FULL")
-    if E["slider"][1] > L["rib_r"][1] - 0.1:
-        prob.append(f"slider reaches the rear washer at EMPTY ({E['slider'][1]:.2f} vs {L['rib_r'][1]:.2f})")
+    if L.get("yoke"):
+        if E["slider"][1] > L["rib_r"][0] - 0.1:
+            prob.append(f"yoke reaches the gear rib at EMPTY ({E['slider'][1]:.2f} vs {L['rib_r'][0]:.2f})")
+        if L["screw"][0] > L["slider_full"][0] - 0.5 or L["screw"][1] < L["gear"][1]:
+            prob.append("screw does not span yoke travel + gear")
+    else:
+        if E["rod"][0] > g0 - 0.1:
+            prob.append(f"rod rear end {E['rod'][0]:.2f} passes the nut (starts {g0:.2f}) before EMPTY")
+        if L["rod_full"][1] < g0 + c["nut"]["h"] + 0.5:
+            prob.append("rod front end not through the nut at FULL")
+        if E["slider"][1] > L["rib_r"][1] - 0.1:
+            prob.append(f"slider reaches the rear washer at EMPTY ({E['slider'][1]:.2f} vs {L['rib_r'][1]:.2f})")
     if E["rod"][1] > E["stopper"][0] + 1e-6 or c["pusher"]["d"] >= c["cartridge"]["id"]:
         prob.append("rod / pusher would enter the wet volume")
     note.append(f"stroke {L['stroke']} / avail {L['stroke_avail']} mm; rod {L['rod_len']} mm, {-L['rod_past_nut_empty']:.2f} mm behind the nut at EMPTY; slider {L['slider_to_rib_empty']} mm off the rear washer at EMPTY")

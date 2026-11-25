@@ -7,9 +7,9 @@
   "orientation": "asis",
   "note": "tub, floor on the bed",
   "size_mm": [
-   71.41,
+   68.61,
    52.0,
-   17.3
+   15.0
   ]
  },
  {
@@ -20,21 +20,21 @@
   "orientation": "flip",
   "note": "lid, outer face on the bed (smooth side), bosses up",
   "size_mm": [
-   71.41,
+   68.61,
    52.0,
    17.6
   ]
  },
  {
-  "file": "print_slider.stl",
+  "file": "print_yoke.stl",
   "bodies": [
-   "slider"
+   "yoke"
   ],
   "orientation": "up_x",
-  "note": "anti-rotation slider",
+  "note": "yoke drive: yoke (nut pocket + stem socket + foot), print flat",
   "size_mm": [
-   3.2,
-   3.2,
+   10.9,
+   17.77,
    2.5
   ]
  },
@@ -87,9 +87,9 @@
   "orientation": "asis",
   "note": "main board + parts envelope with the USB-C receptacle block",
   "size_mm": [
-   57.0,
-   11.5,
-   3.48
+   20.5,
+   29.8,
+   3.45
   ]
  },
  {
@@ -100,8 +100,8 @@
   "orientation": "asis",
   "note": "Ampul 301030 envelope",
   "size_mm": [
-   31.5,
    10.6,
+   31.5,
    3.2
   ]
  },
