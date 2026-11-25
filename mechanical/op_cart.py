@@ -337,21 +337,19 @@ def _adapter_cup(s: Script, p: dict, L: dict) -> None:
     n1 = L["neck"][1]
     g = cp["seal_gap"]
     s.cut("adapter", [s.box("t_ad_gap", (xs - 1, xs + g), (-1, W + 1), (-1, H + 1))])
-    s.box("t_ad_step", (xs + g - ad["step_h"], xs + g + 0.01), (-1, W + 1), (-1, H + 1))
+    s.box("t_ad_step", (xs + g - ad["step_h"], xs + g + 0.01), (yc, W + 1), (-1, H + 1))
     s.cut("t_ad_step", [s.cyl("t_ad_stc", "X", (0, yc, zc), 2 * cp["step_r"], xs - 5, xs + 5)])
     s.add("solid.combine", target="t_ad_step", tools=[outline_prism(s, p, L, "t_ad_stk", 0.0, (0, H))], operation="intersect", name="step in outline")
     s.cyl("t_ad_cup", "X", (0, yc, zc), cp["od"], xs - cp["proud"], xs + g + 0.01)
     s.join("adapter", ["t_ad_step", "t_ad_cup"])
     s.cut("adapter", [s.cyl("t_ad_cav", "X", (0, yc, zc), max(cp["id"], ca["cap_od"] + 0.1), xs - cp["proud"] - 0.1, n1 + ad["cap_gap"])])
-    h = cp["lip_od"] / 2 * math.sin(math.radians(cp["lip_arc_deg"] / 2))
+    arcs = lip_arcs(cp)
     for k, nm in enumerate(("adapter_lug_a", "adapter_lug_b")):                                                     # the two rim lips (locked position)
         deg = rc["lock_deg"] + 180.0 * k
+        h = cp["lip_od"] / 2 * math.sin(math.radians(min(arcs[k], 179.0) / 2))
         s.cyl(nm, "X", (0, yc, zc), cp["lip_od"], xs - cp["proud"], xs - cp["proud"] + cp["lip_h"])
         s.cut(nm, [s.cyl(f"t_ad_lipin{k}", "X", (0, yc, zc), cp["od"] + 0.01, xs - cp["proud"] - 1, xs)])
-        s.box(f"t_ad_half{k}", (xs - 10, xs + 1), (yc, yc + 30), (zc - 30, zc + 30))
-        if abs(deg) > 1e-6:
-            s.add("solid.move", bodies=[f"t_ad_half{k}"], axis=[1, 0, 0], angle=f"{deg} deg", origin=[0, yc, zc])
-        s.add("solid.combine", target=nm, tools=[f"t_ad_half{k}"], operation="intersect", name=f"lip {k} side")      # one side first: one piece per body
+        s.add("solid.combine", target=nm, tools=[_half(s, f"t_ad_half{k}", L, (xs - 10, xs + 1), deg)], operation="intersect", name=f"lip {k} side")   # one piece per body
         s.add("solid.combine", target=nm, tools=[_band(s, f"t_ad_lipb{k}", L, (xs - 10, xs + 1), h, deg)], operation="intersect", name=f"lip {k} arc")
     s.cyl("adapter_seal", "X", (0, yc, zc), cp["seal_od"], xs, xs + g)                                              # white ring (compressed)
     s.cut("adapter_seal", [s.cyl("t_ad_sealin", "X", (0, yc, zc), cp["od"] + 0.02, xs - 1, xs + 1)])
@@ -537,22 +535,36 @@ def _receiver_cuts(s: Script, p: dict, L: dict, tag: str) -> list[str]:
     return tools
 
 
+def lip_arcs(cp: dict) -> list[float]:
+    """Arc (deg) of each of the two cup lips; a list = keyed (different widths)."""
+    a = cp["lip_arc_deg"]
+    return list(a) if isinstance(a, (list, tuple)) else [a, a]
+
+
 def cup_geom(p: dict, L: dict) -> dict:
-    """Derived cup-socket numbers (variant A, owner photos 2026-11-25): tab depth, entry band half-width, recess radius / depth, hook position."""
+    """Derived cup-socket numbers (variant A, owner photos 2026-11-25): tab depth, window half-widths, recess radius / depth, hook and ball positions."""
     ad, rc = p["cart"]["adapter"], p["cart"]["receiver"]
     cp = ad["cup"]
     tab_depth = cp["proud"] - cp["lip_h"] - rc["tab_axial_clr"]
-    band_h = cp["lip_od"] / 2 * math.sin(math.radians(cp["lip_arc_deg"] / 2)) + rc["lip_clr"]
-    r_rec = cp["step_r"] - rc["step_clr"]
+    band_h = [cp["lip_od"] / 2 * math.sin(math.radians(min(a, 179.0) / 2)) + rc["lip_clr"] for a in lip_arcs(cp)]
+    r_rec = rc.get("recess_r", cp["step_r"] - rc["step_clr"])
     rec_d = ad["step_h"] - cp["seal_gap"] + rc["step_clr"]
     yh = L["y_c"] + math.sqrt(max(cp["hook_r"] ** 2 - cp["hook_off"] ** 2, 0.0))
     return {"tab_depth": tab_depth, "band_h": band_h, "r_rec": r_rec, "rec_d": rec_d, "y_hook": yh}
-
 
 def _band(s: Script, name: str, L: dict, x: tuple[float, float], h: float, deg: float) -> str:
     """Slab through the socket axis, half-width h, containing the directions deg and deg + 180 (0 = +Y, 90 = +Z)."""
     yc, zc = L["y_c"], L["zc"]
     s.box(name, x, (yc - 30, yc + 30), (zc - h, zc + h))
+    if abs(deg) > 1e-6:
+        s.add("solid.move", bodies=[name], axis=[1, 0, 0], angle=f"{deg} deg", origin=[0, yc, zc])
+    return name
+
+
+def _half(s: Script, name: str, L: dict, x: tuple[float, float], deg: float) -> str:
+    """Half space (as a big box) on the side of the direction deg (0 = +Y, 90 = +Z) of the socket axis."""
+    yc, zc = L["y_c"], L["zc"]
+    s.box(name, x, (yc, yc + 40), (zc - 40, zc + 40))
     if abs(deg) > 1e-6:
         s.add("solid.move", bodies=[name], axis=[1, 0, 0], angle=f"{deg} deg", origin=[0, yc, zc])
     return name
@@ -570,11 +582,20 @@ def _cup_socket_cuts(s: Script, p: dict, L: dict, tag: str) -> list[str]:
     tools = [s.cyl(f"t_rt_{tag}", "X", (0, yc, zc), rc["tab_id"], x_tab - 0.01, xf + 0.1),                       # through the tabs (cup body)
              s.cyl(f"t_rl_{tag}", "X", (0, yc, zc), rc["bore_d"], x_bot, x_tab + 0.01),                           # lip ring under the tabs
              s.cyl(f"t_rn_{tag}", "X", (0, yc, zc), ca["od"] + 2 * c["cradle_clr"], L["collar"][0] - 0.1, x_bot + 0.01)]
-    s.cyl(f"t_re_{tag}", "X", (0, yc, zc), rc["bore_d"], x_tab - 0.01, xf + 0.1)                                 # entry gaps = bore inside the band
-    s.add("solid.combine", target=f"t_re_{tag}", tools=[_band(s, f"t_reb_{tag}", L, (x_tab - 1, xf + 1), G["band_h"], rc["entry_deg"])],
-          operation="intersect", name=f"entry gaps {tag}")
-    tools.append(f"t_re_{tag}")
-    s.box(f"t_rs_{tag}", (xs - G["rec_d"], xf + 0.1), (-1, W + 1), (-1, H + 1))                                  # recess outside r_rec (raised far half)
+    for k in range(2):                                                                                       # 2 windows (entry gaps), per-side width
+        deg = rc["entry_deg"] + 180.0 * k
+        nm = f"t_re{k}_{tag}"
+        s.cyl(nm, "X", (0, yc, zc), rc["bore_d"], x_tab - 0.01, xf + 0.1)
+        s.add("solid.combine", target=nm, tools=[_half(s, f"t_reh{k}_{tag}", L, (x_tab - 1, xf + 1), deg)], operation="intersect", name=f"window {k} side {tag}")
+        s.add("solid.combine", target=nm, tools=[_band(s, f"t_reb{k}_{tag}", L, (x_tab - 1, xf + 1), G["band_h"][k], deg)], operation="intersect", name=f"window {k} {tag}")
+        tools.append(nm)
+    if rc.get("cbore_d"):                                                                                     # seal seat for the white ring
+        tools.append(s.cyl(f"t_rcb_{tag}", "X", (0, yc, zc), rc["cbore_d"], xs - rc["cbore_depth"], xf + 0.1))
+    if rc.get("ball_d"):                                                                                      # detent ball pockets (press-in steel ball)
+        for k, sg in enumerate((1, -1)):
+            tools.append(s.cyl(f"t_rball{k}_{tag}", "X", (0, yc + rc["ball_y"], zc + sg * rc["ball_off"]), rc["ball_d"] - 0.05,
+                               xs - (rc["ball_d"] - rc["ball_protrude"]), xf + 0.1))
+    s.box(f"t_rs_{tag}", (xs - G["rec_d"], xf + 0.1), (yc, W + 1), (-1, H + 1))                                  # recess outside r_rec (raised far half)
     s.cut(f"t_rs_{tag}", [s.cyl(f"t_rsc_{tag}", "X", (0, yc, zc), 2 * G["r_rec"], xs - G["rec_d"] - 1, xf + 1)])
     tools.append(f"t_rs_{tag}")
     for k, sg in enumerate((1, -1)):                                                                          # catch notch in the arc riser (both sides)

@@ -229,6 +229,14 @@ Three photos of the owner's Insight Adapter & Tubing (underside straight on, two
 - Mounting (owner): put on at 90 deg (sticking out), turned 90 deg down until flush, the hook latches.
 So the pump side is a socket with 2 inward retaining tabs and 2 entry gaps (not a groove for lugs on the adapter), a flat seal face, a recess concentric with the socket for the raised far half, and a catch for the hook. Implemented in `params.json -> cart.variants.A.adapter.cup` / `receiver` (type `cup_bayonet`), coupons `mechanical/out/v010-cart/coupons/A_lock/` (README with the 10 measurements to take). Earlier 7.6 values for the nose (13), lugs, key step and pocket are wrong for this part.
 
+### 7.10 The ORIGINAL pump's end face (owner photos, 2026-11-25; refines 7.9)
+Three photos of an original Insight pump end face with the adapter off (top-down-ish, edge-on, oblique; not committed), scaled with the 19 mm end-face width: **PUMP-PHOTO-ESTIMATE +-0.5-1 mm**.
+- The black end face sits below the metal shell rim. Cartridge **bore** near one end (centre ~10.5 from it), with a shallow **seal seat** (~14.5-15) around it; inside, a wall with **2 windows** (asymmetric, roughly along the end face, maybe rotated ~20 deg) and an inner ledge deeper down (cartridge seat). The cartridge goes in through this bore, so the retaining wall between the windows must be wider than the barrel (10.95): the cup lip is then ~11.9 or more (the 11.1 read from the adapter photo was low).
+- A **polished steel ball** (~1.5-2) in the face ~8-9 from the bore centre toward the battery side and ~5-6 across: a spring detent that drops into one of the adapter's 2 underside holes (~11 from its cup, +-5) at the flush position.
+- A **curved rim** around the bore side at r ~11-12 from the bore centre; beyond it the face (battery side: round twist cap, contacts) is lower. The adapter's raised far half (ramp ~13.5 from its cup) lies there.
+- The battery compartment is not needed for our pump; our face beyond r 12 is a flat recess. What the adapter's curved hook catches on the original (battery-side edge?) is not clear; we give it 2 pockets.
+Implemented: `receiver` (`tab_id` 11.3, `bore_d` 12.5, `cbore_d` 14.6 x 0.5, `recess_r` 12, ball pockets) and `adapter.cup` (`lip_od` 11.9, `step_r` 13.5, `seal_gap` 0.3); coupons `mechanical/out/v010-cart/coupons/A_lock/` (15 variants, README with the measurement list).
+
 ### 7.8 Variant B: realistic soft-cannula Luer sets (owner correction 2026-11-24: soft Teflon cannula + adhesive + inserter, standard Luer-lock pump end, cheap; bench into a container / foam / gel, water only)
 Score = 0.35 price per set delivered to DE at 50-100 + 0.25 soft cannula / adhesive / inserter + 0.20 Luer-lock pump end + 0.10 small tubing volume + 0.10 MOQ / sample. V = read on the page, E = estimate, U = UNVERIFIED (snippet only).
 | # | Set / supplier | Cannula | Inserter / adhesive | Pump end | Tubing | Price per set | MOQ | Score |
