@@ -4,8 +4,8 @@
 TEST PROJECT, water only. 4 layers (OP_LAYERS=6 for the fallback), 0.8 mm, outline = cartgeom.OUTLINE (57.0 x 10.6, USB-C notch).
 Stack (4 L): F.Cu signal / parts, In1 GND plane, In2 signal + power, B.Cu signal / parts; GND pour on every layer after routing.
 Rules (JLC 4 L standard, no extra-cost options): track / space 0.10 / 0.10, vias 0.40 / 0.20 (no 0.15 mm drills, pre-order review M8),
-no via in any pad (no POFV on the 4-layer order): HJ-840 ring-2 pads get a dog-bone via at the interstitial point (0.105 mm to the
-four pads), copper to edge 0.20 (0.30 router keep-out band), power nets 0.30 mm (pre-order review M5).
+4 layers: no via in any pad, HJ-840 ring-2 pads get a dog-bone via at the interstitial point (0.105 mm to the four pads);
+6 layers (the routed board): filled + capped vias in the HJ-840 ring >= 1 pads and in the USB D- pads A7 / B7 (POFV), copper to edge 0.20 (0.30 router keep-out band), power nets 0.30 mm (pre-order review M5).
 """
 import json
 import math
@@ -40,7 +40,10 @@ LAYERS = int(os.environ.get("OP_LAYERS", "4"))
 bl.TRACK, bl.CLEAR, bl.VIA_D, bl.VIA_H = 0.10, 0.10, 0.40, 0.20
 POWERNETS = ("VCELL", "VBAT", "VMOT", "VMOT_PRE", "BST_SW", "MOT_A1", "MOT_A2", "MOT_B1", "MOT_B2")
 POWER_W = 0.30
-NAME = "cart"
+# 6 layers: JLC fills and caps vias in pads at no extra cost (POFV, pre-order review M8), so the HJ-840 ring >= 1 pads and the two USB D-
+# pads (A7 / B7, D+ / D- alternate in the pad row) get a via in the pad, as on the cup board; 4 layers: dog-bones, no via in any pad
+POFV = os.environ.get("OP_POFV", "1" if LAYERS == 6 else "0") == "1"
+NAME = os.environ.get("OP_NAME", "cart")
 PCB = os.path.join(HERE, NAME + ".kicad_pcb")
 # HJ-840 dog-bone vias: used ring-2/3 pad -> interstitial point (footprint frame, y down; rows 0.9, columns 0.65)
 DOGBONE = {"C3": (-1.30, -1.80), "F3": (-1.30, 0.90), "F4": (-0.65, 1.80), "F5": (0.65, 1.80), "C4": (-0.65, -0.90), "C6": (0.65, -0.90), "D3": (-1.30, -0.90),
@@ -70,7 +73,10 @@ def u1_fanout(b, fps):
     st = (T(u1.GetPosition().x) - bl.OX, T(u1.GetPosition().y) - bl.OY, 270, "F")
     n = 0
     for num, pd in pads.items():
-        if not pd.GetNetname() or num in ("A1", "A7", "A8", "H8") or ring(num) < 2:
+        if not pd.GetNetname() or num in ("A1", "A7", "A8", "H8") or ring(num) < (1 if POFV else 2):
+            continue
+        if POFV:                    # filled + capped via in the pad (JLC POFV, standard on 6 layers): the inner layers do the escape
+            via(b, pd.GetPosition(), pd.GetNet()); n += 1
             continue
         lx, ly = DOGBONE[num]
         dx, dy = xf(lx, ly, st[2], st[3])
@@ -207,7 +213,11 @@ def main():
         b.parts[ref].update(dnp=p["dnp"], group=p["group"], board="CART")
     fps = {f.GetReference(): f for f in b.b.GetFootprints()}
     keepouts(b)
-    print("U1 dog-bone vias:", u1_fanout(b, fps))
+    print("U1 fan-out vias:", u1_fanout(b, fps), "(in pad)" if POFV else "(dog-bone)")
+    if POFV:
+        for pd in fps["JU1"].Pads():
+            if pd.GetNumber() in ("A7", "B7"):
+                via(b, pd.GetPosition(), pd.GetNet())
     print("gnd fanout vias:", gnd_fanout(b, fps) if os.environ.get("OP_FANOUT", "1") == "1" else "skipped")
     for ref, lab in (("SP1", "+"), ("SP2", "-")):
         c = fps[ref].GetPosition(); b.text(lab, T(c.x) - bl.OX + 1.45, T(c.y) - bl.OY, 1.2, thick=0.2)

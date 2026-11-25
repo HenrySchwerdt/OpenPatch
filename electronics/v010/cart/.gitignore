@@ -11,3 +11,6 @@ drc_fr*.json
 fp-info-cache
 *.kicad_pcb.best
 cart_*.kicad_pro
+cart_f*.kicad_pcb
+cart_f*_drc*.json
+cart_tryB*

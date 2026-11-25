@@ -35,8 +35,10 @@ def interface(p0: dict) -> dict:
         "_comment": "cart board (variants A and B share it). Frame: origin west-south corner, +x toward the cartridge cap end, +y = north edge (USB-C wall). "
                     "Same chip set as electronics/v010/cup (HJ-840, STM32C011, TPL5010, TPS2553, TPS61023, 2 x DRV8838, MCP73832, USB-C, RGB LED, sounder, side button, "
                     "TMAG5273 strip); no dock hall on the board (adapter-lock DRV5032 on a 3-wire pigtail). Interlock unchanged (INTERLOCK.md).",
-        "outline_mm": [l, w], "thickness_mm": bd["t"], "layers_target": 4, "corner_r": 0.5,
+        "outline_mm": [l, w], "thickness_mm": bd["t"], "layers": 6, "corner_r": 0.5,
         "parts_height_max_mm": {"top": bd["top_parts"], "bottom": bd["bottom_parts"]},
+        "bottom_height_zones_mm": [{"x": [0.0, 28.2], "max": bd["bottom_parts"], "why": "variant B: motor, pinion and TMAG strip below"},
+                                   {"x": [28.2, l], "max": 3.0, "why": "cell below (top z 4.4): 7.7 mm (B) / 9.4 mm (A) free, 3.0 used"}],
         "usb_c": {"part": "TYPE-C-31-M-14 mid-mount (C223907), as the cup board", "centre_x": round(l - usb["x_from_board_east"], 3), "edge": "north",
                   "mouth_beyond_edge": gap, "notch_outer": {"w": usb["open_w"], "depth": round(6.4 - gap, 3)}, "notch_inner": {"w": 6.6, "depth": round(7.05 - gap, 3)},
                   "note": "receptacle mouth flush with the housing wall inner face, which is board_wall_clr beyond the north edge (cup notch geometry kept relative to the mouth)"},

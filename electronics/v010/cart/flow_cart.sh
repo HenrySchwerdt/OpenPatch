@@ -5,8 +5,11 @@ PY=../board/kpy; export FREEROUTING_JAR=${FREEROUTING_JAR:-$HERE/../../tools/fre
 R=../board/route_v3.py
 B=${OP_BOARD:-cart.kicad_pcb}
 $PY $R $B prep 2>&1 | grep -v "^\./src"
-OP_PASSES=${1:-40} $PY $R $B route 2>&1 | grep -v "^\./src"
 S=${B%.kicad_pcb}.ses
+# Freerouting directly, optimizer off, analytics and crash reports off (-da -dct), headless: with a display 2.2.4 opens a modal user-profile dialog after the routing passes and waits on it (no SES)
+D=${B%.kicad_pcb}.dsn
+( java -Djava.awt.headless=true -jar $FREEROUTING_JAR -de $D -do $S -mp ${1:-60} -mt ${OP_FR_THREADS:-1} --router.optimizer.enabled=false -da -dct > $S.log 2>&1 & echo $! > $S.pid; wait )
+
 grep -i "completed\|unrouted\|incomplete" $S.log | tail -3 | cut -c1-200
 $PY $R $B import 2>&1 | grep -v "^\./src" | tail -1
 $PY $R $B finish 2>&1 | grep -v "^\./src" | tail -2

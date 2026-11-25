@@ -5,12 +5,30 @@
   10.6
  ],
  "thickness_mm": 0.8,
- "layers_target": 4,
+ "layers": 6,
  "corner_r": 0.5,
  "parts_height_max_mm": {
   "top": 1.45,
   "bottom": 1.2
  },
+ "bottom_height_zones_mm": [
+  {
+   "x": [
+    0.0,
+    28.2
+   ],
+   "max": 1.2,
+   "why": "variant B: motor, pinion and TMAG strip below"
+  },
+  {
+   "x": [
+    28.2,
+    57.0
+   ],
+   "max": 3.0,
+   "why": "cell below (top z 4.4): 7.7 mm (B) / 9.4 mm (A) free, 3.0 used"
+  }
+ ],
  "usb_c": {
   "part": "TYPE-C-31-M-14 mid-mount (C223907), as the cup board",
   "centre_x": 41.0,
