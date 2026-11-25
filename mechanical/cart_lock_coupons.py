@@ -5,7 +5,7 @@ key-step pocket) with ONE uncertain dimension changed per coupon, to find which 
 TEST PROJECT: bench only, water only, never worn.
 
   SOLIDCRAFT_CLI=... python3 cart_lock_coupons.py
-Writes out/v010-cart/coupons/A_lock/: A_lock_<ID>.stl (face up, flat base, at the origin), A_lock_bed.stl (all coupons on a 280 x 240 bed), A_lock_bed_first.stl (IDs 1-9),
+Writes out/v010-cart/coupons/A_lock/: A_lock_<ID>.stl (face up, flat base, at the origin), A_lock_bed.stl (all coupons on a 280 x 240 bed), A_lock_bed_first.stl (IDs 1-10),
 README.md (ID -> what changed, how to test). ID = number of notches on the base rim (+Y long edge), 1..N.
 """
 from __future__ import annotations
@@ -32,29 +32,34 @@ BED = (280.0, 240.0)
 # Round 3 (owner's description + photo crops, 2026-11-25): the adapter cup has 2 OUTWARD hook lugs on its long axis, keyed (5.1 / 3.1 wide, ~0.5 radial,
 # ~1.4 tall at the cup tip). Nominal: rim ID 10.7 from the face down to 3.1; 2 keyed windows (5.6 at +Z, 3.6 at -Z) where the lugs drop in with the
 # adapter standing at 90 deg; 2 undercut pockets d11.7 from 3.1 to 4.9 deep that run 90 deg clockwise (seen from the face) to a stop face (lugs along
-# the 52 face when flush); seal seat 14.6 x 0.5; recess 2.5 outside r 12; ball detent pockets 9.0 / +-4.5. First row (IDs 1-9) = quick first plate.
+# the 52 face when flush); seal seat 14.6 x 0.5; recess 2.5 outside r 12; ball detent pockets 9.0 / +-4.5. First row (IDs 1-10) = quick first plate.
 _R = "receiver"
 _C = "cup"
+def _entry(deg: float) -> dict:
+    """Windows at deg from the flush position and a stop after a deg clockwise turn (flush stays at 0)."""
+    return {_R: {"entry_deg": deg, "travel_deg": deg}}
+
+
 MATRIX = [
     (1, "generous", "everything looser: windows +0.6, undercut 12.5 and 0.6 taller, rim 11.1, recess from r 11.6 and 0.4 deeper",
-     {_R: {"lip_clr": 0.55, "bore_d": 12.5, "tab_axial_clr": 0.8, "tab_id": 11.1, "step_clr": 0.7, "recess_r": 11.6}}),
-    (2, "nominal", "estimate (header)", {}),
-    (3, "windows_+0.2", "windows 0.2 wider (5.8 / 3.8)", {_R: {"lip_clr": 0.35}}),
-    (4, "windows_+0.4", "windows 0.4 wider (6.0 / 4.0)", {_R: {"lip_clr": 0.45}}),
-    (5, "windows_+0.6", "windows 0.6 wider (6.2 / 4.2)", {_R: {"lip_clr": 0.55}}),
-    (6, "windows_-10", "windows turned -10 deg", {_R: {"entry_deg": 80.0}}),
-    (7, "windows_+10", "windows turned +10 deg", {_R: {"entry_deg": 100.0}}),
-    (8, "undercut_d+0.4", "undercut diameter 12.1 (lug clearance +0.2)", {_R: {"bore_d": 12.1}}),
-    (9, "undercut_h+0.3", "undercut 0.3 taller (rim underside 0.3 higher)", {_R: {"tab_axial_clr": 0.5}}),
-    (10, "undercut_d+0.8", "undercut diameter 12.5", {_R: {"bore_d": 12.5}}),
-    (11, "undercut_h+0.6", "undercut 0.6 taller", {_R: {"tab_axial_clr": 0.8}}),
-    (12, "rim_10.5", "rim ID 10.5 (tighter around the cup)", {_R: {"tab_id": 10.5}}),
-    (13, "rim_10.9", "rim ID 10.9", {_R: {"tab_id": 10.9}}),
-    (14, "rim_11.1", "rim ID 11.1 (cup larger than estimated)", {_R: {"tab_id": 11.1, "bore_d": 12.1}}),
-    (15, "stop_80", "end stop after 80 deg instead of 90", {_R: {"travel_deg": 80.0}}),
-    (16, "stop_100", "end stop after 100 deg", {_R: {"travel_deg": 100.0}}),
+     {_R: {"lip_clr": 0.55, "bore_d": 12.5, "tab_axial_clr": 0.5, "tab_id": 11.1, "step_clr": 0.7, "recess_r": 11.6}}),
+    (2, "nominal", "estimate (header): keyed windows at 90 deg, stop after a 90 deg turn", {}),
+    (3, "entry_70", "windows at 70 deg, stop after a 70 deg turn", _entry(70.0)),
+    (4, "entry_80", "windows at 80 deg, stop after an 80 deg turn", _entry(80.0)),
+    (5, "entry_105", "windows at 105 deg, stop after a 105 deg turn", _entry(105.0)),
+    (6, "entry_120", "windows at 120 deg (manual: lift-off ~120), stop after a 120 deg turn", _entry(120.0)),
+    (7, "windows_+0.2", "windows 0.2 wider (5.8 / 3.8)", {_R: {"lip_clr": 0.35}}),
+    (8, "windows_+0.5", "windows 0.5 wider (6.1 / 4.1)", {_R: {"lip_clr": 0.5}}),
+    (9, "undercut_h-0.3", "undercut 0.3 lower in height (1.5 instead of 1.8: tighter axially)", {_R: {"tab_axial_clr": 0.05}}),
+    (10, "undercut_h+0.3", "undercut 0.3 taller (2.1)", {_R: {"tab_axial_clr": 0.35}}),
+    (11, "windows_+0.8", "windows 0.8 wider (6.4 / 4.4)", {_R: {"lip_clr": 0.65}}),
+    (12, "undercut_d+0.4", "undercut diameter 12.1", {_R: {"bore_d": 12.1}}),
+    (13, "undercut_d+0.8", "undercut diameter 12.5", {_R: {"bore_d": 12.5}}),
+    (14, "rim_10.5", "rim ID 10.5 (tighter around the cup)", {_R: {"tab_id": 10.5}}),
+    (15, "rim_10.9", "rim ID 10.9", {_R: {"tab_id": 10.9}}),
+    (16, "rim_11.1", "rim ID 11.1 (cup larger than estimated)", {_R: {"tab_id": 11.1, "bore_d": 12.1}}),
     (17, "snap_bump", "small snap bump (0.25) just before the end stop", {_R: {"snap_bump": 0.25}}),
-    (18, "keyed_mirror", "keying mirrored: narrow window at +Z, wide at -Z", {"adapter": {_C: {"lug_w": [3.1, 5.1]}}}),
+    (18, "keyed_mirror", "keying mirrored: narrow window on the +Z side, wide on -Z", {"adapter": {_C: {"lug_w": [3.1, 5.1]}}}),
     (19, "unkeyed_5.6", "both windows wide (5.6), in case the lugs are equal", {"adapter": {_C: {"lug_w": [5.1, 5.1]}}}),
     (20, "lugs_higher", "lugs 0.5 higher (cup proud 4.2): undercut 0.5 higher", {"adapter": {_C: {"proud": 4.2}}}),
     (21, "lugs_lower", "lugs 0.5 lower (cup proud 5.2): undercut 0.5 lower", {"adapter": {_C: {"proud": 5.2}}}),
@@ -129,17 +134,17 @@ def readme(rows: list[tuple], sizes: dict) -> str:
         *[f"| {n} | `A_lock_{n:02d}_{short}.stl` | {what} |" for n, short, what, _ in rows],
         "",
         f"`A_lock_bed.stl`: all {len(rows)} coupons ({sizes['bed'][0]:.0f} x {sizes['bed'][1]:.0f} mm, fits {BED[0]:.0f} x {BED[1]:.0f}). "
-        f"`A_lock_bed_first.stl`: IDs 1-9 only (quick first plate). Coupon {sizes['one'][0]:.0f} x {sizes['one'][1]:.0f} x {sizes['one'][2]:.0f} mm.",
+        f"`A_lock_bed_first.stl`: IDs 1-10 only (quick first plate). Coupon {sizes['one'][0]:.0f} x {sizes['one'][1]:.0f} x {sizes['one'][2]:.0f} mm.",
         "",
         "**Print:** PETG or PLA, 0.4 nozzle, 0.15-0.2 layer, 3 perimeters, 15 % infill, as exported (face up), no supports, no brim. "
         "Optional: press a 2 mm steel ball into each round pocket on the face (0.5 stands out) to feel the detent click.",
         "",
         "## How to judge the fit (per coupon, note the ID)",
         "",
-        "1. **Goes in at 90 deg?** Adapter sticking out across the face, cup straight down into the bore: does it drop in to the white ring without force? "
-        "(no: the cup hits the rim -> rim rows 12-14; the lugs hit -> windows width rows 3-5, angle rows 6-7, keying rows 18-19)",
-        "2. **Turns 90 deg clockwise to the stop?** Smooth, stiff, blocked early (undercut too small / too high or low: rows 8-11, 20-21) or does it turn "
-        "past flush (stop angle: rows 15-16)? Wrong way only = keying (rows 18-19).",
+        "1. **Goes in?** Adapter sticking out across the face (about 90 deg, the right coupon may want 70-120), cup straight down into the bore: does it drop in to the white ring without force? "
+        "(no: the cup hits the rim -> rim rows 14-16; the lugs hit -> windows width rows 7-8 and 11, angle rows 3-6, keying rows 18-19)",
+        "2. **Turns 90 deg clockwise to the stop?** Smooth, stiff, blocked early (undercut: rows 9-10, 12-13, 20-21) or does it stop "
+        "before / after flush (entry angle: rows 3-6)? Goes on only the other way = keying (rows 18-19).",
         "3. **Sits flush?** Locked, the adapter lies flat on the face and lines up with the outline (no gap at the far end, no rocking). "
         "Rocking at the far end -> recess depth / rim radius.",
         "4. **Holds?** Pull gently straight away from the face: it must not come off when locked. Comes off -> tabs too big or undercut too low.",
@@ -159,7 +164,7 @@ def main() -> None:
     s = Script()
     s.add("parameters.add", name="p_lock_coupons", expression="0", comment="A twist-lock coupons")
     names, bodies = [], []
-    cols = 9
+    cols = 10
     p_nom = op_cart.prepare(p0, "A")
     for k, (n, short, _, over) in enumerate(MATRIX):
         p = variant_params(p0, over)
