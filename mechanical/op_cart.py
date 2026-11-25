@@ -486,10 +486,13 @@ def _receiver_cuts(s: Script, p: dict, L: dict, tag: str) -> list[str]:
     s.cyl(f"t_rg_{tag}", "X", (0, yc, zc), 2 * L["r_groove"], xg0, xg1)
     s.add("solid.combine", target=f"t_rg_{tag}", tools=[s.box(f"t_rgb_{tag}", (xg0 - 1, xg1 + 1), (yc - 20, yc + 20), (zc - hz, zc + hz))], operation="intersect", name=f"sector {tag}")
     tools.append(f"t_rg_{tag}")
-    rl = ad["nose_od"] / 2 + ad["lug_h"] - ad["lug_w"] / 2
+    ew = rc.get("entry_w") or [ad["lug_w"], ad["lug_w"]]                   # optional keyed lugs (patent: one wide, one narrow)
     for k, ang in enumerate((rc["entry_deg"], rc["entry_deg"] + 180.0)):
+        rl = ad["nose_od"] / 2 + ad["lug_h"] - ew[k] / 2
         y, z = _pol(yc, zc, rl, ang)
-        tools.append(s.cyl(f"t_re{k}_{tag}", "X", (0, y, z), ad["lug_w"] + 2 * rc["lug_clr"], xg0, xf + 0.1))
+        tools.append(s.cyl(f"t_re{k}_{tag}", "X", (0, y, z), ew[k] + 2 * rc["lug_clr"], xg0, xf + 0.1))
+    if rc.get("cbore_d"):                                                   # optional counterbore for a flange at the nose base
+        tools.append(s.cyl(f"t_rcb_{tag}", "X", (0, yc, zc), rc["cbore_d"], xs - rc["cbore_depth"], xf + 0.1))
     if L.get("adapter_y"):
         tools.append(bed_tool(s, p, L, tag))
     return tools
