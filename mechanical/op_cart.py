@@ -343,14 +343,13 @@ def _adapter_cup(s: Script, p: dict, L: dict) -> None:
     s.cyl("t_ad_cup", "X", (0, yc, zc), cp["od"], xs - cp["proud"], xs + g + 0.01)
     s.join("adapter", ["t_ad_step", "t_ad_cup"])
     s.cut("adapter", [s.cyl("t_ad_cav", "X", (0, yc, zc), max(cp["id"], ca["cap_od"] + 0.1), xs - cp["proud"] - 0.1, n1 + ad["cap_gap"])])
-    arcs = lip_arcs(cp)
-    for k, nm in enumerate(("adapter_lug_a", "adapter_lug_b")):                                                     # the two rim lips (locked position)
+    ws = lug_widths(cp)
+    for k, nm in enumerate(("adapter_lug_a", "adapter_lug_b")):                                                     # the two hook lugs (locked position)
         deg = rc["lock_deg"] + 180.0 * k
-        h = cp["lip_od"] / 2 * math.sin(math.radians(min(arcs[k], 179.0) / 2))
         s.cyl(nm, "X", (0, yc, zc), cp["lip_od"], xs - cp["proud"], xs - cp["proud"] + cp["lip_h"])
         s.cut(nm, [s.cyl(f"t_ad_lipin{k}", "X", (0, yc, zc), cp["od"] + 0.01, xs - cp["proud"] - 1, xs)])
-        s.add("solid.combine", target=nm, tools=[_half(s, f"t_ad_half{k}", L, (xs - 10, xs + 1), deg)], operation="intersect", name=f"lip {k} side")   # one piece per body
-        s.add("solid.combine", target=nm, tools=[_band(s, f"t_ad_lipb{k}", L, (xs - 10, xs + 1), h, deg)], operation="intersect", name=f"lip {k} arc")
+        s.add("solid.combine", target=nm, tools=[_half(s, f"t_ad_half{k}", L, (xs - 10, xs + 1), deg)], operation="intersect", name=f"lug {k} side")   # one piece per body
+        s.add("solid.combine", target=nm, tools=[_band(s, f"t_ad_lipb{k}", L, (xs - 10, xs + 1), ws[k] / 2, deg)], operation="intersect", name=f"lug {k}")
     s.cyl("adapter_seal", "X", (0, yc, zc), cp["seal_od"], xs, xs + g)                                              # white ring (compressed)
     s.cut("adapter_seal", [s.cyl("t_ad_sealin", "X", (0, yc, zc), cp["od"] + 0.02, xs - 1, xs + 1)])
 
@@ -535,10 +534,13 @@ def _receiver_cuts(s: Script, p: dict, L: dict, tag: str) -> list[str]:
     return tools
 
 
-def lip_arcs(cp: dict) -> list[float]:
-    """Arc (deg) of each of the two cup lips; a list = keyed (different widths)."""
-    a = cp["lip_arc_deg"]
-    return list(a) if isinstance(a, (list, tuple)) else [a, a]
+def lug_widths(cp: dict) -> list[float]:
+    """Chord width of the two cup lugs: [lug at lock_deg (far half), opposite lug]; keyed when unequal."""
+    w = cp.get("lug_w")
+    if w is None:
+        a = cp["lip_arc_deg"]
+        return [2 * cp["lip_od"] / 2 * math.sin(math.radians(min(a, 179.0) / 2))] * 2
+    return list(w) if isinstance(w, (list, tuple)) else [w, w]
 
 
 def cup_geom(p: dict, L: dict) -> dict:
@@ -546,7 +548,7 @@ def cup_geom(p: dict, L: dict) -> dict:
     ad, rc = p["cart"]["adapter"], p["cart"]["receiver"]
     cp = ad["cup"]
     tab_depth = cp["proud"] - cp["lip_h"] - rc["tab_axial_clr"]
-    band_h = [cp["lip_od"] / 2 * math.sin(math.radians(min(a, 179.0) / 2)) + rc["lip_clr"] for a in lip_arcs(cp)]
+    band_h = [w / 2 + rc["lip_clr"] for w in lug_widths(cp)]
     r_rec = rc.get("recess_r", cp["step_r"] - rc["step_clr"])
     rec_d = ad["step_h"] - cp["seal_gap"] + rc["step_clr"]
     yh = L["y_c"] + math.sqrt(max(cp["hook_r"] ** 2 - cp["hook_off"] ** 2, 0.0))
@@ -570,6 +572,32 @@ def _half(s: Script, name: str, L: dict, x: tuple[float, float], deg: float) -> 
     return name
 
 
+def _undercut_pockets(s: Script, p: dict, L: dict, tag: str, G: dict, x_bot: float, x_tab: float) -> list[str]:
+    """Two bayonet pockets under the rim: each runs travel_deg clockwise (seen from the face: decreasing angle) from its window to a radial stop face;
+    optional snap bump (radial snap_bump) just past the lug's final position."""
+    rc, cp = p["cart"]["receiver"], p["cart"]["adapter"]["cup"]
+    yc, zc = L["y_c"], L["zc"]
+    R = rc["bore_d"] / 2
+    out = []
+    for k in range(2):
+        a0 = rc["entry_deg"] + 180.0 * k
+        a1 = a0 - rc["travel_deg"]
+        dl = math.degrees(math.asin(min(G["band_h"][k] / R, 0.99)))
+        lo, hi = a1 - dl, a0 + dl
+        nm = f"t_ru{k}_{tag}"
+        s.cyl(nm, "X", (0, yc, zc), rc["bore_d"], x_bot, x_tab + 0.01)
+        for j, d in enumerate((lo + 90.0, hi - 90.0)):
+            s.add("solid.combine", target=nm, tools=[_half(s, f"t_ruh{k}{j}_{tag}", L, (x_bot - 1, x_tab + 1), d)], operation="intersect",
+                  name=f"pocket {k} side {j} {tag}")
+        if rc.get("snap_bump"):
+            wl = lug_widths(cp)[k] / 2
+            ab = math.radians(a1 + math.degrees(math.asin(min((wl + 0.6) / R, 0.99))))
+            rb = R + 0.5 - rc["snap_bump"]
+            s.cut(nm, [s.cyl(f"t_rsb{k}_{tag}", "X", (0, yc + rb * math.cos(ab), zc + rb * math.sin(ab)), 1.0, x_bot - 0.1, x_tab + 0.1)])
+        out.append(nm)
+    return out
+
+
 def _cup_socket_cuts(s: Script, p: dict, L: dict, tag: str) -> list[str]:
     """Socket for the Insight adapter cup: tab bore (retaining tabs), entry gaps, lip ring under the tabs, cartridge passage, step recess with catch notches."""
     c = p["cart"]
@@ -579,9 +607,9 @@ def _cup_socket_cuts(s: Script, p: dict, L: dict, tag: str) -> list[str]:
     G = cup_geom(p, L)
     x_tab = xs - G["tab_depth"]
     x_bot = xs - cp["proud"] - rc["tab_axial_clr"]
-    tools = [s.cyl(f"t_rt_{tag}", "X", (0, yc, zc), rc["tab_id"], x_tab - 0.01, xf + 0.1),                       # through the tabs (cup body)
-             s.cyl(f"t_rl_{tag}", "X", (0, yc, zc), rc["bore_d"], x_bot, x_tab + 0.01),                           # lip ring under the tabs
+    tools = [s.cyl(f"t_rt_{tag}", "X", (0, yc, zc), rc["tab_id"], x_bot - 0.01, xf + 0.1),                       # through the rim down to the pocket floor (cup body)
              s.cyl(f"t_rn_{tag}", "X", (0, yc, zc), ca["od"] + 2 * c["cradle_clr"], L["collar"][0] - 0.1, x_bot + 0.01)]
+    tools += _undercut_pockets(s, p, L, tag, G, x_bot, x_tab)
     for k in range(2):                                                                                       # 2 windows (entry gaps), per-side width
         deg = rc["entry_deg"] + 180.0 * k
         nm = f"t_re{k}_{tag}"

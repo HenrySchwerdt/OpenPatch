@@ -29,35 +29,37 @@ GAP = 6.0               # spacing on the bed
 BED = (280.0, 240.0)
 
 # (ID, short name, what changed, overrides on cart.variants.A: {section: {key: value}}, nested dicts merged)
-# Nominal = photo estimate (no measuring tools; scaled from the 52 x 19 end face, the 19 adapter width, the 10.95 cartridge; 7 pump + 3 adapter photos):
-# seal seat 14.6 x 0.5, 2 windows at +-Y for 80 deg lips, tabs 11.3, undercut 12.5 from 3.9 to 4.9, recess 2.5 outside r 12, ball pockets 9.0 / +-4.5.
-# The first row (IDs 1-9) is the quick first plate; the rest widen the search.
+# Round 3 (owner's description + photo crops, 2026-11-25): the adapter cup has 2 OUTWARD hook lugs on its long axis, keyed (5.1 / 3.1 wide, ~0.5 radial,
+# ~1.4 tall at the cup tip). Nominal: rim ID 10.7 from the face down to 3.1; 2 keyed windows (5.6 at +Z, 3.6 at -Z) where the lugs drop in with the
+# adapter standing at 90 deg; 2 undercut pockets d11.7 from 3.1 to 4.9 deep that run 90 deg clockwise (seen from the face) to a stop face (lugs along
+# the 52 face when flush); seal seat 14.6 x 0.5; recess 2.5 outside r 12; ball detent pockets 9.0 / +-4.5. First row (IDs 1-9) = quick first plate.
 _R = "receiver"
+_C = "cup"
 MATRIX = [
-    (1, "generous", "all clearances +0.4: tabs 11.7, undercut 12.9, windows +0.8 wide, tab-to-lip gap 0.6, recess from r 11.6 and 0.4 deeper",
-     {_R: {"tab_id": 11.7, "bore_d": 12.9, "lip_clr": 0.65, "tab_axial_clr": 0.6, "step_clr": 0.7, "recess_r": 11.6}}),
-    (2, "nominal", "photo estimate (header)", {}),
-    (3, "tabs_-0.4", "tabs 10.9", {_R: {"tab_id": 10.9}}),
-    (4, "tabs_+0.4", "tabs 11.7", {_R: {"tab_id": 11.7}}),
-    (5, "undercut_-0.4", "undercut 12.1", {_R: {"bore_d": 12.1}}),
-    (6, "undercut_+0.4", "undercut 12.9", {_R: {"bore_d": 12.9}}),
-    (7, "windows_-10", "windows turned -10 deg", {_R: {"entry_deg": -10.0, "lock_deg": 80.0}}),
-    (8, "windows_+10", "windows turned +10 deg", {_R: {"entry_deg": 10.0, "lock_deg": 100.0}}),
-    (9, "windows_+0.5", "windows 0.5 wider", {_R: {"lip_clr": 0.5}}),
-    (10, "tabs_-0.8", "tabs 10.5", {_R: {"tab_id": 10.5}}),
-    (11, "tabs_+0.8", "tabs 12.1", {_R: {"tab_id": 12.1}}),
-    (12, "undercut_-0.8", "undercut 11.7", {_R: {"bore_d": 11.7}}),
-    (13, "undercut_+0.8", "undercut 13.3", {_R: {"bore_d": 13.3}}),
-    (14, "undercut_high", "undercut 0.5 higher (cup proud 4.2)", {"adapter": {"cup": {"proud": 4.2}}}),
-    (15, "undercut_low", "undercut 0.5 lower (cup proud 5.2)", {"adapter": {"cup": {"proud": 5.2}}}),
-    (16, "windows_-20", "windows turned -20 deg", {_R: {"entry_deg": -20.0, "lock_deg": 70.0}}),
-    (17, "windows_+20", "windows turned +20 deg", {_R: {"entry_deg": 20.0, "lock_deg": 110.0}}),
-    (18, "windows_keyed", "one wide (110 deg, toward the far half) and one narrow (50 deg) window", {"adapter": {"cup": {"lip_arc_deg": [110.0, 50.0]}}}),
-    (19, "ball_along_-1", "ball pockets 1 closer along (8.0)", {_R: {"ball_y": 8.0}}),
-    (20, "ball_along_+1", "ball pockets 1 further along (10.0)", {_R: {"ball_y": 10.0}}),
-    (21, "ball_across_-1", "ball pockets 1 closer to the axis (3.5 across)", {_R: {"ball_off": 3.5}}),
-    (22, "ball_across_+1", "ball pockets 1 further across (5.5)", {_R: {"ball_off": 5.5}}),
-    (23, "rim_r11", "high zone smaller: recess from r 11", {_R: {"recess_r": 11.0}}),
+    (1, "generous", "everything looser: windows +0.6, undercut 12.5 and 0.6 taller, rim 11.1, recess from r 11.6 and 0.4 deeper",
+     {_R: {"lip_clr": 0.55, "bore_d": 12.5, "tab_axial_clr": 0.8, "tab_id": 11.1, "step_clr": 0.7, "recess_r": 11.6}}),
+    (2, "nominal", "estimate (header)", {}),
+    (3, "windows_+0.2", "windows 0.2 wider (5.8 / 3.8)", {_R: {"lip_clr": 0.35}}),
+    (4, "windows_+0.4", "windows 0.4 wider (6.0 / 4.0)", {_R: {"lip_clr": 0.45}}),
+    (5, "windows_+0.6", "windows 0.6 wider (6.2 / 4.2)", {_R: {"lip_clr": 0.55}}),
+    (6, "windows_-10", "windows turned -10 deg", {_R: {"entry_deg": 80.0}}),
+    (7, "windows_+10", "windows turned +10 deg", {_R: {"entry_deg": 100.0}}),
+    (8, "undercut_d+0.4", "undercut diameter 12.1 (lug clearance +0.2)", {_R: {"bore_d": 12.1}}),
+    (9, "undercut_h+0.3", "undercut 0.3 taller (rim underside 0.3 higher)", {_R: {"tab_axial_clr": 0.5}}),
+    (10, "undercut_d+0.8", "undercut diameter 12.5", {_R: {"bore_d": 12.5}}),
+    (11, "undercut_h+0.6", "undercut 0.6 taller", {_R: {"tab_axial_clr": 0.8}}),
+    (12, "rim_10.5", "rim ID 10.5 (tighter around the cup)", {_R: {"tab_id": 10.5}}),
+    (13, "rim_10.9", "rim ID 10.9", {_R: {"tab_id": 10.9}}),
+    (14, "rim_11.1", "rim ID 11.1 (cup larger than estimated)", {_R: {"tab_id": 11.1, "bore_d": 12.1}}),
+    (15, "stop_80", "end stop after 80 deg instead of 90", {_R: {"travel_deg": 80.0}}),
+    (16, "stop_100", "end stop after 100 deg", {_R: {"travel_deg": 100.0}}),
+    (17, "snap_bump", "small snap bump (0.25) just before the end stop", {_R: {"snap_bump": 0.25}}),
+    (18, "keyed_mirror", "keying mirrored: narrow window at +Z, wide at -Z", {"adapter": {_C: {"lug_w": [3.1, 5.1]}}}),
+    (19, "unkeyed_5.6", "both windows wide (5.6), in case the lugs are equal", {"adapter": {_C: {"lug_w": [5.1, 5.1]}}}),
+    (20, "lugs_higher", "lugs 0.5 higher (cup proud 4.2): undercut 0.5 higher", {"adapter": {_C: {"proud": 4.2}}}),
+    (21, "lugs_lower", "lugs 0.5 lower (cup proud 5.2): undercut 0.5 lower", {"adapter": {_C: {"proud": 5.2}}}),
+    (22, "ball_along_-1", "ball pockets 1 closer along (8.0)", {_R: {"ball_y": 8.0}}),
+    (23, "ball_along_+1", "ball pockets 1 further along (10.0)", {_R: {"ball_y": 10.0}}),
     (24, "rim_r13", "high zone larger: recess from r 13", {_R: {"recess_r": 13.0}}),
     (25, "recess_deep", "recess 0.8 deeper (far half 3.3 proud)", {"adapter": {"step_h": 3.3}}),
 ]
@@ -112,12 +114,15 @@ def readme(rows: list[tuple], sizes: dict) -> str:
         f"Each coupon is a {DEPTH:.0f} mm slice of the real variant A front end (52 x 19 face), face up. Exactly **one** dimension changes per coupon. "
         "**ID = number of notches on the base rim.**",
         "",
-        "**Nominal (coupon 2), all from photos** (no measuring tools; scaled from the pump end face 52 x 19 VERIFIED, the 19 adapter width and the ISO cartridge "
-        "10.95 / cap 7.8, cross-checked between 7 photos of the original pump and 3 of the adapter, +-0.5-1 mm): seal seat d14.6 x 0.5 for the white ring; "
-        "2 bore windows at +-Y (along the end face) for the cup's 2 rim lips (~80 deg each); 2 retaining tabs between them, ID 11.3 (the cartridge passes); "
-        "undercut d12.5 from 3.9 to 4.9 below the face; face recessed 2.5 outside r 12 (the original's curved rim; the adapter's raised far half lies there); "
-        "2 pockets for a 2 mm steel ball detent at 9.0 along / +-4.5 across; 2 hook pockets at r 24 / +-7. The adapter pivots on the bore and swings down over the "
-        "battery side; the tubing leaves its far end.",
+        "**How the original locks (round 3):** the adapter's cup carries **2 outward hook lugs** on the adapter's long axis, one ~5.1 and one ~3.1 wide "
+        "(keyed, ~0.5 radial, ~1.4 tall, at the cup tip). The pump rim has **2 matching windows**: with the adapter standing at 90 deg (far half pointing "
+        "away from the face, toward the display / label side) the lugs drop through them. Turning the adapter **90 deg clockwise** (seen from the face) down "
+        "to flush moves the lugs under the rim in **2 undercut pockets**; each pocket ends in a **stop face** at the flush position. The rim then holds the "
+        "adapter axially, the stop + the ball detent hold the angle.",
+        "",
+        "**Nominal (coupon 2), from photos and the owner's description** (+-0.5-1 mm): rim ID 10.7 from the face down to 3.1; windows 5.6 / 3.6 wide "
+        "(lug + 2 x 0.25); undercut pockets d11.7 from 3.1 to 4.9 deep, 90 deg travel to the stop; seal seat d14.6 x 0.5; face recessed 2.5 outside r 12; "
+        "2 pockets for a 2 mm steel ball at 9.0 along / +-4.5 across; 2 hook pockets at r 24 / +-7.",
         "",
         "| ID | File | What changed (vs nominal) |",
         "|---|---|---|",
@@ -132,13 +137,14 @@ def readme(rows: list[tuple], sizes: dict) -> str:
         "## How to judge the fit (per coupon, note the ID)",
         "",
         "1. **Goes in at 90 deg?** Adapter sticking out across the face, cup straight down into the bore: does it drop in to the white ring without force? "
-        "(no: tabs too tight -> try a higher tabs value; lips hit -> windows angle / width)",
-        "2. **Turns 90 deg?** Turn it down toward the long side until flush: smooth, stiff or blocked? Blocked early -> undercut too small or too high/low.",
+        "(no: the cup hits the rim -> rim rows 12-14; the lugs hit -> windows width rows 3-5, angle rows 6-7, keying rows 18-19)",
+        "2. **Turns 90 deg clockwise to the stop?** Smooth, stiff, blocked early (undercut too small / too high or low: rows 8-11, 20-21) or does it turn "
+        "past flush (stop angle: rows 15-16)? Wrong way only = keying (rows 18-19).",
         "3. **Sits flush?** Locked, the adapter lies flat on the face and lines up with the outline (no gap at the far end, no rocking). "
         "Rocking at the far end -> recess depth / rim radius.",
         "4. **Holds?** Pull gently straight away from the face: it must not come off when locked. Comes off -> tabs too big or undercut too low.",
         "5. **Wobble?** Locked, wiggle it: a little play is fine, rattling is not.",
-        "6. **Clicks?** With balls in the pockets: does it click into place at flush? (no click -> ball position rows 19-22)",
+        "6. **Clicks?** With balls in the pockets (or coupon 17 with the snap bump): does it click into place at flush? (no click -> rows 17, 22-23)",
         "",
         "Report: the best ID and, for it, yes / no for 1-6. If two coupons are both good, report both.",
     ]) + "\n"

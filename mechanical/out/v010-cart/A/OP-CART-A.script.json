@@ -485,7 +485,7 @@
   "command": "solid.box",
   "params": {
    "length": 5.310000000000002,
-   "width": 17.16,
+   "width": 16.759999999999998,
    "height": 13.81,
    "corner": [
     62.11,
@@ -868,31 +868,16 @@
  {
   "command": "solid.cylinder",
   "params": {
-   "diameter": 11.3,
-   "height": 4.010000000000005,
+   "diameter": 10.7,
+   "height": 5.009999999999998,
    "base": [
-    64.69999999999999,
+    63.699999999999996,
     11.5,
     9.5
    ],
    "axis": "X",
    "body_name": "t_rt_b",
    "name": "t_rt_b"
-  }
- },
- {
-  "command": "solid.cylinder",
-  "params": {
-   "diameter": 12.5,
-   "height": 1.0100000000000051,
-   "base": [
-    63.709999999999994,
-    11.5,
-    9.5
-   ],
-   "axis": "X",
-   "body_name": "t_rl_b",
-   "name": "t_rl_b"
   }
  },
  {
@@ -913,10 +898,220 @@
  {
   "command": "solid.cylinder",
   "params": {
-   "diameter": 12.5,
-   "height": 4.010000000000005,
+   "diameter": 11.7,
+   "height": 1.8100000000000165,
    "base": [
-    64.69999999999999,
+    63.709999999999994,
+    11.5,
+    9.5
+   ],
+   "axis": "X",
+   "body_name": "t_ru0_b",
+   "name": "t_ru0_b"
+  }
+ },
+ {
+  "command": "solid.box",
+  "params": {
+   "length": 3.8000000000000114,
+   "width": 40.0,
+   "height": 80.0,
+   "corner": [
+    62.709999999999994,
+    11.5,
+    -30.5
+   ],
+   "body_name": "t_ruh00_b",
+   "name": "t_ruh00_b"
+  }
+ },
+ {
+  "command": "solid.move",
+  "params": {
+   "bodies": [
+    "t_ruh00_b"
+   ],
+   "axis": [
+    1,
+    0,
+    0
+   ],
+   "angle": "61.403874928239375 deg",
+   "origin": [
+    0,
+    11.5,
+    9.5
+   ]
+  }
+ },
+ {
+  "command": "solid.combine",
+  "params": {
+   "target": "t_ru0_b",
+   "tools": [
+    "t_ruh00_b"
+   ],
+   "operation": "intersect",
+   "name": "pocket 0 side 0 b"
+  }
+ },
+ {
+  "command": "solid.box",
+  "params": {
+   "length": 3.8000000000000114,
+   "width": 40.0,
+   "height": 80.0,
+   "corner": [
+    62.709999999999994,
+    11.5,
+    -30.5
+   ],
+   "body_name": "t_ruh01_b",
+   "name": "t_ruh01_b"
+  }
+ },
+ {
+  "command": "solid.move",
+  "params": {
+   "bodies": [
+    "t_ruh01_b"
+   ],
+   "axis": [
+    1,
+    0,
+    0
+   ],
+   "angle": "28.596125071760625 deg",
+   "origin": [
+    0,
+    11.5,
+    9.5
+   ]
+  }
+ },
+ {
+  "command": "solid.combine",
+  "params": {
+   "target": "t_ru0_b",
+   "tools": [
+    "t_ruh01_b"
+   ],
+   "operation": "intersect",
+   "name": "pocket 0 side 1 b"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 11.7,
+   "height": 1.8100000000000165,
+   "base": [
+    63.709999999999994,
+    11.5,
+    9.5
+   ],
+   "axis": "X",
+   "body_name": "t_ru1_b",
+   "name": "t_ru1_b"
+  }
+ },
+ {
+  "command": "solid.box",
+  "params": {
+   "length": 3.8000000000000114,
+   "width": 40.0,
+   "height": 80.0,
+   "corner": [
+    62.709999999999994,
+    11.5,
+    -30.5
+   ],
+   "body_name": "t_ruh10_b",
+   "name": "t_ruh10_b"
+  }
+ },
+ {
+  "command": "solid.move",
+  "params": {
+   "bodies": [
+    "t_ruh10_b"
+   ],
+   "axis": [
+    1,
+    0,
+    0
+   ],
+   "angle": "252.07978686060773 deg",
+   "origin": [
+    0,
+    11.5,
+    9.5
+   ]
+  }
+ },
+ {
+  "command": "solid.combine",
+  "params": {
+   "target": "t_ru1_b",
+   "tools": [
+    "t_ruh10_b"
+   ],
+   "operation": "intersect",
+   "name": "pocket 1 side 0 b"
+  }
+ },
+ {
+  "command": "solid.box",
+  "params": {
+   "length": 3.8000000000000114,
+   "width": 40.0,
+   "height": 80.0,
+   "corner": [
+    62.709999999999994,
+    11.5,
+    -30.5
+   ],
+   "body_name": "t_ruh11_b",
+   "name": "t_ruh11_b"
+  }
+ },
+ {
+  "command": "solid.move",
+  "params": {
+   "bodies": [
+    "t_ruh11_b"
+   ],
+   "axis": [
+    1,
+    0,
+    0
+   ],
+   "angle": "197.92021313939227 deg",
+   "origin": [
+    0,
+    11.5,
+    9.5
+   ]
+  }
+ },
+ {
+  "command": "solid.combine",
+  "params": {
+   "target": "t_ru1_b",
+   "tools": [
+    "t_ruh11_b"
+   ],
+   "operation": "intersect",
+   "name": "pocket 1 side 1 b"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 11.7,
+   "height": 3.2099999999999937,
+   "base": [
+    65.5,
     11.5,
     9.5
    ],
@@ -928,16 +1123,35 @@
  {
   "command": "solid.box",
   "params": {
-   "length": 5.900000000000006,
+   "length": 5.099999999999994,
    "width": 40.0,
    "height": 80.0,
    "corner": [
-    63.709999999999994,
+    64.51,
     11.5,
     -30.5
    ],
    "body_name": "t_reh0_b",
    "name": "t_reh0_b"
+  }
+ },
+ {
+  "command": "solid.move",
+  "params": {
+   "bodies": [
+    "t_reh0_b"
+   ],
+   "axis": [
+    1,
+    0,
+    0
+   ],
+   "angle": "90.0 deg",
+   "origin": [
+    0,
+    11.5,
+    9.5
+   ]
   }
  },
  {
@@ -954,16 +1168,35 @@
  {
   "command": "solid.box",
   "params": {
-   "length": 5.900000000000006,
+   "length": 5.099999999999994,
    "width": 60.0,
-   "height": 8.149172555269818,
+   "height": 5.6000000000000005,
    "corner": [
-    63.709999999999994,
+    64.51,
     -18.5,
-    5.425413722365091
+    6.7
    ],
    "body_name": "t_reb0_b",
    "name": "t_reb0_b"
+  }
+ },
+ {
+  "command": "solid.move",
+  "params": {
+   "bodies": [
+    "t_reb0_b"
+   ],
+   "axis": [
+    1,
+    0,
+    0
+   ],
+   "angle": "90.0 deg",
+   "origin": [
+    0,
+    11.5,
+    9.5
+   ]
   }
  },
  {
@@ -980,10 +1213,10 @@
  {
   "command": "solid.cylinder",
   "params": {
-   "diameter": 12.5,
-   "height": 4.010000000000005,
+   "diameter": 11.7,
+   "height": 3.2099999999999937,
    "base": [
-    64.69999999999999,
+    65.5,
     11.5,
     9.5
    ],
@@ -995,11 +1228,11 @@
  {
   "command": "solid.box",
   "params": {
-   "length": 5.900000000000006,
+   "length": 5.099999999999994,
    "width": 40.0,
    "height": 80.0,
    "corner": [
-    63.709999999999994,
+    64.51,
     11.5,
     -30.5
    ],
@@ -1018,7 +1251,7 @@
     0,
     0
    ],
-   "angle": "180.0 deg",
+   "angle": "270.0 deg",
    "origin": [
     0,
     11.5,
@@ -1040,13 +1273,13 @@
  {
   "command": "solid.box",
   "params": {
-   "length": 5.900000000000006,
+   "length": 5.099999999999994,
    "width": 60.0,
-   "height": 8.149172555269818,
+   "height": 3.6000000000000005,
    "corner": [
-    63.709999999999994,
+    64.51,
     -18.5,
-    5.425413722365091
+    7.7
    ],
    "body_name": "t_reb1_b",
    "name": "t_reb1_b"
@@ -1063,7 +1296,7 @@
     0,
     0
    ],
-   "angle": "180.0 deg",
+   "angle": "270.0 deg",
    "origin": [
     0,
     11.5,
@@ -1349,8 +1582,9 @@
     "t_ms_b0",
     "t_ms_b1",
     "t_rt_b",
-    "t_rl_b",
     "t_rn_b",
+    "t_ru0_b",
+    "t_ru1_b",
     "t_re0_b",
     "t_re1_b",
     "t_rcb_b",
@@ -1859,7 +2093,7 @@
   "command": "solid.box",
   "params": {
    "length": 5.310000000000002,
-   "width": 17.16,
+   "width": 16.759999999999998,
    "height": 2.320000000000002,
    "corner": [
     62.11,
@@ -1996,31 +2230,16 @@
  {
   "command": "solid.cylinder",
   "params": {
-   "diameter": 11.3,
-   "height": 4.010000000000005,
+   "diameter": 10.7,
+   "height": 5.009999999999998,
    "base": [
-    64.69999999999999,
+    63.699999999999996,
     11.5,
     9.5
    ],
    "axis": "X",
    "body_name": "t_rt_t",
    "name": "t_rt_t"
-  }
- },
- {
-  "command": "solid.cylinder",
-  "params": {
-   "diameter": 12.5,
-   "height": 1.0100000000000051,
-   "base": [
-    63.709999999999994,
-    11.5,
-    9.5
-   ],
-   "axis": "X",
-   "body_name": "t_rl_t",
-   "name": "t_rl_t"
   }
  },
  {
@@ -2041,10 +2260,220 @@
  {
   "command": "solid.cylinder",
   "params": {
-   "diameter": 12.5,
-   "height": 4.010000000000005,
+   "diameter": 11.7,
+   "height": 1.8100000000000165,
    "base": [
-    64.69999999999999,
+    63.709999999999994,
+    11.5,
+    9.5
+   ],
+   "axis": "X",
+   "body_name": "t_ru0_t",
+   "name": "t_ru0_t"
+  }
+ },
+ {
+  "command": "solid.box",
+  "params": {
+   "length": 3.8000000000000114,
+   "width": 40.0,
+   "height": 80.0,
+   "corner": [
+    62.709999999999994,
+    11.5,
+    -30.5
+   ],
+   "body_name": "t_ruh00_t",
+   "name": "t_ruh00_t"
+  }
+ },
+ {
+  "command": "solid.move",
+  "params": {
+   "bodies": [
+    "t_ruh00_t"
+   ],
+   "axis": [
+    1,
+    0,
+    0
+   ],
+   "angle": "61.403874928239375 deg",
+   "origin": [
+    0,
+    11.5,
+    9.5
+   ]
+  }
+ },
+ {
+  "command": "solid.combine",
+  "params": {
+   "target": "t_ru0_t",
+   "tools": [
+    "t_ruh00_t"
+   ],
+   "operation": "intersect",
+   "name": "pocket 0 side 0 t"
+  }
+ },
+ {
+  "command": "solid.box",
+  "params": {
+   "length": 3.8000000000000114,
+   "width": 40.0,
+   "height": 80.0,
+   "corner": [
+    62.709999999999994,
+    11.5,
+    -30.5
+   ],
+   "body_name": "t_ruh01_t",
+   "name": "t_ruh01_t"
+  }
+ },
+ {
+  "command": "solid.move",
+  "params": {
+   "bodies": [
+    "t_ruh01_t"
+   ],
+   "axis": [
+    1,
+    0,
+    0
+   ],
+   "angle": "28.596125071760625 deg",
+   "origin": [
+    0,
+    11.5,
+    9.5
+   ]
+  }
+ },
+ {
+  "command": "solid.combine",
+  "params": {
+   "target": "t_ru0_t",
+   "tools": [
+    "t_ruh01_t"
+   ],
+   "operation": "intersect",
+   "name": "pocket 0 side 1 t"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 11.7,
+   "height": 1.8100000000000165,
+   "base": [
+    63.709999999999994,
+    11.5,
+    9.5
+   ],
+   "axis": "X",
+   "body_name": "t_ru1_t",
+   "name": "t_ru1_t"
+  }
+ },
+ {
+  "command": "solid.box",
+  "params": {
+   "length": 3.8000000000000114,
+   "width": 40.0,
+   "height": 80.0,
+   "corner": [
+    62.709999999999994,
+    11.5,
+    -30.5
+   ],
+   "body_name": "t_ruh10_t",
+   "name": "t_ruh10_t"
+  }
+ },
+ {
+  "command": "solid.move",
+  "params": {
+   "bodies": [
+    "t_ruh10_t"
+   ],
+   "axis": [
+    1,
+    0,
+    0
+   ],
+   "angle": "252.07978686060773 deg",
+   "origin": [
+    0,
+    11.5,
+    9.5
+   ]
+  }
+ },
+ {
+  "command": "solid.combine",
+  "params": {
+   "target": "t_ru1_t",
+   "tools": [
+    "t_ruh10_t"
+   ],
+   "operation": "intersect",
+   "name": "pocket 1 side 0 t"
+  }
+ },
+ {
+  "command": "solid.box",
+  "params": {
+   "length": 3.8000000000000114,
+   "width": 40.0,
+   "height": 80.0,
+   "corner": [
+    62.709999999999994,
+    11.5,
+    -30.5
+   ],
+   "body_name": "t_ruh11_t",
+   "name": "t_ruh11_t"
+  }
+ },
+ {
+  "command": "solid.move",
+  "params": {
+   "bodies": [
+    "t_ruh11_t"
+   ],
+   "axis": [
+    1,
+    0,
+    0
+   ],
+   "angle": "197.92021313939227 deg",
+   "origin": [
+    0,
+    11.5,
+    9.5
+   ]
+  }
+ },
+ {
+  "command": "solid.combine",
+  "params": {
+   "target": "t_ru1_t",
+   "tools": [
+    "t_ruh11_t"
+   ],
+   "operation": "intersect",
+   "name": "pocket 1 side 1 t"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 11.7,
+   "height": 3.2099999999999937,
+   "base": [
+    65.5,
     11.5,
     9.5
    ],
@@ -2056,16 +2485,35 @@
  {
   "command": "solid.box",
   "params": {
-   "length": 5.900000000000006,
+   "length": 5.099999999999994,
    "width": 40.0,
    "height": 80.0,
    "corner": [
-    63.709999999999994,
+    64.51,
     11.5,
     -30.5
    ],
    "body_name": "t_reh0_t",
    "name": "t_reh0_t"
+  }
+ },
+ {
+  "command": "solid.move",
+  "params": {
+   "bodies": [
+    "t_reh0_t"
+   ],
+   "axis": [
+    1,
+    0,
+    0
+   ],
+   "angle": "90.0 deg",
+   "origin": [
+    0,
+    11.5,
+    9.5
+   ]
   }
  },
  {
@@ -2082,16 +2530,35 @@
  {
   "command": "solid.box",
   "params": {
-   "length": 5.900000000000006,
+   "length": 5.099999999999994,
    "width": 60.0,
-   "height": 8.149172555269818,
+   "height": 5.6000000000000005,
    "corner": [
-    63.709999999999994,
+    64.51,
     -18.5,
-    5.425413722365091
+    6.7
    ],
    "body_name": "t_reb0_t",
    "name": "t_reb0_t"
+  }
+ },
+ {
+  "command": "solid.move",
+  "params": {
+   "bodies": [
+    "t_reb0_t"
+   ],
+   "axis": [
+    1,
+    0,
+    0
+   ],
+   "angle": "90.0 deg",
+   "origin": [
+    0,
+    11.5,
+    9.5
+   ]
   }
  },
  {
@@ -2108,10 +2575,10 @@
  {
   "command": "solid.cylinder",
   "params": {
-   "diameter": 12.5,
-   "height": 4.010000000000005,
+   "diameter": 11.7,
+   "height": 3.2099999999999937,
    "base": [
-    64.69999999999999,
+    65.5,
     11.5,
     9.5
    ],
@@ -2123,11 +2590,11 @@
  {
   "command": "solid.box",
   "params": {
-   "length": 5.900000000000006,
+   "length": 5.099999999999994,
    "width": 40.0,
    "height": 80.0,
    "corner": [
-    63.709999999999994,
+    64.51,
     11.5,
     -30.5
    ],
@@ -2146,7 +2613,7 @@
     0,
     0
    ],
-   "angle": "180.0 deg",
+   "angle": "270.0 deg",
    "origin": [
     0,
     11.5,
@@ -2168,13 +2635,13 @@
  {
   "command": "solid.box",
   "params": {
-   "length": 5.900000000000006,
+   "length": 5.099999999999994,
    "width": 60.0,
-   "height": 8.149172555269818,
+   "height": 3.6000000000000005,
    "corner": [
-    63.709999999999994,
+    64.51,
     -18.5,
-    5.425413722365091
+    7.7
    ],
    "body_name": "t_reb1_t",
    "name": "t_reb1_t"
@@ -2191,7 +2658,7 @@
     0,
     0
    ],
-   "angle": "180.0 deg",
+   "angle": "270.0 deg",
    "origin": [
     0,
     11.5,
@@ -2407,8 +2874,9 @@
    "target": "top",
    "tools": [
     "t_rt_t",
-    "t_rl_t",
     "t_rn_t",
+    "t_ru0_t",
+    "t_ru1_t",
     "t_re0_t",
     "t_re1_t",
     "t_rcb_t",
@@ -3591,8 +4059,8 @@
  {
   "command": "solid.cylinder",
   "params": {
-   "diameter": 11.9,
-   "height": 0.5999999999999943,
+   "diameter": 11.3,
+   "height": 1.4000000000000057,
    "base": [
     63.91,
     11.5,
@@ -3645,25 +4113,6 @@
   }
  },
  {
-  "command": "solid.move",
-  "params": {
-   "bodies": [
-    "t_ad_half0"
-   ],
-   "axis": [
-    1,
-    0,
-    0
-   ],
-   "angle": "90.0 deg",
-   "origin": [
-    0,
-    11.5,
-    9.5
-   ]
-  }
- },
- {
   "command": "solid.combine",
   "params": {
    "target": "adapter_lug_a",
@@ -3671,7 +4120,7 @@
     "t_ad_half0"
    ],
    "operation": "intersect",
-   "name": "lip 0 side"
+   "name": "lug 0 side"
   }
  },
  {
@@ -3679,33 +4128,14 @@
   "params": {
    "length": 11.0,
    "width": 60.0,
-   "height": 7.649172555269818,
+   "height": 5.1000000000000005,
    "corner": [
     58.61,
     -18.5,
-    5.675413722365091
+    6.95
    ],
    "body_name": "t_ad_lipb0",
    "name": "t_ad_lipb0"
-  }
- },
- {
-  "command": "solid.move",
-  "params": {
-   "bodies": [
-    "t_ad_lipb0"
-   ],
-   "axis": [
-    1,
-    0,
-    0
-   ],
-   "angle": "90.0 deg",
-   "origin": [
-    0,
-    11.5,
-    9.5
-   ]
   }
  },
  {
@@ -3716,14 +4146,14 @@
     "t_ad_lipb0"
    ],
    "operation": "intersect",
-   "name": "lip 0 arc"
+   "name": "lug 0"
   }
  },
  {
   "command": "solid.cylinder",
   "params": {
-   "diameter": 11.9,
-   "height": 0.5999999999999943,
+   "diameter": 11.3,
+   "height": 1.4000000000000057,
    "base": [
     63.91,
     11.5,
@@ -3786,7 +4216,7 @@
     0,
     0
    ],
-   "angle": "270.0 deg",
+   "angle": "180.0 deg",
    "origin": [
     0,
     11.5,
@@ -3802,7 +4232,7 @@
     "t_ad_half1"
    ],
    "operation": "intersect",
-   "name": "lip 1 side"
+   "name": "lug 1 side"
   }
  },
  {
@@ -3810,11 +4240,11 @@
   "params": {
    "length": 11.0,
    "width": 60.0,
-   "height": 7.649172555269818,
+   "height": 3.1000000000000005,
    "corner": [
     58.61,
     -18.5,
-    5.675413722365091
+    7.95
    ],
    "body_name": "t_ad_lipb1",
    "name": "t_ad_lipb1"
@@ -3831,7 +4261,7 @@
     0,
     0
    ],
-   "angle": "270.0 deg",
+   "angle": "180.0 deg",
    "origin": [
     0,
     11.5,
@@ -3847,7 +4277,7 @@
     "t_ad_lipb1"
    ],
    "operation": "intersect",
-   "name": "lip 1 arc"
+   "name": "lug 1"
   }
  },
  {
