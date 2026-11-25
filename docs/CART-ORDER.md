@@ -19,7 +19,9 @@ Design: `mechanical/V010-CART.md` (variants A and B share chip set, motor and ge
 | Wires, heat shrink, CA, Loctite (shares of packs already bought) | 1.0 | 1.0 | 1.0 | E |
 | **Pump total (EUR, without consumables)** | **276** | **82** | **61** | target about 40, max 80 |
 
-**Verdict:** the ~40 EUR target is **missed** at small quantities: about 82 EUR each for 5 pumps (just over the 80 max), 61 EUR for 10, about 49 EUR for 20. **The main board is the cost driver** (fixed JLC fees: extended-part fee 66 USD, PCBA setup, shipping, spread over the batch); the mechanics are about 15-20 EUR. A single pump costs about 276 EUR because JLC's minimum order (5 PCBs, 2 assembled boards) and every shipping fee land on it.
+**Update 2026-11-25 (board routed, live JLC prices, `electronics/v010/cart/COST.md`):** the B board needs **6 layers** (4 did not route) and 0.2 mm vias, so the PCB is a "high precision" order (77.85 EUR for 5 PCBs instead of about 23). Board per pump **70.5 / 45.2 / 32.5 EUR** at 5 / 10 / 20, pump total about **101 / 69 / 52 EUR**: 5 pumps are above the 80 EUR max, **10 pumps are inside**. Order 10.
+
+**Verdict (2026-11-24 estimate, superseded by the update above):** the ~40 EUR target is **missed** at small quantities: about 82 EUR each for 5 pumps (just over the 80 max), 61 EUR for 10, about 49 EUR for 20. **The main board is the cost driver** (fixed JLC fees: extended-part fee 66 USD, PCBA setup, shipping, spread over the batch); the mechanics are about 15-20 EUR. A single pump costs about 276 EUR because JLC's minimum order (5 PCBs, 2 assembled boards) and every shipping fee land on it.
 
 ### What to cut to reach ~40 EUR (in order of effect)
 | Lever | Saving per pump (qty 10) | Cost / risk |
@@ -51,7 +53,7 @@ Per test: A about 9.9 EUR (cartridge + adapter & tubing), B about 5.7 EUR (cartr
 ## Order package for 5 pumps (first real bench test, after the fit print works)
 | # | Shop | Items (qty) | Approx. total |
 |---|---|---|---|
-| 1 | **JLCPCB** | cart board 4-layer 0.8 mm ENIG, 10 PCBs, 5 assembled (PCBA both sides) + TMAG strips in the panel. **Blocked: the cart board is not routed yet**; outlines + interfaces ready (`mechanical/out/v010-cart/board/cart_board_{A,B}_*`); order one variant's board per JLC order | about 260 EUR |
+| 1 | **JLCPCB** | cart board **B**, 6 layers 0.8 mm ENIG, filled vias, 10 PCBs, 5 (or 10) assembled both sides: `electronics/v010/cart/jlc/` (gerbers, BOM, CPL with the verified bottom-side rotation rule, NOT-ASSEMBLED; DEV variant in `jlc-dev/`). **Routed 2026-11-25, DRC 0.** Board cost per pump 70.5 / 45.2 / 32.5 EUR at 5 / 10 / 20 (`electronics/v010/cart/COST.md`, live JLC prices). TMAG strip and lock-hall strip still to design; A board (20.5 x 28.9) not routed | about 350 EUR (5) / 450 EUR (10) |
 | 2 | **nfpshop.com** | NFP-608-26.45-SGM x 6 | about 55 EUR |
 | 3 | **AliExpress** | z12 m0.3 brass gears (1 lot of 10, 1005009996910236), z40 m0.3 brass (5, 1005010114512381), angle magnets d2x1 (1 pack, 1005010279518166), lock magnets d1x0.5 (1 pack, 1005009598719720) | about 35 EUR |
 | 4 | **GHW-Modellbau** | DIN 975 M2 rod brass x 2, DIN 934 M2 brass nuts (1 pack), DIN 84 / 7985 M2 x 8 screws (1 pack) | about 15 EUR |

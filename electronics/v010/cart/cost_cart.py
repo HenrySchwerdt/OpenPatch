@@ -11,9 +11,11 @@ import os
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 USD = 0.92
-# JLC quote page 2026-11-24, FR-4 4 layers, 57 x 10.6 mm, 0.8 mm, ENIG 1 U", 1 oz / 0.5 oz, plugged vias, 3-4 days, EUR (V)
-PCB_EUR = {5: 22.79, 10: 28.56, 20: 40.54}
-PCB6_EUR_5 = 29.29           # same board, 6 layers (7-8 days), for comparison (V)
+# JLC quote page 2026-11-25 (V), the board as routed: FR-4 6 layers, 57 x 10.6 mm, 0.8 mm, ENIG 1 U", 1 oz / 0.5 oz, via covering "Epoxy Filled
+# & Capped" (POFV, default and free on 6 layers), min via 0.2 / (0.3-0.35) mm -> "high precision": TG155 + via tier + 4-wire Kelvin test
+# charged; 7-8 days build. EUR incl. those options.
+PCB_EUR = {5: 77.85, 10: 91.91, 20: 111.47}
+PCB4_EUR = {5: 22.79, 10: 28.56, 20: 40.54}   # same outline, 4 layers, ENIG, 0.3 mm via tier, 3-4 days (V 2026-11-24): did not route
 SHIP_EUR = 21.42             # DHL Express estimate on the quote page (V), PCB + PCBA in one parcel
 # standard PCBA (both sides) ESTIMATE in USD: setup per side, stencil per side, extended-part loading fee per unique extended part
 SETUP_USD, STENCIL_USD, EXT_USD, JOINT_USD = 25.0, 7.0, 3.0, 0.0017
@@ -55,7 +57,7 @@ def main() -> None:
         sub = PCB_EUR[n] + parts + fees + SHIP_EUR
         tot = sub * (1 + IMPORT_VAT)
         print("| %d | %.2f | %.2f | %.2f | %.2f | %.2f | **%.0f** | **%.1f** |" % (n, PCB_EUR[n], parts, fees, SHIP_EUR, sub * IMPORT_VAT, tot, tot / n))
-    print("\n6 layers instead of 4 (same board, 5 PCBs): %.2f EUR instead of %.2f (V)" % (PCB6_EUR_5, PCB_EUR[5]))
+    print("\nFor comparison, 4 layers (did not route): PCB %s EUR at 5 / 10 / 20 (V)" % " / ".join("%.2f" % PCB4_EUR[n] for n in (5, 10, 20)))
 
 
 if __name__ == "__main__":

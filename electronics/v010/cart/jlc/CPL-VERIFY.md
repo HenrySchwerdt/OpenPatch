@@ -1,0 +1,64 @@
+# CPL verification (verify_cpl.py): official LCSC footprint placed at the CPL row vs our pads
+
+Bottom rows are mirrored as seen from the top. 'max dev' = worst pad-centre distance by pad number at the CPL rotation; 'at +180' = the same with the rotation turned by 180 (a large value there proves the orientation is unambiguous).
+
+| Ref | LCSC | Side | CPL rot | max dev (mm) | at +180 (mm) | verdict |
+|---|---|---|---|---|---|---|
+| BZ1 | C391027 | Bottom | 0 | 0.425 | 3.075 | OK |
+| C19 | C1525 | Bottom | 0 | 0.060 | 0.900 | OK |
+| C20 | C1525 | Bottom | 0 | 0.060 | 0.900 | OK |
+| C50 | C1525 | Bottom | 0 | 0.060 | 0.900 | OK |
+| C61 | C1525 | Bottom | 0 | 0.060 | 0.900 | OK |
+| C62 | C1525 | Bottom | 0 | 0.060 | 0.900 | OK |
+| C71 | C19702 | Bottom | 0 | 0.075 | 1.475 | OK |
+| C81 | C1525 | Bottom | 0 | 0.060 | 0.900 | OK |
+| C82 | C1525 | Bottom | 0 | 0.060 | 0.900 | OK |
+| QBA | C232391 | Bottom | 180 | 0.010 | 2.209 | OK |
+| R16 | C25741 | Bottom | 270 | 0.077 | 0.943 | OK |
+| R18 | C25741 | Bottom | 270 | 0.077 | 0.943 | OK |
+| R29 | C25741 | Bottom | 270 | 0.077 | 0.943 | OK |
+| R82 | C25741 | Bottom | 270 | 0.077 | 0.943 | OK |
+| R90 | C25741 | Bottom | 0 | 0.077 | 0.943 | OK |
+| R92 | C25741 | Bottom | 270 | 0.077 | 0.943 | OK |
+| RBZ | C23345 | Bottom | 0 | 0.072 | 1.578 | OK |
+| RDA | C25741 | Bottom | 0 | 0.077 | 0.943 | OK |
+| RDK | C25741 | Bottom | 270 | 0.077 | 0.943 | OK |
+| RI1 | C25900 | Bottom | 270 | 0.077 | 0.943 | OK |
+| RI2 | C25900 | Bottom | 270 | 0.077 | 0.943 | OK |
+| RNR | C25741 | Bottom | 270 | 0.077 | 0.943 | OK |
+| SW1 | C130445 | Bottom | 180 | 0.150 | 1.309 | OK |
+| U34 | C507223 | Bottom | 180 | 0.263 | 2.333 | OK |
+| UU1 | C2827693 | Bottom | 270 | 0.175 | 1.907 | OK |
+| C21 | C45783 | Top | 0 | 0.050 | 1.950 | OK |
+| C5 | C19702 | Top | 90 | 0.075 | 1.475 | OK |
+| C60 | C1525 | Top | 0 | 0.060 | 0.900 | OK |
+| C70 | C19666 | Top | 0 | 0.075 | 1.475 | OK |
+| CB1 | C45783 | Top | 90 | 0.050 | 1.950 | OK |
+| CU1 | C19702 | Top | 0 | 0.075 | 1.475 | OK |
+| D6 | C2128 | Top | 0 | 0.122 | 2.222 | OK |
+| JU1 | C223907 | Top | 180 | 0.005 | 8.691 | OK |
+| L1 | C370610 | Top | 0 | 0.125 | 2.026 | OK |
+| LD1 | C3029071 | Top | 0 | 0.125 | 1.637 | OK |
+| Q1 | C15127 | Top | 180 | 0.212 | 2.823 | OK |
+| R26 | C25917 | Top | 0 | 0.077 | 0.943 | OK |
+| R3 | C25792 | Top | 0 | 0.077 | 0.943 | OK |
+| R55 | C25767 | Top | 90 | 0.077 | 0.943 | OK |
+| R56 | C25776 | Top | 90 | 0.077 | 0.943 | OK |
+| R57 | C25744 | Top | 90 | 0.077 | 0.943 | OK |
+| R58 | C25744 | Top | 90 | 0.077 | 0.943 | OK |
+| R74 | C11702 | Top | 0 | 0.077 | 0.943 | OK |
+| R91 | C25792 | Top | 90 | 0.077 | 0.943 | OK |
+| RU1 | C25905 | Top | 0 | 0.077 | 0.943 | OK |
+| RU2 | C25905 | Top | 0 | 0.077 | 0.943 | OK |
+| U1 | C50052094 | Top | 180 | 0.000 | 7.771 | OK |
+| U20 | C138719 | Top | 0 | 0.141 | 2.315 | OK |
+| U3 | C38066 | Top | 180 | 0.163 | 3.091 | OK |
+| U30 | C5456188 | Top | 0 | 0.109 | 3.614 | OK |
+| U32 | C507223 | Top | 180 | 0.263 | 2.333 | OK |
+| U33 | C48995440 | Top | 180 | 0.007 | 2.126 | OK |
+| U36 | C54929506 | Top | 0 | 0.005 | 1.247 | OK |
+| U5 | C473912 | Top | 180 | 0.213 | 3.130 | OK |
+| U6 | C140267 | Top | 180 | 0.150 | 3.310 | OK |
+| U7A | C86667 | Top | 0 | 0.000 | 2.421 | OK |
+| U7B | C86667 | Top | 0 | 0.000 | 2.421 | OK |
+| U8 | C919459 | Top | 180 | 0.037 | 1.772 | OK |

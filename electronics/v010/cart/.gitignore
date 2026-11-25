@@ -16,3 +16,7 @@ cart_f*_drc*.json
 cart_tryB*
 cart_try6*
 cart_s*.kicad_p*
+*.npy
+drc.json
+!variants/*.kicad_pro
+!cart_placed.kicad_pro

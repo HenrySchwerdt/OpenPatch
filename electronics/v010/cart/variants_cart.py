@@ -53,6 +53,10 @@ def candidate_ok(b, net, x, y, edge_poly, courtyards, margin=0.0):
     d_edge = T(int(math.sqrt(edge_poly.Outline(0).SquaredDistance(p, True))))
     if d_edge < EDGE + r:
         return False
+    # cart: nothing on the underside under the HJ-840 (board frame 47.8..55.2 x 2.0..8.6, +0.6 margin) and nothing in the antenna zone
+    bx, by = x - 100.0, y - 80.0
+    if 47.2 < bx < 57.5 and 1.4 < by < 9.2 or bx > 53.4:
+        return False
     # underside parts: the pad may reach into a courtyard by CRT_IN (courtyard = body + 0.25 mm), never onto a body
     for c in courtyards:
         if c.Collide(pcbnew.SHAPE_CIRCLE(p, MM(r - CRT_IN)), 0):
@@ -171,7 +175,7 @@ def main():
         drcj = os.path.join(out, "_dev_drc.json")
         subprocess.run([os.environ.get("KICAD_CLI", "/Applications/KiCad/KiCad.app/Contents/MacOS/kicad-cli"), "pcb", "drc", "--format", "json", "--severity-all", "--units", "mm", "-o", drcj, dev], capture_output=True)
         kpy = os.path.join(HERE, "..", "board", "kpy")
-        subprocess.run([kpy, os.path.join(HERE, "..", "cup", "finish_route.py"), dev, drcj], capture_output=True)
+        subprocess.run([kpy, os.path.join(HERE, "finish_route.py"), dev, drcj], capture_output=True)
         subprocess.run([kpy, os.path.join(HERE, "..", "board", "route_v3.py"), dev, "finish"], capture_output=True)
         os.remove(drcj)
     with open(os.path.join(out, "TESTPOINTS.md"), "w") as fh:
