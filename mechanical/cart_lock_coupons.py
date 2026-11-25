@@ -5,7 +5,7 @@ key-step pocket) with ONE uncertain dimension changed per coupon, to find which 
 TEST PROJECT: bench only, water only, never worn.
 
   SOLIDCRAFT_CLI=... python3 cart_lock_coupons.py
-Writes out/v010-cart/coupons/A_lock/: A_lock_<ID>.stl (face up, flat base, at the origin), A_lock_bed.stl (all coupons on a 280 x 240 bed),
+Writes out/v010-cart/coupons/A_lock/: A_lock_<ID>.stl (face up, flat base, at the origin), A_lock_bed.stl (all coupons on a 280 x 240 bed), A_lock_bed_first.stl (IDs 1-9),
 README.md (ID -> what changed, how to test). ID = number of notches on the base rim (+Y long edge), 1..N.
 """
 from __future__ import annotations
@@ -21,34 +21,45 @@ from generate import run_cli
 from op_cmds import Script
 from op_layout import HERE, load_params
 
-DEPTH = 10.0            # slice depth (mm) behind the seat plane
-FACE_KEEP = 6.2         # solid material behind the face; deeper than the bore (5.5), groove (3.65) and key pocket (3.1)
+DEPTH = 8.0             # slice depth (mm) behind the seat plane (small, fast coupons)
+FACE_KEEP = 6.0         # solid material behind the face; deeper than the undercut (<= 5.4) and the recess + hook pockets (<= 4.3)
 SKIRT_WALL = 1.6        # base skirt wall and the ring around the cartridge hole (lightening, print time)
 RING_OD = 15.0
 GAP = 6.0               # spacing on the bed
 BED = (280.0, 240.0)
 
 # (ID, short name, what changed, overrides on cart.variants.A: {section: {key: value}}, nested dicts merged)
-# Centre values = ESTIMATE from the owner's photos of the ORIGINAL Insight pump end face + his adapter (2026-11-25): seal seat 14.6 x 0.5,
-# 2 bore windows at +-Y (along the end face) for 80 deg lips, retaining tabs 11.3 (the cartridge passes), lip ring 12.5 down to 4.9,
-# face recessed 2.5 outside r 12 (the pump's curved rim), detent ball pockets (2 mm ball) at 8.5 along / +-5.5 across, hook pockets at r 24 / +-7.
+# Nominal = photo estimate (no measuring tools; scaled from the 52 x 19 end face, the 19 adapter width, the 10.95 cartridge; 7 pump + 3 adapter photos):
+# seal seat 14.6 x 0.5, 2 windows at +-Y for 80 deg lips, tabs 11.3, undercut 12.5 from 3.9 to 4.9, recess 2.5 outside r 12, ball pockets 9.0 / +-4.5.
+# The first row (IDs 1-9) is the quick first plate; the rest widen the search.
+_R = "receiver"
 MATRIX = [
-    (1, "generous", "all clearances +0.4: tabs 11.7, lip ring 12.9, windows +0.4, tab-to-lip gap 0.6, recess from r 11.6 and 0.4 deeper",
-     {"receiver": {"tab_id": 11.7, "bore_d": 12.9, "lip_clr": 0.65, "tab_axial_clr": 0.6, "step_clr": 0.7, "recess_r": 11.6}}),
-    (2, "nominal", "estimate from the original pump + adapter photos (values in the header of this README)", {}),
-    (3, "tabs_11.0", "retaining tabs 11.0 (tight; the cartridge 10.95 just passes)", {"receiver": {"tab_id": 11.0}}),
-    (4, "tabs_11.6", "retaining tabs 11.6 (loose)", {"receiver": {"tab_id": 11.6}}),
-    (5, "lipring_12.0", "undercut (lip ring) 12.0 instead of 12.5", {"receiver": {"bore_d": 12.0}}),
-    (6, "lipring_13.0", "undercut (lip ring) 13.0", {"receiver": {"bore_d": 13.0}}),
-    (7, "undercut_high", "cup 0.5 shorter: tabs end and undercut 0.5 higher (cup proud 4.2)", {"adapter": {"cup": {"proud": 4.2}}}),
-    (8, "undercut_low", "cup 0.5 longer: tabs end and undercut 0.5 lower (cup proud 5.2)", {"adapter": {"cup": {"proud": 5.2}}}),
-    (9, "windows_+20", "windows turned +20 deg", {"receiver": {"entry_deg": 20.0, "lock_deg": 110.0}}),
-    (10, "windows_-20", "windows turned -20 deg", {"receiver": {"entry_deg": -20.0, "lock_deg": 70.0}}),
-    (11, "windows_keyed", "asymmetric windows (patent / photo: one wide, one narrow): 110 deg toward +Y (far half), 50 deg toward -Y", {"adapter": {"cup": {"lip_arc_deg": [110.0, 50.0]}}}),
-    (12, "ball_far", "detent ball pockets 1.5 further out (10.0 along)", {"receiver": {"ball_y": 10.0}}),
-    (13, "ball_near", "detent ball pockets 1.5 closer (7.0 along) and 4.5 across", {"receiver": {"ball_y": 7.0, "ball_off": 4.5}}),
-    (14, "rim_r13", "high zone around the socket larger: recess from r 13.0", {"receiver": {"recess_r": 13.0}}),
-    (15, "recess_deep", "recess 0.8 deeper (far half 3.3 proud)", {"adapter": {"step_h": 3.3}}),
+    (1, "generous", "all clearances +0.4: tabs 11.7, undercut 12.9, windows +0.8 wide, tab-to-lip gap 0.6, recess from r 11.6 and 0.4 deeper",
+     {_R: {"tab_id": 11.7, "bore_d": 12.9, "lip_clr": 0.65, "tab_axial_clr": 0.6, "step_clr": 0.7, "recess_r": 11.6}}),
+    (2, "nominal", "photo estimate (header)", {}),
+    (3, "tabs_-0.4", "tabs 10.9", {_R: {"tab_id": 10.9}}),
+    (4, "tabs_+0.4", "tabs 11.7", {_R: {"tab_id": 11.7}}),
+    (5, "undercut_-0.4", "undercut 12.1", {_R: {"bore_d": 12.1}}),
+    (6, "undercut_+0.4", "undercut 12.9", {_R: {"bore_d": 12.9}}),
+    (7, "windows_-10", "windows turned -10 deg", {_R: {"entry_deg": -10.0, "lock_deg": 80.0}}),
+    (8, "windows_+10", "windows turned +10 deg", {_R: {"entry_deg": 10.0, "lock_deg": 100.0}}),
+    (9, "windows_+0.5", "windows 0.5 wider", {_R: {"lip_clr": 0.5}}),
+    (10, "tabs_-0.8", "tabs 10.5", {_R: {"tab_id": 10.5}}),
+    (11, "tabs_+0.8", "tabs 12.1", {_R: {"tab_id": 12.1}}),
+    (12, "undercut_-0.8", "undercut 11.7", {_R: {"bore_d": 11.7}}),
+    (13, "undercut_+0.8", "undercut 13.3", {_R: {"bore_d": 13.3}}),
+    (14, "undercut_high", "undercut 0.5 higher (cup proud 4.2)", {"adapter": {"cup": {"proud": 4.2}}}),
+    (15, "undercut_low", "undercut 0.5 lower (cup proud 5.2)", {"adapter": {"cup": {"proud": 5.2}}}),
+    (16, "windows_-20", "windows turned -20 deg", {_R: {"entry_deg": -20.0, "lock_deg": 70.0}}),
+    (17, "windows_+20", "windows turned +20 deg", {_R: {"entry_deg": 20.0, "lock_deg": 110.0}}),
+    (18, "windows_keyed", "one wide (110 deg, toward the far half) and one narrow (50 deg) window", {"adapter": {"cup": {"lip_arc_deg": [110.0, 50.0]}}}),
+    (19, "ball_along_-1", "ball pockets 1 closer along (8.0)", {_R: {"ball_y": 8.0}}),
+    (20, "ball_along_+1", "ball pockets 1 further along (10.0)", {_R: {"ball_y": 10.0}}),
+    (21, "ball_across_-1", "ball pockets 1 closer to the axis (3.5 across)", {_R: {"ball_off": 3.5}}),
+    (22, "ball_across_+1", "ball pockets 1 further across (5.5)", {_R: {"ball_off": 5.5}}),
+    (23, "rim_r11", "high zone smaller: recess from r 11", {_R: {"recess_r": 11.0}}),
+    (24, "rim_r13", "high zone larger: recess from r 13", {_R: {"recess_r": 13.0}}),
+    (25, "recess_deep", "recess 0.8 deeper (far half 3.3 proud)", {"adapter": {"step_h": 3.3}}),
 ]
 
 
@@ -96,50 +107,40 @@ def readme(rows: list[tuple], sizes: dict) -> str:
     return "\n".join([
         "> **TEST ONLY - NOT FOR HUMAN USE.** Bench only, **water only**. These coupons only check how the original Insight Adapter & Tubing fits our printed receiver.",
         "",
-        "# Variant A twist-lock fit coupons (`cart_lock_coupons.py`), built on the ORIGINAL pump's end face (2026-11-25)",
+        "# Variant A twist-lock fit coupons (`cart_lock_coupons.py`)",
         "",
-        f"Each coupon is a {DEPTH:.0f} mm slice of the real variant A front end (52 x 19 face). Exactly **one** dimension changes per coupon. "
-        "**ID = number of notches on the base rim.** Nominal (coupon 2), all ESTIMATE from the owner's photos of the original pump end face and of his adapter, "
-        "scaled with the 19 mm end-face width (+-0.5-1 mm):",
+        f"Each coupon is a {DEPTH:.0f} mm slice of the real variant A front end (52 x 19 face), face up. Exactly **one** dimension changes per coupon. "
+        "**ID = number of notches on the base rim.**",
         "",
-        "- seal seat (shallow counterbore) d14.6 x 0.5 for the adapter's white ring (OD ~13.5);",
-        "- bore wall with **2 windows** at +-Y (along the end face), each for an ~80 deg cup lip, and **2 retaining tabs** between them, ID 11.3 "
-        "(the cartridge, 10.95, passes, as on the original);",
-        "- **undercut** (lip ring) d12.5 under the tabs, from 3.9 to 4.9 below the face (adapter cup ~4.7 proud, lip ~0.6 high);",
-        "- the face is **recessed 2.5 outside r 12** around the socket (the original's curved rim; the adapter's raised far half lies there);",
-        "- **detent**: 2 pockets for a 2 mm steel ball (press in, 0.5 proud) at 8.5 along +Y and +-5.5 across (the original has one polished ball there; "
-        "the adapter has 2 holes ~11 from its cup at +-5). Print without balls first; add a ball (e.g. 2 mm bearing ball) to feel the click;",
-        "- hook pockets 3 x 2.3, 1 deep in the recess floor at r 24, +-7 across (for the adapter's curved hook; what it catches on the original is not "
-        "clear from the photos).",
+        "**Nominal (coupon 2), all from photos** (no measuring tools; scaled from the pump end face 52 x 19 VERIFIED, the 19 adapter width and the ISO cartridge "
+        "10.95 / cap 7.8, cross-checked between 7 photos of the original pump and 3 of the adapter, +-0.5-1 mm): seal seat d14.6 x 0.5 for the white ring; "
+        "2 bore windows at +-Y (along the end face) for the cup's 2 rim lips (~80 deg each); 2 retaining tabs between them, ID 11.3 (the cartridge passes); "
+        "undercut d12.5 from 3.9 to 4.9 below the face; face recessed 2.5 outside r 12 (the original's curved rim; the adapter's raised far half lies there); "
+        "2 pockets for a 2 mm steel ball detent at 9.0 along / +-4.5 across; 2 hook pockets at r 24 / +-7. The adapter pivots on the bore and swings down over the "
+        "battery side; the tubing leaves its far end.",
         "",
         "| ID | File | What changed (vs nominal) |",
         "|---|---|---|",
         *[f"| {n} | `A_lock_{n:02d}_{short}.stl` | {what} |" for n, short, what, _ in rows],
         "",
-        f"`A_lock_bed.stl`: all {len(rows)} coupons on one {BED[0]:.0f} x {BED[1]:.0f} bed ({sizes['bed'][0]:.0f} x {sizes['bed'][1]:.0f} mm used). Coupon {sizes['one'][0]:.0f} x {sizes['one'][1]:.0f} x {sizes['one'][2]:.0f} mm.",
+        f"`A_lock_bed.stl`: all {len(rows)} coupons ({sizes['bed'][0]:.0f} x {sizes['bed'][1]:.0f} mm, fits {BED[0]:.0f} x {BED[1]:.0f}). "
+        f"`A_lock_bed_first.stl`: IDs 1-9 only (quick first plate). Coupon {sizes['one'][0]:.0f} x {sizes['one'][1]:.0f} x {sizes['one'][2]:.0f} mm.",
         "",
-        "**Print:** PETG or PLA, 0.4 nozzle, 0.15 layer, 3 perimeters, 15 % infill, face up (as exported), no supports (the tabs overhang the undercut by ~0.6 and bridge). Brim off.",
+        "**Print:** PETG or PLA, 0.4 nozzle, 0.15-0.2 layer, 3 perimeters, 15 % infill, as exported (face up), no supports, no brim. "
+        "Optional: press a 2 mm steel ball into each round pocket on the face (0.5 stands out) to feel the detent click.",
         "",
-        "**Test:** put the adapter on at 90 deg (sticking out across the face), push the cup in, turn 90 deg down to flush. Note: enters (y/n), turns (y/n/force), "
-        "axial play when flush, flush with the outline (y/n), clicks (with ball). Start with 1 (generous) and 2 (nominal), then the rows for what misfits.",
+        "## How to judge the fit (per coupon, note the ID)",
         "",
-        "## Measure on the ORIGINAL pump end face (calipers; adapter off)",
+        "1. **Goes in at 90 deg?** Adapter sticking out across the face, cup straight down into the bore: does it drop in to the white ring without force? "
+        "(no: tabs too tight -> try a higher tabs value; lips hit -> windows angle / width)",
+        "2. **Turns 90 deg?** Turn it down toward the long side until flush: smooth, stiff or blocked? Blocked early -> undercut too small or too high/low.",
+        "3. **Sits flush?** Locked, the adapter lies flat on the face and lines up with the outline (no gap at the far end, no rocking). "
+        "Rocking at the far end -> recess depth / rim radius.",
+        "4. **Holds?** Pull gently straight away from the face: it must not come off when locked. Comes off -> tabs too big or undercut too low.",
+        "5. **Wobble?** Locked, wiggle it: a little play is fine, rattling is not.",
+        "6. **Clicks?** With balls in the pockets: does it click into place at flush? (no click -> ball position rows 19-22)",
         "",
-        "1. **Bore at the face** (smallest diameter through the tabs) and **seal seat** diameter + depth (the shallow step around the bore).",
-        "2. **Undercut**: largest diameter under the tabs (inside calipers or a feeler) and its depth: face to the underside of the tabs, face to the undercut floor.",
-        "3. **Windows**: width of each window (chord at the bore) and the angle of each window centre against the pump's long side (photo straight on is enough). Are they equal?",
-        "4. **Cartridge seat**: depth from the face to the inner ledge / cartridge cap.",
-        "5. **Detent ball**: distance from the bore centre along the end face and across, ball diameter, how far it stands out, does it spring?",
-        "6. **Curved rim**: radius from the bore centre to the curved step around the battery side, and the step height down to the battery-side face.",
-        "7. **Bore centre** to the near end of the face and to both long sides.",
-        "8. **Battery side**: where the adapter's hook catches when flush (which edge), its distance from the bore centre.",
-        "9. On the **adapter**: lip OD over the lips (2 directions), lip height, lip arcs; cup OD; cup protrusion.",
-        "10. On the **adapter**: the 2 underside holes (distance from the cup centre, spacing, diameter) and the height of the raised far half.",
-        "",
-        "**Photo wanted:** one straight top-down photo of the pump end face (adapter off) with a ruler in mm lying on the face plane, camera square to the face, "
-        "and the same for the adapter underside.",
-        "",
-        "The earlier models (lug groove from the patents; cup socket from the adapter photo alone) are replaced.",
+        "Report: the best ID and, for it, yes / no for 1-6. If two coupons are both good, report both.",
     ]) + "\n"
 
 
@@ -152,7 +153,7 @@ def main() -> None:
     s = Script()
     s.add("parameters.add", name="p_lock_coupons", expression="0", comment="A twist-lock coupons")
     names, bodies = [], []
-    cols = 5
+    cols = 9
     p_nom = op_cart.prepare(p0, "A")
     for k, (n, short, _, over) in enumerate(MATRIX):
         p = variant_params(p0, over)
@@ -167,6 +168,7 @@ def main() -> None:
         names.append(f)
         bodies.append(nm)
     s.add("file.export_stl", path=os.path.relpath(out / "A_lock_bed.stl", HERE), bodies=bodies, quality="standard")
+    s.add("file.export_stl", path=os.path.relpath(out / "A_lock_bed_first.stl", HERE), bodies=bodies[:cols], quality="standard")
     pj = out / "lock.script.json"
     pj.write_text(json.dumps(s.dumps()), encoding="utf-8")
     run_cli("run", str(pj), "--quiet")
@@ -175,6 +177,7 @@ def main() -> None:
     for f in names[1:]:
         to_origin(out / f)
     bed = to_origin(out / "A_lock_bed.stl")
+    to_origin(out / "A_lock_bed_first.stl")
     if bed[0] > BED[0] or bed[1] > BED[1]:
         raise SystemExit(f"bed layout {bed} exceeds {BED}")
     (out / "README.md").write_text(readme(MATRIX, {"one": one, "bed": bed}), encoding="utf-8")
