@@ -40,7 +40,7 @@ G1 Z2.0 F3000"
 
 OV=$(mktemp); python3 - "$OV" "$START" <<'PY'
 import json,sys
-d=json.load(open("sv01pro_pla_firstlayer.json"))
+import os; d=json.load(open("sv01pro_pla_firstlayer.json")); d.update(json.loads(os.environ.get("EXTRA_JSON","{}")))
 d["machine_start_gcode"]=sys.argv[2]
 json.dump(d,open(sys.argv[1],"w"))
 PY
