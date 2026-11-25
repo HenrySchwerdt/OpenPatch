@@ -1279,6 +1279,7 @@
    "part": "printed / turned pusher disc on the rod front end, flat face on the stopper",
    "d": 9.0,
    "t": 0.8,
+   "stem_in": 0.5,
    "bore_depth": 0.9
   },
   "ribs": {
@@ -1369,13 +1370,26 @@
   },
   "coupons": {"cradle_bores": [11.0, 11.2, 11.4, 11.6, 11.8], "cradle_h": 6.0, "receiver_bores": [12.6, 12.9, 13.2], "receiver_bores_A": [12.9, 13.3, 13.7],
    "_comment": "print these first (cart_gen.py -> out/v010-cart/coupons): the cartridge must slide through its hole with a light touch -> cradle_clr; the adapter nose must enter the receiver and turn to the stop -> receiver.bore_d / lug geometry"},
-  "variants": {
+  "yoke": {
+   "_comment": "yoke drive (variant A since 2026-11-24): M2 screw beside the barrel (rotating, axially fixed: rear end in a rear-wall boss, z40 gear on its front end between two ribs beside the barrel), printed yoke with the brass M2 nut rides on it, arm across to the cartridge axis, d3 stem + pusher disc into the cartridge; the yoke foot runs in a floor channel (anti-rotation). Nothing behind the cartridge but yoke + stem.",
+   "t": 2.5, "rear_clr": 1.0, "screw_in_wall": 0.6, "screw_front": 0.5, "gear_barrel_clr": 0.4,
+   "block": 6.0, "arm_h": 4.4, "boss_d": 5.2, "stem_d": 3.0, "stem_in": 0.6,
+   "foot_w": 2.0, "foot_gap": 0.4, "foot_clr": 0.2, "rail_t": 1.0, "rail_h": 2.5,
+   "stem_part": "brass or steel rod d3.0 (any 3 mm brass round rod), cut to length, bonded (CA) into yoke and pusher"
+  },
+    "variants": {
    "A": {
     "_comment": "Variant A: original Accu-Chek Insight Adapter & Tubing (needle + vent + tubing, bayonet into our receiver), Insight Flex head set at the far end (bench container)",
     "adapter": {"type": "insight_flat", "flush": true, "body_len": 52.0, "body_w": 19.0, "body_h": 9.5, "conn_from_end": 12.5, "nose_od": 13.0,
                 "step_h": 2.8, "step_from_conn": 9.0, "step_rim": 2.2, "bed_clr": 0.3, "tube_x_above_base": 2.0,
                 "_patents": "US D720,449 S 'Pump adapter' (8 views) and US D689,523 S 'Infusion pump device' (Fig. 6: end face with the adapter removed), Roche, filed 2012-02-03: adapter 48-52 x 18-19 x 9-10, nose OD ~13 at ~12.5 from the nose end, 2 lugs on the long axis (one ~5 wide, one ~1.5), underside step 2.5-3.3 on the tubing half, tubing out of the far end ~2 above the underside; pump bore ~11.7-12.4 with 2 notches 180 deg apart (60-80 deg arc), counterbore ~15-17. Unscaled drawings -> ESTIMATE",
                 "_geometry": "Roche manual p.2 / 27 / 28 / 29 / 36 + adapter IFU figures + owner photo (2026-11-24): the adapter caps and FORMS the pump's 52 x 19 end face (cartridge along the 84 length). Underside view p.29: L/W 2.8, round nose (needle in its centre) about 29 % of L from the nose end (-> 15 mm), raised key step on the tubing half (side view, about 1.5), tubing leaves the far narrow end along the long axis. Body 52 x 19 x 9.5 (84 - ~74.5 body). Mounting: nose on the septum with the needle perpendicular, long axis at 90 deg, clockwise to the stop (90 / 120 deg marks) until aligned. ALL ESTIMATE from renders: measure the bought adapter"},
+    "drive_type": "yoke",
+    "shell": {"corner_r": 4.0, "edge_break": 0.3, "top_fillet": 2.0, "gasket_t": 0.5, "lid_h": 3.5,
+              "taper": {"w_rear": 38.0, "x_rear": 12.0, "x_full": 40.0, "r_rear": 8.0, "screw_rl": [4.6, 4.6], "screw_rr_x": 6.5, "screw_rr_in": 4.0,
+                        "_comment": "owner 2026-11-24: full 52 x 19 only where the adapter / board / cell sit; the +Y side eases (two tangent R17.5 arcs) to 38 behind the motor; R8 rear corners; one parting line at z 15 (cap lid 3.5), R2 top / bottom edges"}},
+    "board_front": {"x0": 40.0, "l": 20.5, "w": 28.9, "cell_dx": 0.5, "usb_x": 9.0, "button_x": 15.5,
+                    "_comment": "A: board (same chip set, new outline 20.5 x 28.9) + crosswise cell in the full-width front zone beside the cartridge"},
     "receiver": {"bore_d": 13.3, "entry_deg": 90.0, "lock_deg": 0.0, "sector_deg": 90.0,
                  "_comment": "A: inserted with the adapter long axis at 90 deg (lugs at +-Z), turned clockwise to the stop with the lugs on the long axis (+-Y); full lug-groove ring (fits the 19 mm height); bore for the nose OD 13 + 0.3"}
    },

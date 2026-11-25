@@ -1,4 +1,4 @@
-"""Shared geometry of the CART main board (variants A and B share it). TEST PROJECT, water only.
+"""Shared geometry of the CART main board of variant B (57.0 x 10.6; variant A has its own 20.5 x 28.9 board since 2026-11-25). TEST PROJECT, water only.
 
 Board frame (KiCad orientation, as the cup board): bx = mechanics x (0 = west end, motor / wire end; 57 = east end, cartridge cap end),
 by = W - mechanics y, i.e. by = 0 is the NORTH edge (USB-C wall side) and by grows toward the south edge. Source of every number:
@@ -17,7 +17,7 @@ import math
 import os
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-IFACE = json.load(open(os.path.join(HERE, "..", "..", "..", "mechanical", "out", "v010-cart", "board", "cart_board_interface.json")))
+IFACE = json.load(open(os.path.join(HERE, "..", "..", "..", "mechanical", "out", "v010-cart", "board", "cart_board_B_interface.json")))
 L, W = IFACE["outline_mm"]
 BOARD_T = IFACE["thickness_mm"]
 TOP_LIMIT = IFACE["parts_height_max_mm"]["top"]
@@ -35,7 +35,7 @@ def b(x: float, y: float) -> tuple[float, float]:
     return (x, W - y)
 
 
-SUPPORT_PADS = [(*b(x, y), d) for x, y, d in IFACE["support_pads_part_free_both_faces"]["xy_A"]]   # A and B are identical
+SUPPORT_PADS = [(*b(x, y), d) for x, y, d in IFACE["support_pads_part_free_both_faces"]["xy"]]
 _r = IFACE["lid_rib_pad_top_face"]
 LID_RIB = (_r["x"][0], W - _r["y"][1], _r["x"][1], W - _r["y"][0])   # part-free on the TOP face
 
