@@ -8,7 +8,7 @@
  "BUZ_A": "B8",
  "CHG_STAT": "G8",
  "DOCK_N": "D8",
- "I2C_SCL": "H5",
+ "I2C_SCL": "C6",
  "I2C_SDA": "F3",
  "LATCH_Q": "C8",
  "LED_B": "D2",

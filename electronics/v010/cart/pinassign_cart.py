@@ -18,6 +18,9 @@ import netlist_v4 as N  # noqa: E402
 from netlist_cart import HJ_SIGNALS  # noqa: E402
 
 RING_PEN = {0: 0.0, 1: 0.6, 2: 4.0, 3: 6.0}
+# routing decision 2026-11-25: H5 (west row, next to the USB-C shield slot) had no escape left on any layer; I2C_SCL moved to the free inner
+# pad C6 (P0.13, filled via in the pad on the 6-layer board), which the router connected at once
+OVERRIDE = {"I2C_SCL": "C6"}
 ROW_B_PEN = 1.0
 
 
@@ -58,6 +61,10 @@ def main() -> None:
                 if cost(a) < cost(cur) - 1e-9:
                     cur, improved = a, True
                     free.remove(f); free.append(old)
+    for sig, pad in OVERRIDE.items():
+        other = [s_ for s_, p_ in cur.items() if p_ == pad]
+        assert not other, (sig, pad, other)
+        cur[sig] = pad
     rings = {}
     for s, p in cur.items():
         rings.setdefault(ring(p), []).append(p)

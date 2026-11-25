@@ -24,8 +24,10 @@ import pcbnew
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
-POWERNETS = ("VCELL", "VBAT", "VMOT", "VMOT_PRE", "BST_SW", "MOT_A1", "MOT_A2", "MOT_B1", "MOT_B2")      # same as build_cart.POWERNETS
+POWERNETS = ("VCELL", "VBAT", "VMOT", "VMOT_PRE", "BST_SW")      # same as build_cart.POWERNETS
 PW = 0.30
+MOTORNETS = ("MOT_A1", "MOT_A2", "MOT_B1", "MOT_B2")
+MW = 0.20
 
 T, MM = pcbnew.ToMM, pcbnew.FromMM
 G = 0.05                     # grid (mm)
@@ -48,7 +50,7 @@ IN1_COST = 2.0               # In1 steps cost twice as much: used only where the
 
 
 def width_of(net):
-    return PW if net in POWERNETS else 0.10
+    return PW if net in POWERNETS else (MW if net in MOTORNETS else 0.10)
 
 
 class Grid:
@@ -110,7 +112,7 @@ class Router:
         self.g = Grid(b)
         self.netcode = {}
         # owner grids per track width class: 0 free, >0 net code, -1 blocked
-        self.own = {w: np.zeros((len(LAYERS), self.g.nx, self.g.ny), np.int32) for w in (0.10, PW)}
+        self.own = {w: np.zeros((len(LAYERS), self.g.nx, self.g.ny), np.int32) for w in (0.10, MW, PW)}
         self.viablock = np.zeros((self.g.nx, self.g.ny), bool)
         self.cu = np.zeros((len(LAYERS), self.g.nx, self.g.ny), np.int32)     # actual copper: net code, -1 = copper without net
         self._edges()

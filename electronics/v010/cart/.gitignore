@@ -14,3 +14,5 @@ cart_*.kicad_pro
 cart_f*.kicad_pcb
 cart_f*_drc*.json
 cart_tryB*
+cart_try6*
+cart_s*.kicad_p*

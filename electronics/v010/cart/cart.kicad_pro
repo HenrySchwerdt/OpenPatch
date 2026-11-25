@@ -269,7 +269,7 @@
     "pinned_symbol_libs": []
   },
   "meta": {
-    "filename": "cart.kicad_pro",
+    "filename": "cart_try6.kicad_pro",
     "version": 3
   },
   "net_settings": {
@@ -288,6 +288,25 @@
         "priority": 2147483647,
         "schematic_color": "rgba(0, 0, 0, 0.000)",
         "track_width": 0.1,
+        "tuning_profile": "",
+        "via_diameter": 0.4,
+        "via_drill": 0.2,
+        "wire_width": 6
+      },
+      {
+        "bus_width": 12,
+        "clearance": 0.1,
+        "diff_pair_gap": 0.2,
+        "diff_pair_via_gap": 0.25,
+        "diff_pair_width": 0.2,
+        "line_style": 0,
+        "microvia_diameter": 0.3,
+        "microvia_drill": 0.1,
+        "name": "Motor",
+        "pcb_color": "rgba(0, 0, 0, 0.000)",
+        "priority": 1,
+        "schematic_color": "rgba(0, 0, 0, 0.000)",
+        "track_width": 0.2,
         "tuning_profile": "",
         "via_diameter": 0.4,
         "via_drill": 0.2,
@@ -340,19 +359,19 @@
         "pattern": "BST_SW"
       },
       {
-        "netclass": "Power",
+        "netclass": "Motor",
         "pattern": "MOT_A1"
       },
       {
-        "netclass": "Power",
+        "netclass": "Motor",
         "pattern": "MOT_A2"
       },
       {
-        "netclass": "Power",
+        "netclass": "Motor",
         "pattern": "MOT_B1"
       },
       {
-        "netclass": "Power",
+        "netclass": "Motor",
         "pattern": "MOT_B2"
       }
     ]
@@ -374,8 +393,8 @@
     "legacy_lib_list": [],
     "top_level_sheets": [
       {
-        "filename": "cart.kicad_sch",
-        "name": "cart",
+        "filename": "cart_try6.kicad_sch",
+        "name": "cart_try6",
         "uuid": "00000000-0000-0000-0000-000000000000"
       }
     ]

@@ -28,7 +28,7 @@
 //! | G3  | P0.12 | `SUP_NRST` | io, OPEN DRAIN ONLY (never push-pull high): pulls the supervisor NRST low |
 //! | F8  | P0.29 | `MOT_FWD`  | out: forward intent, HIGH = forward (pull-up: reset default = forward = blocked when undocked) |
 //! | C1  | P0.25 | `BTN_N`    | in: side button, internal pull-up |
-//! | H5  | P0.08 | `I2C_SCL`  | TWIM: TMAG5273 (rear strip), 4.7 k pull-ups, 100 kHz |
+//! | C6  | P0.13 | `I2C_SCL`  | TWIM: TMAG5273 (rear strip), 4.7 k pull-ups, 100 kHz |
 //! | F3  | P0.11 | `I2C_SDA`  | TWIM |
 //! | F7  | P0.30 | `ARM_CLK`  | out: rising edge sets the latch and arms the supervisor, 100 k pull-down |
 //! | E8  | P0.03 | `MCU_EN`   | out: hardware leg of the motor enable (3-input AND `LATCH_Q` & `SUP_PERMIT` & `MCU_EN`), 100 k pull-down |
@@ -117,7 +117,7 @@ macro_rules! cup_pins {
             sup_nrst: $p.P0_12.into(),
             mot_fwd: $p.P0_29.into(),
             button: $p.P0_25.into(),
-            i2c_scl: $p.P0_08.into(),
+            i2c_scl: $p.P0_13.into(),
             i2c_sda: $p.P0_11.into(),
             arm_clk: $p.P0_30.into(),
             mcu_en: $p.P0_03.into(),

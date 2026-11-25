@@ -38,8 +38,10 @@ def _load(self, lib, nm):
 Board.load_fp = _load
 LAYERS = int(os.environ.get("OP_LAYERS", "4"))
 bl.TRACK, bl.CLEAR, bl.VIA_D, bl.VIA_H = 0.10, 0.10, 0.40, 0.20
-POWERNETS = ("VCELL", "VBAT", "VMOT", "VMOT_PRE", "BST_SW", "MOT_A1", "MOT_A2", "MOT_B1", "MOT_B2")
+POWERNETS = ("VCELL", "VBAT", "VMOT", "VMOT_PRE", "BST_SW")           # cell -> boost -> load switch -> drivers: 0.30 mm (review M5)
 POWER_W = 0.30
+MOTORNETS = ("MOT_A1", "MOT_A2", "MOT_B1", "MOT_B2")                  # coil phases (NFP-608, about 0.1-0.2 A): 0.20 mm
+MOTOR_W = 0.20
 # 6 layers: JLC fills and caps vias in pads at no extra cost (POFV, pre-order review M8), so the HJ-840 ring >= 1 pads and the two USB D-
 # pads (A7 / B7, D+ / D- alternate in the pad row) get a via in the pad, as on the cup board; 4 layers: dog-bones, no via in any pad
 POFV = os.environ.get("OP_POFV", "1" if LAYERS == 6 else "0") == "1"
@@ -228,6 +230,17 @@ def main():
     b.text("TEST ONLY - NOT FOR HUMAN USE - WATER ONLY", 40.0, 9.9, 0.5, layer=pcbnew.B_SilkS, mirror=True, thick=0.08)
     b.text("OPENPATCH CART v0.1", 23.0, 0.6, 0.5, thick=0.08)
     b.rules(power_nets=POWERNETS, power_w=POWER_W, track=0.10)
+    ns = b.b.GetDesignSettings().m_NetSettings
+    mc = pcbnew.NETCLASS("Motor")
+    mc.SetClearance(MM(0.10)); mc.SetTrackWidth(MM(MOTOR_W)); mc.SetViaDiameter(MM(0.40)); mc.SetViaDrill(MM(0.20))
+    ns.SetNetclass("Motor", mc)
+    for n in MOTORNETS:
+        ns.SetNetclassPatternAssignment(n, "Motor")
+    # full (not thermal) zone connection where the spokes starve: USB shield tabs (slots in a narrow web), ESD GND pin
+    for ref, num in (("JU1", "S"), ("UU1", "2")):
+        for pd in fps[ref].Pads():
+            if pd.GetNumber() == num:
+                pd.SetLocalZoneConnection(pcbnew.ZONE_CONNECTION_FULL)
     d = b.b.GetDesignSettings()
     d.m_CopperEdgeClearance = MM(0.2); d.m_MinThroughDrill = MM(0.2); d.m_ViasMinSize = MM(0.4); d.m_HoleToHoleMin = MM(0.25); d.m_TrackMinWidth = MM(0.1)
     bad = 0
@@ -250,6 +263,9 @@ def main():
     write_project(os.path.join(HERE, NAME + ".kicad_pro"), POWERNETS, POWER_W, track=0.10, edge=0.2, clear=0.10)
     pj = os.path.join(HERE, NAME + ".kicad_pro"); dd = json.load(open(pj)); r = dd["board"]["design_settings"]["rules"]
     r.update(min_through_hole_diameter=0.2, min_via_diameter=0.4, min_track_width=0.1, min_hole_to_hole=0.25, min_hole_clearance=0.2, min_via_annular_width=0.1)
+    cl = dd["net_settings"]["classes"]
+    cl.append(dict(cl[0], name="Motor", track_width=MOTOR_W, priority=1))
+    dd["net_settings"]["netclass_patterns"] += [{"netclass": "Motor", "pattern": n} for n in MOTORNETS]
     json.dump(dd, open(pj, "w"), indent=2)
     print(NAME, "written", len(b.parts), "parts,", LAYERS, "layers")
 

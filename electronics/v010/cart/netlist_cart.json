@@ -30,7 +30,7 @@
    "B8": "BUZ_A",
    "G8": "CHG_STAT",
    "D8": "DOCK_N",
-   "H5": "I2C_SCL",
+   "C6": "I2C_SCL",
    "F3": "I2C_SDA",
    "C8": "LATCH_Q",
    "D2": "LED_B",
