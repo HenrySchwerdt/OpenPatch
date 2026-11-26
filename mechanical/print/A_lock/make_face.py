@@ -156,7 +156,7 @@ BOSS_UV = ([(35.1 - HOLLOW_UP, 6.5), (33.9 - HOLLOW_UP, 5.5), (34.3 - HOLLOW_UP,
            + _curve_uv[::-1] + [(35.1 - HOLLOW_UP, 15.1)])
 RAISE_DEPTH = 2.4          # FACE3 test (owner, A = B = 2 mm gap at 4.3): raised parts ~2.3 high, 0.1 play
 BOSS_SWEEP_DEG, BOSS_SWEEP_STEP = 45.0, 1.0   # front end of the boss near wall leaves the outline only after ~38 deg
-HOLLOW_ROUND = 2.0         # rim of the boss hollow rounds over and curves down (owner; at the far-left corner: high, then round down, no groove)
+HOLLOW_ROUND = 2.0         # convex round-over (bull-nose) of the edge from the face into the hollow (owner: 'ein Kreis nach oben')
 NOTCH_LOCK_X = 35.9        # lock notch at the far end, front side: from here to the far edge (photo)
 NOTCH_LOCK_Y = (-6.7, -2.5)   # runs into the hollow so no thin pillar is left between them (owner)
 NOTCH_LOCK_DEPTH = 5.0
@@ -183,15 +183,17 @@ def band_cut() -> object:
 
 
 def hollow_slices() -> list[tuple[float, float, float]]:
-    """(top depth, bottom depth, inset) slices of the boss hollow: its rim rounds over and curves down
-    (owner 2026-11-26), a quarter circle of HOLLOW_ROUND, vertical below."""
-    out, n = [], 12
+    """(top depth, bottom depth, grow) slices of the boss hollow. Owner 2026-11-26: the edge from the face into
+    the hollow is a convex quarter circle bulging upwards (bull-nose), "genau andersrum" than the concave scoop of
+    the first try. grow = how far the opening is widened beyond the boss outline at that depth."""
+    D, R, n = RAISE_DEPTH, min(HOLLOW_ROUND, RAISE_DEPTH), 12
+    out = []
     for j in range(n):
-        d0, d1 = HOLLOW_ROUND * j / n, HOLLOW_ROUND * (j + 1) / n
+        d0, d1 = R * j / n, R * (j + 1) / n
         dm = (d0 + d1) / 2
-        inset = HOLLOW_ROUND - math.sqrt(max(0.0, HOLLOW_ROUND ** 2 - dm ** 2))
-        out.append((d0, d1, inset))
-    out.append((HOLLOW_ROUND, RAISE_DEPTH, HOLLOW_ROUND))
+        out.append((d0, d1, R - math.sqrt(max(0.0, R * R - (R - dm) ** 2))))
+    if D > R:
+        out.append((R, D, 0.0))
     return out
 
 
@@ -207,8 +209,8 @@ def face() -> object:
         for d0, d1, inset in hollow_slices():
             with BuildSketch(Plane.XY.offset(FACE_Z - d1)) as hs:
                 Polygon(*uv(BOSS_UV), align=None)
-                # the rounding grows the opening outwards, so the floor keeps the boss's full footprint
-                offset(amount=CLEAR + (HOLLOW_ROUND - inset), mode=Mode.REPLACE)
+                # bull-nose edge: the top slices are a little wider, the floor keeps the boss outline + clearance
+                offset(amount=CLEAR + inset, mode=Mode.REPLACE)
             extrude(hs.sketch, amount=d1 - d0 + (1.0 if d0 == 0 else 0.0), mode=Mode.SUBTRACT)
         # FACE1 test 2026-11-26: the adapter stuck ~15 deg before the end, the boss's inner wall ran into the
         # face next to the hollow. Clear what the boss sweeps over the last part of the clockwise turn (before
