@@ -45,6 +45,8 @@ OUT = HERE / "pucks"
 
 FACE_Z = 9.0               # mating face height (same as the pucks)
 RECESS = 4.3               # adapter far half is raised ~4 (ruler) / ~3.4 (photo), plus clearance
+OUT_NEAR = 11.2            # pump end: bore centre to the near end (photo)
+BORE_OFFSET_Y = 0.4        # bore centre sits this much towards the silver side (photo)
 CUP_U = 11.5               # cup centre from the adapter's near end (ruler 11-11.5, photo 11.9)
 WIDTH = 19.0
 RAMP_U0 = 20.6             # adapter face starts to rise here (photo p24)
@@ -88,12 +90,13 @@ def rounded_polygon(pts: list[tuple[float, float, float]], seg: int = 10) -> lis
 
 
 def outline() -> list[tuple[float, float]]:
-    """Pump end outline, measured on the owner's two pump-end photos (2026-11-26, edge traces, 49 x 19). Not a
-    rounded rectangle: the corners on the silver (entry, +Y) side are much rounder than on the black front side.
-    Corner radii (two photos averaged): bore end/front 3.0, bore end/silver 7.5, far end/silver 5.5,
-    far end/front 2.5."""
-    x0, x1, h = -CUP_U, 49.0 - CUP_U, WIDTH / 2
-    return rounded_polygon([(x0, -h, 3.0), (x1, -h, 2.5), (x1, h, 5.5), (x0, h, 7.5)], seg=16)
+    """Pump end outline, fitted to the owner's pump-end photo (2026-11-26) with its tilt (3.4 deg) and scale
+    (14.65 px/mm) taken out. Not a rounded rectangle: the corners on the silver (entry, +Y) side are much rounder
+    than on the black front side, and the bore sits ~0.4 mm towards the silver side and 11.2 from the near end.
+    Corner radii: bore end/front 2.0, bore end/silver 7.0, far end/silver 5.5, far end/front 2.7."""
+    x0, x1 = -OUT_NEAR, 49.0 - OUT_NEAR
+    yf, ys = -(WIDTH / 2 + BORE_OFFSET_Y), WIDTH / 2 - BORE_OFFSET_Y
+    return rounded_polygon([(x0, yf, 2.0), (x1, yf, 2.7), (x1, ys, 5.5), (x0, ys, 7.0)], seg=16)
 
 
 # adapter pocket at the tube end, traced from photo p26 (u, v), open on the +Y edge; the hook-shaped lobe at
@@ -128,7 +131,7 @@ BAND_W = 1.6               # raised wall along the adapter's entry-side edge (p2
 # Owner 2026-11-26: it does not reach the far end on the left (front) side; there the pump face stays at full
 # height and the boundary curves gently round (pump photo: the high wall left of the window ring). Smooth curve
 # through these pump-photo points (X, Y), converted to (u, v) = (X + CUP_U, W/2 - Y).
-FAR_LEFT_CURVE_XY = [(23.5, -5.6), (27.0, -5.9), (30.0, -5.4), (33.0, -3.9), (35.5, -1.8), (37.6, 0.2), (40.0, 2.5)]
+FAR_LEFT_CURVE_XY = [(23.6, -5.6), (25.3, -5.6), (30.4, -6.1), (34.5, -5.5), (36.7, -4.2), (38.5, -2.0), (40.0, 0.0)]  # traced on the photo (tilt removed)
 
 
 def smooth(points: list[tuple[float, float]], per_seg: int = 8) -> list[tuple[float, float]]:
@@ -149,15 +152,19 @@ _curve_uv = [(x + 11.5, 9.5 - y) for x, y in smooth(FAR_LEFT_CURVE_XY)]
 BOSS_UV = ([(35.1, 6.5), (33.9, 5.5), (34.3, 2.6), (36.0, 1.2), (36.0, -2.0), (55.0, -2.0), (55.0, 8.0)]
            + _curve_uv[::-1] + [(35.1, 15.1)])
 RAISE_DEPTH = 4.3          # raised parts ~3.4 (photo) .. 4 (ruler) high, + clearance
-SWEEP_STEP_DEG = 1.5
+HOLLOW_ROUND = 2.0         # rim of the boss hollow rounds over and curves down (owner)
+NOTCH_LOCK_X = 35.9        # lock notch at the far end, front side: from here to the far edge (photo)
+NOTCH_LOCK_Y = (-6.7, -4.0)
+NOTCH_LOCK_DEPTH = 5.0
+LOCK_POCKET_X = (24.0, 26.2)   # pocket for the lock at the top of the curved left side of the hollow (photo zoom)
+LOCK_POCKET_Y = (-7.7, -5.0)
 LATCH_X = (15.0, 20.5)     # latch groove along the strip wall (X from the cup axis), estimated from the owner's mark
 LATCH_Z = (0.8, 3.8)       # below the face: 0.8 roof on top, 3.0 tall
 LATCH_DEPTH = 1.2          # into the wall (towards -Y)
 
 
-def raised_cut() -> object:
-    """Space the adapter's raised parts take in the locked position (+clearance): band with its 45 deg ramp,
-    and the hook boss."""
+def band_cut() -> object:
+    """Strip for the adapter's thin entry-side wall: one flat 45 deg ramp, then 4.3 deep to the far end."""
     x_s = RAMP_U0 - CUP_U - CLEAR
     y_in = WIDTH / 2 - BAND_W - CLEAR
     prof = [(x_s, FACE_Z + 1), (x_s, FACE_Z), (x_s + RAISE_DEPTH, FACE_Z - RAISE_DEPTH),
@@ -167,30 +174,50 @@ def raised_cut() -> object:
         with BuildSketch(Plane.XZ.offset(-y_out)) as sk:    # Plane.XZ normal is -Y: this sits at Y = y_out
             Polygon(*prof, align=None)
         extrude(sk.sketch, amount=y_out - y_in)             # towards -Y, down to y_in
-        with BuildSketch(Plane.XY.offset(FACE_Z - RAISE_DEPTH)) as bs:
-            Polygon(*uv(BOSS_UV), align=None)
-            offset(amount=CLEAR, mode=Mode.REPLACE)
-        extrude(bs.sketch, amount=RAISE_DEPTH + 1)
     return c.part
 
 
+def hollow_slices() -> list[tuple[float, float, float]]:
+    """(top depth, bottom depth, inset) slices of the boss hollow: its rim rounds over and curves down
+    (owner 2026-11-26), a quarter circle of HOLLOW_ROUND, vertical below."""
+    out, n = [], 12
+    for j in range(n):
+        d0, d1 = HOLLOW_ROUND * j / n, HOLLOW_ROUND * (j + 1) / n
+        dm = (d0 + d1) / 2
+        inset = HOLLOW_ROUND - math.sqrt(max(0.0, HOLLOW_ROUND ** 2 - dm ** 2))
+        out.append((d0, d1, inset))
+    out.append((HOLLOW_ROUND, RAISE_DEPTH, HOLLOW_ROUND))
+    return out
+
+
 def face() -> object:
-    """Pump end face: flat, lock in the bore, and the lowered areas the adapter's raised parts swing into
-    (clockwise from +Y, the right side seen from the pump end)."""
-    cut = raised_cut()
+    """Pump end face: flat, lock in the bore, the lowered strip and hollow for the adapter's raised parts,
+    the latch groove and the lock notch."""
     with BuildPart() as p:
         with BuildSketch():
             Polygon(*outline(), align=None)
         extrude(amount=FACE_Z)
-        n = int(round((TURN_DEG + ENTRY_MARGIN) / SWEEP_STEP_DEG))
-        for k in range(n + 1):
-            add(cut.rotate(Axis.Z, k * SWEEP_STEP_DEG), mode=Mode.SUBTRACT)
+        add(band_cut(), mode=Mode.SUBTRACT)
+        # hollow for the hook boss: the opening matches the owner's red circle, the rim curves down into it
+        for d0, d1, inset in hollow_slices():
+            with BuildSketch(Plane.XY.offset(FACE_Z - d1)) as hs:
+                Polygon(*uv(BOSS_UV), align=None)
+                offset(amount=CLEAR - inset, mode=Mode.REPLACE)
+            extrude(hs.sketch, amount=d1 - d0 + (1.0 if d0 == 0 else 0.0), mode=Mode.SUBTRACT)
         # rectangular groove going into the side wall of the entry-edge strip (owner 2026-11-26, marked on the
-        # render): the adapter's wall latches into it at the end of the turn. Closed on top, so it is a real
-        # undercut; the adapter slides in sideways while turning, not from above.
+        # render): the adapter's wall latches into it at the end of the turn. Closed on top (real undercut).
         wall_y = WIDTH / 2 - BAND_W - CLEAR
         with Locations(((LATCH_X[0] + LATCH_X[1]) / 2, wall_y - LATCH_DEPTH / 2 + 0.2, FACE_Z - LATCH_Z[1])):
             Box(LATCH_X[1] - LATCH_X[0], LATCH_DEPTH + 0.4, LATCH_Z[1] - LATCH_Z[0],
+                align=(Align.CENTER, Align.CENTER, Align.MIN), mode=Mode.SUBTRACT)
+        # notch for the lock at the far end, front side (owner: "Aussparung fuer einen Lock links unten";
+        # pump photo: where the curved high wall meets the far edge)
+        with Locations(((NOTCH_LOCK_X + 49.0 - OUT_NEAR) / 2 + 1.0, sum(NOTCH_LOCK_Y) / 2, FACE_Z - NOTCH_LOCK_DEPTH)):
+            Box(49.0 - OUT_NEAR - NOTCH_LOCK_X + 2.0, NOTCH_LOCK_Y[1] - NOTCH_LOCK_Y[0], NOTCH_LOCK_DEPTH + 1,
+                align=(Align.CENTER, Align.CENTER, Align.MIN), mode=Mode.SUBTRACT)
+        # pocket for the lock where the curved left side of the hollow starts (pump photo, bottom left)
+        with Locations((sum(LOCK_POCKET_X) / 2, sum(LOCK_POCKET_Y) / 2, FACE_Z - RAISE_DEPTH)):
+            Box(LOCK_POCKET_X[1] - LOCK_POCKET_X[0], LOCK_POCKET_Y[1] - LOCK_POCKET_Y[0], RAISE_DEPTH + 1,
                 align=(Align.CENTER, Align.CENTER, Align.MIN), mode=Mode.SUBTRACT)
         lock_cuts(mp.FINAL_BORE, mp.FINAL_LIP)
     return p.part
