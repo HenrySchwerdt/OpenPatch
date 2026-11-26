@@ -14,6 +14,8 @@ from __future__ import annotations
 
 import copy
 import math
+import os
+from pathlib import Path
 
 from op_cmds import Script
 
@@ -35,6 +37,8 @@ def part_names(p: dict) -> list[str]:
         names = [n for n in PART_NAMES if n != "lock_flag"]
     if p["cart"].get("drive_type") == "yoke":
         names = [n for n in names if n != "slider"] + ["yoke", "stem"]
+    if p["cart"].get("front_module"):
+        names = [n for n in names if not n.startswith("adapter_") and n != "tubing"] + ["front_module", "needle"]
     return names
 
 
@@ -228,7 +232,8 @@ def geometry(p: dict) -> dict:
     yh = collar_y1 + 0.1 + lk["hall_pkg"][1] / 2
     if flat:                                                  # magnet bonded in the adapter underside near its tubing end, hall behind the front plate
         yh = ad_y[1] - lk["flat_mag_from_end"]
-    L["lock"] = {"hall_x": [x_front - w - bed - 0.1 - lk["hall_pkg"][0], x_front - w - bed - 0.1], "hall_y": yh,
+    x_hall1 = x_front - (c["front_module"]["depth"] + 0.2 if c.get("front_module") else w + bed + 0.1)     # behind the front module (A)
+    L["lock"] = {"hall_x": [x_hall1 - lk["hall_pkg"][0], x_hall1], "hall_y": yh,
                  "magnet_r": round(yh - y_c, 3)}
     L["empty"] = {"slider": [x_sl0 + stroke, x_sl0 + sl_len + stroke], "pusher": [x_pu0 + stroke, x_pu1 + stroke],
                   "stopper": [x_st0 + stroke, x_st1 + stroke], "rod": [x_sl0 + stroke, x_pu0 + stroke]}
@@ -303,6 +308,8 @@ def build_insight_flat(s: Script, p: dict, L: dict) -> None:
     end face (long axis along Y when locked), a short connector cylinder under its connector-side end goes into the receiver bore (needle on the septum,
     two lugs, about 90 deg clockwise turn), tubing leaves the other narrow end. Envelope ESTIMATE from the manual renders (pump 52 x 19 as the scale)."""
     c = p["cart"]
+    if c.get("front_module"):                                 # A since 2026-11-26: adapter dummy derived from the tested face, built in build_front_module
+        return
     ca, ad, rc = c["cartridge"], c["adapter"], c["receiver"]
     yc, zc, xs = L["y_c"], L["zc"], L["x_seat"]
     y0, y1 = L["adapter_y"]
@@ -910,4 +917,22 @@ def build(p: dict) -> tuple[Script, dict]:
     build_drive(s, p, L)
     build_electronics(s, p, L)
     build_button(s, p, L)
+    build_front_module(s, p, L)
     return s, L
+
+
+def build_front_module(s: Script, p: dict, L: dict) -> None:
+    """A: the tested FACE4 lock face (print/A_lock/make_face.py --module), placed on the housing front as a real body."""
+    fm = p["cart"].get("front_module")
+    if not fm:
+        return
+    import subprocess
+    here = Path(__file__).resolve().parent
+    out = here / "out" / "v010-cart" / "A" / "print"
+    py = here.parent / ".venv" / "bin" / "python"
+    subprocess.run([str(py), "make_face.py", "--module", str(out), "--at", f"{L['length']},{L['y_c']},{L['zc']}"],
+                   cwd=here / "print" / "A_lock", check=True, capture_output=True)
+    for f, nm in (("cart_A_front_module_placed.step", "front_module"), ("cart_A_adapter_dummy_placed.step", "adapter"),
+                  ("cart_A_needle_placed.step", "needle")):
+        s.add("file.insert_step", path=os.path.relpath(out / f, here))
+        s.add("body.rename", body="COMPOUND", name=nm)

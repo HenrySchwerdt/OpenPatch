@@ -300,6 +300,47 @@ def lock_cuts(bore: float, lip: float) -> None:
         Cone(mp.LUG_OD / 2, bore / 2, cone_h, align=(Align.CENTER, Align.CENTER, Align.MIN), mode=Mode.SUBTRACT)
 
 
+ADAPTER_T = 9.5            # adapter body thickness above the face (photo estimate 9-10; measure)
+CUP_OD, CUP_ID, CUP_LEN = 11.25, 8.4, 4.9   # adapter cup (ruler 11-11.5; ID photo; 5 above the face incl. the ~1 seal ring in its 1.1 recess)
+NEEDLE_D, NEEDLE_LEN = 0.6, 3.5            # needle from the cup floor (adapter face) into the cartridge septum (ESTIMATE; measure)
+
+
+def adapter_dummy() -> tuple[object, object]:
+    """Original Insight adapter in the LOCKED position, derived from the tested face: body over the face, its raised parts filling the
+    lowered areas (0.1 short), cup with the two lugs turned 90 deg clockwise into the undercut, seal ring in its recess; needle separate."""
+    from build123d import Solid
+    top = FACE_Z
+    face_part = face()
+    with BuildPart() as a:
+        with BuildSketch(Plane.XY.offset(top)):
+            Polygon(*outline(), align=None)
+        extrude(amount=ADAPTER_T)
+        with BuildPart(mode=Mode.PRIVATE) as fill:            # raised parts: the space the face leaves above its lowered floor
+            with BuildSketch(Plane.XY.offset(top - RAISE_DEPTH + 0.1)):
+                Polygon(*outline(), align=None)
+                offset(amount=-0.15, mode=Mode.REPLACE)
+            extrude(amount=RAISE_DEPTH - 0.1)
+            Cylinder(mp.SEAL_D / 2 + 1.0, 20, align=(Align.CENTER, Align.CENTER, Align.CENTER), mode=Mode.SUBTRACT)
+        raised = fill.part - face_part
+        add(raised)
+        with Locations((0, 0, top - CUP_LEN)):                # cup
+            Cylinder(CUP_OD / 2, CUP_LEN, align=(Align.CENTER, Align.CENTER, Align.MIN))
+            Cylinder(CUP_ID / 2, CUP_LEN, align=(Align.CENTER, Align.CENTER, Align.MIN), mode=Mode.SUBTRACT)
+        for sx, w in ((1, 6.5), (-1, 4.5)):                   # lugs, locked: big lug at +X (turned from +Y clockwise)
+            r0 = CUP_OD / 2 - 0.2
+            with Locations((sx * (r0 + 6.4) / 2, 0, top - mp.FINAL_LIP - 1.3)):
+                Box(6.4 - r0, w, 1.2, align=(Align.CENTER, Align.CENTER, Align.MIN))
+        with Locations((0, 0, top - 1.0)):                    # seal ring d15 x 1 in its recess
+            Cylinder(7.5, 1.0, align=(Align.CENTER, Align.CENTER, Align.MIN))
+            Cylinder(CUP_OD / 2, 1.0, align=(Align.CENTER, Align.CENTER, Align.MIN), mode=Mode.SUBTRACT)
+        with Locations((37.8 - 1.0, 0, top + 2.0)):           # tubing stub out of the far end
+            Cylinder(0.9, 9.0, rotation=(0, 90, 0), align=(Align.CENTER, Align.CENTER, Align.MIN))
+    with BuildPart() as n:
+        with Locations((0, 0, top - NEEDLE_LEN)):
+            Cylinder(NEEDLE_D / 2, NEEDLE_LEN, align=(Align.CENTER, Align.CENTER, Align.MIN))
+    return a.part, n.part
+
+
 MODULE_DEPTH = 6.6          # cart pump A front module: lock groove ends 5.6 below the face, lock pocket 5.8, 0.8 floor
 
 
@@ -318,6 +359,18 @@ def main() -> int:
     if module_dir:
         module_dir.mkdir(parents=True, exist_ok=True)
         export_stl(part.translate((-c.X, -c.Y, 0)), str(module_dir / "cart_A_front_module.stl"))
+        if "--at" in sys.argv:                 # placed copy for the cart CAD: face at x_front pointing +x, bore axis at (y_c, zc)
+            from build123d import Location, export_step
+            xf, yc, zc = (float(v) for v in sys.argv[sys.argv.index("--at") + 1].split(","))
+            # proper rotation (keeps the bayonet chirality): module X -> pump +y, Y -> +z, Z -> +x
+            pl = Plane(origin=(xf - MODULE_DEPTH, yc, zc), x_dir=(0, 1, 0), z_dir=(1, 0, 0))
+            placed = part.moved(pl.location)
+            export_step(placed, str(module_dir / "cart_A_front_module_placed.step"))
+            ad, nd = adapter_dummy()
+            export_step(ad.moved(pl.location), str(module_dir / "cart_A_adapter_dummy_placed.step"))
+            export_step(nd.moved(pl.location), str(module_dir / "cart_A_needle_placed.step"))
+            pb = placed.bounding_box()
+            print(f"placed: x {pb.min.X:.2f}..{pb.max.X:.2f}  y {pb.min.Y:.2f}..{pb.max.Y:.2f}  z {pb.min.Z:.2f}..{pb.max.Z:.2f}")
         print(f"cart A front module: {bb.size.X:.1f} x {bb.size.Y:.1f} x {bb.size.Z:.1f} mm -> {module_dir}")
         return 0
     export_stl(part, str(OUT / "face_r6.stl"))

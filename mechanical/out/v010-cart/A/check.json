@@ -16,13 +16,13 @@
  },
  "problems": [],
  "notes": [
-  "housing 63.67 x 49.0 x 19.0 mm; with adapter (tubing stub excluded) 79.77 x 49.3 x 19.0 mm",
+  "housing 63.67 x 49.0 x 19.0 mm; with adapter (tubing stub excluded) 79.77 x 57.0 x 19.0 mm",
   "TARGET: height 19.0 > goal 15.0 (set by the receiver bore / cartridge OD estimate 12.6)",
   "moving parts checked at FULL and EMPTY (stroke 23.07 mm)",
   "stroke 23.07 / avail 23.1 mm; rod 31.27 mm, 5.20 mm behind the nut at EMPTY; slider 0.3 mm off the rear washer at EMPTY",
   "thrust 33.0 N vs need 18.1 N (seal 8.0 ESTIMATE + 150 kPa 10.1 N): 1.83x; stall pressure 492 kPa (Insight max 350)",
   "board outline 20.5 x 28.9 mm = 592.4 mm2 = 1.32x the cup board (449 mm2, 6 layers)",
-  "print kit: 11 STLs in /Users/henryschwerdtner/dev/ai-insulin-pump/.claude/worktrees/cart-a-face4/mechanical/out/v010-cart/A/print",
+  "print kit: 11 STLs in /Users/henryschwerdtner/dev/ai-insulin-pump/mechanical/out/v010-cart/A/print",
   "U/step 0.00152; length set by lane 1: cartridge + stroke + drive"
  ]
 }
