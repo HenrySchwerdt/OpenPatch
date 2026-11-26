@@ -89,16 +89,42 @@ def rounded_polygon(pts: list[tuple[float, float, float]], seg: int = 10) -> lis
     return out
 
 
+FAR_END_CORNER_R = 5.0      # both far-end corners (traced bottom-right corner ~5)
+
+
 def outline() -> list[tuple[float, float]]:
     """Pump end outline = the adapter's outer contour, traced on the owner's top-down adapter photo (2026-11-26):
     both long edges fitted as lines and made parallel (photo rotation and keystone removed), scaled to 49 x 19,
-    mirrored (the adapter face lies face to face on the pump), bottom-left corner taken as the mirror of the
-    bottom-right one (owner: the bottom of the photo is off by perspective, take the right line).
+    mirrored (the adapter face lies face to face on the pump). Owner: the far end is one straight line, the
+    bump seen there is perspective (that side is raised), so beyond X 30 the traced points are replaced by the two
+    long edges, a straight far edge and two equal corner arcs.
     Points in adapter_outline.json (pump X, Y in mm), clipped to the 19 mm width."""
     import json
     pts = json.loads((HERE / "adapter_outline.json").read_text())
     ys, yf = WIDTH / 2 - BORE_OFFSET_Y, -(WIDTH / 2 + BORE_OFFSET_Y)
-    return [(x, min(ys, max(yf, y))) for x, y in pts]
+    pts = [(x, min(ys, max(yf, y))) for x, y in pts]
+    x_cut, x_end, r = 30.0, 49.0 - OUT_NEAR, FAR_END_CORNER_R
+    keep = [x <= x_cut for x, _ in pts]
+    n = len(pts)
+    start = next(i for i in range(n) if keep[i] and not keep[i - 1])      # first kept point after the gap
+    chain = []
+    i = start
+    while keep[i % n] and len(chain) < n:
+        chain.append(pts[i % n]); i += 1
+    # chain runs from one long edge round the near end to the other; close it over the far end
+    y_last = chain[-1][1]
+    side_a, side_b = chain[-1][1], chain[0][1]          # continue the traced long edges without a jog
+    bottom = [(x_cut, side_a), (x_end - r, side_a)]
+    sa = 1 if side_a > 0 else -1
+    for k in range(1, 12):
+        t = k / 12 * math.pi / 2
+        bottom.append((x_end - r + r * math.sin(t), side_a - sa * r + sa * r * math.cos(t)))
+    bottom += [(x_end, side_a - sa * r), (x_end, side_b + sa * r)]
+    for k in range(1, 12):
+        t = k / 12 * math.pi / 2
+        bottom.append((x_end - r + r * math.cos(t), side_b + sa * r - sa * r * math.sin(t)))
+    bottom += [(x_end - r, side_b), (x_cut, side_b)]
+    return chain + bottom
 
 
 # adapter pocket at the tube end, traced from photo p26 (u, v), open on the +Y edge; the hook-shaped lobe at
