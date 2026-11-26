@@ -90,13 +90,15 @@ def rounded_polygon(pts: list[tuple[float, float, float]], seg: int = 10) -> lis
 
 
 def outline() -> list[tuple[float, float]]:
-    """Pump end outline, fitted to the owner's pump-end photo (2026-11-26) with its tilt (3.4 deg) and scale
-    (14.65 px/mm) taken out. Not a rounded rectangle: the corners on the silver (entry, +Y) side are much rounder
-    than on the black front side, and the bore sits ~0.4 mm towards the silver side and 11.2 from the near end.
-    Corner radii: bore end/front 2.0, bore end/silver 7.0, far end/silver 5.5, far end/front 2.7."""
-    x0, x1 = -OUT_NEAR, 49.0 - OUT_NEAR
-    yf, ys = -(WIDTH / 2 + BORE_OFFSET_Y), WIDTH / 2 - BORE_OFFSET_Y
-    return rounded_polygon([(x0, yf, 2.0), (x1, yf, 2.7), (x1, ys, 5.5), (x0, ys, 7.0)], seg=16)
+    """Pump end outline = the adapter's outer contour, traced on the owner's top-down adapter photo (2026-11-26):
+    both long edges fitted as lines and made parallel (photo rotation and keystone removed), scaled to 49 x 19,
+    mirrored (the adapter face lies face to face on the pump), bottom-left corner taken as the mirror of the
+    bottom-right one (owner: the bottom of the photo is off by perspective, take the right line).
+    Points in adapter_outline.json (pump X, Y in mm), clipped to the 19 mm width."""
+    import json
+    pts = json.loads((HERE / "adapter_outline.json").read_text())
+    ys, yf = WIDTH / 2 - BORE_OFFSET_Y, -(WIDTH / 2 + BORE_OFFSET_Y)
+    return [(x, min(ys, max(yf, y))) for x, y in pts]
 
 
 # adapter pocket at the tube end, traced from photo p26 (u, v), open on the +Y edge; the hook-shaped lobe at
