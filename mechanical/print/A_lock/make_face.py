@@ -154,7 +154,7 @@ BOSS_UV = ([(35.1 - HOLLOW_UP, 6.5), (33.9 - HOLLOW_UP, 5.5), (34.3 - HOLLOW_UP,
             (36.0 - HOLLOW_UP, -2.0), (55.0, -2.0), (55.0, 8.0)]
            + _curve_uv[::-1] + [(35.1 - HOLLOW_UP, 15.1)])
 RAISE_DEPTH = 4.3          # raised parts ~3.4 (photo) .. 4 (ruler) high, + clearance
-BOSS_SWEEP_DEG, BOSS_SWEEP_STEP = 30.0, 1.0   # boss enters the outline only in the last ~25 deg
+BOSS_SWEEP_DEG, BOSS_SWEEP_STEP = 45.0, 1.0   # front end of the boss near wall leaves the outline only after ~38 deg
 HOLLOW_ROUND = 1.5         # rim of the boss hollow rounds over and curves down (owner)
 NOTCH_LOCK_X = 35.9        # lock notch at the far end, front side: from here to the far edge (photo)
 NOTCH_LOCK_Y = (-6.7, -4.0)
