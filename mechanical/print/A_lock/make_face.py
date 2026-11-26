@@ -116,42 +116,48 @@ def pocket_r_in() -> float:
 ENTRY_MARGIN = 0.0   # the windows fix the entry at exactly 90 deg
 
 
-# Owner 2026-11-26 (pump-end photos): the pump end face is flat everywhere except one lowered strip at the
-# bottom right (far end, on the side the adapter comes in from), starting with a 45 deg step about 10-12 mm from
-# the bore. It takes the adapter's raised rib ("links ne Erhoehung, rechts nicht"): a rib along one long edge of
-# the adapter's far half, ramp u 20.6..24.6, ~3.4-4 high (photos p24/p25 + ruler).
-RIB_W = 4.5                # rib width across the adapter (photo estimate), lowered strip gets + clearance
-RIB_DEPTH = 4.3            # rib height ~3.4 (photo) .. 4 (ruler) + clearance
+# Owner 2026-11-26, marked on the pump-end photo: the pump end face is flat; lowered are (1) a round area at the
+# far end around the window and (2) a thin strip along the right (entry) edge from about 10 mm below the bore,
+# joined by a small square where the strip meets the round area. On the adapter these are its raised parts:
+# the hook-shaped boss at the tube end (photo p26 outline, incl. the hook lobe) and the thin wall along the
+# silver-side edge (v 0..1.6) that starts with the 45 deg ramp at u 20.6..24.6 (side photo p24).
+BAND_W = 1.6               # raised wall along the adapter's entry-side edge (p26: boss top boundary at v 1.6)
+BOSS_UV = [(34.8, 21.0), (34.8, 16.9), (35.1, 6.5), (33.9, 5.5), (34.3, 2.6), (36.0, 1.2), (36.0, -2.0),
+           (52.0, -2.0), (52.0, 21.0)]     # hook boss, run past the outline so it merges with the band and edges
+RAISE_DEPTH = 4.3          # raised parts ~3.4 (photo) .. 4 (ruler) high, + clearance
 SWEEP_STEP_DEG = 1.5
 
 
-def rib_cut() -> object:
-    """Solid the adapter's rib occupies in the locked position (+clearance), 45 deg ramp at its inner end."""
+def raised_cut() -> object:
+    """Space the adapter's raised parts take in the locked position (+clearance): band with its 45 deg ramp,
+    and the hook boss."""
     x_s = RAMP_U0 - CUP_U - CLEAR
-    y_in = WIDTH / 2 - RIB_W - CLEAR
-    prof = [(x_s, FACE_Z + 1), (x_s, FACE_Z), (x_s + RIB_DEPTH, FACE_Z - RIB_DEPTH), (45, FACE_Z - RIB_DEPTH),
-            (45, FACE_Z + 1)]
+    y_in = WIDTH / 2 - BAND_W - CLEAR
+    prof = [(x_s, FACE_Z + 1), (x_s, FACE_Z), (x_s + RAISE_DEPTH, FACE_Z - RAISE_DEPTH),
+            (45, FACE_Z - RAISE_DEPTH), (45, FACE_Z + 1)]
     with BuildPart() as c:
         y_out = WIDTH / 2 + 3
         with BuildSketch(Plane.XZ.offset(-y_out)) as sk:    # Plane.XZ normal is -Y: this sits at Y = y_out
             Polygon(*prof, align=None)
         extrude(sk.sketch, amount=y_out - y_in)             # towards -Y, down to y_in
+        with BuildSketch(Plane.XY.offset(FACE_Z - RAISE_DEPTH)) as bs:
+            Polygon(*uv(BOSS_UV), align=None)
+            offset(amount=CLEAR, mode=Mode.REPLACE)
+        extrude(bs.sketch, amount=RAISE_DEPTH + 1)
     return c.part
 
 
 def face() -> object:
-    """Pump end face: flat, lock in the bore, and the lowered strip the adapter's rib swings into (clockwise
-    from +Y, the right side seen from the pump end)."""
-    rib = rib_cut()
-    bb = rib.bounding_box()
-    assert bb.min.Y > 0, "rib cut must sit on the +Y side"
+    """Pump end face: flat, lock in the bore, and the lowered areas the adapter's raised parts swing into
+    (clockwise from +Y, the right side seen from the pump end)."""
+    cut = raised_cut()
     with BuildPart() as p:
         with BuildSketch():
             Polygon(*outline(), align=None)
         extrude(amount=FACE_Z)
         n = int(round((TURN_DEG + ENTRY_MARGIN) / SWEEP_STEP_DEG))
         for k in range(n + 1):
-            add(rib.rotate(Axis.Z, k * SWEEP_STEP_DEG), mode=Mode.SUBTRACT)
+            add(cut.rotate(Axis.Z, k * SWEEP_STEP_DEG), mode=Mode.SUBTRACT)
         lock_cuts(mp.FINAL_BORE, mp.FINAL_LIP)
     return p.part
 
