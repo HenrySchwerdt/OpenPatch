@@ -113,48 +113,45 @@ def pocket_r_in() -> float:
     return math.hypot(wall_x, WIDTH / 2)
 
 
-ENTRY_MARGIN = 3.0
+ENTRY_MARGIN = 0.0   # the windows fix the entry at exactly 90 deg
+
+
+# Owner 2026-11-26 (pump-end photos): the pump end face is flat everywhere except one lowered strip at the
+# bottom right (far end, on the side the adapter comes in from), starting with a 45 deg step about 10-12 mm from
+# the bore. It takes the adapter's raised rib ("links ne Erhoehung, rechts nicht"): a rib along one long edge of
+# the adapter's far half, ramp u 20.6..24.6, ~3.4-4 high (photos p24/p25 + ruler).
+RIB_W = 4.5                # rib width across the adapter (photo estimate), lowered strip gets + clearance
+RIB_DEPTH = 4.3            # rib height ~3.4 (photo) .. 4 (ruler) + clearance
+SWEEP_STEP_DEG = 1.5
+
+
+def rib_cut() -> object:
+    """Solid the adapter's rib occupies in the locked position (+clearance), 45 deg ramp at its inner end."""
+    x_s = RAMP_U0 - CUP_U - CLEAR
+    y_in = WIDTH / 2 - RIB_W - CLEAR
+    prof = [(x_s, FACE_Z + 1), (x_s, FACE_Z), (x_s + RIB_DEPTH, FACE_Z - RIB_DEPTH), (45, FACE_Z - RIB_DEPTH),
+            (45, FACE_Z + 1)]
+    with BuildPart() as c:
+        y_out = WIDTH / 2 + 3
+        with BuildSketch(Plane.XZ.offset(-y_out)) as sk:    # Plane.XZ normal is -Y: this sits at Y = y_out
+            Polygon(*prof, align=None)
+        extrude(sk.sketch, amount=y_out - y_in)             # towards -Y, down to y_in
+    return c.part
 
 
 def face() -> object:
-    """Negative of the adapter face in the locked position: plateau around the bore, 45 deg step down where the
-    adapter's far half rises, filled pocket and edge notch."""
-    x_step = RAMP_U0 - CUP_U + CLEAR
+    """Pump end face: flat, lock in the bore, and the lowered strip the adapter's rib swings into (clockwise
+    from +Y, the right side seen from the pump end)."""
+    rib = rib_cut()
+    bb = rib.bounding_box()
+    assert bb.min.Y > 0, "rib cut must sit on the +Y side"
     with BuildPart() as p:
         with BuildSketch():
             Polygon(*outline(), align=None)
         extrude(amount=FACE_Z)
-        # 45 deg step down where the adapter's far half rises (ramp u 20.6..24.6, ~4 high), clearance on top.
-        # The far half swings in clockwise from +Y, so the same step profile is revolved over that quarter
-        # (exact sweep) and closed with a straight step at the entry angle.
-        prof = [(x_step, FACE_Z + 1), (x_step, FACE_Z), (x_step + RECESS, FACE_Z - RECESS), (60, FACE_Z - RECESS),
-                (60, FACE_Z + 1)]
-        with BuildSketch(Plane.XZ) as st:
-            Polygon(*prof, align=None)
-        extrude(st.sketch, amount=15, both=True, mode=Mode.SUBTRACT)
-        revolve(st.sketch, axis=Axis.Z, revolution_arc=TURN_DEG + ENTRY_MARGIN, mode=Mode.SUBTRACT)
-        with BuildSketch(Plane.XZ.rotated((0, 0, TURN_DEG + ENTRY_MARGIN))) as st2:
-            Polygon(*prof, align=None)
-        extrude(st2.sketch, amount=WIDTH / 2 + 1, both=True, mode=Mode.SUBTRACT)
-        # pump material inside the adapter's pocket (shrunk by the clearance, kept inside the outline rim)
-        with BuildSketch(Plane.XY.offset(FACE_Z - RECESS)) as pk:
-            Polygon(*uv(POCKET_UV), align=None)
-            offset(amount=-CLEAR, mode=Mode.REPLACE)
-            with BuildSketch(mode=Mode.PRIVATE) as rim:
-                Polygon(*outline(), align=None)
-                offset(amount=-0.9, mode=Mode.REPLACE)
-            add(rim.sketch, mode=Mode.INTERSECT)
-            # only what can swing in: every point travels on an arc round the cup axis and enters through the
-            # pocket's open (-Y) edge, so the catch is the pocket band between two arcs
-            Circle(pocket_r_in(), mode=Mode.SUBTRACT)
-        extrude(pk.sketch, amount=RECESS - POCKET_FLOOR_PROUD - CLEAR)
-        # rib in the adapter's edge notch (rotation stop on the +Y edge); kept low, notch depth unknown
-        with BuildSketch(Plane.XY.offset(FACE_Z - RECESS)) as rb:
-            u0, u1 = NOTCH_U
-            with Locations(((u0 + u1) / 2 - CUP_U, -(WIDTH / 2 - (NOTCH_DEPTH - CLEAR) / 2 - 0.45))):
-                Rectangle(u1 - u0 - 2 * CLEAR, NOTCH_DEPTH - CLEAR - 0.9)
-            Circle(math.hypot(u0 + CLEAR - CUP_U, WIDTH / 2), mode=Mode.SUBTRACT)   # swings in without hitting
-        extrude(rb.sketch, amount=2.0)
+        n = int(round((TURN_DEG + ENTRY_MARGIN) / SWEEP_STEP_DEG))
+        for k in range(n + 1):
+            add(rib.rotate(Axis.Z, k * SWEEP_STEP_DEG), mode=Mode.SUBTRACT)
         lock_cuts(mp.FINAL_BORE, mp.FINAL_LIP)
     return p.part
 
