@@ -88,10 +88,12 @@ def rounded_polygon(pts: list[tuple[float, float, float]], seg: int = 10) -> lis
 
 
 def outline() -> list[tuple[float, float]]:
-    """Adapter outline seen on the pump face, (u, v) from the photo -> pump X = u - CUP_U, Y = v - WIDTH/2."""
-    uv = [(0.0, 0.0, 2.5), (48.2, 0.0, 3.5), (48.2, 4.6, 0), (49.0, 4.6, 0), (49.0, 11.6, 0), (48.2, 11.6, 0),
-          (48.2, 19.0, 6.5), (0.0, 19.0, 3.0)]
-    return [(u - CUP_U, WIDTH / 2 - v) for u, v in rounded_polygon(uv)]
+    """Pump end outline, measured on the owner's two pump-end photos (2026-11-26, edge traces, 49 x 19). Not a
+    rounded rectangle: the corners on the silver (entry, +Y) side are much rounder than on the black front side.
+    Corner radii (two photos averaged): bore end/front 3.0, bore end/silver 7.5, far end/silver 5.5,
+    far end/front 2.5."""
+    x0, x1, h = -CUP_U, 49.0 - CUP_U, WIDTH / 2
+    return rounded_polygon([(x0, -h, 3.0), (x1, -h, 2.5), (x1, h, 5.5), (x0, h, 7.5)], seg=16)
 
 
 # adapter pocket at the tube end, traced from photo p26 (u, v), open on the +Y edge; the hook-shaped lobe at
@@ -122,10 +124,35 @@ ENTRY_MARGIN = 0.0   # the windows fix the entry at exactly 90 deg
 # the hook-shaped boss at the tube end (photo p26 outline, incl. the hook lobe) and the thin wall along the
 # silver-side edge (v 0..1.6) that starts with the 45 deg ramp at u 20.6..24.6 (side photo p24).
 BAND_W = 1.6               # raised wall along the adapter's entry-side edge (p26: boss top boundary at v 1.6)
-BOSS_UV = [(34.8, 21.0), (34.8, 16.9), (35.1, 6.5), (33.9, 5.5), (34.3, 2.6), (36.0, 1.2), (36.0, -2.0),
-           (52.0, -2.0), (52.0, 21.0)]     # hook boss, run past the outline so it merges with the band and edges
+# Hook boss (p26 outline, incl. the hook lobe), run past the outline on the right so it merges with the band.
+# Owner 2026-11-26: it does not reach the far end on the left (front) side; there the pump face stays at full
+# height and the boundary curves gently round (pump photo: the high wall left of the window ring). Smooth curve
+# through these pump-photo points (X, Y), converted to (u, v) = (X + CUP_U, W/2 - Y).
+FAR_LEFT_CURVE_XY = [(23.5, -5.6), (27.0, -5.9), (30.0, -5.4), (33.0, -3.9), (35.5, -1.8), (37.6, 0.2), (40.0, 2.5)]
+
+
+def smooth(points: list[tuple[float, float]], per_seg: int = 8) -> list[tuple[float, float]]:
+    """Catmull-Rom through the points (end points kept)."""
+    p = [points[0]] + list(points) + [points[-1]]
+    out = []
+    for i in range(1, len(p) - 2):
+        p0, p1, p2, p3 = p[i - 1], p[i], p[i + 1], p[i + 2]
+        for k in range(per_seg):
+            t = k / per_seg
+            out.append(tuple(0.5 * (2 * p1[j] + (-p0[j] + p2[j]) * t + (2 * p0[j] - 5 * p1[j] + 4 * p2[j] - p3[j]) * t * t
+                                    + (-p0[j] + 3 * p1[j] - 3 * p2[j] + p3[j]) * t ** 3) for j in range(2)))
+    out.append(points[-1])
+    return out
+
+
+_curve_uv = [(x + 11.5, 9.5 - y) for x, y in smooth(FAR_LEFT_CURVE_XY)]
+BOSS_UV = ([(35.1, 6.5), (33.9, 5.5), (34.3, 2.6), (36.0, 1.2), (36.0, -2.0), (55.0, -2.0), (55.0, 8.0)]
+           + _curve_uv[::-1] + [(35.1, 15.1)])
 RAISE_DEPTH = 4.3          # raised parts ~3.4 (photo) .. 4 (ruler) high, + clearance
 SWEEP_STEP_DEG = 1.5
+LATCH_X = (15.0, 20.5)     # latch groove along the strip wall (X from the cup axis), estimated from the owner's mark
+LATCH_Z = (0.8, 3.8)       # below the face: 0.8 roof on top, 3.0 tall
+LATCH_DEPTH = 1.2          # into the wall (towards -Y)
 
 
 def raised_cut() -> object:
@@ -158,6 +185,13 @@ def face() -> object:
         n = int(round((TURN_DEG + ENTRY_MARGIN) / SWEEP_STEP_DEG))
         for k in range(n + 1):
             add(cut.rotate(Axis.Z, k * SWEEP_STEP_DEG), mode=Mode.SUBTRACT)
+        # rectangular groove going into the side wall of the entry-edge strip (owner 2026-11-26, marked on the
+        # render): the adapter's wall latches into it at the end of the turn. Closed on top, so it is a real
+        # undercut; the adapter slides in sideways while turning, not from above.
+        wall_y = WIDTH / 2 - BAND_W - CLEAR
+        with Locations(((LATCH_X[0] + LATCH_X[1]) / 2, wall_y - LATCH_DEPTH / 2 + 0.2, FACE_Z - LATCH_Z[1])):
+            Box(LATCH_X[1] - LATCH_X[0], LATCH_DEPTH + 0.4, LATCH_Z[1] - LATCH_Z[0],
+                align=(Align.CENTER, Align.CENTER, Align.MIN), mode=Mode.SUBTRACT)
         lock_cuts(mp.FINAL_BORE, mp.FINAL_LIP)
     return p.part
 
