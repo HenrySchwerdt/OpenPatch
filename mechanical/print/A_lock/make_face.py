@@ -126,6 +126,7 @@ ENTRY_MARGIN = 0.0   # the windows fix the entry at exactly 90 deg
 # joined by a small square where the strip meets the round area. On the adapter these are its raised parts:
 # the hook-shaped boss at the tube end (photo p26 outline, incl. the hook lobe) and the thin wall along the
 # silver-side edge (v 0..1.6) that starts with the 45 deg ramp at u 20.6..24.6 (side photo p24).
+BAND_EXTRA = 2.0           # owner 2026-11-26: start the strip's slope 2 mm earlier (towards the bore) for play
 BAND_W = 1.6               # raised wall along the adapter's entry-side edge (p26: boss top boundary at v 1.6)
 # Hook boss (p26 outline, incl. the hook lobe), run past the outline on the right so it merges with the band.
 # Owner 2026-11-26: it does not reach the far end on the left (front) side; there the pump face stays at full
@@ -169,7 +170,7 @@ LATCH_DEPTH = 1.2          # into the wall (towards -Y)
 
 def band_cut() -> object:
     """Strip for the adapter's thin entry-side wall: one flat 45 deg ramp, then 4.3 deep to the far end."""
-    x_s = RAMP_U0 - CUP_U - CLEAR
+    x_s = RAMP_U0 - CUP_U - CLEAR - BAND_EXTRA
     y_in = WIDTH / 2 - BAND_W - CLEAR
     prof = [(x_s, FACE_Z + 1), (x_s, FACE_Z), (x_s + RAISE_DEPTH, FACE_Z - RAISE_DEPTH),
             (45, FACE_Z - RAISE_DEPTH), (45, FACE_Z + 1)]
