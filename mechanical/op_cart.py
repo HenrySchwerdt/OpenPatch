@@ -261,12 +261,18 @@ def build_cartridge(s: Script, p: dict, L: dict) -> None:
     yc, zc = L["y_c"], L["zc"]
     x0, x1 = L["cart"]
     n1 = L["neck"][1]
-    s.tube("cartridge", "X", (0, yc, zc), ca["od"], ca["id"], x0, x1 - ca["shoulder_inset"])
-    s.cyl("t_cart_sh", "X", (0, yc, zc), ca["od"], x1 - ca["shoulder_inset"] - 0.01, x1)
-    s.cyl("t_cart_neck", "X", (0, yc, zc), ca["neck_od"], x1 - 0.01, n1 - ca["cap_len"] + 0.01)
+    # ISO 13926-1 glass cylinder (1.6 ml row, VERIFIED table): barrel d1/d2 up to x1, rounded shoulder (here a cone) down to the neck d5,
+    # neck, collar d4 x h2 under the aluminium crimp cap (cap OD measured 7.5), septum under the cap's centre hole
+    sh_len = ca.get("shoulder_len", ca["shoulder_inset"])
+    cap0 = n1 - ca["cap_len"]
+    s.tube("cartridge", "X", (0, yc, zc), ca["od"], ca["id"], x0, x1)
+    s.cone("t_cart_sh", "X", (0, yc, zc), ca["od"] / 2, ca["neck_od"] / 2, x1 - 0.01, x1 + sh_len)
+    s.cyl("t_cart_neck", "X", (0, yc, zc), ca["neck_od"], x1 + sh_len - 0.01, cap0 + 0.01)
     s.join("cartridge", ["t_cart_sh", "t_cart_neck"])
-    s.cut("cartridge", [s.cyl("t_cart_nb", "X", (0, yc, zc), ca["neck_id"], x1 - ca["shoulder_inset"] - 0.05, n1 + 0.1)])
-    s.cyl("cart_cap", "X", (0, yc, zc), ca["cap_od"], n1 - ca["cap_len"], n1)                     # aluminium crimp cap + rubber septum (one envelope)
+    s.cut("cartridge", [s.cone("t_cart_shi", "X", (0, yc, zc), ca["id"] / 2, ca["neck_id"] / 2, x1 - 0.01, x1 + sh_len - 0.8),
+                        s.cyl("t_cart_nb", "X", (0, yc, zc), ca["neck_id"], x1 - 0.05, n1 + 0.1)])
+    s.cyl("cart_cap", "X", (0, yc, zc), ca["cap_od"], cap0, n1)                                     # aluminium crimp cap over collar + septum
+    s.cut("cart_cap", [s.cyl("t_cap_hole", "X", (0, yc, zc), ca.get("cap_hole_d", 3.0), n1 - 0.3, n1 + 0.1)])     # septum window in the cap top
     s.cyl("stopper", "X", (0, yc, zc), ca["id"], *L["stopper_full"])
     xa0, xa1 = L["adapter"]
     xf = L["x_front"]
