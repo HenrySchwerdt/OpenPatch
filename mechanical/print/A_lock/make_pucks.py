@@ -36,9 +36,11 @@ UNDERCUT_H = 2.1             # lug 1-1.5 thick + clearance (1.9 was a bit catchy
 TAB_W, TAB_L, TAB_H = 7.0, 6.0, 3.0
 BORES = (11.7, 12.0)
 LIPS = (2.4, 2.9, 3.4)
-SEAL_D, SEAL_DEPTH = 15.6, 0.8   # recess for the adapter's d15 x 1 seal ring so the adapter sits flush
+SEAL_D, SEAL_DEPTH = 15.6, 1.1   # recess for the adapter's d15 x 1 seal ring so the adapter sits flush (0.8 was a bit shallow)
 LUG_FLANK_DEG = 45.0       # lug hook flank is bevelled (owner photos 2026-11-25), lip underside matches
 PITCH = 30.0
+# Final lock (owner 2026-11-26, after PUCK8): bore 12.4, lip 3.5 (PUCK8 lip 3.2 + the extra 0.3 seal depth)
+FINAL_BORE, FINAL_LIP = 12.4, 3.5
 
 
 def puck(bore: float, lip: float, label: str):
