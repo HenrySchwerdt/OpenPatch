@@ -1,7 +1,7 @@
 {
  "dims": [
   64.26,
-  49.0,
+  48.97,
   19.0
  ],
  "thrust": {
@@ -16,7 +16,7 @@
  },
  "problems": [],
  "notes": [
-  "housing 64.26 x 49.0 x 19.0 mm; with adapter (tubing stub excluded) 80.36 x 57.0 x 19.0 mm",
+  "housing 64.26 x 48.97 x 19.0 mm; with adapter (tubing stub excluded) 80.36 x 56.97 x 19.0 mm",
   "TARGET: height 19.0 > goal 15.0 (set by the receiver bore / cartridge OD estimate 12.6)",
   "moving parts checked at FULL and EMPTY (stroke 23.66 mm)",
   "stroke 23.66 / avail 23.7 mm; rod 31.86 mm, 5.20 mm behind the nut at EMPTY; slider 0.3 mm off the rear washer at EMPTY",

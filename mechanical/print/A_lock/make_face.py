@@ -31,6 +31,7 @@ Not modelled yet (needs owner input): the snap latch into the pocket's hook-shap
 """
 from __future__ import annotations
 
+import json
 import math
 import sys
 from pathlib import Path
@@ -102,7 +103,10 @@ def outline() -> list[tuple[float, float]]:
     import json
     pts = json.loads((HERE / "adapter_outline.json").read_text())
     ys, yf = WIDTH / 2 - BORE_OFFSET_Y, -(WIDTH / 2 + BORE_OFFSET_Y)
-    pts = [(x, min(ys, max(yf, y))) for x, y in pts]
+    y_lo, y_hi = min(y for _, y in pts), max(y for _, y in pts)      # stretch the trace to exactly WIDTH (it fell 0.2-0.3 short at one edge)
+    pts = [(x, yf + (y - y_lo) / (y_hi - y_lo) * WIDTH) for x, y in pts]
+    flat = 0.6                                                   # straighten the two long flat faces (trace wiggle up to ~0.5)
+    pts = [(x, yf if y < yf + flat else ys if y > ys - flat else y) for x, y in pts]
     x_cut, x_end, r = 30.0, 49.0 - OUT_NEAR, FAR_END_CORNER_R
     keep = [x <= x_cut for x, _ in pts]
     n = len(pts)
@@ -347,11 +351,11 @@ MODULE_DEPTH = 6.6          # cart pump A front module: lock groove ends 5.6 bel
 def main() -> int:
     """Default: the FACE coupon (9 deep). --module DIR: the cart pump A front module (MODULE_DEPTH deep, bore centred
     across the width) as DIR/cart_A_front_module.stl, the part that is bonded onto the housing front (op_cart front_module)."""
-    global FACE_Z, BORE_OFFSET_Y
+    global FACE_Z
     module_dir = None
     if "--module" in sys.argv:
         module_dir = Path(sys.argv[sys.argv.index("--module") + 1])
-        FACE_Z, BORE_OFFSET_Y = MODULE_DEPTH, 0.0
+        FACE_Z = MODULE_DEPTH
     OUT.mkdir(exist_ok=True)
     part = face()
     bb = part.bounding_box()
@@ -366,6 +370,7 @@ def main() -> int:
             pl = Plane(origin=(xf - MODULE_DEPTH, yc, zc), x_dir=(0, 1, 0), z_dir=(1, 0, 0))
             placed = part.moved(pl.location)
             export_step(placed, str(module_dir / "cart_A_front_module_placed.step"))
+            (module_dir / "cart_A_section.json").write_text(json.dumps([[round(yc + x, 4), round(zc + y, 4)] for x, y in outline()]))
             ad, nd = adapter_dummy()
             export_step(ad.moved(pl.location), str(module_dir / "cart_A_adapter_dummy_placed.step"))
             export_step(nd.moved(pl.location), str(module_dir / "cart_A_needle_placed.step"))

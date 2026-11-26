@@ -8,7 +8,7 @@
   "note": "tub, floor on the bed",
   "size_mm": [
    64.26,
-   49.0,
+   48.97,
    15.0
   ]
  },
@@ -21,7 +21,7 @@
   "note": "lid, outer face on the bed (smooth side), bosses up",
   "size_mm": [
    64.26,
-   49.0,
+   47.28,
    17.6
   ]
  },
@@ -33,7 +33,7 @@
   "orientation": "up_x",
   "note": "yoke drive: yoke (nut pocket + stem socket + foot), print flat",
   "size_mm": [
-   10.9,
+   11.3,
    17.77,
    2.0
   ]

@@ -107,7 +107,7 @@ def geometry(p: dict) -> dict:
             if H > ad["body_w"] + 1e-6:
                 raise ValueError(f"adapter width {ad['body_w']} < required height {H}: cannot sit flush")
             H = ad["body_w"]
-            zc = H / 2
+            zc = H / 2 + (c["front_module"].get("bore_offset", 0.0) if c.get("front_module") else 0.0)   # A: bore 0.4 towards the silver side (pump photo)
     a = g["m"] * (g["z_rod"] + g["z_pinion"]) / 2.0                     # centre distance screw axis -> motor axis (standard spur pair)
     yoke = c.get("drive_type") == "yoke"
     y_s = y_c                                                           # drive screw axis (on the cartridge axis for the rod drive)
@@ -221,13 +221,20 @@ def geometry(p: dict) -> dict:
         L["board"] = {"x": [x_bd0, x_bd1], "y": [y_bd0, y_bd1], "z": [pz0 - bd["bottom_parts"], pz[1] + bd["top_parts"]], "pcb_z": pz,
                       "outline_mm": [bf["l"], bf["w"]], "area_mm2": round(bf["l"] * bf["w"], 1)}
         yb1 = W - w - 0.3
-        L["battery"] = {"x": [x_bd0 + bf["cell_dx"], x_bd0 + bf["cell_dx"] + bat["w"]], "y": [yb1 - bat["l"], yb1], "z": [w, w + bat["t"]]}
+        zb0 = w
+        if bf.get("cell_floor") is not None:                  # A since 2026-11-26: the far edge is rounded (end-face section R5): cell moves
+            yb1 = bf["cell_y1"]                               # inward under the cartridge lane, in a floor pocket (floor cell_floor)
+            zb0 = bf["cell_floor"]
+        L["battery"] = {"x": [x_bd0 + bf["cell_dx"], x_bd0 + bf["cell_dx"] + bat["w"]], "y": [yb1 - bat["l"], yb1], "z": [zb0, zb0 + bat["t"]],
+                        "pocket": zb0 < w}
         xu = x_bd0 + bf["usb_x"]
         zu = (pz[0] + pz[1]) / 2
         L["usb"] = {"x": [xu - usb["w"] / 2, xu + usb["w"] / 2], "y": [W - w - usb["d"], W - w], "z": [max(zu - usb["h"] / 2, w + bat["t"] + 0.02), zu + usb["h"] / 2],
                     "x_c": xu, "z_c": zu}
         L["button_x"] = round(x_bd0 + bf["button_x"], 2)
         L["button_z"] = round(pz0 - bt["below_pcb"], 3)
+        if bf.get("switch_on_top"):                            # A: the rounded far edge (R5) ends at z 5: SW1 on the board top face, button above it
+            L["button_z"] = round(pz[1] + bf["switch_on_top"], 3)
     lk = c["lock"]
     yh = collar_y1 + 0.1 + lk["hall_pkg"][1] / 2
     if flat:                                                  # magnet bonded in the adapter underside near its tubing end, hall behind the front plate
@@ -673,10 +680,14 @@ def build_housing(s: Script, p: dict, L: dict) -> None:
     split = H - sh.get("lid_h", w) - sh["gasket_t"]                     # tub up to here; lid (flat plate, or a cap lid_h deep) on a 0.5 gasket above
     Lt = L.get("length_total", Lp) if L.get("adapter_y") else Lp          # A: the housing and the adapter share one outer block (flush outline)
     outline_prism(s, p, L, "bottom", 0.0, (0, split))
-    s.fillet_chain("bottom", (Lt / 2, 0.0, 0.0), sh["top_fillet"])
+    if L.get("_section"):                                     # A: the end-face section runs the whole length (seamless with the front module)
+        clip_to_section(s, L, "bottom", 0.0, "b")
+    else:
+        s.fillet_chain("bottom", (Lt / 2, 0.0, 0.0), sh["top_fillet"])
     if Lt > Lp:
         s.cut("bottom", [s.box("t_cut_ad_b", (Lp, Lt + 1), (-1, W + 1), (-1, H + 1))])
     outline_prism(s, p, L, "t_cav", w, (w, split + 0.1))
+    clip_to_section(s, L, "t_cav", w, "cav")
     s.add("solid.combine", target="t_cav", tools=[s.box("t_cav_x", (-1, Lp - w), (-1, W + 1), (-1, H + 1))], operation="intersect", name="cavity front")
     s.cut("bottom", ["t_cav"])
     joins, cuts = [], []
@@ -720,6 +731,8 @@ def build_housing(s: Script, p: dict, L: dict) -> None:
     for k, (x, y, _d) in enumerate(board_ledges(p, L)):
         joins.append(s.cyl(f"t_led{k}", "Z", (x, y, 0), c["board_ledge_d"], w - 0.01, pz0))
     bt_ = L["battery"]                                                    # cell: frame walls on the floor (+ double-sided tape under the cell)
+    if bt_.get("pocket"):
+        cuts.append(s.box("t_cell_pocket", (bt_["x"][0] - 0.15, bt_["x"][1] + 0.15), (bt_["y"][0] - 0.15, bt_["y"][1] + 0.15), (bt_["z"][0], w + 0.3)))
     fc, ft = 0.15, 0.8
     xa, xb_ = bt_["x"][0] - fc, bt_["x"][1] + fc
     ya, yb = bt_["y"][0] - fc, bt_["y"][1] + fc
@@ -737,40 +750,47 @@ def build_housing(s: Script, p: dict, L: dict) -> None:
     # flat lid with hold-down ribs (rod slots, board corner), the receiver bore continues through it where the bore reaches above the split
     lt = split + sh["gasket_t"]
     outline_prism(s, p, L, "top", 0.0, (lt, H))
-    s.fillet_chain("top", (Lt / 2, 0.0, H), sh["top_fillet"])
+    if L.get("_section"):
+        clip_to_section(s, L, "top", 0.0, "t")
+    else:
+        s.fillet_chain("top", (Lt / 2, 0.0, H), sh["top_fillet"])
     if Lt > Lp:
         s.cut("top", [s.box("t_cut_ad_t", (Lp, Lt + 1), (-1, W + 1), (-1, H + 1))])
     tj = []
     if sh.get("lid_h"):                                      # cap lid: hollow it, keep collar + front plate material above the parting line
         outline_prism(s, p, L, "t_cavl", w, (lt - 0.1, H - w))
+        clip_to_section(s, L, "t_cavl", w, "cavl")
         s.add("solid.combine", target="t_cavl", tools=[s.box("t_cavl_x", (-1, Lp - w), (-1, W + 1), (-1, H + 1))], operation="intersect", name="lid cavity front")
         s.cut("top", ["t_cavl"])
         tj.append(s.box("t_collar_l", (L["collar"][0], Lp - w + 0.01), (w - 0.01, L["collar_y1"]), (lt - 0.01, H - w + 0.01)))
         if L["bed"] > 0:
             tj.append(s.box("t_fplate_l", (Lp - w - L["bed"] - 0.01, Lp - w + 0.01), (w - 0.01, W - w + 0.01), (lt - 0.01, H - w + 0.01)))
+    t_top = (H - w + 0.01) if sh.get("lid_h") else lt + 0.01             # lid tabs reach the lid roof (a cap lid is hollow down to lt)
     ch_w = sl["w"] + 2 * sl["clr"]
     for nm, (x0, x1) in (("t_lr_r", L["rib_r"]), ("t_lr_f", L["rib_f"])):
         if L.get("yoke"):                                     # caps over the screw slots
             sw, zb, ya = rb["slot_w"], zc + c["rod"]["d"] / 2 + 0.1, L["y_s"]
         else:
             sw, zb, ya = ((ch_w, zc + sl["h"] / 2 + sl["clr"]) if nm == "t_lr_r" else (rb["slot_w"], zc + c["rod"]["d"] / 2 + 0.1)) + (yc,)
-        tj.append(s.box(nm, (x0, x1), (ya - sw / 2 + 0.01, ya + sw / 2 - 0.01), (zb, lt + 0.01)))
+        tj.append(s.box(nm, (x0, x1), (ya - sw / 2 + 0.01, ya + sw / 2 - 0.01), (zb, t_top)))
     rx, ry = board_lid_rib(L)
-    tj.append(s.box("t_lr_bd", rx, ry, (L["board"]["pcb_z"][1], lt + 0.01)))
+    tj.append(s.box("t_lr_bd", rx, ry, (L["board"]["pcb_z"][1], t_top)))
     # shake-proof (owner 2026-11-26): the lid holds every loose part down; with the bottom cradles / saddles / ledges nothing can move
     hd = c.get("hold_down_gap", 0.15)
     for k, xs in enumerate(c["cradle_x"]):                                # cartridge: a lid rib over each cradle
         x0 = L["cart"][0] + xs
-        tj.append(s.box(f"t_lhd_c{k}", (x0, x0 + c["cradle_t"]), (yc - 2.5, yc + 2.5), (zc + ca["od"] / 2 + hd, lt + 0.01)))
+        if zc + ca["od"] / 2 + hd < lt - 0.05:
+            tj.append(s.box(f"t_lhd_c{k}", (x0, x0 + c["cradle_t"]), (yc - 2.5, yc + 2.5), (zc + ca["od"] / 2 + hd, t_top)))
     md = p["drive_nfp"]["motor_d"]
     for k, x0 in enumerate((L["motor"][0] + 1.0, L["gearhead"][0] + 2.0)):  # motor: a lid rib over each saddle
-        tj.append(s.box(f"t_lhd_m{k}", (x0, x0 + c["motor_saddle_t"]), (ym - 2.0, ym + 2.0), (zc + md / 2 + hd, lt + 0.01)))
+        tj.append(s.box(f"t_lhd_m{k}", (x0, x0 + c["motor_saddle_t"]), (ym - 2.0, ym + 2.0), (zc + md / 2 + hd, t_top)))
     for k, (x, y, _d) in enumerate(board_ledges(p, L)):                    # board: a lid pin over each floor post (part-free pads)
-        tj.append(s.cyl(f"t_lhd_b{k}", "Z", (x, y, 0), c["board_ledge_d"], L["board"]["pcb_z"][1] + 0.02, lt + 0.01))
-    tj += _screw_bosses_lid(s, p, L, lt)
+        tj.append(s.cyl(f"t_lhd_b{k}", "Z", (x, y, 0), c["board_ledge_d"], L["board"]["pcb_z"][1] + 0.02, t_top))
+    tj += _screw_bosses_lid(s, p, L, t_top - 0.01)
     s.join("top", tj)
     s.cut("top", _receiver_cuts(s, p, L, "t") + _screw_pilots_lid(s, p, L, lt) + _button_cuts(s, p, L, "t"))
     outline_prism(s, p, L, "lid_gasket", 0.3, (split, lt))
+    clip_to_section(s, L, "lid_gasket", 0.3, "lg")
     x_lg = Lp - 0.3 - (cup_geom(p, L)["rec_d"] if rc.get("type") == "cup_bayonet" else 0.0)     # A cup socket: gasket stops behind the face recess
     s.cut("lid_gasket", [outline_prism(s, p, L, "t_lg_in", w + 0.1, (split - 0.1, lt + 0.1)), s.box("t_lg_x", (x_lg, Lt + 1), (-1, W + 1), (-1, H + 1))])
     fm = c.get("front_module")
@@ -862,7 +882,14 @@ def screw_points(p: dict, L: dict) -> list[tuple[float, float]]:
     tp = p["cart"]["shell"].get("taper")
     if tp:                                                    # tapered shell: rear-left corner, rear-right (narrow) corner, front +Y corner
         x_f = L["length"] - max(d, L["wall"] + L["bed"] + sc["boss_d"] / 2 + 0.15)
-        return [tuple(tp["screw_rl"]), (tp["screw_rr_x"], tp["w_rear"] - tp["screw_rr_in"]), (x_f, L["width"] - d)]
+        y_f = L["width"] - d
+        fm = p["cart"].get("front_module")
+        if fm:                                                # A: in front of the board, inside the rounded far edge (section R5)
+            x_f = L["board"]["x"][1] + 0.3 + sc["boss_d"] / 2
+            y_f = L["width"] - d - 3.2                        # boss clear of where the floor curves up into the R5 edge
+            rl = (tp["screw_rl"][0], tp["screw_rl"][1] + 1.0)  # rear-left boss clear of the small near-end edge round
+            return [rl, (tp["screw_rr_x"], tp["w_rear"] - tp["screw_rr_in"]), (x_f, y_f)]
+        return [tuple(tp["screw_rl"]), (tp["screw_rr_x"], tp["w_rear"] - tp["screw_rr_in"]), (x_f, y_f)]
     y_s = L["wall"] + sc["boss_d"] / 2 + 0.05                   # -Y screw: between the side wall and the slider-channel rail, in the tail zone
     x_f = L["length"] - max(d, L["wall"] + L["bed"] + sc["boss_d"] / 2 + 0.15)    # front boss clears the (thicker) front wall
     return [(d, L["width"] - d), (x_f, L["width"] - d), (sc["x_side"], y_s)]
@@ -934,8 +961,47 @@ def _housing_yoke(s: Script, p: dict, L: dict, split: float) -> tuple[list[str],
     return joins, cuts
 
 
+def _front_module_files(p: dict, L: dict) -> Path:
+    """A: (re)generate the FACE4 front module, the adapter dummy, the needle and the end-face section in pump coordinates."""
+    import subprocess
+    here = Path(__file__).resolve().parent
+    out = here / "out" / "v010-cart" / "A" / "print"
+    py = here.parent / ".venv" / "bin" / "python"
+    subprocess.run([str(py), "make_face.py", "--module", str(out), "--at", f"{L['length']},{L['y_c']},{L['zc']}"],
+                   cwd=here / "print" / "A_lock", check=True, capture_output=True)
+    return out
+
+
+def section_points(L: dict, d: float = 0.0) -> list[tuple[float, float]]:
+    """End-face section (y, z) shared by the housing and the front module (seamless), offset inward by d along the vertex normals."""
+    pts = L["_section"]
+    if d == 0:
+        return [tuple(q) for q in pts]
+    n = len(pts)
+    area = sum(pts[i][0] * pts[(i + 1) % n][1] - pts[(i + 1) % n][0] * pts[i][1] for i in range(n))
+    sgn = 1.0 if area > 0 else -1.0                                   # CCW: inward normal = left of the direction of travel
+    out = []
+    for i in range(n):
+        (y0, z0), (y1, z1), (y2, z2) = pts[i - 1], pts[i], pts[(i + 1) % n]
+        ty, tz = y2 - y0, z2 - z0
+        ln = math.hypot(ty, tz) or 1.0
+        out.append((y1 - sgn * tz / ln * d, z1 + sgn * ty / ln * d))
+    return out
+
+
+def clip_to_section(s: Script, L: dict, body: str, d: float, tag: str) -> None:
+    """Intersect a body with the end-face section prism (inset d) over the whole length."""
+    if not L.get("_section"):
+        return
+    t = s.prism_yz(f"t_sec_{tag}", section_points(L, d), -1.0, L.get("length_total", L["length"]) + 1.0)
+    s.add("solid.combine", target=body, tools=[t], operation="intersect", name=f"section {tag}")
+
+
 def build(p: dict) -> tuple[Script, dict]:
     L = geometry(p)
+    if p["cart"].get("front_module"):
+        import json as _json
+        L["_section"] = _json.loads((_front_module_files(p, L) / "cart_A_section.json").read_text())
     s = Script()
     build_housing(s, p, L)
     build_cartridge(s, p, L)
@@ -951,12 +1017,8 @@ def build_front_module(s: Script, p: dict, L: dict) -> None:
     fm = p["cart"].get("front_module")
     if not fm:
         return
-    import subprocess
     here = Path(__file__).resolve().parent
     out = here / "out" / "v010-cart" / "A" / "print"
-    py = here.parent / ".venv" / "bin" / "python"
-    subprocess.run([str(py), "make_face.py", "--module", str(out), "--at", f"{L['length']},{L['y_c']},{L['zc']}"],
-                   cwd=here / "print" / "A_lock", check=True, capture_output=True)
     for f, nm in (("cart_A_front_module_placed.step", "front_module"), ("cart_A_adapter_dummy_placed.step", "adapter"),
                   ("cart_A_needle_placed.step", "needle")):
         s.add("file.insert_step", path=os.path.relpath(out / f, here))

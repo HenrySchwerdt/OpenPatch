@@ -18,7 +18,7 @@
  "stack_ref_wall": 0.9,
  "cradle_x": [
   3.0,
-  18.0
+  9.0
  ],
  "cradle_t": 1.2,
  "cradle_clr": 0.3,
@@ -240,7 +240,8 @@
   "mag_d": 1.0,
   "mag_t": 0.5,
   "flag_t": 1.0,
-  "flat_mag_from_end": 8.0
+  "flat_mag_from_end": 11.0,
+  "_": "A: magnet / lock hall 11 from the adapter far end (8 sat on the front lid-screw boss)"
  },
  "shell": {
   "corner_r": 4.0,
@@ -305,6 +306,14 @@
  },
  "variants": {
   "A": {
+   "lock": {
+    "flat_mag_from_end": 11.0,
+    "_": "A: magnet / lock hall 11 from the adapter far end (8 sat on the front lid-screw boss)"
+   },
+   "cradle_x": [
+    3.0,
+    9.0
+   ],
    "yoke": {
     "t": 2.0,
     "rear_clr": 0.4,
@@ -312,6 +321,7 @@
    },
    "front_module": {
     "depth": 6.6,
+    "bore_offset": 0.4,
     "_depth": "owner 2026-11-26: the printed end where the adapter goes on must be thinner: 6.6 = lock groove 5.6 below the face + 1.0 floor (make_face.py --module)",
     "source": "mechanical/print/A_lock/make_face.py (FACE4, tested 2026-11-26: turns fully and holds)",
     "_": "variant A front end = the tested FACE4 lock face printed as its own part (face up, best quality for the bayonet) and bonded onto the flat front of the housing; the housing receiver, bed and collar are cut off over this depth"
@@ -378,6 +388,11 @@
     }
    },
    "board_front": {
+    "switch_on_top": 0.8,
+    "_switch": "A: SW1 on the board TOP face (the far edge is rounded R5 below z 5), button centre 0.8 above the board top",
+    "cell_y1": 43.7,
+    "cell_floor": 0.6,
+    "_cell": "owner 2026-11-26 seamless section: the far edge is rounded R5, so the cell ends at y 43.7 (start of the corner arc - 0.3) and sits in a floor pocket (floor 0.6) under the cartridge lane, 0.6 below the cartridge",
     "x0": 40.0,
     "l": 20.5,
     "w": 28.9,
@@ -444,12 +459,18 @@
  },
  "front_module": {
   "depth": 6.6,
+  "bore_offset": 0.4,
   "_depth": "owner 2026-11-26: the printed end where the adapter goes on must be thinner: 6.6 = lock groove 5.6 below the face + 1.0 floor (make_face.py --module)",
   "source": "mechanical/print/A_lock/make_face.py (FACE4, tested 2026-11-26: turns fully and holds)",
   "_": "variant A front end = the tested FACE4 lock face printed as its own part (face up, best quality for the bayonet) and bonded onto the flat front of the housing; the housing receiver, bed and collar are cut off over this depth"
  },
  "drive_type": "yoke",
  "board_front": {
+  "switch_on_top": 0.8,
+  "_switch": "A: SW1 on the board TOP face (the far edge is rounded R5 below z 5), button centre 0.8 above the board top",
+  "cell_y1": 43.7,
+  "cell_floor": 0.6,
+  "_cell": "owner 2026-11-26 seamless section: the far edge is rounded R5, so the cell ends at y 43.7 (start of the corner arc - 0.3) and sits in a floor pocket (floor 0.6) under the cartridge lane, 0.6 below the cartridge",
   "x0": 40.0,
   "l": 20.5,
   "w": 28.9,
