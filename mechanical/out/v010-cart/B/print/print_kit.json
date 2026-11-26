@@ -7,7 +7,7 @@
   "orientation": "asis",
   "note": "tub, floor on the bed",
   "size_mm": [
-   71.41,
+   74.67,
    27.25,
    14.4
   ]
@@ -20,7 +20,7 @@
   "orientation": "flip",
   "note": "lid, outer face on the bed (smooth side), bosses up",
   "size_mm": [
-   71.41,
+   74.67,
    27.25,
    14.7
   ]
@@ -74,7 +74,7 @@
   "size_mm": [
    14.0,
    14.0,
-   14.8
+   15.5
   ]
  },
  {
@@ -101,7 +101,7 @@
   "size_mm": [
    10.95,
    10.95,
-   38.8
+   43.0
   ]
  },
  {

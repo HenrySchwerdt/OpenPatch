@@ -300,12 +300,27 @@ def lock_cuts(bore: float, lip: float) -> None:
         Cone(mp.LUG_OD / 2, bore / 2, cone_h, align=(Align.CENTER, Align.CENTER, Align.MIN), mode=Mode.SUBTRACT)
 
 
+MODULE_DEPTH = 6.6          # cart pump A front module: lock groove ends 5.6 below the face, lock pocket 5.8, 0.8 floor
+
+
 def main() -> int:
+    """Default: the FACE coupon (9 deep). --module DIR: the cart pump A front module (MODULE_DEPTH deep, bore centred
+    across the width) as DIR/cart_A_front_module.stl, the part that is bonded onto the housing front (op_cart front_module)."""
+    global FACE_Z, BORE_OFFSET_Y
+    module_dir = None
+    if "--module" in sys.argv:
+        module_dir = Path(sys.argv[sys.argv.index("--module") + 1])
+        FACE_Z, BORE_OFFSET_Y = MODULE_DEPTH, 0.0
     OUT.mkdir(exist_ok=True)
     part = face()
     bb = part.bounding_box()
-    export_stl(part, str(OUT / "face_r6.stl"))
     c = bb.center()
+    if module_dir:
+        module_dir.mkdir(parents=True, exist_ok=True)
+        export_stl(part.translate((-c.X, -c.Y, 0)), str(module_dir / "cart_A_front_module.stl"))
+        print(f"cart A front module: {bb.size.X:.1f} x {bb.size.Y:.1f} x {bb.size.Z:.1f} mm -> {module_dir}")
+        return 0
+    export_stl(part, str(OUT / "face_r6.stl"))
     export_stl(part.translate((-c.X, -c.Y, 0)), str(OUT / "face_r6_centered.stl"))
     print(f"face r6: {bb.size.X:.1f} x {bb.size.Y:.1f} x {bb.size.Z:.1f} mm")
     return 0

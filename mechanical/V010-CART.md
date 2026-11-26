@@ -16,6 +16,12 @@ python3 cart_check.py                                                           
 python3 cart_gen.py --set cart.cartridge.od=11.1 --set cart.receiver.bore_d=13.2                    # after measuring
 ```
 
+## 2026-11-26: measured cartridge, tested lock face, smaller A
+- **Cartridge measured** (owner, ruler, standard 1.6 ml PumpCart format; bench use only with an empty, rinsed cartridge and water): overall 43, rear end to shoulder 32, shoulder to cap face 11, cap OD 7.5, stopper about 8. OD 10.95 / ID 9.25 kept (ISO 13926-1 1.6 ml row; published 10.9 for PumpCart and Penfill; ruler 10-10.5). With barrel 32 and stopper 8 only 23.1 mm of glass is free: **1.55 ml deliverable** (stroke 23.07), the rest stays in the shoulder / neck.
+- **Front of A = the tested lock face** (`print/A_lock/make_face.py`, FACE4: turns fully and holds, gaps measured and corrected): printed as its own part `out/v010-cart/A/print/cart_A_front_module.stl` (**6.6 deep**, face up on the bed, 49 x 19 outline traced from the adapter photo) and bonded onto the flat housing front; `front_module` in `cart.variants.A` cuts the old photo-estimated receiver, bed and collar off over that depth.
+- **Adapter outline 49 x 19** (ruler), cup centre 11.2 from the near end; cap face 0.3 below the face (it sits in the adapter cup); yoke 2.0 thick, 0.4 rear clearance.
+- **A = 70.3 x 49 x 19 body, 79.8 with the adapter** (Insight 84 x 52 x 19). The floor is physics: cartridge 43 + stroke 23.1 + yoke 2.0 + rear wall and clearances 2.2.
+
 ## Size (CAD, both PASS 2026-11-25)
 | | L x W x H (mm) | box | source |
 |---|---|---|---|

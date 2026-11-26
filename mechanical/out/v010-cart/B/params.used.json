@@ -1,6 +1,7 @@
 {
  "_comment": "v0.1.0 'cart' pump (op_cart.py, cart_gen.py, cart_check.py, V010-CART.md): Accu-Chek Insight-type 1.6 ml cartridge + original Insight Adapter & Tubing, NFP-608-26.45 + spur pair + translating M2 piston rod, cup-pod main board unchanged. TEST ONLY, WATER ONLY. Every cartridge / adapter number is an ESTIMATE until measured on a sample (docs/insight-research.md: no drawings are public).",
- "volume_ml": 1.6,
+ "volume_ml": 1.55,
+ "_volume": "1.55 ml deliverable, not 1.6: with the measured barrel 32 and stopper 8 the free glass is 32 - 0.6 (shoulder) - 0.3 (stopper inside at FULL) - 8 = 23.1 mm = 1.55 ml at ID 9.25; the rest stays in the shoulder / neck (dead volume). Ruler values +-0.5: re-check with a caliper",
  "wall": 1.2,
  "_fdm": "FDM-first (owner 2026-11-24): wall 1.2 (3 perimeters at 0.4), fits +0.2..0.3 on every printed-to-bought interface (cradle, receiver bore, lug groove, slider channel, motor saddles, button), see V010-CART.md print guide",
  "floor_clr": 0.15,
@@ -27,15 +28,16 @@
   "status": "ISO 13926-1 cartridge family (SCHOTT TopLine/StandardLine table, VERIFIED for the ISO rows): 1.6 ml ISO row OD 10.95 / ID 9.25; crimp neck collar d4 7.15 +-0.2, neck d5 5.5 +-0.25, bore d6 3.15, neck+collar h1 5.0, collar h2 2.9 (shared by all ISO rows 8.65-11.6 OD). That the PumpCart / YpsoPump Reservoir IS the 1.6 ml ISO row, the cap OD 7.8, the barrel length and the stopper are ESTIMATE: MEASURE (docs/insight-research.md section 7); the fit coupons print a bore ladder 11.0-11.8",
   "od": 10.95,
   "id": 9.25,
-  "barrel_len": 33.5,
-  "shoulder_inset": 1.2,
+  "barrel_len": 32.0,
+  "shoulder_inset": 0.6,
   "neck_od": 5.5,
   "neck_id": 3.15,
-  "neck_len": 5.3,
-  "cap_od": 7.8,
+  "neck_len": 11.0,
+  "cap_od": 7.5,
   "cap_len": 3.2,
-  "stopper_len": 6.5,
-  "stopper_recess": 0.8
+  "stopper_len": 8.0,
+  "stopper_recess": 0.3,
+  "measured": "owner 2026-11-26, ruler: overall 43, rear end to shoulder 32 (barrel_len), shoulder to cap face 11 (neck_len incl. cap), cap OD 7.5, stopper about 8, glass OD 10-10.5; OD 10.95 / ID 9.25 kept (ISO 13926-1 1.6 ml row; PumpCart and Penfill share the diameter, published 10.9; ID 9.25 is the only value that fits 1.6 ml in the free barrel). docs/STATUS.md 2026-11-26"
  },
  "adapter": {
   "part": "original Accu-Chek Insight Adapter & Tubing 40 cm (REF 06485472001, PZN 08460327, 10 per box): adapter with central needle, bayonet nose, vent (>= 0.65 bar), tubing integrated. Unmodified apart from the clip-on lock flag.",
@@ -44,7 +46,7 @@
   "depth": 5.5,
   "body_d": 14.0,
   "out_len": 4.0,
-  "seat_to_cap": 1.0,
+  "seat_to_cap": 0.3,
   "cap_gap": 0.3,
   "lug_w": 1.6,
   "lug_h": 0.8,
@@ -233,14 +235,25 @@
  },
  "variants": {
   "A": {
+   "yoke": {
+    "t": 2.0,
+    "rear_clr": 0.4,
+    "_": "owner 2026-11-26: smaller; brass M2 nut 1.6 thick fits a 2.0 yoke"
+   },
+   "front_module": {
+    "depth": 6.6,
+    "_depth": "owner 2026-11-26: the printed end where the adapter goes on must be thinner: 6.6 = lock groove 5.6 below the face + 1.0 floor (make_face.py --module)",
+    "source": "mechanical/print/A_lock/make_face.py (FACE4, tested 2026-11-26: turns fully and holds)",
+    "_": "variant A front end = the tested FACE4 lock face printed as its own part (face up, best quality for the bayonet) and bonded onto the flat front of the housing; the housing receiver, bed and collar are cut off over this depth"
+   },
    "_comment": "Variant A: original Accu-Chek Insight Adapter & Tubing (needle + vent + tubing, bayonet into our receiver), Insight Flex head set at the far end (bench container)",
    "adapter": {
     "type": "insight_flat",
     "flush": true,
-    "body_len": 52.0,
+    "body_len": 49.0,
     "body_w": 19.0,
     "body_h": 9.5,
-    "conn_from_end": 11.5,
+    "conn_from_end": 11.2,
     "nose_od": 10.3,
     "step_h": 2.5,
     "step_from_conn": 9.0,
@@ -251,10 +264,15 @@
      "od": 10.3,
      "id": 8.4,
      "proud": 4.7,
-     "lip_od": 11.9,
-     "lip_h": 0.6,
+     "lip_od": 11.3,
+     "lip_h": 1.4,
+     "lug_w": [
+      5.1,
+      3.1
+     ],
      "lip_arc_deg": 80.0,
-     "lip_rel_deg": 90.0,
+     "lip_rel_deg": 0.0,
+     "_lugs": "owner 2026-11-25 + photo crops: 2 OUTWARD hook lugs at the cup tip ON the adapter long axis, unequal (far-half side ~5.1, near-end side ~3.1 chord), ~0.5 radial, ~1.4 axial (ramped top, flat underside); lug_w[0] = the lug at lock_deg (far half, +Y when flush)",
      "seal_od": 13.5,
      "seal_gap": 0.3,
      "step_r": 13.5,
@@ -300,8 +318,10 @@
    },
    "receiver": {
     "type": "cup_bayonet",
-    "bore_d": 12.5,
-    "tab_id": 11.3,
+    "bore_d": 11.7,
+    "tab_id": 10.7,
+    "travel_deg": 90.0,
+    "snap_bump": 0.0,
     "lip_clr": 0.25,
     "tab_axial_clr": 0.2,
     "step_clr": 0.3,
@@ -310,15 +330,15 @@
     "cbore_depth": 0.5,
     "ball_d": 2.0,
     "ball_protrude": 0.5,
-    "ball_y": 8.5,
-    "ball_off": 5.5,
+    "ball_y": 9.0,
+    "ball_off": 4.5,
     "catch_w": 3.0,
     "catch_d": 1.2,
     "catch_extra": 1.0,
-    "entry_deg": 0.0,
-    "lock_deg": 90.0,
+    "entry_deg": 90.0,
+    "lock_deg": 0.0,
     "sector_deg": 90.0,
-    "_comment": "A, from the ORIGINAL Insight pump end face (owner photos 2026-11-25, PUMP-PHOTO-ESTIMATE) + the adapter photos: shallow seal counterbore cbore_d x cbore_depth for the white ring; bore wall with 2 windows (entry gaps, centred at entry_deg / +180, 0 = +-Y = along the pump end face) and 2 retaining tabs between them (ID tab_id > cartridge 10.95, the cartridge passes); lip ring bore_d under the tabs to cup proud + clearance; adapter on at 90 deg, turned 90 deg down to flush: lips under the tabs. The face is recessed outside recess_r around the socket (the pump's curved rim; the adapter's raised far half lies there) by step_h - seal_gap + step_clr. Detent: pocket for a ball_d steel ball (protrudes ball_protrude) at ball_y along +Y and +-ball_off across (both sides; the adapter has 2 holes there). Hook catch pockets at cup.hook_r / +-hook_off in the recess floor. All ESTIMATE from photos: measure."
+    "_comment": "A (round 3, owner 2026-11-25): bayonet for the adapter cup's 2 outward hook lugs. Rim (ID tab_id) from the face down to just above the lugs, with 2 keyed WINDOWS (lug width + 2 x lip_clr) at entry_deg (wide lug, +Z: the adapter goes on standing at 90 deg, far half up) and entry_deg + 180 (narrow lug). Under the rim 2 UNDERCUT pockets (diameter bore_d, from the rim underside to cup proud + clearance) that run travel_deg CLOCKWISE seen from the face (+Z -> +Y) from each window and end in a radial STOP face at the flush position (wide lug at +Y = lock_deg); optional snap bump (snap_bump radial) just before the stop. Seal seat cbore_d x cbore_depth, recess outside recess_r, ball detent pockets, hook pockets as before. PHOTO-ESTIMATE."
    }
   },
   "B": {
@@ -370,5 +390,5 @@
  },
  "_variant": "B",
  "_bore_area": 67.20063035569417,
- "_stroke": 23.81
+ "_stroke": 23.07
 }

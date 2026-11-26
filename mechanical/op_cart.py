@@ -188,6 +188,9 @@ def geometry(p: dict) -> dict:
          "rod_len": round(x_pu0 - x_sl0, 2) if not yoke else round(x_rib_f1 + c["yoke"]["screw_front"] - (w - c["yoke"]["screw_in_wall"]), 2), "adapter": [x_seat - ad["depth"], x_ad1], "x_seat": x_seat, "bed": bed, "adapter_y": ad_y, "collar": collar, "collar_y1": round(collar_y1, 3), "r_groove": r_groove,
          "pinion": [x_pin0, x_pin1], "boss": [x_boss0, x_boss1], "gearhead": [x_gh0, x_boss0], "motor": [x_mo0, x_gh0], "rear_boss": [x_tail0, x_mo0],
          "magnet": [x_mag0, x_mag1], "tmag": [x_tm0, x_tm1], "lane2_y0": lane2_y0}
+    fm = c.get("front_module")
+    if fm:                                                    # A: the tested FACE4 lock face is its own part over the front `depth` mm
+        x_bd1 = min(x_bd1, x_front - fm["depth"] - 0.3)
     x_bd1_max = x_bd1
     if bd.get("l"):                                           # one common board for A and B (fixed outline), must fit the shorter lane
         x_bd1 = x_bd0 + bd["l"]
@@ -674,6 +677,9 @@ def build_housing(s: Script, p: dict, L: dict) -> None:
         y_hi = yc + ca["od"] / 2 + 0.6
         if L.get("yoke") and L["gear"][0] - 0.3 < x0 + c["cradle_t"] and x0 < L["rib_f"][1] + 0.3:
             y_hi = min(y_hi, L["y_s"] - L["gear_od"] / 2 - 0.3)                  # cradle beside the screw gear
+        bt = L.get("battery")
+        if bt and x0 < bt["x"][1] and x0 + c["cradle_t"] > bt["x"][0]:
+            y_hi = min(y_hi, bt["y"][0] - 0.3)                                    # cradle beside the crosswise cell (A, 49 wide since 2026-11-26)
         joins.append(s.box(f"t_cr{k}", (x0, x0 + c["cradle_t"]), (w - 0.01, y_hi), (w - 0.01, zc)))
         cuts.append(s.cyl(f"t_cr_b{k}", "X", (0, yc, zc), ca["od"] + 2 * c["cradle_clr"], x0 - 0.1, x0 + c["cradle_t"] + 0.1))
     ch_w = sl["w"] + 2 * sl["clr"]
@@ -735,6 +741,11 @@ def build_housing(s: Script, p: dict, L: dict) -> None:
     outline_prism(s, p, L, "lid_gasket", 0.3, (split, lt))
     x_lg = Lp - 0.3 - (cup_geom(p, L)["rec_d"] if rc.get("type") == "cup_bayonet" else 0.0)     # A cup socket: gasket stops behind the face recess
     s.cut("lid_gasket", [outline_prism(s, p, L, "t_lg_in", w + 0.1, (split - 0.1, lt + 0.1)), s.box("t_lg_x", (x_lg, Lt + 1), (-1, W + 1), (-1, H + 1))])
+    fm = c.get("front_module")
+    if fm:                                                    # A since 2026-11-26: front `depth` mm = separate FACE4 part (print/A_lock/make_face.py)
+        x_cut = Lp - fm["depth"]
+        for b in ("bottom", "top", "lid_gasket"):
+            s.cut(b, [s.box(f"t_fm_{b}", (x_cut, Lt + 1), (-1, W + 1), (-1, H + 1))])
 
 
 def shell_len(L: dict) -> float:
