@@ -32,15 +32,16 @@ LOOKS = {
     "lid_gasket": {"appearance": "starter.plastic.tpu-matte-black"},
     "cartridge": {"appearance": "starter.plastic.hdpe-natural-opaque"}, "stopper": {"appearance": "starter.plastic.tpu-matte-black"},
     "cart_cap": {"appearance": "starter.metal.silver-cool"},
+    "adapter_seal": {"color": "#f2f2ef", "pbr": {"metallic": 0.0, "roughness": 0.6, "dielectric_ior": 1.4}},
 }
-SHOWN_CLOSED = {"bottom", "top", "lid_gasket", "adapter", "adapter_lug_a", "adapter_lug_b", "tubing", "button"}
+SHOWN_CLOSED = {"bottom", "top", "lid_gasket", "adapter", "adapter_lug_a", "adapter_lug_b", "adapter_seal", "tubing", "button"}
 SHOTS = {
     "iso": dict(w=2400, h=1500, cam=dict(target=[40, 26, 8], yaw=-0.62, pitch=0.48, distance=330, fov=0.22), explode={}),
     "iso_usb": dict(w=2400, h=1500, cam=dict(target=[40, 26, 8], yaw=2.52, pitch=0.42, distance=330, fov=0.22), explode={}),
     "top": dict(w=2000, h=1500, cam=dict(target=[40, 26, 8], yaw=0.0, pitch=1.5707, distance=900, fov=0.1), explode={}),
     "exploded": dict(w=2600, h=1500, cam=dict(target=[52, 26, 8], yaw=-0.62, pitch=0.42, distance=400, fov=0.22),
                      explode={"adapter": (26, 0, 0), "adapter_lug_a": (26, 0, 0), "adapter_lug_b": (26, 0, 0), "tubing": (26, 0, 0),
-                              "lock_magnet": (26, 0, 0), "cartridge": (13, 0, 0), "stopper": (13, 0, 0), "cart_cap": (13, 0, 0)},
+                              "lock_magnet": (26, 0, 0), "adapter_seal": (26, 0, 0), "cartridge": (13, 0, 0), "stopper": (13, 0, 0), "cart_cap": (13, 0, 0)},
                      extra_show={"cartridge", "stopper", "cart_cap"}),
 }
 
