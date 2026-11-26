@@ -126,7 +126,7 @@ ENTRY_MARGIN = 0.0   # the windows fix the entry at exactly 90 deg
 # joined by a small square where the strip meets the round area. On the adapter these are its raised parts:
 # the hook-shaped boss at the tube end (photo p26 outline, incl. the hook lobe) and the thin wall along the
 # silver-side edge (v 0..1.6) that starts with the 45 deg ramp at u 20.6..24.6 (side photo p24).
-BAND_EXTRA = 2.0           # owner 2026-11-26: start the strip's slope 2 mm earlier (towards the bore) for play
+BAND_EXTRA = 0.0           # (2.0 was a misunderstanding: the owner meant the latch groove, not the slope)
 BAND_W = 1.6               # raised wall along the adapter's entry-side edge (p26: boss top boundary at v 1.6)
 # Hook boss (p26 outline, incl. the hook lobe), run past the outline on the right so it merges with the band.
 # Owner 2026-11-26: it does not reach the far end on the left (front) side; there the pump face stays at full
@@ -163,9 +163,9 @@ NOTCH_LOCK_DEPTH = 5.0
 LOCK_POCKET_X = (24.0, 26.2)   # pocket for the lock at the top of the curved left side of the hollow (photo zoom)
 LOCK_POCKET_Y = (-7.7, -5.0)
 LOCK_POCKET_DEPTH = 5.8      # deeper than the hollow so it stays a pocket now the hollow reaches over it
-LATCH_X = (15.0, 20.5)     # latch groove along the strip wall (X from the cup axis), estimated from the owner's mark
-LATCH_Z = (0.8, 3.8)       # below the face: 0.8 roof on top, 3.0 tall
-LATCH_DEPTH = 1.2          # into the wall (towards -Y)
+LATCH_X = (13.6, 21.0)     # latch groove along the strip wall: from the foot of the slope back into the hollow (owner: bigger, so the adapter's catch fits for sure)
+LATCH_Z = (0.8, 4.0)       # below the face: 0.8 roof on top
+LATCH_DEPTH = 1.6          # into the wall (towards -Y)
 
 
 def band_cut() -> object:
