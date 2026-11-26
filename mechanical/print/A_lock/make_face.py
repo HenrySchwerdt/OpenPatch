@@ -126,7 +126,7 @@ ENTRY_MARGIN = 0.0   # the windows fix the entry at exactly 90 deg
 # joined by a small square where the strip meets the round area. On the adapter these are its raised parts:
 # the hook-shaped boss at the tube end (photo p26 outline, incl. the hook lobe) and the thin wall along the
 # silver-side edge (v 0..1.6) that starts with the 45 deg ramp at u 20.6..24.6 (side photo p24).
-BAND_EXTRA = 0.0           # (2.0 was a misunderstanding: the owner meant the latch groove, not the slope)
+BAND_EXTRA = -2.2          # FACE3 test (owner, C = 2.5): the adapter's ramp starts 2.5 later than the slope; slope top moved 2.2 towards the far end (0.3 play)
 BAND_W = 1.6               # raised wall along the adapter's entry-side edge (p26: boss top boundary at v 1.6)
 # Hook boss (p26 outline, incl. the hook lobe), run past the outline on the right so it merges with the band.
 # Owner 2026-11-26: it does not reach the far end on the left (front) side; there the pump face stays at full
@@ -154,17 +154,17 @@ HOLLOW_UP = 1.5            # FACE2 test: still caught at C, owner: move the holl
 BOSS_UV = ([(35.1 - HOLLOW_UP, 6.5), (33.9 - HOLLOW_UP, 5.5), (34.3 - HOLLOW_UP, 2.6), (36.0 - HOLLOW_UP, 1.2),
             (36.0 - HOLLOW_UP, -2.0), (55.0, -2.0), (55.0, 8.0)]
            + _curve_uv[::-1] + [(35.1 - HOLLOW_UP, 15.1)])
-RAISE_DEPTH = 4.3          # raised parts ~3.4 (photo) .. 4 (ruler) high, + clearance
+RAISE_DEPTH = 2.4          # FACE3 test (owner, A = B = 2 mm gap at 4.3): raised parts ~2.3 high, 0.1 play
 BOSS_SWEEP_DEG, BOSS_SWEEP_STEP = 45.0, 1.0   # front end of the boss near wall leaves the outline only after ~38 deg
 HOLLOW_ROUND = 1.5         # rim of the boss hollow rounds over and curves down (owner)
 NOTCH_LOCK_X = 35.9        # lock notch at the far end, front side: from here to the far edge (photo)
 NOTCH_LOCK_Y = (-6.7, -2.5)   # runs into the hollow so no thin pillar is left between them (owner)
 NOTCH_LOCK_DEPTH = 5.0
-LOCK_POCKET_X = (24.0, 26.2)   # pocket for the lock at the top of the curved left side of the hollow (photo zoom)
+LOCK_POCKET_X = (23.2, 27.4)   # lock pocket in the curved left side of the hollow; widened (owner, FACE3: 'noch breiter')
 LOCK_POCKET_Y = (-7.7, -5.0)
 LOCK_POCKET_DEPTH = 5.8      # deeper than the hollow so it stays a pocket now the hollow reaches over it
 LATCH_X = (13.6, 21.0)     # latch groove along the strip wall: from the foot of the slope back into the hollow (owner: bigger, so the adapter's catch fits for sure)
-LATCH_Z = (0.8, 4.0)       # below the face: 0.8 roof on top
+LATCH_Z = (0.7, 3.0)       # below the face: 0.7 roof; runs a little below the shallower strip floor
 LATCH_DEPTH = 1.6          # into the wall (towards -Y)
 
 
