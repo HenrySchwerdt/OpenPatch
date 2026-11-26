@@ -131,7 +131,7 @@ BAND_W = 1.6               # raised wall along the adapter's entry-side edge (p2
 # Owner 2026-11-26: it does not reach the far end on the left (front) side; there the pump face stays at full
 # height and the boundary curves gently round (pump photo: the high wall left of the window ring). Smooth curve
 # through these pump-photo points (X, Y), converted to (u, v) = (X + CUP_U, W/2 - Y).
-FAR_LEFT_CURVE_XY = [(23.6, -5.6), (25.3, -5.6), (30.4, -6.1), (34.5, -5.5), (36.7, -4.2), (38.5, -2.0), (40.0, 0.0)]  # traced on the photo (tilt removed)
+FAR_LEFT_CURVE_XY = [(22.1, -5.6), (23.6, -5.6), (25.3, -5.6), (30.4, -6.1), (34.5, -5.5), (36.7, -4.2), (38.5, -2.0), (40.0, 0.0)]  # traced on the photo (tilt removed)
 
 
 def smooth(points: list[tuple[float, float]], per_seg: int = 8) -> list[tuple[float, float]]:
@@ -149,8 +149,10 @@ def smooth(points: list[tuple[float, float]], per_seg: int = 8) -> list[tuple[fl
 
 
 _curve_uv = [(x + 11.5, 9.5 - y) for x, y in smooth(FAR_LEFT_CURVE_XY)]
-BOSS_UV = ([(35.1, 6.5), (33.9, 5.5), (34.3, 2.6), (36.0, 1.2), (36.0, -2.0), (55.0, -2.0), (55.0, 8.0)]
-           + _curve_uv[::-1] + [(35.1, 15.1)])
+HOLLOW_UP = 1.5            # FACE2 test: still caught at C, owner: move the hollow's near edge 1-2 mm towards the bore
+BOSS_UV = ([(35.1 - HOLLOW_UP, 6.5), (33.9 - HOLLOW_UP, 5.5), (34.3 - HOLLOW_UP, 2.6), (36.0 - HOLLOW_UP, 1.2),
+            (36.0 - HOLLOW_UP, -2.0), (55.0, -2.0), (55.0, 8.0)]
+           + _curve_uv[::-1] + [(35.1 - HOLLOW_UP, 15.1)])
 RAISE_DEPTH = 4.3          # raised parts ~3.4 (photo) .. 4 (ruler) high, + clearance
 BOSS_SWEEP_DEG, BOSS_SWEEP_STEP = 30.0, 1.0   # boss enters the outline only in the last ~25 deg
 HOLLOW_ROUND = 1.5         # rim of the boss hollow rounds over and curves down (owner)
@@ -159,6 +161,7 @@ NOTCH_LOCK_Y = (-6.7, -4.0)
 NOTCH_LOCK_DEPTH = 5.0
 LOCK_POCKET_X = (24.0, 26.2)   # pocket for the lock at the top of the curved left side of the hollow (photo zoom)
 LOCK_POCKET_Y = (-7.7, -5.0)
+LOCK_POCKET_DEPTH = 5.8      # deeper than the hollow so it stays a pocket now the hollow reaches over it
 LATCH_X = (15.0, 20.5)     # latch groove along the strip wall (X from the cup axis), estimated from the owner's mark
 LATCH_Z = (0.8, 3.8)       # below the face: 0.8 roof on top, 3.0 tall
 LATCH_DEPTH = 1.2          # into the wall (towards -Y)
@@ -228,8 +231,8 @@ def face() -> object:
             Box(49.0 - OUT_NEAR - NOTCH_LOCK_X + 2.0, NOTCH_LOCK_Y[1] - NOTCH_LOCK_Y[0], NOTCH_LOCK_DEPTH + 1,
                 align=(Align.CENTER, Align.CENTER, Align.MIN), mode=Mode.SUBTRACT)
         # pocket for the lock where the curved left side of the hollow starts (pump photo, bottom left)
-        with Locations((sum(LOCK_POCKET_X) / 2, sum(LOCK_POCKET_Y) / 2, FACE_Z - RAISE_DEPTH)):
-            Box(LOCK_POCKET_X[1] - LOCK_POCKET_X[0], LOCK_POCKET_Y[1] - LOCK_POCKET_Y[0], RAISE_DEPTH + 1,
+        with Locations((sum(LOCK_POCKET_X) / 2, sum(LOCK_POCKET_Y) / 2, FACE_Z - LOCK_POCKET_DEPTH)):
+            Box(LOCK_POCKET_X[1] - LOCK_POCKET_X[0], LOCK_POCKET_Y[1] - LOCK_POCKET_Y[0], LOCK_POCKET_DEPTH + 1,
                 align=(Align.CENTER, Align.CENTER, Align.MIN), mode=Mode.SUBTRACT)
         lock_cuts(mp.FINAL_BORE, mp.FINAL_LIP)
     return p.part
