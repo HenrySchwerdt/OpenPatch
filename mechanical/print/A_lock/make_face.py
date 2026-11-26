@@ -25,7 +25,7 @@ Pump side features:
   recess RECESS deep wherever the raised far half sweeps during the 90 deg turn (+ clearance)
   a stop tab in the adapter's pocket, bounded by arcs around the cup axis so it can swing in; it ends at the
   pocket's closed end, which is the rotation stop
-  lock: bore, windows, undercut groove, 45 deg lip underside, seal recess with an arc slot for the seal key tab
+  lock: bore, windows, undercut groove, 45 deg lip underside, seal recess (no key slot)
 Not modelled yet (needs owner input): the snap latch into the pocket's hook-shaped lobe, the edge notch
 (u 25.9..31.9) counterpart.
 """
@@ -158,7 +158,7 @@ RAISE_DEPTH = 4.3          # raised parts ~3.4 (photo) .. 4 (ruler) high, + clea
 BOSS_SWEEP_DEG, BOSS_SWEEP_STEP = 45.0, 1.0   # front end of the boss near wall leaves the outline only after ~38 deg
 HOLLOW_ROUND = 1.5         # rim of the boss hollow rounds over and curves down (owner)
 NOTCH_LOCK_X = 35.9        # lock notch at the far end, front side: from here to the far edge (photo)
-NOTCH_LOCK_Y = (-6.7, -4.0)
+NOTCH_LOCK_Y = (-6.7, -2.5)   # runs into the hollow so no thin pillar is left between them (owner)
 NOTCH_LOCK_DEPTH = 5.0
 LOCK_POCKET_X = (24.0, 26.2)   # pocket for the lock at the top of the curved left side of the hollow (photo zoom)
 LOCK_POCKET_Y = (-7.7, -5.0)
@@ -248,15 +248,7 @@ def lock_cuts(bore: float, lip: float) -> None:
             Box(w, mp.WIN_X, lip, align=(Align.CENTER, Align.CENTER, Align.MIN), mode=Mode.SUBTRACT)
     with Locations((0, 0, top - mp.SEAL_DEPTH)):
         Cylinder(mp.SEAL_D / 2, mp.SEAL_DEPTH, align=(Align.CENTER, Align.CENTER, Align.MIN), mode=Mode.SUBTRACT)
-    # arc slot for the seal's key tab (it turns with the adapter from +Y to +X, clockwise)
-    with BuildSketch(Plane.XY.offset(top - mp.SEAL_DEPTH)) as key:
-        Circle(SEAL_KEY_R1)
-        Circle(SEAL_KEY_R0, mode=Mode.SUBTRACT)
-        with Locations((-20 - SEAL_KEY_W / 2, 0)):
-            Rectangle(40, 60, mode=Mode.SUBTRACT)        # keep x >= -w/2 (entry at -Y)
-        with Locations((0, -20 - SEAL_KEY_W / 2)):
-            Rectangle(60, 40, mode=Mode.SUBTRACT)        # keep y >= -w/2 (locked at +X)
-    extrude(key.sketch, amount=mp.SEAL_DEPTH, mode=Mode.SUBTRACT)
+    # (no arc slot for the seal's key tab: owner 2026-11-26, not needed, face stays closed there)
     with Locations((0, 0, top - lip - mp.UNDERCUT_H)):
         Cylinder(mp.GROOVE_R, mp.UNDERCUT_H, align=(Align.CENTER, Align.CENTER, Align.MIN), mode=Mode.SUBTRACT)
     cone_h = (mp.LUG_OD / 2 - bore / 2) * math.tan(math.radians(mp.LUG_FLANK_DEG))
