@@ -1,0 +1,29 @@
+{
+ "dims": [
+  71.41,
+  27.25,
+  16.1
+ ],
+ "thrust": {
+  "T_gearhead_Nmm": 2.66,
+  "T_nut_Nmm": 8.41,
+  "F_avail_N": 33.0,
+  "F_seal_N": 8.0,
+  "F_occ_N": 10.1,
+  "F_need_N": 18.1,
+  "ratio": 1.83,
+  "stall_pressure_kPa": 492.0
+ },
+ "problems": [],
+ "notes": [
+  "variant B with the Luer hub + coupled tubing collar: 93.91 mm long (needle 12 mm + hub 11 mm sit outside the housing)",
+  "housing 71.41 x 27.25 x 16.1 mm; with adapter (tubing stub excluded) 80.71 x 27.55 x 16.1 mm",
+  "TARGET: height 16.1 > goal 15.0 (set by the receiver bore / cartridge OD estimate 12.9)",
+  "moving parts checked at FULL and EMPTY (stroke 23.81 mm)",
+  "stroke 23.81 / avail 25.0 mm; rod 30.21 mm, 3.00 mm behind the nut at EMPTY; slider 0.3 mm off the rear washer at EMPTY",
+  "thrust 33.0 N vs need 18.1 N (seal 8.0 ESTIMATE + 150 kPa 10.1 N): 1.83x; stall pressure 492 kPa (Insight max 350)",
+  "board outline 57.0 x 10.6 mm = 604.2 mm2 = 1.35x the cup board (449 mm2, 6 layers)",
+  "print kit: 13 STLs in /Users/henryschwerdtner/dev/ai-insulin-pump/.claude/worktrees/distracted-proskuriakova-6fc334/mechanical/out/v010-cart/B/print",
+  "U/step 0.00152; length set by lane 1: cartridge + stroke + drive"
+ ]
+}

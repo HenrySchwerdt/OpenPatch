@@ -16,6 +16,7 @@ default = ["board-bench-e73", "angle-tmag"]
 # ---- board (exactly one) ----
 board-bench-e73 = ["embassy-nrf/nfc-pins-as-gpio"]   # electronics/bench/pin-assignment.md (Ebyte E73-2G4M08S1CX); P0.09 / P0.10 are OC_OK / PGATE_MON: UICR.NFCPINS = GPIO (written by embassy_nrf::init)
 board-cup-v4 = []   # cup pod v4 (45 parts): src/board/cup_v4.rs, pump application (hal/cup.rs, ui_cup.rs, sup_link.rs) and the bring-up binary src/bin/cup_bringup.rs
+board-cart-v1 = ["board-cup-v4"]   # cart pump main board v1: the cup v4 application with src/board/cart_v1.rs (other HJ-840 pads, same nets)
 board-nrf52840-dk = []      # Nordic nRF52840-DK, no motor driver / interlock (docs/boards.md)
 
 # ---- MOT_DIR polarity (INTERLOCK.md R96 / R97): default R96 fitted, forward = DIR low ----

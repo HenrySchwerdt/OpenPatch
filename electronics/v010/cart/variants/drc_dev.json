@@ -1,0 +1,770 @@
+{
+    "$schema": "https://schemas.kicad.org/drc.v1.json",
+    "coordinate_units": "mm",
+    "date": "2026-11-25T10:33:58",
+    "ignored_checks": [
+        {
+            "description": "Footprint has no courtyard defined",
+            "key": "missing_courtyard"
+        },
+        {
+            "description": "Track endpoint not centered on via",
+            "key": "track_not_centered_on_via"
+        },
+        {
+            "description": "Tuning profile track geometries",
+            "key": "tuning_profile_track_geometries"
+        },
+        {
+            "description": "Footprint attributes don't match symbol",
+            "key": "footprint_symbol_mismatch"
+        },
+        {
+            "description": "Footprint doesn't match symbol's footprint filters",
+            "key": "footprint_filters_mismatch"
+        },
+        {
+            "description": "Footprint component type doesn't match footprint pads",
+            "key": "footprint_type_mismatch"
+        },
+        {
+            "description": "Footprint not found in libraries",
+            "key": "lib_footprint_issues"
+        },
+        {
+            "description": "Footprint doesn't match copy in library",
+            "key": "lib_footprint_mismatch"
+        }
+    ],
+    "included_severities": [
+        "error",
+        "warning",
+        "exclusion"
+    ],
+    "kicad_version": "10.0.8",
+    "schematic_parity": [],
+    "source": "cart_dev.kicad_pcb",
+    "unconnected_items": [],
+    "violations": [
+        {
+            "description": "Silkscreen clipped by board edge (board setup constraints silk clearance 0.1500 mm; actual 0.0000 mm)",
+            "items": [
+                {
+                    "description": "Segment on Edge.Cuts",
+                    "pos": {
+                        "x": 100.5,
+                        "y": 80.0
+                    },
+                    "uuid": "c8b1b2f8-124b-4f55-845c-3188853fad90"
+                },
+                {
+                    "description": "Segment of JU1 on F.Silkscreen",
+                    "pos": {
+                        "x": 136.43,
+                        "y": 85.4
+                    },
+                    "uuid": "62100c00-0444-4359-9583-5297a50f8a3b"
+                }
+            ],
+            "severity": "warning",
+            "type": "silk_edge_clearance"
+        },
+        {
+            "description": "Silkscreen clipped by board edge (board setup constraints silk clearance 0.1500 mm; actual 0.0864 mm)",
+            "items": [
+                {
+                    "description": "Segment on Edge.Cuts",
+                    "pos": {
+                        "x": 145.32,
+                        "y": 85.253
+                    },
+                    "uuid": "64373aa3-acde-4c8b-82cc-baa0d5bf1a38"
+                },
+                {
+                    "description": "Segment of JU1 on F.Silkscreen",
+                    "pos": {
+                        "x": 145.57,
+                        "y": 79.1
+                    },
+                    "uuid": "baf18740-a81f-4ea4-b85c-0c0979f81a87"
+                }
+            ],
+            "severity": "warning",
+            "type": "silk_edge_clearance"
+        },
+        {
+            "description": "Silkscreen clipped by board edge (board setup constraints silk clearance 0.1500 mm; actual 0.0870 mm)",
+            "items": [
+                {
+                    "description": "Segment on Edge.Cuts",
+                    "pos": {
+                        "x": 136.5764,
+                        "y": 85.1736
+                    },
+                    "uuid": "02e3d84e-8a23-4faf-83fa-3140012fab34"
+                },
+                {
+                    "description": "Segment of JU1 on F.Silkscreen",
+                    "pos": {
+                        "x": 145.57,
+                        "y": 85.4
+                    },
+                    "uuid": "11bc21a6-c8dd-46a2-8763-27f4026d65fe"
+                }
+            ],
+            "severity": "warning",
+            "type": "silk_edge_clearance"
+        },
+        {
+            "description": "Text height out of range (board setup constraints silk text height min height 0.5500 mm; actual 0.5000 mm)",
+            "items": [
+                {
+                    "description": "PCB text 'OPENPATCH CART v0.1' on F.Silkscreen",
+                    "pos": {
+                        "x": 123.0,
+                        "y": 80.6
+                    },
+                    "uuid": "869ded6f-456e-4f36-b65b-6b0ab78bb7f0"
+                }
+            ],
+            "severity": "warning",
+            "type": "text_height"
+        },
+        {
+            "description": "Text height out of range (board setup constraints silk text height min height 0.5500 mm; actual 0.5000 mm)",
+            "items": [
+                {
+                    "description": "PCB text 'TEST ONLY - NOT FOR HUMAN USE - WATER ONLY' on B.Silkscreen",
+                    "pos": {
+                        "x": 140.0,
+                        "y": 89.9
+                    },
+                    "uuid": "3444cb83-b65c-4389-9726-d8bb7f3deaa4"
+                }
+            ],
+            "severity": "warning",
+            "type": "text_height"
+        },
+        {
+            "description": "Silkscreen clearance (board setup constraints silk clearance 0.1500 mm; actual 0.0822 mm)",
+            "items": [
+                {
+                    "description": "PCB text 'OPENPATCH CART v0.1' on F.Silkscreen",
+                    "pos": {
+                        "x": 123.0,
+                        "y": 80.6
+                    },
+                    "uuid": "869ded6f-456e-4f36-b65b-6b0ab78bb7f0"
+                },
+                {
+                    "description": "Polygon of U32 on F.Silkscreen",
+                    "pos": {
+                        "x": 119.32,
+                        "y": 80.71
+                    },
+                    "uuid": "d7a4c22b-19d3-49ce-ae0d-15f79ee37311"
+                }
+            ],
+            "severity": "warning",
+            "type": "silk_overlap"
+        },
+        {
+            "description": "Silkscreen clearance (board setup constraints silk clearance 0.1500 mm; actual 0.0975 mm)",
+            "items": [
+                {
+                    "description": "PCB text 'OPENPATCH CART v0.1' on F.Silkscreen",
+                    "pos": {
+                        "x": 123.0,
+                        "y": 80.6
+                    },
+                    "uuid": "869ded6f-456e-4f36-b65b-6b0ab78bb7f0"
+                },
+                {
+                    "description": "Segment of U32 on F.Silkscreen",
+                    "pos": {
+                        "x": 119.765,
+                        "y": 80.69
+                    },
+                    "uuid": "de8a9823-e43e-4b52-8a8f-0426a8c42904"
+                }
+            ],
+            "severity": "warning",
+            "type": "silk_overlap"
+        },
+        {
+            "description": "Silkscreen clearance (board setup constraints silk clearance 0.1500 mm; actual 0.0975 mm)",
+            "items": [
+                {
+                    "description": "PCB text 'OPENPATCH CART v0.1' on F.Silkscreen",
+                    "pos": {
+                        "x": 123.0,
+                        "y": 80.6
+                    },
+                    "uuid": "869ded6f-456e-4f36-b65b-6b0ab78bb7f0"
+                },
+                {
+                    "description": "Segment of U32 on F.Silkscreen",
+                    "pos": {
+                        "x": 119.765,
+                        "y": 80.715
+                    },
+                    "uuid": "aabcf1d6-a330-43da-8cad-bdba1851705f"
+                }
+            ],
+            "severity": "warning",
+            "type": "silk_overlap"
+        },
+        {
+            "description": "Silkscreen clearance (board setup constraints silk clearance 0.1500 mm; actual 0.0922 mm)",
+            "items": [
+                {
+                    "description": "PCB text 'OPENPATCH CART v0.1' on F.Silkscreen",
+                    "pos": {
+                        "x": 123.0,
+                        "y": 80.6
+                    },
+                    "uuid": "869ded6f-456e-4f36-b65b-6b0ab78bb7f0"
+                },
+                {
+                    "description": "Segment of U32 on F.Silkscreen",
+                    "pos": {
+                        "x": 121.235,
+                        "y": 80.69
+                    },
+                    "uuid": "dd575362-d80a-41e5-b291-a7e27e48322a"
+                }
+            ],
+            "severity": "warning",
+            "type": "silk_overlap"
+        },
+        {
+            "description": "Silkscreen clearance (board setup constraints silk clearance 0.1500 mm; actual 0.1494 mm)",
+            "items": [
+                {
+                    "description": "Polygon of U5 on F.Silkscreen",
+                    "pos": {
+                        "x": 124.05,
+                        "y": 80.69
+                    },
+                    "uuid": "4b2efcef-22ad-4c7a-8543-d23329c0893f"
+                },
+                {
+                    "description": "PCB text 'OPENPATCH CART v0.1' on F.Silkscreen",
+                    "pos": {
+                        "x": 123.0,
+                        "y": 80.6
+                    },
+                    "uuid": "869ded6f-456e-4f36-b65b-6b0ab78bb7f0"
+                }
+            ],
+            "severity": "warning",
+            "type": "silk_overlap"
+        },
+        {
+            "description": "Silkscreen clearance (board setup constraints silk clearance 0.1500 mm; actual 0.0000 mm)",
+            "items": [
+                {
+                    "description": "Segment of U5 on F.Silkscreen",
+                    "pos": {
+                        "x": 124.59,
+                        "y": 80.69
+                    },
+                    "uuid": "395db152-33f9-4561-9612-2a12181a846d"
+                },
+                {
+                    "description": "PCB text 'OPENPATCH CART v0.1' on F.Silkscreen",
+                    "pos": {
+                        "x": 123.0,
+                        "y": 80.6
+                    },
+                    "uuid": "869ded6f-456e-4f36-b65b-6b0ab78bb7f0"
+                }
+            ],
+            "severity": "warning",
+            "type": "silk_overlap"
+        },
+        {
+            "description": "Silkscreen clearance (board setup constraints silk clearance 0.1500 mm; actual 0.0000 mm)",
+            "items": [
+                {
+                    "description": "PCB text 'OPENPATCH CART v0.1' on F.Silkscreen",
+                    "pos": {
+                        "x": 123.0,
+                        "y": 80.6
+                    },
+                    "uuid": "869ded6f-456e-4f36-b65b-6b0ab78bb7f0"
+                },
+                {
+                    "description": "Segment of U5 on F.Silkscreen",
+                    "pos": {
+                        "x": 124.59,
+                        "y": 80.64
+                    },
+                    "uuid": "e234a51d-79e2-411e-bb88-56db2a22f5dd"
+                }
+            ],
+            "severity": "warning",
+            "type": "silk_overlap"
+        },
+        {
+            "description": "Silkscreen clearance (board setup constraints silk clearance 0.1500 mm; actual 0.0700 mm)",
+            "items": [
+                {
+                    "description": "Segment of U5 on F.Silkscreen",
+                    "pos": {
+                        "x": 126.41,
+                        "y": 80.64
+                    },
+                    "uuid": "3c682798-f422-40ae-a3dd-45cd6674eb30"
+                },
+                {
+                    "description": "PCB text 'OPENPATCH CART v0.1' on F.Silkscreen",
+                    "pos": {
+                        "x": 123.0,
+                        "y": 80.6
+                    },
+                    "uuid": "869ded6f-456e-4f36-b65b-6b0ab78bb7f0"
+                }
+            ],
+            "severity": "warning",
+            "type": "silk_overlap"
+        },
+        {
+            "description": "Silkscreen clipped by solder mask",
+            "items": [
+                {
+                    "description": "PCB text '+' on F.Silkscreen",
+                    "pos": {
+                        "x": 105.05,
+                        "y": 86.9
+                    },
+                    "uuid": "2f2484e2-3a64-48c0-ba17-f102b3c718c0"
+                },
+                {
+                    "description": "Pad 1 [GND] of Q1 on F.Cu",
+                    "pos": {
+                        "x": 105.8625,
+                        "y": 87.55
+                    },
+                    "uuid": "99459a5d-f07d-4607-94e0-d22cd156b7a4"
+                }
+            ],
+            "severity": "warning",
+            "type": "silk_over_copper"
+        },
+        {
+            "description": "Silkscreen clearance (board setup constraints silk clearance 0.1500 mm; actual 0.0000 mm)",
+            "items": [
+                {
+                    "description": "PCB text 'TEST ONLY - NOT FOR HUMAN USE - WATER ONLY' on B.Silkscreen",
+                    "pos": {
+                        "x": 140.0,
+                        "y": 89.9
+                    },
+                    "uuid": "3444cb83-b65c-4389-9726-d8bb7f3deaa4"
+                },
+                {
+                    "description": "Segment of UU1 on B.Silkscreen",
+                    "pos": {
+                        "x": 140.15,
+                        "y": 90.09
+                    },
+                    "uuid": "de651219-7132-4796-8c3c-bdd5cb4f9a70"
+                }
+            ],
+            "severity": "warning",
+            "type": "silk_overlap"
+        },
+        {
+            "description": "Silkscreen clearance (board setup constraints silk clearance 0.1500 mm; actual 0.0914 mm)",
+            "items": [
+                {
+                    "description": "PCB text 'T3V3' on B.Silkscreen",
+                    "pos": {
+                        "x": 103.25,
+                        "y": 81.0
+                    },
+                    "uuid": "184da4cf-7b3c-4e82-8052-6572664ce7db"
+                },
+                {
+                    "description": "Segment of RI1 on B.Silkscreen",
+                    "pos": {
+                        "x": 103.22,
+                        "y": 81.146359
+                    },
+                    "uuid": "c7f09d45-7ce2-4850-ae80-cdf67d20446d"
+                }
+            ],
+            "severity": "warning",
+            "type": "silk_overlap"
+        },
+        {
+            "description": "Silkscreen clearance (board setup constraints silk clearance 0.1500 mm; actual 0.1343 mm)",
+            "items": [
+                {
+                    "description": "PCB text 'T3V3' on B.Silkscreen",
+                    "pos": {
+                        "x": 103.25,
+                        "y": 81.0
+                    },
+                    "uuid": "184da4cf-7b3c-4e82-8052-6572664ce7db"
+                },
+                {
+                    "description": "Segment of RI1 on B.Silkscreen",
+                    "pos": {
+                        "x": 103.98,
+                        "y": 81.146359
+                    },
+                    "uuid": "8cee35c3-e01e-4b44-8459-fc77c763de51"
+                }
+            ],
+            "severity": "warning",
+            "type": "silk_overlap"
+        },
+        {
+            "description": "Silkscreen clearance (board setup constraints silk clearance 0.1500 mm; actual 0.1423 mm)",
+            "items": [
+                {
+                    "description": "PCB text 'SDA' on B.Silkscreen",
+                    "pos": {
+                        "x": 103.25,
+                        "y": 83.3
+                    },
+                    "uuid": "9a4f907f-9dc1-4814-af7f-231ecd8f3f0f"
+                },
+                {
+                    "description": "Segment of RI2 on B.Silkscreen",
+                    "pos": {
+                        "x": 103.98,
+                        "y": 83.246359
+                    },
+                    "uuid": "f9766cd7-0a22-4710-9685-70be3261074b"
+                }
+            ],
+            "severity": "warning",
+            "type": "silk_overlap"
+        },
+        {
+            "description": "Silkscreen clearance (board setup constraints silk clearance 0.1500 mm; actual 0.1452 mm)",
+            "items": [
+                {
+                    "description": "Segment of RI2 on B.Silkscreen",
+                    "pos": {
+                        "x": 103.22,
+                        "y": 83.246359
+                    },
+                    "uuid": "48278b3f-cd6a-4525-a9f7-c08f002fcf8e"
+                },
+                {
+                    "description": "PCB text 'SDA' on B.Silkscreen",
+                    "pos": {
+                        "x": 103.25,
+                        "y": 83.3
+                    },
+                    "uuid": "9a4f907f-9dc1-4814-af7f-231ecd8f3f0f"
+                }
+            ],
+            "severity": "warning",
+            "type": "silk_overlap"
+        },
+        {
+            "description": "Silkscreen clipped by solder mask",
+            "items": [
+                {
+                    "description": "PCB text 'TEST ONLY - NOT FOR HUMAN USE - WATER ONLY' on B.Silkscreen",
+                    "pos": {
+                        "x": 140.0,
+                        "y": 89.9
+                    },
+                    "uuid": "3444cb83-b65c-4389-9726-d8bb7f3deaa4"
+                },
+                {
+                    "description": "Pad 1 [3V3] of TPR4 on B.Cu",
+                    "pos": {
+                        "x": 146.81,
+                        "y": 89.8
+                    },
+                    "uuid": "e903e106-d6e7-466b-b1bb-d2ba4ad1f01a"
+                }
+            ],
+            "severity": "warning",
+            "type": "silk_over_copper"
+        },
+        {
+            "description": "Silkscreen clipped by solder mask",
+            "items": [
+                {
+                    "description": "PCB text 'TEST ONLY - NOT FOR HUMAN USE - WATER ONLY' on B.Silkscreen",
+                    "pos": {
+                        "x": 140.0,
+                        "y": 89.9
+                    },
+                    "uuid": "3444cb83-b65c-4389-9726-d8bb7f3deaa4"
+                },
+                {
+                    "description": "Pad 1 [GND] of TPR3 on B.Cu",
+                    "pos": {
+                        "x": 145.54,
+                        "y": 89.8
+                    },
+                    "uuid": "4e41d6fb-fd30-425f-a8ee-defd414e6e48"
+                }
+            ],
+            "severity": "warning",
+            "type": "silk_over_copper"
+        },
+        {
+            "description": "Silkscreen clipped by solder mask",
+            "items": [
+                {
+                    "description": "PCB text 'TEST ONLY - NOT FOR HUMAN USE - WATER ONLY' on B.Silkscreen",
+                    "pos": {
+                        "x": 140.0,
+                        "y": 89.9
+                    },
+                    "uuid": "3444cb83-b65c-4389-9726-d8bb7f3deaa4"
+                },
+                {
+                    "description": "Pad 1 [SWDCLK] of TPR2 on B.Cu",
+                    "pos": {
+                        "x": 144.27,
+                        "y": 89.8
+                    },
+                    "uuid": "d7dc1294-7831-4776-9829-5a0a8fc723ae"
+                }
+            ],
+            "severity": "warning",
+            "type": "silk_over_copper"
+        },
+        {
+            "description": "Silkscreen clipped by solder mask",
+            "items": [
+                {
+                    "description": "PCB text 'TEST ONLY - NOT FOR HUMAN USE - WATER ONLY' on B.Silkscreen",
+                    "pos": {
+                        "x": 140.0,
+                        "y": 89.9
+                    },
+                    "uuid": "3444cb83-b65c-4389-9726-d8bb7f3deaa4"
+                },
+                {
+                    "description": "Pad 1 [SWDIO] of TPR1 on B.Cu",
+                    "pos": {
+                        "x": 143.0,
+                        "y": 89.8
+                    },
+                    "uuid": "4234b41f-36ed-43e9-8e26-76337bf96b2c"
+                }
+            ],
+            "severity": "warning",
+            "type": "silk_over_copper"
+        },
+        {
+            "description": "Silkscreen clipped by solder mask",
+            "items": [
+                {
+                    "description": "PCB text 'TEST ONLY - NOT FOR HUMAN USE - WATER ONLY' on B.Silkscreen",
+                    "pos": {
+                        "x": 140.0,
+                        "y": 89.9
+                    },
+                    "uuid": "3444cb83-b65c-4389-9726-d8bb7f3deaa4"
+                },
+                {
+                    "description": "Pad 3 [USB_DM] of UU1 on B.Cu",
+                    "pos": {
+                        "x": 141.65,
+                        "y": 89.6375
+                    },
+                    "uuid": "0be83419-c904-4c87-bc0a-2af24cda1c59"
+                }
+            ],
+            "severity": "warning",
+            "type": "silk_over_copper"
+        },
+        {
+            "description": "Silkscreen clipped by solder mask",
+            "items": [
+                {
+                    "description": "PCB text 'TEST ONLY - NOT FOR HUMAN USE - WATER ONLY' on B.Silkscreen",
+                    "pos": {
+                        "x": 140.0,
+                        "y": 89.9
+                    },
+                    "uuid": "3444cb83-b65c-4389-9726-d8bb7f3deaa4"
+                },
+                {
+                    "description": "Pad 4 [USB_DM] of UU1 on B.Cu",
+                    "pos": {
+                        "x": 139.95,
+                        "y": 89.6375
+                    },
+                    "uuid": "91c1048e-291a-4ecc-9e36-ae7f992160c1"
+                }
+            ],
+            "severity": "warning",
+            "type": "silk_over_copper"
+        },
+        {
+            "description": "Silkscreen clipped by solder mask",
+            "items": [
+                {
+                    "description": "Segment of R90 on B.Silkscreen",
+                    "pos": {
+                        "x": 115.653641,
+                        "y": 87.02
+                    },
+                    "uuid": "80083f7e-ca89-44d7-9df4-ac42f461c2e1"
+                },
+                {
+                    "description": "Pad 1 [MOT_ALLOW] of TPD2 on B.Cu",
+                    "pos": {
+                        "x": 115.4756,
+                        "y": 86.763371
+                    },
+                    "uuid": "da2020b3-f53a-4d6a-85a9-0340cf7d743d"
+                }
+            ],
+            "severity": "warning",
+            "type": "silk_over_copper"
+        },
+        {
+            "description": "Silkscreen clipped by solder mask",
+            "items": [
+                {
+                    "description": "Segment of U34 on B.Silkscreen",
+                    "pos": {
+                        "x": 114.765,
+                        "y": 86.61
+                    },
+                    "uuid": "58c3fc5b-0f98-47e4-904c-2f2d15592e1b"
+                },
+                {
+                    "description": "Pad 1 [MOT_ALLOW] of TPD2 on B.Cu",
+                    "pos": {
+                        "x": 115.4756,
+                        "y": 86.763371
+                    },
+                    "uuid": "da2020b3-f53a-4d6a-85a9-0340cf7d743d"
+                }
+            ],
+            "severity": "warning",
+            "type": "silk_over_copper"
+        },
+        {
+            "description": "Silkscreen clipped by solder mask",
+            "items": [
+                {
+                    "description": "PCB text 'T3V3' on B.Silkscreen",
+                    "pos": {
+                        "x": 103.25,
+                        "y": 81.0
+                    },
+                    "uuid": "184da4cf-7b3c-4e82-8052-6572664ce7db"
+                },
+                {
+                    "description": "Pad 1 [3V3] of RI1 on B.Cu",
+                    "pos": {
+                        "x": 103.6,
+                        "y": 80.79
+                    },
+                    "uuid": "43a936c7-6901-4751-b89e-e4ffa558e0d7"
+                }
+            ],
+            "severity": "warning",
+            "type": "silk_over_copper"
+        },
+        {
+            "description": "Silkscreen clipped by solder mask",
+            "items": [
+                {
+                    "description": "PCB text 'TGND' on B.Silkscreen",
+                    "pos": {
+                        "x": 103.25,
+                        "y": 82.15
+                    },
+                    "uuid": "b4cc5d13-49b3-4b18-8cf2-87d6119f83b2"
+                },
+                {
+                    "description": "Pad 2 [I2C_SDA] of RI1 on B.Cu",
+                    "pos": {
+                        "x": 103.6,
+                        "y": 81.81
+                    },
+                    "uuid": "f6e9e7c5-2c4d-4ff1-bee4-144bceefa879"
+                }
+            ],
+            "severity": "warning",
+            "type": "silk_over_copper"
+        },
+        {
+            "description": "Silkscreen clipped by solder mask",
+            "items": [
+                {
+                    "description": "PCB text 'SDA' on B.Silkscreen",
+                    "pos": {
+                        "x": 103.25,
+                        "y": 83.3
+                    },
+                    "uuid": "9a4f907f-9dc1-4814-af7f-231ecd8f3f0f"
+                },
+                {
+                    "description": "Pad 1 [3V3] of RI2 on B.Cu",
+                    "pos": {
+                        "x": 103.6,
+                        "y": 82.89
+                    },
+                    "uuid": "0e350c5c-f80f-4309-b546-e8afddddcb80"
+                }
+            ],
+            "severity": "warning",
+            "type": "silk_over_copper"
+        },
+        {
+            "description": "Silkscreen clipped by solder mask",
+            "items": [
+                {
+                    "description": "PCB text 'SCL' on B.Silkscreen",
+                    "pos": {
+                        "x": 103.25,
+                        "y": 84.45
+                    },
+                    "uuid": "ced69bca-59f6-4602-a083-bdc14c5db106"
+                },
+                {
+                    "description": "Pad 2 [I2C_SCL] of RI2 on B.Cu",
+                    "pos": {
+                        "x": 103.6,
+                        "y": 83.91
+                    },
+                    "uuid": "d27d7db4-3659-41c8-b5ef-dcdbd0e94192"
+                }
+            ],
+            "severity": "warning",
+            "type": "silk_over_copper"
+        },
+        {
+            "description": "Silkscreen clipped by solder mask",
+            "items": [
+                {
+                    "description": "PCB text 'LOCK' on B.Silkscreen",
+                    "pos": {
+                        "x": 103.25,
+                        "y": 87.9
+                    },
+                    "uuid": "dc84072e-3fdd-4a7a-8409-4116a068d76a"
+                },
+                {
+                    "description": "Pad 1 [DOCK_N] of TPD6 on B.Cu",
+                    "pos": {
+                        "x": 102.33116,
+                        "y": 87.97946
+                    },
+                    "uuid": "a08c9162-62c4-4430-805b-dd74ab05d41e"
+                }
+            ],
+            "severity": "warning",
+            "type": "silk_over_copper"
+        }
+    ]
+}
