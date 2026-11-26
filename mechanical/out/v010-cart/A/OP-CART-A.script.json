@@ -842,6 +842,66 @@
   }
  },
  {
+  "command": "solid.box",
+  "params": {
+   "length": 0.7999999999999972,
+   "width": 23.799999999999997,
+   "height": 2.81,
+   "corner": [
+    39.550000000000004,
+    19.85,
+    1.19
+   ],
+   "body_name": "t_cf_x0",
+   "name": "t_cf_x0"
+  }
+ },
+ {
+  "command": "solid.box",
+  "params": {
+   "length": 0.7999999999999972,
+   "width": 23.799999999999997,
+   "height": 2.81,
+   "corner": [
+    51.25,
+    19.85,
+    1.19
+   ],
+   "body_name": "t_cf_x1",
+   "name": "t_cf_x1"
+  }
+ },
+ {
+  "command": "solid.box",
+  "params": {
+   "length": 6.899999999999999,
+   "width": 0.8000000000000007,
+   "height": 1.5100000000000002,
+   "corner": [
+    42.35,
+    15.049999999999999,
+    1.19
+   ],
+   "body_name": "t_cf_y0",
+   "name": "t_cf_y0"
+  }
+ },
+ {
+  "command": "solid.box",
+  "params": {
+   "length": 6.899999999999999,
+   "width": 0.7999999999999972,
+   "height": 2.81,
+   "corner": [
+    42.35,
+    47.65,
+    1.19
+   ],
+   "body_name": "t_cf_y1",
+   "name": "t_cf_y1"
+  }
+ },
+ {
   "command": "solid.combine",
   "params": {
    "target": "bottom",
@@ -859,7 +919,11 @@
     "t_ms1",
     "t_led0",
     "t_led1",
-    "t_led2"
+    "t_led2",
+    "t_cf_x0",
+    "t_cf_x1",
+    "t_cf_y0",
+    "t_cf_y1"
    ],
    "operation": "join",
    "name": "join bottom"
@@ -2165,6 +2229,111 @@
   }
  },
  {
+  "command": "solid.box",
+  "params": {
+   "length": 1.1999999999999993,
+   "width": 5.0,
+   "height": 0.3849999999999998,
+   "corner": [
+    30.560000000000002,
+    8.7,
+    15.125
+   ],
+   "body_name": "t_lhd_c0",
+   "name": "t_lhd_c0"
+  }
+ },
+ {
+  "command": "solid.box",
+  "params": {
+   "length": 1.2000000000000028,
+   "width": 5.0,
+   "height": 0.3849999999999998,
+   "corner": [
+    45.56,
+    8.7,
+    15.125
+   ],
+   "body_name": "t_lhd_c1",
+   "name": "t_lhd_c1"
+  }
+ },
+ {
+  "command": "solid.box",
+  "params": {
+   "length": 1.1999999999999993,
+   "width": 4.0,
+   "height": 2.8599999999999994,
+   "corner": [
+    12.759999999999998,
+    29.174999999999997,
+    12.65
+   ],
+   "body_name": "t_lhd_m0",
+   "name": "t_lhd_m0"
+  }
+ },
+ {
+  "command": "solid.box",
+  "params": {
+   "length": 1.1999999999999993,
+   "width": 4.0,
+   "height": 2.8599999999999994,
+   "corner": [
+    21.759999999999998,
+    29.174999999999997,
+    12.65
+   ],
+   "body_name": "t_lhd_m1",
+   "name": "t_lhd_m1"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 1.0,
+   "height": 9.07,
+   "base": [
+    52.1,
+    18.9,
+    6.4399999999999995
+   ],
+   "axis": "Z",
+   "body_name": "t_lhd_b0",
+   "name": "t_lhd_b0"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 1.0,
+   "height": 9.07,
+   "base": [
+    59.5,
+    18.9,
+    6.4399999999999995
+   ],
+   "axis": "Z",
+   "body_name": "t_lhd_b1",
+   "name": "t_lhd_b1"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 1.0,
+   "height": 9.07,
+   "base": [
+    59.5,
+    46.0,
+    6.4399999999999995
+   ],
+   "axis": "Z",
+   "body_name": "t_lhd_b2",
+   "name": "t_lhd_b2"
+  }
+ },
+ {
   "command": "solid.cylinder",
   "params": {
    "diameter": 3.6,
@@ -2219,6 +2388,13 @@
     "t_lr_r",
     "t_lr_f",
     "t_lr_bd",
+    "t_lhd_c0",
+    "t_lhd_c1",
+    "t_lhd_m0",
+    "t_lhd_m1",
+    "t_lhd_b0",
+    "t_lhd_b1",
+    "t_lhd_b2",
     "t_lboss0",
     "t_lboss1",
     "t_lboss2"
@@ -4252,6 +4428,51 @@
   }
  },
  {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 1.6,
+   "height": 1.5499999999999998,
+   "base": [
+    52.1,
+    18.9,
+    6.42
+   ],
+   "axis": "Z",
+   "body_name": "t_kb_padt0",
+   "name": "t_kb_padt0"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 1.6,
+   "height": 1.5499999999999998,
+   "base": [
+    59.5,
+    18.9,
+    6.42
+   ],
+   "axis": "Z",
+   "body_name": "t_kb_padt1",
+   "name": "t_kb_padt1"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 1.6,
+   "height": 1.5499999999999998,
+   "base": [
+    59.5,
+    46.0,
+    6.42
+   ],
+   "axis": "Z",
+   "body_name": "t_kb_padt2",
+   "name": "t_kb_padt2"
+  }
+ },
+ {
   "command": "solid.box",
   "params": {
    "length": 1.5999999999999943,
@@ -4274,6 +4495,9 @@
     "t_kb_pad0",
     "t_kb_pad1",
     "t_kb_pad2",
+    "t_kb_padt0",
+    "t_kb_padt1",
+    "t_kb_padt2",
     "t_kb_rib"
    ],
    "operation": "cut",

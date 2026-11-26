@@ -500,6 +500,7 @@ def build_electronics(s: Script, p: dict, L: dict) -> None:
         s.box(nm, tuple(b["x"]), tuple(b["y"]), tuple(b["z"]))
     bz, pz = L["board"]["z"], L["board"]["pcb_z"]
     pads = [s.cyl(f"t_kb_pad{k}", "Z", (x, y, 0), d, bz[0] - 0.1, pz[0]) for k, (x, y, d) in enumerate(board_ledges(p, L))]
+    pads += [s.cyl(f"t_kb_padt{k}", "Z", (x, y, 0), d, pz[1], bz[1] + 0.1) for k, (x, y, d) in enumerate(board_ledges(p, L))]   # lid pins
     rx, ry = board_lid_rib(L)
     pads.append(s.box("t_kb_rib", (rx[0] - 0.3, rx[1] + 0.3), (ry[0] - 0.3, ry[1] + 0.3), (pz[1], bz[1] + 0.1)))
     s.cut("ko_board", pads)                                                                     # part-free pads on both board faces
@@ -718,6 +719,14 @@ def build_housing(s: Script, p: dict, L: dict) -> None:
     bx, by = L["board"]["x"], L["board"]["y"]
     for k, (x, y, _d) in enumerate(board_ledges(p, L)):
         joins.append(s.cyl(f"t_led{k}", "Z", (x, y, 0), c["board_ledge_d"], w - 0.01, pz0))
+    bt_ = L["battery"]                                                    # cell: frame walls on the floor (+ double-sided tape under the cell)
+    fc, ft = 0.15, 0.8
+    xa, xb_ = bt_["x"][0] - fc, bt_["x"][1] + fc
+    ya, yb = bt_["y"][0] - fc, bt_["y"][1] + fc
+    zt_low, zt = w + 1.5, bt_["z"][1] - 0.4
+    for nm, xr, yr, zt_ in (("t_cf_x0", (xa - ft, xa), (ya + 4.0, yb - 4.0), zt), ("t_cf_x1", (xb_, xb_ + ft), (ya + 4.0, yb - 4.0), zt),
+                            ("t_cf_y0", (xa + 2.0, xb_ - 2.0), (ya - ft, ya), zt_low), ("t_cf_y1", (xa + 2.0, xb_ - 2.0), (yb, yb + ft), zt)):
+        joins.append(s.box(nm, xr, yr, (w - 0.01, zt_)))
     s.join("bottom", joins)
     cuts += _receiver_cuts(s, p, L, "b")
     u = L["usb"]
@@ -748,6 +757,16 @@ def build_housing(s: Script, p: dict, L: dict) -> None:
         tj.append(s.box(nm, (x0, x1), (ya - sw / 2 + 0.01, ya + sw / 2 - 0.01), (zb, lt + 0.01)))
     rx, ry = board_lid_rib(L)
     tj.append(s.box("t_lr_bd", rx, ry, (L["board"]["pcb_z"][1], lt + 0.01)))
+    # shake-proof (owner 2026-11-26): the lid holds every loose part down; with the bottom cradles / saddles / ledges nothing can move
+    hd = c.get("hold_down_gap", 0.15)
+    for k, xs in enumerate(c["cradle_x"]):                                # cartridge: a lid rib over each cradle
+        x0 = L["cart"][0] + xs
+        tj.append(s.box(f"t_lhd_c{k}", (x0, x0 + c["cradle_t"]), (yc - 2.5, yc + 2.5), (zc + ca["od"] / 2 + hd, lt + 0.01)))
+    md = p["drive_nfp"]["motor_d"]
+    for k, x0 in enumerate((L["motor"][0] + 1.0, L["gearhead"][0] + 2.0)):  # motor: a lid rib over each saddle
+        tj.append(s.box(f"t_lhd_m{k}", (x0, x0 + c["motor_saddle_t"]), (ym - 2.0, ym + 2.0), (zc + md / 2 + hd, lt + 0.01)))
+    for k, (x, y, _d) in enumerate(board_ledges(p, L)):                    # board: a lid pin over each floor post (part-free pads)
+        tj.append(s.cyl(f"t_lhd_b{k}", "Z", (x, y, 0), c["board_ledge_d"], L["board"]["pcb_z"][1] + 0.02, lt + 0.01))
     tj += _screw_bosses_lid(s, p, L, lt)
     s.join("top", tj)
     s.cut("top", _receiver_cuts(s, p, L, "t") + _screw_pilots_lid(s, p, L, lt) + _button_cuts(s, p, L, "t"))
