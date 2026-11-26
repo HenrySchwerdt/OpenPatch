@@ -156,7 +156,7 @@ BOSS_UV = ([(35.1 - HOLLOW_UP, 6.5), (33.9 - HOLLOW_UP, 5.5), (34.3 - HOLLOW_UP,
            + _curve_uv[::-1] + [(35.1 - HOLLOW_UP, 15.1)])
 RAISE_DEPTH = 2.4          # FACE3 test (owner, A = B = 2 mm gap at 4.3): raised parts ~2.3 high, 0.1 play
 BOSS_SWEEP_DEG, BOSS_SWEEP_STEP = 45.0, 1.0   # front end of the boss near wall leaves the outline only after ~38 deg
-HOLLOW_ROUND = 0.0         # wall into the hollow is a straight drop (original pump side photo 2026-11-26)
+HOLLOW_ROUND = 2.0         # convex round-over of the edge into the hollow (owner: rounded, side photo of the original shows both top corners of the front wall rounded)
 OUTER_ROUND, OUTER_ROUND_X0 = 1.5, 20.0   # the round is on the OUTER front edge (end face to the black front), far half
 NOTCH_LOCK_X = 35.9        # lock notch at the far end, front side: from here to the far edge (photo)
 NOTCH_LOCK_Y = (-6.7, -2.5)   # runs into the hollow so no thin pillar is left between them (owner)
