@@ -152,7 +152,8 @@ _curve_uv = [(x + 11.5, 9.5 - y) for x, y in smooth(FAR_LEFT_CURVE_XY)]
 BOSS_UV = ([(35.1, 6.5), (33.9, 5.5), (34.3, 2.6), (36.0, 1.2), (36.0, -2.0), (55.0, -2.0), (55.0, 8.0)]
            + _curve_uv[::-1] + [(35.1, 15.1)])
 RAISE_DEPTH = 4.3          # raised parts ~3.4 (photo) .. 4 (ruler) high, + clearance
-HOLLOW_ROUND = 2.0         # rim of the boss hollow rounds over and curves down (owner)
+BOSS_SWEEP_DEG, BOSS_SWEEP_STEP = 30.0, 1.0   # boss enters the outline only in the last ~25 deg
+HOLLOW_ROUND = 1.5         # rim of the boss hollow rounds over and curves down (owner)
 NOTCH_LOCK_X = 35.9        # lock notch at the far end, front side: from here to the far edge (photo)
 NOTCH_LOCK_Y = (-6.7, -4.0)
 NOTCH_LOCK_DEPTH = 5.0
@@ -202,8 +203,19 @@ def face() -> object:
         for d0, d1, inset in hollow_slices():
             with BuildSketch(Plane.XY.offset(FACE_Z - d1)) as hs:
                 Polygon(*uv(BOSS_UV), align=None)
-                offset(amount=CLEAR - inset, mode=Mode.REPLACE)
+                # the rounding grows the opening outwards, so the floor keeps the boss's full footprint
+                offset(amount=CLEAR + (HOLLOW_ROUND - inset), mode=Mode.REPLACE)
             extrude(hs.sketch, amount=d1 - d0 + (1.0 if d0 == 0 else 0.0), mode=Mode.SUBTRACT)
+        # FACE1 test 2026-11-26: the adapter stuck ~15 deg before the end, the boss's inner wall ran into the
+        # face next to the hollow. Clear what the boss sweeps over the last part of the clockwise turn (before
+        # that it is outside the pump outline).
+        with BuildPart(mode=Mode.PRIVATE) as bp:
+            with BuildSketch(Plane.XY.offset(FACE_Z - RAISE_DEPTH)) as bsk:
+                Polygon(*uv(BOSS_UV), align=None)
+                offset(amount=CLEAR, mode=Mode.REPLACE)
+            extrude(bsk.sketch, amount=RAISE_DEPTH + 1)
+        for k in range(1, int(BOSS_SWEEP_DEG / BOSS_SWEEP_STEP) + 1):
+            add(bp.part.rotate(Axis.Z, k * BOSS_SWEEP_STEP), mode=Mode.SUBTRACT)
         # rectangular groove going into the side wall of the entry-edge strip (owner 2026-11-26, marked on the
         # render): the adapter's wall latches into it at the end of the turn. Closed on top (real undercut).
         wall_y = WIDTH / 2 - BAND_W - CLEAR
