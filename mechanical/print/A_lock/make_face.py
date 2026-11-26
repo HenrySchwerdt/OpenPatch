@@ -156,7 +156,7 @@ BOSS_UV = ([(35.1 - HOLLOW_UP, 6.5), (33.9 - HOLLOW_UP, 5.5), (34.3 - HOLLOW_UP,
            + _curve_uv[::-1] + [(35.1 - HOLLOW_UP, 15.1)])
 RAISE_DEPTH = 2.4          # FACE3 test (owner, A = B = 2 mm gap at 4.3): raised parts ~2.3 high, 0.1 play
 BOSS_SWEEP_DEG, BOSS_SWEEP_STEP = 45.0, 1.0   # front end of the boss near wall leaves the outline only after ~38 deg
-HOLLOW_ROUND = 1.5         # rim of the boss hollow rounds over and curves down (owner)
+HOLLOW_ROUND = 2.0         # rim of the boss hollow rounds over and curves down (owner; at the far-left corner: high, then round down, no groove)
 NOTCH_LOCK_X = 35.9        # lock notch at the far end, front side: from here to the far edge (photo)
 NOTCH_LOCK_Y = (-6.7, -2.5)   # runs into the hollow so no thin pillar is left between them (owner)
 NOTCH_LOCK_DEPTH = 5.0
@@ -226,11 +226,7 @@ def face() -> object:
         with Locations(((LATCH_X[0] + LATCH_X[1]) / 2, wall_y - LATCH_DEPTH / 2 + 0.2, FACE_Z - LATCH_Z[1])):
             Box(LATCH_X[1] - LATCH_X[0], LATCH_DEPTH + 0.4, LATCH_Z[1] - LATCH_Z[0],
                 align=(Align.CENTER, Align.CENTER, Align.MIN), mode=Mode.SUBTRACT)
-        # notch for the lock at the far end, front side (owner: "Aussparung fuer einen Lock links unten";
-        # pump photo: where the curved high wall meets the far edge)
-        with Locations(((NOTCH_LOCK_X + 49.0 - OUT_NEAR) / 2 + 1.0, sum(NOTCH_LOCK_Y) / 2, FACE_Z - NOTCH_LOCK_DEPTH)):
-            Box(49.0 - OUT_NEAR - NOTCH_LOCK_X + 2.0, NOTCH_LOCK_Y[1] - NOTCH_LOCK_Y[0], NOTCH_LOCK_DEPTH + 1,
-                align=(Align.CENTER, Align.CENTER, Align.MIN), mode=Mode.SUBTRACT)
+        # (no notch at the far end any more: owner 2026-11-26, the corner stays at full height and rounds down)
         # pocket for the lock where the curved left side of the hollow starts (pump photo, bottom left)
         with Locations((sum(LOCK_POCKET_X) / 2, sum(LOCK_POCKET_Y) / 2, FACE_Z - LOCK_POCKET_DEPTH)):
             Box(LOCK_POCKET_X[1] - LOCK_POCKET_X[0], LOCK_POCKET_Y[1] - LOCK_POCKET_Y[0], LOCK_POCKET_DEPTH + 1,
