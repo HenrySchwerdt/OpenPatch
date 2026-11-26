@@ -157,7 +157,7 @@ BOSS_UV = ([(35.1 - HOLLOW_UP, 6.5), (33.9 - HOLLOW_UP, 5.5), (34.3 - HOLLOW_UP,
 RAISE_DEPTH = 2.4          # FACE3 test (owner, A = B = 2 mm gap at 4.3): raised parts ~2.3 high, 0.1 play
 BOSS_SWEEP_DEG, BOSS_SWEEP_STEP = 45.0, 1.0   # front end of the boss near wall leaves the outline only after ~38 deg
 HOLLOW_ROUND = 2.0         # convex round-over of the edge into the hollow (owner: rounded, side photo of the original shows both top corners of the front wall rounded)
-OUTER_ROUND, OUTER_ROUND_X0 = 1.5, 20.0   # the round is on the OUTER front edge (end face to the black front), far half
+OUTER_ROUND, OUTER_ROUND_X0 = 0.0, 20.0   # owner: the outer front edge is sharp ("ganz links aussen eckig"), only the inner edge is rounded
 NOTCH_LOCK_X = 35.9        # lock notch at the far end, front side: from here to the far edge (photo)
 NOTCH_LOCK_Y = (-6.7, -2.5)   # runs into the hollow so no thin pillar is left between them (owner)
 NOTCH_LOCK_DEPTH = 5.0
@@ -212,13 +212,17 @@ def face() -> object:
         # full height and its OUTER edge (end face to the black front) is rounded, the drop into the hollow is
         # straight. Quarter-round cutter along the front edge from OUTER_ROUND_X0 to the far end.
         y_e = -(WIDTH / 2 + BORE_OFFSET_Y)
-        prof = [(y_e - 1, FACE_Z + 1), (y_e - 1, FACE_Z - OUTER_ROUND)]
-        prof += [(y_e + OUTER_ROUND - OUTER_ROUND * math.cos(a * math.pi / 32),
-                  FACE_Z - OUTER_ROUND + OUTER_ROUND * math.sin(a * math.pi / 32)) for a in range(17)]
-        prof += [(y_e + OUTER_ROUND, FACE_Z + 1)]
-        with BuildSketch(Plane.YZ.offset(OUTER_ROUND_X0)) as rs:
-            Polygon(*prof, align=None)
-        extrude(rs.sketch, amount=49.0 - OUT_NEAR - OUTER_ROUND_X0 + 1, mode=Mode.SUBTRACT)
+        if OUTER_ROUND <= 0:
+            y_e = None
+        prof = [] if y_e is None else [(y_e - 1, FACE_Z + 1), (y_e - 1, FACE_Z - OUTER_ROUND)]
+        if y_e is not None:
+            prof += [(y_e + OUTER_ROUND - OUTER_ROUND * math.cos(a * math.pi / 32),
+                      FACE_Z - OUTER_ROUND + OUTER_ROUND * math.sin(a * math.pi / 32)) for a in range(17)]
+            prof += [(y_e + OUTER_ROUND, FACE_Z + 1)]
+        if y_e is not None:
+            with BuildSketch(Plane.YZ.offset(OUTER_ROUND_X0)) as rs:
+                Polygon(*prof, align=None)
+            extrude(rs.sketch, amount=49.0 - OUT_NEAR - OUTER_ROUND_X0 + 1, mode=Mode.SUBTRACT)
         # hollow for the hook boss: the opening matches the owner's red circle, the rim curves down into it
         for d0, d1, inset in hollow_slices():
             with BuildSketch(Plane.XY.offset(FACE_Z - d1)) as hs:
