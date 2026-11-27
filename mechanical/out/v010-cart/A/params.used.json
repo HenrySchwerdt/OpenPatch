@@ -61,7 +61,7 @@
   "body_len": 49.0,
   "body_w": 19.0,
   "body_h": 9.5,
-  "conn_from_end": 11.2,
+  "conn_from_end": 11.46,
   "step_h": 2.5,
   "step_from_conn": 9.0,
   "step_rim": 2.2,
@@ -321,7 +321,14 @@
    },
    "front_module": {
     "depth": 6.6,
-    "bore_offset": 0.4,
+    "bore_offset": -0.76,
+    "lip": {
+     "in0": 1.15,
+     "in1": 2.25,
+     "len": 1.8,
+     "back": 1.0,
+     "_": "owner 2026-11-27: head sits a little into the housing (+ the 2 screws): ring lip on the housing front edge (inset 1.15..2.25 from the outline, 1.8 forward) into the head rear groove (make_face REAR_GROOVE 0.95..2.45 x 2.0)"
+    },
     "lock_pin": {
      "X": 26.0,
      "ball_d": 2.0,
@@ -362,7 +369,7 @@
     "body_len": 49.0,
     "body_w": 19.0,
     "body_h": 9.5,
-    "conn_from_end": 11.2,
+    "conn_from_end": 11.46,
     "nose_od": 10.3,
     "step_h": 2.5,
     "step_from_conn": 9.0,
@@ -488,7 +495,14 @@
  },
  "front_module": {
   "depth": 6.6,
-  "bore_offset": 0.4,
+  "bore_offset": -0.76,
+  "lip": {
+   "in0": 1.15,
+   "in1": 2.25,
+   "len": 1.8,
+   "back": 1.0,
+   "_": "owner 2026-11-27: head sits a little into the housing (+ the 2 screws): ring lip on the housing front edge (inset 1.15..2.25 from the outline, 1.8 forward) into the head rear groove (make_face REAR_GROOVE 0.95..2.45 x 2.0)"
+  },
   "lock_pin": {
    "X": 26.0,
    "ball_d": 2.0,

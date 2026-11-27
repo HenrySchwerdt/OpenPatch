@@ -199,7 +199,7 @@ NOTCH_LOCK_Y = (-6.7, -2.5)   # runs into the hollow so no thin pillar is left b
 NOTCH_LOCK_DEPTH = 5.0
 LOCK_POCKET_X = (23.2, 27.4)   # lock pocket in the curved left side of the hollow; widened (owner, FACE3: 'noch breiter')
 LOCK_POCKET_Y = (-7.7, -5.0)
-LOCK_POCKET_DEPTH = 5.8      # deeper than the hollow so it stays a pocket now the hollow reaches over it
+LOCK_POCKET_DEPTH = 4.4      # deeper than the hollow (2.4); 2.2 left under it in the 6.6 head, clear of the 2.0 rear groove
 LATCH_X = (13.6, 21.0)     # latch groove along the strip wall: from the foot of the slope back into the hollow (owner: bigger, so the adapter's catch fits for sure)
 LATCH_Z = (0.7, 3.0)       # below the face: 0.7 roof; runs a little below the shallower strip floor
 LATCH_DEPTH = 1.6          # into the wall (towards -Y)
@@ -385,6 +385,7 @@ def module_skirt(hole: tuple[float, float, float] | None = None) -> object:
     return sk.part
 
 
+REAR_GROOVE = {"in0": 0.95, "in1": 2.45, "depth": 2.0}   # ring groove in the head back (inset from the outline); lip = 1.15..2.25, 1.8 long
 MODULE_DEPTH = 6.6          # cart pump A front module: lock groove ends 5.6 below the face, lock pocket 5.8, 0.8 floor
 
 
@@ -418,6 +419,18 @@ def main() -> int:
             with Locations((px, py, floor - 0.31)):                 # narrower opening keeps the ball in (cap ~0.47 proud)
                 Cylinder(opening / 2, 1.0, align=(Align.CENTER, Align.CENTER, Align.MIN))
         part = part - pb.part
+    if module_dir and "--rear-groove" in sys.argv:              # owner 2026-11-27: the head sits a little INTO the housing (+ screws)
+        g = REAR_GROOVE                                          # ring groove in the back; the housing's front lip goes in (alignment, shear)
+        with BuildPart() as gr:
+            with BuildSketch(Plane.XY.offset(-0.01)):
+                Polygon(*outline(), align=None)
+                offset(amount=-g["in0"], mode=Mode.REPLACE)
+                with BuildSketch(mode=Mode.PRIVATE) as gi:
+                    Polygon(*outline(), align=None)
+                    offset(amount=-g["in1"], mode=Mode.REPLACE)
+                add(gi.sketch, mode=Mode.SUBTRACT)
+            extrude(amount=g["depth"] + 0.01)
+        part = part - gr.part
     if module_dir and "--skirt" in sys.argv:
         hole = None
         if "--hole" in sys.argv:
@@ -436,6 +449,16 @@ def main() -> int:
             placed = part.moved(pl.location)
             export_step(placed, str(module_dir / "cart_A_front_module_placed.step"))
             (module_dir / "cart_A_section.json").write_text(json.dumps([[round(yc + x, 4), round(zc + y, 4)] for x, y in outline()]))
+            if "--insets" in sys.argv:                           # exact 2D offsets of the section for the housing (no vertex-normal loops)
+                secs = {}
+                for d in (float(v) for v in sys.argv[sys.argv.index("--insets") + 1].split(",")):
+                    with BuildSketch() as so:
+                        Polygon(*outline(), align=None)
+                        offset(amount=-d, mode=Mode.REPLACE)
+                    wire = so.sketch.faces()[0].outer_wire()
+                    pts_ = [wire.position_at(i / 240) for i in range(240)]
+                    secs[f"{d:.3f}"] = [[round(yc + q.X, 4), round(zc + q.Y, 4)] for q in pts_]
+                (module_dir / "cart_A_section_insets.json").write_text(json.dumps(secs))
             ad, nd = adapter_dummy()
             export_step(ad.moved(pl.location), str(module_dir / "cart_A_adapter_dummy_placed.step"))
             export_step(nd.moved(pl.location), str(module_dir / "cart_A_needle_placed.step"))

@@ -822,6 +822,15 @@ def build_housing(s: Script, p: dict, L: dict) -> None:
             s.cut(b, [s.box(f"t_fm_{b}", (x_cut, Lt + 1), (-1, W + 1), (-1, H + 1))])
         # owner 2026-11-27: the head is screwed on, not glued: 2 countersunk M2 x 10 from the face (under the adapter) into bosses behind it,
         # one standing on the floor (bottom), one hanging from the roof (lid); the screws pull along the load (cartridge pressure)
+        lip = fm.get("lip")
+        if lip:                                               # owner 2026-11-27: the head sits INTO the housing: a ring lip on the front
+            ring = s.prism_yz("t_lip", section_points(L, lip["in0"]), x_cut - lip["back"], x_cut + lip["len"])   # edge goes into the
+            s.cut(ring, [s.prism_yz("t_lip_i", section_points(L, lip["in1"]), x_cut - lip["back"] - 0.1, x_cut + lip["len"] + 0.1)])  # head's rear groove
+            lt_ = H - sh.get("lid_h", w)
+            for b, zr in (("bottom", (-1, split)), ("top", (lt_, H + 1))):
+                part_ = s.box(f"t_lip_k_{b}", (x_cut - lip["back"] - 1, x_cut + lip["len"] + 1), (-1, W + 1), zr)
+                s.add("solid.combine", target=part_, tools=["t_lip"], operation="intersect", name=f"lip {b}", keep_tools=(b == "bottom"))
+                s.join(b, [part_])
         bl, bd, pd = fm["boss_len"], fm["boss_d"], fm["pilot_d"]
         for k, (mx, my) in enumerate(fm["screws"]):
             y, z = yc + mx, zc + my
@@ -919,7 +928,9 @@ def screw_points(p: dict, L: dict) -> list[tuple[float, float]]:
         if fm:                                                # A: in front of the board, inside the rounded far edge (section R5)
             x_f = L["length"] - fm["depth"] - sc["boss_d"] / 2 - 0.1     # just behind the front module (board ends before it)
             y_f = L["width"] - d - 3.2                        # boss clear of where the floor curves up into the R5 edge
-            rl = (tp["screw_rl"][0], tp["screw_rl"][1] + 1.0)  # rear-left boss clear of the small near-end edge round
+            rl = (tp["screw_rl"][0], tp["screw_rl"][1] + 2.4)  # rear-left boss clear of the big near-end edge round (5.1 x 5.8)
+            if fm.get("lip"):                                 # the head, screwed to bottom AND lid, holds the lid front: no front lid screw
+                return [rl, (tp["screw_rr_x"], tp["w_rear"] - tp["screw_rr_in"])]
             return [rl, (tp["screw_rr_x"], tp["w_rear"] - tp["screw_rr_in"]), (x_f, y_f)]
         return [tuple(tp["screw_rl"]), (tp["screw_rr_x"], tp["w_rear"] - tp["screw_rr_in"]), (x_f, y_f)]
     y_s = L["wall"] + sc["boss_d"] / 2 + 0.05                   # -Y screw: between the side wall and the slider-channel rail, in the tail zone
@@ -1011,7 +1022,11 @@ def _front_module_files(p: dict, L: dict) -> Path:
     py = here.parent / ".venv" / "bin" / "python"
     fm = p["cart"]["front_module"]
     scr = ";".join(f"{x},{y}" for x, y in fm["screws"])                # countersunk M2 from the face into bosses of bottom and lid
-    args = [str(py), "make_face.py", "--module", str(out), "--at", f"{L['length']},{L['y_c']},{L['zc']}", "--screws", scr]
+    insets = sorted({L["wall"], 0.3} | ({fm["lip"]["in0"], fm["lip"]["in1"]} if fm.get("lip") else set()))
+    args = [str(py), "make_face.py", "--module", str(out), "--at", f"{L['length']},{L['y_c']},{L['zc']}", "--screws", scr,
+            "--insets", ",".join(f"{d:.3f}" for d in insets)]
+    if fm.get("lip"):
+        args += ["--rear-groove"]
     lp = fm.get("lock_pin")
     if lp:
         args += ["--pin", f"{lp['X']},{L['lock_pin']['Y']:.3f},{lp['bore_d']},{lp['open_d']}"]
@@ -1024,6 +1039,9 @@ def section_points(L: dict, d: float = 0.0) -> list[tuple[float, float]]:
     pts = L["_section"]
     if d == 0:
         return [tuple(q) for q in pts]
+    exact = L.get("_section_insets", {}).get(f"{d:.3f}")
+    if exact:                                                         # exact offset from build123d (preferred)
+        return [tuple(q) for q in exact]
     n = len(pts)
     area = sum(pts[i][0] * pts[(i + 1) % n][1] - pts[(i + 1) % n][0] * pts[i][1] for i in range(n))
     sgn = 1.0 if area > 0 else -1.0                                   # CCW: inward normal = left of the direction of travel
@@ -1048,7 +1066,11 @@ def build(p: dict) -> tuple[Script, dict]:
     L = geometry(p)
     if p["cart"].get("front_module"):
         import json as _json
-        L["_section"] = _json.loads((_front_module_files(p, L) / "cart_A_section.json").read_text())
+        _out = _front_module_files(p, L)
+        L["_section"] = _json.loads((_out / "cart_A_section.json").read_text())
+        _ins = _out / "cart_A_section_insets.json"
+        if _ins.exists():
+            L["_section_insets"] = _json.loads(_ins.read_text())
     s = Script()
     build_housing(s, p, L)
     build_cartridge(s, p, L)

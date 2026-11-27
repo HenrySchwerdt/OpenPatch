@@ -1,7 +1,7 @@
 {
  "dims": [
-  64.27,
-  48.97,
+  66.06,
+  49.0,
   19.0
  ],
  "thrust": {
@@ -14,9 +14,12 @@
   "ratio": 1.83,
   "stall_pressure_kPa": 492.0
  },
- "problems": [],
+ "problems": [
+  "interference FULL bottom x ko_battery: 0.9250 mm3",
+  "interference FULL cartridge x ko_battery: 4.9499 mm3"
+ ],
  "notes": [
-  "housing 64.27 x 48.97 x 19.0 mm; with adapter (tubing stub excluded) 80.36 x 56.97 x 19.0 mm",
+  "housing 66.06 x 49.0 x 19.0 mm; with adapter (tubing stub excluded) 80.36 x 57.26 x 19.0 mm",
   "TARGET: height 19.0 > goal 15.0 (set by the receiver bore / cartridge OD estimate 12.6)",
   "moving parts checked at FULL and EMPTY (stroke 23.66 mm)",
   "stroke 23.66 / avail 23.7 mm; rod 31.86 mm, 5.20 mm behind the nut at EMPTY; slider 0.3 mm off the rear washer at EMPTY",
