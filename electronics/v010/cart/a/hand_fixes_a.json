@@ -1,0 +1,19 @@
+{
+ "board": "cart_a.kicad_pcb (4 layers, In1 + In2 signal layers with GND pours on all 4 layers), from cart_a_placed.kicad_pcb",
+ "note": "Record of the steps after the automatic flow, in order. Pump coordinates (cartgeom_a.py). Run from cart/a with ../../board/kpy; OP_LAYERS=4 OP_IN1=1 for every router call (In1 carries signals). Freerouting is not deterministic: the committed cart_a.kicad_pcb is the source of truth, these steps document how it was closed. TEST PROJECT, water only.",
+ "steps": [
+  {"do": "build", "cmd": "OP_LAYERS=4 OP_POFV=1 OP_NAME=cart_a_try12 kpy build_cart_a.py  (placement place_table.json, pins pin_assign.json) -> cart_a_try12_placed.kicad_pcb = cart_a_placed.kicad_pcb"},
+  {"do": "Freerouting, In1 as a signal layer", "cmd": "OP_IN1_SIGNAL=1 OP_BOARD=cart_a_try12s.kicad_pcb ./flow_cart_a.sh 60  (prep_signal_a.py: no In1 plane, GND routed like any net) -> 5 signal opens after the GND pours (APHASE x2, MOT_FWD x2, PERM_L); with the In1 GND plane the same placement stopped at 7-10 opens after every finishing tool"},
+  {"do": "island routing", "cmd": "strip_zones; OP_LAYERS=4 OP_IN1=1 kpy island_route_a.py -> PERM_L, MOT_FWD (U33) routed; APHASE x2 (U30 pad 6 walled in) and MOT_FWD (R16 pad 2) open"},
+  {"do": "rip", "what": "I2C_SDA In2 (49.705, 31.566)-(50.858, 32.719), DOCK_N In1 (49.582, 31.221)-(50.54, 32.179), ARM_CLK In1 (49.38, 31.758)-(50.139, 32.517)"},
+  {"do": "add", "what": "APHASE via in U30 pad 6 at (50.00, 31.95) (filled + capped, like the other in-pad vias of this board)"},
+  {"do": "island routing", "result": "I2C_SDA, DOCK_N, ARM_CLK, APHASE x2 routed; MOT_FWD (R16 pad 2 at (42.3, 22.0), the pull-up sits in the rear pull-up row, 12 mm from the rest of the net) open"},
+  {"do": "add", "what": "MOT_FWD via (42.40, 22.95) + B.Cu track R16.2 (42.3, 22.0) -> (42.3, 22.75) -> (42.4, 22.85) -> via"},
+  {"do": "rip", "what": "GND tracks with an end in x 41.5-52.5 / y 21.0-33.5 (61 pieces; the pours carry GND) and the SUP_DONE B.Cu diagonal (43.78, 24.767)-(48.313, 29.301)"},
+  {"do": "island routing", "cmd": "OP_FIRST=MOT_FWD island_route_a.py -> MOT_FWD routed; SUP_DONE re-routed after removing two pieces in its way (OC_OK, MOT_FWD: island_fix_a.py, one round) and a 2-piece MOT_FWD leftover without via at (44.15, 25.21)"},
+  {"do": "pour", "cmd": "OP_LAYERS=4 kpy ../../board/route_v3.py <board> finish; kpy ../dedup_vias.py <board>"},
+  {"do": "GND", "what": "B.Cu GND track (42.34, 21.171)-(41.083, 22.428) restored (U36.2 island, removed with the GND corridor rip); starved thermals C81.2, U3.2, R29.2, U30.3, U7B.4 -> full connection (zone_fix)"},
+  {"do": "clean-up", "cmd": "python3 prune_dangling_a.py <board>: 13 exact duplicate segments + 4 dangling leftovers removed; one In1 DOCK_N track end and the SUP_OK via in U1 pad E4 stay (removing them opens a connection: KiCad flags them dangling although they carry it)"},
+  {"do": "post", "cmd": "./post_a.sh cart_a_try12s_h16.kicad_pcb cart_a  (DRC, netlist check, variants, jlc / jlc-dev, CPL verify)"}
+ ]
+}

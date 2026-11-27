@@ -1,7 +1,21 @@
 # Project status & handover
 
 > This file is the **entry point for every new session** (another machine, another Claude subscription, another person).
-> It is updated on every push. Last updated: **2026-11-27 (cart A v2: print parts)**.
+> It is updated on every push. Last updated: **2026-11-27 (cart A v2: main board routed, 4 + 6 layers)**.
+
+## Cart A v2 main board routed (2026-11-27, electronics)
+`electronics/v010/cart/a/` (README there). Same chip set and **unchanged hardware interlock** as B; netlist A = B minus the pigtail /
+wire pads, plus TMAG5273 on the board (U10 at (34.47, 33.38)), lock detector switch **Alps SPVS410100** on `DOCK_N` (RLK 10 k + CLK
+100 nF debounce), motor header **Molex PicoBlade 53261-0471** (J2, PicoBlade family assumed for the NFP "JST 1.25" lead), cell
+**AVX 9175 2-way IDC** (J3, no soldering, + / - on the silkscreen), top tact SKSGACE010; 72 parts, 59 nets, 38 BOM lines. Firmware pin
+map `PINMAP-A.md` / `cart_a_pins.json`. **4 layers (preferred): `cart_a.kicad_pcb`, DRC 0 errors / 0 unconnected** on master, CLEAN,
+DEV, only with In1 as a second signal layer (GND pours on all four; the In1-GND-plane version stopped at 7 opens after 12 placement
+passes). **6 layers (fallback): `cart_a6.kicad_pcb`, DRC 0 / 0.** Both: netlist check passes, JLC packages (`jlc*`, `jlc-a6*`) with CPL
+verified 65 / 65. Cost for 5 boards (E): 366 EUR (4 L, PCB price to re-quote incl. filled via-in-pad) vs 392 EUR (6 L). **Open:**
+STM32C011 out of stock at JLC (0); USB-C moved +2.0 mm (housing opening x 37.28-46.72); lock switch operates at 1.05 mm, not 0.25;
+J2 sits at x 48.2-54.4 (plug under the board), not near (34, 33.5); top clamp interrupted over the HJ-840 (x 53.9-59.0); 29 courtyard
+overlaps (min pad gap 0.18 mm) to confirm in JLC's DFM; owner picks 4 or 6 layers.
+Coordinator review (same day): DRC re-run 0 / 0 on both boards and the netlist check pass; part positions match the README. **Lock-switch margin is the weak point**: with the proposed pin preload the switch is 0.17 mm short of ON when free and 0.20 mm past ON when locked, smaller than FDM part tolerance; the head needs more lock-pin stroke (or a different detector) before the reading can be trusted. The 4-layer saving is about 26 EUR for 5 boards before the via-in-pad surcharge, not the hoped 100 EUR: get a real JLC quote.
 
 ## Site: OpenPatch + OpenTube product family (2026-11-27, site)
 Owner: the site presents both pumps. Home = family section (one card per pump, side-by-side table, both interlock formulas); nav

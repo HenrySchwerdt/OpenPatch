@@ -1,0 +1,140 @@
+{
+ "APHASE": {
+  "pad": "F8",
+  "nrf": "P0.29",
+  "b_pad": "D7",
+  "b_nrf": "P1.13"
+ },
+ "BPHASE": {
+  "pad": "G3",
+  "nrf": "P0.12",
+  "b_pad": "G4",
+  "b_nrf": "P1.09"
+ },
+ "AENBL": {
+  "pad": "G7",
+  "nrf": "P0.26",
+  "b_pad": "C7",
+  "b_nrf": "P1.11"
+ },
+ "BENBL": {
+  "pad": "H5",
+  "nrf": "P0.08",
+  "b_pad": "G7",
+  "b_nrf": "P0.26"
+ },
+ "CHG_STAT": {
+  "pad": "G5",
+  "nrf": "P0.05",
+  "b_pad": "G8",
+  "b_nrf": "P0.06"
+ },
+ "OC_OK": {
+  "pad": "E7",
+  "nrf": "P0.28",
+  "b_pad": "F4",
+  "b_nrf": "P0.07"
+ },
+ "LATCH_Q": {
+  "pad": "F5",
+  "nrf": "P0.27",
+  "b_pad": "C8",
+  "b_nrf": "P1.12"
+ },
+ "DOCK_N": {
+  "pad": "D8",
+  "nrf": "P0.31",
+  "b_pad": "D8",
+  "b_nrf": "P0.31"
+ },
+ "SUP_OK": {
+  "pad": "E4",
+  "nrf": "P1.08",
+  "b_pad": "E7",
+  "b_nrf": "P0.28"
+ },
+ "LED_R": {
+  "pad": "F4",
+  "nrf": "P0.07",
+  "b_pad": "B1",
+  "b_nrf": "P0.22"
+ },
+ "LED_G": {
+  "pad": "G4",
+  "nrf": "P1.09",
+  "b_pad": "D1",
+  "b_nrf": "P0.19"
+ },
+ "LED_B": {
+  "pad": "E8",
+  "nrf": "P0.03",
+  "b_pad": "D2",
+  "b_nrf": "P1.00"
+ },
+ "SUP_TXD": {
+  "pad": "D3",
+  "nrf": "P1.02",
+  "b_pad": "G5",
+  "b_nrf": "P0.05"
+ },
+ "SUP_RXD": {
+  "pad": "D2",
+  "nrf": "P1.00",
+  "b_pad": "F5",
+  "b_nrf": "P0.27"
+ },
+ "SUP_BOOT0": {
+  "pad": "E6",
+  "nrf": "P0.02",
+  "b_pad": "E2",
+  "b_nrf": "P0.15"
+ },
+ "SUP_NRST": {
+  "pad": "F3",
+  "nrf": "P0.11",
+  "b_pad": "G3",
+  "b_nrf": "P0.12"
+ },
+ "MOT_FWD": {
+  "pad": "E2",
+  "nrf": "P0.15",
+  "b_pad": "F8",
+  "b_nrf": "P0.29"
+ },
+ "BTN_N": {
+  "pad": "F7",
+  "nrf": "P0.30",
+  "b_pad": "C1",
+  "b_nrf": "P0.25"
+ },
+ "I2C_SCL": {
+  "pad": "D1",
+  "nrf": "P0.19",
+  "b_pad": "C6",
+  "b_nrf": "P0.13"
+ },
+ "I2C_SDA": {
+  "pad": "C1",
+  "nrf": "P0.25",
+  "b_pad": "F3",
+  "b_nrf": "P0.11"
+ },
+ "ARM_CLK": {
+  "pad": "E3",
+  "nrf": "P0.16",
+  "b_pad": "F7",
+  "b_nrf": "P0.30"
+ },
+ "MCU_EN": {
+  "pad": "C8",
+  "nrf": "P1.12",
+  "b_pad": "E8",
+  "b_nrf": "P0.03"
+ },
+ "BUZ_A": {
+  "pad": "G8",
+  "nrf": "P0.06",
+  "b_pad": "B8",
+  "b_nrf": "P1.14"
+ }
+}

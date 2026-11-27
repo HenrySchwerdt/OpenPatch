@@ -1,0 +1,8 @@
+Designator,Value,Reason
+TPR1,recovery pad SWDIO,bare pad / not assembled
+TPR2,recovery pad SWDCLK,bare pad / not assembled
+TPR3,recovery pad GND,bare pad / not assembled
+TPR4,recovery pad 3V3,bare pad / not assembled
+TPS1,supervisor SWD pad PA13 SWDIO,bare pad / not assembled
+TPS2,supervisor SWD pad PA14 SWCLK,bare pad / not assembled
+TPS3,supervisor SWD pad NRST,bare pad / not assembled

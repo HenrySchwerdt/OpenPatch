@@ -1,0 +1,15 @@
+# cart A board: routing intermediates (the committed boards are cart_a / cart_a6 (.kicad_pcb + _placed), the scripts are the method)
+# the project files carry the boards' design rules (DRC): keep those of the committed boards (../.gitignore drops cart_*.kicad_pro)
+!cart_a*.kicad_pro
+.easyeda_cache/
+*_try*
+*.dsn
+*.ses
+*.ses.log
+*.ses.pid
+*_drc*.json
+*.best
+*_trial.*
+*.kicad_prl
+_boxes.json
+variants/_*
