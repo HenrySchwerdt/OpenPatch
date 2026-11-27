@@ -796,15 +796,18 @@ def build_housing(s: Script, p: dict, L: dict) -> None:
     fm = c.get("front_module")
     if fm:                                                    # A since 2026-11-26: front `depth` mm = separate FACE4 part (print/A_lock/make_face.py)
         x_cut = Lp - fm["depth"]
-        sk = fm.get("skirt", {"len": 3.5, "groove": [1.4, 2.6], "groove_depth": 0.6})
-        for b in ("bottom", "top"):
+        for b in ("bottom", "top", "lid_gasket"):
             s.cut(b, [s.box(f"t_fm_{b}", (x_cut, Lt + 1), (-1, W + 1), (-1, H + 1))])
-        s.cut("lid_gasket", [s.box("t_fm_lg", (x_cut - sk["len"] - 0.1, Lt + 1), (-1, W + 1), (-1, H + 1))])
-        g0, g1 = sk["groove"]                                 # groove for the skirt ridge in both shells: the closed lid traps the module
-        for b in ("bottom", "top"):
-            ring = s.prism_yz(f"t_gr_{b}", section_points(L, w - sk["groove_depth"]), x_cut - g1, x_cut - g0)
-            s.cut(ring, [s.prism_yz(f"t_gri_{b}", section_points(L, w - 0.05), x_cut - g1 - 0.1, x_cut - g0 + 0.1)])
-            s.cut(b, [ring])
+        # owner 2026-11-27: the head is screwed on, not glued: 2 countersunk M2 x 10 from the face (under the adapter) into bosses behind it,
+        # one standing on the floor (bottom), one hanging from the roof (lid); the screws pull along the load (cartridge pressure)
+        bl, bd, pd = fm["boss_len"], fm["boss_d"], fm["pilot_d"]
+        for k, (mx, my) in enumerate(fm["screws"]):
+            y, z = yc + mx, zc + my
+            body = "bottom" if my < 0 else "top"
+            boss = s.cyl(f"t_fmb{k}", "X", (0, y, z), bd, x_cut - bl, x_cut + 0.01)
+            web = s.box(f"t_fmw{k}", (x_cut - bl, x_cut + 0.01), (y - 1.0, y + 1.0), (w - 0.01, z) if my < 0 else (z, H - w + 0.01))
+            s.join(body, [boss, web])
+            s.cut(body, [s.cyl(f"t_fmp{k}", "X", (0, y, z), pd, x_cut - bl - 0.1, x_cut + 0.1)])
 
 
 def shell_len(L: dict) -> float:
@@ -892,8 +895,7 @@ def screw_points(p: dict, L: dict) -> list[tuple[float, float]]:
         y_f = L["width"] - d
         fm = p["cart"].get("front_module")
         if fm:                                                # A: in front of the board, inside the rounded far edge (section R5)
-            sk = fm.get("skirt", {"len": 3.5})
-            x_f = L["length"] - fm["depth"] - sk["len"] / 2     # through the module skirt: clamps bottom, skirt and lid (owner: connected, no glue)
+            x_f = L["length"] - fm["depth"] - sc["boss_d"] / 2 - 0.1     # just behind the front module (board ends before it)
             y_f = L["width"] - d - 3.2                        # boss clear of where the floor curves up into the R5 edge
             rl = (tp["screw_rl"][0], tp["screw_rl"][1] + 1.0)  # rear-left boss clear of the small near-end edge round
             return [rl, (tp["screw_rr_x"], tp["w_rear"] - tp["screw_rr_in"]), (x_f, y_f)]
@@ -907,7 +909,7 @@ def _boss_z0(p: dict, L: dict, k: int) -> float:
     """Lid boss foot: 0.2 above the floor, or 0.2 above the module skirt for the front screw (A)."""
     sc, w = p["cart"]["screws"], L["wall"]
     fm = p["cart"].get("front_module")
-    if fm and k == len(screw_points(p, L)) - 1:
+    if fm and fm.get("skirt") and k == len(screw_points(p, L)) - 1:
         sk = fm.get("skirt", {"clr": 0.2, "t": 1.2})
         return w + sk["clr"] + sk["t"] + sc["boss_gap"]
     return w + sc["boss_gap"]
@@ -985,10 +987,9 @@ def _front_module_files(p: dict, L: dict) -> Path:
     here = Path(__file__).resolve().parent
     out = here / "out" / "v010-cart" / "A" / "print"
     py = here.parent / ".venv" / "bin" / "python"
-    fm, sc = p["cart"]["front_module"], p["cart"]["screws"]
-    xf_, yf_ = screw_points(p, L)[-1]                                  # front lid screw through the module skirt
-    hole = f"{yf_ - L['y_c']:.3f},{xf_ - (L['length'] - fm['depth']):.3f},{sc['clear_d'] + 0.1},{sc['boss_d'] + 0.4}"
-    subprocess.run([str(py), "make_face.py", "--module", str(out), "--at", f"{L['length']},{L['y_c']},{L['zc']}", "--skirt", "--hole", hole],
+    fm = p["cart"]["front_module"]
+    scr = ";".join(f"{x},{y}" for x, y in fm["screws"])                # countersunk M2 from the face into bosses of bottom and lid
+    subprocess.run([str(py), "make_face.py", "--module", str(out), "--at", f"{L['length']},{L['y_c']},{L['zc']}", "--screws", scr],
                    cwd=here / "print" / "A_lock", check=True, capture_output=True)
     return out
 

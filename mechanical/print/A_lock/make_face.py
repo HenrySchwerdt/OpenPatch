@@ -394,6 +394,17 @@ def main() -> int:
         FACE_Z = MODULE_DEPTH
     OUT.mkdir(exist_ok=True)
     part = face()
+    if module_dir and "--screws" in sys.argv:                     # countersunk M2 holes (DIN 965) from the face into the housing bosses
+        pts = [tuple(float(v) for v in q.split(",")) for q in sys.argv[sys.argv.index("--screws") + 1].split(";")]
+        with BuildPart() as hs:
+            for hx, hy in pts:
+                with Locations((hx, hy, -1.0)):
+                    Cylinder(1.15, FACE_Z + 2, align=(Align.CENTER, Align.CENTER, Align.MIN))
+                with Locations((hx, hy, FACE_Z - 1.0)):           # 90 deg countersink for a d3.8 head, flush with the face
+                    Cone(1.15, 2.15, 1.0, align=(Align.CENTER, Align.CENTER, Align.MIN))
+                with Locations((hx, hy, FACE_Z - 0.01)):
+                    Cylinder(2.15, 0.5, align=(Align.CENTER, Align.CENTER, Align.MIN))
+        part = part - hs.part
     if module_dir and "--skirt" in sys.argv:
         hole = None
         if "--hole" in sys.argv:
