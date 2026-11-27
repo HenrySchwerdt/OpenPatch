@@ -2,6 +2,9 @@
 
 # Cart pump main board, variant B (57.0 x 10.6 x 0.8 mm, 6 layers), routed 2026-11-25
 
+> **Variant B is PARKED (owner 2026-11-27): do not order this board.** It stays as the template for the variant A board (same chip set,
+> interlock and scripts); the A board lives in `a/`.
+
 The cup board's chip set and interlock (`../INTERLOCK.md`) on the long, narrow outline of the cart pump B (`../../../mechanical/V010-CART.md`):
 HJ-840 nRF52840 SiP, STM32C011 supervisor, TPL5010 + latch + AND / XOR gates (motor only with MCU enable AND watchdog latch AND supervisor
 permit AND adapter-lock XOR direction), TPS2553 load switch, TPS61023 boost, 2 x DRV8838, MCP73832 charger, USB-C, RGB LED, sounder, side button.

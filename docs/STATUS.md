@@ -3,6 +3,10 @@
 > This file is the **entry point for every new session** (another machine, another Claude subscription, another person).
 > It is updated on every push. Last updated: **2026-11-27 (cart A v2: print parts)**.
 
+## Variant B parked (2026-11-27, owner)
+Only the cart pump A (original Insight adapter, v2 housing in `mechanical/cart_a_v2/`) is developed further. Variant B is parked: its files
+stay as the template for A's board flow; nothing is ordered or changed for B (decision log 2026-11-27).
+
 ## Cart A v2 print parts (2026-11-27, mechanics)
 `mechanical/cart_a_v2/shells.py` builds the printable halves from the package study: flat top at 19 (top half prints roof-down without
 supports), seam at the cartridge axis with a lap joint, half-saddles / bulkheads split at the seam, cartridge stop ring, chamber
@@ -168,6 +172,9 @@ All dimensions and components are in [spec/design-parameters.md](../spec/design-
 
 ## Decision log (user)
 
+- 2026-11-27 (owner): **Only cart variant A (original Accu-Chek Insight adapter) continues; variant B (printed bayonet cap + Luer needle) is
+  parked.** B's routed board (`electronics/v010/cart/`), CAD (`op_cart.py` variant B) and order notes stay in the repo unchanged as the
+  template for A's board flow (same chip set, interlock and scripts); no further work, orders or fixes for B unless the owner reopens it.
 - 2026-11-19 (coordinator, cloud session): **Coaxial comparison model** (`generate.py/check.py --variant v010`, `mechanical/V010.md`). **Superseded for v0.1.0 by the owner's cup pod, layout A (`--drive cup`)**; it is kept only as a measured comparison. It has one coaxial rod, a closed wide bore of 25.7 × 4.7 mm with a 1.0 mm wall, the motor in the rear zone, no idler, a ring magnet with TMAG, USB-C in the rear wall, a clear lid on a flat gasket joint with 6 screws, and the fill septum on the underside (d3.2).
   - **Verified from a clean checkout:** `check.py --variant v010` PASS for both sizes. That covers fluid boundary, H14, one-rod, 54 bodies with no interference and 12 dock inserts. `--assembly` reports 0 blocking findings.
   - **Length targets missed:** OP-100 is **58.2 mm** against 45, OP-200 is **66.9 mm** against 54. The cause is the dry tail of the translating screw. All levers together reach about 49 / 58 mm. Compared with the cup pod (OP-100 47.96 / OP-200 66.78 × 34.6 mm), the coaxial model is 10 mm longer at OP-100, about equal at OP-200, but 2.6 mm narrower. The length-closure study was stopped in favour of the cup pod.

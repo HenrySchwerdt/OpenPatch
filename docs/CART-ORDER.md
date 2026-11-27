@@ -51,6 +51,8 @@ Variant B also takes **any standard Luer-lock pump set** (e.g. mylife Orbit micr
 Per test: A about 9.9 EUR (cartridge + adapter & tubing), B about 5.7 EUR (cartridge + Venofix + needle; coupler reused).
 
 ## Order package for 5 pumps (first real bench test, after the fit print works)
+> **Superseded (2026-11-27):** this package was for the B board; variant B is parked. For A use the section "Cart A v2: mechanical order"
+> below and the A board package in `electronics/v010/cart/a/` once it is routed.
 | # | Shop | Items (qty) | Approx. total |
 |---|---|---|---|
 | 1 | **JLCPCB** | cart board **B**, 6 layers 0.8 mm ENIG, filled vias, 10 PCBs, 5 (or 10) assembled both sides: `electronics/v010/cart/jlc/` (gerbers, BOM, CPL with the verified bottom-side rotation rule, NOT-ASSEMBLED; DEV variant in `jlc-dev/`). **Routed 2026-11-25, DRC 0.** Board cost per pump 70.5 / 45.2 / 32.5 EUR at 5 / 10 / 20 (`electronics/v010/cart/COST.md`, live JLC prices). TMAG strip and lock-hall strip still to design; A board (20.5 x 28.9) not routed | about 350 EUR (5) / 450 EUR (10) |

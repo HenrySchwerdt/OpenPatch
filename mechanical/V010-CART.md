@@ -2,6 +2,9 @@
 
 # v0.1.0 "cart" pump: Insight cartridge, variants A and B (`cart_gen.py`, `cart_check.py`)
 
+> **Owner 2026-11-27: only variant A continues; variant B is PARKED** (kept as the template for A's board flow, no further work or orders).
+> Variant A's current design is the v2 housing: `CART-A-V2-BRIEF.md` and `cart_a_v2/` (this file and `op_cart.py` describe v1).
+
 A small, minimal tubed bench pump. The reservoir is the **Accu-Chek Insight 1.6 ml glass cartridge** (ISO 13926-1 cartridge family). Nothing wet is made by us.
 | Variant | On the cartridge | Tubing / site end |
 |---|---|---|
