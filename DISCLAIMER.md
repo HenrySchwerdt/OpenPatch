@@ -11,6 +11,6 @@
 
 - Nothing here is medical advice. Do not change your therapy based on this project.
 - Regulatory documents (`regulatory/`) and the commercial licence (`COMMERCIAL-LICENSE.md`) are drafts and are not legal or regulatory advice.
-- Product names (Accu-Chek, Insight Flex: Roche; Omnipod, DASH: Insulet; Trio; LoopKit) belong to their owners and are used only to describe compatibility. There is no affiliation or endorsement.
+- Product names (Accu-Chek, Accu-Chek Insight, Insight Flex: Roche; mylife, YpsoPump: Ypsomed; NovoRapid, PumpCart: Novo Nordisk; Omnipod, DASH: Insulet; Trio; LoopKit) belong to their owners and are used only to describe compatibility. There is no affiliation or endorsement.
 
 If you need an insulin pump, talk to your diabetes care team and use an approved device.

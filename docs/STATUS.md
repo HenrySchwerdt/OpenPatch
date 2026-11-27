@@ -3,6 +3,14 @@
 > This file is the **entry point for every new session** (another machine, another Claude subscription, another person).
 > It is updated on every push. Last updated: **2026-11-27 (cart A v2: print parts)**.
 
+## Site: OpenPatch + OpenTube product family (2026-11-27, site)
+Owner: the site presents both pumps. Home = family section (one card per pump, side-by-side table, both interlock formulas); nav
+"OpenPatch" (former "Product", `design/`) + new **OpenTube** page (`opentube/`, cart pump A v2: renders, numbers read at build time from
+`mechanical/out/cart_a_v2/package_report.json`, `shells_report.json` and the v2 brief; lock sequence; yoke drive; Insight footprint;
+adapters: Accu-Chek Insight in development, mylife YpsoPump planned; honest status). Brief and order list rendered as docs. Build passes,
+screenshots 375 / 768 / 1440 light + dark regenerated. Known and older: the OpenPatch 3D viewer shows an empty canvas (model loads as one
+part `assembly_1`); `tools/render/render_heroes.py compose` would drop the 5 OpenTube manifest entries (warned in the build log).
+
 ## Variant B parked (2026-11-27, owner)
 Only the cart pump A (original Insight adapter, v2 housing in `mechanical/cart_a_v2/`) is developed further. Variant B is parked: its files
 stay as the template for A's board flow; nothing is ordered or changed for B (decision log 2026-11-27).
