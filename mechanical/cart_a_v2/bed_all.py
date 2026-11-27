@@ -17,7 +17,7 @@ import sys
 from pathlib import Path
 
 import numpy as np
-from build123d import Plane, Pos, Solid, export_stl
+from build123d import Plane, Pos, Rot, Solid, export_stl
 
 import package as pk
 
@@ -26,7 +26,7 @@ from make_x2_housing import read_stl  # noqa: E402
 
 P = pk.OUT / "print"
 B, C = pk.box, pk.cyl_x
-GAP = 5.0          # between parts on the bed
+GAP = 6.0          # between parts on the bed
 BED = (250.0, 220.0)
 
 
@@ -51,21 +51,27 @@ def hex_nut(af: float = 4.0, t: float = 1.6, hole: float = 2.2) -> Solid:
 
 
 def board_dummy() -> Solid:
+    """Routed board (cart_a6.kicad_pcb) as a fit stand-in: real outline, USB-C at x 42, SW1, LED, TMAG, HJ-840 on top; lock switch,
+    motor header J2 + plug, cell IDC J3 and sounder below. Printed top-down on its top parts (the tallest bottom part is 4.6)."""
+    import json
+    from build123d import Face, Vector, Wire
     pz0, pz1 = pk.BOARD["pcb_z"]
-    z_bed = pz0 - 1.6
-    s = B(pk.BOARD["x"], pk.BOARD["y"], (pz0, pz1)) + B(pk.TONGUE["x"], pk.TONGUE["y"], (pz0, pz1))
-    s = s + B((pk.USB_X - 4.47, pk.USB_X + 4.47), (36.8 - 7.35, 36.8), (z_bed, pk.USB_Z + 1.63))       # mid-mount receptacle
+    ol = json.loads((pk.HERE / "board_outline_a.json").read_text())["outline_xy"]
+    s = Solid.extrude(Face(Wire.make_polygon([Vector(x, y, pz0) for x, y in ol], close=True)), Vector(0, 0, pz1 - pz0))
+    s = s + B((pk.USB_X - 4.47, pk.USB_X + 4.47), (36.8 - 7.35, 36.8), (pk.USB_Z - 1.63, pk.USB_Z + 1.63))   # mid-mount receptacle
     bx, by = pk.BUTTON_XY
     lx, ly = pk.LED_XY
-    s = s + B((bx - 1.75, bx + 1.75), (by - 1.75, by + 1.75), (pz1, pz1 + 1.5))                       # SW1
-    s = s + B((lx - 0.8, lx + 0.8), (ly - 0.8, ly + 0.8), (pz1, pz1 + 0.6))                           # LED
+    s = s + B((bx - 1.5, bx + 1.5), (by - 1.35, by + 1.35), (pz1, pz1 + 1.4))                         # SW1 SKSGACE010
+    s = s + B((lx - 0.8, lx + 0.8), (ly - 0.75, ly + 0.75), (pz1, pz1 + 0.6))                         # LED
     s = s + B(pk.TMAG_X, (pk.YM - 1.0, pk.YM + 1.0), (pz1, pz1 + 0.75))                               # TMAG5273
-    s = s - B((pk.BOARD["x"][0] - 0.1, pk.BOARD_NOTCH["x"][1]), pk.BOARD_NOTCH["y"], (z_bed - 1, pz1 + 2))  # notch at the pinion
-    s = s + B((59.76 + pk.XS, 63.26 + pk.XS), (37.46 - 1.75, 37.46 + 1.75), (z_bed, pz0))             # lock switch (underside)
-    for x in (34.5, 47.0, 59.0):                                                                       # print feet in the bottom parts zone
-        for y in (21.5, 33.0):
-            s = s + B((x - 1.0, x + 1.0), (y - 1.0, y + 1.0), (z_bed, pz0))
-    return Pos(0, 0, -z_bed) * s
+    s = s + B((54.2, 60.4), (31.76, 38.76), (pz1, pz1 + 1.45))                                        # HJ-840
+    s = s + B((60.64, 63.94), (35.58, 39.08), (pz0 - 1.0, pz0))                                       # lock switch SPVS410100
+    s = s + B((48.2, 54.4), (20.4, 31.4), (pz0 - 3.4, pz0))                                           # J2 PicoBlade
+    s = s + B((59.46, 62.54), (25.6, 31.4), (pz0 - 4.6, pz0))                                         # J3 AVX 9175 IDC
+    s = s + B((55.0, 59.0), (24.0, 28.0), (pz0 - 2.5, pz0))                                           # sounder
+    for x, y in ((35.5, 22.5), (42.0, 22.0), (52.0, 22.5), (36.0, 28.0), (52.0, 30.0), (60.5, 21.5)):   # print feet (top-side zone)
+        s = s + B((x - 1.0, x + 1.0), (y - 1.0, y + 1.0), (pz1, pz1 + 1.45))
+    return Pos(0, 0, pz1 + 1.45) * Rot(180, 0, 0) * s                                                  # printed upside down on its top parts
 
 
 def stand_ins() -> dict[str, Solid]:
@@ -134,9 +140,11 @@ def pack(meshes: dict[str, np.ndarray]) -> list[np.ndarray]:
 def main() -> None:
     for k, s in stand_ins().items():
         export_stl(s, str(P / f"fit_{k}.stl"), tolerance=0.01, angular_tolerance=0.1)
-    names = ["v2_bottom", "v2_top", "kopf9", "fit_board_dummy", "v2_yoke", "v2_pusher", "v2_button_plunger", "fit_motor_dummy",
+    # v2.1 (owner print 2026-11-27: the crowded one-bed print came out worse than single prints): halves and head print on their
+    # own; this bed holds only the small parts and the fit stand-ins
+    names = ["fit_board_dummy", "v2_yoke", "v2_pusher", "v2_button_plunger", "fit_motor_dummy",
              "fit_gear_dummy", "fit_screw_rod", "fit_stem_rod", "fit_light_pipe_rod", "fit_lock_pin", "fit_nut_a", "fit_nut_b"]
-    paths = {n: (pk.MECH / "print" / "cart_A" / "kopf9_centered.stl" if n == "kopf9" else P / f"{n}.stl") for n in names}
+    paths = {n: P / f"{n}.stl" for n in names}
     meshes = {n: load(p) for n, p in paths.items()}
     placed = pack(meshes)
     tris = np.concatenate(placed)
@@ -144,7 +152,7 @@ def main() -> None:
     tris = tris - np.array([(c[:, 0].min() + c[:, 0].max()) / 2, (c[:, 1].min() + c[:, 1].max()) / 2, 0])
     span = np.ptp(tris.reshape(-1, 3), axis=0)
     assert span[0] <= BED[0] and span[1] <= BED[1], span
-    with open(P / "v2_all_bed.stl", "wb") as f:
+    with open(P / "v2_small_bed.stl", "wb") as f:
         f.write(b"cart_a_v2 all parts".ljust(80, b" "))
         f.write(struct.pack("<I", len(tris)))
         for a, b, cc in tris:

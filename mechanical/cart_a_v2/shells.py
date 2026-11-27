@@ -28,6 +28,11 @@ ROOF = pk.HEAD_W - pk.WALL          # inner roof 17.8 (flat top)
 PY0, PY1 = pk.PART_Y
 pz0, pz1 = pk.BOARD["pcb_z"]
 LAP_UP = 0.8                        # bottom lip rises this far above the seam (inner half of the wall)
+# far board edge on the routed board (cart_a6): USB-C at x 42 (its tab slot needs x 47.0-48.2 free), HJ-840 crosses the strip on top
+# over x 54.2-59.0 (top clamp stops at 53.9); the bottom ledge may run under the module
+FAR_LEDGES = ((33.0, 35.0), (48.2, 58.0))
+SHADOW = (0.3, 0.5)                 # seam shadow groove: depth, height
+FAR_CLAMPS = ((33.0, 35.0), (48.2, 53.9))
 SADDLES_CART = (36.5, 46.5, 56.5)   # chamber saddles (x0, 1.6 thick)
 SADDLES_MOTOR = (12.76, 21.76)
 HOOK_Y = ((5.2, 8.2), (29.4, 32.9))  # rear hooks, beside the yoke (yoke y 8.71-28.9)
@@ -49,19 +54,21 @@ def loft(e: float, x_end: float) -> Solid:
     (exact prism), flare into the head (loft through gently changing sections). One loft through all stations waved by up to 2 mm."""
     import math
     R = pk.REAR_R
-    dome = [_wire(R - (R - e) * math.cos(th), R - (R - e) * math.sin(th)) for th in [math.pi / 2 * i / 10 for i in range(11)]]
-    p_dome = Solid.make_loft(dome, ruled=False)
-    p_body = Solid.extrude(Face(_wire(R, e)), Vector(pk.FLARE_X0 - R, 0, 0))
+    st = pk.dome_stations(e)                                            # quarter circle to 45 deg + 45 deg facet (prints bed-side down)
+    p_dome = Solid.make_loft([_wire(x, d) for x, d in st[:-1]], ruled=False)
+    p_facet = Solid.make_loft([_wire(*st[-2]), _wire(*st[-1])], ruled=True)
+    xe = st[-1][0]
+    p_body = Solid.extrude(Face(_wire(xe, e)), Vector(pk.FLARE_X0 - xe, 0, 0))
     xs = [pk.FLARE_X0 + i * 2.0 for i in range(int((x_end - pk.FLARE_X0) / 2.0) + 1)]
     xs = [x for x in xs if x < x_end - 0.3] + [x_end]
     p_flare = Solid.make_loft([_wire(x, e) for x in xs], ruled=False)
-    return p_dome.fuse(p_body, p_flare).clean()
+    return p_dome.fuse(p_facet, p_body, p_flare).clean()
 
 
 def ring_prism(d_out: float, d_in: float, x0: float, x1: float) -> Solid:
     """Ring between two insets of the head section, extruded along x (the lip that enters the head's rear groove)."""
-    def wire(d: float) -> Wire:
-        return Wire.make_polygon([Vector(x0, y, z) for y, z in pk.section_yz(pk.HEAD_L, pk.HEAD_W, d)], close=True)
+    def wire(d: float) -> Wire:                                         # exact offsets, like the head's groove (make_face offset)
+        return Wire.make_polygon([Vector(x0, y, z) for y, z in pk.exact_inset(pk.section_yz(pk.HEAD_L, pk.HEAD_W), d)], close=True)
     return Solid.extrude(Face(wire(d_out), [wire(d_in)]), Vector(x1 - x0, 0, 0))
 
 
@@ -107,7 +114,7 @@ def common_features() -> tuple[list[Solid], list[Solid]]:
 def bottom_features() -> list[Solid]:
     f = []
     f.append(B((31.9, pk.BOARD["x"][1] + 0.2), (PY1 - 0.01, 20.35), (-1.0, pz0)))                  # board ledge along the partition
-    for xr in ((33.0, 35.0), (45.0, 58.0)):                                                         # board ledge at the far side (not at USB, not at the pinion)
+    for xr in FAR_LEDGES:                                                                           # board ledge at the far side (not at USB, not at the pinion)
         f.append(B(xr, (35.3, 36.9), (-1.0, pz0)))
     f.append(B((31.97, 32.5), (PY1 - 0.01, 21.0), (pz0, pz1 + 0.46)))                               # board rear stop (clear of rib_f top half)
     f.append(B((pk.BOARD["x"][1] + 0.1, pk.BOARD["x"][1] + 1.2), (PY1 - 0.01, 22.0), (pz0 - 1.0, pz1 + 0.46)))   # board front stop
@@ -119,7 +126,7 @@ def bottom_features() -> list[Solid]:
 def top_features() -> tuple[list[Solid], list[Solid]]:
     f, cut = [], []
     f.append(B((32.6, 62.0), (PY1 - 0.01, 20.1), (pz1, 10.6)))                                      # board clamp, partition side
-    for xr in ((33.0, 35.0), (45.0, 58.0)):
+    for xr in FAR_CLAMPS:
         f.append(B(xr, (35.3, 36.9), (pz1, 10.6)))                                                  # board clamp, far side
     cx, cy = pk.CELL["x"], pk.CELL["y"]
     f.append(B((31.96, cx[0] - 0.2), (cy[0] - 0.2, 36.9), (12.0, 25.0)))                            # cell pocket: rear wall
@@ -184,16 +191,19 @@ def build() -> dict[str, Solid]:
     log("lofts", t0)
     shell = outer - cavity
     add, cut = common_features()
-    common = shell + (fuse(add) & cavity) + ring_prism(1.15, 2.25, XJ - 1.0, XJ + 1.8)
+    # joint ring into the head groove (KOPF10 0.85..2.55): 1.1 thick, 0.3 play per side, stepped 0.4 lead-in at the tip
+    common = shell + (fuse(add) & cavity) + ring_prism(1.15, 2.25, XJ - 1.0, XJ + 1.1) + ring_prism(1.3, 2.1, XJ + 1.0, XJ + 1.5)
     log("shell + common structure", t0)
     below = B((-5, 90), (-5, 70), (-5, SEAM))
     above = B((-5, 90), (-5, 70), (SEAM, 30))
-    lip = (loft(0.6, XJ) - cavity) & B((-5, XJ), (-5, 70), (SEAM - 0.01, SEAM + LAP_UP))
-    groove = (loft(0.5, XJ + 2.0) - loft(1.3, XJ + 2.0)) & B((-5, XJ + 2.0), (-5, 70), (SEAM - 0.01, SEAM + LAP_UP + 0.1))
-    log("lap joint", t0)
+    # owner print 2026-11-27: the stepped lap left only 0.5 mm of outer wall on the top half at the seam (ragged rim). Now a butt
+    # joint with the full 1.2 wall on both halves and a 0.3 x 0.5 shadow groove on the seam line; the halves are located by the
+    # head ring (front), the rear hooks and the cartridge / motor / screw clamped in both half-saddles.
+    shadow = (outer - loft(SHADOW[0], XJ)) & B((-5, XJ + 0.1), (-5, 70), (SEAM - SHADOW[1] / 2, SEAM + SHADOW[1] / 2))
+    log("seam shadow groove", t0)
     tf, tcut = top_features()
-    bottom = (common & below) + lip + (fuse(bottom_features()) & cavity)
-    top = ((common & above) + (fuse(tf) & cavity)) - groove
+    bottom = (common & below) + (fuse(bottom_features()) & cavity) - shadow
+    top = ((common & above) + (fuse(tf) & cavity)) - shadow
     pc = port_cuts()
     bottom = bottom - fuse(cut + pc)
     top = top - fuse(cut + pc + tcut)
@@ -229,7 +239,38 @@ def check(parts: dict[str, Solid]) -> dict:
                 elif v > 0.5:
                     hits.append([hn, pn, round(v, 3), "excluded but large"])
         res[state] = hits
+    # the head (KOPF10, a real solid): no overlap with either half, and the joint ring keeps >= 0.25 play per side in its groove
+    import head as hd
+    hs_ = hd.place(hd.build())
+    res["head"] = []
+    for hn, hh in halves.items():
+        inter = hh & hs_
+        v = inter.volume if inter is not None else 0.0
+        if v > 0.01:
+            res["head"].append([hn, "head", round(v, 3)])
+    grown = ring_prism(0.9, 2.5, XJ, XJ + 1.5)
+    inter = grown & hs_
+    v = inter.volume if inter is not None else 0.0
+    if v > 0.01:
+        res["head"].append(["ring + 0.25 play", "head", round(v, 3)])
     return res
+
+
+def overhang_outer() -> dict:
+    """Outer skin steeper than 45 deg toward the bed, per side (near y < centre / far), for the bottom half printed bottom-down
+    and the top half printed roof-down (owner 2026-11-27: the two sides printed differently). mm2, the bed layer excluded."""
+    import numpy as np
+    t = pk.rings_to_tris(pk.body_rings())
+    n = np.cross(t[:, 1] - t[:, 0], t[:, 2] - t[:, 0])
+    a = np.linalg.norm(n, axis=1) / 2
+    nz = n[:, 2] / np.maximum(2 * a, 1e-12)
+    c = t.mean(axis=1)
+    mid = np.array([pk.extents(x)[0] / 2 for x in c[:, 0]])
+    out = {}
+    for half, sel in (("bottom", (c[:, 2] < SEAM) & (nz < -0.72) & (c[:, 2] > 0.25)),
+                      ("top", (c[:, 2] > SEAM) & (nz > 0.72) & (c[:, 2] < pk.HEAD_W - 0.25))):
+        out[half] = {"near": round(float(a[sel & (c[:, 1] < mid)].sum()), 2), "far": round(float(a[sel & (c[:, 1] >= mid)].sum()), 2)}
+    return out
 
 
 def main() -> None:
@@ -237,7 +278,8 @@ def main() -> None:
     parts = build()
     for k, s in parts.items():
         export_stl(s, str(OUT / f"placed_{k}.stl"), tolerance=0.01, angular_tolerance=0.1)
-    orient = {"bottom": Rot(0, 0, 0), "top": Rot(180, 0, 0), "yoke": Rot(0, 90, 0), "button_plunger": Rot(180, 0, 0),
+    # halves: rear end toward the bed's back (+Y) so the slicer's "back" seam sits on the rear rounding, not on a side
+    orient = {"bottom": Rot(0, 0, -90), "top": Rot(0, 0, -90) * Rot(180, 0, 0), "yoke": Rot(0, 90, 0), "button_plunger": Rot(180, 0, 0),
               "light_pipe": Rot(0, 0, 0), "pusher": Rot(0, 90, 0)}   # disc on the bed
     report = {"parts": {}, "check": check(parts)}
     for k, s in parts.items():
@@ -247,7 +289,9 @@ def main() -> None:
         export_stl(c, str(OUT / f"v2_{k}.stl"), tolerance=0.01, angular_tolerance=0.1)
         report["parts"][k] = {"volume_cm3": round(s.volume / 1000, 2), "valid": s.is_valid, "solids": len(s.solids()),
                               "print_bbox_mm": [round(bb.max.X - bb.min.X, 2), round(bb.max.Y - bb.min.Y, 2), round(bb.max.Z - bb.min.Z, 2)]}
-    report["pass"] = not any(report["check"].values()) and all(v["solids"] == 1 for v in report["parts"].values())
+    report["overhang_outer_mm2"] = ov = overhang_outer()
+    report["pass"] = (not any(report["check"].values()) and all(v["solids"] == 1 for v in report["parts"].values())
+                      and all(max(v.values()) < 2.0 for v in ov.values()))
     (OUT / "shells_report.json").write_text(json.dumps(report, indent=1))
     print(json.dumps(report, indent=1))
 

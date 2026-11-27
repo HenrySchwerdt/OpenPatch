@@ -1,7 +1,18 @@
 # Project status & handover
 
 > This file is the **entry point for every new session** (another machine, another Claude subscription, another person).
-> It is updated on every push. Last updated: **2026-11-27 (cart A v2: main board routed, 4 + 6 layers)**.
+> It is updated on every push. Last updated: **2026-11-27 (cart A v2.1: housing after the first fit print, KOPF10, 6-layer board)**.
+
+## Cart A v2.1 housing + head KOPF10 after the first fit print (2026-11-27, mechanical)
+Owner print of ALLES2: shells fit, but the head did not go on, a head screw hole sat behind the joint ring, the two sides printed
+differently. Causes (CAD): ring in KOPF9's groove with only 0.2 mm play and the groove mouth squeezed on the bed; lower screw 0.01 mm
+past the ring; asymmetric adapter-outline section (far bottom edge a shallow overhang, seam on one side); 0.5 mm wall at the seam lap.
+v2.1 (`mechanical/CART-A-V2-BRIEF.md` section 11): mirror-symmetric body section blending into the adapter outline over the flare,
+45 deg print facets (0 outer overhang on both halves), butt seam with a shadow groove, new head **KOPF10** (`cart_a_v2/head.py`:
+groove 0.85..2.55 + mouth step, lower screw at z 4.24, lock face untouched), routed 6-layer board in the package (USB-C x 42, far
+ledges / clamps re-cut). Checks: package PASS, shells PASS incl. the head as a real solid (0 overlap, >= 0.25 mm ring play).
+G-codes `mechanical/print/cart_A/` BODEN3, DECKEL3, KOPF10, KLEIN3 (printed one by one, seam on the rear end, first-layer expansion
+-0.15). Same size: 81.36 x 49 x 19 mm, -26 % vs the Insight box. Open: lock switch margins (0.17 / 0.20 mm) need a bench check.
 
 ## Cart A v2 main board routed (2026-11-27, electronics)
 `electronics/v010/cart/a/` (README there). Same chip set and **unchanged hardware interlock** as B; netlist A = B minus the pigtail /
@@ -194,6 +205,8 @@ All dimensions and components are in [spec/design-parameters.md](../spec/design-
 
 ## Decision log (user)
 
+- 2026-11-27 (owner): **Cart A main board: order the 6-layer version** (`electronics/v010/cart/a/cart_a6.kicad_pcb`, JLC package
+  `jlc-a6/` / `jlc-a6-dev/`), not the 4-layer one (small saving, In1 not a solid plane). **Keep the v2 form factor** (no wider v3 body).
 - 2026-11-27 (owner): **Only cart variant A (original Accu-Chek Insight adapter) continues; variant B (printed bayonet cap + Luer needle) is
   parked.** B's routed board (`electronics/v010/cart/`), CAD (`op_cart.py` variant B) and order notes stay in the repo unchanged as the
   template for A's board flow (same chip set, interlock and scripts); no further work, orders or fixes for B unless the owner reopens it.

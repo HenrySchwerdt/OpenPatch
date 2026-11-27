@@ -50,10 +50,11 @@ TONGUE = {"x": (58.0 + XS, 62.96 + XS), "y": (34.5, 39.96)}
 CELL = {"x": (32.3 + XS, 63.8 + XS), "y": (24.3, 34.9), "z": (11.1, 14.3)}       # above the board, clear of head boss + button plunger
 PINION_X1 = 32.66          # front face of the 4 mm pinion (motor boss face 28.66 + 4.0)
 BOARD_NOTCH = {"x": (32.6, 33.0), "y": (31.0, 36.31)}   # board absent here: clears the pinion end
-TMAG_X = (33.2, 35.2)      # TMAG5273 on top, beside the magnet in the pinion front bore
-USB_X, USB_Z = 40.0, 8.74  # mid-mount, centred ON the seam: each half has half the stadium, no thin bridge (owner 2026-11-27)
+TMAG_X = (33.67, 35.27)    # TMAG5273 body on the routed board (U10 at 34.47 / 33.38), beside the magnet in the pinion front bore
+USB_X, USB_Z = 42.0, 8.74  # mid-mount, centred ON the seam; x 42.0 on the routed board (40.0 left no room for the TMAG5273)
 BUTTON_XY, LED_XY = (46.5, 22.05), (39.0, 22.05)   # beside the cell, clear of the board clamp strip; 3.6 mm wall between the holes
-HEAD_SCREWS = [(21.46, 3.24), (21.46, 13.24)]   # axial M2 through the head face (KOPF9 holes, module [10,-5.5] / [10,4.5]) into bottom / top half
+HEAD_SCREWS = [(21.46, 4.24), (21.46, 13.24)]   # axial M2 through the head face (KOPF10, module [10,-4.5] / [10,4.5]) into bottom / top half;
+                                                # KOPF9's lower screw (z 3.24) ran 0.01 past the joint ring (owner print 2026-11-27)
 
 
 def smooth(t: float) -> float:
@@ -66,15 +67,76 @@ def extents(x: float) -> tuple[float, float]:
     return BODY_L + (HEAD_L - BODY_L) * s, BODY_W + (HEAD_W - BODY_W) * s
 
 
+def dome_stations(e: float = 0.0, n: int = 6) -> list[tuple[float, float]]:
+    """Rear end profile (x, inset) of the skin offset by e: quarter circle from the rear face down to 45 deg, then a straight
+    45 deg facet to the full section (owner 2026-11-27 print: the rounded rear edge sagged where it meets the bed)."""
+    r = REAR_R - e
+    st = [(REAR_R - r * math.cos(th), REAR_R - r * math.sin(th)) for th in np.linspace(0.0, math.pi / 4, n + 1)]
+    x45, d45 = st[-1]
+    return st + [(x45 + (d45 - e), e)]
+
+
 def dome_inset(x: float) -> float:
-    if x >= REAR_R:
+    st = dome_stations()
+    if x >= st[-1][0]:
         return 0.0
+    x45, d45 = st[-2]
+    if x >= x45:
+        return d45 - (x - x45)
     return REAR_R - math.sqrt(max(REAR_R ** 2 - (REAR_R - x) ** 2, 0.0))
 
 
-def section_yz(L: float, W: float, d: float = 0.0, k: int = 16, m: int = 6) -> list[tuple[float, float]]:
-    """The head's adapter outline (make_face.ADAPTER_SHAPE) at width L (y) and height W (z), inset by d. Fixed point count."""
-    sh = mf.ADAPTER_SHAPE
+def exact_inset(pts: list[tuple[float, float]], d: float, n: int = 240) -> list[tuple[float, float]]:
+    """Exact 2D offset (inward by d) of a closed polygon, sampled at n points (same method as make_face's head groove)."""
+    from build123d import BuildSketch, Mode, Polygon, offset
+    with BuildSketch() as sk:
+        Polygon(*pts, align=None)
+        offset(amount=-d, mode=Mode.REPLACE)
+    w = sk.sketch.faces()[0].outer_wire()
+    return [(q.X, q.Y) for q in (w.position_at(i / n) for i in range(n))]
+
+
+# owner 2026-11-27 (v2 print): the halves looked different left and right. The body is now mirror-symmetric (same corners near
+# and far) and only blends into the adapter's own outline over the flare (x 49 -> joint), so the head (adapter outline) still sits
+# flush. Every corner meets its top / bottom face with a 45 deg facet: the halves print bed-side down without a sagging overhang.
+SYM_SHAPE = {"near_left": (5.0, 6.0), "near_right": (2.8, 3.8), "far_left": (5.0, 6.0, 2.0), "far_right": (2.8, 3.8), "near_slant": 0.0}
+FACET_SLOPE = 1.0          # |dz/dy| below which a corner is replaced by a straight 45 deg line to its face
+
+
+def shape_at(w: float) -> dict:
+    """Corner set between the symmetric body (w = 0) and the adapter outline (w = 1)."""
+    a, b = SYM_SHAPE, mf.ADAPTER_SHAPE
+    lerp = lambda p, q: tuple(p[i] + (q[i] - p[i]) * w for i in range(len(p)))  # noqa: E731
+    return {"near_left": lerp(a["near_left"], b["near_left"]), "near_right": lerp(a["near_right"], b["near_right"]),
+            "far_left": lerp(a["far_left"], b["far_left"]), "far_right": lerp(a["far_right"], b["far_right"]),
+            "near_slant": a["near_slant"] + (b["near_slant"] - a["near_slant"]) * w}
+
+
+def _facet(q: list[tuple[float, float]], face_first: bool) -> list[tuple[float, float]]:
+    """q: corner polyline in (u = z, v = y). Replace the part flatter than 45 deg next to the horizontal face (u = const) by a
+    straight 45 deg line from the tangent point to the face; same point count."""
+    pts = list(q if face_first else q[::-1])                 # pts[0] on the face, pts[-1] on the side wall
+    u_face = pts[0][0]
+    j = None
+    for i in range(len(pts) - 1, 0, -1):                     # walk from the side wall toward the face
+        du, dv = pts[i - 1][0] - pts[i][0], pts[i - 1][1] - pts[i][1]
+        if abs(du) < FACET_SLOPE * abs(dv):
+            j = i
+            break
+    if j is None or j == 0:
+        return q
+    u45, v45 = pts[j]
+    h = abs(u_face - u45)
+    sv = 1.0 if (pts[0][1] - pts[j][1]) > 0 else -1.0
+    line = [(u45 + (u_face - u45) * s, v45 + sv * h * s) for s in [1 - i / j for i in range(j + 1)]]   # index 0 = face end
+    out = line[:j] + pts[j:]
+    return out if face_first else out[::-1]
+
+
+def section_yz(L: float, W: float, d: float = 0.0, k: int = 16, m: int = 6, w: float = 1.0, facet: bool = True) -> list[tuple[float, float]]:
+    """Section at width L (y) and height W (z), inset by d. w = 1: the head's adapter outline (make_face.ADAPTER_SHAPE),
+    w = 0: the symmetric body; facet: 45 deg facets where the corners meet the top and bottom faces. Fixed point count."""
+    sh = shape_at(w)
     nlu, nlv = sh["near_left"]
     nru, nrv = sh["near_right"]
     flu, flv, fln = sh["far_left"]
@@ -84,10 +146,12 @@ def section_yz(L: float, W: float, d: float = 0.0, k: int = 16, m: int = 6) -> l
     def rr(r: float) -> float:
         return max(r - d, 0.3)
 
-    quads = [mf._quad(d + rr(nlu), sl + d + rr(nlv), rr(nlu), rr(nlv), 180, 270, 2.0, k),
-             mf._quad(W - d - rr(nru), d + rr(nrv), rr(nru), rr(nrv), 270, 360, 2.0, k),
-             mf._quad(W - d - rr(fru), L - d - rr(frv), rr(fru), rr(frv), 0, 90, 2.0, k),
-             mf._quad(d + rr(flu), L - d - rr(flv), rr(flu), rr(flv), 90, 180, fln, k)]
+    quads = [mf._quad(d + rr(nlu), sl + d + rr(nlv), rr(nlu), rr(nlv), 180, 270, 2.0, k),     # bottom face -> near side
+             mf._quad(W - d - rr(nru), d + rr(nrv), rr(nru), rr(nrv), 270, 360, 2.0, k),       # near side -> top face
+             mf._quad(W - d - rr(fru), L - d - rr(frv), rr(fru), rr(frv), 0, 90, 2.0, k),      # top face -> far side
+             mf._quad(d + rr(flu), L - d - rr(flv), rr(flu), rr(flv), 90, 180, fln, k)]        # far side -> bottom face
+    if facet:
+        quads = [_facet(quads[0], True), _facet(quads[1], False), _facet(quads[2], True), _facet(quads[3], False)]
     uv = []
     for i, q in enumerate(quads):
         uv += q
@@ -96,9 +160,19 @@ def section_yz(L: float, W: float, d: float = 0.0, k: int = 16, m: int = 6) -> l
     return [(v, u) for u, v in uv]          # (y, z)
 
 
+def morph_w(x: float) -> float:
+    """Blend weight of the adapter outline along the body: 0 behind the flare, 1 at the head joint (same curve as extents)."""
+    return smooth((x - FLARE_X0) / (X_JOINT - FLARE_X0))
+
+
+def section_at(x: float, d: float = 0.0) -> list[tuple[float, float]]:
+    L, W = extents(x)
+    return section_yz(L, W, d, w=morph_w(x))
+
+
 def inner_poly(x: float, extra: float = 0.0) -> np.ndarray:
     L, W = extents(x)
-    return np.array(section_yz(L, W, dome_inset(x) + WALL + extra))
+    return np.array(section_at(x, dome_inset(x) + WALL + extra))
 
 
 def inside(poly: np.ndarray, y: float, z: float) -> bool:
@@ -112,16 +186,13 @@ def inside(poly: np.ndarray, y: float, z: float) -> bool:
 def body_rings(e: float = 0.0, x_end: float = X_JOINT - GAP, n_dome: int = 12) -> list[np.ndarray]:
     """Rings of the outer surface offset inward by e (e = 0: outer skin)."""
     stations = []
-    for i in range(n_dome + 1):
-        th = math.pi / 2 * i / n_dome
-        stations.append((REAR_R - (REAR_R - e) * math.cos(th), REAR_R - (REAR_R - e) * math.sin(th)))
+    stations += dome_stations(e, n_dome // 2)
     stations += [(x, e) for x in np.linspace(REAR_R, FLARE_X0, 8)[1:]]
     stations += [(x, e) for x in np.arange(FLARE_X0 + 0.8, x_end, 0.8)]
     stations.append((x_end, e))
     rings = []
     for x, d in stations:
-        L, W = extents(x)
-        rings.append(np.array([(x, y, z) for y, z in section_yz(L, W, d)]))
+        rings.append(np.array([(x, y, z) for y, z in section_at(x, d)]))
     return rings
 
 
@@ -204,18 +275,24 @@ def parts(state: str = "full") -> dict[str, tuple[Solid, str, bool]]:
     # the d2 x 1 angle magnet sits in its free front bore (x 31.66-32.66)
     P["pinion"] = (cyl_x(28.66, PINION_X1, YM, ZC, 4.2) - cyl_x(PINION_X1 - 1.0, PINION_X1 + 0.1, YM, ZC, 2.0), "brass", False)
     P["magnet"] = (cyl_x(PINION_X1 - 1.0, PINION_X1, YM, ZC, 2.0), "magnet", False)
-    board = box(BOARD["x"], BOARD["y"], (pz0, pz1)) + box(TONGUE["x"], TONGUE["y"], (pz0, pz1))
-    P["board"] = (board - box((BOARD["x"][0] - 0.1, BOARD_NOTCH["x"][1]), BOARD_NOTCH["y"], (pz0 - 0.1, pz1 + 0.1)), "pcb", False)
+    ol = json.loads((HERE / "board_outline_a.json").read_text())["outline_xy"]                 # routed board (notches, tongue, wing)
+    P["board"] = (Solid.extrude(Face(Wire.make_polygon([Vector(x, y, pz0) for x, y in ol], close=True)), Vector(0, 0, pz1 - pz0)), "pcb", False)
     notch = box((BOARD["x"][0] - 0.1, BOARD_NOTCH["x"][1]), BOARD_NOTCH["y"], (pz0 - 3.0, pz1 + 3.0))
     P["ko_board_top"] = (box((BOARD["x"][0], BOARD["x"][1]), BOARD["y"], (pz1, pz1 + BOARD["top"])) - notch, "ko", False)
     P["ko_board_bottom"] = (box((BOARD["x"][0], 60.5), BOARD["y"], (pz0 - BOARD["bottom"], pz0)) - notch, "ko", False)
     P["usb_c"] = (box((USB_X - 4.47, USB_X + 4.47), (36.8 - 7.35, 36.8), (USB_Z - 1.63, USB_Z + 1.63)), "steel", False)
-    P["lock_switch"] = (box((59.76 + XS, 63.26 + XS), (37.46 - 1.75, 37.46 + 1.75), (pz0 - 1.6, pz0)), "black", False)   # tongue underside: actuator ~7.7, pin d2 at 7.07
-    P["lock_pin"] = (cyl_x(63.26 + XS, 66.56 + XS, 37.46, 7.07, 2.0), "steel", False)
+    # routed board (cart_a6.kicad_pcb): Alps SPVS410100 lock switch on the tongue underside, lever toward +x on y 37.46 (free 65.72,
+    # ON 64.68, end 64.18); the pin preloads it: tip 64.85 with the ball free, 64.48 locked (board README, bench-tune)
+    P["lock_switch"] = (box((60.64, 63.94), (35.58, 39.08), (pz0 - 1.0, pz0)), "black", False)
+    P["lock_pin"] = (cyl_x(64.48, 66.56 + XS, 37.46, 7.07, 2.0), "steel", False)
+    P["hj840"] = (box((54.2, 60.4), (31.76, 38.76), (pz1, pz1 + 1.45)), "black", False)                 # radio module, antenna end toward +y
+    P["j2_motor"] = (box((48.2, 54.4), (20.4, 31.4), (pz0 - 3.4, pz0)), "black", False)                # PicoBlade 4 pin, opening toward -x
+    P["j2_plug"] = (box((41.6, 48.2), (22.6, 29.2), (pz0 - 3.4, pz0 - 0.1)), "black", False)           # the motor plug lies under the board
+    P["j3_cell"] = (box((59.46, 62.54), (25.6, 31.4), (pz0 - 4.6, pz0)), "black", False)               # AVX 9175 IDC + cap (height estimate)
     P["tmag"] = (box(TMAG_X, (YM - 1.0, YM + 1.0), (pz1, pz1 + 0.75)), "black", False)
     P["sw1"] = (box((BUTTON_XY[0] - 1.75, BUTTON_XY[0] + 1.75), (BUTTON_XY[1] - 1.75, BUTTON_XY[1] + 1.75), (pz1, pz1 + 1.5)), "black", False)
     P["led"] = (box((LED_XY[0] - 0.8, LED_XY[0] + 0.8), (LED_XY[1] - 0.8, LED_XY[1] + 0.8), (pz1, pz1 + 0.6)), "led", False)
-    P["sounder"] = (cyl_z(56.0 + XS, 26.0, pz0 - 2.5, pz0, 5.0), "black", False)
+    P["sounder"] = (box((55.0, 59.0), (24.0, 28.0), (pz0 - 2.5, pz0)), "black", False)            # FUET-4020 (BZ1 at 57.0 / 26.0)
     P["cell"] = (box(CELL["x"], CELL["y"], CELL["z"]), "cell", False)
     return P
 
@@ -250,7 +327,7 @@ EXCLUDE = {frozenset(p) for p in [("cartridge_glass", "stopper"), ("cartridge_gl
                                    ("motor", "motor_rear"), ("gearhead", "shaft"), ("shaft", "pinion"), ("pinion", "magnet"),
                                    ("cartridge_glass", "cartridge_cap"), ("cartridge_glass", "pusher"), ("cartridge_glass", "rear_stop"),
                                    ("board", "ko_board_top"), ("board", "ko_board_bottom"), ("board", "usb_c"), ("board", "lock_switch"),
-                                   ("board", "tmag"), ("board", "sw1"), ("board", "led"), ("board", "sounder"), ("ko_board_top", "usb_c"),
+                                   ("board", "tmag"), ("board", "sw1"), ("board", "hj840"), ("board", "j2_motor"), ("board", "j3_cell"), ("ko_board_top", "hj840"), ("ko_board_bottom", "j2_motor"), ("ko_board_bottom", "j3_cell"), ("j2_motor", "j2_plug"), ("ko_board_bottom", "j2_plug"), ("board", "led"), ("board", "sounder"), ("ko_board_top", "usb_c"),
                                    ("ko_board_bottom", "usb_c"), ("ko_board_top", "lock_switch"), ("ko_board_top", "tmag"), ("ko_board_top", "sw1"),
                                    ("ko_board_top", "led"), ("ko_board_bottom", "sounder"), ("lock_switch", "lock_pin"), ("ko_board_bottom", "lock_switch"), ("sw1", "button_plunger"),
                                    ("led", "light_pipe"), ("ko_board_top", "button_plunger"), ("ko_board_top", "light_pipe"),
@@ -293,7 +370,8 @@ def main() -> None:
     write_stl(OUT / "body_inset_seam.stl", rings_to_tris(body_rings(e=0.35)))
     body_vol = mesh_volume(outer)
 
-    head = Pos(XS, 0, 0) * import_step(str(V1 / "cart_A_front_module_placed.step"))      # v1 head (KOPF9 geometry), moved +XS
+    import head as hd                                                                   # KOPF10, built here as a real solid (the
+    head = hd.place(hd.build())                                                         # imported KOPF9 STEP gave false booleans)
     adapter = Pos(XS, 0, 0) * import_step(str(V1 / "cart_A_adapter_dummy_placed.step"))
     needle = Pos(XS, 0, 0) * import_step(str(V1 / "cart_A_needle_placed.step"))
     for nm, shp in (("head", head), ("adapter", adapter), ("needle", needle)):
@@ -301,7 +379,7 @@ def main() -> None:
     hb, ab = head.bounding_box(), adapter.bounding_box()
 
     results = {"fit": [], "collisions": {}}
-    H = housing_features()
+    H = housing_features() | {"head": (head, "shell")}                                  # the head is checked against every part
     for state in ("full", "empty"):
         P = parts(state)
         allp = {k: v[0] for k, v in P.items()} | {k: v[0] for k, v in H.items()}

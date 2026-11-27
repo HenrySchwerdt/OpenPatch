@@ -21,7 +21,7 @@ QUICK = "--quick" in sys.argv
 LIGHT = float(next((a.split("=")[1] for a in sys.argv if a.startswith("--light=")), "1.0"))
 
 # form numbers shared with package.py (kept in sync by hand: package.py is the source)
-BUTTON_XY, LED_XY, USB_X, USB_Z = (46.5, 22.05), (39.0, 22.05), 40.0, 8.74
+BUTTON_XY, LED_XY, USB_X, USB_Z = (46.5, 22.05), (39.0, 22.05), 42.0, 8.74
 TOP_BUTTON, TOP_LED, FAR_WALL_Y, SEAM_Z = 19.0, 19.0, 38.0, 8.74
 
 COLORS = {

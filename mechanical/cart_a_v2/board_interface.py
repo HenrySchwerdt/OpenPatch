@@ -12,6 +12,7 @@ import json
 import numpy as np
 
 import package as pk
+import shells as sh
 
 
 def far_inner(x: float) -> float:
@@ -41,8 +42,9 @@ def main() -> None:
         },
         "part_free_strips_both_faces": {
             "near": {"y": [by[0], 20.35], "x": [bx[0], bx[1]], "why": "bottom ledge (partition side) + top clamp 19.35-20.1"},
-            "far": {"y": [35.3, by[1]], "x": [[33.0, 35.0], [45.0, 58.0 + pk.XS]],
-                    "why": "bottom ledge + top clamp (not at the USB-C, x 35-45)"},
+            "far": {"y": [35.3, by[1]], "x": [[33.0, 35.0], [45.0, 58.0 + pk.XS]], "x_note": "x = the strips the board was routed against "
+                    "(kept for the electronics rebuild); the housing now uses only x_bottom_ledge / x_top_clamp", "x_bottom_ledge": [list(r) for r in sh.FAR_LEDGES], "x_top_clamp": [list(r) for r in sh.FAR_CLAMPS],
+                    "why": "v2.1 for the routed board: USB-C at x 42 (tab slot x 47.0-48.2 free), HJ-840 crosses on top over x 54.2-59.0"},
             "rear_stop": {"note": "the rear edge bears on a stop at x 31.97-32.5 (bottom half) for y 18.84-21.0"},
             "front_stop": {"x": [bx[1] + 0.1, bx[1] + 1.2], "y": [18.84, 22.0], "note": "front edge stop block, y 18.84-22.0"},
         },
@@ -51,7 +53,8 @@ def main() -> None:
             "top_why": "cell above (z 11.1) on a 0.5 foam pad",
             "bottom_mm": round(pz0 - pk.WALL - 0.3, 2),
             "bottom_why": "floor at z 1.2; except over the bottom head boss (x >= 62.86, y 19.46-23.46, top z 5.24): 2.8 mm",
-            "bottom_boss_zone": {"x": [61.86 + pk.XS, 66.0], "y": [19.46, 23.46], "max_mm": 2.8},
+            "bottom_boss_zone": {"x": [61.86 + pk.XS, 66.0], "y": [19.46, 23.46], "max_mm": round(pz0 - (pk.HEAD_SCREWS[0][1] + 2.0), 2),
+                                 "why": "v2.1: lower head screw at z 4.24 (boss top 6.24)"},
         },
         "fixed_parts": {
             "usb_c": {"centre_x": pk.USB_X, "front_face_y": 36.8, "centre_z": pk.USB_Z, "type": "mid-mount 16p (TYPE-C-31-M-14 class), "
@@ -61,16 +64,17 @@ def main() -> None:
             "led": {"x": pk.LED_XY[0], "y": pk.LED_XY[1], "face": "top", "type": "RGB, top-emitting, under a d2 light pipe"},
             "tmag5273": {"x": list(pk.TMAG_X), "y": [pk.YM - 1.0, pk.YM + 1.0], "face": "top", "why": "beside the angle magnet in the "
                          "4 mm pinion's front bore (x 31.66-32.66, y 33.435, z 8.74)"},
-            "lock_switch": {"x": [59.76 + pk.XS, 63.26 + pk.XS], "y": [35.71, 39.21], "face": "bottom (tongue underside)",
-                            "actuator": "toward +x, tip at x 64.26 locked / 64.63 free, line y 37.46, z 7.07 (d2 pin from the head)"},
+            "lock_switch": {"part": "Alps SPVS410100 (routed board)", "x": [60.64, 63.94], "y": [35.58, 39.08], "face": "bottom (tongue underside)",
+                            "actuator": "lever toward +x on y 37.46: free 65.72, ON 64.68, end 64.18; d2 pin from the head (z 7.07) preloads it: "
+                                        "tip 64.85 ball free, 64.48 locked (0.17 / 0.20 mm margins: bench-tune the pin length)"},
             "sounder": {"x": 56.0 + pk.XS, "y": 26.0, "face": "bottom", "max_h": 2.5, "port": "3 slots in the floor below"},
         },
         "connectors_no_soldering": {
-            "motor": {"face": "bottom", "near": [34.0, 33.5], "why": "motor leads run along the floor (notches z 1-5.2 in the motor "
-                      "saddles, the rear bulkhead and rib_f, y 34-37.5) and arrive under the board's rear-far corner"},
-            "cell": {"face": "bottom", "near": [61.5, 29.0], "why": "the cell lies above the board (x 33.3-64.8, y 24.3-34.9, z 11.1-14.3) "
-                     "with its lead at the FRONT end; the lead drops past the board's front edge (free gap x 62.9-65.2, y 22-34.5)"},
-            "type": "JST-SH 2 pin on the BOTTOM face (2.9-4.3 mm tall does not fit on top: 1.45 mm)",
+            "motor": {"near": [34.0, 33.5], "part": "J2 Molex PicoBlade 53261-0471, bottom, right angle (routed board)", "x": [48.2, 54.4], "y": [20.4, 31.4],
+                      "plug_under_board": {"x": [41.6, 48.2], "y": [22.6, 29.2]},
+                      "why": "the leads run along the floor (notches z 1-5.2, y 34-37.5) to the rear-far corner, then under the board to the plug"},
+            "cell": {"near": [61.5, 29.0], "part": "J3 Kyocera AVX 9175 2-way IDC, bottom (routed board)", "at": [61.0, 28.5],
+                     "why": "the cell lies above the board with its bare leads at the FRONT end; they drop past the board's front edge into the IDC"},
         },
         "keepouts_top": [
             {"what": "button plunger d3 + collar d4.2", "x": pk.BUTTON_XY[0], "y": pk.BUTTON_XY[1], "d": 4.4},

@@ -156,3 +156,35 @@ NFP-608 drawing: shaft d2.0 with a flat, 2.5 long, front boss d3.5 x 0.8; leads 
 1.25 mm header on the bottom). Market m0.3 z12 pinions are 4 mm long: pinion x 28.66-32.66, magnet in its front bore, rib_f window d4.8,
 rear bulkhead boss hole d3.8, board notch x 32.6-33.0 / y 31.0-36.3, TMAG x 33.2-35.2, far ledge / clamp from x 33.0. Shopping list with
 live prices: `docs/CART-ORDER.md` (section "Cart A v2: mechanical order").
+
+## 11. v2.1 after the first fit print (2026-11-27, owner print of ALLES2 + KOPF9)
+Owner feedback: the shells fit together, but the head did not go on, one head screw hole sat "behind the rim", the two sides of the
+shell printed differently, the head printed worse on the crowded bed. Owner decision: keep the v2 form factor, order the 6-layer board.
+
+What was wrong (measured in CAD):
+- **Joint**: the ring (1.15..2.25) sat in KOPF9's groove (0.95..2.45) with only 0.2 mm per side; the groove mouth printed on the bed
+  (first layer squeezed with Z_ADJUST -0.15). The earlier package check never tested the head (the KOPF9 STEP gave a bogus boolean).
+- **Lower head screw** (z 3.24) ran 0.01 mm past the ring top (z 2.25).
+- **Sides**: the section copied the adapter outline (bottom corners 5.8 x 5.1 near, a long 4.3 x 7.9 sweep far): the far bottom edge
+  was a shallow overhang (twice the near side's area) and the slicer's "sharpest corner" seam sat on one side only.
+- **Seam lap**: only 0.5 mm of outer wall left on the top half at the seam.
+
+v2.1 changes:
+- **Body section mirror-symmetric** (`package.SYM_SHAPE`: bottom corners 5.0 x 6.0, top corners 2.8 x 3.8, near = far); it blends into
+  the adapter outline over the flare (x 49 -> joint, `morph_w`), so the head stays flush. Plan view and size unchanged
+  (81.36 x 49 x 19 with the adapter, envelope 61.8 ml, -26 % vs the Insight box).
+- **45 deg print facets** where every corner meets its top / bottom face, and at the rear end (`dome_stations`): no outer overhang
+  steeper than 45 deg on either half, both sides equal (`shells_report.json` `overhang_outer_mm2`: 0 / 0 / 0 / 0).
+- **Butt seam** with the full 1.2 wall on both halves and a 0.3 x 0.5 shadow groove on the seam line (no thin lap).
+- **Head KOPF10** (`cart_a_v2/head.py`, built from make_face.face(), lock face untouched): faceted outline (flush with the shells),
+  groove 0.85..2.55 x 2.0 with a 0.3 mouth step (0.3 mm play per side), lower screw at module Y -4.5 (pump z 4.24, 1.0 clear of the
+  ring); the shells' ring has a stepped 0.4 lead-in. Checked as a real solid against both halves and every part: 0 overlap, ring keeps
+  >= 0.25 mm play everywhere.
+- **Routed 6-layer board** in the package (outline from `board_outline_a.json`, USB-C x 42, HJ-840, J2 + plug, J3, SPVS410100 lock
+  switch, pin tip 64.48 locked): far bottom ledges x 33-35 / 48.2-58, far top clamps x 33-35 / 48.2-53.9; all checks pass.
+- **Printing**: halves and head on their own beds (the crowded bed printed worse), rear end toward the bed's back with seam
+  "back" (seam on the rear rounding), initial-layer horizontal expansion -0.15 (keeps grooves and holes open): `print/cart_A/`
+  BODEN3 (1 h 07), DECKEL3 (1 h 24), KOPF10 (0 h 33), KLEIN3 (0 h 29: yoke, pusher, plunger, light pipe + stand-ins; the board
+  stand-in is the routed board, printed upside down on feet).
+- Open: the lock switch margins (0.17 mm before ON with the ball free, 0.20 past ON locked) are below FDM tolerance; bench-tune the
+  pin length and verify the reading in both states before relying on it.

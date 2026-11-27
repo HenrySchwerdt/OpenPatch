@@ -2,6 +2,9 @@
 
 # Cart pump A v2 main board (30.2 x 16.95 + tongue + antenna wing): routed on 4 layers, DRC 0 / 0; 6-layer fallback also routed
 
+**Owner decision 2026-11-27: the 6-layer board `cart_a6.kicad_pcb` is the one to order (JLC package `jlc-a6/`, DEV variant `jlc-a6-dev/`).**
+The housing (mechanical/cart_a_v2, v2.1) is cut for this board: USB-C x 42, far ledges / clamps, J2 plug space, lock switch.
+
 Same chip set and the same hardware interlock as the cup board and the routed B board (`../README.md`, `../../INTERLOCK.md`): HJ-840
 nRF52840 SiP, STM32C011 supervisor, TPL5010 + latch + AND / XOR gates (motor supply only with MCU enable AND watchdog latch AND supervisor
 permit AND (ADAPTER LOCKED XOR DIR_REVERSE)), TPS2553 load switch, TPS61023 boost, 2 x DRV8838, MCP73832 charger, USB-C, RGB LED, sounder.
@@ -10,7 +13,7 @@ Nothing in the interlock chain is removed or relaxed: the lock detector switch o
 Mechanical interface: `../../../../mechanical/out/cart_a_v2/board_A_interface.json` + the coordinator's 4 mm-pinion changes of 2026-11-27
 (`cartgeom_a.OVERRIDE`: notch x 32.6-33.0 / y 31.0-36.3, TMAG x 33.2-35.2, far strip from x 33.0), brief `../../../../mechanical/CART-A-V2-BRIEF.md` 6-9.
 
-| | **4 layers** `cart_a.kicad_pcb` (preferred) | **6 layers** `cart_a6.kicad_pcb` (fallback) |
+| | 4 layers `cart_a.kicad_pcb` (not ordered) | **6 layers** `cart_a6.kicad_pcb` (**chosen, owner 2026-11-27**) |
 |---|---|---|
 | Stack (0.8 mm) | F / In1 / In2 / B: **all four carry signals**, GND pour on all four | F / In1 GND plane / In2 / In3 / In4 / B (as B), GND pour on all six |
 | KiCad 10 DRC, master + CLEAN + DEV | **0 errors, 0 unconnected**. Warnings: 29 courtyard overlaps (see "Deviations"), silkscreen (10 edge, 20 overlap, 25 over copper, 7 text height), 1 In1 track end + 1 in-pad via flagged "dangling" that carry a connection (removing either opens it) | **0 errors, 0 unconnected**. Warnings: the same 29 courtyard overlaps and silkscreen only |

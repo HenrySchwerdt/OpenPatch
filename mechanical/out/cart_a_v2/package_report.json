@@ -23,8 +23,8 @@
    57.26,
    19.0
   ],
-  "body_volume_ml": 46.5,
-  "head_volume_ml": 3.75,
+  "body_volume_ml": 47.17,
+  "head_volume_ml": 3.7,
   "adapter_box_ml": 15.67,
   "insight_box_ml": 83.0,
   "insight_mm": [
@@ -35,8 +35,8 @@
   "head_bbox": [
    [
     65.26,
-    -0.0,
-    0.0
+    0.0,
+    -0.0
    ],
    [
     71.86,
@@ -44,9 +44,9 @@
     19.0
    ]
   ],
-  "head_envelope_ml": 5.98,
-  "adapter_envelope_ml": 8.6,
-  "total_envelope_ml": 61.1,
+  "head_envelope_ml": 6.0,
+  "adapter_envelope_ml": 8.64,
+  "total_envelope_ml": 61.8,
   "vs_insight_box": "-26%"
  },
  "check": {

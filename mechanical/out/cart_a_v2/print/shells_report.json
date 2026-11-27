@@ -1,22 +1,22 @@
 {
  "parts": {
   "bottom": {
-   "volume_cm3": 5.88,
+   "volume_cm3": 5.84,
    "valid": true,
    "solids": 1,
    "print_bbox_mm": [
-    67.06,
-    48.71,
+    48.7,
+    66.76,
     9.6
    ]
   },
   "top": {
-   "volume_cm3": 7.33,
+   "volume_cm3": 7.42,
    "valid": true,
    "solids": 1,
    "print_bbox_mm": [
-    67.06,
     49.0,
+    66.76,
     14.0
    ]
   },
@@ -63,7 +63,18 @@
  },
  "check": {
   "full": [],
-  "empty": []
+  "empty": [],
+  "head": []
+ },
+ "overhang_outer_mm2": {
+  "bottom": {
+   "near": 0.0,
+   "far": 0.0
+  },
+  "top": {
+   "near": 0.0,
+   "far": 0.0
+  }
  },
  "pass": true
 }
