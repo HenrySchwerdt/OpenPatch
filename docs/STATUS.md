@@ -13,7 +13,9 @@ barrel; board 29.2 x 17 + tongue beside the chamber with its centre on the seam,
 in y; USB-C stadium centred on the seam (owner: no thin bridge between port and seam), button + LED light pipe on the flat top, sounder
 slots in the floor; head held by 2 axial M2 through its face (under the
 adapter) + collar, rear by hooks (no visible screws). Check: every part fits the cavity with 0.2 clearance at FULL and EMPTY, no collisions.
-**Size: 80.4 x 49 x 19 with the adapter (Insight 84 x 52 x 19); envelope 55.3 ml vs the Insight box 83 ml (-33 %).** Renders
+**Size: 81.4 x 49 x 19 with the adapter (Insight 84 x 52 x 19); envelope 55.9 ml vs the Insight box 83 ml (-33 %).** Rear stop ring
+(owner): the barrel rests on a d8.9 ring wall behind it (pusher d8.4 passes), +1.0 length, full 1.59 ml kept; review + open points in
+the brief section 7 (antenna wing into the flare, motor/cell connection without soldering, yoke rails, board stop for the USB plug). Renders
 (`mechanical/cart_a_v2/render.py`, Blender 5.2 Cycles): `mechanical/cart_a_v2/renders/v2_*.png` (white top / graphite bottom, x-ray, top view
 with the Insight footprint). v1 files and KOPF9 unchanged. **Open:** owner review of the form; then detailed CAD (shell halves, hooks,
 collar, saddles, board ledges), check, print files.

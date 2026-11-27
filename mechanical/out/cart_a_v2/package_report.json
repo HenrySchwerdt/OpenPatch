@@ -8,22 +8,22 @@
    49.0,
    19.0
   ],
-  "flare_from_x": 48.0,
+  "flare_from_x": 49.0,
   "rear_radius": 5.0,
   "seam_z": 8.74
  },
  "size": {
   "body_with_head_mm": [
-   70.86,
+   71.86,
    49.0,
    19.0
   ],
   "with_adapter_mm": [
-   80.36,
+   81.36,
    57.26,
    19.0
   ],
-  "body_volume_ml": 40.68,
+  "body_volume_ml": 41.29,
   "head_volume_ml": 3.75,
   "adapter_box_ml": 15.67,
   "insight_box_ml": 83.0,
@@ -34,19 +34,19 @@
   ],
   "head_bbox": [
    [
-    64.26,
+    65.26,
     -0.0,
     0.0
    ],
    [
-    70.86,
+    71.86,
     49.0,
     19.0
    ]
   ],
   "head_envelope_ml": 5.98,
   "adapter_envelope_ml": 8.6,
-  "total_envelope_ml": 55.3,
+  "total_envelope_ml": 55.9,
   "vs_insight_box": "-33%"
  },
  "check": {

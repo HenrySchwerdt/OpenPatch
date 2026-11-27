@@ -84,6 +84,31 @@ then the form, then CAD. Nothing goes into CAD that is not on this list; nothing
 - Head fixing: 2 axial M2 through the head face (hidden under the adapter) into bosses of the bottom half (y 21.46, z 3.24) and the top
   half (z 14.04, moved up 0.8 to clear the cell) + the collar in the groove; rear end by non-flexing hooks. No screw visible on the case.
 - Check: all parts fit the cavity with 0.2 clearance at FULL and EMPTY; no collisions (intended contacts excluded).
-- **Size: 80.4 x 49 x 19 with the adapter; envelope 55.3 ml (body 40.7 + head 6.0 + adapter 8.6) vs the Insight box 83 ml: -33 %.**
+- **Size (with the rear stop ring, below): 81.4 x 49 x 19 with the adapter; envelope 55.9 ml vs the Insight box 83 ml: -33 %.**
 - Renders: `cart_a_v2/renders/v2_hero_front.png`, `v2_hero_rear.png`, `v2_xray.png`, `v2_top.png` (Insight footprint in orange),
   `v2_usb.png` (USB-C on the seam).
+
+## 7. Rear stop + review (2026-11-27)
+**Rear stop (owner: the cartridge must not slide back further than intended).** Before, only the pusher (via the stopper) held the
+cartridge from behind, so pushing a cartridge in would have pushed its stopper. Now a ring wall closes the chamber behind the barrel
+(x 27.56-28.56): the barrel's rear end face (r 4.63-5.48) rests on it, only d8.9 stays open for the pusher (d8.4) and the stem. With the
+cartridge on the ring its cap face is 0.3 below the head face, exactly the adapter seat of the tested lock. Cost: everything from the
+cartridge forward moves +1.0 (yoke travel unchanged, stem 1.0 longer): 81.4 mm with the adapter, full 1.59 ml kept.
+
+**Mechanical / technical review of the package (what holds, what is open):**
+- Force path OK: pusher -> stopper -> barrel -> cap -> adapter cup -> bayonet -> head -> 2 axial M2 + collar -> shells; screw thrust ->
+  gear washers -> ribs -> shells. Thrust 33 N vs 18.1 N needed (1.83x, v1 drive unchanged). Stem d2 x 24.5 steel: Euler ~2.6 kN.
+- M2 x 0.4 screw is self-locking: pressure cannot push the stopper back; the rod only moves under power, behind the interlock.
+- Insertion: adapter off (unlocked) -> reverse allowed -> rod home -> cartridge in until it sits on the ring -> adapter on, 90 deg ->
+  lock switch closes -> forward allowed -> firmware advances to stopper contact -> prime. Consistent with LOCKED XOR reverse.
+- Yoke: the thrust line (stem) is 14.2 mm off the screw axis, ~470 N mm tilting moment at stall: needs long rails in both halves
+  (detail CAD) so the nut does not bind. This is the price of the 4.4 mm shorter yoke drive.
+- Board sits in the parting plane (pcb z 8.34-9.14 around the seam 8.74): clamped between ledges of both halves; its near edge must
+  bear on a ledge step at the partition so the USB-C plug force has a stop (detail CAD).
+- **Open: antenna.** The cell lies over the board; the HJ-840 antenna end needs >= 3 mm from the pouch (metal laminate), away from the
+  water and the motor: give the board a wing into the flare (about x 54-59, y 36.3-39.8) for the antenna end. Electronics to confirm.
+- **Open: no soldering (spec 1a).** Cell with a JST-SH lead to a board connector; motor: pre-wired with a connector or spring contacts
+  (also open in v1).
+- Tolerance: the stop is rigid; the cartridge length tolerance is taken by the adapter's seal on the cap (as on the Insight). A 0.5
+  TPU washer on the ring would need the ring 0.5 further back (yoke gap is only 0.3): not planned.
+- Option: a small drain at the front of the chamber floor so leak water leaves instead of standing in the chamber.

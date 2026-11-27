@@ -166,7 +166,7 @@ def box_obj(name: str, x, y, z) -> bpy.types.Object:
 def build_body(M: dict) -> bpy.types.Object:
     body = imp(SRC / "body_outer.stl", "body")
     inset = imp(SRC / "body_inset_seam.stl", "body_inset")
-    slab = box_obj("seam_slab", (-3, 66), (-3, 62), (SEAM_Z - 0.13, SEAM_Z + 0.13))
+    slab = box_obj("seam_slab", (-3, 67), (-3, 62), (SEAM_Z - 0.13, SEAM_Z + 0.13))
     boolean(slab, inset)                                   # ring-shaped cutter: the 0.35 skin within the seam band
     boolean(body, slab)
     # USB-C: stadium in the connector's own shape (8.94 x 3.26 + 0.25 per side), 45 deg chamfer outside
@@ -309,8 +309,8 @@ def stage() -> None:
 
 
 def insight_outline(M: dict) -> None:
-    """Accu-Chek Insight footprint 84 x 52 (user manual App. A) as a thin frame on the floor, its adapter end on ours (x 80.36)."""
-    x1, x0, y0 = 80.36, 80.36 - 84.0, 24.5 - 26.0
+    """Accu-Chek Insight footprint 84 x 52 (user manual App. A) as a thin frame on the floor, its adapter end on ours (x 81.36)."""
+    x1, x0, y0 = 81.36, 81.36 - 84.0, 24.5 - 26.0
     y1 = y0 + 52.0
     t = 0.5
     frame = mat_principled("insight_line", (0.85, 0.25, 0.12, 1), 0.5, 0.0, **{"Emission Color": (0.85, 0.25, 0.12, 1), "Emission Strength": 0.6})
