@@ -17,6 +17,17 @@
     36.3
    ]
   },
+  "notch": {
+   "x": [
+    32.6,
+    33.0
+   ],
+   "y": [
+    31.0,
+    36.3
+   ],
+   "purpose": "board absent: clears the 4 mm pinion end (x 32.66) on the motor axis"
+  },
   "tongue": {
    "x": [
     59.0,
@@ -114,7 +125,7 @@
    ],
    "x": [
     [
-     32.6,
+     33.0,
      35.0
     ],
     [
@@ -177,15 +188,15 @@
   },
   "tmag5273": {
    "x": [
-    32.8,
-    34.8
+    33.2,
+    35.2
    ],
    "y": [
     32.435,
     34.435
    ],
    "face": "top",
-   "why": "off-axis to the pinion magnet (x 30.76-31.76, y 33.435, z 8.74) through the rib_f window"
+   "why": "beside the angle magnet in the 4 mm pinion's front bore (x 31.66-32.66, y 33.435, z 8.74)"
   },
   "lock_switch": {
    "x": [

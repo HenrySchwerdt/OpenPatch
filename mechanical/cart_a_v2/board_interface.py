@@ -32,6 +32,8 @@ def main() -> None:
         "seam_z": pk.SEAM_Z,
         "outline": {
             "main_rect": {"x": list(bx), "y": list(by)},
+            "notch": {"x": list(pk.BOARD_NOTCH["x"]), "y": [pk.BOARD_NOTCH["y"][0], by[1]],
+                      "purpose": "board absent: clears the 4 mm pinion end (x 32.66) on the motor axis"},
             "tongue": {"x": list(tx), "y": list(ty), "purpose": "carries the lock detector switch on its UNDERSIDE"},
             "antenna_wing_max": {"far_edge_y_by_x": wing, "purpose": "optional: the board may extend between y 36.3 and this edge "
                                  "for the HJ-840 antenna end (>= 3 mm from the cell, away from water and motor)"},
@@ -39,7 +41,7 @@ def main() -> None:
         },
         "part_free_strips_both_faces": {
             "near": {"y": [by[0], 20.35], "x": [bx[0], bx[1]], "why": "bottom ledge (partition side) + top clamp 19.35-20.1"},
-            "far": {"y": [35.3, by[1]], "x": [[bx[0], 35.0], [45.0, 58.0 + pk.XS]],
+            "far": {"y": [35.3, by[1]], "x": [[33.0, 35.0], [45.0, 58.0 + pk.XS]],
                     "why": "bottom ledge + top clamp (not at the USB-C, x 35-45)"},
             "rear_stop": {"note": "the rear edge bears on a stop at x 31.97-32.5 (bottom half) for y 18.84-21.0"},
             "front_stop": {"x": [bx[1] + 0.1, bx[1] + 1.2], "y": [18.84, 22.0], "note": "front edge stop block, y 18.84-22.0"},
@@ -57,8 +59,8 @@ def main() -> None:
             "sw1": {"x": pk.BUTTON_XY[0], "y": pk.BUTTON_XY[1], "face": "top", "type": "top-actuated tactile <= 3.5 x 3.5 x 1.5, "
                     "pressed by a printed plunger from the top face"},
             "led": {"x": pk.LED_XY[0], "y": pk.LED_XY[1], "face": "top", "type": "RGB, top-emitting, under a d2 light pipe"},
-            "tmag5273": {"x": [32.8, 34.8], "y": [pk.YM - 1.0, pk.YM + 1.0], "face": "top", "why": "off-axis to the pinion magnet "
-                         "(x 30.76-31.76, y 33.435, z 8.74) through the rib_f window"},
+            "tmag5273": {"x": list(pk.TMAG_X), "y": [pk.YM - 1.0, pk.YM + 1.0], "face": "top", "why": "beside the angle magnet in the "
+                         "4 mm pinion's front bore (x 31.66-32.66, y 33.435, z 8.74)"},
             "lock_switch": {"x": [59.76 + pk.XS, 63.26 + pk.XS], "y": [35.71, 39.21], "face": "bottom (tongue underside)",
                             "actuator": "toward +x, tip at x 64.26 locked / 64.63 free, line y 37.46, z 7.07 (d2 pin from the head)"},
             "sounder": {"x": 56.0 + pk.XS, "y": 26.0, "face": "bottom", "max_h": 2.5, "port": "3 slots in the floor below"},

@@ -150,3 +150,9 @@ stepper and the cell plug into JST-SH connectors on the BOTTOM face (too tall fo
 through notches (z 1-5.2, y 34-37.5) in the motor saddles, the rear bulkhead and rib_f to the board's rear-far corner; the cell lead
 drops past the board's front edge (gap x 62.9-65.2, y 22-34.5). Print files regenerated with the floor notches (the ALLES2 copy on the
 SD card from before has the old notches at z 12.5-15.5: irrelevant for the fit test).
+
+## 10. Real part dimensions (2026-11-27)
+NFP-608 drawing: shaft d2.0 with a flat, 2.5 long, front boss d3.5 x 0.8; leads 200 mm with a 1.25 mm pitch connector (board: 4-pin
+1.25 mm header on the bottom). Market m0.3 z12 pinions are 4 mm long: pinion x 28.66-32.66, magnet in its front bore, rib_f window d4.8,
+rear bulkhead boss hole d3.8, board notch x 32.6-33.0 / y 31.0-36.3, TMAG x 33.2-35.2, far ledge / clamp from x 33.0. Shopping list with
+live prices: `docs/CART-ORDER.md` (section "Cart A v2: mechanical order").

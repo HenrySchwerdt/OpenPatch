@@ -48,6 +48,9 @@ PART_Y = (17.25, 18.85)    # chamber partition (cartridge chamber | drive + elec
 BOARD = {"x": (32.6, 61.8 + XS), "y": (19.35, 36.3), "pcb_z": (8.34, 9.14), "top": 1.45, "bottom": 1.2}   # pcb centre on the seam (USB-C)
 TONGUE = {"x": (58.0 + XS, 62.96 + XS), "y": (34.5, 39.96)}
 CELL = {"x": (32.3 + XS, 63.8 + XS), "y": (24.3, 34.9), "z": (11.1, 14.3)}       # above the board, clear of head boss + button plunger
+PINION_X1 = 32.66          # front face of the 4 mm pinion (motor boss face 28.66 + 4.0)
+BOARD_NOTCH = {"x": (32.6, 33.0), "y": (31.0, 36.31)}   # board absent here: clears the pinion end
+TMAG_X = (33.2, 35.2)      # TMAG5273 on top, beside the magnet in the pinion front bore
 USB_X, USB_Z = 40.0, 8.74  # mid-mount, centred ON the seam: each half has half the stadium, no thin bridge (owner 2026-11-27)
 BUTTON_XY, LED_XY = (46.5, 22.05), (39.0, 22.05)   # beside the cell, clear of the board clamp strip; 3.6 mm wall between the holes
 HEAD_SCREWS = [(21.46, 3.24), (21.46, 13.24)]   # axial M2 through the head face (KOPF9 holes, module [10,-5.5] / [10,4.5]) into bottom / top half
@@ -196,16 +199,20 @@ def parts(state: str = "full") -> dict[str, tuple[Solid, str, bool]]:
     P["motor"] = (cyl_x(11.76, 19.76, YM, ZC, 6.0), "motor", False)
     P["gearhead"] = (cyl_x(19.76, 27.86, YM, ZC, 6.0), "motor_head", False)
     P["motor_rear"] = (cyl_x(11.06, 11.76, YM, ZC, 3.0), "plastic_dark", False)
-    P["shaft"] = (cyl_x(27.86, 28.76, YM, ZC, 1.5), "steel", False)
-    P["pinion"] = (cyl_x(28.76, 30.76, YM, ZC, 4.2), "brass", False)
-    P["magnet"] = (cyl_x(30.76, 31.76, YM, ZC, 2.0), "magnet", False)
-    P["board"] = (box(BOARD["x"], BOARD["y"], (pz0, pz1)) + box(TONGUE["x"], TONGUE["y"], (pz0, pz1)), "pcb", False)
-    P["ko_board_top"] = (box((BOARD["x"][0], BOARD["x"][1]), BOARD["y"], (pz1, pz1 + BOARD["top"])), "ko", False)
-    P["ko_board_bottom"] = (box((BOARD["x"][0], 60.5), BOARD["y"], (pz0 - BOARD["bottom"], pz0)), "ko", False)
+    P["shaft"] = (cyl_x(27.86, 28.66, YM, ZC, 3.5), "steel", False)              # gearhead front boss d3.5 x 0.8 (NFP drawing)
+    # market m0.3 z12 pinions are 4 mm long (AliExpress / GHW): pinion on the d2 D-shaft against the boss, x 28.66-32.66;
+    # the d2 x 1 angle magnet sits in its free front bore (x 31.66-32.66)
+    P["pinion"] = (cyl_x(28.66, PINION_X1, YM, ZC, 4.2) - cyl_x(PINION_X1 - 1.0, PINION_X1 + 0.1, YM, ZC, 2.0), "brass", False)
+    P["magnet"] = (cyl_x(PINION_X1 - 1.0, PINION_X1, YM, ZC, 2.0), "magnet", False)
+    board = box(BOARD["x"], BOARD["y"], (pz0, pz1)) + box(TONGUE["x"], TONGUE["y"], (pz0, pz1))
+    P["board"] = (board - box((BOARD["x"][0] - 0.1, BOARD_NOTCH["x"][1]), BOARD_NOTCH["y"], (pz0 - 0.1, pz1 + 0.1)), "pcb", False)
+    notch = box((BOARD["x"][0] - 0.1, BOARD_NOTCH["x"][1]), BOARD_NOTCH["y"], (pz0 - 3.0, pz1 + 3.0))
+    P["ko_board_top"] = (box((BOARD["x"][0], BOARD["x"][1]), BOARD["y"], (pz1, pz1 + BOARD["top"])) - notch, "ko", False)
+    P["ko_board_bottom"] = (box((BOARD["x"][0], 60.5), BOARD["y"], (pz0 - BOARD["bottom"], pz0)) - notch, "ko", False)
     P["usb_c"] = (box((USB_X - 4.47, USB_X + 4.47), (36.8 - 7.35, 36.8), (USB_Z - 1.63, USB_Z + 1.63)), "steel", False)
     P["lock_switch"] = (box((59.76 + XS, 63.26 + XS), (37.46 - 1.75, 37.46 + 1.75), (pz0 - 1.6, pz0)), "black", False)   # tongue underside: actuator ~7.7, pin d2 at 7.07
     P["lock_pin"] = (cyl_x(63.26 + XS, 66.56 + XS, 37.46, 7.07, 2.0), "steel", False)
-    P["tmag"] = (box((32.8, 34.8), (YM - 1.0, YM + 1.0), (pz1, pz1 + 0.75)), "black", False)
+    P["tmag"] = (box(TMAG_X, (YM - 1.0, YM + 1.0), (pz1, pz1 + 0.75)), "black", False)
     P["sw1"] = (box((BUTTON_XY[0] - 1.75, BUTTON_XY[0] + 1.75), (BUTTON_XY[1] - 1.75, BUTTON_XY[1] + 1.75), (pz1, pz1 + 1.5)), "black", False)
     P["led"] = (box((LED_XY[0] - 0.8, LED_XY[0] + 0.8), (LED_XY[1] - 0.8, LED_XY[1] + 0.8), (pz1, pz1 + 0.6)), "led", False)
     P["sounder"] = (cyl_z(56.0 + XS, 26.0, pz0 - 2.5, pz0, 5.0), "black", False)
@@ -247,7 +254,7 @@ EXCLUDE = {frozenset(p) for p in [("cartridge_glass", "stopper"), ("cartridge_gl
                                    ("ko_board_bottom", "usb_c"), ("ko_board_top", "lock_switch"), ("ko_board_top", "tmag"), ("ko_board_top", "sw1"),
                                    ("ko_board_top", "led"), ("ko_board_bottom", "sounder"), ("lock_switch", "lock_pin"), ("ko_board_bottom", "lock_switch"), ("sw1", "button_plunger"),
                                    ("led", "light_pipe"), ("ko_board_top", "button_plunger"), ("ko_board_top", "light_pipe"),
-                                   ("washer_f", "pinion"), ("washer_r", "pinion")]}
+                                   ("washer_f", "pinion"), ("washer_r", "pinion"), ("magnet", "pinion"), ("shaft", "pinion")]}
 
 
 INTO_WALL = {"screw": 0.6}      # rear end in a pocket of the rear wall (v1 screw_in_wall)

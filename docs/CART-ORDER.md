@@ -62,3 +62,25 @@ Per test: A about 9.9 EUR (cartridge + adapter & tubing), B about 5.7 EUR (cartr
 | 7 | **pluriselect** | Combifix male-male Luer-lock x 10 | about 30 EUR |
 | 8 | own printer | PETG + TPU (housings, slider, pusher, button, B cap, coupons) | - |
 Hardware for 5 pumps: about **410 EUR** (about 82 per pump); consumables about 190-270 EUR.
+
+## Cart A v2: mechanical order (2026-11-27, read live in the owner's browser; V = price on the page that day)
+Design: `mechanical/CART-A-V2-BRIEF.md`. One pump plus spares; no soldering on the board (motor plug + cell terminal).
+| Shop | Item | Variant / note | Price |
+|---|---|---|---|
+| **precisionminidrives.com** (NFP, EU prices) | NFP-608-26.45-SGM stepper gearmotor | 200 mm 30 AWG leads, connector "JST 1.25 pitch"; shaft d2.0 with flat, 2.5 long; front boss d3.5 x 0.8 (outline drawing on the page). No accessory needed (its pinions are m0.2) | 6.03 EUR (1-9), 5.40 (10-19); shipping at checkout, free above 150 USD; V |
+| **AliExpress** (one Choice order, free shipping above 10 EUR) | Pinion m0.3 z12 brass | listing 1005009996910236, "12 Teeth", bore **1.98 mm**, 4 mm long (10 pcs) | 4.19 EUR / 10; V |
+| | Gear m0.3 z40 brass | listing 1005010114512381, "40T", 2 mm thick, bore 1.98, no hub | 2.15 EUR each; V |
+| | Angle magnet, **diametric** ("radial") | listing 1005010279518166, variant "Radial-D2x1mm" (50 pcs). Axial 2 x 1 magnets (Amazon) do not work for the angle sensor | 8.29 EUR / 50; V |
+| **GHW-Modellbau** | DIN 975 threaded rod M2 brass, 500 mm | screw 31.4 + stem 26.9 cut from it | 2.60 EUR; V |
+| | DIN 934 nut M2 brass (50) | 1 in the yoke | 3.80 EUR; V |
+| | DIN 963 countersunk M2 x 10, A2 (50) | 2 through the head face | 7.85 EUR; V |
+| **Amazon** | Steel balls 2 mm (100Cr6 / bearing balls) | lock ball; many packs listed (e.g. 20 or 100 pcs) | about 5-8 EUR; E |
+| | Loctite 648 + CA glue | pinion on the D-shaft, gear on the screw | E |
+| | 1 mm double-sided foam tape | under the cell | E |
+| | Clear 2 mm acrylic rod (or a piece of clear 1.75 filament) | LED light pipe, 9 mm | E |
+| owner has | Ampul 301030 cell (bare red / black leads), cartridges + Insight adapter | | |
+Not needed any more in v2: lock magnets, hall pigtail, lid screws. GHW's own m0.3 gears do not fit 1:1 (z12 bore 1.5; z40 "B" has a 2.5 mm hub).
+
+**Market part dimension that changed the CAD:** m0.3 z12 pinions are sold 4 mm long (AliExpress and GHW), the CAD had 2 mm. The pinion now
+runs x 28.66-32.66 through a d4.8 window in rib_f, the d2 x 1 magnet sits in its free front bore, the board gets a notch at the rear-far
+corner (x 32.6-33.0, y 31.0-36.3) and the TMAG5273 moves to x 33.2-35.2 (package + shells check PASS, G-codes re-sliced).

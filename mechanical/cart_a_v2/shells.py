@@ -80,10 +80,10 @@ def common_features() -> tuple[list[Solid], list[Solid]]:
     # rear bulkhead = cartridge stop ring + chamber rear wall + screw thrust rib (washer_r bears on it) + motor front seat
     add.append(B((27.56, 28.56), BIG, UP))
     cut += [C(27.4, 28.7, pk.YC, pk.ZC, 8.9), C(27.4, 28.7, pk.YS, pk.ZC, 2.4), C(27.4, 27.96, pk.YM, pk.ZC, 6.2),
-            C(27.4, 28.7, pk.YM, pk.ZC, 3.4), B((27.4, 28.7), WIRE_Y, WIRE_Z)]                       # motor lead notch (floor level)
+            C(27.4, 28.7, pk.YM, pk.ZC, 3.8), B((27.4, 28.7), WIRE_Y, WIRE_Z)]                       # front boss d3.5; motor lead notch
     add.append(B((28.56, XJ), pk.PART_Y, UP))                                                       # chamber partition
     add.append(B((30.96, 31.96), (PY1 - 0.01, 60.0), UP))                                            # rib_f: screw front, magnet window
-    cut += [C(30.8, 32.1, pk.YS, pk.ZC, 2.4), C(30.8, 32.1, pk.YM, pk.ZC, 2.8), B((30.8, 32.1), WIRE_Y, WIRE_Z)]
+    cut += [C(30.8, 32.1, pk.YS, pk.ZC, 2.4), C(30.8, 32.1, pk.YM, pk.ZC, 4.8), B((30.8, 32.1), WIRE_Y, WIRE_Z)]   # 4 mm pinion passes
     for x0 in SADDLES_CART:                                                                         # cartridge half-saddles
         add.append(B((x0, x0 + T), (-1.0, PY0 + 0.01), UP))
         cut.append(C(x0 - 0.1, x0 + T + 0.1, pk.YC, pk.ZC, 11.55))
@@ -107,7 +107,7 @@ def common_features() -> tuple[list[Solid], list[Solid]]:
 def bottom_features() -> list[Solid]:
     f = []
     f.append(B((31.9, pk.BOARD["x"][1] + 0.2), (PY1 - 0.01, 20.35), (-1.0, pz0)))                  # board ledge along the partition
-    for xr in ((31.9, 35.0), (45.0, 58.0)):                                                         # board ledge at the far side (not at USB)
+    for xr in ((33.0, 35.0), (45.0, 58.0)):                                                         # board ledge at the far side (not at USB, not at the pinion)
         f.append(B(xr, (35.3, 36.9), (-1.0, pz0)))
     f.append(B((31.97, 32.5), (PY1 - 0.01, 21.0), (pz0, pz1 + 0.46)))                               # board rear stop (clear of rib_f top half)
     f.append(B((pk.BOARD["x"][1] + 0.1, pk.BOARD["x"][1] + 1.2), (PY1 - 0.01, 22.0), (pz0 - 1.0, pz1 + 0.46)))   # board front stop
@@ -119,7 +119,7 @@ def bottom_features() -> list[Solid]:
 def top_features() -> tuple[list[Solid], list[Solid]]:
     f, cut = [], []
     f.append(B((32.6, 62.0), (PY1 - 0.01, 20.1), (pz1, 10.6)))                                      # board clamp, partition side
-    for xr in ((32.6, 35.0), (45.0, 58.0)):
+    for xr in ((33.0, 35.0), (45.0, 58.0)):
         f.append(B(xr, (35.3, 36.9), (pz1, 10.6)))                                                  # board clamp, far side
     cx, cy = pk.CELL["x"], pk.CELL["y"]
     f.append(B((31.96, cx[0] - 0.2), (cy[0] - 0.2, 36.9), (12.0, 25.0)))                            # cell pocket: rear wall

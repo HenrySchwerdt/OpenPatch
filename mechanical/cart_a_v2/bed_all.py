@@ -4,7 +4,7 @@
 Owner 2026-11-27: all parts on one print, no brim, plus printed stand-ins for the board, the motor and the bought metal parts so the
 whole pump can be put together once. Stand-ins (fit only, not functional):
 - board: 0.8 plate + tongue, USB-C receptacle, SW1, LED, TMAG, lock switch; 6 feet under it (bottom parts zone) so it prints flat;
-- motor: body + gearhead d6, rear boss, shaft, pinion d4.2, magnet, lying with a flat;
+- motor: body + gearhead d6, rear boss, front boss, 4 mm pinion d4.2 (magnet sits in its bore), lying with a flat;
 - gear: d12.6 x 2 disc; screw rod d2 x 31.4, stem d2 x 26.9, lock pin d2 x 3.3, light pipe d2 x 9.06 (lying, flat bottom);
   2 hex nuts M2 size (AF 4.0 x 1.6). M2 x 0.4 cannot be printed as a thread with a 0.4 nozzle: plain d2 rods test the fit.
 Real parts from shells.py (bottom, top, yoke, plunger, pusher) and the head KOPF9. Writes ../out/cart_a_v2/print/v2_all_bed.stl.
@@ -59,7 +59,8 @@ def board_dummy() -> Solid:
     lx, ly = pk.LED_XY
     s = s + B((bx - 1.75, bx + 1.75), (by - 1.75, by + 1.75), (pz1, pz1 + 1.5))                       # SW1
     s = s + B((lx - 0.8, lx + 0.8), (ly - 0.8, ly + 0.8), (pz1, pz1 + 0.6))                           # LED
-    s = s + B((32.8, 34.8), (pk.YM - 1.0, pk.YM + 1.0), (pz1, pz1 + 0.75))                            # TMAG5273
+    s = s + B(pk.TMAG_X, (pk.YM - 1.0, pk.YM + 1.0), (pz1, pz1 + 0.75))                               # TMAG5273
+    s = s - B((pk.BOARD["x"][0] - 0.1, pk.BOARD_NOTCH["x"][1]), pk.BOARD_NOTCH["y"], (z_bed - 1, pz1 + 2))  # notch at the pinion
     s = s + B((59.76 + pk.XS, 63.26 + pk.XS), (37.46 - 1.75, 37.46 + 1.75), (z_bed, pz0))             # lock switch (underside)
     for x in (34.5, 47.0, 59.0):                                                                       # print feet in the bottom parts zone
         for y in (21.5, 33.0):
@@ -70,7 +71,7 @@ def board_dummy() -> Solid:
 def stand_ins() -> dict[str, Solid]:
     return {
         "board_dummy": board_dummy(),
-        "motor_dummy": flat_rod([(0.7, 3.0), (16.1, 6.0), (0.9, 1.5), (2.0, 4.2), (1.0, 2.0)]),
+        "motor_dummy": flat_rod([(0.7, 3.0), (16.1, 6.0), (0.8, 3.5), (4.0, 4.2)]),   # rear boss, motor + gearhead, front boss, 4 mm pinion
         "gear_dummy": Solid.make_cylinder(6.3, 2.0) - Solid.make_cylinder(1.1, 3.0, Plane(origin=(0, 0, -0.5))),
         "screw_rod": flat_rod([(31.4, 2.0)]),
         "stem_rod": flat_rod([(26.9, 2.0)]),
