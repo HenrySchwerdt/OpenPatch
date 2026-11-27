@@ -1,0 +1,60 @@
+{
+ "form": {
+  "body_section_mm": [
+   38.0,
+   16.6
+  ],
+  "head_section_mm": [
+   49.0,
+   19.0
+  ],
+  "flare_from_x": 48.0,
+  "rear_radius": 5.0,
+  "seam_z": 8.74
+ },
+ "size": {
+  "body_with_head_mm": [
+   70.86,
+   49.0,
+   19.0
+  ],
+  "with_adapter_mm": [
+   80.36,
+   57.26,
+   19.0
+  ],
+  "body_volume_ml": 40.68,
+  "head_volume_ml": 3.75,
+  "adapter_box_ml": 15.67,
+  "insight_box_ml": 83.0,
+  "insight_mm": [
+   84,
+   52,
+   19
+  ],
+  "head_bbox": [
+   [
+    64.26,
+    -0.0,
+    0.0
+   ],
+   [
+    70.86,
+    49.0,
+    19.0
+   ]
+  ],
+  "head_envelope_ml": 5.98,
+  "adapter_envelope_ml": 8.6,
+  "total_envelope_ml": 55.3,
+  "vs_insight_box": "-33%"
+ },
+ "check": {
+  "fit": [],
+  "collisions": {
+   "full": [],
+   "empty": []
+  }
+ },
+ "pass": true
+}

@@ -1,7 +1,22 @@
 # Project status & handover
 
 > This file is the **entry point for every new session** (another machine, another Claude subscription, another person).
-> It is updated on every push. Last updated: **2026-11-24 (firmware drive preset 0x27 for the 20.5 x 5.9 cup bore)**.
+> It is updated on every push. Last updated: **2026-11-27 (cart A v2: design brief + package study + renders)**.
+
+## Cart A v2: design brief, package study, renders (2026-11-27, mechanics)
+Owner rejected the v1 A housing (too big, not clean, 1 mm pins and fins, head on screws in thin bosses, no cartridge compartment) and asked
+for a product-design pass: clearly smaller than the Insight, clean inside and outside, nothing fragile, cartridge chamber closed off from
+motor and electronics, simple drive, stack where it helps. `mechanical/CART-A-V2-BRIEF.md` lists every part and requirement first (incl. the
+lock detection, RGB LED window and sounder port that v1 forgot). Package study `mechanical/cart_a_v2/package.py` (build123d): body section
+38 x 16.6 (the head's corner shapes), flaring into the 49 x 19 head from x 48, rear end R5; chamber partition + rear seal ring around the
+barrel; board 29.2 x 17 + tongue beside the chamber with its centre on the seam, cell 31.5 x 10.6 x 3.2 stacked above it; screw lane +2.0
+in y; USB-C stadium centred on the seam (owner: no thin bridge between port and seam), button + LED light pipe on the flat top, sounder
+slots in the floor; head held by 2 axial M2 through its face (under the
+adapter) + collar, rear by hooks (no visible screws). Check: every part fits the cavity with 0.2 clearance at FULL and EMPTY, no collisions.
+**Size: 80.4 x 49 x 19 with the adapter (Insight 84 x 52 x 19); envelope 55.3 ml vs the Insight box 83 ml (-33 %).** Renders
+(`mechanical/cart_a_v2/render.py`, Blender 5.2 Cycles): `mechanical/cart_a_v2/renders/v2_*.png` (white top / graphite bottom, x-ray, top view
+with the Insight footprint). v1 files and KOPF9 unchanged. **Open:** owner review of the form; then detailed CAD (shell halves, hooks,
+collar, saddles, board ledges), check, print files.
 
 ## Cart A head outline from the adapter photo, unmirrored (2026-11-27, mechanics)
 Owner printed KOPF6/7: the lock and shape are close but not seamless (dents at the near corners 1/3, the high-wall side 7/8 has a long sweep, not a rounded corner). Cause: the earlier trace was mirrored and its corners were snapped (kinks). New `make_face.outline()`: parametric adapter base outline read on the owner's top-down underside photo of 2026-11-27 (49 x 19, cup 8.74 / 10.26 from the long edges and 11.46 from the near end), mapped WITHOUT mirroring: near corners big (5.8 x 5.1, high-wall side) and small (2.5 x 3.6), near edge slanted 0.4, far end a superellipse sweep 4.3 x 7.9 on the high-wall side and a 3 x 4 corner on the strip side. Lock features unchanged (tested). `mechanical/print/cart_A/KOPF8.gcode` = head with the new outline (33 min). **Open (housing follows only after KOPF8 fits):** the bore moves 1.16 towards the bottom (zc 9.9 -> 8.74), so the crosswise cell under the board no longer fits beside the cartridge, and the far bottom edge gets the 7.9 mm sweep; decide between a smaller cell (e.g. 20 mm long) or cell on top / board below.
