@@ -13,6 +13,8 @@ groove 0.85..2.55 + mouth step, lower screw at z 4.24, lock face untouched), rou
 ledges / clamps re-cut). Checks: package PASS, shells PASS incl. the head as a real solid (0 overlap, >= 0.25 mm ring play).
 G-codes `mechanical/print/cart_A/` BODEN3, DECKEL3, KOPF10, KLEIN3 (printed one by one, seam on the rear end, first-layer expansion
 -0.15). Same size: 81.36 x 49 x 19 mm, -26 % vs the Insight box. Open: lock switch margins (0.17 / 0.20 mm) need a bench check.
+Supports stay off, now checked by an overhang scan of every print STL (ring protrusion 1.0, front stop on the boss, clamp gussets);
+BODEN3, DECKEL3, KOPF10, KLEIN3 are on the printer SD card (byte-compared).
 
 ## Cart A v2 main board routed (2026-11-27, electronics)
 `electronics/v010/cart/a/` (README there). Same chip set and **unchanged hardware interlock** as B; netlist A = B minus the pigtail /
