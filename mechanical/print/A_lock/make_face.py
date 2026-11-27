@@ -46,8 +46,8 @@ OUT = HERE / "pucks"
 
 FACE_Z = 9.0               # mating face height (same as the pucks)
 RECESS = 4.3               # adapter far half is raised ~4 (ruler) / ~3.4 (photo), plus clearance
-OUT_NEAR = 11.2            # pump end: bore centre to the near end (photo)
-BORE_OFFSET_Y = 0.4        # bore centre sits this much towards the silver side (photo)
+OUT_NEAR = 11.46           # bore centre to the near end (adapter photo 2026-11-27)
+BORE_OFFSET_Y = -0.76      # outline centre relative to the bore (adapter photo 2026-11-27: cup 8.74 / 10.26 from the long edges)
 CUP_U = 11.5               # cup centre from the adapter's near end (ruler 11-11.5, photo 11.9)
 WIDTH = 19.0
 RAMP_U0 = 20.6             # adapter face starts to rise here (photo p24)
@@ -93,42 +93,46 @@ def rounded_polygon(pts: list[tuple[float, float, float]], seg: int = 10) -> lis
 FAR_END_CORNER_R = 5.0      # both far-end corners (traced bottom-right corner ~5)
 
 
+# Adapter base outline, read on the owner's top-down underside photo of 2026-11-27 (adapter on wood, cup up; straight long sides as the
+# reference for perspective, 49 x 19): u across from the photo's left edge, v along from the near (cup) end, mm. Owner 2026-11-27: no dents
+# at the near corners, and on the high-wall side the far end is a long sweep, not a rounded corner. The photo maps onto the pump face
+# WITHOUT mirroring (the earlier trace had the corners mirrored: owner's points 1/3 and 7/8).
+ADAPTER_CUP_UV = (8.74, 11.46)                       # cup centre in the photo: 8.74 from the left edge, 11.46 from the near end
+ADAPTER_SHAPE = {
+    "near_left": (5.8, 5.1),        # big round corner (u extent, v extent) at the near end, photo-left = high-wall side
+    "near_right": (2.5, 3.6),       # small corner at the near end, photo-right
+    "near_slant": 0.4,              # near edge is 0.4 lower at its left end
+    "far_left": (4.3, 7.9, 1.6),    # long sweep on the high-wall side at the far end (u, v extent, superellipse exponent)
+    "far_right": (3.0, 4.0),        # moderate corner at the far end, photo-right
+}
+
+
+def _quad(cu: float, cv: float, ru: float, rv: float, a0: float, a1: float, n: float = 2.0, k: int = 16) -> list[tuple[float, float]]:
+    """Superellipse quadrant (exponent n) around (cu, cv), angle a0 -> a1 (deg, u right / v down)."""
+    out = []
+    for i in range(k + 1):
+        t = math.radians(a0 + (a1 - a0) * i / k)
+        c, s_ = math.cos(t), math.sin(t)
+        out.append((cu + ru * math.copysign(abs(c) ** (2 / n), c), cv + rv * math.copysign(abs(s_) ** (2 / n), s_)))
+    return out
+
+
 def outline() -> list[tuple[float, float]]:
-    """Pump end outline = the adapter's outer contour, traced on the owner's top-down adapter photo (2026-11-26):
-    both long edges fitted as lines and made parallel (photo rotation and keystone removed), scaled to 49 x 19,
-    mirrored (the adapter face lies face to face on the pump). Owner: the far end is one straight line, the
-    bump seen there is perspective (that side is raised), so beyond X 30 the traced points are replaced by the two
-    long edges, a straight far edge and two equal corner arcs.
-    Points in adapter_outline.json (pump X, Y in mm), clipped to the 19 mm width."""
-    import json
-    pts = json.loads((HERE / "adapter_outline.json").read_text())
-    ys, yf = WIDTH / 2 - BORE_OFFSET_Y, -(WIDTH / 2 + BORE_OFFSET_Y)
-    y_lo, y_hi = min(y for _, y in pts), max(y for _, y in pts)      # stretch the trace to exactly WIDTH (it fell 0.2-0.3 short at one edge)
-    pts = [(x, yf + (y - y_lo) / (y_hi - y_lo) * WIDTH) for x, y in pts]
-    flat = 0.6                                                   # straighten the two long flat faces (trace wiggle up to ~0.5)
-    pts = [(x, yf if y < yf + flat else ys if y > ys - flat else y) for x, y in pts]
-    x_cut, x_end, r = 30.0, 49.0 - OUT_NEAR, FAR_END_CORNER_R
-    keep = [x <= x_cut for x, _ in pts]
-    n = len(pts)
-    start = next(i for i in range(n) if keep[i] and not keep[i - 1])      # first kept point after the gap
-    chain = []
-    i = start
-    while keep[i % n] and len(chain) < n:
-        chain.append(pts[i % n]); i += 1
-    # chain runs from one long edge round the near end to the other; close it over the far end
-    y_last = chain[-1][1]
-    side_a, side_b = chain[-1][1], chain[0][1]          # continue the traced long edges without a jog
-    bottom = [(x_cut, side_a), (x_end - r, side_a)]
-    sa = 1 if side_a > 0 else -1
-    for k in range(1, 12):
-        t = k / 12 * math.pi / 2
-        bottom.append((x_end - r + r * math.sin(t), side_a - sa * r + sa * r * math.cos(t)))
-    bottom += [(x_end, side_a - sa * r), (x_end, side_b + sa * r)]
-    for k in range(1, 12):
-        t = k / 12 * math.pi / 2
-        bottom.append((x_end - r + r * math.cos(t), side_b + sa * r - sa * r * math.sin(t)))
-    bottom += [(x_end - r, side_b), (x_cut, side_b)]
-    return chain + bottom
+    """Pump end outline = the adapter's base outline (ADAPTER_SHAPE), as module X (along, from the bore) / Y (across, + = strip side)."""
+    W, L = WIDTH, 49.0
+    sh = ADAPTER_SHAPE
+    nlu, nlv = sh["near_left"]
+    nru, nrv = sh["near_right"]
+    flu, flv, fln = sh["far_left"]
+    fru, frv = sh["far_right"]
+    sl = sh["near_slant"]
+    uv = []
+    uv += _quad(nlu, nlv + sl, nlu, nlv, 180, 270)                       # near-left corner: left side -> near edge
+    uv += _quad(W - nru, nrv, nru, nrv, 270, 360)                         # near-right corner: near edge -> right side
+    uv += _quad(W - fru, L - frv, fru, frv, 0, 90)                        # far-right corner: right side -> far edge
+    uv += _quad(flu, L - flv, flu, flv, 90, 180, fln)                     # far-left sweep: far edge -> left side
+    cu, cv = ADAPTER_CUP_UV
+    return [(v - cv, u - cu) for u, v in uv]
 
 
 # adapter pocket at the tube end, traced from photo p26 (u, v), open on the +Y edge; the hook-shaped lobe at
