@@ -139,3 +139,14 @@ Owner: build the print parts, **no text on the housing**. Changes from the packa
 - Assembly: drive (screw with gear + washers, yoke + stem + pusher, motor) into the bottom half's saddles, board onto its ledges, cell
   + foam into the top half's pocket, plunger + light pipe into their guides; hook the top half in at the rear and swing it down; head on
   (lip into its groove), 2 screws through the face; cartridge in through the head, adapter on.
+
+## 9. Board interface for the electronics (2026-11-27, `cart_a_v2/board_interface.py` -> `../out/cart_a_v2/board_A_interface.json`)
+Main rect x 32.6-62.8 / y 19.35-36.3 (pcb z 8.34-9.14, centred on the seam) + tongue x 59.0-63.96 / y 34.5-39.96 (lock switch on its
+underside) + an optional antenna wing toward the flared far wall (x 52-59, far edge 37.4-43.8). Part-free strips on both faces along the
+partition (y 19.35-20.35) and the far edge (y 35.3-36.3, not at the USB-C x 35-45). Heights: top 1.46 (cell above on foam), bottom 6.84
+(floor), 2.8 over the bottom head boss. Fixed: USB-C mid-mount at x 40 (front face y 36.8, centre on the seam), SW1 (46.5, 22.05) and
+LED (39.0, 22.05) on top, TMAG5273 on top at x 32.8-34.8 / y 32.4-34.4, sounder underside at (57, 26). **No soldering:** the 4-wire
+stepper and the cell plug into JST-SH connectors on the BOTTOM face (too tall for the 1.46 mm top zone): motor leads along the floor
+through notches (z 1-5.2, y 34-37.5) in the motor saddles, the rear bulkhead and rib_f to the board's rear-far corner; the cell lead
+drops past the board's front edge (gap x 62.9-65.2, y 22-34.5). Print files regenerated with the floor notches (the ALLES2 copy on the
+SD card from before has the old notches at z 12.5-15.5: irrelevant for the fit test).

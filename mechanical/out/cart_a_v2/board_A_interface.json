@@ -1,0 +1,244 @@
+{
+ "_note": "cart pump A v2 main board (mechanical/CART-A-V2-BRIEF.md). Pump coordinates, mm. TEST ONLY, water only.",
+ "thickness_mm": 0.8,
+ "pcb_z": [
+  8.34,
+  9.14
+ ],
+ "seam_z": 8.74,
+ "outline": {
+  "main_rect": {
+   "x": [
+    32.6,
+    62.8
+   ],
+   "y": [
+    19.35,
+    36.3
+   ]
+  },
+  "tongue": {
+   "x": [
+    59.0,
+    63.96
+   ],
+   "y": [
+    34.5,
+    39.96
+   ],
+   "purpose": "carries the lock detector switch on its UNDERSIDE"
+  },
+  "antenna_wing_max": {
+   "far_edge_y_by_x": [
+    [
+     52.0,
+     37.39
+    ],
+    [
+     52.5,
+     37.71
+    ],
+    [
+     53.0,
+     38.07
+    ],
+    [
+     53.5,
+     38.46
+    ],
+    [
+     54.0,
+     38.88
+    ],
+    [
+     54.5,
+     39.32
+    ],
+    [
+     55.0,
+     39.79
+    ],
+    [
+     55.5,
+     40.27
+    ],
+    [
+     56.0,
+     40.76
+    ],
+    [
+     56.5,
+     41.26
+    ],
+    [
+     57.0,
+     41.77
+    ],
+    [
+     57.5,
+     42.28
+    ],
+    [
+     58.0,
+     42.78
+    ],
+    [
+     58.5,
+     43.28
+    ],
+    [
+     59.0,
+     43.76
+    ]
+   ],
+   "purpose": "optional: the board may extend between y 36.3 and this edge for the HJ-840 antenna end (>= 3 mm from the cell, away from water and motor)"
+  },
+  "corner_r_max": 0.5
+ },
+ "part_free_strips_both_faces": {
+  "near": {
+   "y": [
+    19.35,
+    20.35
+   ],
+   "x": [
+    32.6,
+    62.8
+   ],
+   "why": "bottom ledge (partition side) + top clamp 19.35-20.1"
+  },
+  "far": {
+   "y": [
+    35.3,
+    36.3
+   ],
+   "x": [
+    [
+     32.6,
+     35.0
+    ],
+    [
+     45.0,
+     59.0
+    ]
+   ],
+   "why": "bottom ledge + top clamp (not at the USB-C, x 35-45)"
+  },
+  "rear_stop": {
+   "note": "the rear edge bears on a stop at x 31.97-32.5 (bottom half) for y 18.84-21.0"
+  },
+  "front_stop": {
+   "x": [
+    62.9,
+    64.0
+   ],
+   "y": [
+    18.84,
+    22.0
+   ],
+   "note": "front edge stop block, y 18.84-22.0"
+  }
+ },
+ "height_limits": {
+  "top_mm": 1.46,
+  "top_why": "cell above (z 11.1) on a 0.5 foam pad",
+  "bottom_mm": 6.84,
+  "bottom_why": "floor at z 1.2; except over the bottom head boss (x >= 62.86, y 19.46-23.46, top z 5.24): 2.8 mm",
+  "bottom_boss_zone": {
+   "x": [
+    62.86,
+    66.0
+   ],
+   "y": [
+    19.46,
+    23.46
+   ],
+   "max_mm": 2.8
+  }
+ },
+ "fixed_parts": {
+  "usb_c": {
+   "centre_x": 40.0,
+   "front_face_y": 36.8,
+   "centre_z": 8.74,
+   "type": "mid-mount 16p (TYPE-C-31-M-14 class), receptacle centred on the PCB mid-plane = the housing seam; opening in the far wall: stadium 9.44 x 3.76"
+  },
+  "sw1": {
+   "x": 46.5,
+   "y": 22.05,
+   "face": "top",
+   "type": "top-actuated tactile <= 3.5 x 3.5 x 1.5, pressed by a printed plunger from the top face"
+  },
+  "led": {
+   "x": 39.0,
+   "y": 22.05,
+   "face": "top",
+   "type": "RGB, top-emitting, under a d2 light pipe"
+  },
+  "tmag5273": {
+   "x": [
+    32.8,
+    34.8
+   ],
+   "y": [
+    32.435,
+    34.435
+   ],
+   "face": "top",
+   "why": "off-axis to the pinion magnet (x 30.76-31.76, y 33.435, z 8.74) through the rib_f window"
+  },
+  "lock_switch": {
+   "x": [
+    60.76,
+    64.25999999999999
+   ],
+   "y": [
+    35.71,
+    39.21
+   ],
+   "face": "bottom (tongue underside)",
+   "actuator": "toward +x, tip at x 64.26 locked / 64.63 free, line y 37.46, z 7.07 (d2 pin from the head)"
+  },
+  "sounder": {
+   "x": 57.0,
+   "y": 26.0,
+   "face": "bottom",
+   "max_h": 2.5,
+   "port": "3 slots in the floor below"
+  }
+ },
+ "connectors_no_soldering": {
+  "motor": {
+   "face": "bottom",
+   "near": [
+    34.0,
+    33.5
+   ],
+   "why": "motor leads run along the floor (notches z 1-5.2 in the motor saddles, the rear bulkhead and rib_f, y 34-37.5) and arrive under the board's rear-far corner"
+  },
+  "cell": {
+   "face": "bottom",
+   "near": [
+    61.5,
+    29.0
+   ],
+   "why": "the cell lies above the board (x 33.3-64.8, y 24.3-34.9, z 11.1-14.3) with its lead at the FRONT end; the lead drops past the board's front edge (free gap x 62.9-65.2, y 22-34.5)"
+  },
+  "type": "JST-SH 2 pin on the BOTTOM face (2.9-4.3 mm tall does not fit on top: 1.45 mm)"
+ },
+ "keepouts_top": [
+  {
+   "what": "button plunger d3 + collar d4.2",
+   "x": 46.5,
+   "y": 22.05,
+   "d": 4.4
+  },
+  {
+   "what": "light pipe d2",
+   "x": 39.0,
+   "y": 22.05,
+   "d": 2.4
+  }
+ ],
+ "radio": "HJ-840: antenna end at a board edge with >= 3 mm to the cell pouch (metal laminate: y <= 34.9 above the board), > 15 mm to the cartridge water (y <= 17) and to the motor (x <= 27.9); best spot: the antenna wing in the flare"
+}

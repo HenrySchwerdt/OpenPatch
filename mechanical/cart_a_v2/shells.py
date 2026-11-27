@@ -32,6 +32,7 @@ SADDLES_CART = (36.5, 46.5, 56.5)   # chamber saddles (x0, 1.6 thick)
 SADDLES_MOTOR = (12.76, 21.76)
 HOOK_Y = ((5.2, 8.2), (29.4, 32.9))  # rear hooks, beside the yoke (yoke y 8.71-28.9)
 T = 1.6                             # rib / wall thickness of inner structure
+WIRE_Y, WIRE_Z = (34.0, 37.5), (1.0, 5.2)   # motor leads run along the floor to the connector under the board (no soldering)
 
 
 def log(msg: str, t0: list[float]) -> None:
@@ -79,16 +80,16 @@ def common_features() -> tuple[list[Solid], list[Solid]]:
     # rear bulkhead = cartridge stop ring + chamber rear wall + screw thrust rib (washer_r bears on it) + motor front seat
     add.append(B((27.56, 28.56), BIG, UP))
     cut += [C(27.4, 28.7, pk.YC, pk.ZC, 8.9), C(27.4, 28.7, pk.YS, pk.ZC, 2.4), C(27.4, 27.96, pk.YM, pk.ZC, 6.2),
-            C(27.4, 28.7, pk.YM, pk.ZC, 3.4), B((27.4, 28.7), (34.0, 37.5), (12.5, 15.5))]          # wire notch (motor -> board)
+            C(27.4, 28.7, pk.YM, pk.ZC, 3.4), B((27.4, 28.7), WIRE_Y, WIRE_Z)]                       # motor lead notch (floor level)
     add.append(B((28.56, XJ), pk.PART_Y, UP))                                                       # chamber partition
     add.append(B((30.96, 31.96), (PY1 - 0.01, 60.0), UP))                                            # rib_f: screw front, magnet window
-    cut += [C(30.8, 32.1, pk.YS, pk.ZC, 2.4), C(30.8, 32.1, pk.YM, pk.ZC, 2.8), B((30.8, 32.1), (34.0, 37.5), (12.5, 15.5))]
+    cut += [C(30.8, 32.1, pk.YS, pk.ZC, 2.4), C(30.8, 32.1, pk.YM, pk.ZC, 2.8), B((30.8, 32.1), WIRE_Y, WIRE_Z)]
     for x0 in SADDLES_CART:                                                                         # cartridge half-saddles
         add.append(B((x0, x0 + T), (-1.0, PY0 + 0.01), UP))
         cut.append(C(x0 - 0.1, x0 + T + 0.1, pk.YC, pk.ZC, 11.55))
     for x0 in SADDLES_MOTOR:                                                                        # motor / gearhead half-saddles
         add.append(B((x0, x0 + T), (29.3, 60.0), UP))
-        cut.append(C(x0 - 0.1, x0 + T + 0.1, pk.YM, pk.ZC, 6.2))
+        cut += [C(x0 - 0.1, x0 + T + 0.1, pk.YM, pk.ZC, 6.2), B((x0 - 0.1, x0 + T + 0.1), WIRE_Y, WIRE_Z)]   # + lead notch
     # motor rear stop: bar from the far wall behind the rear boss, 45 deg gussets above and below (prints in both halves without support)
     yb, zb = pk.YM - 1.5, pk.ZC
     prof = [Vector(9.86, yb, zb - 1.5), Vector(9.86, yb, zb + 1.5), Vector(9.86, 42.0, zb + 1.5 + 42.0 - yb), Vector(9.86, 42.0, zb - 1.5 - (42.0 - yb))]

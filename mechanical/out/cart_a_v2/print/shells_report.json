@@ -1,7 +1,7 @@
 {
  "parts": {
   "bottom": {
-   "volume_cm3": 5.96,
+   "volume_cm3": 5.89,
    "valid": true,
    "solids": 1,
    "print_bbox_mm": [
@@ -11,7 +11,7 @@
    ]
   },
   "top": {
-   "volume_cm3": 7.32,
+   "volume_cm3": 7.34,
    "valid": true,
    "solids": 1,
    "print_bbox_mm": [
