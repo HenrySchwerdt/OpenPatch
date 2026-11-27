@@ -42,13 +42,15 @@ const LIST = [
   ['electronics/bench/FOOTPRINT-VERIFICATION.md', 'Build and order'],
   ['electronics/bench/fab/ORDER.md', 'Build and order'],
   ['electronics/bench/fab/COST.md', 'Build and order'],
+  ['mechanical/CART-A-V2-BRIEF.md', 'OpenTube (cart pump A)'],
+  ['docs/CART-ORDER.md', 'OpenTube (cart pump A)'],
   ['LICENSE.md', 'Licence', /PolyForm/],
   ['COMMERCIAL-LICENSE.md', 'Licence', /Fair-Price/],
   ['CONTRIBUTING.md', 'Licence'],
   ['CLA.md', 'Licence'],
 ];
 
-const NAMES = { 'DISCLAIMER.md': 'Disclaimer', 'README.md': 'Repository overview', 'docs/STATUS.md': 'Project status and handover', 'spec/design-parameters.md': 'Design parameters (single source of truth)' };
+const NAMES = { 'DISCLAIMER.md': 'Disclaimer', 'README.md': 'Repository overview', 'docs/STATUS.md': 'Project status and handover', 'spec/design-parameters.md': 'Design parameters (single source of truth)', 'mechanical/CART-A-V2-BRIEF.md': 'OpenTube design brief (cart pump A, v2)', 'docs/CART-ORDER.md': 'Cart pump cost and order package' };
 
 export function slugFor(path) {
   if (path === 'DISCLAIMER.md') return 'disclaimer';

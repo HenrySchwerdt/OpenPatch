@@ -1,8 +1,10 @@
 // Page shell: the safety banner (always the first element, never dismissable), header, footer.
 import { esc, REPO_URL } from './lib.mjs';
 
+// The first entries are the pump models (the OpenPatch product page keeps its design/ URL so old links stay valid).
 export const NAV = [
-  ['design/', 'Product'],
+  ['design/', 'OpenPatch'],
+  ['opentube/', 'OpenTube'],
   ['safety/', 'Safety'],
   ['build/', 'Build'],
   ['faults/', 'Fault codes'],
@@ -52,9 +54,9 @@ ${body}
   <div class="foot-grid">
     <div class="foot-brand">
       <a class="brand" href="${root}">${MARK}<span>OpenPatch</span></a>
-      <p>An open test platform for a flat, detachable patch pump. Bench use only.</p>
+      <p>Two open pump test platforms: OpenPatch, a flat patch pump, and OpenTube, a tubed cartridge pump. Bench use with water only.</p>
     </div>
-    <nav aria-label="Explore"><h2>Explore</h2><ul>${NAV.slice(0, 5).map(([h, l]) => `<li><a href="${root}${h}">${esc(l)}</a></li>`).join('')}</ul></nav>
+    <nav aria-label="Explore"><h2>Explore</h2><ul>${NAV.slice(0, 6).map(([h, l]) => `<li><a href="${root}${h}">${esc(l)}</a></li>`).join('')}</ul></nav>
     <nav aria-label="Project"><h2>Project</h2><ul>
       <li><a href="${root}docs/">Docs</a></li><li><a href="${root}parts/">Parts and cost</a></li><li><a href="${root}licence/">Licence and fair price</a></li><li><a href="${root}legal/">Disclaimers and legal</a></li><li><a href="${REPO_URL}">Source on GitHub</a></li>
     </ul></nav>

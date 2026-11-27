@@ -182,6 +182,91 @@
    ],
    "variant": "dark",
    "bytes": 120776
+  },
+  {
+   "id": "opentube_hero_rear",
+   "file": "mechanical/cart_a_v2/renders/v2_hero_rear.png",
+   "kind": "hero",
+   "product": "opentube",
+   "title": "OpenTube, seen from the rear",
+   "caption": "OpenTube v2: white top half over a graphite bottom half, button and LED on the flat top, USB-C on the seam, the original Accu-Chek Insight Adapter & Tubing as the front cap. Render of the CAD; test hardware, water only.",
+   "alt": "Render of the OpenTube pump from the rear corner: a rounded white housing on a graphite base, a round button and a small LED on the flat top, a USB-C opening on the seam line, and at the far end the light grey Insight adapter with the tubing leaving it.",
+   "size": [
+    1800,
+    1125
+   ],
+   "variant": "light",
+   "bytes": 1857955,
+   "source": "Blender (mechanical/cart_a_v2/render.py) from the cart pump A v2 CAD",
+   "background": "#c8cacb"
+  },
+  {
+   "id": "opentube_hero_front",
+   "file": "mechanical/cart_a_v2/renders/v2_hero_front.png",
+   "kind": "hero",
+   "product": "opentube",
+   "title": "OpenTube, seen from the adapter end",
+   "caption": "The adapter end: the Insight adapter sits flush on the 49 x 19 mm head, which flares out of the slimmer body. Render of the CAD.",
+   "alt": "Render of the OpenTube pump from the adapter end: the light grey Insight adapter sits flush on the wide head, which flares out of the slimmer white and graphite body behind it.",
+   "size": [
+    1800,
+    1125
+   ],
+   "variant": "light",
+   "bytes": 1899489,
+   "source": "Blender (mechanical/cart_a_v2/render.py) from the cart pump A v2 CAD",
+   "background": "#c8cacb"
+  },
+  {
+   "id": "opentube_usb",
+   "file": "mechanical/cart_a_v2/renders/v2_usb.png",
+   "kind": "detail",
+   "product": "opentube",
+   "title": "OpenTube, USB-C on the housing seam",
+   "caption": "USB-C (charge and data) in a stadium-shaped opening centred on the seam, half in each printed shell. Render of the CAD.",
+   "alt": "Close-up render of a stadium-shaped USB-C opening centred on the seam between the white top half and the graphite bottom half of the housing.",
+   "size": [
+    1800,
+    1125
+   ],
+   "variant": "light",
+   "bytes": 1913982,
+   "source": "Blender (mechanical/cart_a_v2/render.py) from the cart pump A v2 CAD",
+   "background": "#c8cacb"
+  },
+  {
+   "id": "opentube_xray",
+   "file": "mechanical/cart_a_v2/renders/v2_xray.png",
+   "kind": "section",
+   "product": "opentube",
+   "title": "OpenTube, inside view",
+   "caption": "See-through render: cartridge chamber, yoke drive (screw beside the cartridge, push stem into it), gearmotor, main board with the cell above it, button plunger and LED light pipe. Render of the CAD.",
+   "alt": "See-through render of OpenTube showing the glass cartridge in its closed chamber, the lead screw and push stem of the yoke drive beside it, the small gearmotor behind, and the main board with the battery cell, button plunger and glowing LED light pipe in the electronics bay.",
+   "size": [
+    1800,
+    1125
+   ],
+   "variant": "light",
+   "bytes": 1969661,
+   "source": "Blender (mechanical/cart_a_v2/render.py) from the cart pump A v2 CAD",
+   "background": "#c8cacb"
+  },
+  {
+   "id": "opentube_top",
+   "file": "mechanical/cart_a_v2/renders/v2_top.png",
+   "kind": "detail",
+   "product": "opentube",
+   "title": "OpenTube against the Accu-Chek Insight footprint",
+   "caption": "Top view. Orange outline: the Accu-Chek Insight footprint, 84 x 52 mm (user manual, appendix A). Render of the CAD.",
+   "alt": "Top-view render of OpenTube inside a thin orange rectangle that marks the 84 by 52 mm footprint of an Accu-Chek Insight: OpenTube is shorter, and its body behind the head is clearly narrower.",
+   "size": [
+    1800,
+    1125
+   ],
+   "variant": "light",
+   "bytes": 1910522,
+   "source": "Blender (mechanical/cart_a_v2/render.py) from the cart pump A v2 CAD",
+   "background": "#c8cacb"
   }
  ]
 }

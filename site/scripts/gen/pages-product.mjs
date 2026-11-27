@@ -1,8 +1,10 @@
-// Product / Design page: exploded hero, size overlay, scroll story, lazy 3D viewer, component library, collapsible data.
+// OpenPatch product page (URL design/): exploded hero, key facts, size overlay, scroll story, lazy 3D viewer, component library,
+// collapsible data, and the sibling model (OpenTube) at the end.
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { SITE, blobUrl, esc } from './lib.mjs';
-import { stage } from './pages-home.mjs';
+import { openPatchFacts, stage } from './pages-home.mjs';
+import { familySwitch, models, sibling, testOnly } from './family.mjs';
 import { themed } from './media.mjs';
 
 const f1 = (n) => (Math.round(n * 10) / 10).toFixed(1);
@@ -42,7 +44,7 @@ ${legend}<figcaption>All outlines at one scale. Dashed: Omnipod DASH for compari
 }
 
 export function product(ctx) {
-  const { root, facts: F, media, parts: P } = ctx;
+  const { root, facts: F, media, parts: P, ot: T } = ctx;
   const exploded = media.find('exploded');
   const secs = media.ofKind('section');
   const byRe = (re) => secs.find((g) => re.test(`${g.id} ${g.title}`)) ?? null;
@@ -69,12 +71,16 @@ export function product(ctx) {
   return `
 <section class="pagehero" aria-labelledby="h1">
   <div class="wrap pagehero-copy">
-    <p class="eyebrow">Product</p>
+    ${familySwitch(root, 'openpatch')}
+    <p class="eyebrow">OpenPatch · patch pump · Rev A bench pod</p>
     <h1 id="h1">${h ? `${f1(h.h)} millimetres<br>of pump.` : 'The pod.'}</h1>
     <p class="lede">${h && F.dash ? `The ${esc(h.id)} is ${f1(h.l)} × ${f1(h.w)} mm, ${F.volPct}% of the volume of an Omnipod DASH.` : ''} One housing, three lengths: ${F.sizes.map((s) => `${s.units} U`).join(', ')}.</p>
+    ${testOnly(root)}
   </div>
   <div class="wrap hero-stage">${stage(turntable ?? exploded, root, { alt: 'OP-100 exploded view', sizes: '(min-width: 1240px) 1160px, 100vw', eager: true, cls: 'hero-img' })}</div>
 </section>
+
+<section class="wrap facts" aria-label="OpenPatch key facts">${openPatchFacts(F)}</section>
 
 <section class="wrap block" aria-labelledby="sz">
   <div class="split2">
@@ -154,5 +160,7 @@ ${comps.length ? `<section class="wrap block" aria-labelledby="lib-h">
   <details class="tech"><summary>How the models get here</summary>
     <p>Shell and printed parts come from <code>mechanical/generate.py</code>. Vendor-accurate component models are catalogued in <code>mechanical/components/catalog.json</code>. The site build converts whatever exists; see <a href="${blobUrl('site/README.md')}">site/README.md</a> for the regeneration steps.</p>
   </details>
-</section>`;
+</section>
+
+${T ? sibling(models(media, F, T), 'openpatch', root) : ''}`;
 }

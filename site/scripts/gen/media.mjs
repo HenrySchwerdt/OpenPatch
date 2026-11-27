@@ -1,6 +1,8 @@
 // Images and the IKEA-style build steps.
 // Consumes, when present:
-//   docs/renders/manifest.json         entries {id, file, kind: hero|exploded|section|detail|step|component|turntable, title, caption, size, variant: light|dark}
+//   docs/renders/manifest.json         entries {id, file, kind: hero|exploded|section|detail|step|component|turntable, title, caption, alt, size, variant: light|dark, background, product}
+//                                      product: "openpatch" (default) or another pump model (e.g. "opentube"); only OpenPatch entries feed the
+//                                      kind-based lookups (find/ofKind), other models are reached through media.product(name) or media.byId(id).
 //   docs/build-guide/steps.json        steps  {id, title, image, parts[], tools[], check, warnings}
 // When they do not exist yet, interim CAD views from mechanical/ are used and flagged as interim, so the site builds on any branch state.
 // Every raster image is resized and written as AVIF + WebP (responsive srcset) into public/img/; results are cached in site/.cache/.
@@ -100,8 +102,9 @@ async function build(entries, bases) {
   for (const x of entries) {
     const variant = x.variant === 'dark' || x.variant === 'light' ? x.variant : 'any';
     const gid = variant === 'any' ? x.id : String(x.id).replace(/[-_.](light|dark)$/i, '');
-    const g = groups.get(gid) ?? { id: gid, kind: x.kind, title: x.title, caption: x.caption, interim: !!x.interim, variants: {}, extra: x };
-    g.title ||= x.title; g.caption ||= x.caption;
+    const g = groups.get(gid) ?? { id: gid, kind: x.kind, title: x.title, caption: x.caption, alt: x.alt, product: x.product ?? 'openpatch', interim: !!x.interim, variants: {}, extra: x };
+    g.title ||= x.title; g.caption ||= x.caption; g.alt ||= x.alt;
+    if (/^#[0-9a-f]{3,8}$/i.test(x.background ?? '')) g.background ||= x.background;
     const src = x.abs ?? resolveFile(x.file, bases);
     if (!src) { groups.set(gid, g); continue; }
     if (isVideo(src)) g.video = copyVideo(src);
@@ -130,9 +133,17 @@ export function themed(g, root, opts = {}) {
   if (!g) return '';
   if (g.video && !Object.keys(g.variants).length) return `<video class="turntable" src="${root}${g.video}" muted loop playsinline autoplay preload="metadata" aria-label="${esc(opts.alt ?? g.title ?? '')}"></video>`;
   const { light, dark, any } = g.variants;
-  const alt = opts.alt ?? g.title ?? '';
+  const alt = opts.alt ?? g.alt ?? g.title ?? '';
   if (any || !(light && dark)) return pictureHtml(any ?? light ?? dark, root, { ...opts, alt });
   return `${pictureHtml(light, root, { ...opts, alt, eager: false, cls: 'th-light' })}${pictureHtml(dark, root, { ...opts, alt, eager: false, cls: 'th-dark' })}`;
+}
+
+/** Visual slot: themed render, or a visible placeholder when nothing exists yet. A render with its own studio background
+ *  (manifest field `background`) gets that colour behind it, so letterboxing never shows the page colour. */
+export function stage(g, root, { alt, sizes, eager = false, cls = '', label = 'Render pending' } = {}) {
+  if (!g) return `<div class="stage ${cls}"><div class="ph"><span>${esc(label)}</span></div></div>`;
+  const bg = g.background ? ` style="background:${g.background}"` : '';
+  return `<div class="stage ${cls}${g.interim ? ' is-interim' : ''}${g.background ? ' studio' : ''}"${bg}>${themed(g, root, { alt: alt ?? g.alt ?? g.title, sizes, eager })}${g.interim ? '<span class="chip-interim" title="A photoreal render replaces this view when docs/renders/manifest.json exists">Interim CAD view</span>' : ''}</div>`;
 }
 
 // ------------------------------------------------------------------ steps (docs/build-guide/steps.json) and interim steps
@@ -201,22 +212,35 @@ async function loadSteps(media) {
   return { steps, interim: false };
 }
 
+/** Lookups over one list of image groups: by id, by kind, or by a regex on "id title". */
+function lookups(all) {
+  const find = (...pats) => { for (const p of pats) { const hit = all.find((g) => (typeof p === 'string' ? g.id === p || g.kind === p : p.test(`${g.id} ${g.title}`))); if (hit) return hit; } return null; };
+  const ofKind = (k) => all.filter((g) => g.kind === k);
+  const byId = (id) => all.find((g) => g.id === id) ?? null;
+  return { all, find, ofKind, byId };
+}
+
 /** Everything the page generators need. */
 export async function loadMedia() {
   const manifest = loadManifest();
-  const real = await build(manifest, ['docs/renders', 'docs/renders/img', 'docs']);
+  const realAll = await build(manifest, ['docs/renders', 'docs/renders/img', 'docs']);
+  // OpenPatch (no product field) drives the kind-based lookups and the interim fallbacks; other pump models stay separate
+  const real = realAll.filter((g) => g.product === 'openpatch');
   const interim = await build(interimEntries(), ['']);
   const kinds = new Set(real.map((g) => g.kind));
   // an interim entry is used only for a kind (or id) that the real manifest does not cover
   const fallbackKinds = interim.filter((g) => g.kind !== 'component' && !kinds.has(g.kind));
   const comps = interim.filter((g) => g.kind === 'component' && !real.some((r) => r.kind === 'component' && r.id === g.id));
   const all = [...real, ...fallbackKinds, ...comps];
-  const find = (...pats) => { for (const p of pats) { const hit = all.find((g) => (typeof p === 'string' ? g.id === p || g.kind === p : p.test(`${g.id} ${g.title}`))); if (hit) return hit; } return null; };
-  const ofKind = (k) => all.filter((g) => g.kind === k);
   const stepData = await loadSteps(interim);
+  const models = [...new Set(realAll.map((g) => g.product))];
   return {
-    all, find, ofKind, steps: stepData.steps, stepsInterim: stepData.interim,
-    hasManifest: manifest.length > 0, realCount: real.length, interimUsed: fallbackKinds.length > 0 || stepData.interim,
+    ...lookups(all),
+    byId: (id) => realAll.find((g) => g.id === id) ?? all.find((g) => g.id === id) ?? null,
+    product: (name) => lookups(realAll.filter((g) => g.product === name)),
+    models,
+    steps: stepData.steps, stepsInterim: stepData.interim,
+    hasManifest: manifest.length > 0, realCount: realAll.length, interimUsed: fallbackKinds.length > 0 || stepData.interim,
     waiting: ['hero', 'exploded', 'section', 'detail', 'step', 'component', 'turntable'].filter((k) => !kinds.has(k)),
   };
 }

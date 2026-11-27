@@ -1,5 +1,5 @@
 // Generates every HTML page of the site from the repository documents (run by prebuild/predev).
-// Output (gitignored): index.html, design/, safety/, faults/, status/, build/, parts/, docs/, licence/ in site/.
+// Output (gitignored): index.html, design/ (OpenPatch), opentube/, safety/, faults/, status/, build/, parts/, docs/, licence/ in site/.
 import { copyFileSync, existsSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { REPO_ROOT, SITE, blobUrl, gitInfo, renderMarkdown } from './gen/lib.mjs';
@@ -8,6 +8,8 @@ import { docUrl, makeAssetResolver, registry, renderDoc } from './gen/docs.mjs';
 import { renderPage } from './gen/shell.mjs';
 import { home } from './gen/pages-home.mjs';
 import { product } from './gen/pages-product.mjs';
+import { opentube } from './gen/pages-opentube.mjs';
+import { collectOpenTube } from './gen/facts-opentube.mjs';
 import { build } from './gen/pages-build.mjs';
 import { collectFacts } from './gen/facts.mjs';
 import { loadMedia } from './gen/media.mjs';
@@ -23,9 +25,10 @@ const faultData = parseFaults();
 const statusData = parseStatus();
 const partsData = parseParts();
 const facts = collectFacts({ spec, faults: faultData, status: statusData });
+const ot = collectOpenTube();
 const media = await loadMedia();
 
-for (const d of ['design', 'safety', 'faults', 'status', 'build', 'parts', 'docs', 'licence', 'legal', 'index.html']) rmSync(join(SITE, d), { recursive: true, force: true });
+for (const d of ['design', 'opentube', 'safety', 'faults', 'status', 'build', 'parts', 'docs', 'licence', 'legal', 'index.html']) rmSync(join(SITE, d), { recursive: true, force: true });
 mkdirSync(join(SITE, 'public', 'doc-assets'), { recursive: true });
 
 const written = [];
@@ -45,7 +48,7 @@ function ctxFor(rel) {
   const root = rootFor(rel);
   const resolveDoc = (p) => { const e = reg.find((x) => x.path === p); return e ? docUrl(e, root) : null; };
   return {
-    root, reg, spec, git, parts: partsData, data: null, facts, media,
+    root, reg, spec, git, parts: partsData, data: null, facts, ot, media,
     d: (p) => { const e = reg.find((x) => x.path === p); return e ? docUrl(e, root) : blobUrl(p); },
     md: (s) => renderMarkdown(s, { docPath: 'docs/x.md', resolveDoc, resolveAsset: makeAssetResolver(root) }).html,
   };
@@ -56,8 +59,9 @@ const fig = join(REPO_ROOT, 'mechanical', 'out', 'bench', 'OP-100_layout_annotat
 mkdirSync(join(SITE, 'public', 'figures'), { recursive: true });
 if (existsSync(fig)) copyFileSync(fig, join(SITE, 'public', 'figures', 'OP-100_layout_annotated.svg'));
 
-page('index.html', '', 'OpenPatch', 'An open, fully documented test platform for a very flat patch pump: dimensions, safety limits and fault codes are all public.', home({ ...ctxFor('index.html'), faults: faultData, status: statusData }), { meta: { source: 'spec, mechanical/out, docs/' } });
-page('design/index.html', 'design/', 'Product', 'The OpenPatch bench pod: exploded view, size against an Omnipod DASH, how it works inside and a 3D viewer.', product(ctxFor('design/index.html')), { entry: 'design', meta: { source: 'mechanical/, docs/PARTS-LOCK.md' } });
+page('index.html', '', 'OpenPatch', 'Two open, fully documented pump test platforms: OpenPatch, a very flat patch pump, and OpenTube, a tubed cartridge pump. Dimensions, safety limits and fault codes are all public.', home({ ...ctxFor('index.html'), faults: faultData, status: statusData }), { meta: { source: 'spec, mechanical/out, docs/' } });
+page('design/index.html', 'design/', 'OpenPatch patch pump', 'The OpenPatch bench pod: exploded view, size against an Omnipod DASH, how it works inside and a 3D viewer.', product(ctxFor('design/index.html')), { entry: 'design', meta: { source: 'mechanical/, docs/PARTS-LOCK.md' } });
+page('opentube/index.html', 'opentube/', 'OpenTube tubed pump', `OpenTube: a tubed bench pump around a ${ot.cart?.ml ? `${ot.cart.ml} ml ` : ''}Insight-class glass cartridge with the original Accu-Chek Insight Adapter & Tubing as its front cap. Renders, key numbers, how it works and status.`, opentube(ctxFor('opentube/index.html')), { meta: { source: 'mechanical/CART-A-V2-BRIEF.md, mechanical/out/cart_a_v2/' } });
 page('safety/index.html', 'safety/', 'Safety', 'Hardware interlock simulator, defence in depth and hazard explorer for the OpenPatch pump (test project).', safety({ ...ctxFor('safety/index.html') }), { entry: 'safety', meta: { source: 'docs/02-safety.md, docs/06-diagnostics.md' } });
 page('faults/index.html', 'faults/', 'Fault codes', 'Searchable catalogue of all OpenPatch diagnostic codes with severity, replaceable part, action and Trio text.', faults({ ...ctxFor('faults/index.html'), data: faultData }), { entry: 'faults', meta: { source: 'docs/06-diagnostics.md' } });
 page('status/index.html', 'status/', 'Status', 'What is verified and what is not in the OpenPatch project, generated from STATUS.md.', status({ ...ctxFor('status/index.html'), data: statusData }), { meta: { source: 'docs/STATUS.md' } });
@@ -75,5 +79,6 @@ for (const e of reg) {
 // vite inputs
 writeFileSync(join(SITE, 'pages.json'), JSON.stringify(written));
 console.log(`build-site: ${written.length} pages (${reg.length} docs, ${faultData?.total ?? 0} fault codes) at ${git.sha}`);
-console.log(`build-site: images ${media.realCount} from docs/renders manifest${media.interimUsed ? ', interim CAD views in use' : ''}; ${media.steps.length} build steps (${media.stepsInterim ? 'interim, from mechanical/ASSEMBLY.md' : 'docs/build-guide/steps.json'}); waiting on render kinds: ${media.waiting.join(', ') || 'none'}`);
-for (const x of facts.stale) console.log(`build-site: STALE DOC ${x.doc} ${x.what}`);
+console.log(`build-site: images ${media.realCount} from docs/renders manifest (models: ${media.models.join(", ") || "none"})${media.interimUsed ? ', interim CAD views in use' : ''}; ${media.steps.length} build steps (${media.stepsInterim ? 'interim, from mechanical/ASSEMBLY.md' : 'docs/build-guide/steps.json'}); waiting on render kinds: ${media.waiting.join(', ') || 'none'}`);
+for (const x of [...facts.stale, ...ot.stale]) console.log(`build-site: STALE DOC ${x.doc} ${x.what}`);
+if (!media.models.includes('opentube')) console.log('build-site: WARNING no OpenTube renders in docs/renders/manifest.json (entries with "product": "opentube"); the OpenTube page shows placeholders');
