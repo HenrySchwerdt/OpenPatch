@@ -322,6 +322,17 @@
    "front_module": {
     "depth": 6.6,
     "bore_offset": 0.4,
+    "skirt": {
+     "clr": 0.2,
+     "t": 1.2,
+     "len": 3.5,
+     "groove": [
+      1.4,
+      2.6
+     ],
+     "groove_depth": 0.6,
+     "_": "owner 2026-11-27: the head must be connected to the housing: rear skirt inside the shell walls with a ridge in a groove of bottom + lid (the closed lid traps it), front lid screw through the skirt; values mirror make_face.SKIRT"
+    },
     "_depth": "owner 2026-11-26: the printed end where the adapter goes on must be thinner: 6.6 = lock groove 5.6 below the face + 1.0 floor (make_face.py --module)",
     "source": "mechanical/print/A_lock/make_face.py (FACE4, tested 2026-11-26: turns fully and holds)",
     "_": "variant A front end = the tested FACE4 lock face printed as its own part (face up, best quality for the bayonet) and bonded onto the flat front of the housing; the housing receiver, bed and collar are cut off over this depth"
@@ -460,6 +471,17 @@
  "front_module": {
   "depth": 6.6,
   "bore_offset": 0.4,
+  "skirt": {
+   "clr": 0.2,
+   "t": 1.2,
+   "len": 3.5,
+   "groove": [
+    1.4,
+    2.6
+   ],
+   "groove_depth": 0.6,
+   "_": "owner 2026-11-27: the head must be connected to the housing: rear skirt inside the shell walls with a ridge in a groove of bottom + lid (the closed lid traps it), front lid screw through the skirt; values mirror make_face.SKIRT"
+  },
   "_depth": "owner 2026-11-26: the printed end where the adapter goes on must be thinner: 6.6 = lock groove 5.6 below the face + 1.0 floor (make_face.py --module)",
   "source": "mechanical/print/A_lock/make_face.py (FACE4, tested 2026-11-26: turns fully and holds)",
   "_": "variant A front end = the tested FACE4 lock face printed as its own part (face up, best quality for the bayonet) and bonded onto the flat front of the housing; the housing receiver, bed and collar are cut off over this depth"

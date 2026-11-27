@@ -37,7 +37,7 @@ import sys
 from pathlib import Path
 
 from build123d import (Align, BuildPart, BuildSketch, Circle, Cone, Cylinder, Locations, Mode, Plane, Polygon, Pos, offset, add, revolve, Axis,
-                       Rectangle, Box, Rot, export_stl, extrude)
+                       Rectangle, Box, Rot, export_stl, extrude, Location)
 
 import make_pucks as mp
 
@@ -345,6 +345,42 @@ def adapter_dummy() -> tuple[object, object]:
     return a.part, n.part
 
 
+SHELL_WALL = 1.2           # cart housing wall (op_cart cart.wall)
+SKIRT = {"clr": 0.2, "t": 1.2, "len": 3.5, "groove": (1.4, 2.6), "groove_depth": 0.6}   # rear skirt + ridge, captured in a groove of bottom + lid
+
+
+def module_skirt(hole: tuple[float, float, float] | None = None) -> object:
+    """Skirt behind the module (into the housing, -Z): ring inside the shell walls with an outward ridge that sits in the shells' groove.
+    hole = (X, Z, d): vertical (module Y) clearance hole for the front lid screw, which clamps bottom, skirt and lid together."""
+    w, k = SHELL_WALL, SKIRT
+    o_out, o_in = -(w + k["clr"]), -(w + k["clr"] + k["t"])
+    with BuildPart() as sk:
+        with BuildSketch(Plane.XY.offset(-k["len"])):
+            Polygon(*outline(), align=None)
+            offset(amount=o_out, mode=Mode.REPLACE)
+            with BuildSketch(mode=Mode.PRIVATE) as inner:
+                Polygon(*outline(), align=None)
+                offset(amount=o_in, mode=Mode.REPLACE)
+            add(inner.sketch, mode=Mode.SUBTRACT)
+        extrude(amount=k["len"])
+        g0, g1 = k["groove"]
+        with BuildSketch(Plane.XY.offset(-g1 + k["clr"])):
+            Polygon(*outline(), align=None)
+            offset(amount=-(w - k["groove_depth"] + k["clr"]), mode=Mode.REPLACE)
+            with BuildSketch(mode=Mode.PRIVATE) as rin:
+                Polygon(*outline(), align=None)
+                offset(amount=o_out - 0.1, mode=Mode.REPLACE)          # overlaps the skirt: one solid
+            add(rin.sketch, mode=Mode.SUBTRACT)
+        extrude(amount=(g1 - g0) - 2 * k["clr"])
+        if hole:                                                 # screw through the bottom segment, the lid boss through the top one
+            hx, hz, hd, bd = hole
+            with Locations((hx, -10, hz)):
+                Cylinder(hd / 2, 20, rotation=(90, 0, 0), mode=Mode.SUBTRACT)
+            with Locations((hx, 10, hz)):
+                Cylinder(bd / 2, 20, rotation=(90, 0, 0), mode=Mode.SUBTRACT)
+    return sk.part
+
+
 MODULE_DEPTH = 6.6          # cart pump A front module: lock groove ends 5.6 below the face, lock pocket 5.8, 0.8 floor
 
 
@@ -358,6 +394,11 @@ def main() -> int:
         FACE_Z = MODULE_DEPTH
     OUT.mkdir(exist_ok=True)
     part = face()
+    if module_dir and "--skirt" in sys.argv:
+        hole = None
+        if "--hole" in sys.argv:
+            hole = tuple(float(v) for v in sys.argv[sys.argv.index("--hole") + 1].split(","))
+        part = part + module_skirt(hole)
     bb = part.bounding_box()
     c = bb.center()
     if module_dir:
