@@ -72,6 +72,23 @@ def ring_prism(d_out: float, d_in: float, x0: float, x1: float) -> Solid:
     return Solid.extrude(Face(wire(d_out), [wire(d_in)]), Vector(x1 - x0, 0, 0))
 
 
+def wedge_y(xr: tuple[float, float], yr: tuple[float, float], z: float, down: bool = True) -> Solid:
+    """45 deg gusset along y under (down) a ledge that sticks out from x0 to x1 at height z: triangle (x0, z - w), (x0, z), (x1, z)."""
+    x0, x1 = xr
+    w = x1 - x0
+    zz = z - w if down else z + w
+    prof = [Vector(x0, yr[0], zz), Vector(x0, yr[0], z), Vector(x1, yr[0], z)]
+    return Solid.extrude(Face(Wire.make_polygon(prof, close=True)), Vector(0, yr[1] - yr[0], 0))
+
+
+def wedge_x(xr: tuple[float, float], y_wall: float, y_tip: float, z: float) -> Solid:
+    """45 deg gusset along x ABOVE a ledge at height z that sticks out from a wall at y_wall to y_tip (supports it when the half
+    prints roof-down): triangle (y_wall, z), (y_tip, z), (y_wall, z + |y_tip - y_wall|)."""
+    h = abs(y_tip - y_wall)
+    prof = [Vector(xr[0], y_wall, z), Vector(xr[0], y_tip, z), Vector(xr[0], y_wall, z + h)]
+    return Solid.extrude(Face(Wire.make_polygon(prof, close=True)), Vector(xr[1] - xr[0], 0, 0))
+
+
 def fuse(solids: list[Solid]) -> Solid:
     return solids[0].fuse(*solids[1:]) if len(solids) > 1 else solids[0]
 
@@ -117,17 +134,17 @@ def bottom_features() -> list[Solid]:
     for xr in FAR_LEDGES:                                                                           # board ledge at the far side (not at USB, not at the pinion)
         f.append(B(xr, (35.3, 36.9), (-1.0, pz0)))
     f.append(B((31.97, 32.5), (PY1 - 0.01, 21.0), (pz0, pz1 + 0.46)))                               # board rear stop (clear of rib_f top half)
-    f.append(B((pk.BOARD["x"][1] + 0.1, pk.BOARD["x"][1] + 1.2), (PY1 - 0.01, 22.0), (pz0 - 1.0, pz1 + 0.46)))   # board front stop
+    f.append(B((pk.BOARD["x"][1] + 0.1, pk.BOARD["x"][1] + 1.2), (PY1 - 0.01, 22.0), (5.0, pz1 + 0.46)))   # board front stop, standing on the head boss (no floating block)
     for y in HOOK_Y:                                                                                # rear catch bars
-        f.append(B((0.5, 2.6), y, (6.4, 7.4)))
+        f.append(B((0.5, 2.6), y, (6.4, 7.4)))                                                      # no gusset: the top half's hook nose sits under it (1.4 overhang is fine)
     return f
 
 
 def top_features() -> tuple[list[Solid], list[Solid]]:
     f, cut = [], []
-    f.append(B((32.6, 62.0), (PY1 - 0.01, 20.1), (pz1, 10.6)))                                      # board clamp, partition side
+    f += [B((32.6, 62.0), (PY1 - 0.01, 20.1), (pz1, 10.6)), wedge_x((32.6, 62.0), PY1 - 0.01, 20.1, 10.6)]   # board clamp, partition side + gusset
     for xr in FAR_CLAMPS:
-        f.append(B(xr, (35.3, 36.9), (pz1, 10.6)))                                                  # board clamp, far side
+        f += [B(xr, (35.3, 36.9), (pz1, 10.6)), wedge_x(xr, 36.9, 35.3, 10.6)]                    # board clamp, far side + gusset
     cx, cy = pk.CELL["x"], pk.CELL["y"]
     f.append(B((31.96, cx[0] - 0.2), (cy[0] - 0.2, 36.9), (12.0, 25.0)))                            # cell pocket: rear wall
     f.append(B((cx[0] - 0.2, cx[1] - 0.2), (cy[1] + 0.2, cy[1] + 0.2 + T), (12.0, 25.0)))           # far wall
@@ -192,7 +209,8 @@ def build() -> dict[str, Solid]:
     shell = outer - cavity
     add, cut = common_features()
     # joint ring into the head groove (KOPF10 0.85..2.55): 1.1 thick, 0.3 play per side, stepped 0.4 lead-in at the tip
-    common = shell + (fuse(add) & cavity) + ring_prism(1.15, 2.25, XJ - 1.0, XJ + 1.1) + ring_prism(1.3, 2.1, XJ + 1.0, XJ + 1.5)
+    # it sticks out only 1.0 beyond the shell edge: its top / bottom segments print as a free overhang (1.5 was ragged-prone)
+    common = shell + (fuse(add) & cavity) + ring_prism(1.15, 2.25, XJ - 1.0, XJ + 0.7) + ring_prism(1.3, 2.1, XJ + 0.6, XJ + 1.0)
     log("shell + common structure", t0)
     below = B((-5, 90), (-5, 70), (-5, SEAM))
     above = B((-5, 90), (-5, 70), (SEAM, 30))

@@ -178,7 +178,11 @@ v2.1 changes:
 - **Butt seam** with the full 1.2 wall on both halves and a 0.3 x 0.5 shadow groove on the seam line (no thin lap).
 - **Head KOPF10** (`cart_a_v2/head.py`, built from make_face.face(), lock face untouched): faceted outline (flush with the shells),
   groove 0.85..2.55 x 2.0 with a 0.3 mouth step (0.3 mm play per side), lower screw at module Y -4.5 (pump z 4.24, 1.0 clear of the
-  ring); the shells' ring has a stepped 0.4 lead-in. Checked as a real solid against both halves and every part: 0 overlap, ring keeps
+  ring); the shells' ring sticks out 1.0 (was 1.8) with a stepped 0.4 lead-in.
+- **No supports, checked**: every print STL was scanned for faces steeper than 45 deg; fixed: ring protrusion (free overhang at its
+  bed-side segments), floating board front stop (now stands on the head boss), top board clamps (45 deg gussets to the partition /
+  far wall). What is left prints without support: ledges <= 1.4 mm (rear catch bars, hook noses, ring), bridges <= 3.5 mm (lead
+  notches, head groove roof 1.7 like KOPF9's 1.5); only the board stand-in bridges its feet (fit dummy). Checked as a real solid against both halves and every part: 0 overlap, ring keeps
   >= 0.25 mm play everywhere.
 - **Routed 6-layer board** in the package (outline from `board_outline_a.json`, USB-C x 42, HJ-840, J2 + plug, J3, SPVS410100 lock
   switch, pin tip 64.48 locked): far bottom ledges x 33-35 / 48.2-58, far top clamps x 33-35 / 48.2-53.9; all checks pass.
