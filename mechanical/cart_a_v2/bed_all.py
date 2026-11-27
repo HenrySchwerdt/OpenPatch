@@ -26,7 +26,7 @@ from make_x2_housing import read_stl  # noqa: E402
 
 P = pk.OUT / "print"
 B, C = pk.box, pk.cyl_x
-GAP = 6.0          # between parts on the bed
+GAP = 5.0          # between parts on the bed
 BED = (250.0, 220.0)
 
 
@@ -86,6 +86,50 @@ def load(path: Path) -> np.ndarray:
     return t - np.array([(mn[0] + mx[0]) / 2, (mn[1] + mx[1]) / 2, mn[2]])
 
 
+def rot90(t: np.ndarray) -> np.ndarray:
+    r = t.copy()
+    r[..., 0], r[..., 1] = -t[..., 1], t[..., 0]
+    return r
+
+
+def shelf(items: list[tuple[str, float, float]], width: float) -> tuple[float, dict]:
+    """Shelf packing of (name, w, h) rectangles into a strip of `width`; returns the used height and the lower-left corners."""
+    x, y, row_h, pos = 0.0, 0.0, 0.0, {}
+    for n, w, h in sorted(items, key=lambda it: -it[2]):
+        if x + w > width + 1e-6:
+            x, y, row_h = 0.0, y + row_h + GAP, 0.0
+        pos[n] = (x, y)
+        x, row_h = x + w + GAP, max(row_h, h)
+    return y + row_h, pos
+
+
+def pack(meshes: dict[str, np.ndarray]) -> list[np.ndarray]:
+    """Compact layout around the bed centre (owner: short travel): each part lies with its long side along x or y, strip widths
+    from 90 to 200 mm are tried, the smallest square-ish footprint wins."""
+    best = None
+    for rot_long in (False, True):                       # long side along x, or along y
+        oriented = {}
+        for n, t in meshes.items():
+            ext = np.ptp(t.reshape(-1, 3), axis=0)
+            oriented[n] = rot90(t) if (ext[0] >= ext[1]) == rot_long else t
+        items = [(n, *np.ptp(t.reshape(-1, 3), axis=0)[:2]) for n, t in oriented.items()]
+        for width in np.arange(90.0, 201.0, 2.0):
+            if any(w > width for _n, w, _h in items):
+                continue
+            h, pos = shelf(items, width)
+            used_w = max(pos[n][0] + w for n, w, _h in items)
+            score = max(used_w, h) ** 2 + used_w * h          # small and square
+            if h <= BED[1] and (best is None or score < best[0]):
+                best = (score, oriented, pos)
+    _s, oriented, pos = best
+    out = []
+    for n, t in oriented.items():
+        ext = np.ptp(t.reshape(-1, 3), axis=0)
+        x0, y0 = pos[n]
+        out.append(t + np.array([x0 + ext[0] / 2, y0 + ext[1] / 2, 0]))
+    return out
+
+
 def main() -> None:
     for k, s in stand_ins().items():
         export_stl(s, str(P / f"fit_{k}.stl"), tolerance=0.01, angular_tolerance=0.1)
@@ -93,15 +137,7 @@ def main() -> None:
              "fit_gear_dummy", "fit_screw_rod", "fit_stem_rod", "fit_light_pipe_rod", "fit_lock_pin", "fit_nut_a", "fit_nut_b"]
     paths = {n: (pk.MECH / "print" / "cart_A" / "kopf9_centered.stl" if n == "kopf9" else P / f"{n}.stl") for n in names}
     meshes = {n: load(p) for n, p in paths.items()}
-    # shelf packing, biggest first
-    order = sorted(names, key=lambda n: -np.ptp(meshes[n].reshape(-1, 3)[:, 1]) * np.ptp(meshes[n].reshape(-1, 3)[:, 0]))
-    x, y, row_h, placed = 0.0, 0.0, 0.0, []
-    for n in order:
-        ext = np.ptp(meshes[n].reshape(-1, 3), axis=0)
-        if x + ext[0] > BED[0]:
-            x, y, row_h = 0.0, y + row_h + GAP, 0.0
-        placed.append(meshes[n] + np.array([x + ext[0] / 2, y + ext[1] / 2, 0]))
-        x, row_h = x + ext[0] + GAP, max(row_h, ext[1])
+    placed = pack(meshes)
     tris = np.concatenate(placed)
     c = tris.reshape(-1, 3)
     tris = tris - np.array([(c[:, 0].min() + c[:, 0].max()) / 2, (c[:, 1].min() + c[:, 1].max()) / 2, 0])

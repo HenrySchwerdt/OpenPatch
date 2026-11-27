@@ -128,7 +128,7 @@ Owner: build the print parts, **no text on the housing**. Changes from the packa
 - Ports: USB-C stadium on the seam, button d5.6 + plunger (collar under its guide), LED light pipe hole d2.2, 3 sounder slots.
 - Check: every part (FULL and EMPTY, incl. the real yoke and pusher) against both halves: no collisions; every part one valid solid.
 - Print files (`mechanical/print/cart_A/`, skirt only, no brim, no supports): **ALLES2.gcode** = everything for one assembly test on
-  one bed (3 h 32, `cart_a_v2/bed_all.py`): both halves, KOPF9, yoke, pusher, button plunger + printed stand-ins for the board (plate,
+  one bed (3 h 31, `cart_a_v2/bed_all.py`, packed into 127 x 112 around the bed centre for short travel, owner): both halves, KOPF9, yoke, pusher, button plunger + printed stand-ins for the board (plate,
   tongue, USB-C, SW1, LED, TMAG, lock switch, 6 print feet in the bottom parts zone), the motor (body, boss, shaft, pinion, magnet),
   the gear, the screw rod, stem, light pipe and lock pin (d2, flat bottom) and 2 M2 nuts (owner: M2 x 0.4 cannot be printed as a thread
   with a 0.4 nozzle, plain d2 rods test the fit). Single plates: **BODEN2** (1 h 06), **DECKEL2** (1 h 24), **KLEIN2** (11 min) +
