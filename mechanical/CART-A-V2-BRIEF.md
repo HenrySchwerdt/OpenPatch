@@ -127,8 +127,12 @@ Owner: build the print parts, **no text on the housing**. Changes from the packa
   (plates from the roof). Head: lip ring into the KOPF9 rear groove + 2 bosses for the KOPF9 screws (21.46 / 3.24 and 13.24).
 - Ports: USB-C stadium on the seam, button d5.6 + plunger (collar under its guide), LED light pipe hole d2.2, 3 sounder slots.
 - Check: every part (FULL and EMPTY, incl. the real yoke and pusher) against both halves: no collisions; every part one valid solid.
-- Print files (`mechanical/print/cart_A/`): **BODEN2.gcode** (bottom half, bottom down, 1 h 20), **DECKEL2.gcode** (top half, roof
-  down, 1 h 56), **KLEIN2.gcode** (yoke, button plunger, pusher, one spare each, 14 min); head = **KOPF9.gcode** (unchanged).
+- Print files (`mechanical/print/cart_A/`, skirt only, no brim, no supports): **ALLES2.gcode** = everything for one assembly test on
+  one bed (3 h 32, `cart_a_v2/bed_all.py`): both halves, KOPF9, yoke, pusher, button plunger + printed stand-ins for the board (plate,
+  tongue, USB-C, SW1, LED, TMAG, lock switch, 6 print feet in the bottom parts zone), the motor (body, boss, shaft, pinion, magnet),
+  the gear, the screw rod, stem, light pipe and lock pin (d2, flat bottom) and 2 M2 nuts (owner: M2 x 0.4 cannot be printed as a thread
+  with a 0.4 nozzle, plain d2 rods test the fit). Single plates: **BODEN2** (1 h 06), **DECKEL2** (1 h 24), **KLEIN2** (11 min) +
+  **KOPF9**. The profile's default tree supports are switched off: the parts are designed to print without them.
 - Bought / cut parts: M2 threaded rod 31.4 (screw, 0.6-32.0), d2 steel rod 26.9 (stem, press fit into yoke and pusher), M2 hex nut
   (in the yoke pocket), gear z40 + pinion z12 (m0.3) + 2 washers, NFP-608 gearmotor, Ampul 301030 cell + 1 mm foam pad, 2 x M2
   countersunk (head, as KOPF9), clear 1.75 filament or d2 acrylic rod 9 mm (light pipe), 2 mm steel ball + 2 mm pin (lock, as v1).

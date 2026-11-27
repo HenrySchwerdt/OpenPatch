@@ -8,8 +8,9 @@
 supports), seam at the cartridge axis with a lap joint, half-saddles / bulkheads split at the seam, cartridge stop ring, chamber
 partition, board ledges + clamps, cell pocket, hooks at the rear, lip + 2 screw bosses for the unchanged KOPF9 head, USB-C stadium on the
 seam, button plunger and light pipe, no text (owner). Check: all parts at FULL and EMPTY against both halves, no collisions, every part one
-valid solid. G-codes `mechanical/print/cart_A/BODEN2.gcode` (1 h 20), `DECKEL2.gcode` (1 h 56), `KLEIN2.gcode` (yoke, plunger, pusher,
-14 min) + `KOPF9.gcode`. Envelope 61.1 ml (-26 % vs the Insight box). Bought parts and assembly: brief section 8. **Open:** print + fit
+valid solid. Owner: all on one bed, no brim, with stand-ins to assemble once: `mechanical/print/cart_A/ALLES2.gcode` (3 h 32, both
+halves, KOPF9, yoke, pusher, plunger, board/motor/gear dummies, d2 rods for screw/stem/light pipe/lock pin, 2 M2 nuts; skirt only, no
+supports); single plates BODEN2 / DECKEL2 / KLEIN2 + KOPF9. Envelope 61.1 ml (-26 % vs the Insight box). Bought parts and assembly: brief section 8. **Open:** print + fit
 test; antenna wing and motor/cell connectors on the A board.
 
 ## Cart A v2: design brief, package study, renders (2026-11-27, mechanics)
