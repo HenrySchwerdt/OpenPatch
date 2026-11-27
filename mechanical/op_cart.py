@@ -39,6 +39,8 @@ def part_names(p: dict) -> list[str]:
         names = [n for n in names if n != "slider"] + ["yoke", "stem"]
     if p["cart"].get("front_module"):
         names = [n for n in names if not n.startswith("adapter_") and n != "tubing"] + ["front_module", "needle"]
+        if p["cart"]["front_module"].get("lock_pin"):
+            names = [n for n in names if n not in ("hall_lock", "lock_magnet")] + ["lock_ball", "lock_pin", "ko_lock_sw", "board_tongue"]
     return names
 
 
@@ -59,6 +61,7 @@ EXCLUDE_PAIRS = [["pinion", "gear_rod"], ["rod", "rod_nut"], ["rod", "gear_rod"]
                  ["magnet", "pinion"], ["magnet", "motor_shaft"], ["lock_magnet", "lock_flag"], ["lock_magnet", "adapter"], ["lock_flag", "adapter"], ["lid_gasket", "top"], ["lid_gasket", "bottom"],
                  ["ko_battery", "ko_board"], ["ko_usb", "ko_board"], ["hall_tmag", "ko_tmag_board"], ["washer_r", "gear_rod"], ["washer_f", "gear_rod"], ["button", "bottom"], ["button", "top"],
                  ["stem", "yoke"], ["stem", "pusher"], ["rod_nut", "yoke"],
+                 ["lock_ball", "lock_pin"], ["lock_ball", "adapter"], ["lock_pin", "ko_lock_sw"], ["board_tongue", "ko_board"], ["board_tongue", "ko_lock_sw"], ["ko_board", "ko_lock_sw"],
                  ["b_cap", "cart_cap"], ["needle", "cart_cap"], ["needle", "cartridge"], ["needle", "luer_hub"], ["luer_hub", "luer_set"], ["lock_flag", "b_cap"]]
 
 
@@ -239,6 +242,15 @@ def geometry(p: dict) -> dict:
     yh = collar_y1 + 0.1 + lk["hall_pkg"][1] / 2
     if flat:                                                  # magnet bonded in the adapter underside near its tubing end, hall behind the front plate
         yh = ad_y[1] - lk["flat_mag_from_end"]
+    if c.get("front_module", {}).get("lock_pin"):             # A: ball + pin + detector switch at the board front edge (no hall, no magnet)
+        lp = c["front_module"]["lock_pin"]
+        z_pin = L["board"]["pcb_z"][1] + lp["sw_act_h"]
+        x_floor = x_front - c.get("_raise_depth", 2.4)
+        x_ball = x_floor - (lp["ball_d"] / 2 - (0.47 - lp["push"]))          # locked: ball pushed back by `push`
+        x_cut = x_front - c["front_module"]["depth"]
+        x_sw = x_cut - 1.0                                                # switch actuator (locked) 1.0 behind the module back
+        L["lock_pin"] = {"Y": round(z_pin - zc, 3), "y": round(y_c + lp["X"], 3), "z": round(z_pin, 3), "x_ball": round(x_ball, 3),
+                         "pin": [round(x_sw, 3), round(x_ball - lp["ball_d"] / 2, 3)], "x_sw": round(x_sw, 3)}
     x_hall1 = x_front - (c["front_module"]["depth"] + 0.2 if c.get("front_module") else w + bed + 0.1)     # behind the front module (A)
     L["lock"] = {"hall_x": [x_hall1 - lk["hall_pkg"][0], x_hall1], "hall_y": yh,
                  "magnet_r": round(yh - y_c, 3)}
@@ -286,7 +298,8 @@ def build_cartridge(s: Script, p: dict, L: dict) -> None:
     lk, lo = c["lock"], L["lock"]
     if ad["type"] == "insight_flat":
         build_insight_flat(s, p, L)
-        s.cyl("lock_magnet", "X", (0, lo["hall_y"], zc), lk["mag_d"], L["x_seat"] + 0.05, L["x_seat"] + 0.05 + lk["mag_t"])    # bonded in a drilled pocket of the adapter underside (VERIFY)
+        if not c.get("front_module", {}).get("lock_pin"):
+            s.cyl("lock_magnet", "X", (0, lo["hall_y"], zc), lk["mag_d"], L["x_seat"] + 0.05, L["x_seat"] + 0.05 + lk["mag_t"])    # bonded in a drilled pocket of the adapter underside (VERIFY)
         return
     if ad["type"] == "needle_cap":
         build_needle_cap(s, p, L)
@@ -512,6 +525,15 @@ def build_electronics(s: Script, p: dict, L: dict) -> None:
     pads.append(s.box("t_kb_rib", (rx[0] - 0.3, rx[1] + 0.3), (ry[0] - 0.3, ry[1] + 0.3), (pz[1], bz[1] + 0.1)))
     s.cut("ko_board", pads)                                                                     # part-free pads on both board faces
     lk, lo = p["cart"]["lock"], L["lock"]
+    if L.get("lock_pin"):                                                 # A: ball + pin + detector switch (adapter locked)
+        lp, q = p["cart"]["front_module"]["lock_pin"], L["lock_pin"]
+        s.add("solid.sphere", radius=lp["ball_d"] / 2, center=[q["x_ball"], q["y"], q["z"]], body_name="lock_ball", name="lock_ball")
+        s.cyl("lock_pin", "X", (0, q["y"], q["z"]), lp["pin_d"], q["pin"][0], q["pin"][1])
+        bl, bw, bh = lp["sw_body"]
+        pz1 = L["board"]["pcb_z"][1]
+        s.box("ko_lock_sw", (q["x_sw"] - bl, q["x_sw"]), (q["y"] - bw / 2, q["y"] + bw / 2), (pz1, pz1 + bh))
+        s.box("board_tongue", (L["board"]["x"][1] - 0.01, q["x_sw"] - 0.3), (q["y"] - bw / 2 - 0.5, q["y"] + bw / 2 + 0.5), tuple(L["board"]["pcb_z"]))
+        return
     hx, hy, hz = lk["hall_pkg"]
     s.box("hall_lock", tuple(lo["hall_x"]), (lo["hall_y"] - hy / 2, lo["hall_y"] + hy / 2), (L["zc"] - hz / 2, L["zc"] + hz / 2))
 
@@ -989,8 +1011,11 @@ def _front_module_files(p: dict, L: dict) -> Path:
     py = here.parent / ".venv" / "bin" / "python"
     fm = p["cart"]["front_module"]
     scr = ";".join(f"{x},{y}" for x, y in fm["screws"])                # countersunk M2 from the face into bosses of bottom and lid
-    subprocess.run([str(py), "make_face.py", "--module", str(out), "--at", f"{L['length']},{L['y_c']},{L['zc']}", "--screws", scr],
-                   cwd=here / "print" / "A_lock", check=True, capture_output=True)
+    args = [str(py), "make_face.py", "--module", str(out), "--at", f"{L['length']},{L['y_c']},{L['zc']}", "--screws", scr]
+    lp = fm.get("lock_pin")
+    if lp:
+        args += ["--pin", f"{lp['X']},{L['lock_pin']['Y']:.3f},{lp['bore_d']},{lp['open_d']}"]
+    subprocess.run(args, cwd=here / "print" / "A_lock", check=True, capture_output=True)
     return out
 
 

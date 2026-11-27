@@ -405,6 +405,15 @@ def main() -> int:
                 with Locations((hx, hy, FACE_Z - 0.01)):
                     Cylinder(2.15, 0.5, align=(Align.CENTER, Align.CENTER, Align.MIN))
         part = part - hs.part
+    if module_dir and "--pin" in sys.argv:                        # lock detection: 2 mm steel ball in the hollow floor, pin behind it to a switch
+        px, py, bore, opening = (float(v) for v in sys.argv[sys.argv.index("--pin") + 1].split(","))
+        floor = FACE_Z - RAISE_DEPTH
+        with BuildPart() as pb:
+            with Locations((px, py, -1.0)):
+                Cylinder(bore / 2, floor - 0.3 + 1.0, align=(Align.CENTER, Align.CENTER, Align.MIN))
+            with Locations((px, py, floor - 0.31)):                 # narrower opening keeps the ball in (cap ~0.47 proud)
+                Cylinder(opening / 2, 1.0, align=(Align.CENTER, Align.CENTER, Align.MIN))
+        part = part - pb.part
     if module_dir and "--skirt" in sys.argv:
         hole = None
         if "--hole" in sys.argv:

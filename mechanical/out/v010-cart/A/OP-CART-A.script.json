@@ -7386,21 +7386,6 @@
  {
   "command": "solid.cylinder",
   "params": {
-   "diameter": 1.0,
-   "height": 0.5,
-   "base": [
-    70.91,
-    38.0,
-    9.9
-   ],
-   "axis": "X",
-   "body_name": "lock_magnet",
-   "name": "lock_magnet"
-  }
- },
- {
-  "command": "solid.cylinder",
-  "params": {
    "diameter": 2.0,
    "height": 31.86,
    "base": [
@@ -8125,18 +8110,61 @@
   }
  },
  {
+  "command": "solid.sphere",
+  "params": {
+   "radius": 1.0,
+   "center": [
+    67.56,
+    37.2,
+    7.07
+   ],
+   "body_name": "lock_ball",
+   "name": "lock_ball"
+  }
+ },
+ {
+  "command": "solid.cylinder",
+  "params": {
+   "diameter": 2.0,
+   "height": 3.3000000000000043,
+   "base": [
+    63.26,
+    37.2,
+    7.07
+   ],
+   "axis": "X",
+   "body_name": "lock_pin",
+   "name": "lock_pin"
+  }
+ },
+ {
   "command": "solid.box",
   "params": {
-   "length": 1.1000000000000014,
-   "width": 1.4000000000000057,
-   "height": 1.1000000000000014,
+   "length": 3.5,
+   "width": 3.5,
+   "height": 1.5999999999999996,
    "corner": [
-    62.96,
-    37.3,
-    9.35
+    59.76,
+    35.45,
+    6.42
    ],
-   "body_name": "hall_lock",
-   "name": "hall_lock"
+   "body_name": "ko_lock_sw",
+   "name": "ko_lock_sw"
+  }
+ },
+ {
+  "command": "solid.box",
+  "params": {
+   "length": 2.469999999999999,
+   "width": 4.5,
+   "height": 0.7999999999999998,
+   "corner": [
+    60.49,
+    34.95,
+    5.62
+   ],
+   "body_name": "board_tongue",
+   "name": "board_tongue"
   }
  },
  {
@@ -8261,14 +8289,16 @@
     "motor_rear_boss",
     "magnet",
     "hall_tmag",
-    "lock_magnet",
-    "hall_lock",
     "ko_board",
     "ko_battery",
     "ko_usb",
     "ko_tmag_board",
     "yoke",
-    "stem"
+    "stem",
+    "lock_ball",
+    "lock_pin",
+    "ko_lock_sw",
+    "board_tongue"
    ]
   }
  },
