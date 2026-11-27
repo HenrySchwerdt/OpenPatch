@@ -1,2 +1,4 @@
-# regenerable meshes from ../../cart_a_v2/package.py
+# regenerable meshes from ../../cart_a_v2/package.py and shells.py
 *.stl
+# print files are deliverables
+!print/v2_*.stl

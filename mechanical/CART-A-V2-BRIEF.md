@@ -36,7 +36,7 @@ then the form, then CAD. Nothing goes into CAD that is not on this list; nothing
 | R11 | Assembly without a soldering iron (spec 1a) | CLAUDE.md |
 | R12 | Printable on the Sovol SV01 Pro; visible faces on the bed or vertical, no supports on visible faces | owner |
 | R13 | Cartridge change through the head without opening the case; the case opens for service only | v1 |
-| R14 | "TEST ONLY / WATER ONLY" marked on the housing | DISCLAIMER |
+| R14 | No text or logo on the housing (the warnings live in the docs; no labelling rule applies to the bench device) | owner 2026-11-27 |
 
 ## 3. What physics fixes (honest limits)
 - **Face**: the adapter sits flush on the head, so the front is 49 x 19 with the cartridge axis 8.74 above the bottom and 11.46 from the
@@ -101,8 +101,9 @@ cartridge forward moves +1.0 (yoke travel unchanged, stem 1.0 longer): 81.4 mm w
 - M2 x 0.4 screw is self-locking: pressure cannot push the stopper back; the rod only moves under power, behind the interlock.
 - Insertion: adapter off (unlocked) -> reverse allowed -> rod home -> cartridge in until it sits on the ring -> adapter on, 90 deg ->
   lock switch closes -> forward allowed -> firmware advances to stopper contact -> prime. Consistent with LOCKED XOR reverse.
-- Yoke: the thrust line (stem) is 14.2 mm off the screw axis, ~470 N mm tilting moment at stall: needs long rails in both halves
-  (detail CAD) so the nut does not bind. This is the price of the 4.4 mm shorter yoke drive.
+- Yoke: the thrust line (stem) is 14.2 mm off the screw axis, ~470 N mm tilting moment at stall. Long rails are impossible (the yoke
+  may be at most 2.4 mm long: free length 26.1 minus the stroke 23.7), so as in v1 the yoke is guided by the nut on the screw and the
+  stem, whose pusher runs in the glass (lateral load there ~3-6 N, a little extra friction). Price of the 4.4 mm shorter yoke drive.
 - Board sits in the parting plane (pcb z 8.34-9.14 around the seam 8.74): clamped between ledges of both halves; its near edge must
   bear on a ledge step at the partition so the USB-C plug force has a stop (detail CAD).
 - **Open: antenna.** The cell lies over the board; the HJ-840 antenna end needs >= 3 mm from the pouch (metal laminate), away from the
@@ -112,3 +113,25 @@ cartridge forward moves +1.0 (yoke travel unchanged, stem 1.0 longer): 81.4 mm w
 - Tolerance: the stop is rigid; the cartridge length tolerance is taken by the adapter's seal on the cap (as on the Insight). A 0.5
   TPU washer on the ring would need the ring 0.5 further back (yoke gap is only 0.3): not planned.
 - Option: a small drain at the front of the chamber floor so leak water leaves instead of standing in the chamber.
+
+## 8. Print parts (2026-11-27, `cart_a_v2/shells.py`, report `../out/cart_a_v2/print/shells_report.json`)
+Owner: build the print parts, **no text on the housing**. Changes from the package study for printing:
+- **Flat top at 19** (the head height): the top half prints roof-down without supports; a rising top in the flare would have needed
+  supports on the visible face. The flare stays in plan only. Envelope 61.1 ml (-26 % vs the Insight box).
+- Body built from three pieces (rear dome loft, exact prism, flare loft): one loft through all stations waved by up to 2 mm.
+- Seam at z 8.74 with a lap joint: the bottom half's inner 0.6 of the wall rises 0.8 above the seam into a groove of the top half.
+- Inside, all split at the seam into half-saddles: rear bulkhead (cartridge stop ring d8.9, screw thrust face, motor front seat, wire
+  notch), chamber partition, 3 cartridge saddles, rib_f (screw front, magnet window), 2 motor saddles, motor rear stop with 45 deg
+  gussets, board edge stop. Bottom only: board ledges (part-free edge strips 19.35-20.35 / 35.3-36.3 on the board), board front and
+  rear stops, rear catch bars. Top only: board clamp strips, cell pocket + 2 pressing ribs, plunger guide, light pipe guide, rear hooks
+  (plates from the roof). Head: lip ring into the KOPF9 rear groove + 2 bosses for the KOPF9 screws (21.46 / 3.24 and 13.24).
+- Ports: USB-C stadium on the seam, button d5.6 + plunger (collar under its guide), LED light pipe hole d2.2, 3 sounder slots.
+- Check: every part (FULL and EMPTY, incl. the real yoke and pusher) against both halves: no collisions; every part one valid solid.
+- Print files (`mechanical/print/cart_A/`): **BODEN2.gcode** (bottom half, bottom down, 1 h 20), **DECKEL2.gcode** (top half, roof
+  down, 1 h 56), **KLEIN2.gcode** (yoke, button plunger, pusher, one spare each, 14 min); head = **KOPF9.gcode** (unchanged).
+- Bought / cut parts: M2 threaded rod 31.4 (screw, 0.6-32.0), d2 steel rod 26.9 (stem, press fit into yoke and pusher), M2 hex nut
+  (in the yoke pocket), gear z40 + pinion z12 (m0.3) + 2 washers, NFP-608 gearmotor, Ampul 301030 cell + 1 mm foam pad, 2 x M2
+  countersunk (head, as KOPF9), clear 1.75 filament or d2 acrylic rod 9 mm (light pipe), 2 mm steel ball + 2 mm pin (lock, as v1).
+- Assembly: drive (screw with gear + washers, yoke + stem + pusher, motor) into the bottom half's saddles, board onto its ledges, cell
+  + foam into the top half's pocket, plunger + light pipe into their guides; hook the top half in at the rear and swing it down; head on
+  (lip into its groove), 2 screws through the face; cartridge in through the head, adapter on.

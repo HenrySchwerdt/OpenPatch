@@ -1,7 +1,16 @@
 # Project status & handover
 
 > This file is the **entry point for every new session** (another machine, another Claude subscription, another person).
-> It is updated on every push. Last updated: **2026-11-27 (cart A v2: design brief + package study + renders)**.
+> It is updated on every push. Last updated: **2026-11-27 (cart A v2: print parts)**.
+
+## Cart A v2 print parts (2026-11-27, mechanics)
+`mechanical/cart_a_v2/shells.py` builds the printable halves from the package study: flat top at 19 (top half prints roof-down without
+supports), seam at the cartridge axis with a lap joint, half-saddles / bulkheads split at the seam, cartridge stop ring, chamber
+partition, board ledges + clamps, cell pocket, hooks at the rear, lip + 2 screw bosses for the unchanged KOPF9 head, USB-C stadium on the
+seam, button plunger and light pipe, no text (owner). Check: all parts at FULL and EMPTY against both halves, no collisions, every part one
+valid solid. G-codes `mechanical/print/cart_A/BODEN2.gcode` (1 h 20), `DECKEL2.gcode` (1 h 56), `KLEIN2.gcode` (yoke, plunger, pusher,
+14 min) + `KOPF9.gcode`. Envelope 61.1 ml (-26 % vs the Insight box). Bought parts and assembly: brief section 8. **Open:** print + fit
+test; antenna wing and motor/cell connectors on the A board.
 
 ## Cart A v2: design brief, package study, renders (2026-11-27, mechanics)
 Owner rejected the v1 A housing (too big, not clean, 1 mm pins and fins, head on screws in thin bosses, no cartridge compartment) and asked

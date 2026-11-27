@@ -1,0 +1,69 @@
+{
+ "parts": {
+  "bottom": {
+   "volume_cm3": 5.96,
+   "valid": true,
+   "solids": 1,
+   "print_bbox_mm": [
+    67.06,
+    48.71,
+    9.6
+   ]
+  },
+  "top": {
+   "volume_cm3": 7.32,
+   "valid": true,
+   "solids": 1,
+   "print_bbox_mm": [
+    67.06,
+    49.0,
+    14.0
+   ]
+  },
+  "yoke": {
+   "volume_cm3": 0.19,
+   "valid": true,
+   "solids": 1,
+   "print_bbox_mm": [
+    6.6,
+    20.23,
+    2.0
+   ]
+  },
+  "button_plunger": {
+   "volume_cm3": 0.08,
+   "valid": true,
+   "solids": 1,
+   "print_bbox_mm": [
+    5.0,
+    5.0,
+    8.14
+   ]
+  },
+  "light_pipe": {
+   "volume_cm3": 0.03,
+   "valid": true,
+   "solids": 1,
+   "print_bbox_mm": [
+    2.0,
+    2.0,
+    9.06
+   ]
+  },
+  "pusher": {
+   "volume_cm3": 0.06,
+   "valid": true,
+   "solids": 1,
+   "print_bbox_mm": [
+    8.5,
+    8.5,
+    2.3
+   ]
+  }
+ },
+ "check": {
+  "full": [],
+  "empty": []
+ },
+ "pass": true
+}

@@ -34,7 +34,7 @@ X_JOINT = 64.26 + XS       # head module back face (head 6.6 deep)
 X_FACE = 70.86 + XS
 GAP = 0.15                 # visible joint line body | head
 HEAD_L, HEAD_W = 49.0, 19.0  # head section (width y, height z) = adapter outline
-BODY_L, BODY_W = 38.0, 16.6  # body section: motor edge 36.4 + wall; gear tip 15.04 + wall
+BODY_L, BODY_W = 38.0, 19.0  # body section: motor edge 36.4 + wall; flat top = head height (top shell printed face-down, no supports)
 FLARE_X0 = 48.0 + XS       # body flares into the head from here (smoothstep, tangent at both ends); top flat before it
 REAR_R = 5.0               # rear end rounded with this profile radius
 WALL, CLR = 1.2, 0.2
@@ -47,10 +47,10 @@ STROKE = 23.66
 PART_Y = (17.25, 18.85)    # chamber partition (cartridge chamber | drive + electronics)
 BOARD = {"x": (32.6, 61.8 + XS), "y": (19.35, 36.3), "pcb_z": (8.34, 9.14), "top": 1.45, "bottom": 1.2}   # pcb centre on the seam (USB-C)
 TONGUE = {"x": (58.0 + XS, 62.96 + XS), "y": (34.5, 39.96)}
-CELL = {"x": (32.3 + XS, 63.8 + XS), "y": (23.8, 34.4), "z": (11.1, 14.3)}       # above the board, clear of the top head boss (y <= 23.46)
+CELL = {"x": (32.3 + XS, 63.8 + XS), "y": (24.3, 34.9), "z": (11.1, 14.3)}       # above the board, clear of head boss + button plunger
 USB_X, USB_Z = 40.0, 8.74  # mid-mount, centred ON the seam: each half has half the stadium, no thin bridge (owner 2026-11-27)
-BUTTON_XY, LED_XY = (46.5, 21.5), (39.0, 21.5)   # beside the cell, mid top face; 3.6 mm wall between the holes
-HEAD_SCREWS = [(21.46, 3.24), (21.46, 14.04)]   # axial M2 through the head face (under the adapter) into the bottom / top half
+BUTTON_XY, LED_XY = (46.5, 22.05), (39.0, 22.05)   # beside the cell, clear of the board clamp strip; 3.6 mm wall between the holes
+HEAD_SCREWS = [(21.46, 3.24), (21.46, 13.24)]   # axial M2 through the head face (KOPF9 holes, module [10,-5.5] / [10,4.5]) into bottom / top half
 
 
 def smooth(t: float) -> float:

@@ -21,8 +21,8 @@ QUICK = "--quick" in sys.argv
 LIGHT = float(next((a.split("=")[1] for a in sys.argv if a.startswith("--light=")), "1.0"))
 
 # form numbers shared with package.py (kept in sync by hand: package.py is the source)
-BUTTON_XY, LED_XY, USB_X, USB_Z = (46.5, 21.5), (39.0, 21.5), 40.0, 8.74
-TOP_BUTTON, TOP_LED, FAR_WALL_Y, SEAM_Z = 16.6, 16.6, 38.0, 8.74
+BUTTON_XY, LED_XY, USB_X, USB_Z = (46.5, 22.05), (39.0, 22.05), 40.0, 8.74
+TOP_BUTTON, TOP_LED, FAR_WALL_Y, SEAM_Z = 19.0, 19.0, 38.0, 8.74
 
 COLORS = {
     "shell": ((0.86, 0.85, 0.82, 1), 0.42, 0.0), "base": ((0.055, 0.058, 0.064, 1), 0.5, 0.0),
@@ -182,17 +182,6 @@ def build_body(M: dict) -> bpy.types.Object:
     # sounder port: three slots in the floor
     for k, y in enumerate((24.6, 26.0, 27.4)):
         boolean(body, box_obj(f"snd{k}", (53.5, 58.5), (y - 0.35, y + 0.35), (-1.0, 2.0)))
-    # label on the underside (mirrored so it reads from below)
-    for k, (txt, y) in enumerate((("OpenPatch  cart A", 21.0), ("TEST ONLY  -  WATER ONLY", 16.5))):
-        bpy.ops.object.text_add(location=(28.0 * MM, y * MM, -0.15 * MM))
-        t = bpy.context.object
-        t.data.body = txt
-        t.data.size = 2.6 * MM
-        t.data.extrude = 0.45 * MM
-        t.data.align_x = "CENTER"
-        t.rotation_euler = (math.pi, 0, 0)
-        bpy.ops.object.convert(target="MESH")
-        boolean(body, t)
     bm = bmesh.new()                                       # split the faces exactly at the seam (inside the groove) for a clean colour line
     bm.from_mesh(body.data)
     geom = bm.verts[:] + bm.edges[:] + bm.faces[:]
@@ -234,8 +223,21 @@ def usb_receptacle(M: dict) -> list[bpy.types.Object]:
     return [shell, tongue]
 
 
+def import_shells(M: dict) -> dict:
+    """The real print parts from shells.py (placed): graphite bottom half, white top half, plunger, light pipe."""
+    P = SRC / "print"
+    obs = {}
+    for nm, mat in (("bottom", "base"), ("top", "shell"), ("button_plunger", "accent"), ("light_pipe", "clear")):
+        o = imp(P / f"placed_{nm}.stl", nm)
+        o.data.materials.append(M[mat])
+        smooth(o)
+        obs[nm] = o
+    return obs
+
+
 def import_all(M: dict, xray: bool) -> dict:
-    obs = {"body": build_body(M)}
+    use_shells = (SRC / "print" / "placed_top.stl").exists()
+    obs = import_shells(M) if use_shells else {"body": build_body(M)}
     obs["head"] = imp(SRC / "head.stl", "head")
     obs["head"].data.materials.append(M["base"])
     smooth(obs["head"])
@@ -244,21 +246,27 @@ def import_all(M: dict, xray: bool) -> dict:
     smooth(obs["adapter"])
     obs["needle"] = imp(SRC / "needle.stl", "needle")
     obs["needle"].data.materials.append(M["steel"])
-    for o in build_details(M) + usb_receptacle(M):
+    for o in ([] if use_shells else build_details(M)) + usb_receptacle(M):
         obs[o.name] = o
     for f in sorted(SRC.glob("part__*.stl")) + sorted(SRC.glob("feat__*.stl")):
         _, nm, mat = f.stem.split("__")
-        if mat == "ko" or nm in ("button_plunger", "light_pipe"):
+        if mat == "ko" or nm in ("button_plunger", "light_pipe") or (use_shells and (f.name.startswith("feat__") or nm == "yoke")):
             continue
         o = imp(f, nm)
         o.data.materials.append(M["shell"] if mat == "shell" else M.get(mat, M["black"]))
         smooth(o)
         o.hide_render = (not xray and mat != "shell") or nm == "usb_c"    # usb_c box replaced by the modelled receptacle
         obs[nm] = o
+    if use_shells:                                         # the real yoke (nut pocket, stem boss) instead of the package block
+        o = imp(SRC / "print" / "placed_yoke.stl", "yoke")
+        o.data.materials.append(M["plastic_dark"])
+        o.hide_render = not xray
+        obs["yoke"] = o
     if xray:
-        for k in ("body", "head", "adapter"):
-            for i in range(len(obs[k].data.materials)):
-                obs[k].data.materials[i] = M["ghost"]
+        for k in ("body", "bottom", "top", "head", "adapter"):
+            if k in obs:
+                for i in range(len(obs[k].data.materials)):
+                    obs[k].data.materials[i] = M["ghost"]
         for k, o in obs.items():
             if k.startswith(("partition", "chamber_seal", "head_boss")):
                 o.data.materials[0] = M["ghost"]

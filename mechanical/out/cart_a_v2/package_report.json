@@ -2,7 +2,7 @@
  "form": {
   "body_section_mm": [
    38.0,
-   16.6
+   19.0
   ],
   "head_section_mm": [
    49.0,
@@ -23,7 +23,7 @@
    57.26,
    19.0
   ],
-  "body_volume_ml": 41.29,
+  "body_volume_ml": 46.5,
   "head_volume_ml": 3.75,
   "adapter_box_ml": 15.67,
   "insight_box_ml": 83.0,
@@ -46,8 +46,8 @@
   ],
   "head_envelope_ml": 5.98,
   "adapter_envelope_ml": 8.6,
-  "total_envelope_ml": 55.9,
-  "vs_insight_box": "-33%"
+  "total_envelope_ml": 61.1,
+  "vs_insight_box": "-26%"
  },
  "check": {
   "fit": [],
