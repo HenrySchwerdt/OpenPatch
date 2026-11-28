@@ -46,8 +46,8 @@ OUT = HERE / "pucks"
 
 FACE_Z = 9.0               # mating face height (same as the pucks)
 RECESS = 4.3               # adapter far half is raised ~4 (ruler) / ~3.4 (photo), plus clearance
-OUT_NEAR = 11.46           # bore centre to the near end (adapter photo 2026-11-27)
-BORE_OFFSET_Y = -0.76      # outline centre relative to the bore (adapter photo 2026-11-27: cup 8.74 / 10.26 from the long edges)
+OUT_NEAR = 11.17           # bore centre to the near end (FACE4, 2026-11-26; see ADAPTER_SHAPE)
+BORE_OFFSET_Y = 0.4        # bore centre sits this much towards the +Y (strip) side of the outline centre (FACE4)
 CUP_U = 11.5               # cup centre from the adapter's near end (ruler 11-11.5, photo 11.9)
 WIDTH = 19.0
 RAMP_U0 = 20.6             # adapter face starts to rise here (photo p24)
@@ -93,17 +93,21 @@ def rounded_polygon(pts: list[tuple[float, float, float]], seg: int = 10) -> lis
 FAR_END_CORNER_R = 5.0      # both far-end corners (traced bottom-right corner ~5)
 
 
-# Adapter base outline, read on the owner's top-down underside photo of 2026-11-27 (adapter on wood, cup up; straight long sides as the
-# reference for perspective, 49 x 19): u across from the photo's left edge, v along from the near (cup) end, mm. Owner 2026-11-27: no dents
-# at the near corners, and on the high-wall side the far end is a long sweep, not a rounded corner. The photo maps onto the pump face
-# WITHOUT mirroring (the earlier trace had the corners mirrored: owner's points 1/3 and 7/8).
-ADAPTER_CUP_UV = (8.74, 11.46)                       # cup centre in the photo: 8.74 from the left edge, 11.46 from the near end
-ADAPTER_SHAPE = {
-    "near_left": (5.8, 5.1),        # big round corner (u extent, v extent) at the near end, photo-left = high-wall side
-    "near_right": (2.5, 3.6),       # small corner at the near end, photo-right
-    "near_slant": 0.4,              # near edge is 0.4 lower at its left end
-    "far_left": (4.3, 7.9, 1.6),    # long sweep on the high-wall side at the far end (u, v extent, superellipse exponent)
-    "far_right": (3.0, 4.0),        # moderate corner at the far end, photo-right
+# Pump end outline = the FACE4 outline (owner 2026-11-28: FACE4, printed 2026-11-26, is the adapter fit that worked best; everything
+# derived later fitted worse). FACE4 traced the adapter's top-down underside photo and MIRRORED it (the adapter lies face to face on the
+# pump). The 2026-11-27 re-trace (KOPF8 .. TEST4) dropped the mirroring: its outline sat 1.16 mm across and 0.29 mm along off the bore,
+# so the adapter stood over one side and the lowered strip was 1.2 mm too wide (owner, TEST4 2026-11-28: loose, slips). Here the FACE4
+# polygon (git fd227b4, adapter_outline.json) as four superellipse corners, least-squares fit, within 0.21 mm of the trace (0.14 at the
+# near end; the trace was 0.2 narrower at the far end, here the measured 19.0); the smooth corners drop the trace dents (owner on
+# KOPF6/7: no dents). u across from the -Y edge (pump: from the underside), v along from the near (cup) end, mm.
+ADAPTER_CUP_UV = (9.90, 11.17)                       # bore centre: 9.90 above the -Y edge, 11.17 from the near end (FACE4)
+ADAPTER_L = 48.97                                    # outline length (FACE4: bore to near end 11.17, to far end 37.80)
+ADAPTER_SHAPE = {                                    # corner (u extent, v extent, superellipse exponent)
+    "near_left": (4.862, 14.126, 3.933),   # -Y edge (pump underside) into the near end: flat, tight corner
+    "near_right": (10.283, 9.456, 2.936),  # near end into the +Y edge (pump top): the big round
+    "near_slant": -0.34,                   # signed: > 0 near edge lower at its -Y end, < 0 lower at its +Y end
+    "far_left": (5.026, 5.696, 2.0),       # far end corners, both about R5 (FACE4: R 5.0)
+    "far_right": (5.042, 5.889, 2.0),
 }
 
 
@@ -118,19 +122,19 @@ def _quad(cu: float, cv: float, ru: float, rv: float, a0: float, a1: float, n: f
 
 
 def outline() -> list[tuple[float, float]]:
-    """Pump end outline = the adapter's base outline (ADAPTER_SHAPE), as module X (along, from the bore) / Y (across, + = strip side)."""
-    W, L = WIDTH, 49.0
+    """Pump end outline (ADAPTER_SHAPE), as module X (along, from the bore) / Y (across, + = strip side)."""
+    W, L = WIDTH, ADAPTER_L
     sh = ADAPTER_SHAPE
-    nlu, nlv = sh["near_left"]
-    nru, nrv = sh["near_right"]
+    nlu, nlv, nln = sh["near_left"]
+    nru, nrv, nrn = sh["near_right"]
     flu, flv, fln = sh["far_left"]
-    fru, frv = sh["far_right"]
-    sl = sh["near_slant"]
+    fru, frv, frn = sh["far_right"]
+    sl_l, sl_r = max(sh["near_slant"], 0.0), max(-sh["near_slant"], 0.0)
     uv = []
-    uv += _quad(nlu, nlv + sl, nlu, nlv, 180, 270)                       # near-left corner: left side -> near edge
-    uv += _quad(W - nru, nrv, nru, nrv, 270, 360)                         # near-right corner: near edge -> right side
-    uv += _quad(W - fru, L - frv, fru, frv, 0, 90)                        # far-right corner: right side -> far edge
-    uv += _quad(flu, L - flv, flu, flv, 90, 180, fln)                     # far-left sweep: far edge -> left side
+    uv += _quad(nlu, nlv + sl_l, nlu, nlv, 180, 270, nln)                # near-left corner: left side -> near edge
+    uv += _quad(W - nru, nrv + sl_r, nru, nrv, 270, 360, nrn)            # near-right corner: near edge -> right side
+    uv += _quad(W - fru, L - frv, fru, frv, 0, 90, frn)                  # far-right corner: right side -> far edge
+    uv += _quad(flu, L - flv, flu, flv, 90, 180, fln)                    # far-left corner: far edge -> left side
     cu, cv = ADAPTER_CUP_UV
     return [(v - cv, u - cu) for u, v in uv]
 
@@ -199,7 +203,7 @@ NOTCH_LOCK_Y = (-6.7, -2.5)   # runs into the hollow so no thin pillar is left b
 NOTCH_LOCK_DEPTH = 5.0
 LOCK_POCKET_X = (23.2, 27.4)   # lock pocket in the curved left side of the hollow; widened (owner, FACE3: 'noch breiter')
 LOCK_POCKET_Y = (-7.7, -5.0)
-LOCK_POCKET_DEPTH = 4.4      # deeper than the hollow (2.4); 2.2 left under it in the 6.6 head, clear of the 2.0 rear groove
+LOCK_POCKET_DEPTH = 5.8      # FACE4 (owner 2026-11-28: back to FACE4; KOPF9 .. TEST4 had 4.4 for a rear groove that is gone); 0.8 floor in the 6.6 zone
 LATCH_X = (13.6, 21.0)     # latch groove along the strip wall: from the foot of the slope back into the hollow (owner: bigger, so the adapter's catch fits for sure)
 LATCH_Z = (0.7, 3.0)       # below the face: 0.7 roof; runs a little below the shallower strip floor
 LATCH_DEPTH = 1.6          # into the wall (towards -Y)

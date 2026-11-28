@@ -19,7 +19,7 @@ from itertools import combinations
 from pathlib import Path
 
 import numpy as np
-from build123d import Face, Plane, Pos, Solid, Vector, Wire, export_stl, import_step
+from build123d import Face, Plane, Solid, Vector, Wire, export_stl
 
 HERE = Path(__file__).resolve().parent
 MECH = HERE.parent
@@ -30,37 +30,42 @@ import make_face as mf  # noqa: E402  (head outline = single source of truth)
 # outputs in out/cart_a_v2_mjf so the FDM files stay as they are
 MJF = os.environ.get("OP_MJF") == "1"
 OUT = MECH / "out" / ("cart_a_v2_mjf" if MJF else "cart_a_v2")
-V1 = MECH / "out" / "v010-cart" / "A" / "print"
 
 # ---- form ---------------------------------------------------------------------------------------------------------
 XS = 1.0                   # rear stop ring behind the barrel (owner 2026-11-27): everything from the cartridge forward moves +1.0
 X_JOINT = 64.26 + XS       # head module back face (head 6.6 deep)
 X_FACE = 70.86 + XS
 GAP = 0.15                 # visible joint line body | head
-HEAD_L, HEAD_W = 49.0, 19.0  # head section (width y, height z) = adapter outline
+HEAD_L, HEAD_W = mf.ADAPTER_L, mf.WIDTH   # head section (width y, height z) = adapter outline (FACE4: 48.97 x 19.0)
 BODY_L, BODY_W = 38.0, 19.0  # body section: motor edge 36.4 + wall; flat top = head height (top shell printed face-down, no supports)
 FLARE_X0 = 48.0 + XS       # body flares into the head from here (smoothstep, tangent at both ends); top flat before it
 REAR_R = 5.0               # rear end rounded with this profile radius
 WALL, CLR = 1.2, 0.2
-SEAM_Z = 8.74              # parting line = cartridge axis height
 
 # ---- package (v1 A drive, screw lane moved +2.0 in y for the chamber partition) -------------------------------------
-YC, ZC = 11.46, 8.74       # cartridge axis (fixed by the adapter cup position in the head)
+# cartridge axis = the bore of the lock face (make_face.ADAPTER_CUP_UV). v2.3 (owner 2026-11-28: back to FACE4): FACE4 puts the bore
+# 9.90 above the underside and 11.17 from the near side (v2.2: 8.74 / 11.46). The inner layout was drawn for z 8.74: every inner
+# height moves with the bore (DZ), so the board, cell, motor and drive keep their places relative to each other and to the lock face.
+YC, ZC = mf.ADAPTER_CUP_UV[1], mf.ADAPTER_CUP_UV[0]
+DZ = ZC - 8.74
+SEAM_Z = ZC                # parting line = cartridge axis height
 YS, YM = 25.635, 33.435    # screw lane, motor lane (a = 7.8)
 STROKE = 23.66
 PART_Y = (17.25, 18.85)    # chamber partition (cartridge chamber | drive + electronics)
-BOARD = {"x": (32.6, 61.8 + XS), "y": (19.35, 36.3), "pcb_z": (8.34, 9.14), "top": 1.45, "bottom": 1.2}   # pcb centre on the seam (USB-C)
+BOARD = {"x": (32.6, 61.8 + XS), "y": (19.35, 36.3), "pcb_z": (8.34 + DZ, 9.14 + DZ), "top": 1.45, "bottom": 1.2}   # pcb centre on the seam (USB-C)
 TONGUE = {"x": (58.0 + XS, 62.96 + XS), "y": (34.5, 39.96)}
 # cell above the board; owner measured his cell 2026-11-28: 32 x 9 x 1.5 (listed 30 x 10 x 3.0), 32 long incl. the protection board
 # under the yellow tape at the lead end, so the pocket runs 2 mm into the back of the lock face zone (CELL_RECESS, top half only);
 # 3.2 high for either thickness (a 1.5 cell gets 2 mm foam under it)
-CELL = {"x": (33.3, 65.3), "y": (24.3, 34.9), "z": (11.1, 14.3)}
-CELL_RECESS = ((X_JOINT - 0.5, X_JOINT + 2.0), (24.5, 34.9), (10.9, 14.6))
-CELL_PART = {"x": (33.3, 65.3), "y": (25.1, 34.1), "z": (11.1, 14.1)}           # the real cell (32 x 9 x up to 3.0) centred in the pocket
+CELL = {"x": (33.3, 65.3), "y": (24.3, 34.9), "z": (11.1 + DZ, 14.3 + DZ)}
+CELL_RECESS = ((X_JOINT - 0.5, X_JOINT + 2.0), (24.5, 34.9), (10.9 + DZ, 14.6 + DZ))
+CELL_PART = {"x": (33.3, 65.3), "y": (25.1, 34.1), "z": (11.1 + DZ, 14.1 + DZ)}  # the real cell (32 x 9 x up to 3.0) centred in the pocket
 PINION_X1 = 32.66          # front face of the 4 mm pinion (motor boss face 28.66 + 4.0)
 BOARD_NOTCH = {"x": (32.6, 33.0), "y": (31.0, 36.31)}   # board absent here: clears the pinion end
 TMAG_X = (33.67, 35.27)    # TMAG5273 body on the routed board (U10 at 34.47 / 33.38), beside the magnet in the pinion front bore
-USB_X, USB_Z = 42.0, 8.74  # mid-mount, centred ON the seam; x 42.0 on the routed board (40.0 left no room for the TMAG5273)
+USB_X, USB_Z = 42.0, SEAM_Z   # mid-mount, centred ON the seam; x 42.0 on the routed board (40.0 left no room for the TMAG5273)
+# lock ball + pin: the board's lock switch lever runs on y 37.46 (cart_a6.kicad_pcb), the pin axis 1.27 under the pcb underside
+LOCK_PIN_Y, LOCK_PIN_Z = 37.46, BOARD["pcb_z"][0] - 1.27
 BUTTON_XY, LED_XY = (46.5, 22.05), (39.0, 22.05)   # beside the cell, clear of the board clamp strip; 3.6 mm wall between the holes
 HEAD_SCREWS: list[tuple[float, float]] = []      # v2.2: no separate head any more (lock face zone is part of the halves); was KOPF10 [10,-4.5] / [10,4.5];
                                                 # KOPF9's lower screw (z 3.24) ran 0.01 past the joint ring (owner print 2026-11-27)
@@ -113,7 +118,8 @@ def exact_inset(pts: list[tuple[float, float]], d: float, n: int = 240) -> list[
 # owner 2026-11-27 (v2 print): the halves looked different left and right. The body is now mirror-symmetric (same corners near
 # and far) and only blends into the adapter's own outline over the flare (x 49 -> joint), so the head (adapter outline) still sits
 # flush. Every corner meets its top / bottom face with a 45 deg facet: the halves print bed-side down without a sagging overhang.
-SYM_SHAPE = {"near_left": (5.0, 6.0), "near_right": (2.8, 3.8), "far_left": (5.0, 6.0, 2.0), "far_right": (2.8, 3.8), "near_slant": 0.0}
+SYM_SHAPE = {"near_left": (5.0, 6.0, 2.0), "near_right": (2.8, 3.8, 2.0), "far_left": (5.0, 6.0, 2.0), "far_right": (2.8, 3.8, 2.0),
+             "near_slant": 0.0}   # corner (z extent, y extent, superellipse exponent), as make_face.ADAPTER_SHAPE
 FACET_SLOPE = 1.0          # |dz/dy| below which a corner is replaced by a straight 45 deg line to its face
 
 
@@ -151,18 +157,18 @@ def section_yz(L: float, W: float, d: float = 0.0, k: int = 16, m: int = 6, w: f
     """Section at width L (y) and height W (z), inset by d. w = 1: the head's adapter outline (make_face.ADAPTER_SHAPE),
     w = 0: the symmetric body; facet: 45 deg facets where the corners meet the top and bottom faces. Fixed point count."""
     sh = shape_at(w)
-    nlu, nlv = sh["near_left"]
-    nru, nrv = sh["near_right"]
+    nlu, nlv, nln = sh["near_left"]
+    nru, nrv, nrn = sh["near_right"]
     flu, flv, fln = sh["far_left"]
-    fru, frv = sh["far_right"]
-    sl = sh["near_slant"]
+    fru, frv, frn = sh["far_right"]
+    sl_l, sl_r = max(sh["near_slant"], 0.0), max(-sh["near_slant"], 0.0)
 
     def rr(r: float) -> float:
         return max(r - d, 0.3)
 
-    quads = [mf._quad(d + rr(nlu), sl + d + rr(nlv), rr(nlu), rr(nlv), 180, 270, 2.0, k),     # bottom face -> near side
-             mf._quad(W - d - rr(nru), d + rr(nrv), rr(nru), rr(nrv), 270, 360, 2.0, k),       # near side -> top face
-             mf._quad(W - d - rr(fru), L - d - rr(frv), rr(fru), rr(frv), 0, 90, 2.0, k),      # top face -> far side
+    quads = [mf._quad(d + rr(nlu), sl_l + d + rr(nlv), rr(nlu), rr(nlv), 180, 270, nln, k),   # bottom face -> near side
+             mf._quad(W - d - rr(nru), sl_r + d + rr(nrv), rr(nru), rr(nrv), 270, 360, nrn, k),  # near side -> top face
+             mf._quad(W - d - rr(fru), L - d - rr(frv), rr(fru), rr(frv), 0, 90, frn, k),      # top face -> far side
              mf._quad(d + rr(flu), L - d - rr(flv), rr(flu), rr(flv), 90, 180, fln, k)]        # far side -> bottom face
     if facet > 0:                                            # 0..1: blend between the plain and the faceted corners (same point count)
         fq = [_facet(quads[0], True), _facet(quads[1], False), _facet(quads[2], True), _facet(quads[3], False)]
@@ -307,7 +313,7 @@ def parts(state: str = "full") -> dict[str, tuple[Solid, str, bool]]:
     # routed board (cart_a6.kicad_pcb): Alps SPVS410100 lock switch on the tongue underside, lever toward +x on y 37.46 (free 65.72,
     # ON 64.68, end 64.18); the pin preloads it: tip 64.85 with the ball free, 64.48 locked (board README, bench-tune)
     P["lock_switch"] = (box((60.64, 63.94), (35.58, 39.08), (pz0 - 1.0, pz0)), "black", False)
-    P["lock_pin"] = (cyl_x(64.48, 66.56 + XS, 37.46, 7.07, 2.0), "steel", False)
+    P["lock_pin"] = (cyl_x(64.48, 66.56 + XS, LOCK_PIN_Y, LOCK_PIN_Z, 2.0), "steel", False)
     P["hj840"] = (box((54.2, 60.4), (31.76, 38.76), (pz1, pz1 + 1.45)), "black", False)                 # radio module, antenna end toward +y
     P["j2_motor"] = (box((48.2, 54.4), (20.4, 31.4), (pz0 - 3.4, pz0)), "black", False)                # PicoBlade 4 pin, opening toward -x
     P["j2_plug"] = (box((41.6, 48.2), (22.6, 29.2), (pz0 - 3.4, pz0 - 0.1)), "black", False)           # the motor plug lies under the board
@@ -317,7 +323,7 @@ def parts(state: str = "full") -> dict[str, tuple[Solid, str, bool]]:
     P["led"] = (box((LED_XY[0] - 0.8, LED_XY[0] + 0.8), (LED_XY[1] - 0.8, LED_XY[1] + 0.8), (pz1, pz1 + 0.6)), "led", False)
     P["sounder"] = (box((55.0, 59.0), (24.0, 28.0), (pz0 - 2.5, pz0)), "black", False)            # FUET-4020 (BZ1 at 57.0 / 26.0)
     P["cell"] = (box(CELL_PART["x"], CELL_PART["y"], CELL_PART["z"]), "cell", False)
-    P["cell_leads"] = (box((CELL["x"][1], CELL["x"][1] + 1.5), (26.0, 31.0), (11.1, 12.6)), "black", False)   # wires leave the front end
+    P["cell_leads"] = (box((CELL["x"][1], CELL["x"][1] + 1.5), (26.0, 31.0), (CELL["z"][0], CELL["z"][0] + 1.5)), "black", False)   # wires leave the front end
     return P
 
 
@@ -395,8 +401,7 @@ def main() -> None:
     import head as hd                                                                   # v2.2: the lock face zone of the shells
     head = hd.zone_placed() - box(*CELL_RECESS)                                         # (x 65.26-71.86), as a real solid, with the
                                                                                         # cell recess the top half has
-    adapter = Pos(XS, 0, 0) * import_step(str(V1 / "cart_A_adapter_dummy_placed.step"))
-    needle = Pos(XS, 0, 0) * import_step(str(V1 / "cart_A_needle_placed.step"))
+    adapter, needle = hd.adapter_placed()                                               # from the current face (cached, fingerprinted)
     for nm, shp in (("head", head), ("adapter", adapter), ("needle", needle)):
         export_stl(shp, str(OUT / f"{nm}.stl"), tolerance=0.01, angular_tolerance=0.1)
     hb, ab = head.bounding_box(), adapter.bounding_box()

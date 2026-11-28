@@ -2,7 +2,7 @@
 """Cart pump A v2.2 print parts: bottom and top shell halves (with the lock face), yoke, button plunger, light pipe, pusher
 (../CART-A-V2-BRIEF.md sections 8, 11, 12). TEST ONLY - water only, never on a person.
 
-The halves split at the cartridge axis height (z 8.74, the seam): every bulkhead / saddle that crosses it is cut in two, so each part
+The halves split at the cartridge axis height (the seam: z 9.90 from v2.3, FACE4 bore; v2.2 8.74): every bulkhead / saddle that crosses it is cut in two, so each part
 round the axis (cartridge, screw, motor) is clamped between a lower and an upper half-saddle. Bottom half: printed bottom-down.
 Top half: printed roof-down (flat top). v2.2 (owner 2026-11-28): no separate head - the front 6.6 mm (lock face zone, head.py) are
 part of both halves, in exactly the Accu-Chek adapter outline, so the skin runs seamless into the adapter. The halves are closed by
@@ -29,6 +29,8 @@ XJ = pk.X_JOINT
 ROOF = pk.HEAD_W - pk.WALL          # inner roof 17.8 (flat top)
 PY0, PY1 = pk.PART_Y
 pz0, pz1 = pk.BOARD["pcb_z"]
+DZ = pk.DZ                          # v2.3: inner heights drawn for the bore at z 8.74 move with the bore (FACE4: 9.90)
+CLAMP_Z = pz1 + 1.46                # top of the board clamps (v2.2: 10.6)
 # far board edge on the routed board (cart_a6): USB-C at x 42 (its tab slot needs x 47.0-48.2 free), HJ-840 crosses the strip on top
 # over x 54.2-59.0 (top clamp stops at 53.9); the bottom ledge may run under the module
 FAR_LEDGES = ((33.0, 35.0), (48.2, 58.0))
@@ -154,24 +156,24 @@ def bottom_features() -> list[Solid]:
 
 def top_features() -> tuple[list[Solid], list[Solid]]:
     f, cut = [], []
-    f += [B((32.6, 62.0), (PY1 - 0.3, 20.1), (pz1, 10.6)), wedge_x((32.6, 62.0), PY1 - 0.3, 20.1, 10.6)]   # board clamp, partition side + gusset
+    f += [B((32.6, 62.0), (PY1 - 0.3, 20.1), (pz1, CLAMP_Z)), wedge_x((32.6, 62.0), PY1 - 0.3, 20.1, CLAMP_Z)]   # board clamp, partition side + gusset
     for xr in FAR_CLAMPS:
-        f += [B(xr, (35.3, 36.9), (pz1, 10.6)), wedge_x(xr, 36.9, 35.3, 10.6)]                    # board clamp, far side + gusset
+        f += [B(xr, (35.3, 36.9), (pz1, CLAMP_Z)), wedge_x(xr, 36.9, 35.3, CLAMP_Z)]                    # board clamp, far side + gusset
     cx, cy = pk.CELL["x"], pk.CELL["y"]
-    f.append(B((31.96, cx[0] - 0.2), (cy[0] - 0.2, 36.9), (12.0, 25.0)))                            # cell pocket: rear wall
-    f.append(B((cx[0] - 0.2, cx[1] - 0.2), (cy[1] + 0.2, cy[1] + 0.2 + T), (11.5, 25.0)))           # far wall (down to 11.5: overlaps the
+    f.append(B((31.96, cx[0] - 0.2), (cy[0] - 0.2, 36.9), (12.0 + DZ, 25.0)))                            # cell pocket: rear wall
+    f.append(B((cx[0] - 0.2, cx[1] - 0.2), (cy[1] + 0.2, cy[1] + 0.2 + T), (11.5 + DZ, 25.0)))           # far wall (down to 11.5: overlaps the
                                                                                                     # clamp gussets instead of touching them along an edge)
     for xr in ((31.96, 37.4), (49.8, 61.6)):                                                        # near wall, open at LED / button (from the rear
                                                                                                     # wall's back face: overlap, not an edge contact)
-        f.append(B(xr, (cy[0] - 0.2 - T, cy[0] - 0.2), (12.0, 25.0)))
+        f.append(B(xr, (cy[0] - 0.2 - T, cy[0] - 0.2), (12.0 + DZ, 25.0)))
     for x0 in (41.0, 55.0):                                                                         # ribs pressing the cell onto its foam
         f.append(B((x0, x0 + T), (cy[0] - 0.2, cy[1] + 0.2), (pk.CELL["z"][1] + 0.1, 25.0)))
     bx, by = pk.BUTTON_XY
-    f.append(Z(bx, by, 14.5, 25.0, 7.0))                                                            # plunger guide tube (above the cell), wider than the cap recess so it stays on the roof
-    cut += [Z(bx, by, 12.0, 30.0, 3.4), Z(bx, by, ROOF - 0.5, 30.0, 5.6)]
+    f.append(Z(bx, by, 14.5 + DZ, 25.0, 7.0))                                                            # plunger guide tube (above the cell), wider than the cap recess so it stays on the roof
+    cut += [Z(bx, by, 12.0 + DZ, 30.0, 3.4), Z(bx, by, ROOF - 0.5, 30.0, 5.6)]
     lx, ly = pk.LED_XY
-    f.append(Z(lx, ly, 13.0, 25.0, 4.2))                                                            # light pipe guide
-    cut.append(Z(lx, ly, 12.0, 30.0, 2.2))
+    f.append(Z(lx, ly, 13.0 + DZ, 25.0, 4.2))                                                            # light pipe guide
+    cut.append(Z(lx, ly, 12.0 + DZ, 30.0, 2.2))
     return f, cut
 
 
@@ -204,7 +206,7 @@ def extra_parts() -> dict[str, Solid]:
     yk = yk - C(1.5, 3.7, pk.YC, pk.ZC, PRESS_D) - C(1.5, 3.7, pk.YS, pk.ZC, 2.4) - nut            # stem press hole, screw, M2 nut pocket
     bx, by = pk.BUTTON_XY
     top = pk.HEAD_W
-    plunger = Z(bx, by, top - 1.32, top - 0.12, 5.0) + Z(bx, by, pz1 + 1.6, top - 1.32, 3.0) + Z(bx, by, 13.6, 14.2, 4.2)   # collar under the guide
+    plunger = Z(bx, by, top - 1.32, top - 0.12, 5.0) + Z(bx, by, pz1 + 1.6, top - 1.32, 3.0) + Z(bx, by, 13.6 + DZ, 14.2 + DZ, 4.2)   # collar under the guide
     lx, ly = pk.LED_XY
     pipe = Z(lx, ly, pz1 + 0.75, top - 0.05, 2.0)
     c0 = 27.56 + pk.XS                                                                              # barrel rear end (on the stop ring)
@@ -423,7 +425,10 @@ def skin_openings(halves: dict[str, Solid], depth: float = 0.35) -> list:
     """Pieces of the outer skin layer (depth under the surface, sides, top, bottom, rear; not the lock face itself) that neither half
     fills and that are not a wanted opening. Returns [] when the skin only has the wanted openings."""
     import head as hd
-    env = loft(0.0, XJ).fuse(hd.place(hd.prism()))
+    # the layer starts 0.02 under the surface: with the outer faces coincident with the halves' skin, OpenCascade returned no result
+    # for the v2.3 MJF bottom (skin & bottom = None, so the whole skin came out 'missing'); 0.02 cannot hide a real opening
+    top = 0.02
+    env = loft(top, XJ).fuse(hd.place(hd.prism_inset(top))) & B((-5, XF - top), (-5, 70), (-5, 30))
     inner = loft(depth, XJ).fuse(hd.place(hd.prism_inset(depth)))
     missing = (env - inner) - halves["bottom"] - halves["top"] - B((-5, XF + 5), (-5, 70), (SEAM - SHADOW[1] / 2 - 0.05, SEAM + SHADOW[1] / 2 + 0.05))
     r = HOLE_D / 2 + (CSK_D - HOLE_D) / 2 + 0.6

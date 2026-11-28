@@ -4,7 +4,9 @@
 Owner 2026-11-28: the separate head never looked or sat seamless (other print orientation, the halves came out 0.15 lower, a
 first-layer notch at its back edge). From v2.2 the front 6.6 mm (x 65.26-71.86) are part of both shell halves: the outer skin runs
 through to the face in exactly the Accu-Chek adapter outline, and the tested lock face (make_face.face(): bore, bayonet, windows,
-hollow, band, latch groove, lock notch, lock pocket, seal recess) is cut into the halves. The seam (z 8.74) runs through the bore axis.
+hollow, band, latch groove, lock notch, lock pocket, seal recess) is cut into the halves. The seam runs through the bore axis.
+v2.3 (owner 2026-11-28, TEST4 loose and slipping): the face is FACE4 again (outline, bore position 9.90 / 11.17, lock pocket 5.8),
+the print that fitted best; the lock features inside the outline are identical to FACE4 (checked: zero volume difference).
 
 This module gives the zone in pump coordinates:
 - zone_placed(): the solid zone (adapter-outline prism minus every lock-face feature minus the lock ball / pin bore);
@@ -24,7 +26,9 @@ from build123d import (Align, BuildPart, BuildSketch, Cylinder, Locations, Mode,
 import package as pk
 
 mf = pk.mf
-PIN = (26.0, 7.07 - pk.ZC, 2.1, 1.7)                  # lock ball + pin bore: module X, Y, bore d, opening d (KOPF9 values)
+# lock ball + pin bore: module X, Y, bore d, opening d (KOPF9 values). The pin pushes the board's lock switch lever, so its axis follows
+# the board (package.LOCK_PIN_Y / _Z); v2.3 (FACE4 bore position): module (26.29, -1.67), 0.29 further out in the hollow than KOPF9
+PIN = (pk.LOCK_PIN_Y - pk.YC, pk.LOCK_PIN_Z - pk.ZC, 2.1, 1.7)
 
 
 def _channel(px: float, py: float, d: float, z0: float, z1: float) -> Solid:
@@ -83,6 +87,28 @@ def zone_placed() -> Solid:
 def cut_placed() -> Solid:
     """Everything the lock face removes from the solid zone (features + pin bore), pump coordinates."""
     return place(prism() - face_part())
+
+
+def adapter_placed() -> tuple[Solid, Solid]:
+    """Original adapter dummy (locked) + needle on the face, pump coordinates, from make_face.adapter_dummy() (slow: minutes). Cached as
+    STEP under a fingerprint of make_face.py and the face placement, so a dummy of an older face is never used (v2.2 used a stale v1
+    one)."""
+    import hashlib
+    from pathlib import Path
+    from build123d import export_step, import_step
+    cache = pk.MECH / "out" / "cart_a_v2" / "adapter_cache"
+    cache.mkdir(parents=True, exist_ok=True)
+    key = hashlib.sha256(Path(mf.__file__).read_bytes() + repr((pk.X_FACE, pk.YC, pk.ZC, mf.MODULE_DEPTH)).encode()).hexdigest()[:16]
+    fa, fn, meta = cache / "adapter_placed.step", cache / "needle_placed.step", cache / "key.json"
+    if meta.exists() and json.loads(meta.read_text()).get("key") == key and fa.exists() and fn.exists():
+        return import_step(str(fa)), import_step(str(fn))
+    mf.FACE_Z = mf.MODULE_DEPTH
+    ad, nd = mf.adapter_dummy()
+    a, n = place(ad), place(nd)
+    export_step(a, str(fa))
+    export_step(n, str(fn))
+    meta.write_text(json.dumps({"key": key}))
+    return a, n
 
 
 def main() -> None:

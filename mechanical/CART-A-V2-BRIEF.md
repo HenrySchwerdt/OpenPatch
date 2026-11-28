@@ -231,3 +231,34 @@ v2.2:
   yellow tape at the lead end). The pocket now runs 2 mm into the back of the lock face zone (`package.CELL_RECESS`, top half only,
   >= 0.6 mm from every lock feature); the lead end faces forward, the leads drop past the board's front edge to J3. A 1.5 mm cell
   gets 2 mm foam under it. New top half G-code DECKEL6 (1 h 54); BODEN5 unchanged.
+
+## 13. v2.3: back to FACE4 (2026-11-28, owner print of TEST4)
+Owner on the TEST4 coupon (lock face zone of both halves): the adapter fit is much worse than on **FACE4** (A_lock coupon printed
+2026-11-26, the best fit so far); loose, the adapter slips; "everything derived from it got worse". Owner decision: FACE4 is the base,
+the face stays in the halves.
+
+What changed after FACE4 (diff of `make_face.py` fd227b4 .. 777782d), all on my side:
+1. **Outline off the bore by 1.16 mm across and 0.29 mm along.** FACE4 traced the adapter's underside photo and mirrored it (the
+   adapter lies face to face on the pump). The 2026-11-27 re-trace for KOPF8 dropped the mirroring (it read the owner's corner remarks
+   1/3 and 7/8 as a mirror error) and moved the outline round the bore: the adapter stood over one side, and the lowered strip along
+   the +Y edge became 2.7 instead of 1.5 mm wide, so the adapter's thin wall had 1.2 mm of play.
+2. **Lock pocket 1.4 mm shallower** (5.8 -> 4.4) for KOPF9's rear groove, which no longer exists.
+3. The face is split at the bore axis and printed on its side in two halves (owner chose to keep this).
+
+v2.3:
+- `make_face.py`: the FACE4 outline again (bore 9.90 above the -Y edge, 11.17 from the near end, 48.97 x 19.0), as four superellipse
+  corners fitted to the FACE4 trace (max 0.21 mm, 0.14 at the near end; the far end at the measured 19.0, the trace was 0.2 narrower;
+  no trace dents); `LOCK_POCKET_DEPTH` 5.8. Every lock feature inside the outline is identical to FACE4 (Boolean difference 0 mm3).
+- The body section ends in exactly this outline (`seamless_joint` 0). The pump's inner layout follows the bore: `package.DZ` = +1.16
+  for every inner height (board, cell, drive, USB-C, clamps, cell pocket, button / light pipe guides), the cartridge axis moves 0.29
+  toward the near side. The board is unchanged (same place relative to the bore and the lock face); the lock pin keeps the switch
+  lever line y 37.46 (module X 26.29, 0.29 further into the hollow than KOPF9).
+- The adapter dummy for the checks is now built from the current face (`head.adapter_placed()`, cached under a fingerprint of
+  `make_face.py` + placement); v2.2 checked against a stale v1 dummy.
+- Gate fix: `skin_openings` failed on the v2.3 MJF bottom (the skin layer's outer faces lay exactly on the half's skin and
+  OpenCascade returned no intersection, so the whole skin came out 'missing'). The layer now starts 0.02 under the surface; a test
+  with a drilled d2 floor hole and a 1 x 1 wall notch reports both.
+- Checks (FDM and MJF): package PASS (no fit or collision, FULL / EMPTY), shells PASS (parts, screws, closed halves, adapter on the
+  face from the current face, seamless joint 0, skin openings, zone holes, STL holes 0, SolidCraft STEP import, outer overhang 0),
+  SolidCraft views of all sides + the closed face end looked at. G-codes: **TEST5** (52 min, lock face zone of both halves: print
+  this first), BODEN6 (1 h 48), DECKEL7 (1 h 39). Nylon volumes: bottom 9.29, top 8.30 cm3.

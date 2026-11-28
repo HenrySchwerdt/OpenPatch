@@ -16,7 +16,7 @@ import shells as sh
 
 
 def far_inner(x: float) -> float:
-    """Inner face of the far wall at height z 8.74 (flat wall part)."""
+    """Inner face of the far wall at seam height (flat wall part)."""
     return pk.extents(x)[0] - pk.WALL
 
 
@@ -50,9 +50,9 @@ def main() -> None:
         },
         "height_limits": {
             "top_mm": round(pk.CELL["z"][0] - 0.5 - pz1, 2),
-            "top_why": "cell above (z 11.1) on a 0.5 foam pad",
+            "top_why": f"cell above (z {pk.CELL['z'][0]:.2f}) on a 0.5 foam pad",
             "bottom_mm": round(pz0 - pk.WALL - 0.3, 2),
-            "bottom_why": "floor at z 1.2; except over the bottom head boss (x >= 62.86, y 19.46-23.46, top z 5.24): 2.8 mm",
+            "bottom_why": "floor at z 1.2 (v2.3: the board sits 1.16 higher in the shell with the FACE4 bore height, same place relative to the bore)",
             "bottom_boss_zone": {"x": [61.86 + pk.XS, 66.0], "y": [19.46, 23.46], "max_mm": round(pz0 - pk.WALL - 0.3, 2),
                                  "why": "v2.2: no head boss any more (the lock face is part of the halves)"},
         },
@@ -63,9 +63,9 @@ def main() -> None:
                     "pressed by a printed plunger from the top face"},
             "led": {"x": pk.LED_XY[0], "y": pk.LED_XY[1], "face": "top", "type": "RGB, top-emitting, under a d2 light pipe"},
             "tmag5273": {"x": list(pk.TMAG_X), "y": [pk.YM - 1.0, pk.YM + 1.0], "face": "top", "why": "beside the angle magnet in the "
-                         "4 mm pinion's front bore (x 31.66-32.66, y 33.435, z 8.74)"},
+                         f"4 mm pinion's front bore (x 31.66-32.66, y 33.435, z {pk.ZC:.2f})"},
             "lock_switch": {"part": "Alps SPVS410100 (routed board)", "x": [60.64, 63.94], "y": [35.58, 39.08], "face": "bottom (tongue underside)",
-                            "actuator": "lever toward +x on y 37.46: free 65.72, ON 64.68, end 64.18; d2 pin from the head (z 7.07) preloads it: "
+                            "actuator": f"lever toward +x on y {pk.LOCK_PIN_Y}: free 65.72, ON 64.68, end 64.18; d2 pin from the lock face (z {pk.LOCK_PIN_Z:.2f}) preloads it: "
                                         "tip 64.85 ball free, 64.48 locked (0.17 / 0.20 mm margins: bench-tune the pin length)"},
             "sounder": {"x": 56.0 + pk.XS, "y": 26.0, "face": "bottom", "max_h": 2.5, "port": "3 slots in the floor below"},
         },

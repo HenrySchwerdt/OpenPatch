@@ -1,4 +1,4 @@
-# OpenTube A v2.2: black nylon parts order (MJF PA12)
+# OpenTube A v2.3: black nylon parts order (MJF PA12)
 
 > TEST ONLY - NOT FOR HUMAN USE (see ../../DISCLAIMER.md). Bench only, **water only**: never insulin or any other drug, never on a person.
 
@@ -12,11 +12,11 @@ face, outline at the face = the adapter outline, no hole in a lock feature.
 ## What to order
 | File | Part | Volume | Qty |
 |---|---|---|---|
-| `OpenTube_A_bottom.stl` | bottom half with the lock face (lower half), tongue, 2 pins, 5 screw holes | 8.06 cm3 | 1 |
-| `OpenTube_A_top.stl` | top half with the lock face (upper half), groove, 5 nut pockets, button + LED holes | 9.80 cm3 | 1 |
+| `OpenTube_A_bottom.stl` | bottom half with the lock face (lower half), tongue, 2 pins, 5 screw holes | 9.29 cm3 | 1 |
+| `OpenTube_A_top.stl` | top half with the lock face (upper half), groove, 5 nut pockets, button + LED holes | 8.30 cm3 | 1 |
 | `OpenTube_A_yoke.stl` | yoke (lead screw nut + stem) | 0.19 cm3 | 1 |
 | `OpenTube_A_pusher.stl` | pusher disc | 0.06 cm3 | 1 |
-| `OpenTube_A_button_plunger.stl` | button plunger | 0.08 cm3 | 1 |
+| `OpenTube_A_button_plunger.stl` | button plunger | 0.07 cm3 | 1 |
 
 Material / process: **MJF (HP Multi Jet Fusion) PA12, dyed black**, standard finish (bead-blasted). SLS PA12 black also works.
 A spare pair of halves costs little extra and saves a re-order if a fit needs a touch.
@@ -35,7 +35,8 @@ A spare pair of halves costs little extra and saves a re-order if a fit needs a 
 (lead screw 31.4 + stem 26.9), pinion / gear / magnet, motor, cell, board.
 
 ## Before ordering
-1. Print the FDM test coupon `../print/cart_A/TEST4.gcode` (lock face zone of both halves, 52 min) and check with the real
-   Accu-Chek adapter: outline flush all around (the outline is traced from photos) and the bayonet turns fully and holds. Fix the
-   outline in `../print/A_lock/make_face.py` (ADAPTER_SHAPE) first if not - the nylon parts cannot be adjusted afterwards.
+1. Print the FDM test coupon `../print/cart_A/TEST5.gcode` (v2.3: FACE4 lock face in both halves) and check with the real
+   Accu-Chek adapter: it must sit and lock as on FACE4 (flush all round, no play, does not slip). TEST4 had the 2026-11-27
+   outline, 1.16 mm off the bore (loose). Fix `../print/A_lock/make_face.py` first if not - the nylon parts cannot be adjusted
+   afterwards.
 2. The lock switch reading (adapter locked / free) still needs a bench check with the real board: margins 0.17 / 0.20 mm.

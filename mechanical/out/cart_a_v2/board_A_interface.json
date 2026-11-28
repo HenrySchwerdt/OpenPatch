@@ -2,10 +2,10 @@
  "_note": "cart pump A v2 main board (mechanical/CART-A-V2-BRIEF.md). Pump coordinates, mm. TEST ONLY, water only.",
  "thickness_mm": 0.8,
  "pcb_z": [
-  8.34,
-  9.14
+  9.5,
+  10.3
  ],
- "seam_z": 8.74,
+ "seam_z": 9.9,
  "outline": {
   "main_rect": {
    "x": [
@@ -43,7 +43,7 @@
    "far_edge_y_by_x": [
     [
      52.0,
-     37.39
+     37.38
     ],
     [
      52.5,
@@ -51,7 +51,7 @@
     ],
     [
      53.0,
-     38.07
+     38.06
     ],
     [
      53.5,
@@ -59,7 +59,7 @@
     ],
     [
      54.0,
-     38.88
+     38.87
     ],
     [
      54.5,
@@ -67,39 +67,39 @@
     ],
     [
      55.0,
-     39.79
+     39.78
     ],
     [
      55.5,
-     40.27
+     40.26
     ],
     [
      56.0,
-     40.76
+     40.75
     ],
     [
      56.5,
-     41.26
+     41.25
     ],
     [
      57.0,
-     41.77
+     41.75
     ],
     [
      57.5,
-     42.28
+     42.26
     ],
     [
      58.0,
-     42.78
+     42.76
     ],
     [
      58.5,
-     43.28
+     43.26
     ],
     [
      59.0,
-     43.76
+     43.74
     ]
    ],
    "purpose": "optional: the board may extend between y 36.3 and this edge for the HJ-840 antenna end (>= 3 mm from the cell, away from water and motor)"
@@ -173,9 +173,9 @@
  },
  "height_limits": {
   "top_mm": 1.46,
-  "top_why": "cell above (z 11.1) on a 0.5 foam pad",
-  "bottom_mm": 6.84,
-  "bottom_why": "floor at z 1.2; except over the bottom head boss (x >= 62.86, y 19.46-23.46, top z 5.24): 2.8 mm",
+  "top_why": "cell above (z 12.26) on a 0.5 foam pad",
+  "bottom_mm": 8.0,
+  "bottom_why": "floor at z 1.2 (v2.3: the board sits 1.16 higher in the shell with the FACE4 bore height, same place relative to the bore)",
   "bottom_boss_zone": {
    "x": [
     62.86,
@@ -185,15 +185,15 @@
     19.46,
     23.46
    ],
-   "max_mm": 2.1,
-   "why": "v2.1: lower head screw at z 4.24 (boss top 6.24)"
+   "max_mm": 8.0,
+   "why": "v2.2: no head boss any more (the lock face is part of the halves)"
   }
  },
  "fixed_parts": {
   "usb_c": {
    "centre_x": 42.0,
    "front_face_y": 36.8,
-   "centre_z": 8.74,
+   "centre_z": 9.9,
    "type": "mid-mount 16p (TYPE-C-31-M-14 class), receptacle centred on the PCB mid-plane = the housing seam; opening in the far wall: stadium 9.44 x 3.76"
   },
   "sw1": {
@@ -218,7 +218,7 @@
     34.435
    ],
    "face": "top",
-   "why": "beside the angle magnet in the 4 mm pinion's front bore (x 31.66-32.66, y 33.435, z 8.74)"
+   "why": "beside the angle magnet in the 4 mm pinion's front bore (x 31.66-32.66, y 33.435, z 9.90)"
   },
   "lock_switch": {
    "part": "Alps SPVS410100 (routed board)",
@@ -231,7 +231,7 @@
     39.08
    ],
    "face": "bottom (tongue underside)",
-   "actuator": "lever toward +x on y 37.46: free 65.72, ON 64.68, end 64.18; d2 pin from the head (z 7.07) preloads it: tip 64.85 ball free, 64.48 locked (0.17 / 0.20 mm margins: bench-tune the pin length)"
+   "actuator": "lever toward +x on y 37.46: free 65.72, ON 64.68, end 64.18; d2 pin from the lock face (z 8.23) preloads it: tip 64.85 ball free, 64.48 locked (0.17 / 0.20 mm margins: bench-tune the pin length)"
   },
   "sounder": {
    "x": 57.0,

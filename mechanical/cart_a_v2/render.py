@@ -21,8 +21,8 @@ QUICK = "--quick" in sys.argv
 LIGHT = float(next((a.split("=")[1] for a in sys.argv if a.startswith("--light=")), "1.0"))
 
 # form numbers shared with package.py (kept in sync by hand: package.py is the source)
-BUTTON_XY, LED_XY, USB_X, USB_Z = (46.5, 22.05), (39.0, 22.05), 42.0, 8.74
-TOP_BUTTON, TOP_LED, FAR_WALL_Y, SEAM_Z = 19.0, 19.0, 38.0, 8.74
+BUTTON_XY, LED_XY, USB_X, USB_Z = (46.5, 22.05), (39.0, 22.05), 42.0, 9.90   # v2.3: seam = FACE4 bore height 9.90
+TOP_BUTTON, TOP_LED, FAR_WALL_Y, SEAM_Z = 19.0, 19.0, 38.0, 9.90
 
 COLORS = {
     "shell": ((0.86, 0.85, 0.82, 1), 0.42, 0.0), "base": ((0.055, 0.058, 0.064, 1), 0.5, 0.0),

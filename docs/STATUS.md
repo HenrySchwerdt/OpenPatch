@@ -1,7 +1,17 @@
 # Project status & handover
 
 > This file is the **entry point for every new session** (another machine, another Claude subscription, another person).
-> It is updated on every push. Last updated: **2026-11-28 (cart A v2.2: lock face in the halves, 5 hidden screws, tongue + groove)**.
+> It is updated on every push. Last updated: **2026-11-28 (cart A v2.3: back to the FACE4 lock face, test coupon TEST5)**.
+
+## Cart A v2.3: back to FACE4 (2026-11-28, mechanical)
+Owner on TEST4: the adapter sits loose and slips; FACE4 (`u8.png`, A_lock coupon of 2026-11-26) had the best shape and fit, everything
+derived later fitted worse. Cause (diff fd227b4 .. 777782d): the 2026-11-27 outline re-trace dropped the mirroring and put the
+outline 1.16 mm across / 0.29 mm along off the bore (adapter over one side, lowered strip 1.2 mm too wide), and the lock pocket was
+1.4 mm shallower. Owner: FACE4 is the base, the face stays in the halves. v2.3 (`mechanical/CART-A-V2-BRIEF.md` section 13): the
+FACE4 outline and bore position (smooth corner fit, max 0.21 mm from the trace), pocket 5.8; every lock feature inside the outline
+is identical to FACE4 (Boolean difference 0). The inner layout follows the bore (+1.16 in z, cartridge 0.29 toward the near side);
+the board is unchanged. All gates pass (package, shells FDM + MJF, SolidCraft import + views). Print **TEST5** (52 min) first; full
+halves BODEN6 (1 h 48) / DECKEL7 (1 h 39). TEST4, BODEN5, DECKEL6 and older are obsolete.
 
 ## Cart A v2.2: lock face in the halves, screwed closed (2026-11-28, mechanical)
 Owner print of v2.1: head never seamless / not sitting well, two rear hooks too weak, no tongue and groove; cartridge fits. Owner:

@@ -2,3 +2,5 @@
 *.stl
 # print files are deliverables
 !print/v2_*.stl
+# adapter dummy cache (head.adapter_placed, rebuilt when the face changes)
+adapter_cache/
