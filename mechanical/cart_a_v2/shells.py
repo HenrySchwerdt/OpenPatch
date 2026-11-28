@@ -34,7 +34,9 @@ CLAMP_Z = pz1 + 1.46                # top of the board clamps (v2.2: 10.6)
 # far board edge on the routed board (cart_a6): USB-C at x 42 (its tab slot needs x 47.0-48.2 free), HJ-840 crosses the strip on top
 # over x 54.2-59.0 (top clamp stops at 53.9); the bottom ledge may run under the module
 FAR_LEDGES = ((33.0, 35.0), (48.2, 58.0))
-SHADOW = (0.4, 0.6) if pk.MJF else (0.3, 0.5)   # seam shadow groove: depth, height (MJF: a little deeper so it stays crisp)
+# v2.3 (owner 2026-11-28: 'die Rille bei den Haelften sieht nicht seamless aus'): no groove on the seam any more (v2.1-v2.2: a
+# 0.3 x 0.5 shadow groove, MJF 0.4 x 0.6); the halves butt flush, held in line by the 2 pins, the tongue + groove and the 5 screws
+SEAM_BAND = 0.05                    # skin check: half height of the band at the seam (the two seam faces touch there)
 FAR_CLAMPS = ((33.0, 35.0), (48.2, 53.9))
 SADDLES_CART = (36.5, 46.5, 56.5)   # chamber saddles (x0, 1.6 thick)
 SADDLES_MOTOR = (12.76, 21.76)
@@ -66,8 +68,10 @@ def log(msg: str, t0: list[float]) -> None:
 
 
 def _wire(x: float, d: float) -> Wire:
-    L, W = pk.extents(x)
-    return Wire.make_polygon([Vector(x, y, z) for y, z in pk.section_yz(L, W, d)], close=True)
+    """Shell section at x, inset by d: package.section_at, the one form the package check, the renders and the gates use.
+    (v2 .. v2.3 first build called section_yz(L, W, d) with its defaults: the adapter corners with 45 deg facets along the whole body,
+    which met the round lock face zone with a step at every corner; owner 2026-11-28: 'die Ecken in jeder Ecke'.)"""
+    return Wire.make_polygon([Vector(x, y, z) for y, z in pk.section_at(x, d)], close=True)
 
 
 def loft(e: float, x_end: float) -> Solid:
@@ -75,7 +79,7 @@ def loft(e: float, x_end: float) -> Solid:
     (exact prism), flare into the head (loft through gently changing sections). One loft through all stations waved by up to 2 mm."""
     import math
     R = pk.REAR_R
-    st = pk.dome_stations(e)                                            # quarter circle to 45 deg + 45 deg facet (prints bed-side down)
+    st = pk.dome_stations(e)                                            # rear end: quarter circle (pure rounds)
     p_dome = Solid.make_loft([_wire(x, d) for x, d in st[:-1]], ruled=False)
     p_facet = Solid.make_loft([_wire(*st[-2]), _wire(*st[-1])], ruled=True)
     xe = st[-1][0]
@@ -277,15 +281,12 @@ def build() -> dict[str, Solid]:
     log("shell + lock face zone + common structure + rim", t0)
     below = B((-5, 90), (-5, 70), (-5, SEAM))
     above = B((-5, 90), (-5, 70), (SEAM, 30))
-    # seam shadow groove 0.3 x 0.5 on the seam line, to the face
-    shadow = (outer.fuse(zone) - loft(SHADOW[0], XJ).fuse(hd.place(hd.prism_inset(SHADOW[0])))) & B((-5, XF + 0.1), (-5, 70), (SEAM - SHADOW[1] / 2, SEAM + SHADOW[1] / 2))
-    log("seam shadow groove", t0)
     tf, tcut = top_features()
     sb, st = screw_cuts()
     pb, pt = pins()
     tongue = tongue - fuse([Z(x, y, SEAM - 0.02, SEAM + 2.0, COL_D + 0.8) for x, y in SCREWS])   # no tongue in the nut pockets
-    bottom = (common & below) + (fuse(bottom_features()) & cavity) + tongue + fuse(pb) - shadow
-    top = ((common & above) + (fuse(tf) & cavity)) - shadow - groove
+    bottom = (common & below) + (fuse(bottom_features()) & cavity) + tongue + fuse(pb)
+    top = ((common & above) + (fuse(tf) & cavity)) - groove
     pc = port_cuts()
     bottom = drop_dust(bottom - fuse(cut + pc + sb))
     top = drop_dust(top - fuse(cut + pc + tcut + st + pt + [B(*CELL_RECESS)]))
@@ -356,10 +357,11 @@ def check(parts: dict[str, Solid]) -> dict:
         (OUT / f"_check_{hn}.stl").unlink()
         if v > 0.05:
             res["adapter"].append([hn, "adapter", round(v, 3)])
-    # seamless: the body section at the joint is exactly the adapter outline (no facet, no morph left)
-    a = np.array(pk.section_at(XJ)); b = np.array(pk.section_yz(pk.HEAD_L, pk.HEAD_W, 0.0, w=1.0, facet=0.0))
-    dev = float(np.abs(a - b).max())
-    res["seamless_joint"] = [] if dev < 1e-6 else [["section at the joint differs from the adapter outline by", round(dev, 4)]]
+    # seamless: the section the shells are lofted through at the joint (_wire) is the lock face zone's outline, both ways
+    a = np.array([(v.Y, v.Z) for v in _wire(XJ, 0.0).vertices()])
+    b = np.array([(pk.YC + x, pk.ZC + y) for x, y in hd.mf.outline()])
+    dev = max(float(poly_dist(a, b).max()), float(poly_dist(b, a).max()))
+    res["seamless_joint"] = [] if dev < 1e-3 else [["shell section at the joint differs from the lock face outline by", round(dev, 4)]]
     # every opening in the outer skin must be one we want (owner print 2026-11-28 found 4 unwanted holes): exact CAD test, the skin
     # layer 0.35 under the surface minus both halves; each leftover piece must sit inside a known opening
     res["skin_openings"] = skin_openings(halves)
@@ -376,6 +378,15 @@ def check(parts: dict[str, Solid]) -> dict:
         if inter is not None and inter.volume > 0.01:
             res["zone_holes"].append([nm, "lock face feature", round(inter.volume, 3)])
     return res
+
+
+def poly_dist(P, Q):
+    """Distance of each point of P to the closed polyline Q (numpy arrays of (y, z))."""
+    import numpy as np
+    a, b = Q, np.roll(Q, -1, 0)
+    ab, ap = b - a, P[:, None, :] - a[None]
+    t = np.clip((ap * ab[None]).sum(-1) / np.maximum((ab ** 2).sum(-1), 1e-12)[None], 0, 1)
+    return np.hypot(*(ap - t[..., None] * ab[None]).transpose(2, 0, 1)).min(1)
 
 
 def mesh_overlap(pa: Path, pb: Path, x0: float, x1: float, step: float = 0.2, grid: float = 0.1) -> float:
@@ -430,7 +441,7 @@ def skin_openings(halves: dict[str, Solid], depth: float = 0.35) -> list:
     top = 0.02
     env = loft(top, XJ).fuse(hd.place(hd.prism_inset(top))) & B((-5, XF - top), (-5, 70), (-5, 30))
     inner = loft(depth, XJ).fuse(hd.place(hd.prism_inset(depth)))
-    missing = (env - inner) - halves["bottom"] - halves["top"] - B((-5, XF + 5), (-5, 70), (SEAM - SHADOW[1] / 2 - 0.05, SEAM + SHADOW[1] / 2 + 0.05))
+    missing = (env - inner) - halves["bottom"] - halves["top"] - B((-5, XF + 5), (-5, 70), (SEAM - SEAM_BAND, SEAM + SEAM_BAND))
     r = HOLE_D / 2 + (CSK_D - HOLE_D) / 2 + 0.6
     wanted = [("USB-C", (pk.USB_X - 6.0, pk.USB_X + 6.0), (35.0, 40.0), (pk.USB_Z - 3.5, pk.USB_Z + 3.5)),
               ("sound slots", (54.0, 62.0), (23.5, 28.5), (-0.5, 1.5)),
@@ -474,7 +485,8 @@ def mf_adapter() -> tuple[Solid, Solid]:
 def overhang_outer() -> dict:
     """Outer skin steeper than 45 deg toward the bed, per side (near y < centre / far), for the bottom half printed bottom-down
     and the top half printed roof-down (owner 2026-11-27: the two sides printed differently). mm2, the bed layer excluded.
-    The facets fade out before the lock face zone (seamless with the adapter): from x 61.26 the adapter corners print as they are."""
+    v2.3: with pure rounds (package.PURE_ROUNDS, owner: everything smooth) this is reported, not a pass condition: the lowest
+    part of each bed-side round overhangs by design."""
     import numpy as np
     t = pk.rings_to_tris(pk.body_rings(x_end=XJ - 4.0))
     n = np.cross(t[:, 1] - t[:, 0], t[:, 2] - t[:, 0])
@@ -604,7 +616,8 @@ def main() -> None:
     report["z_comp_mm"] = Z_COMP
     report["mesh"] = mesh
     report["pass"] = (not any(report["check"].values()) and all(v["solids"] == 1 for v in report["parts"].values())
-                      and all(max(v.values()) < 2.0 for v in ov.values()) and all(m["open_edges"] == 0 for m in mesh.values()))
+                      and (pk.PURE_ROUNDS or all(max(v.values()) < 2.0 for v in ov.values()))   # v2.3: rounds by owner choice
+                      and all(m["open_edges"] == 0 for m in mesh.values()))
     (OUT / "shells_report.json").write_text(json.dumps(report, indent=1))
     print(json.dumps(report, indent=1))
 

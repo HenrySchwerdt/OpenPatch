@@ -1,7 +1,7 @@
 {
  "parts": {
   "bottom": {
-   "volume_cm3": 9.29,
+   "volume_cm3": 9.2,
    "valid": true,
    "solids": 1,
    "bbox_mm": [
@@ -11,12 +11,12 @@
    ]
   },
   "top": {
-   "volume_cm3": 8.3,
+   "volume_cm3": 8.57,
    "valid": true,
    "solids": 1,
    "bbox_mm": [
     71.86,
-    48.61,
+    48.97,
     9.1
    ]
   },
@@ -66,7 +66,7 @@
    "open_edges": 0,
    "tolerance": 0.01,
    "angular": 0.1,
-   "sliver_edges": 5461
+   "sliver_edges": 0
   },
   "OpenTube_A_bottom_solidcraft": {
    "open_edges": 0,
@@ -76,7 +76,7 @@
    "open_edges": 0,
    "tolerance": 0.01,
    "angular": 0.1,
-   "sliver_edges": 2030
+   "sliver_edges": 6294
   },
   "OpenTube_A_top_solidcraft": {
    "open_edges": 0,
@@ -110,13 +110,13 @@
    "open_edges": 0,
    "tolerance": 0.005,
    "angular": 0.05,
-   "sliver_edges": 33576
+   "sliver_edges": 0
   },
   "OpenTube_A_top": {
    "open_edges": 0,
    "tolerance": 0.005,
    "angular": 0.05,
-   "sliver_edges": 16532
+   "sliver_edges": 38889
   },
   "OpenTube_A_yoke": {
    "open_edges": 0,

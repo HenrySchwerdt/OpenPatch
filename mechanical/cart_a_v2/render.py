@@ -165,10 +165,7 @@ def box_obj(name: str, x, y, z) -> bpy.types.Object:
 
 def build_body(M: dict) -> bpy.types.Object:
     body = imp(SRC / "body_outer.stl", "body")
-    inset = imp(SRC / "body_inset_seam.stl", "body_inset")
-    slab = box_obj("seam_slab", (-3, 67), (-3, 62), (SEAM_Z - 0.13, SEAM_Z + 0.13))
-    boolean(slab, inset)                                   # ring-shaped cutter: the 0.35 skin within the seam band
-    boolean(body, slab)
+    # v2.3: no seam groove (owner: not seamless); the halves butt flush, the colour split below marks the seam
     # USB-C: stadium in the connector's own shape (8.94 x 3.26 + 0.25 per side), 45 deg chamfer outside
     w, h = 8.94 + 0.5, 3.26 + 0.5
     usb = mesh_from_loops("usb_cut", [stadium(USB_X, USB_Z, w, h, FAR_WALL_Y - 2.2), stadium(USB_X, USB_Z, w, h, FAR_WALL_Y - 0.5),
@@ -182,7 +179,7 @@ def build_body(M: dict) -> bpy.types.Object:
     # sounder port: three slots in the floor
     for k, y in enumerate((24.6, 26.0, 27.4)):
         boolean(body, box_obj(f"snd{k}", (53.5, 58.5), (y - 0.35, y + 0.35), (-1.0, 2.0)))
-    bm = bmesh.new()                                       # split the faces exactly at the seam (inside the groove) for a clean colour line
+    bm = bmesh.new()                                       # split the faces exactly at the seam for a clean colour line
     bm.from_mesh(body.data)
     geom = bm.verts[:] + bm.edges[:] + bm.faces[:]
     bmesh.ops.bisect_plane(bm, geom=geom, plane_co=(0, 0, SEAM_Z * MM), plane_no=(0, 0, 1))

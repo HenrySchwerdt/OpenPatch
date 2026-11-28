@@ -260,5 +260,17 @@ v2.3:
   with a drilled d2 floor hole and a 1 x 1 wall notch reports both.
 - Checks (FDM and MJF): package PASS (no fit or collision, FULL / EMPTY), shells PASS (parts, screws, closed halves, adapter on the
   face from the current face, seamless joint 0, skin openings, zone holes, STL holes 0, SolidCraft STEP import, outer overhang 0),
-  SolidCraft views of all sides + the closed face end looked at. G-codes: **TEST5** (52 min, lock face zone of both halves: print
-  this first), BODEN6 (1 h 48), DECKEL7 (1 h 39). Nylon volumes: bottom 9.29, top 8.30 cm3.
+  SolidCraft views of all sides + the closed face end looked at.
+- **Smooth (owner 2026-11-28: the seam groove does not look seamless, the corners neither, "alles smooth"):**
+  - no groove on the seam any more (v2.1-v2.2 shadow groove 0.3 x 0.5); the halves butt flush, aligned by the 2 pins, the tongue +
+    groove and the 5 screws;
+  - **bug found:** since v2 the shells were lofted through `section_yz(L, W, d)` with its defaults, i.e. the adapter's corners with
+    45 deg print facets along the whole body (the mirror-symmetric v2.1 body and the facet fade only existed in the package model).
+    The facets met the round lock face zone with a 0.71 mm step at every corner. The `seamless_joint` gate compared the package
+    section, not the loft, so it never saw it. Now the shells loft through `package.section_at` (the form the package check and the
+    renders use) and the gate compares the real loft section at the joint with the zone outline (0.0 mm);
+  - pure rounds on every edge for the FDM parts too (`package.PURE_ROUNDS`); the outer-overhang scan is reported, not a pass
+    condition (the lowest part of each bed-side round overhangs: a little sag is possible on the FDM test parts, none on nylon);
+  - FDM slicing with adaptive layers (0.08-0.24 mm, finer on the rounds).
+  G-codes: **TEST5** (1 h 12, lock face zone of both halves: print this first), BODEN6 (2 h 53), DECKEL7 (2 h 38). Nylon volumes:
+  bottom 9.20, top 8.57 cm3.

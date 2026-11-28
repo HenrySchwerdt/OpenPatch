@@ -29,6 +29,10 @@ import make_face as mf  # noqa: E402  (head outline = single source of truth)
 # OP_MJF=1: the black nylon (MJF PA12) order set (owner 2026-11-28): no FDM print facets (pure rounds), MJF clearances, no z stretch;
 # outputs in out/cart_a_v2_mjf so the FDM files stay as they are
 MJF = os.environ.get("OP_MJF") == "1"
+# v2.3 (owner 2026-11-28: "die Ecken in jeder Ecke ... alles smooth"): the FDM print parts get the same pure rounds as the nylon
+# parts; the 45 deg print facets (v2.1, against bed-side sag) and their 4 mm fade into the head made every corner look edged.
+# FDM cost: the lowest ~0.5 mm of each bed-side round overhangs (small sag possible on the FDM test parts, none on nylon).
+PURE_ROUNDS = True
 OUT = MECH / "out" / ("cart_a_v2_mjf" if MJF else "cart_a_v2")
 
 # ---- form ---------------------------------------------------------------------------------------------------------
@@ -85,7 +89,7 @@ def dome_stations(e: float = 0.0, n: int = 6) -> list[tuple[float, float]]:
     """Rear end profile (x, inset) of the skin offset by e: quarter circle from the rear face down to 45 deg, then a straight
     45 deg facet to the full section (owner 2026-11-27 print: the rounded rear edge sagged where it meets the bed)."""
     r = REAR_R - e
-    if MJF:                                                  # nylon: the full quarter circle (no print facet)
+    if MJF or PURE_ROUNDS:                                   # the full quarter circle (no print facet)
         st = [(REAR_R - r * math.cos(th), REAR_R - r * math.sin(th)) for th in np.linspace(0.0, math.pi / 2, 2 * n + 1)]
         return st[:-1] + [(REAR_R, e)]
     st = [(REAR_R - r * math.cos(th), REAR_R - r * math.sin(th)) for th in np.linspace(0.0, math.pi / 4, n + 1)]
@@ -94,7 +98,7 @@ def dome_stations(e: float = 0.0, n: int = 6) -> list[tuple[float, float]]:
 
 
 def dome_inset(x: float) -> float:
-    if MJF:
+    if MJF or PURE_ROUNDS:
         return 0.0 if x >= REAR_R else REAR_R - math.sqrt(max(REAR_R ** 2 - (REAR_R - x) ** 2, 0.0))
     st = dome_stations()
     if x >= st[-1][0]:
@@ -117,7 +121,7 @@ def exact_inset(pts: list[tuple[float, float]], d: float, n: int = 240) -> list[
 
 # owner 2026-11-27 (v2 print): the halves looked different left and right. The body is now mirror-symmetric (same corners near
 # and far) and only blends into the adapter's own outline over the flare (x 49 -> joint), so the head (adapter outline) still sits
-# flush. Every corner meets its top / bottom face with a 45 deg facet: the halves print bed-side down without a sagging overhang.
+# flush. v2.1-v2.2: every corner met its top / bottom face with a 45 deg print facet; v2.3: pure rounds (PURE_ROUNDS).
 SYM_SHAPE = {"near_left": (5.0, 6.0, 2.0), "near_right": (2.8, 3.8, 2.0), "far_left": (5.0, 6.0, 2.0), "far_right": (2.8, 3.8, 2.0),
              "near_slant": 0.0}   # corner (z extent, y extent, superellipse exponent), as make_face.ADAPTER_SHAPE
 FACET_SLOPE = 1.0          # |dz/dy| below which a corner is replaced by a straight 45 deg line to its face
@@ -196,7 +200,7 @@ def facet_at(x: float) -> float:
 
 def section_at(x: float, d: float = 0.0) -> list[tuple[float, float]]:
     L, W = extents(x)
-    return section_yz(L, W, d, w=morph_w(x), facet=0.0 if MJF else facet_at(x))
+    return section_yz(L, W, d, w=morph_w(x), facet=0.0 if (MJF or PURE_ROUNDS) else facet_at(x))
 
 
 def inner_poly(x: float, extra: float = 0.0) -> np.ndarray:

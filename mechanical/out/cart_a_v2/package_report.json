@@ -23,7 +23,7 @@
    56.97,
    19.0
   ],
-  "body_volume_ml": 47.11,
+  "body_volume_ml": 46.87,
   "head_volume_ml": 4.06,
   "adapter_box_ml": 15.59,
   "insight_box_ml": 83.0,
@@ -46,7 +46,7 @@
   ],
   "head_envelope_ml": 5.95,
   "adapter_envelope_ml": 8.57,
-  "total_envelope_ml": 61.6,
+  "total_envelope_ml": 61.4,
   "vs_insight_box": "-26%"
  },
  "check": {

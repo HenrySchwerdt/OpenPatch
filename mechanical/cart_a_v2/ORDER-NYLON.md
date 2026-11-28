@@ -12,8 +12,8 @@ face, outline at the face = the adapter outline, no hole in a lock feature.
 ## What to order
 | File | Part | Volume | Qty |
 |---|---|---|---|
-| `OpenTube_A_bottom.stl` | bottom half with the lock face (lower half), tongue, 2 pins, 5 screw holes | 9.29 cm3 | 1 |
-| `OpenTube_A_top.stl` | top half with the lock face (upper half), groove, 5 nut pockets, button + LED holes | 8.30 cm3 | 1 |
+| `OpenTube_A_bottom.stl` | bottom half with the lock face (lower half), tongue, 2 pins, 5 screw holes | 9.20 cm3 | 1 |
+| `OpenTube_A_top.stl` | top half with the lock face (upper half), groove, 5 nut pockets, button + LED holes | 8.57 cm3 | 1 |
 | `OpenTube_A_yoke.stl` | yoke (lead screw nut + stem) | 0.19 cm3 | 1 |
 | `OpenTube_A_pusher.stl` | pusher disc | 0.06 cm3 | 1 |
 | `OpenTube_A_button_plunger.stl` | button plunger | 0.07 cm3 | 1 |
@@ -25,10 +25,11 @@ A spare pair of halves costs little extra and saves a re-order if a fit needs a 
 (board, motor, rods, nuts) are not needed.
 
 ## Differences to the FDM files (built in)
-- No FDM print facets: pure rounds on every edge and at the rear end; no 0.15 mm z stretch; no first-layer compensation.
+- Pure rounds on every edge and at the rear end (v2.3: the FDM parts have them too); no 0.15 mm z stretch; no first-layer
+  compensation; no groove on the seam (v2.3, owner: the halves butt flush).
 - Clearances for MJF (parts mate within about +-0.2 mm): tongue 0.7 in a 1.1 groove (0.2 per side), pin holes d2.45 for d2.0 pins,
   screw holes d2.4, nut pockets AF 4.15 (press fit for AF 4.0 M2 nuts), stem press holes d2.0 for the M2 brass rod (MJF holes come
-  out about 0.1 small), seam shadow groove 0.4 x 0.6.
+  out about 0.1 small).
 
 ## Hardware per pump (see docs/CART-ORDER.md)
 5 x M2 x 12 countersunk (DIN 965 / 963), 6 x M2 nut (5 closing + 1 yoke), 1 x 2 mm steel ball (lock ball), M2 brass rod

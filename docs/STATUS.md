@@ -10,8 +10,11 @@ outline 1.16 mm across / 0.29 mm along off the bore (adapter over one side, lowe
 1.4 mm shallower. Owner: FACE4 is the base, the face stays in the halves. v2.3 (`mechanical/CART-A-V2-BRIEF.md` section 13): the
 FACE4 outline and bore position (smooth corner fit, max 0.21 mm from the trace), pocket 5.8; every lock feature inside the outline
 is identical to FACE4 (Boolean difference 0). The inner layout follows the bore (+1.16 in z, cartridge 0.29 toward the near side);
-the board is unchanged. All gates pass (package, shells FDM + MJF, SolidCraft import + views). Print **TEST5** (52 min) first; full
-halves BODEN6 (1 h 48) / DECKEL7 (1 h 39). TEST4, BODEN5, DECKEL6 and older are obsolete.
+the board is unchanged. Owner: everything smooth: no seam groove any more, pure rounds on every edge (FDM too), and a bug fixed
+(the shells were lofted with the adapter corners + 45 deg facets along the whole body, a 0.71 mm step at every corner of the
+joint; the seamless gate checked the package model instead of the loft). All gates pass (package, shells FDM + MJF, SolidCraft
+import + views). Print **TEST5** (1 h 12, adaptive layers) first; full halves BODEN6 (2 h 53) / DECKEL7 (2 h 38). TEST4, BODEN5,
+DECKEL6 and older are obsolete.
 
 ## Cart A v2.2: lock face in the halves, screwed closed (2026-11-28, mechanical)
 Owner print of v2.1: head never seamless / not sitting well, two rear hooks too weak, no tongue and groove; cartridge fits. Owner:

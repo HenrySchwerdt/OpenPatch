@@ -1,7 +1,7 @@
 {
  "parts": {
   "bottom": {
-   "volume_cm3": 9.33,
+   "volume_cm3": 9.22,
    "valid": true,
    "solids": 1,
    "print_bbox_mm": [
@@ -11,11 +11,11 @@
    ]
   },
   "top": {
-   "volume_cm3": 8.32,
+   "volume_cm3": 8.58,
    "valid": true,
    "solids": 1,
    "print_bbox_mm": [
-    48.61,
+    48.97,
     71.86,
     9.1
    ]
@@ -79,12 +79,12 @@
  },
  "overhang_outer_mm2": {
   "bottom": {
-   "near": 0.0,
-   "far": 0.0
+   "near": 238.84,
+   "far": 222.36
   },
   "top": {
-   "near": 0.0,
-   "far": 0.0
+   "near": 148.33,
+   "far": 141.11
   }
  },
  "z_comp_mm": 0.15,
@@ -93,7 +93,7 @@
    "open_edges": 0,
    "tolerance": 0.01,
    "angular": 0.1,
-   "sliver_edges": 1751
+   "sliver_edges": 0
   },
   "v2_bottom_solidcraft": {
    "open_edges": 0,
@@ -103,7 +103,7 @@
    "open_edges": 0,
    "tolerance": 0.01,
    "angular": 0.1,
-   "sliver_edges": 608
+   "sliver_edges": 6294
   },
   "v2_top_solidcraft": {
    "open_edges": 0,
@@ -137,13 +137,13 @@
    "open_edges": 0,
    "tolerance": 0.01,
    "angular": 0.1,
-   "sliver_edges": 1052
+   "sliver_edges": 0
   },
   "v2_top": {
    "open_edges": 0,
    "tolerance": 0.01,
    "angular": 0.1,
-   "sliver_edges": 1065
+   "sliver_edges": 6224
   },
   "v2_yoke": {
    "open_edges": 0,
