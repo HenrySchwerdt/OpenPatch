@@ -10,6 +10,9 @@ lock face (make_face.face()) is part of both halves (seam through the bore axis)
 face; 5 hidden M2 screws from the underside into pressed-in nuts; tongue and groove along the cartridge side; 2 alignment pins in
 the lock face zone; halves stretched 0.15 in z against the slicer's Z_ADJUST. Print the front test coupon first (adapter flush,
 bayonet in the new print orientation). Shopping list: M2 x 12 countersunk + 5 nuts per pump (`docs/CART-ORDER.md`).
+Black nylon order set (owner: MJF PA12 black, Black Friday): `OP_MJF=1` build in `mechanical/out/cart_a_v2_mjf/print/OpenTube_A_*.stl`
+(pure rounds, MJF clearances, no z stretch; all checks pass), order note `mechanical/cart_a_v2/ORDER-NYLON.md`. TEST4 + BODEN4 +
+DECKEL4 are on the printer card. Board order still blocked by the STM32C011 (JLC stock 0 for F4U6 and F6U6 on 2026-11-28).
 
 ## Cart A v2.1 housing + head KOPF10 after the first fit print (2026-11-27, mechanical)
 Owner print of ALLES2: shells fit, but the head did not go on, a head screw hole sat behind the joint ring, the two sides printed

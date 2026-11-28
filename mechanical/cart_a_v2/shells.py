@@ -32,7 +32,7 @@ pz0, pz1 = pk.BOARD["pcb_z"]
 # far board edge on the routed board (cart_a6): USB-C at x 42 (its tab slot needs x 47.0-48.2 free), HJ-840 crosses the strip on top
 # over x 54.2-59.0 (top clamp stops at 53.9); the bottom ledge may run under the module
 FAR_LEDGES = ((33.0, 35.0), (48.2, 58.0))
-SHADOW = (0.3, 0.5)                 # seam shadow groove: depth, height
+SHADOW = (0.4, 0.6) if pk.MJF else (0.3, 0.5)   # seam shadow groove: depth, height (MJF: a little deeper so it stays crisp)
 FAR_CLAMPS = ((33.0, 35.0), (48.2, 53.9))
 SADDLES_CART = (36.5, 46.5, 56.5)   # chamber saddles (x0, 1.6 thick)
 SADDLES_MOTOR = (12.76, 21.76)
@@ -41,12 +41,15 @@ XF = pk.X_FACE
 # top half's column at the seam. (x, y): rear near / rear far (behind the yoke and the motor), front near (beside the cartridge
 # cone), front far (beside the board tongue), lock face zone (between bore and board)
 SCREWS = ((6.0, 3.8), (6.0, 34.0), (62.6, 3.8), (63.0, 42.8), (66.4, 22.0))
-COL_D, HOLE_D, CSK_D, NUT_AF, NUT_H, SCREW_L = 4.4, 2.3, 4.1, 4.1, 1.8, 12.0
+COL_D, HOLE_D, CSK_D, NUT_AF, NUT_H, SCREW_L = 4.4, (2.4 if pk.MJF else 2.3), 4.1, (4.15 if pk.MJF else 4.1), 1.8, 12.0
 PINS = ((69.0, 25.2), (68.6, 31.0))  # d2 alignment pins in the lock face zone (bottom half), d2.3 holes in the top half; the only
                                     # solid spots at the seam (mesh scan: x 67.8-69.4, y 21.5-31.5); bore and lock features fill the rest
-TG = {"rim": 3.0, "tongue": (1.1, 1.9), "groove": (0.95, 2.05), "t_h": 1.1, "g_h": 1.3, "x": (7.0, None)}   # cartridge-side wall
+TG = {"rim": 3.0, "tongue": (1.15, 1.85) if pk.MJF else (1.1, 1.9), "groove": (0.95, 2.05), "t_h": 1.1, "g_h": 1.3, "x": (7.0, None)}   # cartridge-side wall
+# (MJF: tongue 0.7 for 0.2 play per side; MJF parts mate within about +-0.2)
 COUPON_X = 64.0                     # test coupon: lock face zone + 1.3 mm of body (zone screw + both pins inside)
-Z_COMP = 0.15                       # the slicer's Z_ADJUST -0.15 prints every half 0.15 low: the print STLs are stretched by it
+Z_COMP = 0.0 if pk.MJF else 0.15    # the slicer's Z_ADJUST -0.15 prints every half 0.15 low: the FDM print STLs are stretched by it
+PRESS_D = 2.0 if pk.MJF else 1.95   # stem press holes (MJF holes come out about 0.1 small)
+PIN_HOLE_D = 2.45 if pk.MJF else 2.3
 T = 1.6                             # rib / wall thickness of inner structure
 WIRE_Y, WIRE_Z = (34.0, 37.5), (1.0, 5.2)   # motor leads run along the floor to the connector under the board (no soldering)
 
@@ -186,14 +189,14 @@ def extra_parts() -> dict[str, Solid]:
     hexpts = [Vector(3.6 - 1.6, pk.YS + 2.37 * math.cos(math.radians(60 * i + 30)), pk.ZC + 2.37 * math.sin(math.radians(60 * i + 30)))
               for i in range(6)]
     nut = Solid.extrude(Face(Wire.make_polygon(hexpts, close=True)), Vector(1.7, 0, 0))
-    yk = yk - C(1.5, 3.7, pk.YC, pk.ZC, 1.95) - C(1.5, 3.7, pk.YS, pk.ZC, 2.4) - nut               # stem press hole, screw, M2 nut pocket
+    yk = yk - C(1.5, 3.7, pk.YC, pk.ZC, PRESS_D) - C(1.5, 3.7, pk.YS, pk.ZC, 2.4) - nut            # stem press hole, screw, M2 nut pocket
     bx, by = pk.BUTTON_XY
     top = pk.HEAD_W
     plunger = Z(bx, by, top - 1.32, top - 0.12, 5.0) + Z(bx, by, pz1 + 1.6, top - 1.32, 3.0) + Z(bx, by, 13.6, 14.2, 4.2)   # collar under the guide
     lx, ly = pk.LED_XY
     pipe = Z(lx, ly, pz1 + 0.75, top - 0.05, 2.0)
     c0 = 27.56 + pk.XS                                                                              # barrel rear end (on the stop ring)
-    pusher = C(c0 - 0.5, c0 + 0.3, pk.YC, pk.ZC, 8.5) + C(c0 - 2.0, c0 - 0.5, pk.YC, pk.ZC, 4.0) - C(c0 - 2.1, c0 - 0.1, pk.YC, pk.ZC, 1.95)
+    pusher = C(c0 - 0.5, c0 + 0.3, pk.YC, pk.ZC, 8.5) + C(c0 - 2.0, c0 - 0.5, pk.YC, pk.ZC, 4.0) - C(c0 - 2.1, c0 - 0.1, pk.YC, pk.ZC, PRESS_D)
     return {"yoke": yk, "button_plunger": plunger, "light_pipe": pipe, "pusher": pusher}   # pusher d8.5 passes the d8.9 stop ring
 
 
@@ -231,7 +234,7 @@ def screw_cuts() -> tuple[list[Solid], list[Solid]]:
 
 
 def pins() -> tuple[list[Solid], list[Solid]]:
-    return ([Z(x, y, SEAM - 0.5, SEAM + 1.4, 2.0) for x, y in PINS], [Z(x, y, SEAM - 0.1, SEAM + 1.7, 2.3) for x, y in PINS])
+    return ([Z(x, y, SEAM - 0.5, SEAM + 1.4, 2.0) for x, y in PINS], [Z(x, y, SEAM - 0.1, SEAM + 1.7, PIN_HOLE_D) for x, y in PINS])
 
 
 def build() -> dict[str, Solid]:
@@ -437,6 +440,19 @@ def main() -> None:
     orient = {"bottom": Rot(0, 0, -90), "top": Rot(0, 0, -90) * Rot(180, 0, 0), "yoke": Rot(0, 90, 0), "button_plunger": Rot(180, 0, 0),
               "light_pipe": Rot(0, 0, 0), "pusher": Rot(0, 90, 0)}   # disc on the bed
     report = {"parts": {}, "check": check(parts)}
+    if pk.MJF:                                                         # nylon order set: pump coordinates, mm, one STL per part
+        report = {"parts": {}, "check": check(parts), "mode": "MJF PA12 black (no FDM facets, MJF clearances, no z stretch)"}
+        for k, s in parts.items():
+            if k == "light_pipe":
+                continue                                                  # must be clear: acrylic rod / clear filament, not nylon
+            export_stl(s, str(OUT / f"OpenTube_A_{k}.stl"), tolerance=0.005, angular_tolerance=0.05)
+            bb = s.bounding_box()
+            report["parts"][k] = {"volume_cm3": round(s.volume / 1000, 2), "valid": s.is_valid, "solids": len(s.solids()),
+                                  "bbox_mm": [round(bb.max.X - bb.min.X, 2), round(bb.max.Y - bb.min.Y, 2), round(bb.max.Z - bb.min.Z, 2)]}
+        report["pass"] = not any(report["check"].values()) and all(v["solids"] == 1 for v in report["parts"].values())
+        (OUT / "mjf_report.json").write_text(json.dumps(report, indent=1))
+        print(json.dumps(report, indent=1))
+        return
     for k, s in parts.items():
         o = orient[k] * s
         bb = o.bounding_box()

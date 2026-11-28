@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import json
 import math
+import os
 import struct
 import sys
 from itertools import combinations
@@ -25,7 +26,10 @@ MECH = HERE.parent
 sys.path.insert(0, str(MECH / "print" / "A_lock"))
 import make_face as mf  # noqa: E402  (head outline = single source of truth)
 
-OUT = MECH / "out" / "cart_a_v2"
+# OP_MJF=1: the black nylon (MJF PA12) order set (owner 2026-11-28): no FDM print facets (pure rounds), MJF clearances, no z stretch;
+# outputs in out/cart_a_v2_mjf so the FDM files stay as they are
+MJF = os.environ.get("OP_MJF") == "1"
+OUT = MECH / "out" / ("cart_a_v2_mjf" if MJF else "cart_a_v2")
 V1 = MECH / "out" / "v010-cart" / "A" / "print"
 
 # ---- form ---------------------------------------------------------------------------------------------------------
@@ -71,12 +75,17 @@ def dome_stations(e: float = 0.0, n: int = 6) -> list[tuple[float, float]]:
     """Rear end profile (x, inset) of the skin offset by e: quarter circle from the rear face down to 45 deg, then a straight
     45 deg facet to the full section (owner 2026-11-27 print: the rounded rear edge sagged where it meets the bed)."""
     r = REAR_R - e
+    if MJF:                                                  # nylon: the full quarter circle (no print facet)
+        st = [(REAR_R - r * math.cos(th), REAR_R - r * math.sin(th)) for th in np.linspace(0.0, math.pi / 2, 2 * n + 1)]
+        return st[:-1] + [(REAR_R, e)]
     st = [(REAR_R - r * math.cos(th), REAR_R - r * math.sin(th)) for th in np.linspace(0.0, math.pi / 4, n + 1)]
     x45, d45 = st[-1]
     return st + [(x45 + (d45 - e), e)]
 
 
 def dome_inset(x: float) -> float:
+    if MJF:
+        return 0.0 if x >= REAR_R else REAR_R - math.sqrt(max(REAR_R ** 2 - (REAR_R - x) ** 2, 0.0))
     st = dome_stations()
     if x >= st[-1][0]:
         return 0.0
@@ -176,7 +185,7 @@ def facet_at(x: float) -> float:
 
 def section_at(x: float, d: float = 0.0) -> list[tuple[float, float]]:
     L, W = extents(x)
-    return section_yz(L, W, d, w=morph_w(x), facet=facet_at(x))
+    return section_yz(L, W, d, w=morph_w(x), facet=0.0 if MJF else facet_at(x))
 
 
 def inner_poly(x: float, extra: float = 0.0) -> np.ndarray:
