@@ -1,12 +1,12 @@
 {
- "volume_cm3": 3.701,
+ "zone_volume_cm3": 4.145,
  "valid": true,
  "solids": 1,
- "placed_bbox": [
+ "bbox": [
   [
    65.26,
    0.0,
-   -0.0
+   0.0
   ],
   [
    71.86,
@@ -14,25 +14,13 @@
    19.0
   ]
  ],
- "groove": {
-  "in0": 0.85,
-  "in1": 2.55,
-  "depth": 2.0,
-  "mouth": 0.3
- },
- "ring": {
-  "in0": 1.15,
-  "in1": 2.25
- },
- "play_per_side_mm": 0.3,
- "screws_pump_yz": [
-  [
-   21.46,
-   13.24
+ "pin": {
+  "module": [
+   26.0,
+   -1.67
   ],
-  [
-   21.46,
-   4.24
-  ]
- ]
+  "bore_d": 2.1,
+  "opening_d": 1.7,
+  "shape": "round channel opened up to the seam (bottom half), closed by the top half"
+ }
 }

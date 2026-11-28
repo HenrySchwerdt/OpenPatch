@@ -23,8 +23,8 @@
    57.26,
    19.0
   ],
-  "body_volume_ml": 47.17,
-  "head_volume_ml": 3.7,
+  "body_volume_ml": 47.16,
+  "head_volume_ml": 4.15,
   "adapter_box_ml": 15.67,
   "insight_box_ml": 83.0,
   "insight_mm": [
@@ -36,7 +36,7 @@
    [
     65.26,
     0.0,
-    -0.0
+    0.0
    ],
    [
     71.86,

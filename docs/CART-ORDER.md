@@ -74,8 +74,9 @@ Design: `mechanical/CART-A-V2-BRIEF.md`. One pump plus spares; no soldering on t
 | | Gear m0.3 z40 brass | listing 1005010114512381, "40T", 2 mm thick, bore 1.98, no hub | 2.15 EUR each; V |
 | | Angle magnet, **diametric** ("radial") | listing 1005010279518166, variant "Radial-D2x1mm" (50 pcs). Axial 2 x 1 magnets (Amazon) do not work for the angle sensor | 8.29 EUR / 50; V |
 | **GHW-Modellbau** | DIN 975 threaded rod M2 brass, 500 mm | screw 31.4 + stem 26.9 cut from it | 2.60 EUR; V |
-| | DIN 934 nut M2 brass (50) | 1 in the yoke | 3.80 EUR; V |
-| | DIN 963 countersunk M2 x 10, A2 (50) | 2 through the head face | 7.85 EUR; V |
+| | DIN 934 nut M2 brass (50) | 1 in the yoke + 5 pressed into the top half (v2.2 closing screws) | 3.80 EUR; V |
+| | DIN 963 countersunk M2 x 10, A2 (50) | v2.2: no head screws any more; usable as closing screws (about 1.3 mm thread in the nut) | 7.85 EUR; V |
+| | **v2.2: countersunk M2 x 12** (DIN 963 or 965, A2), 5 per pump | closing screws from the underside into the nuts (full nut engagement) | about 5-8 EUR / 50; E |
 | **Amazon** | Steel balls 2 mm (100Cr6 / bearing balls) | lock ball; many packs listed (e.g. 20 or 100 pcs) | about 5-8 EUR; E |
 | | Loctite 648 + CA glue | pinion on the D-shaft, gear on the screw | E |
 | | 1 mm double-sided foam tape | under the cell | E |

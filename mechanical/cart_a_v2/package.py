@@ -53,7 +53,7 @@ BOARD_NOTCH = {"x": (32.6, 33.0), "y": (31.0, 36.31)}   # board absent here: cle
 TMAG_X = (33.67, 35.27)    # TMAG5273 body on the routed board (U10 at 34.47 / 33.38), beside the magnet in the pinion front bore
 USB_X, USB_Z = 42.0, 8.74  # mid-mount, centred ON the seam; x 42.0 on the routed board (40.0 left no room for the TMAG5273)
 BUTTON_XY, LED_XY = (46.5, 22.05), (39.0, 22.05)   # beside the cell, clear of the board clamp strip; 3.6 mm wall between the holes
-HEAD_SCREWS = [(21.46, 4.24), (21.46, 13.24)]   # axial M2 through the head face (KOPF10, module [10,-4.5] / [10,4.5]) into bottom / top half;
+HEAD_SCREWS: list[tuple[float, float]] = []      # v2.2: no separate head any more (lock face zone is part of the halves); was KOPF10 [10,-4.5] / [10,4.5];
                                                 # KOPF9's lower screw (z 3.24) ran 0.01 past the joint ring (owner print 2026-11-27)
 
 
@@ -133,7 +133,7 @@ def _facet(q: list[tuple[float, float]], face_first: bool) -> list[tuple[float, 
     return out if face_first else out[::-1]
 
 
-def section_yz(L: float, W: float, d: float = 0.0, k: int = 16, m: int = 6, w: float = 1.0, facet: bool = True) -> list[tuple[float, float]]:
+def section_yz(L: float, W: float, d: float = 0.0, k: int = 16, m: int = 6, w: float = 1.0, facet: float = 1.0) -> list[tuple[float, float]]:
     """Section at width L (y) and height W (z), inset by d. w = 1: the head's adapter outline (make_face.ADAPTER_SHAPE),
     w = 0: the symmetric body; facet: 45 deg facets where the corners meet the top and bottom faces. Fixed point count."""
     sh = shape_at(w)
@@ -150,8 +150,9 @@ def section_yz(L: float, W: float, d: float = 0.0, k: int = 16, m: int = 6, w: f
              mf._quad(W - d - rr(nru), d + rr(nrv), rr(nru), rr(nrv), 270, 360, 2.0, k),       # near side -> top face
              mf._quad(W - d - rr(fru), L - d - rr(frv), rr(fru), rr(frv), 0, 90, 2.0, k),      # top face -> far side
              mf._quad(d + rr(flu), L - d - rr(flv), rr(flu), rr(flv), 90, 180, fln, k)]        # far side -> bottom face
-    if facet:
-        quads = [_facet(quads[0], True), _facet(quads[1], False), _facet(quads[2], True), _facet(quads[3], False)]
+    if facet > 0:                                            # 0..1: blend between the plain and the faceted corners (same point count)
+        fq = [_facet(quads[0], True), _facet(quads[1], False), _facet(quads[2], True), _facet(quads[3], False)]
+        quads = [[(a[0] + (b[0] - a[0]) * facet, a[1] + (b[1] - a[1]) * facet) for a, b in zip(q, f)] for q, f in zip(quads, fq)]
     uv = []
     for i, q in enumerate(quads):
         uv += q
@@ -165,9 +166,17 @@ def morph_w(x: float) -> float:
     return smooth((x - FLARE_X0) / (X_JOINT - FLARE_X0))
 
 
+FACET_FADE = 4.0           # v2.2 (owner: seamless with the Accu-Chek adapter): the print facets fade out over the last 4 mm before the
+                           # lock face zone, so from the joint to the face the outline is exactly the adapter outline
+
+
+def facet_at(x: float) -> float:
+    return 1.0 - smooth((x - (X_JOINT - FACET_FADE)) / FACET_FADE)
+
+
 def section_at(x: float, d: float = 0.0) -> list[tuple[float, float]]:
     L, W = extents(x)
-    return section_yz(L, W, d, w=morph_w(x))
+    return section_yz(L, W, d, w=morph_w(x), facet=facet_at(x))
 
 
 def inner_poly(x: float, extra: float = 0.0) -> np.ndarray:
@@ -312,8 +321,6 @@ def housing_features() -> dict[str, tuple[Solid, str]]:
     face = Face(Wire.make_polygon([Vector(27.56, y, z) for y, z in sec], close=True))
     H["rear_stop"] = (Solid.extrude(face, Vector(XS, 0, 0)) - cyl_x(27.4, 28.7, YC, ZC, 8.9), "shell")
     H["partition"] = (box((27.56, X_JOINT - GAP), PART_Y, (WALL, 15.4)), "shell")
-    for k, (y, z) in enumerate(HEAD_SCREWS):
-        H[f"head_boss{k}"] = (cyl_x(60.86 + XS, X_JOINT - GAP, y, z, 4.0), "shell")
     bx, by = BUTTON_XY
     H["button_plunger"] = (cyl_z(bx, by, BOARD["pcb_z"][1] + 1.6, top_z(bx, by) - 0.05, 3.0), "accent")
     lx, ly = LED_XY
@@ -370,8 +377,8 @@ def main() -> None:
     write_stl(OUT / "body_inset_seam.stl", rings_to_tris(body_rings(e=0.35)))
     body_vol = mesh_volume(outer)
 
-    import head as hd                                                                   # KOPF10, built here as a real solid (the
-    head = hd.place(hd.build())                                                         # imported KOPF9 STEP gave false booleans)
+    import head as hd                                                                   # v2.2: the lock face zone of the shells
+    head = hd.zone_placed()                                                             # (x 65.26-71.86), as a real solid
     adapter = Pos(XS, 0, 0) * import_step(str(V1 / "cart_A_adapter_dummy_placed.step"))
     needle = Pos(XS, 0, 0) * import_step(str(V1 / "cart_A_needle_placed.step"))
     for nm, shp in (("head", head), ("adapter", adapter), ("needle", needle)):

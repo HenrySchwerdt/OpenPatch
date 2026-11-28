@@ -1,15 +1,17 @@
 #!/usr/bin/env python3
-"""Cart pump A v2 print parts: bottom and top shell halves, yoke, button plunger, light pipe (../CART-A-V2-BRIEF.md).
-TEST ONLY - water only, never on a person.
+"""Cart pump A v2.2 print parts: bottom and top shell halves (with the lock face), yoke, button plunger, light pipe, pusher
+(../CART-A-V2-BRIEF.md sections 8, 11, 12). TEST ONLY - water only, never on a person.
 
 The halves split at the cartridge axis height (z 8.74, the seam): every bulkhead / saddle that crosses it is cut in two, so each part
 round the axis (cartridge, screw, motor) is clamped between a lower and an upper half-saddle. Bottom half: printed bottom-down.
-Top half: printed roof-down (flat top). The head (KOPF9, unchanged) closes the front: the shells' lip ring enters its rear groove and
-two axial M2 go through the head face into the bosses. The rear end is held by hooks of the top half under bars of the bottom half
-(the top half is swung in from the front, then the head goes on).
+Top half: printed roof-down (flat top). v2.2 (owner 2026-11-28): no separate head - the front 6.6 mm (lock face zone, head.py) are
+part of both halves, in exactly the Accu-Chek adapter outline, so the skin runs seamless into the adapter. The halves are closed by
+5 hidden M2 screws from the underside into nuts pressed into the top half, a tongue and groove along the cartridge side and two pins
+in the lock face zone; no hooks.
 
-Checks every part of package.py (FULL and EMPTY) against both halves and writes print STLs (centred, print orientation) plus placed
-STLs for the renders. Run: ../../.venv/bin/python shells.py
+Checks every part of package.py (FULL and EMPTY) against both halves, the closed halves against each other, the adapter on the
+face, the screws, and writes print STLs (centred, print orientation, height-compensated) plus placed STLs for the renders and a
+front test coupon. Run: ../../.venv/bin/python shells.py
 """
 from __future__ import annotations
 
@@ -27,7 +29,6 @@ XJ = pk.X_JOINT
 ROOF = pk.HEAD_W - pk.WALL          # inner roof 17.8 (flat top)
 PY0, PY1 = pk.PART_Y
 pz0, pz1 = pk.BOARD["pcb_z"]
-LAP_UP = 0.8                        # bottom lip rises this far above the seam (inner half of the wall)
 # far board edge on the routed board (cart_a6): USB-C at x 42 (its tab slot needs x 47.0-48.2 free), HJ-840 crosses the strip on top
 # over x 54.2-59.0 (top clamp stops at 53.9); the bottom ledge may run under the module
 FAR_LEDGES = ((33.0, 35.0), (48.2, 58.0))
@@ -35,7 +36,17 @@ SHADOW = (0.3, 0.5)                 # seam shadow groove: depth, height
 FAR_CLAMPS = ((33.0, 35.0), (48.2, 53.9))
 SADDLES_CART = (36.5, 46.5, 56.5)   # chamber saddles (x0, 1.6 thick)
 SADDLES_MOTOR = (12.76, 21.76)
-HOOK_Y = ((5.2, 8.2), (29.4, 32.9))  # rear hooks, beside the yoke (yoke y 8.71-28.9)
+XF = pk.X_FACE
+# v2.2 closing: M2 countersunk from the underside (head flush) through a column of the bottom half into an M2 nut pressed into the
+# top half's column at the seam. (x, y): rear near / rear far (behind the yoke and the motor), front near (beside the cartridge
+# cone), front far (beside the board tongue), lock face zone (between bore and board)
+SCREWS = ((6.0, 3.8), (6.0, 34.0), (62.6, 3.8), (63.0, 42.8), (66.4, 22.0))
+COL_D, HOLE_D, CSK_D, NUT_AF, NUT_H, SCREW_L = 4.4, 2.3, 4.1, 4.1, 1.8, 12.0
+PINS = ((69.0, 25.2), (68.6, 31.0))  # d2 alignment pins in the lock face zone (bottom half), d2.3 holes in the top half; the only
+                                    # solid spots at the seam (mesh scan: x 67.8-69.4, y 21.5-31.5); bore and lock features fill the rest
+TG = {"rim": 3.0, "tongue": (1.1, 1.9), "groove": (0.95, 2.05), "t_h": 1.1, "g_h": 1.3, "x": (7.0, None)}   # cartridge-side wall
+COUPON_X = 64.0                     # test coupon: lock face zone + 1.3 mm of body (zone screw + both pins inside)
+Z_COMP = 0.15                       # the slicer's Z_ADJUST -0.15 prints every half 0.15 low: the print STLs are stretched by it
 T = 1.6                             # rib / wall thickness of inner structure
 WIRE_Y, WIRE_Z = (34.0, 37.5), (1.0, 5.2)   # motor leads run along the floor to the connector under the board (no soldering)
 
@@ -63,13 +74,6 @@ def loft(e: float, x_end: float) -> Solid:
     xs = [x for x in xs if x < x_end - 0.3] + [x_end]
     p_flare = Solid.make_loft([_wire(x, e) for x in xs], ruled=False)
     return p_dome.fuse(p_facet, p_body, p_flare).clean()
-
-
-def ring_prism(d_out: float, d_in: float, x0: float, x1: float) -> Solid:
-    """Ring between two insets of the head section, extruded along x (the lip that enters the head's rear groove)."""
-    def wire(d: float) -> Wire:                                         # exact offsets, like the head's groove (make_face offset)
-        return Wire.make_polygon([Vector(x0, y, z) for y, z in pk.exact_inset(pk.section_yz(pk.HEAD_L, pk.HEAD_W), d)], close=True)
-    return Solid.extrude(Face(wire(d_out), [wire(d_in)]), Vector(x1 - x0, 0, 0))
 
 
 def wedge_y(xr: tuple[float, float], yr: tuple[float, float], z: float, down: bool = True) -> Solid:
@@ -119,11 +123,8 @@ def common_features() -> tuple[list[Solid], list[Solid]]:
     prof = [Vector(9.86, yb, zb - 1.5), Vector(9.86, yb, zb + 1.5), Vector(9.86, 42.0, zb + 1.5 + 42.0 - yb), Vector(9.86, 42.0, zb - 1.5 - (42.0 - yb))]
     add.append(Solid.extrude(Face(Wire.make_polygon(prof, close=True)), Vector(1.2, 0, 0)))
     add.append(B((32.6, pk.BOARD["x"][1]), (PY1 - 0.01, 19.3), (pz0, pz1 + 0.46)))                  # board edge stop at the partition
-    for k, (y, z) in enumerate(pk.HEAD_SCREWS):                                                     # head screw bosses + webs
-        add.append(C(XJ - 3.4, XJ, y, z, 4.0))
-        add.append(B((XJ - 3.4, XJ), (y - 1.0, y + 1.0), (-1.0, z) if k == 0 else (z, 25.0)))
-        add.append(B((XJ - 3.4, XJ), (PY1 - 0.01, y), (z - 1.0, z + 1.0)))
-        cut.append(C(XJ - 6.0, XJ + 0.1, y, z, 1.6))
+    for x, y in SCREWS:                                                                             # closing screw columns
+        add.append(Z(x, y, -1.0, 25.0, COL_D))
     cut.append(C(0.45, 1.3, pk.YS, pk.ZC, 2.3))                                                    # screw rear pocket in the rear wall
     return add, cut
 
@@ -134,9 +135,7 @@ def bottom_features() -> list[Solid]:
     for xr in FAR_LEDGES:                                                                           # board ledge at the far side (not at USB, not at the pinion)
         f.append(B(xr, (35.3, 36.9), (-1.0, pz0)))
     f.append(B((31.97, 32.5), (PY1 - 0.01, 21.0), (pz0, pz1 + 0.46)))                               # board rear stop (clear of rib_f top half)
-    f.append(B((pk.BOARD["x"][1] + 0.1, pk.BOARD["x"][1] + 1.2), (PY1 - 0.01, 22.0), (5.0, pz1 + 0.46)))   # board front stop, standing on the head boss (no floating block)
-    for y in HOOK_Y:                                                                                # rear catch bars
-        f.append(B((0.5, 2.6), y, (6.4, 7.4)))                                                      # no gusset: the top half's hook nose sits under it (1.4 overhang is fine)
+    f.append(B((pk.BOARD["x"][1] + 0.1, pk.BOARD["x"][1] + 1.2), (PY1 - 0.01, 22.0), (-1.0, pz1 + 0.46)))   # board front stop, from the floor
     return f
 
 
@@ -158,9 +157,6 @@ def top_features() -> tuple[list[Solid], list[Solid]]:
     lx, ly = pk.LED_XY
     f.append(Z(lx, ly, 13.0, 25.0, 4.2))                                                            # light pipe guide
     cut.append(Z(lx, ly, 12.0, 30.0, 2.2))
-    for y in HOOK_Y:                                                                                # rear hooks: plate from the roof, tab, nose
-        f += [B((1.35, 4.4), y, (7.55, 25.0)), B((0.5, 4.4), y, (SEAM + LAP_UP + 0.15, 25.0)),
-              B((2.8, 4.4), y, (5.0, 7.55)), B((1.5, 2.8), y, (5.0, 6.25))]
     return f, cut
 
 
@@ -201,30 +197,70 @@ def extra_parts() -> dict[str, Solid]:
     return {"yoke": yk, "button_plunger": plunger, "light_pipe": pipe, "pusher": pusher}   # pusher d8.5 passes the d8.9 stop ring
 
 
+def tongue_groove(cavity: Solid) -> tuple[Solid, Solid, Solid]:
+    """Cartridge-side wall (y < 9, from x 7 to the lock face zone): rim to 3.0 from the outside within z seam +-2 (45 deg steps above
+    and below, prints without support), tongue on the bottom half, groove in the top half; both skins >= 0.95. The far side has no
+    room (motor, board edge and USB-C 0.4-0.5 from the wall): there the screws and the board clamps hold."""
+    x0, x1 = TG["x"][0], XJ
+    near = B((x0 - 0.5, x1), (-1.0, 9.0), (-1.0, 25.0))
+    inner = loft(TG["rim"], x1)
+    rim = (cavity - inner) & B((x0 - 0.5, x1), (-1.0, 9.0), (SEAM - 2.0, SEAM + 2.0))
+    for k in range(5):                                                    # 0.3 mm steps = 45 deg chamfers below / above the rim
+        band = cavity - loft(TG["rim"] - 0.3 * (k + 1), x1)
+        for z0, z1 in ((SEAM - 2.0 - 0.3 * (k + 1), SEAM - 2.0 - 0.3 * k), (SEAM + 2.0 + 0.3 * k, SEAM + 2.0 + 0.3 * (k + 1))):
+            rim = rim + (band & B((x0 - 0.5, x1), (-1.0, 9.0), (z0, z1)))
+    t0_, t1_ = TG["tongue"]
+    g0_, g1_ = TG["groove"]
+    tongue = (loft(t0_, x1) - loft(t1_, x1)) & near & B((x0, x1 - 0.3), (-1.0, 9.0), (SEAM - 0.01, SEAM + TG["t_h"]))
+    groove = (loft(g0_, x1 + 0.2) - loft(g1_, x1 + 0.2)) & B((x0 - 0.2, x1 - 0.1), (-1.0, 9.0), (SEAM - 0.01, SEAM + TG["g_h"]))
+    return rim, tongue, groove
+
+
+def screw_cuts() -> tuple[list[Solid], list[Solid]]:
+    """Bottom: clearance hole + countersink from the underside (head flush with the skin). Top: hex nut pocket at the seam (press fit,
+    AF 4.1 for an AF 4.0 nut) + clearance for the screw tip (M2 x 12 from z 0)."""
+    import math
+    bot, top = [], []
+    for x, y in SCREWS:
+        bot += [Z(x, y, -1.0, SEAM + 0.1, HOLE_D),                                          # 90 deg countersink, d4.1 at z 0
+                Solid.make_cone((CSK_D + 2.0) / 2, (HOLE_D - 0.1) / 2, 1.0 + (CSK_D - HOLE_D) / 2 + 0.05, pk.Plane(origin=(x, y, -1.0)))]
+        rc = NUT_AF / 2 / math.cos(math.radians(30))
+        hexp = [Vector(x + rc * math.cos(math.radians(60 * i)), y + rc * math.sin(math.radians(60 * i)), SEAM - 0.1) for i in range(6)]
+        top += [Solid.extrude(Face(Wire.make_polygon(hexp, close=True)), Vector(0, 0, NUT_H + 0.1)), Z(x, y, SEAM - 0.1, SCREW_L + 0.6, HOLE_D)]
+    return bot, top
+
+
+def pins() -> tuple[list[Solid], list[Solid]]:
+    return ([Z(x, y, SEAM - 0.5, SEAM + 1.4, 2.0) for x, y in PINS], [Z(x, y, SEAM - 0.1, SEAM + 1.7, 2.3) for x, y in PINS])
+
+
 def build() -> dict[str, Solid]:
+    import head as hd
     t0 = [time.time()]
     outer = loft(0.0, XJ)
-    cavity = loft(pk.WALL, XJ + 0.5)
+    cavity = loft(pk.WALL, XJ)
     log("lofts", t0)
-    shell = outer - cavity
+    zone = hd.zone_placed()                                               # lock face zone x 65.26-71.86, exact adapter outline
+    shell = (outer - cavity).fuse(zone).clean()
     add, cut = common_features()
-    # joint ring into the head groove (KOPF10 0.85..2.55): 1.1 thick, 0.3 play per side, stepped 0.4 lead-in at the tip
-    # it sticks out only 1.0 beyond the shell edge: its top / bottom segments print as a free overhang (1.5 was ragged-prone)
-    common = shell + (fuse(add) & cavity) + ring_prism(1.15, 2.25, XJ - 1.0, XJ + 0.7) + ring_prism(1.3, 2.1, XJ + 0.6, XJ + 1.0)
-    log("shell + common structure", t0)
+    common = shell + (fuse(add) & cavity)
+    rim, tongue, groove = tongue_groove(cavity)
+    common = common + rim
+    log("shell + lock face zone + common structure + rim", t0)
     below = B((-5, 90), (-5, 70), (-5, SEAM))
     above = B((-5, 90), (-5, 70), (SEAM, 30))
-    # owner print 2026-11-27: the stepped lap left only 0.5 mm of outer wall on the top half at the seam (ragged rim). Now a butt
-    # joint with the full 1.2 wall on both halves and a 0.3 x 0.5 shadow groove on the seam line; the halves are located by the
-    # head ring (front), the rear hooks and the cartridge / motor / screw clamped in both half-saddles.
-    shadow = (outer - loft(SHADOW[0], XJ)) & B((-5, XJ + 0.1), (-5, 70), (SEAM - SHADOW[1] / 2, SEAM + SHADOW[1] / 2))
+    # seam shadow groove 0.3 x 0.5 on the seam line, to the face
+    shadow = (outer.fuse(zone) - loft(SHADOW[0], XJ).fuse(hd.place(hd.prism_inset(SHADOW[0])))) & B((-5, XF + 0.1), (-5, 70), (SEAM - SHADOW[1] / 2, SEAM + SHADOW[1] / 2))
     log("seam shadow groove", t0)
     tf, tcut = top_features()
-    bottom = (common & below) + (fuse(bottom_features()) & cavity) - shadow
-    top = ((common & above) + (fuse(tf) & cavity)) - shadow
+    sb, st = screw_cuts()
+    pb, pt = pins()
+    tongue = tongue - fuse([Z(x, y, SEAM - 0.02, SEAM + 2.0, COL_D + 0.8) for x, y in SCREWS])   # no tongue in the nut pockets
+    bottom = (common & below) + (fuse(bottom_features()) & cavity) + tongue + fuse(pb) - shadow
+    top = ((common & above) + (fuse(tf) & cavity)) - shadow - groove
     pc = port_cuts()
-    bottom = bottom - fuse(cut + pc)
-    top = top - fuse(cut + pc + tcut)
+    bottom = bottom - fuse(cut + pc + sb)
+    top = top - fuse(cut + pc + tcut + st + pt)
     log("halves", t0)
     return {"bottom": bottom, "top": top} | extra_parts()
 
@@ -233,7 +269,21 @@ EXCLUDE = {("bottom", "cartridge_glass"), ("top", "cartridge_glass"), ("bottom",
            ("top", "yoke"), ("bottom", "yoke")}   # glass rests on the ring, board sits on its ledges (touching); yoke checked separately
 
 
+def screw_solids() -> list[Solid]:
+    """M2 x 12 DIN 965 (head d3.8 flush at z 0) + nut, for the clearance check."""
+    import math
+    out = []
+    for x, y in SCREWS:
+        s_ = Z(x, y, 0.9, SCREW_L, 2.0) + Solid.make_cone(1.9, 1.0, 0.9, pk.Plane(origin=(x, y, 0.0)))
+        rc = 4.0 / 2 / math.cos(math.radians(30))
+        hexp = [Vector(x + rc * math.cos(math.radians(60 * i)), y + rc * math.sin(math.radians(60 * i)), SEAM) for i in range(6)]
+        out.append(s_ + Solid.extrude(Face(Wire.make_polygon(hexp, close=True)), Vector(0, 0, 1.6)))
+    return out
+
+
 def check(parts: dict[str, Solid]) -> dict:
+    import numpy as np
+    import head as hd
     res = {}
     halves = {k: parts[k] for k in ("bottom", "top")}
     extras = {k: parts[k] for k in ("yoke", "button_plunger", "light_pipe", "pusher")}
@@ -244,6 +294,7 @@ def check(parts: dict[str, Solid]) -> dict:
         P["pusher"] = Pos(dx, 0, 0) * extras["pusher"]
         if state == "full":
             P |= {k: extras[k] for k in ("button_plunger", "light_pipe")}
+            P |= {f"screw{i}": sc for i, sc in enumerate(screw_solids())}
         hits = []
         for hn, hs in halves.items():
             hb = hs.bounding_box()
@@ -256,39 +307,125 @@ def check(parts: dict[str, Solid]) -> dict:
                     hits.append([hn, pn, round(v, 3)])
                 elif v > 0.5:
                     hits.append([hn, pn, round(v, 3), "excluded but large"])
+        if state == "full":                                       # screws must not touch any part inside either
+            for i, sc in enumerate(screw_solids()):
+                for pn, ps in P.items():
+                    if pn.startswith("screw") or not sc.bounding_box().overlaps(ps.bounding_box()):
+                        continue
+                    inter = sc & ps
+                    if inter is not None and inter.volume > 0.01:
+                        hits.append([f"screw{i}", pn, round(inter.volume, 3)])
         res[state] = hits
-    # the head (KOPF10, a real solid): no overlap with either half, and the joint ring keeps >= 0.25 play per side in its groove
-    import head as hd
-    hs_ = hd.place(hd.build())
-    res["head"] = []
-    for hn, hh in halves.items():
-        inter = hh & hs_
-        v = inter.volume if inter is not None else 0.0
-        if v > 0.01:
-            res["head"].append([hn, "head", round(v, 3)])
-    grown = ring_prism(0.9, 2.5, XJ, XJ + 1.5)
-    inter = grown & hs_
+    # closed halves: only the seam faces may touch
+    inter = halves["bottom"] & halves["top"]
     v = inter.volume if inter is not None else 0.0
-    if v > 0.01:
-        res["head"].append(["ring + 0.25 play", "head", round(v, 3)])
+    res["closed_halves"] = [] if v < 0.05 else [["bottom", "top", round(v, 3)]]
+    # adapter on the face: mesh slice test (the adapter dummy takes 15 min to build as a solid; its mesh comes from package.py)
+    res["adapter"] = []
+    for hn, hs in halves.items():
+        export_stl(hs, str(OUT / f"_check_{hn}.stl"), tolerance=0.02, angular_tolerance=0.2)
+        v = mesh_overlap(pk.OUT / "adapter.stl", OUT / f"_check_{hn}.stl", XJ, XF)
+        (OUT / f"_check_{hn}.stl").unlink()
+        if v > 0.05:
+            res["adapter"].append([hn, "adapter", round(v, 3)])
+    # seamless: the body section at the joint is exactly the adapter outline (no facet, no morph left)
+    a = np.array(pk.section_at(XJ)); b = np.array(pk.section_yz(pk.HEAD_L, pk.HEAD_W, 0.0, w=1.0, facet=0.0))
+    dev = float(np.abs(a - b).max())
+    res["seamless_joint"] = [] if dev < 1e-6 else [["section at the joint differs from the adapter outline by", round(dev, 4)]]
+    # lock face features must not be touched by the screw / pin holes (they would open into the bayonet)
+    cutz = hd.cut_placed()
+    sb, st = screw_cuts()
+    pb, pt = pins()
+    res["zone_holes"] = []
+    for nm, sol in [(f"screw{i}", Z(x, y, -1.0, SCREW_L + 0.6, COL_D - 0.4)) for i, (x, y) in enumerate(SCREWS)] + \
+                   [(f"pin{i}", Z(x, y, SEAM - 1.0, SEAM + 2.2, 3.3)) for i, (x, y) in enumerate(PINS)]:
+        inter = sol & cutz
+        if inter is not None and inter.volume > 0.01:
+            res["zone_holes"].append([nm, "lock face feature", round(inter.volume, 3)])
     return res
+
+
+def mesh_overlap(pa: Path, pb: Path, x0: float, x1: float, step: float = 0.2, grid: float = 0.1) -> float:
+    """Volume (mm3) inside both STL meshes between x0 and x1: x slices, even-odd test on a (y, z) grid."""
+    import struct
+    import numpy as np
+
+    def load(p: Path) -> np.ndarray:
+        d = p.read_bytes()
+        n = struct.unpack("<I", d[80:84])[0]
+        return np.frombuffer(d[84:84 + n * 50], dtype=np.dtype([("n", "<3f4"), ("v", "<9f4"), ("a", "<u2")]))["v"].reshape(-1, 3, 3).astype(float)
+
+    def segs(T: np.ndarray, x: float) -> np.ndarray:
+        dx = T[:, :, 0] - x
+        m = ~((dx > 0).all(1) | (dx < 0).all(1))
+        out = []
+        for tri, d in zip(T[m], dx[m]):
+            pts = [(tri[i] + (tri[(i + 1) % 3] - tri[i]) * (d[i] / (d[i] - d[(i + 1) % 3])))[1:]
+                   for i in range(3) if (d[i] > 0) != (d[(i + 1) % 3] > 0)]
+            if len(pts) == 2:
+                out.append(pts)
+        return np.array(out)
+
+    def inside(S: np.ndarray, P: np.ndarray) -> np.ndarray:
+        r = np.zeros(len(P), bool)
+        if len(S) == 0:
+            return r
+        y1, z1, y2, z2 = S[:, 0, 0], S[:, 0, 1], S[:, 1, 0], S[:, 1, 1]
+        for k in range(0, len(P), 4000):
+            p = P[k:k + 4000]
+            py, pz = p[:, 0:1], p[:, 1:2]
+            c = (z1 > pz) != (z2 > pz)
+            yi = y1 + (pz - z1) * (y2 - y1) / np.where(z2 - z1 == 0, 1e-12, z2 - z1)
+            r[k:k + 4000] = (np.count_nonzero(c & (py < yi), axis=1) % 2) == 1
+        return r
+
+    A, Bm = load(pa), load(pb)
+    gy, gz = np.meshgrid(np.arange(grid / 2, pk.HEAD_L, grid), np.arange(grid / 2, pk.HEAD_W, grid))
+    G = np.c_[gy.ravel(), gz.ravel()]
+    tot = 0.0
+    for x in np.arange(x0 + step / 2, x1, step):
+        tot += float((inside(segs(A, x), G) & inside(segs(Bm, x), G)).sum()) * grid * grid * step
+    return tot
+
+
+def mf_adapter() -> tuple[Solid, Solid]:
+    import head as hd
+    hd.mf.FACE_Z = hd.mf.MODULE_DEPTH
+    ad, nd = hd.mf.adapter_dummy()
+    return hd.place(ad), hd.place(nd)
 
 
 def overhang_outer() -> dict:
     """Outer skin steeper than 45 deg toward the bed, per side (near y < centre / far), for the bottom half printed bottom-down
-    and the top half printed roof-down (owner 2026-11-27: the two sides printed differently). mm2, the bed layer excluded."""
+    and the top half printed roof-down (owner 2026-11-27: the two sides printed differently). mm2, the bed layer excluded.
+    The facets fade out before the lock face zone (seamless with the adapter): from x 61.26 the adapter corners print as they are."""
     import numpy as np
-    t = pk.rings_to_tris(pk.body_rings())
+    t = pk.rings_to_tris(pk.body_rings(x_end=XJ - 4.0))
     n = np.cross(t[:, 1] - t[:, 0], t[:, 2] - t[:, 0])
     a = np.linalg.norm(n, axis=1) / 2
     nz = n[:, 2] / np.maximum(2 * a, 1e-12)
     c = t.mean(axis=1)
     mid = np.array([pk.extents(x)[0] / 2 for x in c[:, 0]])
+    keep = c[:, 0] < XJ - 4.0 - 0.05
     out = {}
-    for half, sel in (("bottom", (c[:, 2] < SEAM) & (nz < -0.72) & (c[:, 2] > 0.25)),
-                      ("top", (c[:, 2] > SEAM) & (nz > 0.72) & (c[:, 2] < pk.HEAD_W - 0.25))):
+    for half, sel in (("bottom", keep & (c[:, 2] < SEAM) & (nz < -0.72) & (c[:, 2] > 0.25)),
+                      ("top", keep & (c[:, 2] > SEAM) & (nz > 0.72) & (c[:, 2] < pk.HEAD_W - 0.25))):
         out[half] = {"near": round(float(a[sel & (c[:, 1] < mid)].sum()), 2), "far": round(float(a[sel & (c[:, 1] >= mid)].sum()), 2)}
     return out
+
+
+def stretch_z(path: Path, dz: float) -> None:
+    """Stretch a binary STL in z so it prints dz taller (compensates the slicer's Z_ADJUST)."""
+    import struct
+    import numpy as np
+    d = bytearray(path.read_bytes())
+    n = struct.unpack("<I", d[80:84])[0]
+    a = np.frombuffer(bytes(d[84:84 + n * 50]), dtype=np.dtype([("n", "<3f4"), ("v", "<9f4"), ("a", "<u2")])).copy()
+    v = a["v"].reshape(-1, 3, 3)
+    h = float(v[:, :, 2].max() - v[:, :, 2].min())
+    v[:, :, 2] = v[:, :, 2] * (h + dz) / h
+    a["v"] = v.reshape(-1, 9)
+    path.write_bytes(bytes(d[:84]) + a.tobytes())
 
 
 def main() -> None:
@@ -305,9 +442,23 @@ def main() -> None:
         bb = o.bounding_box()
         c = Pos(-(bb.min.X + bb.max.X) / 2, -(bb.min.Y + bb.max.Y) / 2, -bb.min.Z) * o
         export_stl(c, str(OUT / f"v2_{k}.stl"), tolerance=0.01, angular_tolerance=0.1)
+        if k in ("bottom", "top"):
+            stretch_z(OUT / f"v2_{k}.stl", Z_COMP)
         report["parts"][k] = {"volume_cm3": round(s.volume / 1000, 2), "valid": s.is_valid, "solids": len(s.solids()),
                               "print_bbox_mm": [round(bb.max.X - bb.min.X, 2), round(bb.max.Y - bb.min.Y, 2), round(bb.max.Z - bb.min.Z, 2)]}
+    # front test coupon (owner: test the lock face printed in the halves before the full halves): x >= COUPON_X of both halves, side by side
+    cb, ct = parts["bottom"] & B((COUPON_X, 80), (-5, 70), (-5, 30)), parts["top"] & B((COUPON_X, 80), (-5, 70), (-5, 30))
+    ob, ot = orient["bottom"] * cb, orient["top"] * ct
+    bb1, bb2 = ob.bounding_box(), ot.bounding_box()
+    ob = Pos(-(bb1.min.X + bb1.max.X) / 2, -bb1.max.Y - 3.0, -bb1.min.Z) * ob
+    ot = Pos(-(bb2.min.X + bb2.max.X) / 2, -bb2.min.Y + 3.0, -bb2.min.Z) * ot
+    export_stl(ob, str(OUT / "v2_coupon_bottom.stl"), tolerance=0.01, angular_tolerance=0.1)
+    export_stl(ot, str(OUT / "v2_coupon_top.stl"), tolerance=0.01, angular_tolerance=0.1)
+    for k in ("bottom", "top"):
+        stretch_z(OUT / f"v2_coupon_{k}.stl", Z_COMP)
+    report["coupon"] = {"x_from": COUPON_X, "files": ["v2_coupon_bottom.stl", "v2_coupon_top.stl"]}
     report["overhang_outer_mm2"] = ov = overhang_outer()
+    report["z_comp_mm"] = Z_COMP
     report["pass"] = (not any(report["check"].values()) and all(v["solids"] == 1 for v in report["parts"].values())
                       and all(max(v.values()) < 2.0 for v in ov.values()))
     (OUT / "shells_report.json").write_text(json.dumps(report, indent=1))

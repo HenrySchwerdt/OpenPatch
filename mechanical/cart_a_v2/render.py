@@ -27,7 +27,7 @@ TOP_BUTTON, TOP_LED, FAR_WALL_Y, SEAM_Z = 19.0, 19.0, 38.0, 8.74
 COLORS = {
     "shell": ((0.86, 0.85, 0.82, 1), 0.42, 0.0), "base": ((0.055, 0.058, 0.064, 1), 0.5, 0.0),
     "accent": ((0.12, 0.42, 0.45, 1), 0.35, 0.0),
-    "adapter": ((0.80, 0.85, 0.88, 1), 0.25, 0.0), "steel": ((0.75, 0.76, 0.78, 1), 0.22, 1.0),
+    "adapter": ((0.025, 0.025, 0.028, 1), 0.35, 0.0), "steel": ((0.75, 0.76, 0.78, 1), 0.22, 1.0),
     "alu": ((0.80, 0.81, 0.82, 1), 0.3, 1.0), "brass": ((0.80, 0.62, 0.30, 1), 0.28, 1.0),
     "motor": ((0.70, 0.71, 0.73, 1), 0.3, 1.0), "motor_head": ((0.55, 0.56, 0.58, 1), 0.35, 1.0),
     "magnet": ((0.45, 0.46, 0.48, 1), 0.3, 1.0), "pcb": ((0.06, 0.30, 0.16, 1), 0.35, 0.0),
@@ -238,9 +238,10 @@ def import_shells(M: dict) -> dict:
 def import_all(M: dict, xray: bool) -> dict:
     use_shells = (SRC / "print" / "placed_top.stl").exists()
     obs = import_shells(M) if use_shells else {"body": build_body(M)}
-    obs["head"] = imp(SRC / "head.stl", "head")
-    obs["head"].data.materials.append(M["base"])
-    smooth(obs["head"])
+    if not use_shells:                                     # v2.2: the lock face zone is part of the shell halves
+        obs["head"] = imp(SRC / "head.stl", "head")
+        obs["head"].data.materials.append(M["base"])
+        smooth(obs["head"])
     obs["adapter"] = imp(SRC / "adapter.stl", "adapter")
     obs["adapter"].data.materials.append(M["adapter"])
     smooth(obs["adapter"])

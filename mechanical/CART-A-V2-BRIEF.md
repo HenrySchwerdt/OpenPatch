@@ -192,3 +192,28 @@ v2.1 changes:
   stand-in is the routed board, printed upside down on feet).
 - Open: the lock switch margins (0.17 mm before ON with the ball free, 0.20 past ON locked) are below FDM tolerance; bench-tune the
   pin length and verify the reading in both states before relying on it.
+
+## 12. v2.2: lock face in the halves, screwed closed (2026-11-28, owner print of v2.1)
+Owner feedback on v2.1: the head is never seamless and does not sit well (the one thing that stands out), closing with two rear hooks
+feels insecure, no tongue and groove between the halves. Cartridge fit confirmed. Owner decision: integrate the head into the halves;
+it must have exactly the Accu-Chek adapter's shape so the skin runs seamless into the adapter.
+
+Why a separate head can never look seamless in FDM: it prints in another orientation (its top / bottom are layered side walls, the
+halves' top / bottom are smooth bed faces), the slicer's Z_ADJUST -0.15 prints each half 0.15 low (head 0.15 proud top and bottom),
+and the first-layer shrink put a 0.15 notch at its back edge.
+
+v2.2:
+- **Lock face zone in both halves** (`head.py`: make_face.face(), unchanged tested geometry, in pump coordinates, fused onto the body
+  and split at the seam through the bore axis). From the joint to the face the outline is exactly the adapter outline (the print
+  facets fade out over the last 4 mm before it; check `seamless_joint`). The lock ball / pin bore lies just under the seam: a channel
+  open to the seam in the bottom half, closed by the top half (no sagging roof).
+- **5 hidden M2 screws** from the underside (countersunk, flush) into M2 nuts pressed into the top half (hex AF 4.1 at the seam):
+  rear near / rear far (behind yoke and motor), front near (beside the cartridge cone), front far (beside the board tongue), lock face
+  zone (between bore and board). M2 x 12 (M2 x 10 also hold, about 1.3 mm in the nut). The rear hooks are gone.
+- **Tongue and groove** along the cartridge-side wall (x 7 to the lock face zone): rim to 3.0 from the outside within the seam +-2 with
+  45 deg steps, tongue 0.8 x 1.1 on the bottom half, groove 1.1 x 1.3 in the top half, skins >= 0.95. The far side has no room
+  (motor, board edge and USB-C 0.4-0.5 mm from the wall): there the screws and board clamps hold.
+- **2 alignment pins** d2 in the lock face zone (the only solid spots at the seam, mesh scan) so the bore halves line up.
+- **Height**: the print STLs of the halves are stretched by 0.15 in z (compensates Z_ADJUST), so the closed halves come out 19.0.
+- **Front test coupon** (`v2_coupon_bed.stl`, G-code TEST4: x >= 64.0 of both halves = lock face zone, its screw and both pins): print it first, screw it together, check that the
+  adapter sits flush (outline traced from photos) and that the bayonet turns and holds in the new print orientation.

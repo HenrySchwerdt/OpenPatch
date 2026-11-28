@@ -53,8 +53,8 @@ def main() -> None:
             "top_why": "cell above (z 11.1) on a 0.5 foam pad",
             "bottom_mm": round(pz0 - pk.WALL - 0.3, 2),
             "bottom_why": "floor at z 1.2; except over the bottom head boss (x >= 62.86, y 19.46-23.46, top z 5.24): 2.8 mm",
-            "bottom_boss_zone": {"x": [61.86 + pk.XS, 66.0], "y": [19.46, 23.46], "max_mm": round(pz0 - (pk.HEAD_SCREWS[0][1] + 2.0), 2),
-                                 "why": "v2.1: lower head screw at z 4.24 (boss top 6.24)"},
+            "bottom_boss_zone": {"x": [61.86 + pk.XS, 66.0], "y": [19.46, 23.46], "max_mm": round(pz0 - pk.WALL - 0.3, 2),
+                                 "why": "v2.2: no head boss any more (the lock face is part of the halves)"},
         },
         "fixed_parts": {
             "usb_c": {"centre_x": pk.USB_X, "front_face_y": 36.8, "centre_z": pk.USB_Z, "type": "mid-mount 16p (TYPE-C-31-M-14 class), "

@@ -1,7 +1,15 @@
 # Project status & handover
 
 > This file is the **entry point for every new session** (another machine, another Claude subscription, another person).
-> It is updated on every push. Last updated: **2026-11-27 (cart A v2.1: housing after the first fit print, KOPF10, 6-layer board)**.
+> It is updated on every push. Last updated: **2026-11-28 (cart A v2.2: lock face in the halves, 5 hidden screws, tongue + groove)**.
+
+## Cart A v2.2: lock face in the halves, screwed closed (2026-11-28, mechanical)
+Owner print of v2.1: head never seamless / not sitting well, two rear hooks too weak, no tongue and groove; cartridge fits. Owner:
+integrate the head, exactly the Accu-Chek adapter shape at the face. v2.2 (`mechanical/CART-A-V2-BRIEF.md` section 12): the tested
+lock face (make_face.face()) is part of both halves (seam through the bore axis), outline = adapter outline from the joint to the
+face; 5 hidden M2 screws from the underside into pressed-in nuts; tongue and groove along the cartridge side; 2 alignment pins in
+the lock face zone; halves stretched 0.15 in z against the slicer's Z_ADJUST. Print the front test coupon first (adapter flush,
+bayonet in the new print orientation). Shopping list: M2 x 12 countersunk + 5 nuts per pump (`docs/CART-ORDER.md`).
 
 ## Cart A v2.1 housing + head KOPF10 after the first fit print (2026-11-27, mechanical)
 Owner print of ALLES2: shells fit, but the head did not go on, a head screw hole sat behind the joint ring, the two sides printed
