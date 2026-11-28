@@ -47,6 +47,8 @@ PINS = ((69.0, 25.2), (68.6, 31.0))  # d2 alignment pins in the lock face zone (
                                     # solid spots at the seam (mesh scan: x 67.8-69.4, y 21.5-31.5); bore and lock features fill the rest
 TG = {"rim": 3.0, "tongue": (1.15, 1.85) if pk.MJF else (1.1, 1.9), "groove": (0.95, 2.05), "t_h": 1.1, "g_h": 1.3, "x": (7.0, None)}   # cartridge-side wall
 # (MJF: tongue 0.7 for 0.2 play per side; MJF parts mate within about +-0.2)
+CELL_RECESS = pk.CELL_RECESS        # 32 mm cell (owner measured) + its wires: 2 mm into the back of the lock face zone (top half),
+                                    # clear of every lock feature (zone_holes check)
 COUPON_X = 64.0                     # test coupon: lock face zone + 1.3 mm of body (zone screw + both pins inside)
 Z_COMP = 0.0 if pk.MJF else 0.15    # the slicer's Z_ADJUST -0.15 prints every half 0.15 low: the FDM print STLs are stretched by it
 PRESS_D = 2.0 if pk.MJF else 1.95   # stem press holes (MJF holes come out about 0.1 small)
@@ -284,7 +286,7 @@ def build() -> dict[str, Solid]:
     top = ((common & above) + (fuse(tf) & cavity)) - shadow - groove
     pc = port_cuts()
     bottom = drop_dust(bottom - fuse(cut + pc + sb))
-    top = drop_dust(top - fuse(cut + pc + tcut + st + pt))
+    top = drop_dust(top - fuse(cut + pc + tcut + st + pt + [B(*CELL_RECESS)]))
     log("halves", t0)
     return {"bottom": bottom, "top": top} | extra_parts()
 
@@ -365,7 +367,9 @@ def check(parts: dict[str, Solid]) -> dict:
     pb, pt = pins()
     res["zone_holes"] = []
     for nm, sol in [(f"screw{i}", Z(x, y, -1.0, SCREW_L + 0.6, COL_D - 0.4)) for i, (x, y) in enumerate(SCREWS)] + \
-                   [(f"pin{i}", Z(x, y, SEAM - 1.0, SEAM + 2.2, 3.3)) for i, (x, y) in enumerate(PINS)]:
+                   [(f"pin{i}", Z(x, y, SEAM - 1.0, SEAM + 2.2, 3.3)) for i, (x, y) in enumerate(PINS)] + \
+                   [("cell recess", B((CELL_RECESS[0][0], CELL_RECESS[0][1] + 0.6), (CELL_RECESS[1][0] - 0.6, CELL_RECESS[1][1] + 0.6),
+                                      (CELL_RECESS[2][0] - 0.6, CELL_RECESS[2][1] + 0.6)))]:
         inter = sol & cutz
         if inter is not None and inter.volume > 0.01:
             res["zone_holes"].append([nm, "lock face feature", round(inter.volume, 3)])

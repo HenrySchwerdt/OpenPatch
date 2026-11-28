@@ -15,7 +15,9 @@ Black nylon order set (owner: MJF PA12 black, Black Friday): `OP_MJF=1` build in
 DECKEL4 are on the printer card. Board order still blocked by the STM32C011 (JLC stock 0 for F4U6 and F6U6 on 2026-11-28).
 Owner print found 4 unwanted holes (lead notches through the skin): fixed; new release gates (skin openings, STL holes, SolidCraft
 import, SolidCraft views of all sides). BODEN5 / DECKEL5 replace BODEN4 / DECKEL4. Owner budget December 200 EUR: mechanics + nylon
-now, board in January (5 bare + 2 assembled, about 315 EUR, E). Independent schematic review of the board running.
+now, board in January (5 bare + 2 assembled, about 315 EUR, E). Independent schematic review done: no blocker, one HIGH (lock
+switch margin) + 5 MEDIUM fixes for a board revision A1 (`electronics/v010/cart/a/README.md`). Owner's cell measures 32 x 9 x 1.5:
+pocket lengthened 2 mm into the lock face zone, new top half DECKEL6.
 
 ## Cart A v2.1 housing + head KOPF10 after the first fit print (2026-11-27, mechanical)
 Owner print of ALLES2: shells fit, but the head did not go on, a head screw hole sat behind the joint ring, the two sides printed

@@ -51,7 +51,12 @@ STROKE = 23.66
 PART_Y = (17.25, 18.85)    # chamber partition (cartridge chamber | drive + electronics)
 BOARD = {"x": (32.6, 61.8 + XS), "y": (19.35, 36.3), "pcb_z": (8.34, 9.14), "top": 1.45, "bottom": 1.2}   # pcb centre on the seam (USB-C)
 TONGUE = {"x": (58.0 + XS, 62.96 + XS), "y": (34.5, 39.96)}
-CELL = {"x": (32.3 + XS, 63.8 + XS), "y": (24.3, 34.9), "z": (11.1, 14.3)}       # above the board, clear of head boss + button plunger
+# cell above the board; owner measured his cell 2026-11-28: 32 x 9 x 1.5 (listed 30 x 10 x 3.0), 32 long incl. the protection board
+# under the yellow tape at the lead end, so the pocket runs 2 mm into the back of the lock face zone (CELL_RECESS, top half only);
+# 3.2 high for either thickness (a 1.5 cell gets 2 mm foam under it)
+CELL = {"x": (33.3, 65.3), "y": (24.3, 34.9), "z": (11.1, 14.3)}
+CELL_RECESS = ((X_JOINT - 0.5, X_JOINT + 2.0), (24.5, 34.9), (10.9, 14.6))
+CELL_PART = {"x": (33.3, 65.3), "y": (25.1, 34.1), "z": (11.1, 14.1)}           # the real cell (32 x 9 x up to 3.0) centred in the pocket
 PINION_X1 = 32.66          # front face of the 4 mm pinion (motor boss face 28.66 + 4.0)
 BOARD_NOTCH = {"x": (32.6, 33.0), "y": (31.0, 36.31)}   # board absent here: clears the pinion end
 TMAG_X = (33.67, 35.27)    # TMAG5273 body on the routed board (U10 at 34.47 / 33.38), beside the magnet in the pinion front bore
@@ -311,7 +316,8 @@ def parts(state: str = "full") -> dict[str, tuple[Solid, str, bool]]:
     P["sw1"] = (box((BUTTON_XY[0] - 1.75, BUTTON_XY[0] + 1.75), (BUTTON_XY[1] - 1.75, BUTTON_XY[1] + 1.75), (pz1, pz1 + 1.5)), "black", False)
     P["led"] = (box((LED_XY[0] - 0.8, LED_XY[0] + 0.8), (LED_XY[1] - 0.8, LED_XY[1] + 0.8), (pz1, pz1 + 0.6)), "led", False)
     P["sounder"] = (box((55.0, 59.0), (24.0, 28.0), (pz0 - 2.5, pz0)), "black", False)            # FUET-4020 (BZ1 at 57.0 / 26.0)
-    P["cell"] = (box(CELL["x"], CELL["y"], CELL["z"]), "cell", False)
+    P["cell"] = (box(CELL_PART["x"], CELL_PART["y"], CELL_PART["z"]), "cell", False)
+    P["cell_leads"] = (box((CELL["x"][1], CELL["x"][1] + 1.5), (26.0, 31.0), (11.1, 12.6)), "black", False)   # wires leave the front end
     return P
 
 
@@ -337,7 +343,7 @@ def housing_features() -> dict[str, tuple[Solid, str]]:
     return H
 
 
-EXCLUDE = {frozenset(p) for p in [("cartridge_glass", "stopper"), ("cartridge_glass", "water"), ("stopper", "water"), ("stopper", "pusher"),
+EXCLUDE = {frozenset(p) for p in [("cartridge_glass", "stopper"), ("cartridge_glass", "water"), ("stopper", "water"), ("stopper", "pusher"), ("cell", "cell_leads"),
                                    ("pusher", "stem"), ("stem", "yoke"), ("yoke", "screw"), ("screw", "gear"), ("screw", "washer_r"),
                                    ("screw", "washer_f"), ("gear", "washer_r"), ("gear", "washer_f"), ("gear", "pinion"), ("motor", "gearhead"),
                                    ("motor", "motor_rear"), ("gearhead", "shaft"), ("shaft", "pinion"), ("pinion", "magnet"),
@@ -387,7 +393,8 @@ def main() -> None:
     body_vol = mesh_volume(outer)
 
     import head as hd                                                                   # v2.2: the lock face zone of the shells
-    head = hd.zone_placed()                                                             # (x 65.26-71.86), as a real solid
+    head = hd.zone_placed() - box(*CELL_RECESS)                                         # (x 65.26-71.86), as a real solid, with the
+                                                                                        # cell recess the top half has
     adapter = Pos(XS, 0, 0) * import_step(str(V1 / "cart_A_adapter_dummy_placed.step"))
     needle = Pos(XS, 0, 0) * import_step(str(V1 / "cart_A_needle_placed.step"))
     for nm, shp in (("head", head), ("adapter", adapter), ("needle", needle)):

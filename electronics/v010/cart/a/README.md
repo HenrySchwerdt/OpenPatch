@@ -108,3 +108,18 @@ everything after them.
 * **4-layer board**: In1 is not a solid plane under the HJ-840; compare RSSI with the 6-layer board / B on the bench if radio range matters.
 * Courtyard overlaps / 0.18 mm pad gaps: confirm in JLC's DFM check.
 * Firmware: board file `cart_a_v1.rs` (feature `board-cart-a-v1`) from `cart_a_pins.json` not generated (firmware out of scope here).
+
+## Independent schematic review (2026-11-28, before ordering)
+Every IC / connector pinout checked against the manufacturer datasheets, interlock logic, power, BOM: **no blocker**. To fix in a
+board revision A1 before the January order:
+- **HIGH - lock switch margin (SW2 on DOCK_N):** 0.17 mm before ON unlocked / 0.20 mm past ON locked is below part + print tolerance;
+  the switch can read "locked" while unlocked and the XOR then allows forward. Needs >= 0.4 mm before ON unlocked and >= 0.25 past
+  ON locked (other part / position or a longer lock-pin stroke) + a bring-up gate (DOCK_N high with the adapter off).
+- MEDIUM: U33 (TECH PUBLIC XOR) has no Schmitt input but DOCK_N has 1-10 ms RC edges (CLK): drop CLK and debounce in firmware, or
+  a hysteresis part; SW2 contact current 30 uA < Alps minimum 50 uA (RDK 39k / RLK 3.9k); 10k series resistor U1.F3 -> SUP_NRST
+  (nRF push-pull could override the TPL5010 open-drain reset); 4.7 uF at HJ-840 VDDH (H2), check the module's internal VDD
+  capacitance before adding C70; SUP_TXD on P1.02 (low-frequency pin): swap with SUP_OK (P1.08) or keep the UART <= 19200 baud.
+- LOW: pull-down on TPL5010 DONE, TMAG5273 INT pull-up (or tie + MASK_INTB), CHG_STAT pull-up only while USB is present, nRF REG0
+  external load limits / never DCDCEN0, add VBAT and nRF reset test pads, AUP gate bypass caps closer, stale notes in PINMAP-A.md.
+- Still open: J2 plug family (PicoBlade vs JST GH) with the real motor; J3 variant vs the cell lead gauge (owner's leads look 28-30
+  AWG); STM32C011 stock (0 at JLC on 2026-11-28).

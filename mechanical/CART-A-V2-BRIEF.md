@@ -227,3 +227,7 @@ v2.2:
   Rear screws at x 8 (out of the rear dome). Known cosmetic point: the 4 corner countersinks sit on the bottom edge rounding (the
   yoke's travel leaves no flat spot), so small scallops show at the lower edge from the side. G-codes BODEN5 (1 h 36), DECKEL5
   (1 h 53); TEST4 unchanged.
+- **Cell (owner measured 2026-11-28): 32 x 9 x 1.5 mm** (listed 30 x 10 x 3.0; the 2 mm extra is the protection board under the
+  yellow tape at the lead end). The pocket now runs 2 mm into the back of the lock face zone (`package.CELL_RECESS`, top half only,
+  >= 0.6 mm from every lock feature); the lead end faces forward, the leads drop past the board's front edge to J3. A 1.5 mm cell
+  gets 2 mm foam under it. New top half G-code DECKEL6 (1 h 54); BODEN5 unchanged.
