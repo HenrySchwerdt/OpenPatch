@@ -2,7 +2,9 @@
 
 > TEST ONLY - NOT FOR HUMAN USE (see ../../DISCLAIMER.md). Bench only, **water only**: never insulin or any other drug, never on a person.
 
-Files: `../out/cart_a_v2_mjf/print/OpenTube_A_*.stl` (mm, pump coordinates; orientation does not matter for MJF).
+Files: `../out/cart_a_v2_mjf/print/OpenTube_A_bottom.step` / `_top.step` (exact geometry, preferred: the service meshes it) and
+`OpenTube_A_*.stl` (mm, pump coordinates; orientation does not matter for MJF). Every file is gated: STL without holes, STEP imports
+into SolidCraft, the outer skin has only the wanted openings.
 Built with `OP_MJF=1 ../../.venv/bin/python package.py && OP_MJF=1 ../../.venv/bin/python shells.py`; same checks as the FDM
 parts, all pass (`../out/cart_a_v2_mjf/print/mjf_report.json`): no part collisions FULL / EMPTY, closed halves, screws, adapter on the
 face, outline at the face = the adapter outline, no hole in a lock feature.

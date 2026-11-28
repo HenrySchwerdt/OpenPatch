@@ -217,3 +217,13 @@ v2.2:
 - **Height**: the print STLs of the halves are stretched by 0.15 in z (compensates Z_ADJUST), so the closed halves come out 19.0.
 - **Front test coupon** (`v2_coupon_bed.stl`, G-code TEST4: x >= 64.0 of both halves = lock face zone, its screw and both pins): print it first, screw it together, check that the
   adapter sits flush (outline traced from photos) and that the bayonet turns and holds in the new print orientation.
+- **Release checks after the owner's v2.2 findings (2026-11-28):** the owner found 4 rectangular holes at the far-bottom edge of
+  the printed bottom half: the motor lead notches were cut from the whole half and broke through the rounded skin. They now cut
+  only inside the cavity. New gates in `shells.py`: `skin_openings` (exact CAD: the skin layer 0.35 under the surface minus both
+  halves; every leftover piece must be a wanted opening: USB-C, sound slots, screw countersinks, button, light pipe, lock face
+  edge under the adapter), `mesh` (each exported STL: no holes; zero-area slivers at the flat rear end are counted, not holes),
+  `solidcraft` (each STEP must import into SolidCraft, a second, stricter kernel: it found 3 edge contacts in the top half -
+  cell pocket walls / clamp gussets - now overlapping), plus a SolidCraft look at all sides of both halves before any release.
+  Rear screws at x 8 (out of the rear dome). Known cosmetic point: the 4 corner countersinks sit on the bottom edge rounding (the
+  yoke's travel leaves no flat spot), so small scallops show at the lower edge from the side. G-codes BODEN5 (1 h 36), DECKEL5
+  (1 h 53); TEST4 unchanged.

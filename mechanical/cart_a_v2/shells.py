@@ -40,7 +40,8 @@ XF = pk.X_FACE
 # v2.2 closing: M2 countersunk from the underside (head flush) through a column of the bottom half into an M2 nut pressed into the
 # top half's column at the seam. (x, y): rear near / rear far (behind the yoke and the motor), front near (beside the cartridge
 # cone), front far (beside the board tongue), lock face zone (between bore and board)
-SCREWS = ((6.0, 3.8), (6.0, 34.0), (62.6, 3.8), (63.0, 42.8), (66.4, 22.0))
+SCREWS = ((8.0, 3.8), (8.0, 34.0), (62.6, 3.8), (63.0, 42.8), (66.4, 22.0))   # rear pair at x 8, out of the lofted rear dome (x 6 cut its
+                                    # doubly curved corner faces and the STL mesher left 9863 open edges there)
 COL_D, HOLE_D, CSK_D, NUT_AF, NUT_H, SCREW_L = 4.4, (2.4 if pk.MJF else 2.3), 4.1, (4.15 if pk.MJF else 4.1), 1.8, 12.0
 PINS = ((69.0, 25.2), (68.6, 31.0))  # d2 alignment pins in the lock face zone (bottom half), d2.3 holes in the top half; the only
                                     # solid spots at the seam (mesh scan: x 67.8-69.4, y 21.5-31.5); bore and lock features fill the rest
@@ -52,6 +53,8 @@ PRESS_D = 2.0 if pk.MJF else 1.95   # stem press holes (MJF holes come out about
 PIN_HOLE_D = 2.45 if pk.MJF else 2.3
 T = 1.6                             # rib / wall thickness of inner structure
 WIRE_Y, WIRE_Z = (34.0, 37.5), (1.0, 5.2)   # motor leads run along the floor to the connector under the board (no soldering)
+LEADS: list[Solid] = []             # lead notches through the inner ribs: cut ONLY inside the cavity (owner print 2026-11-28: as plain
+                                    # cuts they went through the skin at the far-bottom rounding = 4 rectangular holes)
 
 
 def log(msg: str, t0: list[float]) -> None:
@@ -111,21 +114,24 @@ def common_features() -> tuple[list[Solid], list[Solid]]:
     # rear bulkhead = cartridge stop ring + chamber rear wall + screw thrust rib (washer_r bears on it) + motor front seat
     add.append(B((27.56, 28.56), BIG, UP))
     cut += [C(27.4, 28.7, pk.YC, pk.ZC, 8.9), C(27.4, 28.7, pk.YS, pk.ZC, 2.4), C(27.4, 27.96, pk.YM, pk.ZC, 6.2),
-            C(27.4, 28.7, pk.YM, pk.ZC, 3.8), B((27.4, 28.7), WIRE_Y, WIRE_Z)]                       # front boss d3.5; motor lead notch
+            C(27.4, 28.7, pk.YM, pk.ZC, 3.8)]                                                       # front boss d3.5
+    LEADS.append(B((27.4, 28.7), WIRE_Y, WIRE_Z))                                                   # motor lead notch
     add.append(B((28.56, XJ), pk.PART_Y, UP))                                                       # chamber partition
-    add.append(B((30.96, 31.96), (PY1 - 0.01, 60.0), UP))                                            # rib_f: screw front, magnet window
-    cut += [C(30.8, 32.1, pk.YS, pk.ZC, 2.4), C(30.8, 32.1, pk.YM, pk.ZC, 4.8), B((30.8, 32.1), WIRE_Y, WIRE_Z)]   # 4 mm pinion passes
+    add.append(B((30.96, 31.96), (PY1 - 0.3, 60.0), UP))                                            # rib_f: screw front, magnet window
+    cut += [C(30.8, 32.1, pk.YS, pk.ZC, 2.4), C(30.8, 32.1, pk.YM, pk.ZC, 4.8)]                    # 4 mm pinion passes
+    LEADS.append(B((30.8, 32.1), WIRE_Y, WIRE_Z))
     for x0 in SADDLES_CART:                                                                         # cartridge half-saddles
-        add.append(B((x0, x0 + T), (-1.0, PY0 + 0.01), UP))
+        add.append(B((x0, x0 + T), (-1.0, PY0 + 0.3), UP))
         cut.append(C(x0 - 0.1, x0 + T + 0.1, pk.YC, pk.ZC, 11.55))
     for x0 in SADDLES_MOTOR:                                                                        # motor / gearhead half-saddles
         add.append(B((x0, x0 + T), (29.3, 60.0), UP))
-        cut += [C(x0 - 0.1, x0 + T + 0.1, pk.YM, pk.ZC, 6.2), B((x0 - 0.1, x0 + T + 0.1), WIRE_Y, WIRE_Z)]   # + lead notch
+        cut.append(C(x0 - 0.1, x0 + T + 0.1, pk.YM, pk.ZC, 6.2))
+        LEADS.append(B((x0 - 0.1, x0 + T + 0.1), WIRE_Y, WIRE_Z))                                    # lead notch
     # motor rear stop: bar from the far wall behind the rear boss, 45 deg gussets above and below (prints in both halves without support)
     yb, zb = pk.YM - 1.5, pk.ZC
     prof = [Vector(9.86, yb, zb - 1.5), Vector(9.86, yb, zb + 1.5), Vector(9.86, 42.0, zb + 1.5 + 42.0 - yb), Vector(9.86, 42.0, zb - 1.5 - (42.0 - yb))]
     add.append(Solid.extrude(Face(Wire.make_polygon(prof, close=True)), Vector(1.2, 0, 0)))
-    add.append(B((32.6, pk.BOARD["x"][1]), (PY1 - 0.01, 19.3), (pz0, pz1 + 0.46)))                  # board edge stop at the partition
+    add.append(B((32.6, pk.BOARD["x"][1]), (PY1 - 0.3, 19.3), (pz0, pz1 + 0.46)))                  # board edge stop at the partition
     for x, y in SCREWS:                                                                             # closing screw columns
         add.append(Z(x, y, -1.0, 25.0, COL_D))
     cut.append(C(0.45, 1.3, pk.YS, pk.ZC, 2.3))                                                    # screw rear pocket in the rear wall
@@ -134,23 +140,27 @@ def common_features() -> tuple[list[Solid], list[Solid]]:
 
 def bottom_features() -> list[Solid]:
     f = []
-    f.append(B((31.9, pk.BOARD["x"][1] + 0.2), (PY1 - 0.01, 20.35), (-1.0, pz0)))                  # board ledge along the partition
+    f.append(B((31.5, pk.BOARD["x"][1] + 0.2), (PY1 - 0.3, 20.35), (-1.0, pz0)))                  # board ledge along the partition (0.5 into rib_f, no sliver)
     for xr in FAR_LEDGES:                                                                           # board ledge at the far side (not at USB, not at the pinion)
         f.append(B(xr, (35.3, 36.9), (-1.0, pz0)))
-    f.append(B((31.97, 32.5), (PY1 - 0.01, 21.0), (pz0, pz1 + 0.46)))                               # board rear stop (clear of rib_f top half)
-    f.append(B((pk.BOARD["x"][1] + 0.1, pk.BOARD["x"][1] + 1.2), (PY1 - 0.01, 22.0), (-1.0, pz1 + 0.46)))   # board front stop, from the floor
+    f.append(B((31.5, 32.5), (PY1 - 0.3, 21.0), (pz0, SEAM)))                                       # board rear stop: below the seam it
+    f.append(B((32.0, 32.5), (PY1, 21.0), (SEAM - 0.3, pz1 + 0.46)))                               # merges into rib_f, above it stays clear of the top half's rib_f / partition
+    f.append(B((pk.BOARD["x"][1] + 0.1, pk.BOARD["x"][1] + 1.2), (PY1 - 0.3, 22.0), (-1.0, SEAM)))   # board front stop, from the floor;
+    f.append(B((pk.BOARD["x"][1] + 0.1, pk.BOARD["x"][1] + 1.2), (PY1, 22.0), (SEAM - 0.3, pz1 + 0.46)))   # above the seam clear of the top partition
     return f
 
 
 def top_features() -> tuple[list[Solid], list[Solid]]:
     f, cut = [], []
-    f += [B((32.6, 62.0), (PY1 - 0.01, 20.1), (pz1, 10.6)), wedge_x((32.6, 62.0), PY1 - 0.01, 20.1, 10.6)]   # board clamp, partition side + gusset
+    f += [B((32.6, 62.0), (PY1 - 0.3, 20.1), (pz1, 10.6)), wedge_x((32.6, 62.0), PY1 - 0.3, 20.1, 10.6)]   # board clamp, partition side + gusset
     for xr in FAR_CLAMPS:
         f += [B(xr, (35.3, 36.9), (pz1, 10.6)), wedge_x(xr, 36.9, 35.3, 10.6)]                    # board clamp, far side + gusset
     cx, cy = pk.CELL["x"], pk.CELL["y"]
     f.append(B((31.96, cx[0] - 0.2), (cy[0] - 0.2, 36.9), (12.0, 25.0)))                            # cell pocket: rear wall
-    f.append(B((cx[0] - 0.2, cx[1] - 0.2), (cy[1] + 0.2, cy[1] + 0.2 + T), (12.0, 25.0)))           # far wall
-    for xr in ((cx[0] - 0.2, 37.4), (49.8, 61.6)):                                                  # near wall, open at LED / button
+    f.append(B((cx[0] - 0.2, cx[1] - 0.2), (cy[1] + 0.2, cy[1] + 0.2 + T), (11.5, 25.0)))           # far wall (down to 11.5: overlaps the
+                                                                                                    # clamp gussets instead of touching them along an edge)
+    for xr in ((31.96, 37.4), (49.8, 61.6)):                                                        # near wall, open at LED / button (from the rear
+                                                                                                    # wall's back face: overlap, not an edge contact)
         f.append(B(xr, (cy[0] - 0.2 - T, cy[0] - 0.2), (12.0, 25.0)))
     for x0 in (41.0, 55.0):                                                                         # ribs pressing the cell onto its foam
         f.append(B((x0, x0 + T), (cy[0] - 0.2, cy[1] + 0.2), (pk.CELL["z"][1] + 0.1, 25.0)))
@@ -214,8 +224,8 @@ def tongue_groove(cavity: Solid) -> tuple[Solid, Solid, Solid]:
             rim = rim + (band & B((x0 - 0.5, x1), (-1.0, 9.0), (z0, z1)))
     t0_, t1_ = TG["tongue"]
     g0_, g1_ = TG["groove"]
-    tongue = (loft(t0_, x1) - loft(t1_, x1)) & near & B((x0, x1 - 0.3), (-1.0, 9.0), (SEAM - 0.01, SEAM + TG["t_h"]))
-    groove = (loft(g0_, x1 + 0.2) - loft(g1_, x1 + 0.2)) & B((x0 - 0.2, x1 - 0.1), (-1.0, 9.0), (SEAM - 0.01, SEAM + TG["g_h"]))
+    tongue = (loft(t0_, x1) - loft(t1_, x1)) & near & B((x0, x1 - 0.3), (-1.0, 9.0), (SEAM - 0.3, SEAM + TG["t_h"]))
+    groove = (loft(g0_, x1 + 0.2) - loft(g1_, x1 + 0.2)) & B((x0 - 0.2, x1 - 0.1), (-1.0, 9.0), (SEAM - 0.3, SEAM + TG["g_h"]))
     return rim, tongue, groove
 
 
@@ -237,6 +247,15 @@ def pins() -> tuple[list[Solid], list[Solid]]:
     return ([Z(x, y, SEAM - 0.5, SEAM + 1.4, 2.0) for x, y in PINS], [Z(x, y, SEAM - 0.1, SEAM + 1.7, PIN_HOLE_D) for x, y in PINS])
 
 
+def drop_dust(s: Solid) -> Solid:
+    """Booleans can leave zero-volume slivers as extra 'solids' (MJF bottom 2026-11-28: one at the tongue start); keep the part."""
+    from build123d import Compound
+    big = [x for x in s.solids() if x.volume > 0.01]
+    if len(big) == 1 and len(s.solids()) > 1:
+        return big[0]
+    return s if len(big) != 1 else (big[0] if not isinstance(s, Compound) else big[0])
+
+
 def build() -> dict[str, Solid]:
     import head as hd
     t0 = [time.time()]
@@ -245,8 +264,10 @@ def build() -> dict[str, Solid]:
     log("lofts", t0)
     zone = hd.zone_placed()                                               # lock face zone x 65.26-71.86, exact adapter outline
     shell = (outer - cavity).fuse(zone).clean()
+    LEADS.clear()
     add, cut = common_features()
     common = shell + (fuse(add) & cavity)
+    cut = cut + [ld & loft(pk.WALL + 0.05, XJ) for ld in LEADS]                 # notches stop 0.05 inside the wall
     rim, tongue, groove = tongue_groove(cavity)
     common = common + rim
     log("shell + lock face zone + common structure + rim", t0)
@@ -262,8 +283,8 @@ def build() -> dict[str, Solid]:
     bottom = (common & below) + (fuse(bottom_features()) & cavity) + tongue + fuse(pb) - shadow
     top = ((common & above) + (fuse(tf) & cavity)) - shadow - groove
     pc = port_cuts()
-    bottom = bottom - fuse(cut + pc + sb)
-    top = top - fuse(cut + pc + tcut + st + pt)
+    bottom = drop_dust(bottom - fuse(cut + pc + sb))
+    top = drop_dust(top - fuse(cut + pc + tcut + st + pt))
     log("halves", t0)
     return {"bottom": bottom, "top": top} | extra_parts()
 
@@ -335,6 +356,9 @@ def check(parts: dict[str, Solid]) -> dict:
     a = np.array(pk.section_at(XJ)); b = np.array(pk.section_yz(pk.HEAD_L, pk.HEAD_W, 0.0, w=1.0, facet=0.0))
     dev = float(np.abs(a - b).max())
     res["seamless_joint"] = [] if dev < 1e-6 else [["section at the joint differs from the adapter outline by", round(dev, 4)]]
+    # every opening in the outer skin must be one we want (owner print 2026-11-28 found 4 unwanted holes): exact CAD test, the skin
+    # layer 0.35 under the surface minus both halves; each leftover piece must sit inside a known opening
+    res["skin_openings"] = skin_openings(halves)
     # lock face features must not be touched by the screw / pin holes (they would open into the bayonet)
     cutz = hd.cut_placed()
     sb, st = screw_cuts()
@@ -391,6 +415,46 @@ def mesh_overlap(pa: Path, pb: Path, x0: float, x1: float, step: float = 0.2, gr
     return tot
 
 
+def skin_openings(halves: dict[str, Solid], depth: float = 0.35) -> list:
+    """Pieces of the outer skin layer (depth under the surface, sides, top, bottom, rear; not the lock face itself) that neither half
+    fills and that are not a wanted opening. Returns [] when the skin only has the wanted openings."""
+    import head as hd
+    env = loft(0.0, XJ).fuse(hd.place(hd.prism()))
+    inner = loft(depth, XJ).fuse(hd.place(hd.prism_inset(depth)))
+    missing = (env - inner) - halves["bottom"] - halves["top"] - B((-5, XF + 5), (-5, 70), (SEAM - SHADOW[1] / 2 - 0.05, SEAM + SHADOW[1] / 2 + 0.05))
+    r = HOLE_D / 2 + (CSK_D - HOLE_D) / 2 + 0.6
+    wanted = [("USB-C", (pk.USB_X - 6.0, pk.USB_X + 6.0), (35.0, 40.0), (pk.USB_Z - 3.5, pk.USB_Z + 3.5)),
+              ("sound slots", (54.0, 62.0), (23.5, 28.5), (-0.5, 1.5)),
+              ("button", (pk.BUTTON_XY[0] - 3.5, pk.BUTTON_XY[0] + 3.5), (pk.BUTTON_XY[1] - 3.5, pk.BUTTON_XY[1] + 3.5), (17.0, 19.5)),
+              ("light pipe", (pk.LED_XY[0] - 1.8, pk.LED_XY[0] + 1.8), (pk.LED_XY[1] - 1.8, pk.LED_XY[1] + 1.8), (17.0, 19.5)),
+              ("lock face edge (lowered areas + rounded far edge of the tested face, under the adapter)", (XF - 2.5, XF + 0.1), (-1.0, 50.0), (-0.5, 19.5)),
+              ]
+    wanted += [(f"screw {i} countersink", (x - r, x + r), (y - r, y + r), (-0.5, 2.0)) for i, (x, y) in enumerate(SCREWS)]
+    out = []
+    for piece in (missing.solids() if missing is not None else []):
+        if piece.volume < 0.002:
+            continue
+        b = piece.bounding_box()
+        if any(xr[0] <= b.min.X and b.max.X <= xr[1] and yr[0] <= b.min.Y and b.max.Y <= yr[1] and zr[0] <= b.min.Z and b.max.Z <= zr[1]
+               for _n, xr, yr, zr in wanted):
+            continue
+        out.append({"x": [round(b.min.X, 2), round(b.max.X, 2)], "y": [round(b.min.Y, 2), round(b.max.Y, 2)],
+                    "z": [round(b.min.Z, 2), round(b.max.Z, 2)], "volume_mm3": round(piece.volume, 3)})
+    return out
+
+
+def solidcraft_import(step: Path) -> str:
+    """Second, stricter kernel (SolidCraft / SMLib, owner's CAD app): '' if it imports the STEP as a body, else its error. It found
+    edge contacts inside the top half that OpenCascade accepted (2026-11-28)."""
+    import subprocess
+    sc = Path("/Applications/SolidCraft.app/Contents/MacOS/solidcraft-cli")
+    if not sc.exists():
+        return ""
+    r = subprocess.run([str(sc), "eval", "--in", str(step)], capture_output=True, text=True, timeout=600)
+    out = (r.stdout + r.stderr).strip()
+    return "" if r.returncode == 0 and "no bodies" not in out and "error" not in out.lower()[:200] else out[-400:]
+
+
 def mf_adapter() -> tuple[Solid, Solid]:
     import head as hd
     hd.mf.FACE_Z = hd.mf.MODULE_DEPTH
@@ -417,6 +481,52 @@ def overhang_outer() -> dict:
     return out
 
 
+def open_edges(path: Path) -> int:
+    """Edges of a binary STL that are not shared by exactly two triangles (0 = watertight)."""
+    import collections
+    import struct
+    import numpy as np
+    d = path.read_bytes()
+    n = struct.unpack("<I", d[80:84])[0]
+    v = np.frombuffer(d[84:84 + n * 50], dtype=np.dtype([("n", "<3f4"), ("v", "<9f4"), ("a", "<u2")]))["v"].reshape(-1, 3)
+    _, ids = np.unique(np.round(v.astype(float), 4), axis=0, return_inverse=True)
+    ids = ids.reshape(-1, 3)
+    e = np.sort(np.concatenate([ids[:, [0, 1]], ids[:, [1, 2]], ids[:, [2, 0]]]), axis=1)
+    _, cnt = np.unique(e, axis=0, return_counts=True)
+    return int((cnt != 2).sum())
+
+
+def mesh_edges(path: Path) -> dict:
+    """Edge use counts of a binary STL after welding: holes = edges used once or three times (open), over = edges used 4+ times
+    (zero-area slivers stacked on a line: closed but untidy; slicers and print services drop them)."""
+    import struct
+    import numpy as np
+    d = path.read_bytes()
+    n = struct.unpack("<I", d[80:84])[0]
+    v = np.frombuffer(d[84:84 + n * 50], dtype=np.dtype([("n", "<3f4"), ("v", "<9f4"), ("a", "<u2")]))["v"].reshape(-1, 3)
+    _, ids = np.unique(np.round(v.astype(float), 4), axis=0, return_inverse=True)
+    ids = ids.reshape(-1, 3)
+    e = np.sort(np.concatenate([ids[:, [0, 1]], ids[:, [1, 2]], ids[:, [2, 0]]]), axis=1)
+    _, cnt = np.unique(e, axis=0, return_counts=True)
+    return {"holes": int((cnt % 2 == 1).sum()), "over": int((cnt > 2).sum() - (cnt[cnt > 2] % 2 == 1).sum())}
+
+
+def export_closed(s: Solid, path: Path, tol: float = 0.01, ang: float = 0.1) -> dict:
+    """STL export that must be watertight: retries with other tessellation settings (owner 2026-11-28: the first v2.2 bottom
+    STL had 827 open edges, some faces had not been meshed). Returns the settings used and the open-edge count."""
+    best = None
+    for t, a in ((tol, ang), (tol * 2, ang * 2), (tol / 2, ang / 2), (0.02, 0.25), (0.05, 0.3)):
+        export_stl(s, str(path), tolerance=t, angular_tolerance=a)
+        oe = mesh_edges(path)["holes"]
+        if best is None or oe < best[0]:
+            best = (oe, t, a)
+        if oe == 0:
+            break
+    if best[0] != 0 or (best[1], best[2]) != (t, a):
+        export_stl(s, str(path), tolerance=best[1], angular_tolerance=best[2])
+    return {"open_edges": best[0], "tolerance": best[1], "angular": best[2], "sliver_edges": mesh_edges(path)["over"]}
+
+
 def stretch_z(path: Path, dz: float) -> None:
     """Stretch a binary STL in z so it prints dz taller (compensates the slicer's Z_ADJUST)."""
     import struct
@@ -434,8 +544,14 @@ def stretch_z(path: Path, dz: float) -> None:
 def main() -> None:
     OUT.mkdir(parents=True, exist_ok=True)
     parts = build()
+    from build123d import export_step
+    mesh = {}
     for k, s in parts.items():
-        export_stl(s, str(OUT / f"placed_{k}.stl"), tolerance=0.01, angular_tolerance=0.1)
+        mesh[f"placed_{k}"] = export_closed(s, OUT / f"placed_{k}.stl")
+        if k in ("bottom", "top"):
+            stp = OUT / f"{'OpenTube_A' if pk.MJF else 'v2'}_{k}.step"
+            export_step(s, str(stp))
+            mesh[f"{stp.stem}_solidcraft"] = {"open_edges": 0 if not (err := solidcraft_import(stp)) else 1, "error": err}
     # halves: rear end toward the bed's back (+Y) so the slicer's "back" seam sits on the rear rounding, not on a side
     orient = {"bottom": Rot(0, 0, -90), "top": Rot(0, 0, -90) * Rot(180, 0, 0), "yoke": Rot(0, 90, 0), "button_plunger": Rot(180, 0, 0),
               "light_pipe": Rot(0, 0, 0), "pusher": Rot(0, 90, 0)}   # disc on the bed
@@ -445,11 +561,13 @@ def main() -> None:
         for k, s in parts.items():
             if k == "light_pipe":
                 continue                                                  # must be clear: acrylic rod / clear filament, not nylon
-            export_stl(s, str(OUT / f"OpenTube_A_{k}.stl"), tolerance=0.005, angular_tolerance=0.05)
+            mesh[f"OpenTube_A_{k}"] = export_closed(s, OUT / f"OpenTube_A_{k}.stl", 0.005, 0.05)
             bb = s.bounding_box()
             report["parts"][k] = {"volume_cm3": round(s.volume / 1000, 2), "valid": s.is_valid, "solids": len(s.solids()),
                                   "bbox_mm": [round(bb.max.X - bb.min.X, 2), round(bb.max.Y - bb.min.Y, 2), round(bb.max.Z - bb.min.Z, 2)]}
-        report["pass"] = not any(report["check"].values()) and all(v["solids"] == 1 for v in report["parts"].values())
+        report["mesh"] = mesh
+        report["pass"] = (not any(report["check"].values()) and all(v["solids"] == 1 for v in report["parts"].values())
+                          and all(m["open_edges"] == 0 for m in mesh.values()))
         (OUT / "mjf_report.json").write_text(json.dumps(report, indent=1))
         print(json.dumps(report, indent=1))
         return
@@ -457,7 +575,7 @@ def main() -> None:
         o = orient[k] * s
         bb = o.bounding_box()
         c = Pos(-(bb.min.X + bb.max.X) / 2, -(bb.min.Y + bb.max.Y) / 2, -bb.min.Z) * o
-        export_stl(c, str(OUT / f"v2_{k}.stl"), tolerance=0.01, angular_tolerance=0.1)
+        mesh[f"v2_{k}"] = export_closed(c, OUT / f"v2_{k}.stl")
         if k in ("bottom", "top"):
             stretch_z(OUT / f"v2_{k}.stl", Z_COMP)
         report["parts"][k] = {"volume_cm3": round(s.volume / 1000, 2), "valid": s.is_valid, "solids": len(s.solids()),
@@ -468,15 +586,16 @@ def main() -> None:
     bb1, bb2 = ob.bounding_box(), ot.bounding_box()
     ob = Pos(-(bb1.min.X + bb1.max.X) / 2, -bb1.max.Y - 3.0, -bb1.min.Z) * ob
     ot = Pos(-(bb2.min.X + bb2.max.X) / 2, -bb2.min.Y + 3.0, -bb2.min.Z) * ot
-    export_stl(ob, str(OUT / "v2_coupon_bottom.stl"), tolerance=0.01, angular_tolerance=0.1)
-    export_stl(ot, str(OUT / "v2_coupon_top.stl"), tolerance=0.01, angular_tolerance=0.1)
+    mesh["v2_coupon_bottom"] = export_closed(ob, OUT / "v2_coupon_bottom.stl")
+    mesh["v2_coupon_top"] = export_closed(ot, OUT / "v2_coupon_top.stl")
     for k in ("bottom", "top"):
         stretch_z(OUT / f"v2_coupon_{k}.stl", Z_COMP)
     report["coupon"] = {"x_from": COUPON_X, "files": ["v2_coupon_bottom.stl", "v2_coupon_top.stl"]}
     report["overhang_outer_mm2"] = ov = overhang_outer()
     report["z_comp_mm"] = Z_COMP
+    report["mesh"] = mesh
     report["pass"] = (not any(report["check"].values()) and all(v["solids"] == 1 for v in report["parts"].values())
-                      and all(max(v.values()) < 2.0 for v in ov.values()))
+                      and all(max(v.values()) < 2.0 for v in ov.values()) and all(m["open_edges"] == 0 for m in mesh.values()))
     (OUT / "shells_report.json").write_text(json.dumps(report, indent=1))
     print(json.dumps(report, indent=1))
 

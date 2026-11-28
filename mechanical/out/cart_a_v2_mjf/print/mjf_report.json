@@ -1,7 +1,7 @@
 {
  "parts": {
   "bottom": {
-   "volume_cm3": 8.06,
+   "volume_cm3": 8.08,
    "valid": true,
    "solids": 1,
    "bbox_mm": [
@@ -11,7 +11,7 @@
    ]
   },
   "top": {
-   "volume_cm3": 9.8,
+   "volume_cm3": 9.83,
    "valid": true,
    "solids": 1,
    "bbox_mm": [
@@ -57,8 +57,85 @@
   "closed_halves": [],
   "adapter": [],
   "seamless_joint": [],
+  "skin_openings": [],
   "zone_holes": []
  },
  "mode": "MJF PA12 black (no FDM facets, MJF clearances, no z stretch)",
+ "mesh": {
+  "placed_bottom": {
+   "open_edges": 0,
+   "tolerance": 0.01,
+   "angular": 0.1,
+   "sliver_edges": 3825
+  },
+  "OpenTube_A_bottom_solidcraft": {
+   "open_edges": 0,
+   "error": ""
+  },
+  "placed_top": {
+   "open_edges": 0,
+   "tolerance": 0.01,
+   "angular": 0.1,
+   "sliver_edges": 722
+  },
+  "OpenTube_A_top_solidcraft": {
+   "open_edges": 0,
+   "error": ""
+  },
+  "placed_yoke": {
+   "open_edges": 0,
+   "tolerance": 0.01,
+   "angular": 0.1,
+   "sliver_edges": 0
+  },
+  "placed_button_plunger": {
+   "open_edges": 0,
+   "tolerance": 0.01,
+   "angular": 0.1,
+   "sliver_edges": 0
+  },
+  "placed_light_pipe": {
+   "open_edges": 0,
+   "tolerance": 0.01,
+   "angular": 0.1,
+   "sliver_edges": 0
+  },
+  "placed_pusher": {
+   "open_edges": 0,
+   "tolerance": 0.01,
+   "angular": 0.1,
+   "sliver_edges": 0
+  },
+  "OpenTube_A_bottom": {
+   "open_edges": 0,
+   "tolerance": 0.005,
+   "angular": 0.05,
+   "sliver_edges": 34350
+  },
+  "OpenTube_A_top": {
+   "open_edges": 0,
+   "tolerance": 0.005,
+   "angular": 0.05,
+   "sliver_edges": 4576
+  },
+  "OpenTube_A_yoke": {
+   "open_edges": 0,
+   "tolerance": 0.005,
+   "angular": 0.05,
+   "sliver_edges": 0
+  },
+  "OpenTube_A_button_plunger": {
+   "open_edges": 0,
+   "tolerance": 0.005,
+   "angular": 0.05,
+   "sliver_edges": 0
+  },
+  "OpenTube_A_pusher": {
+   "open_edges": 0,
+   "tolerance": 0.005,
+   "angular": 0.05,
+   "sliver_edges": 0
+  }
+ },
  "pass": true
 }
